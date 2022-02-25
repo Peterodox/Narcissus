@@ -1,0 +1,21 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/
+..\FrameXML\UI.xsd">
+    <Script file="Search.lua"/>
+    <Script file="UniqueCreatureID.lua"/>
+
+    <Script file="Names_enUS.lua"/>
+    <Script file="Names_zhCN.lua"/>
+    <Script file="Names_zhTW.lua"/>
+    <Script file="Names_ruRU.lua"/>
+    <Script file="Names_deDE.lua"/>
+    <Script file="Names_frFR.lua"/>
+    <Script file="Names_esES.lua"/>
+    <Script file="Names_esMX.lua"/>
+    <Script file="Names_ptBR.lua"/>
+    <Script file="Names_koKR.lua"/>
+    <Script file="Names_itIT.lua"/>
+
+    <!--Dev Tool-->
+    <!--Script file="CreatureIDxModelFileID.lua"/>
+    <Script file="DevTool.lua"/-->
+</Ui>

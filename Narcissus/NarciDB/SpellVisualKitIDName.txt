@@ -1,0 +1,987 @@
+120270  8.2.5
+105518  8.0.1
+94942   7.3.5
+29480   5.0.3
+24315
+22955   4.3.4
+18500   4.0.1
+15542   3.3.5
+
+
+Spell Visual Kit ID
+/run NarciNPCModelFrame3:ApplySpellVisualKit(87215, false)
+/run NarciPlayerModelFrame1:ApplySpellVisualKit(66899, true)
+/run NarciPlayerModelFrame1:SetAnimation(1262,3)
+
+----------------------------------------------
+Game Crash IDs:
+23254 ~ 23256 ~ 23263 
+
+
+
+
+
+----------------------------------------------
+Attachment ID:
+12 Back
+35 Hand Arrow
+17 Breath Mouth
+
+
+365680 Light bulb
+108563 Coin Rain Small
+----------------------------------------------
+149490
+149856 Arcane Rune Ring
+149584 Maw Empowered Area
+149574 Sylvanas Channel
+
+
+140008
+136777 Bastion Crates 136784
+--136333 Mushroom right hand red glow
+136231 Big Bone
+
+136132 Water breath
+--136086 Blue fire breath
+--135748 Rope gadget
+--135685 Grey Transparent 135686
+135387 Poster and nail
+--135370 Green bubbles ground
+--135358 Torch Blue
+135285 Pit Ground
+--135282 Negative Blue 135283
+--135232 Magnify gadget?
+135188 Flute Fae 136263 Left hand
+135179 Huge Swords
+--135162 Hit Teeth
+135045 Sword with body effect
+134868 Acid Pool
+--134799 Brew helmet
+134798 Mug New
+134788 Floating Books
+134772 Fae Weapon back
+--134728 lotus blooming
+134701 Holy Huge
+--134600 Pedant Glow
+
+--134447 Fae Trumpet 134453 Left  134454
+--134434 Umbralla Venthy
+134421 Blackhole chest
+134407 Shadow left hand 134426 right
+--134405 Red light
+134380 Orange Transparent Body
+134361 Two Mooses?
+--134337 Great Healing Leaves
+
+--133970 Chicken Head
+--133810 Body Inky
+133661 Imps Warlock
+133506 Hunter Pets  133508 133510 133513 133516 133570 133571 133572 133579 133580 133584 133585 133608 133610 133612 133614 133625 133627 133632 133804
+133439 Dark violet Transparent body 133713 Cyan
+--133340 Fire precast slow burn
+133226 Otter Head
+133205 Blue Transparent Body effect 133443
+133114 Bomb Fusing
+133029 Barrel Hold 1210
+--132911 Arcane Precast Full body
+--132838 Drain Soul Maw
+--132804 Basket
+132802 Hit Front Chest
+--132715 Kyrian Crate 1208
+
+132679 Arcane Precast
+--132557 Giant Bubble
+132547 Shield Magic
+132521 3 Totems Lightning Shield   132521 Draenei   132522 Dwarf    132523 Pandaren     132530 Tauren   132533 Kultiran     132546 Goblin       132556 Darkiron     132559 Zandalari    132560 Highmountain     132561 Vulpera      132562 Maghar  132918 Orc
+132471 Star shimmer chest
+--132457 Exposion Feathers
+132378 Conjure Shadow
+132369 Bone Shield
+132367 Phenix Guitar
+132358 Flute front 1326
+--132357 Steward Flute
+--132350 Spirit Form
+132336 Green Precast dim
+--132299 Green Slender Vial Left hand
+--132269 Green Vial Right hand
+--132226 Demonic Book gadget 132228 No spell effect
+
+--132202 Cloud Spirit Cone Large
+--132141 Bat Back Tank 134439
+132128 Leaves healing 132244
+132112 Some wine right hand
+132106 Dessert Tower
+--131903 Giant Fae Seed Back
+--131869 Necro Precast left hand drip
+--131810 Precast Blue Dark
+131800 Death Water? Left hand cast
+131787 Army of Death
+--131709 Night Fae Ground effect
+--131676 Harp Night Fae
+--131556 Monster Custume
+--131209 Necro Precast
+--131172 Detailed Floating Tome
+131167 Vivid Green body
+131036 Hat with plumage
+--131017 Fae Night Dark moon?
+130927 gadget
+--130893 Bastion Body swirl
+--130826 Fae Seed Left hand
+--130783 Tornado Body
+130588 Bright Drain? Cylindar
+--130529 Fae Body
+130507 Magnet Mine Right hand
+--130476 Fae Wing
+--130475 Fae Shield
+130473 Shadow Dome Down
+--130373 Reven Blood sphere body
+130303 Hammer dust
+130197 Fae Body Aura
+
+129917 Harp
+--129912 Reven Bat Nail? Pen?
+129859 Necro Vial
+--129842 Drust Precast
+129792 Bucket Back
+--131214 Giant Glass of Wine Reven 131948 Two cups
+129753 
+129686 Saber Weapon
+129637 Purple body contour
+--129631 Broom
+--129627 Fae Cast Huge 129628
+--129626 Night Fae Ground Light
+--129619 Night Fae Body effect 129624
+129602 Necro Precast Blink 129603
+129566 Seeds Raid on the back
+--129564 Maw Precast 129565 Left Hand
+--129559 Night Fae Body errupt
+--129615 Night fae Butterfly?
+--129350 Necro Hammer Nail
+--129340 Reven Precast    129342
+--129337 Reven Precast Medium Red Sphere
+--129325 Bastion Body Spell
+--129277 Spiritual Transparent
+129198 Reven Pen? Nail
+--129149 Bastion Hammer
+--129148 Reven Offhand Lantern
+--129140 Necro Sword?
+129138 Squiral Head
+129121 Lich King Bolvar
+--129019 Night Fae Spell
+128953 Long Axe Back
+--128945 Necro Precast 128991 129132
+128942 Archangle Weapon
+
+128921 Scroll 8se_serpentine_scroll01
+--128779 Light Balls
+128756 Tri Arti
+128741 B
+128681 Spiritual Body
+128659
+--128635 Sha? Necro? 128868
+128591 Mark
+--128604 Bastion Precast 129460
+--128594 Bastion Body Transparent
+--128586 Reven Body shower
+--128579 Red Body Transparent     128639 Outline
+--124082 Blue vertex 124273
+--124026 Revendeth Blood Hearthstone
+--123929 High Rez Torch
+123909 Ore cart
+123898 123933 Giant Plate Revendeth? 128643
+123621 Shield And Stab
+122564 Worm on a Dagger
+111290 Squid Head Merciless One
+
+
+
+121971 Beam Long
+122148 Beam Only Forward 121990 Shower
+122435
+122447 122443 Azerite Beam Golden/Blue Heart 988
+122859 Corruption Body Texture Purple
+123494 Void Conjure
+123622 Azerite Beam 922 Charging
+
+8.3
+41004 Holy Solar left-hand
+41005 Solar Right hand
+121834 Void Radiant Core 
+121861 Void Pink descend Right hand
+121860 Void Pink descend Right hand
+122420 Void Upcurrent Slow
+122321 Void Left hand
+122401 Nighmare Revolving
+122391 Rising Rocks
+
+122913 Body Purple Transparent
+122926 Body Golden Transparent
+122334 Body contour Dark blue 122742 Void
+122333 Body texture Magma
+122275 Body Red Gradient Transparent 122669 Purple blue
+123041 Body death echo
+122710 Body Void Slow Smoke
+123177 Body Polarized
+122156 Azerite Absorb Power
+121932 Void blast hit
+122791 Void Barrier
+122748 Azerite blast
+122755 Just fire and smoke
+122741 Body Green solid
+122672 Lightning 2 strikes
+122570 Grand spell Blood vortex 122569 small
+122522 Food Void-touched fish
+122499 Void then fire two hands
+122498 Water erruption
+122442 Azerite Barrier
+124336 Breaker Magni's Hammer
+123918 Void Vine body
+123443 Mecha Rising
+
+123081 New Cnady cane
+123599 Sands Two hands
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+14482 Stun
+----------------------------------------------
+67157 Artifact quiver no texture
+123174 Giant Axis
+122909 Winter Pepe
+122669 Full body Transparent purple
+122640 Floating book
+122448 Azerite lifting one shot
+122442 Azerite Absorb Shield
+122436 Azerite Shockwave
+122177 Heart of Azeroth beam
+121948 Vulpera Fireplace
+121947 Vulpera Tent
+121735 Purple blast both hand
+121428 Eyes on shot N'Zoth 123107
+
+120581?
+8.3 ↑
+
+ModelID: 3166251 (not a spell visual) Wrathion Backpack
+-------
+118950 Shadowland Pre-order hearthstone 119062
+--117882 Anti-gravity Pack
+118011 MechaEmitter
+118160 Azshara's Font of Power Arcane
+--118304 Bwonsamdi minion full body effect
+118326 Waterfall full body
+118481 Photo bomb long
+--118574 Heart of Azeroth : Dim
+--118636 Transparent Orange Full body effect
+--118638 Net
+--118726 Spirit full body effect
+116944 Grand Channel
+--116664 Ghost Transparent feet full body effect
+--116611 Frost two hands
+116277 Bling Emitter
+116214 Two shells
+--116212 Naga Fork and arrow
+--116197 Snow One shot
+116187 Azerite blast
+--116178 Dense Flame in hands
+--116079 Scroll Auction
+116073 Old God Eyeball
+--115987 Mecha Pepe
+--115629 Cheese
+112600
+
+112556 Azerite under feet
+--112555 Rain Weather
+112535 Wind Medium hans
+112527 Spirit
+--112523 Wowhead gun
+--112389 Weapon dagger on a stick
+112379 Hearthstone mechagon
+112223 Waiter Pandaren style
+--112064 Blueprint Read 520       icon 2915721
+--112020 Full body golden
+111699 Radish plant
+--111698 Rocket backpack
+--111700 Rocket flame + 
+111567 Dove heal
+--111561 Skull flag
+111201 Magnetic Bomb
+--111178 Heart of Azeroth with lights on both hands gadget
+--110958 Weld spark
+--110953 Vial
+110943 Orange Gun
+--110786 Mechagon Battery 944
+110586 Savage Drumstick
+--110555 Bar pen?
+110515 TNT explosive
+--110512 Rocket back far
+110493 Lots of carrots
+--110374 Full body white
+--110349 Floating disc under feet
+--110340 Giant Lightning ball right hand
+110209 Tide Under feet
+--109729 uberspanner mecha
+--109613 full body Orange
+--109599 Sha? in hands
+--109451 kettle no water in hand  23599 with water
+--109410 Red Lightning ball in hands
+--109381 Witch hat and glass
+--109111 bowknot on the head
+--108962 Transparent Emerald full body
+--108949 Paint brush right hand gadget
+108901 Paladin book on the ground?
+--108801 Transparent full body
+--108797 full body light Purple
+--108753 Emerald dagger right hand gadget
+108751 Transparent pink full body
+--108741 Ghost full body
+--108730 Arcane in hand
+--108586 Horned helm item
+--108411 Star Swirl full body
+--108320 Fire ball in hands
+--108283 Gaint frost beam
+--108278 Full body mustard color
+108254 Gaint thunder balls in hand full body
+--108176 Heavy smoke
+--108173 Wind in hand
+--108170 Flame Rotating
+--108168 Full body burn
+--108161 Full body dark Purple
+--108154 Full body blue
+--108139 Poisoned
+--108136 Druid Channel large
+--108131 Druid heal
+--108124 snow flake behind the back
+--108109 Yellow Stars in hand
+--108095 Back Anchor
+--108092 Halo?Portal
+
+68799 Clear Body Visuals
+--68661 Teleport Arcane
+68574 Dust Smoke Full body
+68512 68206 Dust Ground
+--81708 Ghost Full body
+
+--107901 Brush&Bucket 966 Anim
+--107876 Coin Rain
+--107829 Shadow Ball
+--107815 Emerald Ball Medium
+--107648 White Ball Rotating
+--107588 Light Ball Tiny
+--107205 Frost Spell
+--107177 Bucket of explosives
+--107151 Dark Blue Ball
+--107104 Arcane Medium Pan
+--106743 Holy Light One shot head
+106693 Shining Transform
+--106887 Void Conjure 
+--106588 Potential Brewfestival Hearthstone
+--106582 MidSummer Hearthstone
+--106481 Easter Hearthstone
+--105997 Work Steel Plate
+105868 Pink 105870 Yellow 105871 Blue 105859 Red 105862 Green 105872 Orange
+--105763 bottle
+--105628 Bag of bombs
+--105476 Full Body Charged
+105439 Fishe Head 105440 Red
+--105420 Red Pirate Hat
+--105389 Treasure Map
+--105275 Horde Banner
+--105267 Alliance Banner
+--105146 Needle Thread? 
+--104956 Love Arrow
+--104605 Spirit Eagle
+--104534 Heart of Azerite : Glow
+
+--104532 Void Medium both hand
+--104405 Round bread
+--104167 Alliance banner back
+--103793 Hand Anchor gadget
+--103769 Cup of Wine left hand 
+103735 Azerite aborb
+---103734 multiple banner?
+--103490 Gold lightning both hand
+--103486 Bottle left hand
+--103482 Love heart head
+--103443 Dead fish and sroll
+--103360 Paladin Hammer
+--103329 A pot of charcoal on head
+--103226 Void full body
+--103221 Football gadget
+--103172 Tiny cup gadget
+--103153 Grain bags on shoulder 1284
+--103007 Love heart
+102983 Under feet Aura
+102962 Blood swirl under feet
+--102960 Blood magic both hand
+--102957 Hexed Witchery full body
+--102890 Full body mustard yellow
+--102862 Boat Elf 102
+--102855 Boat Pandaren
+--102852 Boat zandalari
+--102845 small raft
+--102843 Raft boat 
+--102839 Boat
+102496 Void Emitter body
+102235 Witchery massive under feet
+102075 Void Shockwave
+--101473 Flame Both hand
+--101070 Scroll right hand gadget
+--101035 Heavily Armed Back John J. Keeshan
+--100924 Diver Pepe
+100721 Etheral Circle under feet
+--100722 Flame light both hand
+--100671 Voodoo Pepe
+--100532 Star both hand
+--100356 Azerite Bomb left hand gadget
+--100346 Full body dark Purple
+--100265 kettle no water
+--100264 kettle with water gadget
+100083 Gold piles on the ground full screen
+99979 Blood pool under feet
+--99760 Broom
+99696 Void Portal
+99661 Witchery with Circle ball under feet
+--99617 Witchery two hand
+--99496 Strong box
+--99231 flame thrower gun
+98908 Take shot full body
+--98587 Fishes school full body
+--98431 Book left hand 1330 gadget
+--98315 Short Spyglasses
+--98177 Giant Holy Shield left hand
+--98038 Hearthstone left hand position issue
+--98030 Holy liht right hand
+--98023 Star two hand
+97895 Mecha Engineering platform
+--97716 6.0 Challenge Mode Sci-fi gun
+--97580 Full body red contour
+--97540 Sea bird!!! stork
+--97472 Rocket backpack
+--97468 Cup Medium with body effect
+--97332 Blue flame two hand
+--97236 Full body void
+--97213 Azerite Blast full body
+--97157 Heart of Azerite no glow  1330
+--97136 Azerite glow both hand
+97033 Crossbow gun with chanted arrow
+--96842 Void Purple ball both hands
+96737 Wind full body conjure
+--96735 Booze and bubble from mouth
+96719 Lightning Full body screen conjure
+96718 Full body heavy blue
+--96646 Bubbles head
+96625 Druid Flower Orange full body conjure
+--96590 Lightning balls small two hand
+--96562 Cart with cabbage
+--96503 Full body red
+--96448 Emerald lightning two hand
+--96446 Kultiras Gun
+96420 Mass dispel full body clean
+96413 Stone hammer
+96379 Sword Swirl full body
+--96255 Shovel behind back
+--96254 Giant torch behind back
+--96100 Lightning ball two hand
+--96075 Wind swirl two hand
+--96022 Vulpera Banner
+--96013 Massive Purple lightning sphere screen
+--96011 Backpack normal?
+95969 Red Circle Full body lift
+--95905 Lots of explosive
+--95839 Vial Tall hand
+--95805 Lightning medium two hand
+95792 Massive Lightning Full body
+--95630 Void Medium both hands
+95478 Kultiras Lantern
+95403 Butterfly full body
+--95381 Dark Water Two hand
+95282 Swirl under feet
+95220 Stars emitter
+--95129 Witchery Ball both hands
+
+--92387 Bell
+--92244 73746 Book
+--91941 91640 Hammer&Nail
+91648 Dice
+--91528 90258 91518 91523 84904 81772 Lager
+--91304 Sleep
+--91220 Granade
+--91113 Dense Flame ball in hand
+--90955 Steak
+--90555 Floating Scroll
+90416 85635 Pistol No Texture AnimID:1074
+--90320 Water in hands
+--90253 Light ball
+--90041 Holy Book?
+90039 Holy Healing  head
+89757 Trunk
+89570 Crate
+88963 X-mas hat & candy bar
+88950 Torch
+--88733 Fel Crystal gadget
+88133 83612 Swiming Pool Toy
+87286 2 Fishes
+87215 Dishes Waiter
+--87130 87049 Vial
+--86662 86949 Giant Apple
+--86661 Scroll Carrier
+86038 Void Tentacle body
+--86004 Plague Gun
+--85189 Dark Fire Ball
+--85123 Fel ball left hand
+--85018 Meat Bag
+--84997 Zorbrix Bag
+--84991 Carrot Bag
+--84989 Pumpkin Bag
+--84982 Gourd Bag
+84770 Grave Guitar instrument
+84721 Flower
+84687 Death Knight Sword 83223 vertical
+--84673 Bell and Scroll (Auction)
+84515 Paddle
+--84366 Giant Bag right gadget
+84023 Brushes
+--84012 Scroll Left-hand gadget
+83976 Floating Books
+74238 A Floating Book Arcane
+--83511 Archaeology Pack
+83502 Pandaren Booze
+82672 Demon-hunter Pepe 78648 Pepe Transition
+81999 Holy Well under feet
+81966 Light Dome
+81298 Basket
+80900 Fel Shockwave
+80682 Brew Bucket
+80602 Magic Conjure
+--80449 Full Screen Beam
+80207 Warlock Conjure
+80175 Chicken leg
+79834 Holy Heal head
+79818 Warlock Summon
+--79791 Fel Ball in hands
+--79554 Shadow Ball
+79375 Demon Wing AnimID 1038
+78653 Beam eye
+
+79390 Forsaken Boat 79389 boat no banner
+--78597 Flame Ball Orbiting head
+--78469 Ice Ball
+--78057 Book & Staff
+--77670 Medium Flame ball
+77433 Holy Conjure
+--77282 Blink Ball
+--77069 Purple Ball
+--76989 Blue Vial
+76917 One shot
+--76911 Frost Ball
+76616 Level up
+--76379 Shadow Ball
+78803 78806 Druid Flower    Full body
+--75985 White Ball
+--75913 Holy Ball
+--75563 Pink Vial
+75353 Hat with mustache
+--75144 Coffe Cup
+--74590 Ice&Fire
+--73426 Nightmare Ball 73112 small
+73259 Five Crystals over head with different colors
+--72724 Holy Wing
+72523 Goggle Pepe
+72393 Arrow
+--72376 63567 106236 Spyglasses
+--70975 Lightning Ball
+70520 Cloud Hover
+70920 62440 3 Axis
+70796 血吼
+70741 Floating Books normal size Arcane
+70700 Tent
+--70143 Waiter 3 Glasses 70138 Glass&Wine 66899 Wine&Fruit 66891 Wine&Cake
+69369 Meat Eaten
+68917 Whirl Warrior
+--68828 Arcane Cast Finish
+68221 Bone Storm
+67157 Quiver No Texture
+66091 Two Pistol 63250 Single
+65950 Monk Fists AnimID 716
+65872 Warrior Thunder
+65750 Arcane Blast  full body
+65638 Cloud
+74212 Warlock
+68317 Thunder
+--65487 Mail Right-hand gadget
+69958 Stone
+68865 Stone Pillar
+65442 Instrument Music
+--64622 Plague Can
+--65215 Emerald Monk
+
+
+--65731 Math tool gadget
+--65563 Dense flame both hand
+65442 Instrument
+--65352 Tiny void orb both hand
+65334 Hat with mustache
+--65311 Skull left hand gadget
+65257 Energy Weapon
+--65218 Flame bird up full body
+--65199 Shadow Flame left hand 
+--65198 Flame one orb over head
+--65170 Fel lightning both hand
+--64912 Lots of Hoes behind back
+--64834 Water both hand
+--64801 Pillow left face gadget
+--64757 Arcane regular both hand
+--64622 Plague Canister
+--64247 Condense flame both hand
+--64112 Shadow void? ball small hand
+--64111 Flame cover both hands and arms blue
+63907 Lightning shield full body
+--63837 Love heart from mouth head
+--63794 Giant leaf gadget
+63765 Fel cage full body
+--63740 Green light left hand
+63690 Blind
+63683 Force shield
+63646 Neck Shackle
+--63405 Torch right hand gadget
+63387 Timewarp Bloodlust body
+--63318 Snow effect full screen Weather
+63298 Nature hands and underfeet effect
+63236 Xal'atath and spell effect
+--63225 Fire flame and fel two hand
+63198 Void Portal
+--63123 Parchment scroll left hand gadget
+--63121 Bleeding full body
+63108 Death conjure
+63086 Idea bulb over head
+--63087 Flame shockwave Firemage
+63078 Arcane shockwave aborb
+63077 Lightning down effect grand
+63068 Monk swirl
+63067 Monk Emerald swirl anim 660
+63052 Shockwave Arcane? 63059
+--63047 Fel balls two hand
+--63044 Flame two hand
+63023 Warlock revive?
+63002 Glowing eyes red
+
+
+62682 Bat Wing Giant
+60648 Plumge On Head
+60145 Roll the Dice
+--59410 Bamboo Scroll
+59131 Scary Pepe
+58296 Pesticide Gun
+58254 Warlock Wing
+58227 Red Quiver
+--58009 Void Ball
+--57874 Giant Arcane Ball
+57779 Shadow Step full body
+57685 Detonater
+--57651 Bag&Scroll
+57627 DK Conjure
+57525 Shapeshift
+57230 Barbarian Pepe
+57229 Ninja Pepe
+57228 Knight Pepe
+57227 Pirate Pepe
+--57000 Holy Wing 56580 Normal Size
+--56885 Purple Spray Gun
+56479 Plague Can Full
+--55784 Flame Wing
+55752 Loot Beam 55751 Loot Spark
+55731 Holy Blast full body
+54454 54450 SELFIE Camera
+--53665 Holy Balls
+52838 Normal Pepe
+--57523 Flame
+--54582 Green Glowing Right Hand
+54574 Demonic Tome Left Hand
+--54442 Fel Ball Two hands
+53981 Ashbringer
+53718 Light Particle
+53534 Fel Lightning full body
+--53514 Fel Dust full screen
+50059 Purple Portal
+45084 45077 Monk~
+--44941 Book & Quill
+44839 Skull Guitar
+44821 Holy Revive full body
+44815 Lightning Shield body
+44806 Priest Heal full body
+44799 Rain
+--43864 White Wing?
+43620 Paladin Spell~
+43542 Spirit Wing
+--43470 Holy Globe Emit
+43389 Paladin Wing
+43390 Paladin Wing Butterfly
+--42718 Bushes in Hands gadget
+--42381 Special Flowers in Hands gadget
+--42352 Quest Exclaimation
+42234 sprinkle
+42227 Axis Mouth
+42224 Fruite basket
+42090 Rocket Pack
+41593 Dove Blast
+to 54025
+
+--24677 Emerald Balls both hands
+--24657 Ninja Dart right hand gadget
+--24517 Lightning field full screen
+24508 Slow fall wing
+--24397 White Shockwave
+24396 Emerald Lightning  full body
+--24315 Banner Mogu
+24313 Sha Mask
+23830 Transportation Raft 23926 with fish
+--23762 Stone Pot
+23701 Magic Golden Butterfly arms
+23224 Human Female Bust sculpture
+23222 Human Male Bust sculpture
+23222 Alliance Soldier panting
+23145 Warlock Soul reap?
+--23138 Holy light ball in hands and blast
+23133 Blood thirst hand head
+23129 Paladin wing
+23012 Pool under feet
+22961~ Eggs
+22922 Framing hoe
+--22907 Treasure map
+22598 Lantern on stick Monk idle
+22347 Bat Wing Pat
+22086 Three question marks over head
+--22050 Small keg Left hand gadget
+--20972 Full screen Bubbles
+20807 Flying Broom
+20721 Jazz Hat
+--20503 Flame long tail two hands
+20234 Icecream green
+20230 Icecream with eating effect
+20149 Full body Rings lifting
+19947 Spinning Souls full body
+--19946 Stone hammer right hand gadget
+19824 Pumpkin Head
+19804 Voodoo mask
+19552 Swiming Pool Toy
+--19530 Vial blue right hand
+19525 Torch
+19501 Cross Daggers over head
+19451 Wrench Engineering spell
+--19412 Green banner
+--19340 Banner Horde
+--19339 Banner Alliance
+19287 Bag of plants
+--19060 Canister Dark Blue
+18955 Peacock quill
+--18823 Metal bucket cover head
+--18628 Egg Left hand gadget
+--18569 Canister and gun?
+18533 instrument Frontal 18653
+--18436 instrument Behind back
+18401 Axes into head blood brutal!
+18399 Giant Sack 
+--18381 Normal Priest Wing
+--18380 Shadow Priest Wing
+18362 Aim Spinning blade full body
+18348 Take a blast full body
+18338 Mild Holy shock wave
+18322 Mild Swirl
+--18154 Shovel right hand gadget
+18046 Shackle mouth
+17918 Quest Exclaimation
+--17913 Canister Frost behind back
+17909 Bome fuse explosive
+--17869 Giant frost emitter Ball both hands
+--17830 Flame Red and Blue
+--17758 Dark flame
+17732 Barf green
+17705 Barf amber
+17487 Metal bucket
+17437 Cart
+17301 Pure Revive
+17287 Lots of shells around body
+17065 Battle yaw
+--17035 Two white frost balls with underfeet effect
+--17025 Backpack bombs and booze
+--16938 Bottle right hand gadget
+--16859 Medium-sized bucket right hand gadget
+--16842 Dim White ball left hand
+16834 Wing Spirit healer
+16816 Wing Slow fall
+--16798 Orange Spray Gun
+16766 Two skulls on both shoulder
+16722 Sleep Zzz
+--16695 Small Vial right hand
+16648 Drunk Barf
+--16643 Spyglasses
+--16637 Beer Stein drink effect
+--16622 White balls around wrists two hand
+16615 Thunder down
+16563 Shadow step full body
+--16558 Long Plank left hand  gadget
+--16556 Flame Medium Mild
+--16551 Small Bucket left hand gadget
+16460 Apple on head position issue
+--16458 Human Baby behind back
+16440 Polearm through chest brutal
+16369 Full body grass gadget
+16345 Warlock Soul stone Revive
+--16343 Ice ball right hand Coldblood
+16326 Pack of grass? Left hand
+16224 Rune Horn
+--16139 Horde banner tall
+16136 Warlock Conjure Portal
+--16106 Wood planks front and back multiple IDs for races 16099
+--16058 Vial cone
+--15941 Spyglasses
+--15795 Anemometer measuring wind speed gadget
+--15786 Totems behind back
+--15780 Spray Gun
+--15772 Green Left hand shinning
+--15679 Rock in hand gadget
+--15631 Flame under feet
+--15612 Stick and sack gadget
+--15611 Right hand Purple shinning
+10140 Bubbles from Mouth
+--10252 Whirling Frost
+--10292 Frost DK
+10275 Ravens Full body
+10296 Shadow Fire under feet full body
+--10354 Shadow Channel
+10378 Fel Portal
+10380 Light's Out
+--10598 Photo Bomb
+--10650 DK Frost Ball
+--10678 Blue Glowing Right Hand
+--10715 Purple Glowing Left Hand
+--11212 Fireworks?
+--10682 10684 Voodoo Mask
+10875 Purple Beam Down
+
+15491 Arcane blast
+--15479 15480 Head creepy doll
+15483 Arcane conjure
+15498 Awaken conjure 125
+15503 CLeanse full body
+15505
+15507 Water errupt
+15549 Druid heal body
+15597 Priest shield
+15616 Water swirl environment
+15620
+12498 Flash emitter
+12534 Holy fire calm
+
+12541 Cloud shockwave
+12556 Arcane regular
+12573 Felfire feet
+
+
+68991 Horn right hand
+--105402 Lightning Area
+105354 Pirate Flag in hand and huge bag
+111909 BANNERS
+111893 Drumstick?
+111883 Chest Defense
+111882 Chest
+111878 Chest Rage
+111877 Chest Heal
+111879 Chest Air
+67180 Holy Beam blast
+
+Holiday Hearthstone
+------spells/holidays/valentines
+
+106244 Love
+114843 Ropes
+------------------
+cfx_[class]
+
+Paladin
+74185 Judgement Impact
+23547 Divien Shield
+55343 Holy flash tiny one-hand
+68990 Blade of Light
+64586 Imapct under feet
+58446 Hand of Detention
+58445 Hand of Dentention Cast Hands
+58448 Hand of Freedom Cast hands
+72298 Hand of Freedom Status
+58451 Hand of Grace 58450
+58456 Hand of Sacrifice 58457
+56356 of Protection 58453
+55617 Divien Storm 56316 61906
+61010 Shield of Vengeance   impact 61011 waist | 106551 ground
+59252 Avenger's Shield impact
+100813 Templar's Verdict impact
+6838  
+105022 Aegis of Light
+69306 Divine Hammer
+64573 Blessed Hammer missile
+70424 Equality _case 80856
+104186 Book on the ground
+109802 Beacon of Light impact
+105334 Avenging Wrath
+
+
+------------------
+Monk
+68697 Keg
+
+------------------
+Mage
+43028 Fireball Impact
+83901 Two blast in hands
+86686 Ignite Statebase
+61734 Ice form
+67255 Flame Cannon?
+95407 Arcanefamiliar Scale Issue
+69120 Charged Up
+103111 Burning Steps
+108384 Ice Block
+
+107849 Jaina Mirror
+107260 Jaina Cast
+------------------
+Warlock
+59465 Demonic Empowerment
+84358 Purple Crystal
+
+------------------
+Warrior
+96531 Sky jump      impact 77753
+137735 Avatar Cast
+137994 Dismantle
+
+
+
+
+
+
+
+
+
+-------------------
+Instrument
+45430 BE Harp
+66495 Nightborne Harp 103
+
+
+
+fae_stagesword
+
+102043 Popcorn

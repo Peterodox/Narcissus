@@ -1,0 +1,757 @@
+<Ui xsi:schemaLocation="http://www.blizzard.com/wow/ui/..\FrameXML\UI.xsd">
+	<Script file="Sticker.lua"/>
+
+	<EditBox name="NarciStickerEditableTextTemplate" autoFocus="false" multiLine="false" mixin="NarciStickerEditableTextMixin" virtual="true">
+		<Scripts>
+			<OnHide method="OnHide"/>
+			<OnEditFocusGained method="OnEditFocusGained"/>
+			<OnEditFocusLost method="OnEditFocusLost"/>
+			<OnEscapePressed method="OnEscapePressed"/>
+			<OnEnterPressed method="OnEnterPressed"/>
+			<OnEnter method="OnEnter"/>
+			<OnLeave method="OnLeave"/>
+		</Scripts>		
+	</EditBox>
+
+    <!-- Character Select UI: derivative of BlizzardInterfaceCode\Interface\GlueXML -->
+	<FontFamily name="Narci_SystemFont_Shadow_Outline_Large" virtual="true">
+		<Member alphabet="roman">
+			<Font font="Fonts\FRIZQT__.TTF" height="18" outline="NORMAL">
+				<Shadow>
+					<Offset>
+						<AbsDimension x="2" y="-2"/>
+					</Offset>
+					<Color r="0" g="0" b="0"/>
+				</Shadow>
+			</Font>
+		</Member>
+		<Member alphabet="korean">
+			<Font font="Fonts\2002.TTF" height="18" outline="NORMAL">
+				<Shadow>
+					<Offset>
+						<AbsDimension x="2" y="-2"/>
+					</Offset>
+					<Color r="0" g="0" b="0"/>
+				</Shadow>
+			</Font>
+		</Member>
+		<Member alphabet="simplifiedchinese">
+			<Font font="Fonts\ARKai_T.ttf" height="18" outline="NORMAL">
+				<Shadow>
+					<Offset>
+						<AbsDimension x="2" y="-2"/>
+					</Offset>
+					<Color r="0" g="0" b="0"/>
+				</Shadow>
+			</Font>
+		</Member>
+		<Member alphabet="traditionalchinese">
+			<Font font="Fonts\BLEI00D.TTF" height="18" outline="NORMAL">
+				<Shadow>
+					<Offset>
+						<AbsDimension x="2" y="-2"/>
+					</Offset>
+					<Color r="0" g="0" b="0"/>
+				</Shadow>
+			</Font>
+		</Member>
+		<Member alphabet="russian">
+			<Font font="Fonts\FRIZQT___CYR.TTF" height="18" outline="NORMAL">
+				<Shadow>
+					<Offset>
+						<AbsDimension x="2" y="-2"/>
+					</Offset>
+					<Color r="0" g="0" b="0"/>
+				</Shadow>
+			</Font>
+		</Member>
+	</FontFamily>
+
+	<FontFamily name="Narci_SystemFont_Outline_Med2" virtual="true">
+		<Member alphabet="roman">
+			<Font font="Fonts\FRIZQT__.TTF" height="15" outline="NORMAL"/>
+		</Member>
+		<Member alphabet="korean">
+			<Font font="Fonts\2002.TTF" height="16" outline="NORMAL"/>
+		</Member>
+		<Member alphabet="simplifiedchinese">
+			<Font font="Fonts\ARKai_T.ttf" height="16" outline="THICK"/>
+		</Member>
+		<Member alphabet="traditionalchinese">
+			<Font font="Fonts\BLEI00D.TTF" height="16" outline="THICK"/>
+		</Member>
+		<Member alphabet="russian">
+			<Font font="Fonts\FRIZQT___CYR.TTF" height="15" outline="NORMAL"/>
+		</Member>
+	</FontFamily>
+
+	<Font name="NarciGlueFontNormal" inherits="Narci_SystemFont_Outline_Med2" virtual="true">
+		<Shadow>
+			<Offset>
+				<AbsDimension x="1" y="-1"/>
+			</Offset>
+			<Color r="0" g="0" b="0"/>
+		</Shadow>
+		<Color r="1.0" g="0.78" b="0"/>
+	</Font>
+
+	<Font name="NarciGlueFontNormalSmall" inherits="SystemFont_Shadow_Med1_Outline" virtual="true">
+		<Color r="1.0" g="0.78" b="0"/>
+	</Font>
+
+    <Button name="NarciGlueButtonSmallTemplate" inherits="SharedButtonSmallTemplate" virtual="true">
+        <!--Size x="138" y="28"/-->
+        <HitRectInsets>
+            <AbsInset left="68" right="68" top="13" bottom="13"/>
+        </HitRectInsets>
+        <NormalFont style="NarciGlueFontNormalSmall"/>
+        <DisabledFont style="NarciGlueFontNormalSmall"/>
+        <Scripts>
+            <OnLoad>
+				self.Controller:SetScript("OnShow", nil);
+                self:UpdateButton("NORMAL");
+                self:Disable();
+            </OnLoad>
+            <OnEnable/>
+            <OnDisable/>
+            <OnMouseDown/>
+            <OnMouseUp/>
+            <OnShow/>
+			<OnHide/>
+        </Scripts>
+    </Button>
+
+	<Button name="NarciGlueCharSelectCharacterButtonTemplate" parentArray="CharacterButtons" hidden="true" virtual="true" mixin="NarciGlueCharSelectCharacterButtonMixin">
+		<Size x="230" y="50"/>
+		<Layers>
+			<Layer level="ARTWORK">
+                <!--Texture>
+                    <Color g="1" a="0.5"/>
+                </Texture-->
+				<Texture file="Interface\AddOns\Narcissus\Art\Stickers\CharacterSelect-Highlight" alphaMode="ADD" parentKey="Highlight" hidden="false">
+					<Size x="272" y="68"/>
+					<Anchors>
+						<Anchor point="CENTER" relativeKey="$parent" relativePoint="CENTER" x="0" y="0"/>
+					</Anchors>
+				</Texture>
+				<Texture parentKey="FactionEmblem" useAtlasSize="true" scale=".8">
+					<Anchors>
+						<Anchor point="TOPRIGHT" x="-10" y="-14"/>
+					</Anchors>
+				</Texture>
+			</Layer>
+            <Layer>
+                <FontString parentKey="CharacterName" inherits="NarciGlueFontNormal" justifyH="LEFT">
+                    <Anchors>
+                        <Anchor point="TOPLEFT" x="5" y="-5"/>
+                    </Anchors>
+                </FontString>
+                <FontString parentKey="Info" inherits="SystemFont_Shadow_Med1_Outline" justifyH="LEFT">
+                    <Color r="1" g="1" b="1"/>
+                    <Size x="217" y="12"/>
+                    <Anchors>
+                        <Anchor point="TOPLEFT" relativeKey="$parent.CharacterName" relativePoint="BOTTOMLEFT" x="0" y="-1"/>
+                    </Anchors>
+                </FontString>
+                <FontString parentKey="Location" inherits="SystemFont_Shadow_Med1_Outline" justifyH="LEFT">
+                    <Color r="0.5" g="0.5" b="0.5"/>
+                    <Size x="217" y="16"/>
+                    <Anchors>
+                        <Anchor point="TOPLEFT" relativeKey="$parent.Info" relativePoint="BOTTOMLEFT" x="0" y="1"/>
+                    </Anchors>
+                </FontString>
+            </Layer>
+		</Layers>
+		<Scripts>
+			<OnEnter method="OnEnter"/>
+			<OnLeave method="OnLeave"/>
+			<OnClick method="OnClick"/>
+		</Scripts>
+    </Button>
+
+	<Button name="NarciExpansionSelectionButtonTemplate" parentArray="ExpansionButtons" mixin="NarciExpansionSelectionButtonMixin" virtual="true">
+		<Size x="72" y="16"/>
+		<Layers>
+			<Layer level="ARTWORK">
+				<Texture parentKey="Background"/>
+			</Layer>
+			<Layer level="OVERLAY">
+				<FontString parentKey="Label" inherits="NarciPrefFontWhiteMild">
+					<Anchors>
+						<Anchor point="LEFT" x="8"/>
+					</Anchors>
+				</FontString>
+			</Layer>
+		</Layers>
+		<Scripts>
+			<OnEnter method="OnEnter"/>
+			<OnLeave method="OnLeave"/>
+			<OnClick method="OnClick"/>
+		</Scripts>
+	</Button>
+
+	<Button name="NarciStickerColorButtonTemplate" parentArray="ColorButtons" mixin="NarciStickerColorButtonMixin" virtual="true">
+		<Size x="16" y="16"/>
+		<Layers>
+			<Layer level="BORDER">
+				<Texture parentKey="Background">
+					<Color r="0" g="0" b="0"/>
+				</Texture>
+			</Layer>
+			<Layer level="OVERLAY">
+				<Texture parentKey="ColorBlock">
+					<Size x="12" y="12"/>
+					<Anchors>
+						<Anchor point="CENTER"/>
+					</Anchors>
+				</Texture>
+			</Layer>
+			<Layer level="OVERLAY" textureSubLevel="1">
+				<Texture file="Interface\AddOns\Narcissus\Art\Stickers\SelectedMark" hidden="true" parentKey="Selection">
+					<Size x="12" y="12"/>
+					<Anchors>
+						<Anchor point="CENTER"/>
+					</Anchors>
+				</Texture>
+			</Layer>
+		</Layers>
+		<Scripts>
+			<OnEnter method="OnEnter"/>
+			<OnLeave method="OnLeave"/>
+			<OnClick method="OnClick"/>
+		</Scripts>
+	</Button>
+
+    <Frame name="NarciPhotoModeStickerContainer" frameStrata="DIALOG" hidden="true">
+		<Anchors>
+			<Anchor point="TOPLEFT" relativeTo="Narci_GuideLineFrame" relativePoint="TOPLEFT"/>
+			<Anchor point="BOTTOMRIGHT" relativeTo="Narci_GuideLineFrame" relativePoint="BOTTOMRIGHT"/>
+		</Anchors>
+        <Frames>
+            <Frame parentKey="CharacterSelectUI">
+				<Anchors>
+					<Anchor point="TOPLEFT"/>
+					<Anchor point="BOTTOMRIGHT"/>
+				</Anchors>
+                <Layers>
+                    <Layer level="OVERLAY">
+						<!--FontString parentKey="CharacterName" inherits="SystemFont22_Shadow_Outline" spacing="2">
+                            <Color r="1.0" g="0.78" b="0"/>
+							<Anchors>
+								<Anchor point="BOTTOM" x="0" y="96"/>
+							</Anchors>
+						</FontString-->
+                    </Layer>
+                </Layers>
+                <Frames>
+					<Button parentKey="LogoFrame" mixin="NarciStickerExpansionLogoMixin" registerForClicks="LeftButtonUp, RightButtonUp">
+						<Size x="256" y="128"/>
+						<Anchors>
+							<Anchor point="TOPLEFT" x="3" y="-7"/>
+						</Anchors>
+						<Layers>
+							<Layer level="OVERLAY">
+								<Texture parentKey="ExpansionLogo">
+									<Size x="256" y="128"/>
+									<Anchors>
+										<Anchor point="CENTER"/>
+									</Anchors>
+								</Texture>
+								<Texture parentKey="AlphaChannel" hidden="true">
+									<Color r="1" g="1" b="1"/>
+									<Anchors>
+										<Anchor point="TOPLEFT" relativeKey="$parent.AlphaChannel" relativePoint="TOPLEFT"/>
+										<Anchor point="BOTTOMRIGHT" relativeKey="$parent.AlphaChannel" relativePoint="BOTTOMRIGHT"/>
+									</Anchors>
+								</Texture>
+								<MaskTexture hWrapMode="CLAMPTOBLACKADDITIVE" vWrapMode="CLAMPTOBLACKADDITIVE" parentKey="ExpansionLogoMask">
+									<Anchors>
+										<Anchor point="TOPLEFT" relativeKey="$parent.AlphaChannel" relativePoint="TOPLEFT"/>
+										<Anchor point="BOTTOMRIGHT" relativeKey="$parent.AlphaChannel" relativePoint="BOTTOMRIGHT"/>
+									</Anchors>
+									<MaskedTextures>
+										<MaskedTexture childKey="AlphaChannel"/>
+									</MaskedTextures>
+								</MaskTexture>
+							</Layer>
+						</Layers>
+						<Frames>
+							<Frame parentKey="OptionFrame" inherits="NarciAutoCloseFrameTemplate">
+								<Layers>
+									<Layer level="BACKGROUND">
+										<Texture>
+											<Color r="0.08" g="0.08" b="0.08" a="0.85"/>
+										</Texture>
+									</Layer>
+								</Layers>
+								<Anchors>
+									<Anchor point="TOPLEFT" relativeKey="$parent" relativePoint="TOPRIGHT" x="0"/>
+								</Anchors>
+							</Frame>
+						</Frames>
+						<Scripts>
+							<OnClick method="OnClick"/>
+							<OnEnter method="OnEnter"/>
+							<OnLeave method="OnLeave"/>
+						</Scripts>
+					</Button>
+
+					<EditBox parentKey="CharacterName" inherits="NarciStickerEditableTextTemplate" letters="16">
+						<Size x="240" y="32"/>
+						<Anchors>
+							<Anchor point="BOTTOM" x="0" y="90"/>
+						</Anchors>
+						<FontString inherits="SystemFont22_Shadow_Outline" justifyH="CENTER" justifyV="BOTTOM">
+							<Color r="1.0" g="0.78" b="0"/>
+						</FontString>
+						<Scripts>
+							<OnTextChanged function="NarciSitcker_UpdateCharacterName"/>
+						</Scripts>
+					</EditBox>
+
+					<Button inherits="SharedButtonTemplate" parentKey="EnterWorldButton" text="Enter World">
+						<Size x="185" y="40"/>
+                        <HitRectInsets>
+                            <AbsInset left="92" right="92" top="19" bottom="19"/>
+                        </HitRectInsets>
+						<Anchors>
+							<!--Anchor point="BOTTOM" x="0" y="47"/-->
+                            <Anchor point="BOTTOM" x="0" y="42"/>
+						</Anchors>
+                        <NormalFont style="NarciGlueFontNormal"/>
+                        <DisabledFont style="NarciGlueFontNormal">
+							<Color r="0.5" g="0.5" b="0.5"/>
+						</DisabledFont>
+                        <Scripts>
+                            <OnLoad>
+								self.Controller:SetScript("OnShow", nil);
+                                self:UpdateButton("NORMAL");
+                                self:Disable();
+                            </OnLoad>
+                            <OnEnable/>
+                            <OnDisable/>
+                            <OnMouseDown/>
+                            <OnMouseUp/>
+                            <OnShow/>
+                        </Scripts>
+					</Button>
+                    <Frame parentKey="RotateLeft">
+                        <Size x="50" y="50"/>
+						<Anchors>
+							<Anchor point="TOP" relativeKey="$parent.EnterWorldButton" relativePoint="BOTTOM" x="-16" y="6"/>
+						</Anchors>
+                        <Layers>
+                            <Layer level="OVERLAY">
+                                <Texture atlas="common-button-square-gray-up" useAtlasSize="false">
+                                    <Size x="36" y="36"/>
+                                    <Anchors>
+                                        <Anchor point="CENTER"/>
+                                    </Anchors>
+                                </Texture>
+                            </Layer>
+                            <Layer level="OVERLAY" textureSubLevel="1">
+                                <Texture parentKey="Icon" atlas="common-icon-rotateleft" useAtlasSize="false">
+                                    <Size x="16" y="16"/>
+                                    <Anchors>
+                                        <Anchor point="CENTER" x="0" y="0"/>
+                                    </Anchors>
+                                </Texture>
+                            </Layer>
+                        </Layers>
+                    </Frame>
+                    <Frame parentKey="RotateRight">
+                        <Size x="50" y="50"/>
+						<Anchors>
+							<Anchor point="TOP" relativeKey="$parent.EnterWorldButton" relativePoint="BOTTOM" x="16" y="6"/>
+						</Anchors>
+                        <Layers>
+                            <Layer level="OVERLAY">
+                                <Texture atlas="common-button-square-gray-up" useAtlasSize="false">
+                                    <Size x="36" y="36"/>
+                                    <Anchors>
+                                        <Anchor point="CENTER"/>
+                                    </Anchors>
+                                </Texture>
+                            </Layer>
+                            <Layer level="OVERLAY" textureSubLevel="1">
+                                <Texture parentKey="Icon" atlas="common-icon-rotateright" useAtlasSize="false">
+                                    <Size x="16" y="16"/>
+                                    <Anchors>
+                                        <Anchor point="CENTER" x="0" y="0"/>
+                                    </Anchors>
+                                </Texture>
+                            </Layer>
+                        </Layers>
+                    </Frame>
+
+					<Button parentKey="MenuButton" inherits="NarciGlueButtonSmallTemplate" text="Menu">
+						<!--Anchors>
+							<Anchor point="TOP" relativeKey="$parent.AddonsButton" relativePoint="BOTTOM" x="0" y="-4"/>
+						</Anchors-->
+						<Anchors>
+							<Anchor point="BOTTOMLEFT" x="10" y="10"/>
+						</Anchors>
+					</Button>
+
+					<Button parentKey="AddonsButton" inherits="NarciGlueButtonSmallTemplate" text="ADDONS">
+						<Anchors>
+							<!--Anchor point="BOTTOMLEFT" x="30" y="36"/-->
+                            <Anchor point="BOTTOM" relativeKey="$parent.MenuButton" relativePoint="TOP" x="0" y="4"/>
+						</Anchors>
+					</Button>
+
+					<Button parentKey="StoreButton" inherits="NarciGlueButtonSmallTemplate" hidden="false" text="BLIZZARD_STORE">
+						<Anchors>
+							<Anchor point="BOTTOM" relativeKey="$parent.AddonsButton" relativePoint="TOP" x="0" y="4"/>
+						</Anchors>
+                        <KeyValues>
+                            <KeyValue key="atlasName" value="128-GoldRedButton" type="string"/>
+                        </KeyValues>
+						<Layers>
+							<Layer level="OVERLAY">
+								<Texture parentKey="Logo" atlas="128-Store-Main">
+									<Size x="16" y="16"/>
+								</Texture>
+							</Layer>
+						</Layers>
+                        <NormalFont style="NarciGlueFontNormalSmall"/>
+                        <DisabledFont style="NarciGlueFontNormalSmall"/>
+                        <Scripts>
+                            <OnLoad>
+								self.Controller:SetScript("OnShow", nil);
+                                self:UpdateButton("NORMAL");
+                                self:Disable();
+								local fontString = self:GetFontString();
+								fontString:SetPoint("CENTER", 10, 0);
+								self.Logo:ClearAllPoints();
+								self.Logo:SetPoint("RIGHT", fontString, "LEFT", -3, 0);
+                            </OnLoad>
+                        </Scripts>
+					</Button>
+
+					<Button parentKey="BackButton" inherits="NarciGlueButtonSmallTemplate" text="BACK">
+						<Size x="100" y="28"/>
+						<Anchors>
+							<Anchor point="BOTTOMRIGHT" x="-10" y="10"/>
+						</Anchors>
+					</Button>
+
+					<Button parentKey="DeleteButton" inherits="NarciGlueButtonSmallTemplate" text="Delete Character">
+						<Size x="145" y="28"/>
+						<Anchors>
+							<Anchor point="RIGHT" relativeKey="$parent.BackButton" relativePoint="LEFT" x="-10" y="0"/>
+						</Anchors>
+					</Button>
+
+					<Frame parentKey="SelectCharacterFrame" inherits="BackdropTemplate">
+						<Size x="254" y="712"/>
+						<Anchors>
+							<Anchor point="TOPRIGHT" x="-10" y="-10"/> <!--Modified to align-->
+						</Anchors>
+						<KeyValues>
+							<KeyValue key="backdropColorAlpha" value="0.85" type="number"/>
+						</KeyValues>
+						<Layers>
+							<Layer level="BACKGROUND">
+								<!--FontString parentKey="RealmName" inherits="Narci_SystemFont_Shadow_Outline_Large" justifyH="CENTER" spacing="2">
+                                    <Color r="0.5" g="0.5" b="0.5"/>
+									<Size x="1" y="13"/>
+									<Anchors>
+										<Anchor point="TOP" x="0" y="-10"/>
+										<Anchor point="LEFT" x="8" y="0"/>
+										<Anchor point="RIGHT" x="-8" y="0"/>
+									</Anchors>
+								</FontString-->
+                            </Layer>
+                        </Layers>
+                        <Frames>
+							<EditBox parentKey="RealmName" inherits="NarciStickerEditableTextTemplate" letters="20" multiLine="false">
+								<Size x="1" y="24"/>
+								<Anchors>
+									<Anchor point="TOP" x="0" y="-5"/>
+									<Anchor point="LEFT" x="8" y="0"/>
+									<Anchor point="RIGHT" x="-8" y="0"/>
+								</Anchors>
+								<FontString inherits="Narci_SystemFont_Shadow_Outline_Large" justifyH="CENTER" spacing="2">
+									<Color r="0.5" g="0.5" b="0.5"/>
+								</FontString>
+							</EditBox>
+							<Button parentKey="ChangeRealmButton" inherits="NarciGlueButtonSmallTemplate" text="Change Realm">
+								<Anchors>
+									<Anchor point="TOP" relativeKey="$parent.RealmName" relativePoint="BOTTOM" x="0" y="2"/>
+								</Anchors>
+                                <Size x="140" y="28"/>
+								<Scripts>
+									<!--OnLoad>
+										self:SetWidth(self:GetTextWidth() + 50);
+                                        self:UpdateButton("NORMAL");
+                                        self:Disable();
+									</OnLoad-->
+								</Scripts>
+							</Button>
+
+							<Button parentKey="UndeleteButton">
+								<Size x="28" y="28"/>
+                                <HitRectInsets>
+                                    <AbsInset left="13.5" right="13.5" top="13.5" bottom="13.5"/>
+                                </HitRectInsets>
+								<KeyValues>
+									<KeyValue key="atlasName" value="128-RedButton-Refresh" type="string"/>
+								</KeyValues>
+								<Anchors>
+									<Anchor point="BOTTOMRIGHT" relativeKey="$parent" relativePoint="BOTTOMRIGHT" x="-16" y="16"/>
+								</Anchors>
+                                <Scripts>
+                                    <OnLoad>
+                                        self:Disable();
+										self:SetDisabledAtlas(self.atlasName);
+                                    </OnLoad>
+                                </Scripts>
+                            </Button>
+
+							<Button parentKey="CreateButton" inherits="NarciGlueButtonSmallTemplate" text="Create New Character">
+								<Anchors>
+									<Anchor point="BOTTOMLEFT" relativeKey="$parent" relativePoint="BOTTOMLEFT" x="16" y="16"/>
+                                    <Anchor point="RIGHT" relativeKey="$parent.UndeleteButton" relativePoint="LEFT" x="-10"/>
+								</Anchors>
+							</Button>
+
+							<Frame parentKey="CharacterOptionFrame" inherits="NarciAutoCloseFrameTemplate" mixin="NarciStickerCharacterOptionMixin" enableMouse="true">
+								<KeyValues>
+									<KeyValue key="setParentObjectManually" value="true" type="bool"/>
+								</KeyValues>
+								<Size x="250" y="104"/>
+								<Anchors>
+									<Anchor point="TOPLEFT" relativeKey="$parent" relativePoint="TOPRIGHT" x="0"/>
+								</Anchors>
+								<Layers>
+									<Layer level="BACKGROUND">
+										<Texture>
+											<Color r="0.08" g="0.08" b="0.08" a="0.85"/>
+										</Texture>
+									</Layer>
+									<Layer level="OVERLAY">
+										<FontString parentKey="Label11" inherits="NarciPrefFontGrey9" text="Character Name" justifyH="LEFT">
+											<Anchors>
+												<Anchor point="TOPLEFT" x="8" y="-8"/>
+											</Anchors>
+										</FontString>
+										<FontString parentKey="Label12" inherits="NarciPrefFontGrey9" text="Faction Emblem" justifyH="LEFT">
+											<Anchors>
+												<Anchor point="LEFT" relativeKey="$parent.Label11" relativePoint="LEFT" x="152"/>
+											</Anchors>
+										</FontString>
+
+										<FontString parentKey="Label21" inherits="NarciPrefFontGrey9" text="Level" justifyH="LEFT">
+											<Anchors>
+												<Anchor point="TOPLEFT" x="8" y="-40"/>
+											</Anchors>
+										</FontString>
+										<FontString parentKey="Label22" inherits="NarciPrefFontGrey9" text="Class" justifyH="LEFT">
+											<Anchors>
+												<Anchor point="LEFT" relativeKey="$parent.Label21" relativePoint="LEFT" x="40"/>
+											</Anchors>
+										</FontString>
+										<FontString parentKey="Label23" inherits="NarciPrefFontGrey9" text="Class Color" justifyH="LEFT">
+											<Anchors>
+												<Anchor point="LEFT" relativeKey="$parent.Label21" relativePoint="LEFT" x="152"/>
+											</Anchors>
+										</FontString>
+
+										<FontString parentKey="Label3" inherits="NarciPrefFontGrey9" text="Location" justifyH="LEFT">
+											<Anchors>
+												<Anchor point="TOPLEFT" x="8" y="-72"/>
+											</Anchors>
+										</FontString>
+									</Layer>
+								</Layers>
+								<Frames>
+									<EditBox parentKey="CharacterName" inherits="NarciStickerEditableTextTemplate" letters="16" multiLine="false">
+										<Size x="120" y="16"/>
+										<Anchors>
+											<Anchor point="TOPLEFT" relativeKey="$parent.Label11" relativePoint="BOTTOMLEFT" x="0" y="-1"/>
+										</Anchors>
+										<FontString inherits="NarciFontNormal9" justifyH="LEFT">
+											<Color r="1" g="0.78" b="0"/>
+										</FontString>
+										<Scripts>
+											<OnTextChanged>
+												self:GetParent().parentObject:SetName(self:GetText());
+												if not self.mainNameEditbox then
+													self.mainNameEditbox = NarciPhotoModeStickerContainer.CharacterSelectUI.CharacterName;
+												end
+												if not self.mainNameEditbox:HasFocus() then
+													self.mainNameEditbox:SetText(self:GetText());
+												end
+											</OnTextChanged>
+										</Scripts>
+									</EditBox>
+									<EditBox parentKey="Level" inherits="NarciStickerEditableTextTemplate" letters="3" multiLine="false" numeric="true">
+										<Size x="24" y="16"/>
+										<Anchors>
+											<Anchor point="TOPLEFT" relativeKey="$parent.Label21" relativePoint="BOTTOMLEFT" x="0" y="-1"/>
+										</Anchors>
+										<FontString inherits="NarciFontNormal9" justifyH="LEFT">
+											<Color r="1" g="0.78" b="0"/>
+										</FontString>
+										<Scripts>
+											<OnTextChanged>
+												self:GetParent().parentObject:SetLevel(self:GetNumber());
+											</OnTextChanged>
+										</Scripts>
+									</EditBox>
+									<EditBox parentKey="Class" inherits="NarciStickerEditableTextTemplate" letters="16" multiLine="false">
+										<Size x="104" y="16"/>
+										<Anchors>
+											<Anchor point="TOPLEFT" relativeKey="$parent.Label22" relativePoint="BOTTOMLEFT" x="0" y="-1"/>
+										</Anchors>
+										<FontString inherits="NarciFontNormal9" justifyH="LEFT">
+											<Color r="1" g="1" b="1"/>
+										</FontString>
+										<Scripts>
+											<OnTextChanged>
+												self:GetParent().parentObject:SetClass(self:GetText());
+											</OnTextChanged>
+										</Scripts>
+									</EditBox>
+									<EditBox parentKey="Location" inherits="NarciStickerEditableTextTemplate" letters="30" multiLine="false">
+										<Size x="192" y="16"/>
+										<Anchors>
+											<Anchor point="TOPLEFT" relativeKey="$parent.Label3" relativePoint="BOTTOMLEFT" x="0" y="-1"/>
+										</Anchors>
+										<FontString inherits="NarciFontNormal9" justifyH="LEFT">
+											<Color r="1" g="0.78" b="0"/>
+										</FontString>
+										<Scripts>
+											<OnTextChanged>
+												self:GetParent().parentObject:SetLocation(self:GetText());
+											</OnTextChanged>
+										</Scripts>
+									</EditBox>
+
+									<Button parentKey="ColorToggle">
+										<Size x="16" y="16"/>
+										<Anchors>
+											<Anchor point="TOPLEFT" relativeKey="$parent.Label23" relativePoint="BOTTOMLEFT" x="0" y="-1"/>
+										</Anchors>
+										<Layers>
+											<Layer level="OVERLAY">
+												<Texture parentKey="Background" hidden="true">
+													<Color r="0.5" g="0.5" b="0.5"/>
+												</Texture>
+											</Layer>
+											<Layer level="OVERLAY" textureSubLevel="1">
+												<Texture parentKey="ColorBlock">
+													<Size x="12" y="12"/>
+													<Anchors>
+														<Anchor point="CENTER"/>
+													</Anchors>
+												</Texture>
+											</Layer>
+										</Layers>
+									</Button>
+
+									<Button parentKey="FactionSwitch" registerForClicks="LeftButtonUp, RightButtonUp">
+										<Size x="16" y="16"/>
+										<Anchors>
+											<Anchor point="TOPLEFT" relativeKey="$parent.Label12" relativePoint="BOTTOMLEFT" x="0" y="-1"/>
+										</Anchors>
+										<Layers>
+											<Layer level="OVERLAY">
+												<Texture parentKey="Background" hidden="true">
+													<Color r="0.5" g="0.5" b="0.5"/>
+												</Texture>
+											</Layer>
+											<Layer level="OVERLAY" textureSubLevel="1">
+												<Texture parentKey="Icon">
+													<Size x="12" y="12"/>
+													<TexCoords left="0.1" right="0.9" top="0.1" bottom="0.9"/>
+													<Anchors>
+														<Anchor point="CENTER"/>
+													</Anchors>
+												</Texture>
+											</Layer>
+										</Layers>
+									</Button>
+								</Frames>
+								<Scripts>
+									<OnLoad method="OnLoad"/>
+								</Scripts>
+							</Frame>
+                        </Frames>
+
+                        <Scripts>
+                            <OnLoad>
+                                self.backdropInfo = {
+                                    bgFile = "Interface\\Glues\\Common\\Glue-Tooltip-Background",
+                                    edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border",
+                                    tile = true,
+                                    tileEdge = true,
+                                    tileSize = 16,
+                                    edgeSize = 16,
+                                    insets = { left = 4, right = 4, top = 4, bottom = 4 },
+                                };
+                                self.backdropColor = CreateColor(0.09, 0.09, 0.09);
+                                self.backdropBorderColor = CreateColor(0.8, 0.8, 0.8);
+                                self:OnBackdropLoaded();
+                            </OnLoad>
+                        </Scripts>
+                    </Frame>
+                </Frames>
+            </Frame>
+        </Frames>
+
+        <Scripts>
+            <OnShow function="NarciStickerContainer_Init"/>
+        </Scripts>
+    </Frame>
+
+	<Button parentKey="StickerToggle" parent="Narci_TextOverlay" mixin="NarciPhotoModeStickerToggleMixin"> <!--Temp Position-->
+		<Size x="64" y="24"/>
+		<Anchors>
+			<Anchor point="LEFT" relativePoint="RIGHT" x="4"/>
+		</Anchors>
+		<Layers>
+			<Layer level="BACKGROUND">
+				<Texture parentKey="Background" file="Interface\AddOns\Narcissus\Art\Stickers\StickerToggle">
+					<TexCoords left="0" right="0.5" top="0" bottom="0.2265625"/>
+					<Size x="68" y="31"/>
+					<Anchors>
+						<Anchor point="CENTER"/>
+					</Anchors>
+				</Texture>
+			</Layer>
+			<Layer level="OVERLAY">
+				<Texture parentKey="Icon" file="Interface\AddOns\Narcissus\Art\Stickers\StickerToggle">
+					<Size x="25" y="25"/>
+					<TexCoords left="0" right="0.1875" top="0.8125" bottom="1"/>
+					<Anchors>
+						<Anchor point="CENTER" relativeKey="$parent" relativePoint="LEFT" x="17"/>
+					</Anchors>
+				</Texture>
+				<FontString justifyH="LEFT" justifyV="MIDDLE" inherits="NarciDisabledButtonFont" parentKey="Label" text="Frame">
+					<Size x="0" y="0"/>
+					<Anchors>
+						<Anchor point="LEFT" relativeKey="$parent" relativePoint="LEFT" x="27" y="0"/>
+					</Anchors>
+				</FontString>
+			</Layer>
+			<Layer level="OVERLAY" textureSubLevel="1">
+				<Texture parentKey="Highlight" file="Interface\AddOns\Narcissus\Art\Stickers\StickerToggle" alpha="0" hidden="true">
+					<Size x="68" y="31"/>
+					<TexCoords left="0.5" right="1" top="0" bottom="0.2265625"/>
+					<Anchors>
+						<Anchor point="CENTER"/>
+					</Anchors>
+				</Texture>
+			</Layer>
+		</Layers>
+		<Scripts>
+			<OnLoad method="OnLoad"/>
+			<OnEnter method="OnEnter"/>
+			<OnLeave method="OnLeave"/>
+			<OnClick method="OnClick"/>
+			<OnHide method="OnHide"/>
+		</Scripts>
+	</Button>
+</Ui>

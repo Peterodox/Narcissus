@@ -1,0 +1,61 @@
+<Ui xsi:schemaLocation="http://www.blizzard.com/wow/ui/..\FrameXML\UI.xsd">
+	
+    <Script file="AR.lua"/>
+
+    
+
+    <!--Frame name="NarciAR" hidden="false">
+        <Size x="44" y="44"/>
+        <Anchors>
+            <Anchor point="CENTER" relativeTo="UIParent" relativePoint="CENTER"/>
+        </Anchors>
+        <Layers>
+			<Layer level="ARTWORK">
+				<Texture file="Interface\AddOns\Narcissus\Art\Minimap\LOGO-Thick" parentKey="Background" setAllPoints="true">
+					<TexCoords left="0" right="0.5" top="0" bottom="1"/>
+				</Texture>
+			</Layer>
+			<Layer level="OVERLAY">
+				<Texture parentKey="Color" file="Interface\AddOns\Narcissus\Art\Minimap\LOGO-Thick" hidden="true" Alpha="0">
+					<TexCoords left="0.5" right="1" top="0" bottom="1"/>
+					<Anchors>
+						<Anchor point="TOPLEFT" relativeKey="$parent.Background" relativePoint="TOPLEFT"/>
+						<Anchor point="BOTTOMRIGHT" relativeKey="$parent.Background" relativePoint="BOTTOMRIGHT"/>
+					</Anchors>
+				</Texture>
+			</Layer>
+        </Layers>
+    </Frame>
+
+    <Frame name="NarciAR_MeasurementFrame" movable="true" hidden="false">
+        <Size x="8" y="360"/>
+        <Anchors>
+            <Anchor point="CENTER" relativePoint="CENTER"/>
+        </Anchors>
+        <Frames>
+            <Slider inherits="NarciVerticalSliderTemplate" obeyStepOnDrag="false" minValue="0" maxValue="100">
+                <Size x="8" y="300"/>
+                <Anchors>
+                    <Anchor point="BOTTOM" relativeKey="$parent" relativePoint="BOTTOM"/>
+                </Anchors>
+                <Scripts>
+                    <OnValueChanged function="NarciAR_MeasurementSlider_OnValueChanged"/>
+                    <OnLoad>
+                        self.Label:Hide();
+                    </OnLoad>
+                </Scripts>
+            </Slider>
+        </Frames>
+        <Scripts>
+            <OnLoad>
+                self:RegisterForDrag("LeftButton");
+            </OnLoad>
+			<OnDragStart>
+				self:StartMoving();
+			</OnDragStart>
+			<OnDragStop>
+				self:StopMovingOrSizing();
+			</OnDragStop>
+        </Scripts>
+    </Frame-->
+</Ui>

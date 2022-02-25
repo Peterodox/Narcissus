@@ -1,0 +1,115 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/
+..\FrameXML\UI.xsd">
+
+    <Script file="Letterbox.lua"/>
+
+	<Frame name="Narci_FullScreenMask" parentKey="ScreenMask" parent="Narci_Vignette" setAllPoint="true" hidden="true">
+		<Layers>
+			<Layer level="OVERLAY">
+				<Texture setAllPoints="true" parentKey="BottomMask" name="Narci_FullScreenMask_Bottom">
+					<Color r="0" g="0" b="0" a="1"/>
+					<Anchors>
+						<Anchor point="BOTTOMLEFT" relativeTo="UIParent" relativePoint="BOTTOMLEFT"/>
+						<Anchor point="BOTTOMRIGHT" relativeTo="UIParent" relativePoint="BOTTOMRIGHT"/>
+					</Anchors>
+					<Animations>
+						<AnimationGroup parentKey="animIn">
+							<Translation parentKey="StartPosition" offsetY="0" duration="0" order="1"/>
+							<Translation parentKey="Translation" offsetY="0" duration="0" order="2" smoothing="OUT"/>
+							<Scripts>
+								<OnPlay>
+									self:GetParent():Show();
+								</OnPlay>
+								<OnFinished>
+									self:GetParent():GetParent().BottomButton:Show();
+								</OnFinished>
+							</Scripts>
+						</AnimationGroup>
+						<AnimationGroup parentKey="animOut">
+							<Translation parentKey="Translation" offsetY="0" duration="0" order="1"/>
+							<Scripts>
+								<OnPlay>
+									self:GetParent():GetParent().BottomButton:Hide();
+								</OnPlay>
+								<OnFinished>
+									self:GetParent():Hide();
+								</OnFinished>
+							</Scripts>
+						</AnimationGroup>
+					</Animations>
+				</Texture>
+				<Texture setAllPoints="true" parentKey="TopMask">
+					<Color r="0" g="0" b="0" a="1"/>
+					<Anchors>
+						<Anchor point="TOPLEFT" relativeTo="UIParent" relativePoint="TOPLEFT"/>
+						<Anchor point="TOPRIGHT" relativeTo="UIParent" relativePoint="TOPRIGHT"/>
+					</Anchors>
+					<Animations>
+						<AnimationGroup parentKey="animIn">
+							<Translation parentKey="StartPosition" offsetY="0" duration="0" order="1"/>
+							<Translation parentKey="Translation" offsetY="0" duration="0" order="2" smoothing="OUT"/>
+							<Scripts>
+								<OnPlay>
+									self:GetParent():Show();
+								</OnPlay>
+							</Scripts>
+						</AnimationGroup>
+						<AnimationGroup parentKey="animOut">
+							<Translation parentKey="Translation" offsetY="0" duration="0" order="1"/>
+							<Scripts>
+								<OnFinished>
+									self:GetParent():Hide();
+								</OnFinished>
+							</Scripts>
+						</AnimationGroup>
+					</Animations>
+				</Texture>
+			</Layer>
+		</Layers>
+		<Frames>
+			<Button parentKey="BottomButton" Alpha="0" hidden="true" name="Narci_LetterboxButton">
+				<HitRectInsets>
+					<AbsInset left="-78" right="-78" top="0" bottom="-94"/>
+				</HitRectInsets>
+				<Size x="64" y="16"/>
+				<Anchors>
+					<Anchor point="TOP" relativeTo="Narci_FullScreenMask_Bottom" relativePoint="TOP"/>
+				</Anchors>
+				<Layers>
+					<Layer level="BACKGROUND">
+						<Texture file="Interface\AddOns\Narcissus\Art\Filters\LetterboxButton" setAllPoints="true" parentKey="Background">
+							<TexCoords left="0" right="1" top="0" bottom="0.5"/>
+						</Texture>
+					</Layer>
+					<Layer level="ART">
+						<Texture file="Interface\AddOns\Narcissus\Art\Filters\LetterboxButton" parentKey="Arrow" Alpha="1">
+							<TexCoords left="0" right="0.25" top="0.5" bottom="1"/>
+							<Anchors>
+								<Anchor point="CENTER" relativeKey="$parent" relativePoint="CENTER"/>
+							</Anchors>
+						</Texture>
+					</Layer>
+				</Layers>
+				<Scripts>
+					<OnLoad>
+						local h = self:GetHeight();
+						self.Arrow:SetSize(h, h);
+					</OnLoad>
+					<OnEnter>
+						UIFrameFadeIn(self, 0.15, self:GetAlpha(), 1);
+					</OnEnter>
+					<OnLeave>
+						UIFrameFadeOut(self, 0.25, self:GetAlpha(), 0);
+					</OnLeave>
+					<OnClick function="Narci_LetterboxButton_OnClick"/>
+				</Scripts>
+			</Button>
+		</Frames>
+		<Scripts>
+			<OnHide>
+				self:Hide();
+				self:StopAnimating();
+			</OnHide>
+		</Scripts>
+	</Frame>
+</Ui>

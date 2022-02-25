@@ -1,0 +1,170 @@
+<Ui xsi:schemaLocation="http://www.blizzard.com/wow/ui/..\FrameXML\UI.xsd">
+    <Script file="AnimationBrowser.lua"/>
+
+    <Button name="Narci_AnimationButtonTemplate" virtual="true" registerForClicks="LeftButtonUp, RightButtonUp" mixin="NarciAnimationOptionButtonMixin">
+        <Size x="139" y="16"/>
+        <Layers>
+            <Layer level="BACKGROUND">
+                <Texture file="Interface\AddOns\Narcissus\Art\Widgets\ModelAnimation\Panel">
+                    <TexCoords left="0.03515625" right="0.58203125" top="0.33203125" bottom="0.40234375"/>
+                </Texture>
+            </Layer>
+			<Layer level="ARTWORK">
+				<Texture setAllPoints="true" parentKey="Highlight" hidden="true" Alpha="0">
+					<Color r="1" g="1" b="1" a="0.08"/>		
+				</Texture>
+			</Layer>
+            <Layer level="OVERLAY">
+                <FontString inherits="NarciNonInteractiveFont" justifyH="CENTER" justifyV="MIDDLE" maxLines="1" parentKey="ID">
+                    <Size x="26" y="0"/>
+                    <Anchors>
+                        <Anchor point="LEFT" relativeKey="$parent" relativePoint="LEFT" x="0" y="0"/>
+                    </Anchors>
+                </FontString>
+				<Texture file="Interface/AddOns/Narcissus/Art/Widgets/SpellVisualBrowser/Icons.tga" parentKey="Star" hidden="true">
+					<Size x="16" y="16"/>
+					<TexCoords left="0.75" right="1" top="0.25" bottom="0.5"/>
+					<Anchors>
+						<Anchor point="RIGHT" relativeKey="$parent" relativePoint="RIGHT" x="-6"/>
+					</Anchors>
+				</Texture>
+            </Layer>
+        </Layers>
+        <Frames>
+            <Frame parentKey="FlyingTextFrame" clipChildren="true">
+                <Size y="16"/>
+                <Anchors>
+                    <Anchor point="LEFT" relativeKey="$parent.ID" relativePoint="RIGHT" x="0"/>
+                    <Anchor point="RIGHT" relativeKey="$parent.Star" relativePoint="LEFT" x="-2"/>
+                </Anchors>
+                <Layers>
+                    <Layer level="OVERLAY">
+                        <FontString inherits="NarciDisabledButtonFont" justifyH="LEFT" justifyV="MIDDLE" maxLines="1" parentKey="Name">
+                            <Size x="0" y="0"/>
+                            <Anchors>
+                                <Anchor point="LEFT" relativeKey="$parent" relativePoint="LEFT" x="0" y="0"/>
+                            </Anchors>
+                            <Animations>
+                                <AnimationGroup parentKey="FlyIn">
+                                    <Translation offsetY="0" duration="0.5" order="1"/>
+                                    <Translation offsetY="0" duration="0" order="2" parentKey="offset"/>
+                                    <Translation offsetY="0" duration="2" order="3"/>
+                                    <Scripts>
+                                        <OnFinished>
+                                            if self:GetParent():IsMouseOver() then
+                                                self:Play();
+                                            end
+                                        </OnFinished>
+                                    </Scripts>
+                                </AnimationGroup>
+                            </Animations>
+                        </FontString>
+                    </Layer>
+                </Layers>
+            </Frame>
+        </Frames>
+		<Scripts>
+			<OnLeave method="OnLeave"/>
+			<OnDoubleClick method="OnDoubleClick"/>
+            <OnEnter method="OnEnter"/>
+            <OnClick method="OnClick"/>
+		</Scripts>
+    </Button>
+
+    <Frame name="Narci_AnimationBrowser" parent="Narci_AnimationIDFrame" parentKey="Browser" frameLevel="46" mixin="NarciAnimationBrowserMixin" hidden="true" clipChildren="true">
+        <Size x="158" y="150"/>
+        <Anchors>
+            <Anchor point="BOTTOMLEFT" relativeKey="$parent" relativePoint="TOPLEFT" x="-8" y="-1"/>
+        </Anchors>
+        <Layers>
+            <Layer level="BACKGROUND">
+                <Texture file="Interface\AddOns\Narcissus\Art\Widgets\ModelAnimation\Panel" parentKey="Background">
+                    <TexCoords left="0" right="0.6171875" top="0.4375" bottom="1"/>
+                    <Size x="158" y="128"/>
+                    <Anchors>
+                        <Anchor point="BOTTOM" relativeKey="$parent" relativePoint="BOTTOM" x="0" y="0"/>
+                    </Anchors>
+                </Texture>
+                <Texture file="Interface\AddOns\Narcissus\Art\Widgets\ModelAnimation\Panel" parentKey="HeaderBackground">
+                    <TexCoords left="0" right="0.6171875" top="0.2421875" bottom="0.33203125"/>
+                    <Size x="158" y="22"/>
+                    <Anchors>
+                        <Anchor point="TOP" relativeKey="$parent" relativePoint="TOP" x="0" y="0"/>
+                    </Anchors>
+                </Texture>
+                <Texture parentKey="Header">
+                    <Size x="139" y="16"/>
+                    <Anchors>
+                        <Anchor point="TOP" relativeKey="$parent" relativePoint="TOP" y="-5"/>
+                    </Anchors>
+                </Texture>			
+            </Layer>
+            <Layer level="OVERLAY">
+                <Texture file="Interface\AddOns\Narcissus\Art\Widgets\SpellVisualBrowser\Icons" parentKey="SearchIcon">
+                    <TexCoords left="0.75" right="1" top="0.5" bottom="0.75"/>
+                    <Size x="20" y="20"/>
+                    <Anchors>
+                        <Anchor point="LEFT" relativeKey="$parent.Header" relativePoint="LEFT" x="3" y="0"/>
+                    </Anchors>
+                </Texture>
+            </Layer>
+        </Layers>
+        <Frames>
+            <ScrollFrame parentKey="ScrollFrame">
+                <Size x="139" y="128"/>
+                <Anchors>
+                    <Anchor point="BOTTOM" relativeKey="$parent" relativePoint="BOTTOM" x="0" y="0"/>
+                </Anchors>
+                <!--Layers>
+                    <Layer>
+                        <Texture>
+                            <Color r="1" g="0" b="0" a="0.5"/>
+                        </Texture>
+                    </Layer>
+                </Layers-->
+                <ScrollChild>
+                    <Frame parentKey="ScrollChild">
+                        <Size x="139" y="16"/>
+                        <Anchors>
+                            <Anchor point="TOP" relativeKey="$parent" relativePoint="TOP"/>
+                        </Anchors>
+                    </Frame>
+                </ScrollChild>
+                <Frames>
+                    <Slider inherits="NarciCustomScrollBarTemplate" frameLevel="55">
+                        <Anchors>
+                            <Anchor point="TOPRIGHT" relativePoint="TOPRIGHT" x="0" y="0"/>
+                            <Anchor point="BOTTOMRIGHT" relativePoint="BOTTOMRIGHT" x="0" y="0"/>
+                        </Anchors>
+                    </Slider>
+
+                    <Button inherits="NarciQuickFavoriteButtonTemplate" hidden="true" frameLevel="50">
+                        <Scripts>
+                            <OnLoad>
+                                self:SetIconSize(16);
+                            </OnLoad>
+                        </Scripts>
+                    </Button>
+                </Frames>
+            </ScrollFrame>
+            
+            <Editbox parentKey="Editbox" autoFocus="false" letters="24" mixin="NarciAnimationSearchBoxMixin" inherits="NarciSearchBoxTemplate">
+                <Size y="16"/>
+                <Anchors>
+                    <Anchor point="LEFT" relativeKey="$parent.Header" relativePoint="LEFT" x="26"/>
+                    <Anchor point="RIGHT" relativeKey="$parent.Header" relativePoint="RIGHT" x="0"/>
+                </Anchors>
+                <Scripts>
+                    <OnLoad method="PostLoad"/>
+                </Scripts>
+            </Editbox>
+        </Frames>
+        <Scripts>
+            <OnLoad method="OnLoad"/>
+            <OnShow method="OnShow"/>
+            <OnHide method="OnHide"/>
+            <OnEvent method="OnEvent"/>
+            <OnMouseDown method="OnMouseDown"/>
+        </Scripts>
+    </Frame>
+</Ui>

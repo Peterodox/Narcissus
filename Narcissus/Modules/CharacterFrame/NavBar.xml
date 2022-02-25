@@ -1,0 +1,236 @@
+<Ui xsi:schemaLocation="http://www.blizzard.com/wow/ui/..\FrameXML\UI.xsd">
+    <Script file="NavBar.lua"/>
+
+    <Button name="NarciNavBarTabButtonTemplate" mixin="NarciNavBarTabButtonMixin" virtual="true">
+        <Size x="60" y="24"/>
+        <HitRectInsets>
+            <AbsInset left="0" right="0" top="-8" bottom="-4"/>
+        </HitRectInsets>
+        <Layers>
+            <Layer level="BORDER">
+                <Texture file="Interface\AddOns\Narcissus\Art\NavBar\ButtonCorner">
+                    <Size x="48" y="24"/>
+                    <Anchors>
+                        <Anchor point="TOPRIGHT" x="2"/>
+                    </Anchors>
+                </Texture>
+            </Layer>
+            <Layer level="ARTWORK">
+                <Texture file="Interface\AddOns\Narcissus\Art\NavBar\ButtonHighlight" Alpha="1" parentKey="Highlight" hidden="true">
+                    <Size y="16"/>
+                    <Anchors>
+                        <Anchor point="BOTTOMLEFT" x="-4"/>
+                        <Anchor point="BOTTOMRIGHT" x="4"/>
+                    </Anchors>
+                </Texture>
+            </Layer>
+            <Layer level="OVERLAY">
+				<FontString inherits="NarciFontMedium12" justifyH="CENTER" justifyV="MIDDLE" parentKey="Label" maxLines="1">
+					<Size x="0" y="16"/>
+					<Color r="0.5" g="0.5" b="0.5"/>
+					<Anchors>
+						<Anchor point="CENTER" relativeKey="$parent" relativePoint="CENTER" x="0" y="0"/>
+					</Anchors>
+				</FontString>
+            </Layer>
+        </Layers>
+        <Scripts>
+            <OnEnter method="OnEnter"/>
+            <OnLeave method="OnLeave"/>
+            <OnClick method="OnClick"/>
+            <OnMouseDown method="OnMouseDown"/>
+            <OnMouseUp method="OnMouseUp"/>
+        </Scripts>
+    </Button>
+
+    <Frame name="Narci_NavBar" parent="Narci_Attribute" mixin="NarciNavBarMixin">
+        <Size x="320" y="48"/>
+        <Anchors>
+            <Anchor point="TOP" relativeKey="$parent.ItemLevelFrame" relativePoint="BOTTOM" x="0" y="-24"/>
+        </Anchors>
+        <Layers>
+            <Layer level="BACKGROUND" textureSubLevel="-1">
+                <Texture setAllPoints="true" parentKey="Background">
+                    <Color r="0.08" g="0.08" b="0.08" a="0.9"/>
+                </Texture>
+            </Layer>
+        </Layers>
+        <Frames>
+            <Frame parentKey="TabButtonContainer" clipChildren="true">
+                <Size y="24"/>
+                <Anchors>
+                    <Anchor point="TOPLEFT"/>
+                    <Anchor point="TOPRIGHT"/>
+                </Anchors>
+            </Frame>
+
+            <Frame parentKey="PrimaryFrame" useParentLevel="true">
+                <Size y="24"/>
+                <Anchors>
+                    <Anchor point="BOTTOMLEFT"/>
+                    <Anchor point="BOTTOMRIGHT"/>
+                </Anchors>
+                <Frames>
+                    <Frame parentKey="ConduitContainer" useParentLevel="true" hidden="true" Alpha="0">
+                        <Anchors>
+                            <Anchor point="TOPLEFT"/>
+                            <Anchor point="BOTTOMRIGHT"/>
+                        </Anchors>
+                    </Frame>
+
+                    <Frame parentKey="TalentContainer" useParentLevel="true" mixin="NarciTalentsMixin">
+                        <Anchors>
+                            <Anchor point="TOPLEFT"/>
+                            <Anchor point="BOTTOMRIGHT"/>
+                        </Anchors>
+                        <Scripts>
+                            <OnLoad method="OnLoad"/>
+                            <OnShow method="OnShow"/>
+                            <OnEvent method="OnEvent"/>
+                        </Scripts>
+                    </Frame>
+                </Frames>
+            </Frame>
+
+            <Frame parentKey="SetsFrame" useParentLevel="true" hidden="true">
+                <Size y="24"/>
+                <Anchors>
+                    <Anchor point="BOTTOMLEFT"/>
+                    <Anchor point="BOTTOMRIGHT"/>
+                </Anchors>
+                <Layers>
+                    <Layer level="OVERLAY">
+                        <FontString inherits="NarciFontMedium12" justifyH="LEFT" justifyV="MIDDLE" parentKey="DataText" maxLines="1">
+                            <Size x="272" y="0"/>
+                            <Color r="0.92" g="0.92" b="0.92"/>
+                            <Anchors>
+                                <Anchor point="LEFT" relativeKey="$parent" relativePoint="LEFT" x="10" y="0"/>
+                            </Anchors>
+                        </FontString>
+                    </Layer>
+                </Layers>
+            </Frame>
+
+            <Frame parentKey="SoulbindsFrame" useParentLevel="true" hidden="true">
+                <Size y="24"/>
+                <Anchors>
+                    <Anchor point="BOTTOMLEFT"/>
+                    <Anchor point="BOTTOMRIGHT"/>
+                </Anchors>
+                <Layers>
+                    <Layer level="OVERLAY">
+                        <FontString inherits="NarciFontMedium12" justifyH="LEFT" justifyV="MIDDLE" parentKey="DataText" maxLines="1">
+                            <Size x="272" y="0"/>
+                            <Color r="0.92" g="0.92" b="0.92"/>
+                            <Anchors>
+                                <Anchor point="LEFT" relativeKey="$parent" relativePoint="LEFT" x="10" y="0"/>
+                            </Anchors>
+                        </FontString>
+                    </Layer>
+                </Layers>
+            </Frame>
+
+            <Frame parentKey="ChallengeFrame" useParentLevel="true" hidden="true">
+                <Size y="24"/>
+                <Anchors>
+                    <Anchor point="BOTTOMLEFT"/>
+                    <Anchor point="BOTTOMRIGHT"/>
+                </Anchors>
+                <Layers>
+                    <Layer level="OVERLAY">
+                        <FontString inherits="NarciFontMedium12" justifyH="LEFT" justifyV="MIDDLE" parentKey="DataText" maxLines="1">
+                            <Size x="272" y="0"/>
+                            <Color r="0.8" g="0.8" b="0.8"/>
+                            <Anchors>
+                                <Anchor point="LEFT" relativeKey="$parent" relativePoint="LEFT" x="10" y="0"/>
+                            </Anchors>
+                        </FontString>
+                    </Layer>
+                </Layers>
+                <Frames>
+                    <Frame parentKey="OwnedInfo" mixin="NarciOwnedKeystoneFrameMixin">
+                        <Size x="48" y="48"/>
+                        <Anchors>
+                            <Anchor point="BOTTOMRIGHT" x="0"/>
+                        </Anchors>
+                        <Layers>
+                            <!--Layer level="OVERLAY" textureSubLevel="2">
+                                <Texture parentKey="KeystoneOverlay" file="Interface\AddOns\Narcissus\Art\Modules\Competitive\MythicPlus\MyKeystoneOverlay">
+                                    <Size x="48" y="48"/>
+                                        <Anchors>
+                                            <Anchor point="CENTER"/>
+                                        </Anchors>
+                                </Texture>
+                            </Layer-->
+                            <Layer level="OVERLAY" textureSubLevel="3">
+                                <FontString inherits="NarciFontNumber12Outline" justifyH="CENTER" justifyV="MIDDLE" parentKey="Level" maxLines="1">
+                                    <Size x="64" y="24"/>
+                                    <Color r="0.8" g="0.8" b="0.8"/>
+                                    <Anchors>
+                                        <Anchor point="BOTTOM" relativeKey="$parent" relativePoint="BOTTOM" x="0" y="0"/>
+                                    </Anchors>
+                                </FontString>
+                            </Layer>
+                        </Layers>
+                        <Scripts>
+                            <OnLoad method="OnLoad"/>
+                            <OnEnter method="OnEnter"/>
+                            <OnLeave method="OnLeave"/>
+                        </Scripts>
+                    </Frame>
+                </Frames>
+            </Frame>
+
+            <Frame parentKey="OverlayFrame">
+                <Anchors>
+                    <Anchor point="TOPLEFT"/>
+                    <Anchor point="BOTTOMRIGHT"/>
+                </Anchors>
+                <Layers>
+                    <Layer level="OVERLAY" textureSubLevel="-1">
+                        <Texture file="Interface\AddOns\Narcissus\Art\NavBar\Shadow-Horizontal" parentKey="Divider">
+                            <Size x="240" y="12"/>
+                            <Anchors>
+                                <Anchor point="TOPLEFT" relativePoint="LEFT" y="0.5"/>
+                            </Anchors>
+                        </Texture>
+                    </Layer>
+                    <Layer level="OVERLAY">
+                        <Texture file="Interface\AddOns\Narcissus\Art\NavBar\Shadow-Vertical" parentKey="PortraitShadow">
+                            <Size x="24" y="48"/>
+                            <Anchors>
+                                <Anchor point="RIGHT" x="-43"/>
+                            </Anchors>
+                        </Texture>
+                        <Texture parentKey="Portrait">
+                            <Size x="52" y="52"/>
+                            <Color r="0.1" g="0.1" b="0.1"/>
+                            <Anchors>
+                                <Anchor point="RIGHT" x="0"/>
+                            </Anchors>
+                            <Animations>
+                                <AnimationGroup parentKey="ActivateAnim" setToFinalAlpha="true">
+                                    <Alpha smoothing="OUT" duration="0.3" fromAlpha="0" toAlpha="1" order="1"/>
+                                    <Scale smoothing="OUT" duration="0.3" fromScaleX="1.25" fromScaleY="1.25" toScaleX="1" toScaleY="1" order="1"/>
+                                </AnimationGroup>
+                            </Animations>
+                        </Texture>
+                        <MaskTexture parentKey="PortraitMask" file="Interface\AddOns\Narcissus\Art\NavBar\PortraitMask" hWrapMode="CLAMPTOBLACKADDITIVE" vWrapMode="CLAMPTOBLACKADDITIVE">
+                            <Size x="96" y="48"/>
+                            <Anchors>
+                                <Anchor point="RIGHT"/>
+                            </Anchors>
+                            <MaskedTextures>
+                                <MaskedTexture childKey="Portrait"/>
+                            </MaskedTextures>
+                        </MaskTexture>
+                    </Layer>
+                </Layers>
+            </Frame>
+        </Frames>
+        <Scripts>
+            <OnLoad method="OnLoad"/>
+            <OnShow method="ProcessUpdate"/>
+        </Scripts>
+    </Frame>
+</Ui>

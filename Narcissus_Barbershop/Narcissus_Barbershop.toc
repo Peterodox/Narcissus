@@ -1,0 +1,16 @@
+## Interface: 90200
+## Plain Title: Narcissus Barbershop
+## Version: 1.1
+## LoadOnDemand: 1
+## RequiredDeps: Narcissus
+
+## Title: |cffA236EFN|cff9448F1a|cff865BF2r|cff786DF4c|cff6A80F6i|cff5D92F7s|cff4FA4F9s|cff41B7FAu|cff33C9FCs|r |cffFF657FBarber|r|cffCCCCCCshop|r
+
+## Notes: Save your appearances.
+## Notes-zhCN: 理发厅增强: 保存外观
+## Notes-zhTW: 保存樣貌
+
+## SavedVariables: NarciBarberShopDB
+## Author: Peterodox
+
+Barbershop.xml

@@ -1,0 +1,1179 @@
+<Ui xsi:schemaLocation="http://www.blizzard.com/wow/ui/..\FrameXML\UI.xsd">
+    <Script file="Splash.lua"/>
+    <Script file="ItemShop.lua"/>
+
+    <FontString name="NarciSplashWhiteFont" inherits="NarciPrefFontWhiteMild" virtual="true">
+        <Color r="0.5" g="0.5" b="0.5"/>
+    </FontString>
+    
+    <Frame name="NarciSplashInteractiveTextFrame" mixin="NarciSplashInteractiveTextMixin" virtual="true">
+        <Size x="280"/>
+        <HitRectInsets>
+            <AbsInset left="-40" right="-40" top="-8" bottom="-8"/>
+        </HitRectInsets>
+        <Layers>
+            <Layer level="OVERLAY">
+                <FontString parentKey="Text" inherits="NarciTooltipDescriptionFontRegularShadow" justifyH="LEFT" justifyV="TOP" spacing="2">
+                    <Size x="280"/>
+                    <Color r="0.65" g="0.65" b="0.65"/>
+                    <Anchors>
+                        <Anchor point="TOPLEFT" relativeKey="$parent" relativePoint="TOPLEFT" x="0" y="0"/>
+                        <Anchor point="TOPRIGHT" relativeKey="$parent" relativePoint="TOPRIGHT" x="0" y="0"/>
+                    </Anchors>
+                </FontString>
+                <Texture parentKey="Marker" Alpha="0">
+                    <Size x="4"/>
+                    <Color r="0.5" g="0.5" b="0.5"/>
+                    <Anchors>
+                        <Anchor point="TOPRIGHT" relativeKey="$parent" relativePoint="TOPLEFT" x="-10" y="-1"/>
+                        <Anchor point="BOTTOMRIGHT" relativeKey="$parent" relativePoint="BOTTOMLEFT" x="-10" y="2.5"/>
+                    </Anchors>
+                    <Animations>
+                        <AnimationGroup parentKey="scaleIn" smoothing="OUT">
+                            <Scale scaleX="1" scaleY="0.2" duration="0" order="1"/>
+                            <Scale scaleX="1" scaleY="5" duration="0.25" order="2" smoothing="OUT"/>
+                        </AnimationGroup>
+                    </Animations>
+                </Texture>
+            </Layer>
+        </Layers>
+        <Scripts>
+            <OnEnter method="OnEnter"/>
+            <OnLeave method="OnLeave"/>
+        </Scripts>
+    </Frame>
+
+    <FontString name="NarciSplashHeaderTemplate" inherits="NarciFontMedium24" justifyH="LEFT" justifyV="MIDDLE" virtual="true">
+        <Size x="0" y="0"/>
+        <Color r="0.85" g="0.85" b="0.85"/>
+    </FontString>
+
+    <Frame name="Narci_SplashFrame_Template" frameStrata="TOOLTIP" hidden="false" Alpha="0" ignoreParentScale="true" frameLevel="60" scale="1" virtual="true">
+        <Anchors>
+            <Anchor point="CENTER" x="0" y="20"/>
+        </Anchors>
+        <Size x="540" y="405"/>
+        <Layers>
+            <Layer level="ARTWORK" textureSubLevel="1">
+                <Texture file="Interface\AddOns\Narcissus\Art\Splash\Backdrop2.tga" setAllPoints="true" parentKey="Backdrop"/>
+            </Layer>
+            <Layer level="ARTWORK" textureSubLevel="2" ignoreParentAlpha="true">
+                <Texture file="Interface\AddOns\Narcissus\Art\Splash\Backdrop1.tga" setAllPoints="true" parentKey="BackdropFront">
+                    <Animations>
+                        <AnimationGroup parentKey="animIn" smoothing="OUT">
+                            <Alpha startDelay="3.5" fromAlpha="0" toAlpha="1" duration="0.5" order="1"/> 
+                            <Scripts>
+                                <OnFinished>
+                                    self:GetParent():SetAlpha(1);
+                                    self:GetParent().animOut:Play();
+                                    self:GetParent():GetParent().ShowFront = true;
+                                    Narci_Splash_ChangePhoto();
+                                </OnFinished>
+                            </Scripts>
+                        </AnimationGroup>
+                        <AnimationGroup parentKey="animOut" smoothing="OUT" setToFinalAlpha="true">
+                            <Alpha startDelay="3.5" fromAlpha="1" toAlpha="0" duration="0.5" order="1"/> 
+                            <Scripts>
+                                <OnFinished>
+                                    self:GetParent():SetAlpha(0);
+                                    self:GetParent():GetParent().ShowFront = false;
+                                    Narci_Splash_ChangePhoto();
+                                    self:GetParent().animIn:Play();
+                                </OnFinished>
+                            </Scripts>
+                        </AnimationGroup>
+                    </Animations>
+                </Texture>
+            </Layer>
+            <Layer level="OVERLAY">
+                <Texture file="Interface\AddOns\Narcissus\Art\Splash\SplashBorder.tga" parentKey="Border">
+                    <TexCoords left="0" right="0.9375" top="0" bottom="0.703125"/>
+                    <Size x="600" y="450"/>
+                    <Anchors>
+                        <Anchor point="CENTER"/>
+                    </Anchors>
+                </Texture>
+            </Layer>
+        </Layers>
+        <Frames>
+            <Frame parentKey="HiddenFrame" hidden="true" Alpha="0">
+                <Layers>
+                    <Layer level="OVERLAY">
+                        <FontString inherits="NarciFontMedium24" justifyH="LEFT" justifyV="TOP" text="NARCI_SPELL_VISUALS" parentKey="Header" >
+                            <Size x="0" y="0"/>
+                            <Color r="1" g="0.82" b="0"/>
+                            <Anchors>
+                                <Anchor point="TOPLEFT" relativeKey="$parent.$parent.Backdrop" relativePoint="TOPLEFT" x="76" y="-35"/>
+                            </Anchors>
+                        </FontString>
+                        <FontString inherits="NarciMenuFont" justifyH="LEFT" justifyV="TOP" text="NARCI_GROUP_PHOTO_AVAILABLE" >
+                            <Size x="0" y="0"/>
+                            <Anchors>
+                                <Anchor point="TOPLEFT" relativeKey="$parent.Header" relativePoint="BOTTOMLEFT" x="0" y="-4"/>
+                            </Anchors>
+                        </FontString>
+                    </Layer>
+                </Layers>
+                <Frames>
+                    <Button inherits="NarciCloseButtonTemplate" ignoreParentScale="true">
+                        <Anchors>
+                            <Anchor point="TOPRIGHT" relativeKey="$parent.$parent.Border" relativePoint="TOPRIGHT" x="-35" y="-28"/>
+                        </Anchors>
+                        <Scripts>
+                            <OnClick>
+                                PlaySound(SOUNDKIT.ACHIEVEMENT_MENU_CLOSE);
+                                NarciAPI_FadeFrame(self:GetParent():GetParent(), 0.2, "OUT");
+                            </OnClick>
+                        </Scripts>
+                    </Button>
+                    <Button inherits="Narci_SplashContinueButton_Template" parentKey="Continue" scale="0.8">
+                        <Size x="240" y="24"/>
+                        <Anchors>
+                            <Anchor point="BOTTOM" relativeKey="$parent.$parent.Border" relativePoint="BOTTOM" y="50"/>
+                        </Anchors>
+                        <Scripts>
+                            <OnLoad>
+                                self.Value:SetText(NARCI_SPLASH_SOUNDS_GREAT_BYE);
+                            </OnLoad>
+                            <OnClick>
+                                PlaySound(SOUNDKIT.ACHIEVEMENT_MENU_CLOSE);
+                                NarciAPI_FadeFrame(self:GetParent():GetParent(), 0.2, "OUT");
+                            </OnClick>
+                        </Scripts>
+                    </Button>
+                </Frames>
+            </Frame>
+        </Frames>
+		<Animations>
+			<AnimationGroup parentKey="animIn" smoothing="OUT">
+				<Scale scaleX="0.6" scaleY="0.6" duration="0" order="1"/>
+				<Scale scaleX="1.75" scaleY="1.75" duration="0.25" order="2"/>
+				<Scale scaleX="0.952" scaleY="0.952" duration="0.15" order="3"/>
+                <Scripts>
+                    <OnFinished>
+                        UIFrameFadeIn(self:GetParent().HiddenFrame, 0.2, 0, 1);
+                    </OnFinished>
+                </Scripts>
+			</AnimationGroup>
+		</Animations>
+        <Scripts>
+            <OnHide>
+                self:StopAnimating();
+                self:Hide();
+                Narci.UserIsInputing = false;
+            </OnHide>
+            <OnShow>
+                Narci.UserIsInputing = true;
+            </OnShow>
+        </Scripts>
+    </Frame>
+
+    <Texture name="NarciTextureWithBlingEffect" Alpha="0" virtual="true">
+        <Animations>
+            <AnimationGroup parentKey="Bling" looping="REPEAT">
+                <Alpha fromAlpha="0" toAlpha="1" duration="1" order="1"/>
+                <Alpha fromAlpha="1" toAlpha="0" duration="2" order="2"/>
+                <Alpha fromAlpha="0" toAlpha="0" duration="2" order="3"/>
+            </AnimationGroup>
+        </Animations>
+    </Texture>
+
+    <Button name="NarciTickAreaTemplate" virtual="true">
+        <Size x="200" y="200"/>
+        <Layers>
+            <Layer level="OVERLAY" textureSubLevel="50">
+                <Texture parentKey="AreaColor" hidden="true">
+                    <Color r="0" g="1" b="0" a="0.2"/>
+                </Texture>
+                <Texture file="Interface\AddOns\Narcissus\Art\Splash\GreenTicks.tga" parentKey="Tick" hidden="true">
+                    <TexCoords left="0" right="0.5" top="0" bottom="1"/>
+                    <Size x="128" y="128"/>
+                    <Anchors>
+                        <Anchor point="CENTER" relativeKey="$parent" relativePoint="CENTER" y="-80"/>
+                    </Anchors>
+                </Texture>
+            </Layer>
+            <Layer level="OVERLAY">
+                <Texture file="Interface\AddOns\Narcissus\Art\Splash\TickHighlight.tga" parentKey="Highlight" Alpha="0">
+                    <Anchors>
+                        <Anchor point="TOPLEFT" relativeKey="$parent.Tick" relativePoint="TOPLEFT"/>
+                        <Anchor point="BOTTOMRIGHT" relativeKey="$parent.Tick" relativePoint="BOTTOMRIGHT"/>
+                    </Anchors>
+                </Texture>
+            </Layer>
+        </Layers>
+        <Scripts>
+            <OnMouseDown>
+                self.Tick:SetSize(120, 120);
+            </OnMouseDown>
+            <OnMouseUp>
+                self.Tick:SetSize(128, 128);
+            </OnMouseUp>
+            <OnEnter>
+                UIFrameFadeIn(self.Highlight, 0.25, self.Highlight:GetAlpha(), 0.5);
+                if self.onEnterFunc then
+                    self.onEnterFunc(self);
+                end
+            </OnEnter>
+            <OnLeave>
+                UIFrameFadeOut(self.Highlight, 0.25, self.Highlight:GetAlpha(), 0);
+                if self.onLeaveFunc then
+                    self.onLeaveFunc(self);
+                end
+            </OnLeave>
+        </Scripts>
+    </Button>
+
+    <Frame name="NarciSplashColorStripTemplate" useParentLevel="true" virtual="true">
+        <Size x="107" y="560"/>
+        <Layers>
+            <Layer level="OVERLAY">
+                <Texture parentKey="Background" ignoreParentAlpha="true"/>
+            </Layer>
+            <Layer level="OVERLAY" textureSubLevel="2">
+                <Texture parentKey="Scroll" file="Interface\AddOns\Narcissus\ART\Splash\BarberShop\Scroll">
+                    <Size x="107" y="54"/>
+                    <Anchors>
+                        <Anchor point="CENTER" relativeKey="$parent" relativePoint="TOP" y="0"/>
+                    </Anchors>
+                </Texture>
+            </Layer>
+        </Layers>
+    </Frame>
+
+    <Frame name="NarciSplashSponsorFrameTemplate" virtual="true">
+        <Size x="256" y="128"/>
+        <Layers>
+            <Layer level="OVERLAY" textureSubLevel="4">
+                <Texture parentKey="Logo" Alpha="0">
+                    <Size x="256" y="128"/>
+                    <Anchors>
+                        <Anchor point="CENTER" relativeKey="$parent" relativePoint="CENTER"/>
+                    </Anchors>
+                </Texture>
+                <FontString inherits="NarciTooltipDescriptionFontRegular" parentKey="SponsoredBy" text="this add-on is sponsored by" Alpha="0">
+                    <Anchors>
+                        <Anchor point="CENTER" relativeKey="$parent" relativePoint="CENTER" y="60"/>
+                    </Anchors>
+                    <Animations>
+                        <AnimationGroup parentKey="flyUp">
+                            <Translation offsetY="-60" duration="0" order="1"/>
+                            <Translation startDelay="2" offsetY="60" smoothing="IN_OUT" duration="2" order="2"/>
+                        </AnimationGroup>
+                    </Animations>
+                </FontString>
+            </Layer>
+        </Layers>
+    </Frame>
+
+    <Button name="NarciItemShopOtherItemButtonTemplate" parentArray="ItemButtons" virtual="true">
+        <Size x="120" y="116"/>
+        <Layers>
+            <Layer level="BACKGROUND">
+                <Texture parentKey="Underline" hidden="true">
+                    <Size y="4"/>
+                    <Anchors>
+                        <Anchor point="TOPLEFT" relativeKey="$parent" relativePoint="BOTTOMLEFT" x="0" y="-4"/>
+                        <Anchor point="TOPRIGHT" relativeKey="$parent" relativePoint="BOTTOMRIGHT" x="0" y="-4"/>
+                    </Anchors>
+                    <Animations>
+                        <AnimationGroup parentKey="Expand" smoothing="OUT">
+                            <Alpha fromAlpha="0" toAlpha="1" duration="0.25" order="1"/>
+                            <Scale fromScaleX="0.8" toScaleX="1" fromScaleY="1" toScaleY="1" smoothing="OUT" duration="0.25" order="1"/>
+                        </AnimationGroup>
+                    </Animations>
+                </Texture>
+            </Layer>
+            <Layer level="OVERLAY">
+                <Texture parentKey="Thumbnail">
+                    <Size x="84" y="84"/>
+                    <Color r="0.5" g="0.5" b="0.5"/>
+                    <Anchors>
+                        <Anchor point="TOP"/>
+                    </Anchors>
+                </Texture>
+                <FontString inherits="NarciFontThin9" parentKey="Name" text="Best Daddy Ever Mug" maxLines="1" justifyH="LEFT" justifyV="BOTTOM">
+                    <Size x="120"/>
+                    <Color r="0" g="0" b="0"/>
+                    <Anchors>
+                        <Anchor point="BOTTOM" relativeKey="$parent" relativePoint="BOTTOM" y="12"/>
+                    </Anchors>
+                </FontString>
+                <FontString inherits="NarciFontNormal9" parentKey="Price" text="&amp;29.00" maxLines="1" justifyH="LEFT" justifyV="BOTTOM">
+                    <Size x="120"/>
+                    <Color r="0" g="0" b="0"/>
+                    <Anchors>
+                        <Anchor point="BOTTOM" relativeKey="$parent" relativePoint="BOTTOM" y="0"/>
+                    </Anchors>
+                </FontString>
+            </Layer>
+        </Layers>
+    </Button>
+
+    <Button name="NarciItemShopSmallPreviewTemplate" parentArray="Previews" virtual="true">
+        <Size x="50" y="50"/>
+        <Layers>
+            <Layer level="BACKGROUND">
+                <Texture parentKey="Underline" hidden="true">
+                    <Size y="2"/>
+                    <Anchors>
+                        <Anchor point="TOPLEFT" relativeKey="$parent" relativePoint="BOTTOMLEFT" x="0" y="-2"/>
+                        <Anchor point="TOPRIGHT" relativeKey="$parent" relativePoint="BOTTOMRIGHT" x="0" y="-2"/>
+                    </Anchors>
+                    <Animations>
+                        <AnimationGroup parentKey="Expand" smoothing="OUT">
+                            <Alpha fromAlpha="0" toAlpha="1" duration="0.25" order="1"/>
+                            <Scale fromScaleX="0.8" toScaleX="1" fromScaleY="1" toScaleY="1" smoothing="OUT" duration="0.25" order="1"/>
+                        </AnimationGroup>
+                    </Animations>
+                </Texture>
+                <Texture parentKey="Underline" hidden="true">
+                    <Size y="2"/>
+                    <Anchors>
+                        <Anchor point="TOPLEFT" relativeKey="$parent" relativePoint="BOTTOMLEFT" x="0" y="-2"/>
+                        <Anchor point="TOPRIGHT" relativeKey="$parent" relativePoint="BOTTOMRIGHT" x="0" y="-2"/>
+                    </Anchors>
+                    <Animations>
+                        <AnimationGroup parentKey="Expand" smoothing="OUT">
+                            <Alpha fromAlpha="0" toAlpha="1" duration="0.25" order="1"/>
+                            <Scale fromScaleX="0.8" toScaleX="1" fromScaleY="1" toScaleY="1" smoothing="OUT" duration="0.25" order="1"/>
+                        </AnimationGroup>
+                    </Animations>
+                </Texture>
+            </Layer>
+            <Layer level="OVERLAY">
+                <Texture parentKey="Thumbnail">
+                    <Size x="50" y="50"/>
+                    <Color r="0.5" g="0.5" b="0.5"/>
+                    <Anchors>
+                        <Anchor point="CENTER"/>
+                    </Anchors>
+                </Texture>
+            </Layer>
+        </Layers>
+    </Button>
+
+    <Button name="NarciSplashNavButtonTemplate" mixin="NarciSplashNavButtonMixin" virtual="true">
+        <Layers>
+            <Layer level="BACKGROUND">
+                <Texture parentKey="Backdrop"/>
+            </Layer>
+            <Layer level="OVERLAY">
+                <Texture parentKey="Logo">
+                    <Size x="64" y="64"/>
+                    <Anchors>
+                        <Anchor point="CENTER" y="16"/>
+                    </Anchors>
+                </Texture>
+                <FontString inherits="NarciTooltipDescriptionFontRegular" justifyV="TOP" parentKey="Title">
+                    <Size x="320"/>
+                    <Anchors>
+                        <Anchor point="TOP" relativePoint="CENTER" y="-32"/>
+                    </Anchors>
+                </FontString>
+                <Texture parentKey="SelectionMarkLeft" file="Interface\AddOns\Narcissus\Art\Splash\SelectionMarkLeft">
+                    <Size x="48" y="48"/>
+                    <Anchors>
+                        <Anchor point="CENTER" relativeKey="$parent" relativePoint="LEFT" y="800"/>
+                    </Anchors>
+                </Texture>
+                <Texture parentKey="SelectionMarkRight" file="Interface\AddOns\Narcissus\Art\Splash\SelectionMarkLeft">
+                    <TexCoords left="1" right="0" top="0" bottom="1"/>
+                    <Size x="48" y="48"/>
+                    <Anchors>
+                        <Anchor point="CENTER" relativeKey="$parent" relativePoint="RIGHT" y="800"/>
+                    </Anchors>
+                </Texture>
+            </Layer>
+        </Layers>
+        <Scripts>
+            <OnLoad method="OnLoad"/>
+            <OnEnter method="OnEnter"/>
+            <OnLeave method="OnLeave"/>
+            <OnHide method="OnHide"/>
+            <OnClick method="OnClick"/>
+        </Scripts>
+    </Button>
+
+    <Frame name="NarciInteractiveSplashTemplate" frameStrata="TOOLTIP" hidden="true" virtual="true" mixin="NarciInteractveSplashMixin">
+        <Size x="855" y="481"/>
+        <Anchors>
+            <Anchor point="CENTER" x="0" y="20"/>
+        </Anchors>
+
+        <Layers>
+            <Layer level="BACKGROUND">
+                <Texture>
+                    <Color r="0.08" g="0.08" b="0.08" a="1"/>
+                </Texture>
+            </Layer>
+            <Layer level="BORDER">
+
+            </Layer>
+
+        </Layers>
+        <Frames>
+            <Frame parentKey="ClipFrame" clipChildren="true" frameLevel="1">
+                <Anchors>
+                    <Anchor point="TOPLEFT" relativeKey="$parent" relativePoint="TOPLEFT" x="0.5" y="-0.5"/>
+                    <Anchor point="BOTTOMRIGHT" relativeKey="$parent" relativePoint="BOTTOMRIGHT" x="-0.5" y="0.5"/>
+                </Anchors>
+                <Layers>
+                    <Layer level="OVERLAY" textureSubLevel="2">
+                        <!--Texture>
+                            <Anchors>
+                                <Anchor point="TOPLEFT" relativeKey="$parent" relativePoint="BOTTOMLEFT" y="120"/>
+                                <Anchor point="BOTTOMRIGHT" relativeKey="$parent" relativePoint="BOTTOMRIGHT"/>
+                            </Anchors>
+                            <Color r="0" g="0" b="0"/>
+                        </Texture-->
+                    </Layer>
+                </Layers>
+                <Frames>
+                    <!--Frame parentKey="AssetContainer">
+                        <Anchors>
+                            <Anchor point="TOPLEFT" relativeKey="$parent" relativePoint="TOPLEFT" x="0" y="0"/>
+                            <Anchor point="BOTTOMRIGHT" relativeKey="$parent" relativePoint="BOTTOMRIGHT" x="0" y="0"/>
+                        </Anchors>
+                    </Frame>
+
+                    <ModelScene parentKey="VFX" inherits="NarciNonInteractableModelSceneTemplate" frameLevel="60" drawLayer="OVERLAY" hidden="false">
+                        <Anchors>
+                            <Anchor point="TOPLEFT" relativeKey="$parent" relativePoint="TOPLEFT" x="0" y="0"/>
+                            <Anchor point="BOTTOMRIGHT" relativeKey="$parent" relativePoint="BOTTOMRIGHT" x="0" y="0"/>
+                        </Anchors>
+                        <Scripts>
+                            <OnLoad method="OnLoad"/>
+                        </Scripts>
+                    </ModelScene>
+
+                    <ModelScene name="NarciSplashModelScene" parentKey="ModelScene" inherits="NarciNonInteractableModelSceneTemplate" frameLevel="50" Alpha="1" drawLayer="BORDER" hidden="false">
+                        <HitRectInsets>
+                            <AbsInset left="80" right="80" top="80" bottom="25"/>
+                        </HitRectInsets>
+                        <Anchors>
+                            <Anchor point="LEFT" relativeKey="$parent" relativePoint="LEFT" x="0" y="0"/>
+                        </Anchors>
+                        <Layers>
+                            <Layer level="BACKGROUND">
+                                <Texture parentKey="Background" Alpha="1">
+                                    <Color r="0" g="0" b="0"/>
+                                </Texture>
+                            </Layer>
+                            <Layer level="BACKGROUND" textureSubLevel="2">
+                                <FontString inherits="NarciTooltipDescriptionFontRegular" parentKey="TextBottomRight" justifyH="RIGHT" justifyV="BOTTOM" spacing="2">
+                                    <Anchors>
+                                        <Anchor point="BOTTOMRIGHT" relativeKey="$parent" relativePoint="BOTTOMRIGHT" x="-24" y="24"/>
+                                    </Anchors>
+                                </FontString>
+                                <Texture file="Interface\AddOns\Narcissus\Art\Splash\ActorShadow" parentKey="GroundShadow">
+                                    <Size x="240" y="80"/>
+                                    <Anchors>
+                                        <Anchor point="CENTER"/>
+                                    </Anchors>
+                                </Texture>
+                            </Layer>
+                            <Layer level="BORDER" textureSubLevel="3">
+                                <Texture parentKey="BackgroundLeft" Alpha="1">
+                                    <Color r="0" g="0" b="0"/>
+                                </Texture>
+                                <MaskTexture file="Interface\AddOns\Narcissus\Art\Splash\BarberShop\SceneMask" hWrapMode="CLAMPTOBLACKADDITIVE" vWrapMode="CLAMPTOBLACKADDITIVE">
+                                    <Size x="480"/>
+                                    <Anchors>
+                                        <Anchor point="TOPLEFT" relativeKey="$parent" relativePoint="TOPLEFT" x="0" y="0"/>
+                                        <Anchor point="BOTTOMLEFT" relativeKey="$parent" relativePoint="BOTTOMLEFT" x="0" y="0"/>
+                                    </Anchors>
+                                    <MaskedTextures>
+                                        <MaskedTexture childKey="BackgroundLeft"/>
+                                    </MaskedTextures>
+                                </MaskTexture>
+                            </Layer>
+                        </Layers>
+                        <Frames>
+                            <ModelScene parentKey="FrontScene" inherits="NarciNonInteractableModelSceneTemplate" useParentLevel="true" drawLayer="ARTWORK" enableMouse="false">
+                                <Anchors>
+                                    <Anchor point="LEFT" relativeKey="$parent.ModelScene" relativePoint="LEFT" x="0" y="0"/>
+                                </Anchors>
+                                <Scripts>
+                                    <OnLoad method="OnLoad"/>
+                                </Scripts>
+                            </ModelScene>
+                        </Frames>
+                        <Scripts>
+                            <OnLoad method="OnLoad"/>
+                            <OnMouseDown>
+                                self:GetParent():GetParent().LogoButton:Click();
+                            </OnMouseDown>
+                        </Scripts>
+                    </ModelScene-->
+
+                    <Frame parentKey="ItemShop" frameLevel="50" Alpha="1" hidden="false" mixin="NarciItemShopMixin">
+                        <HitRectInsets>
+                            <AbsInset left="80" right="80" top="80" bottom="25"/>
+                        </HitRectInsets>
+                        <Anchors>
+                            <Anchor point="TOPLEFT" relativeKey="$parent" relativePoint="TOPLEFT" x="0" y="0"/>
+                            <Anchor point="BOTTOMRIGHT" relativeKey="$parent" relativePoint="BOTTOMRIGHT" x="0" y="0"/>
+                        </Anchors>
+                        <Layers>
+                            <Layer level="BACKGROUND" textureSubLevel="-1">
+                                <Texture parentKey="Backdrop" hidden="true">
+                                    <Color r="1" g="1" b="1"/>
+                                </Texture>
+                            </Layer>
+                            <Layer level="BACKGROUND">
+                                <Texture parentKey="BackdropOverlay">
+                                    <Anchors>
+                                        <Anchor point="TOPLEFT" relativeKey="$parent" relativePoint="TOPLEFT" x="0" y="0"/>
+                                        <Anchor point="TOPRIGHT" relativeKey="$parent" relativePoint="TOPRIGHT" x="0" y="0"/>
+                                    </Anchors>
+                                </Texture>
+                            </Layer>
+                            <Layer level="OVERLAY">
+                                <Texture parentKey="ShopLogoLeft" Alpha="0">
+                                    <Size x="256" y="64"/>
+                                    <Animations>
+                                        <!--AnimationGroup parentKey="FlyIn">
+                                            <Scale scaleX="0.5" scaleY="0.5" duration="0" order="1"/>
+                                            <Alpha fromAlpha="0" toAlpha="1" duration="0" order="1"/>
+                                            <Scale scaleX="2" scaleY="2" smoothing="OUT" duration="0.2" order="2"/>
+                                            <Scale scaleX="1.1" scaleY="1.1" duration="4" order="3"/>
+                                            <Alpha startDelay="3.75" fromAlpha="1" toAlpha="0" duration="0.25" order="3"/>
+                                            <Scripts>
+                                                <OnPlay>
+                                                    self:GetParent():GetParent():PlayNextAnimation();
+                                                </OnPlay>
+                                            </Scripts>
+                                        </AnimationGroup-->
+                                        <AnimationGroup parentKey="FlyUp">
+                                            <Alpha fromAlpha="0" toAlpha="1" duration="0.2" order="1"/>
+                                            <Translation offsetY="12" smoothing="OUT" duration="0.5" order="1"/>
+                                            <Translation offsetY="4" smoothing="IN_OUT" duration="0.25" order="1"/>
+                                            <Translation offsetY="0" smoothing="IN_OUT" duration="0.5" order="1"/>
+                                            <Scripts>
+                                                <OnFinished>
+                                                    self:GetParent():GetParent():PlayNextAnimation();
+                                                </OnFinished>
+                                            </Scripts>
+                                        </AnimationGroup>
+                                        <AnimationGroup parentKey="FlyDown">
+                                            <Translation offsetY="16" duration="0" order="1"/>
+                                            <Alpha fromAlpha="1" toAlpha="1" duration="0" order="1"/>
+                                            <Translation offsetY="-20" smoothing="IN_OUT" duration="0.25" order="2"/>
+                                            <Translation offsetY="4" smoothing="IN_OUT" duration="0.25" order="3"/>
+                                            <Alpha startDelay="3.5" fromAlpha="1" toAlpha="0" duration="0.25" order="4"/>
+                                            <Scripts>
+                                                <OnPlay>
+                                                    self:GetParent():GetParent():PlayNextAnimation();
+                                                </OnPlay>
+                                            </Scripts>
+                                        </AnimationGroup>
+                                    </Animations>
+                                </Texture>
+                                <Texture parentKey="ShopLogoRight" Alpha="0">
+                                    <Size x="256" y="64"/>
+                                    <Animations>
+                                        <AnimationGroup parentKey="FlyIn">
+                                            <Translation offsetY="4" duration="0" order="1"/>
+                                            <Alpha fromAlpha="0" toAlpha="1" duration="0.25" order="2"/>
+                                            <Translation offsetY="-8" smoothing="OUT" duration="0.25" order="2"/>
+                                            <Translation offsetY="4" smoothing="IN_OUT" duration="0.25" order="3"/>
+                                            <Alpha startDelay="3.5" fromAlpha="1" toAlpha="0" duration="0.25" order="4"/>
+                                        </AnimationGroup>
+                                    </Animations>
+                                </Texture>
+                                <FontString inherits="NarciTooltipDescriptionFontRegular" parentKey="Slogan" text="Save money." Alpha="0">
+                                    <Anchors>
+                                        <Anchor point="TOPLEFT" relativeKey="$parent.ShopLogoLeft" relativePoint="BOTTOMLEFT" x="10" y="8"/>
+                                    </Anchors>
+                                    <Animations>
+                                        <AnimationGroup parentKey="Fade">
+                                            <Alpha startDelay="1.5" fromAlpha="0" toAlpha="1" smoothing="IN_OUT" duration="0.5" order="1"/>
+                                            <Alpha startDelay="2.5" fromAlpha="1" toAlpha="0" duration="0.25" order="2"/>
+                                        </AnimationGroup>
+                                    </Animations>
+                                </FontString>
+                                <FontString inherits="NarciTooltipDescriptionFontRegular" parentKey="SponsoredBy" text="this add-on is sponsored by" Alpha="0">
+                                    <Anchors>
+                                        <Anchor point="CENTER" relativeKey="$parent" relativePoint="CENTER" y="0"/>
+                                    </Anchors>
+                                    <Animations>
+                                        <AnimationGroup parentKey="FadeIn">
+                                            <Alpha startDelay="1.5" fromAlpha="0" toAlpha="1" smoothing="IN_OUT" duration="0.5" order="1"/>
+                                            <Alpha fromAlpha="1" toAlpha="1" duration="1.5" order="2"/>
+                                            <Scripts>
+                                                <OnFinished>
+                                                    self:GetParent():GetParent():PlayNextAnimation();
+                                                </OnFinished>
+                                            </Scripts>
+                                        </AnimationGroup>
+                                        <AnimationGroup parentKey="FadeOut">
+                                            <Alpha fromAlpha="1" toAlpha="0" duration="0.2" order="1"/>
+                                        </AnimationGroup>
+                                    </Animations>
+                                </FontString>
+                            </Layer>
+                        </Layers>
+                        <Frames>
+                            <Frame parentKey="Header" hidden="true">
+                                <Size y="32"/>
+                                <Anchors>
+                                    <Anchor point="TOPLEFT" relativeKey="$parent" relativePoint="TOPLEFT" x="0" y="0"/>
+                                    <Anchor point="TOPRIGHT" relativeKey="$parent" relativePoint="TOPRIGHT" x="0" y="0"/>
+                                </Anchors>
+                                <Frames>
+                                    <Button parentKey="Logo1">
+                                        <Size x="96" y="32"/>
+                                        <Anchors>
+                                            <Anchor point="LEFT" relativeKey="$parent" relativePoint="LEFT" x="8" y="0"/>
+                                        </Anchors>
+                                        <Layers>
+                                            <Layer level="ARTWORK">
+                                                <Texture parentKey="Highlight" hidden="false">
+                                                    <Color r="0" g="0.44" b="0.86"/>
+                                                    <Animations>
+                                                        <AnimationGroup parentKey="Bling" looping="REPEAT">
+                                                            <Alpha fromAlpha="0" toAlpha="0.8" duration="1" order="1"/>
+                                                            <Alpha startDelay="0.5" fromAlpha="0.8" toAlpha="0" duration="1.5" order="2"/>
+                                                        </AnimationGroup>
+                                                    </Animations>
+                                                </Texture>
+                                            </Layer>
+                                            <Layer level="OVERLAY">
+                                                <Texture parentKey="Logo" file="Interface\AddOns\Narcissus\Art\Splash\Mawmart\NarcissusLogoSmall">
+                                                    <Size x="96" y="24"/>
+                                                    <Anchors>
+                                                        <Anchor point="CENTER" relativeKey="$parent" relativePoint="CENTER" x="0" y="0"/>
+                                                    </Anchors>
+                                                </Texture>
+                                            </Layer>
+                                        </Layers>
+                                        <Scripts>
+                                            <OnShow>
+                                                self.Highlight.Bling:Play();
+                                            </OnShow>
+                                            <OnEnter>
+                                                self.Highlight.Bling:Stop();
+                                            </OnEnter>
+                                            <OnLeave>
+                                                self.Highlight.Bling:Play();
+                                            </OnLeave>
+                                        </Scripts>
+                                    </Button>
+                                </Frames>
+                                <Layers>
+                                    <Layer level="OVERLAY">
+                                        <Texture parentKey="Logo2" file="Interface\AddOns\Narcissus\Art\Splash\Mawmart\MawmartLogoSmall">
+                                            <Size x="96" y="24"/>
+                                            <Anchors>
+                                                <Anchor point="LEFT" relativeKey="$parent.Logo1" relativePoint="RIGHT" x="16" y="0"/>
+                                            </Anchors>
+                                        </Texture>
+
+                                        <FontString inherits="NarciFontNormal9" parentKey="Label1" text="My Items">
+                                            <Anchors>
+                                                <Anchor point="RIGHT" relativeKey="$parent" relativePoint="RIGHT" x="256"/>
+                                            </Anchors>
+                                        </FontString>
+                                        <Texture parentKey="Icon1" file="Interface\AddOns\Narcissus\Art\Splash\Mawmart\HeaderIcon">
+                                            <Size x="32" y="32"/>
+                                            <TexCoords left="0.5" right="1" top="0" bottom="1"/>
+                                            <Anchors>
+                                                <Anchor point="RIGHT" relativeKey="$parent.Label1" relativePoint="LEFT" x="6" y="0"/>
+                                            </Anchors>
+                                        </Texture>
+                                        <FontString inherits="NarciFontNormal9" parentKey="Label2" text="Account">
+                                            <Anchors>
+                                                <Anchor point="RIGHT" relativeKey="$parent.Icon1" relativePoint="LEFT" x="-12"/>
+                                            </Anchors>
+                                        </FontString>
+                                        <Texture parentKey="Icon2" file="Interface\AddOns\Narcissus\Art\Splash\Mawmart\HeaderIcon">
+                                            <Size x="32" y="32"/>
+                                            <TexCoords left="0" right="0.5" top="0" bottom="1"/>
+                                            <Anchors>
+                                                <Anchor point="RIGHT" relativeKey="$parent.Label2" relativePoint="LEFT" x="6" y="0"/>
+                                            </Anchors>
+                                        </Texture>
+                                    </Layer>
+                                    <Layer level="ARTWORK">
+                                        <Texture parentKey="Logo2Highlight" hidden="true">
+                                            <Size x="96" y="30"/>
+                                            <Color r="0" g="0.44" b="0.86"/>
+                                            <Anchors>
+                                                <Anchor point="CENTER" relativeKey="$parent.Logo2" relativePoint="CENTER"/>
+                                            </Anchors>
+                                        </Texture>
+                                    </Layer>
+                                </Layers>
+                            </Frame>
+                            <Frame parentKey="Content" hidden="true" Alpha="0">
+                                <Anchors>
+                                    <Anchor point="TOPLEFT" relativeKey="$parent" relativePoint="TOPLEFT" x="86" y="-32"/>
+                                    <Anchor point="BOTTOMRIGHT" relativeKey="$parent" relativePoint="BOTTOMRIGHT" x="-86" y="0"/>
+                                </Anchors>
+                                <Layers>
+                                    <Layer level="OVERLAY">
+                                        <FontString inherits="NarciFontThin9" parentKey="ItemCategory" text="">
+                                            <Anchors>
+                                                <Anchor point="LEFT" relativeKey="$parent" relativePoint="TOPLEFT" y="-16"/>
+                                            </Anchors>
+                                            <Color r="0.5" g="0.5" b="0.5"/>
+                                        </FontString>
+
+                                        <Texture parentKey="MainPreview" file="Interface\AddOns\Narcissus\Art\Splash\Mawmart\Castle2">
+                                            <Size x="230" y="230"/>
+                                            <Anchors>
+                                                <Anchor point="TOPLEFT" relativeKey="$parent" relativePoint="TOPLEFT" x="60" y="-32"/>
+                                            </Anchors>
+                                        </Texture>
+
+                                        <FontString inherits="NarciItemShopHeaderFont" parentKey="ItemHeader" text="Lion’s Heart - Bronze Incense Stick Holder - Designed by Dan" justifyH="LEFT" justifyV="TOP" spacing="2">
+                                            <Color r="0" g="0" b="0"/>
+                                            <Anchors>
+                                                <Anchor point="TOPLEFT" relativeKey="$parent.MainPreview" relativePoint="TOPRIGHT" x="16"/>
+                                                <Anchor point="RIGHT" relativeKey="$parent" relativePoint="RIGHT" x="0"/>
+                                            </Anchors>
+                                        </FontString>
+
+                                        <FontString inherits="NarciItemShopHeaderFont" parentKey="Price" text="" justifyH="LEFT" justifyV="MIDDLE">
+                                            <Color r="0" g="0" b="0"/>
+                                            <Anchors>
+                                                <Anchor point="TOPLEFT" relativeKey="$parent.ItemHeader" relativePoint="BOTTOMLEFT" y="-36"/>
+                                            </Anchors>
+                                        </FontString>
+
+                                        <FontString inherits="NarciFontThin9" parentKey="QuantityHeader" text="Qty:" justifyH="LEFT" justifyV="TOP">
+                                            <Color r="0.5" g="0.5" b="0.5"/>
+                                            <Anchors>
+                                                <Anchor point="TOPLEFT" relativeKey="$parent.Price" relativePoint="BOTTOMLEFT" y="-16"/>
+                                            </Anchors>
+                                        </FontString>
+
+                                        <Texture parentKey="Underline">
+                                            <Color r="0.5" g="0.5" b="0.5"/>
+                                            <Size x="42" y="1"/>
+                                            <Anchors>
+                                                <Anchor point="BOTTOMLEFT" relativeKey="$parent.QuantityHeader" relativePoint="TOPLEFT" y="-36"/>
+                                            </Anchors>
+                                        </Texture>
+
+                                        <FontString inherits="NarciFontNormal9" parentKey="Quantity" text="1" justifyH="CENTER" justifyV="BOTTOM">
+                                            <Color r="0" g="0" b="0"/>
+                                            <Anchors>
+                                                <Anchor point="BOTTOM" relativeKey="$parent.Underline" relativePoint="TOP" y="6"/>
+                                            </Anchors>
+                                        </FontString>
+
+                                        <Texture parentKey="DeliveryFrame">
+                                            <Color r="0.9" g="0.9" b="0.9"/>
+                                            <Anchors>
+                                                <Anchor point="TOPLEFT" relativeKey="$parent.Underline" relativePoint="BOTTOMLEFT" y="-16"/>
+                                                <Anchor point="BOTTOMLEFT" relativeKey="$parent.MainPreview" relativePoint="BOTTOMRIGHT" x="16"/>
+                                                <Anchor point="RIGHT" relativeKey="$parent" relativePoint="RIGHT"/>
+                                            </Anchors>
+                                        </Texture>
+
+                                        <Texture parentKey="Divider">
+                                            <Color r="0.9" g="0.9" b="0.9"/>
+                                            <Size y="2"/>
+                                            <Anchors>
+                                                <Anchor point="TOP" relativeKey="$parent.MainPreview" relativePoint="BOTTOM" y="-16"/>
+                                                <Anchor point="LEFT" relativeKey="$parent" relativePoint="LEFT"/>
+                                                <Anchor point="RIGHT" relativeKey="$parent" relativePoint="RIGHT"/>
+                                            </Anchors>
+                                        </Texture>
+                                    </Layer>
+                                    <Layer level="OVERLAY" textureSubLevel="1">
+                                        <Texture parentKey="DeliveryFrameInner">
+                                            <Color r="1" g="1" b="1"/>
+                                            <Anchors>
+                                                <Anchor point="TOPLEFT" relativeKey="$parent.DeliveryFrame" relativePoint="TOPLEFT" x="1" y="-1"/>
+                                                <Anchor point="BOTTOMRIGHT" relativeKey="$parent.DeliveryFrame" relativePoint="BOTTOMRIGHT" x="-1" y="1"/>
+                                            </Anchors>
+                                        </Texture>
+                                    </Layer>
+                                    <Layer level="OVERLAY" textureSubLevel="2">
+                                        <FontString inherits="NarciFontNormal9" parentKey="DeliveryTime" text="Free delivery" justifyH="LEFT" justifyV="BOTTOM">
+                                            <Color r="0" g="0" b="0"/>
+                                            <Anchors>
+                                                <Anchor point="BOTTOMLEFT" relativeKey="$parent.DeliveryFrameInner" relativePoint="LEFT" x="15" y="1"/>
+                                            </Anchors>
+                                        </FontString>
+                                        <FontString inherits="NarciFontThin9" parentKey="ETA" text="Arrives by Sat, Jul 3" justifyH="LEFT" justifyV="TOP">
+                                            <Color r="0" g="0" b="0"/>
+                                            <Anchors>
+                                                <Anchor point="TOPLEFT" relativeKey="$parent.DeliveryFrameInner" relativePoint="LEFT" x="15" y="-1"/>
+                                            </Anchors>
+                                        </FontString>
+                                    </Layer>
+                                </Layers>
+                                <Frames>
+                                    <Frame parentKey="RatingFrame">
+                                        <Size x="60" y="16"/>
+                                        <Anchors>
+                                            <Anchor point="TOPLEFT" relativeKey="$parent.ItemHeader" relativePoint="BOTTOMLEFT" x="-1" y="-4"/>
+                                        </Anchors>
+                                        <Layers>
+                                            <Layer level="OVERLAY">
+                                                <FontString inherits="NarciFontThin9" parentKey="Number" justifyH="LEFT" justifyV="MIDDLE">
+                                                    <Color r="0" g="0" b="0"/>
+                                                    <Anchors>
+                                                        <Anchor point="LEFT" relativeKey="$parent" relativePoint="RIGHT" x="4" y="-1"/>
+                                                    </Anchors>
+                                                </FontString>
+                                            </Layer>
+                                        </Layers>
+                                    </Frame>
+                                    <Button parentKey="BuyButton" mixin="NarciItemShopBuyButtonMixin">
+                                        <Size x="80" y="24"/>
+                                        <Anchors>
+                                            <Anchor point="BOTTOMLEFT" relativeKey="$parent.QuantityHeader" relativePoint="TOPLEFT" x="56" y="-36"/>
+                                        </Anchors>
+                                        <Layers>
+                                            <!--Layer level="BACKGROUND">
+                                                <Texture file="Interface\AddOns\Narcissus\Art\Splash\Mawmart\BuyButtonBling" hidden="true" parentKey="Bling">
+                                                    <Size x="96" y="24"/>
+                                                    <Anchors>
+                                                        <Anchor point="CENTER" relativeKey="$parent" relativePoint="CENTER" x="0" y="0"/>
+                                                    </Anchors>
+                                                    <Animations>
+                                                        <AnimationGroup parentKey="ScaleUp">
+                                                            <Scale scaleX="1.6" scaleY="3.6" smoothing="OUT" duration="0.6" order="1"/>
+                                                            <Alpha fromAlpha="1" toAlpha="0" duration="0.5" order="1"/>
+                                                            <Scripts>
+                                                                <OnFinished>
+                                                                    self:GetParent():Hide();
+                                                                </OnFinished>
+                                                            </Scripts>
+                                                        </AnimationGroup>
+                                                    </Animations>
+                                                </Texture>
+                                            </Layer-->
+                                            <Layer level="BACKGROUND" textureSubLevel="1">
+                                                <Texture parentKey="Background">
+                                                    <Color r="0" g="0" b="0"/>
+                                                </Texture>
+                                                <MaskTexture file="Interface\AddOns\Narcissus\Art\Splash\Mawmart\BuyButtonMask" hWrapMode="CLAMPTOBLACKADDITIVE" vWrapMode="CLAMPTOBLACKADDITIVE" parentKey="ButtonMask">
+                                                    <Size x="96" y="24"/>
+                                                    <Anchors>
+                                                        <Anchor point="CENTER" relativeKey="$parent" relativePoint="CENTER" x="0" y="0"/>
+                                                    </Anchors>
+                                                    <MaskedTextures>
+                                                        <MaskedTexture childKey="Background"/>
+                                                    </MaskedTextures>
+                                                </MaskTexture>
+                                            </Layer>
+                                            <Layer level="OVERLAY">
+                                                <FontString inherits="NarciFontNormal9" parentKey="ButtonText" text="Buy Now" justifyH="CENTER" justifyV="MIDDLE">
+                                                    <Color r="1" g="1" b="1"/>
+                                                    <Anchors>
+                                                        <Anchor point="CENTER" relativeKey="$parent" relativePoint="CENTER" y="0"/>
+                                                    </Anchors>
+                                                </FontString>
+                                            </Layer>
+                                        </Layers>
+                                        <Animations>
+                                            <AnimationGroup parentKey="Shake">
+                                                <Translation offsetY="-3" smoothing="OUT" duration="0.15" order="1"/>
+                                                <Translation offsetY="5" smoothing="IN_OUT" duration="0.2" order="2"/>
+                                                <Translation offsetY="-2" smoothing="IN_OUT" duration="0.15" order="3"/>
+                                            </AnimationGroup>
+                                        </Animations>
+                                        <Scripts>
+                                            <OnLoad method="OnLoad"/>
+                                            <OnEnter method="OnEnter"/>
+                                            <OnLeave method="OnLeave"/>
+                                            <OnClick method="OnClick"/>
+                                        </Scripts>
+                                    </Button>
+                                    <Frame parentKey="PreviewFrame">
+                                        <Size x="50" y="50"/>
+                                        <Anchors>
+                                            <Anchor point="TOPLEFT" relativeKey="$parent" relativePoint="TOPLEFT" y="-32"/>
+                                        </Anchors>
+                                    </Frame>
+                                    <Frame parentKey="OtherItemsFrame">
+                                        <Anchors>
+                                            <Anchor point="TOPLEFT" relativeKey="$parent.Divider" relativePoint="BOTTOMLEFT"/>
+                                            <Anchor point="BOTTOMRIGHT" relativeKey="$parent" relativePoint="BOTTOMRIGHT"/>
+                                        </Anchors>
+                                        <Layers>
+                                            <Layer level="OVERLAY">
+                                                <FontString inherits="NarciFontThin12" parentKey="Header" text="Customers also viewed these products" justifyH="LEFT" justifyV="TOP">
+                                                    <Color r="0" g="0" b="0"/>
+                                                    <Anchors>
+                                                        <Anchor point="TOPLEFT" relativeKey="$parent" relativePoint="TOPLEFT" y="-12"/>
+                                                    </Anchors>
+                                                </FontString>
+                                            </Layer>
+                                        </Layers>
+                                    </Frame>
+                                </Frames>
+                                <Animations>
+                                    <AnimationGroup parentKey="FadeIn" setToFinalAlpha="true">
+                                        <Alpha startDelay="0.2" fromAlpha="0" toAlpha="1" duration="0.25" order="1"/>
+                                    </AnimationGroup>
+                                </Animations>
+                            </Frame>
+                        </Frames>
+                        <Scripts>
+                            <OnLoad method="OnLoad"/>
+                            <OnHide method="OnHide"/>
+                            <OnMouseDown method="OnMouseDown"/>
+                        </Scripts>
+                    </Frame>
+
+                    <Frame parentKey="NoteFrame" Alpha="0" frameLevel="80" hidden="true">
+                        <Size x="374" y="4"/>
+                        <Anchors>
+                            <Anchor point="LEFT" relativeKey="$parent" relativePoint="LEFT" x="0"/>
+                        </Anchors>
+                        <Layers>
+                            <Layer level="ARTWORK">
+                                <Texture>
+                                    <Color r="0" g="0" b="0" a="0.6"/>
+                                </Texture>
+                                <Texture>
+                                    <Color a="1" r="0" g="0" b="0"/>
+                                    <Anchors>
+                                        <Anchor point="TOPLEFT" relativeKey="$parent" relativePoint="TOPRIGHT"/>
+                                        <Anchor point="BOTTOMRIGHT" relativeKey="$parent" relativePoint="BOTTOMRIGHT" x="12"/>
+                                    </Anchors>
+                                    <Gradient orientation="HORIZONTAL">
+                                        <MinColor a="0.5" r="1" g="1" b="1"/>
+                                        <MaxColor a="0" r="1" g="1" b="1"/>
+                                    </Gradient>
+                                </Texture>
+                            </Layer>
+                        </Layers>
+                        <Frames>
+                            <ScrollFrame parentKey="ScrollFrame">
+                                <Size x="374"/>
+                                <Anchors>
+                                    <Anchor point="TOPLEFT" relativeKey="$parent" relativePoint="TOPLEFT" y="-56"/>
+                                    <Anchor point="BOTTOMRIGHT" relativeKey="$parent" relativePoint="BOTTOMRIGHT"/>
+                                </Anchors>
+                                <ScrollChild>
+                                    <Frame parentKey="ScrollChild"/>
+                                </ScrollChild>
+                                <Frames>
+                                    <Slider valueStep="0.01" parentKey="scrollBar" >
+                                        <Anchors>
+                                            <Anchor point="TOPRIGHT" relativePoint="TOPRIGHT" x="-5" y="0"/>
+                                            <Anchor point="BOTTOMRIGHT" relativePoint="BOTTOMRIGHT" x="-5" y="4"/>
+                                        </Anchors>
+                                        <Size x="8" y="0"/>
+                                        <ThumbTexture parentKey="Thumb" Alpha="1">
+                                            <Size x="4" y="36"/>
+                                            <Color r="1" g="1" b="1" a="0.1"/>
+                                        </ThumbTexture>
+                                        <Layers>
+                                            <Layer>
+                                                <Texture parentKey="BottomArrow" file="Interface\AddOns\Narcissus\Art\Splash\ScrollBoundBottom">
+                                                    <Size x="56" y="56"/>
+                                                    <Anchors>
+                                                        <Anchor point="BOTTOM" relativeKey="$parent.$parent" relativePoint="BOTTOM" x="0" y="0"/>
+                                                    </Anchors>
+                                                    <Animations>
+                                                        <AnimationGroup parentKey="spring" looping="REPEAT">
+                                                            <Translation startDelay="0" offsetY="6" duration="0" order="1" smoothing="IN_OUT"/>
+                                                            <Alpha fromAlpha="0" toAlpha="1" duration="0.25" order="2"/>
+                                                            <Translation startDelay="0.25" offsetY="-6" duration="0.75" order="2" smoothing="IN_OUT"/>
+                                                            <Alpha startDelay="1" fromAlpha="1" toAlpha="0" duration="0.25" order="3"/>
+                                                        </AnimationGroup>
+                                                    </Animations>
+                                                </Texture>
+                                            </Layer>
+                                        </Layers>
+                                    </Slider>
+                                </Frames>
+                            </ScrollFrame>
+                        </Frames>
+                        <Scripts>
+                            <OnLoad>
+                                self:SetHeight(self:GetParent():GetHeight());
+                                self.ScrollFrame.scrollBar.BottomArrow.spring:Play();
+                            </OnLoad>
+                        </Scripts>
+                    </Frame>
+
+                    <Frame parentKey="Preview" Alpha="0" frameLevel="3" hidden="true">
+                        <Size x="4" y="4"/>
+                        <Anchors>
+                            <Anchor point="CENTER" relativeKey="$parent" relativePoint="RIGHT"/>
+                        </Anchors>
+                        <Layers>
+                            <Layer level="ARTWORK" textureSubLevel="2">
+                                <Texture file="Interface\AddOns\Narcissus\ART\Splash\SplashIMG1" parentKey="ImageTop">
+                                    <Animations>
+                                        <AnimationGroup parentKey="fadeOut" smoothing="OUT" setToFinalAlpha="true">
+                                            <Alpha fromAlpha="1" toAlpha="0" duration="0.5" order="1"/> 
+                                            <Scripts>
+                                                <OnFinished function="NarciSplash_PreviewFadeIn_OnFinished"/>
+                                            </Scripts>
+                                        </AnimationGroup>
+                                    </Animations>
+                                </Texture>
+                            </Layer>
+                            <Layer level="ARTWORK" textureSubLevel="1">
+                                <Texture file="Interface\AddOns\Narcissus\ART\Splash\SplashIMG2" parentKey="ImageBottom" Alpha="0"/>
+                            </Layer>
+                        </Layers>
+                        <Frames>
+                        </Frames>
+                        <Scripts>
+                            <OnLoad>
+                                self.id = 1;
+                                local d = self:GetParent():GetParent():GetHeight();
+                                self:SetSize(d, d);
+                                local parent = self:GetParent();
+                                self:ClearAllPoints();
+                                self:SetPoint("CENTER", parent, "RIGHT", -d/2, 0);
+                            </OnLoad>
+                        </Scripts>
+                    </Frame>
+                </Frames>
+                <Scripts>
+                    <OnLoad>
+                        local w, h = self:GetSize();
+                        --self.ModelScene:SetSize(w, h);
+                        --self.ModelScene.FrontScene:SetSize(w, h);
+                    </OnLoad>
+                </Scripts>
+            </Frame>
+
+            <Frame inherits="NarciFrameWithShadowTemplate" parentKey="Backdrop">
+                <Anchors>
+                    <Anchor point="TOPLEFT" relativePoint="TOPLEFT" x="-11.5" y="11.5"/>
+                    <Anchor point="BOTTOMRIGHT" relativePoint="BOTTOMRIGHT" x="11.5" y="-11.5"/>
+                </Anchors>
+            </Frame>
+
+            <Button parentKey="CloseButton" Alpha="1" frameLevel="6">
+                <Size x="32" y="32"/>
+                <HitRectInsets>
+                    <AbsInset left="-8" right="0" top="0" bottom="-8"/>
+                </HitRectInsets>
+                <Anchors>
+                    <Anchor point="TOPRIGHT" relativeKey="$parent" relativePoint="TOPRIGHT" x="0" y="0"/>
+                </Anchors>
+                <Layers>
+                    <Layer level="OVERLAY">
+                        <Texture parentKey="Cross" file="Interface\AddOns\Narcissus\ART\Splash\CloseButton" Alpha="0.5">
+                            <Size x="16" y="16"/>
+                            <Anchors>
+                                <Anchor point="CENTER"/>
+                            </Anchors>
+                        </Texture>
+                    </Layer>
+                </Layers>
+                <Scripts>
+                    <OnEnter>
+                        self.Cross:SetAlpha(1);
+                    </OnEnter>
+                    <OnLeave>
+                        self.Cross:SetAlpha(0.5);
+                    </OnLeave>
+                    <OnClick>
+                        NarciAPI_FadeFrame(self:GetParent(), 0.2, "OUT");
+                    </OnClick>
+                </Scripts>
+            </Button>
+
+            <Button parentKey="LogoButton" frameLevel="5" Alpha="1" hidden="true">
+                <Size x="240" y="48"/>
+                <Anchors>
+                    <Anchor point="TOPLEFT" relativeKey="$parent" relativePoint="TOPLEFT" x="4" y="-4"/>
+                </Anchors>
+                <Layers>
+
+                    <Layer level="OVERLAY">
+                        <Texture file="Interface\AddOns\Narcissus\Art\Logos\Narcissus-Cyan" parentKey="Icon">
+                            <Size x="48" y="48"/>
+                            <TexCoords left="0.5" right="1" top="0" bottom="1"/>
+                            <Anchors>
+                                <Anchor point="CENTER" relativeKey="$parent" relativePoint="LEFT" x="24" y="0"/>
+                            </Anchors>
+                        </Texture>
+                        <FontString parentKey="Text" inherits="NarciTooltipDescriptionFontRegularShadow" justifyH="LEFT" justifyV="MIDDLE" text="SPLASH_BASE_HEADER" Alpha="1">  <!--NarciTooltipDescriptionFontRegularShadow NarciFontMedium12-->
+                            <Color r="0.65" g="0.65" b="0.65"/>
+                            <Anchors>
+                                <Anchor point="LEFT" relativeKey="$parent" relativePoint="LEFT" x="48"/>
+                            </Anchors>
+                            <Animations>
+                                <AnimationGroup parentKey="Bling" smoothing="IN_OUT" looping="REPEAT">
+                                    <Alpha fromAlpha="0" toAlpha="0" duration="0" order="1"/>
+                                    <Alpha fromAlpha="0" toAlpha="1" duration="0.5" order="2"/>
+                                    <Alpha startDelay="1" fromAlpha="1" toAlpha="0" duration="1.5" order="3"/>
+                                </AnimationGroup>
+                            </Animations>
+                        </FontString>
+                    </Layer>
+                    <Layer level="ARTWORK">
+                        <Texture file="Interface\AddOns\Narcissus\Art\Logos\Narcissus-DropShadow">
+                            <Anchors>
+                                <Anchor point="TOPLEFT" relativeKey="$parent.Icon" relativePoint="TOPLEFT" x="0" y="0"/>
+                                <Anchor point="BOTTOMRIGHT" relativeKey="$parent.Icon" relativePoint="BOTTOMRIGHT" x="0" y="0"/>
+                            </Anchors>
+                        </Texture>
+                    </Layer>
+                </Layers>
+                <Scripts>
+                    <OnLoad>
+                        self.IsOn = false;
+                    </OnLoad>
+                    <OnEnter>
+                        self.Icon:SetTexCoord(0, 0.5, 0, 1);
+                    </OnEnter>
+                    <OnLeave>
+                        self.Icon:SetTexCoord(0.5, 1, 0, 1);
+                    </OnLeave>
+                    <OnShow>
+
+                    </OnShow>
+                    <OnMouseDown>
+                        self.Icon:SetSize(44, 44);
+                    </OnMouseDown>
+                    <OnMouseUp>
+                        self.Icon:SetSize(48, 48);
+                    </OnMouseUp>
+                </Scripts>
+            </Button>
+
+            <Frame parentKey="NavFrame" frameLevel="3" clipChildren="true">
+                <Anchors>
+                    <Anchor point="TOPLEFT" relativeKey="$parent" relativePoint="TOPLEFT" x="0.5" y="-0.5"/>
+                    <Anchor point="BOTTOMRIGHT" relativeKey="$parent" relativePoint="BOTTOMRIGHT" x="-0.5" y="0.5"/>
+                </Anchors>
+                <Layers>
+
+                </Layers>
+                <Frames>
+                    <Button inherits="NarciSplashNavButtonTemplate" parentKey="SeeChangelog">
+                        <Anchors>
+                            <Anchor point="TOPLEFT" relativeKey="$parent" relativePoint="TOPLEFT"/>
+                            <Anchor point="BOTTOMRIGHT" relativeKey="$parent" relativePoint="BOTTOM"/>
+                        </Anchors>
+                        <KeyValues>
+                            <KeyValue key="destination" value="changelog" type="string"/>
+                        </KeyValues>
+                    </Button>
+                    <Button inherits="NarciSplashNavButtonTemplate" parentKey="SeeSplash">
+                        <Anchors>
+                            <Anchor point="TOPLEFT" relativeKey="$parent" relativePoint="TOP"/>
+                            <Anchor point="BOTTOMRIGHT" relativeKey="$parent" relativePoint="BOTTOMRIGHT"/>
+                        </Anchors>
+                    </Button>
+                </Frames>
+            </Frame>
+        </Frames>
+
+        <Scripts>
+            <OnLoad method="OnLoad"/>
+            <OnEnter method="OnEnter"/>
+            <OnLeave method="OnLeave"/>
+            <OnShow method="OnShow"/>
+            <OnHide method="OnHide"/>
+        </Scripts>
+    </Frame>
+</Ui>

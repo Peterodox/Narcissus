@@ -1,0 +1,198 @@
+<Ui xsi:schemaLocation="http://www.blizzard.com/wow/ui/..\FrameXML\UI.xsd">
+    <Script file="Widgets.lua"/>
+
+    <Frame name="NarciSliderMarkerTemplate" virtual="true" useParentLevel="true">
+        <Size x="16" y="16"/>
+        <Layers>
+            <Layer level="ARTWORK">
+                <Texture parentKey="Line" file="Interface\AddOns\Narcissus\Art\Modules\PhotoMode\ModelControl\UncappedSlider">
+                    <TexCoords left="0.5625" right="0.625" top="0" bottom="0.25"/>
+                </Texture>
+                <FontString inherits="NarciIndicatorLetter" parentKey="Label" justifyH="LEFT">
+                    <Color r="0.5" g="0.5" b="0.5"/>
+                    <Anchors>
+                        <Anchor point="TOPLEFT" relativePoint="BOTTOM" x="-2" y="0"/>
+                    </Anchors>
+                </FontString>
+            </Layer>
+        </Layers>
+    </Frame>
+
+    <Frame name="NarciUncappedSliderTemplate" mixin="NarciUncappedSliderMixin" virtual="true">
+        <Size x="144" y="16"/>
+        <!--Anchors>
+            <Anchor point="CENTER"/>
+        </Anchors-->
+		<HitRectInsets>
+			<AbsInset left="-8" right="-8" top="0" bottom="0"/>
+		</HitRectInsets>
+        <KeyValues>
+            <KeyValue key="iconName" value="AnimationSequence" type="string"/>
+        </KeyValues>
+        <Layers>
+            <Layer level="BACKGROUND">
+                <Texture parentKey="Reference">
+                    <Size x="8" y="8"/>
+                    <Anchors>
+                        <Anchor point="CENTER" relativePoint="LEFT"/>
+                    </Anchors>
+                </Texture>
+                <Texture parentKey="BarCenter" file="Interface\AddOns\Narcissus\Art\Modules\PhotoMode\ModelControl\UncappedSlider">
+                    <TexCoords left="0" right="0.5" top="0" bottom="0.25"/>
+                </Texture>
+                <Texture parentKey="BarRight" file="Interface\AddOns\Narcissus\Art\Modules\PhotoMode\ModelControl\UncappedSlider">
+                    <Size x="24" y="16"/>
+                    <TexCoords left="0.5" right="0.5625" top="0" bottom="0.25"/>
+                    <Anchors>
+                        <Anchor point="LEFT" relativePoint="RIGHT" x="-0"/>
+                    </Anchors>
+                </Texture>
+                <Texture parentKey="BarLeft" file="Interface\AddOns\Narcissus\Art\Modules\PhotoMode\ModelControl\UncappedSlider" hidden="false">
+                    <Size x="24" y="16"/>
+                    <TexCoords left="0.5625" right="0.5" top="0" bottom="0.25"/>
+                    <Anchors>
+                        <Anchor point="RIGHT" relativePoint="LEFT" x="0"/>
+                    </Anchors>
+                </Texture>
+            </Layer>
+            <Layer level="BORDER">
+                <Texture parentKey="Fluid" file="Interface\AddOns\Narcissus\Art\Modules\PhotoMode\ModelControl\UncappedSlider" hidden="false" Alpha="0">
+                    <Size x="64" y="4"/>
+                    <TexCoords left="0" right="0.25" top="0.5" bottom="0.5625"/>
+                    <Anchors>
+                        <Anchor point="LEFT" relativePoint="LEFT" x="0"/>
+                    </Anchors>
+                </Texture>
+            </Layer>
+            <Layer level="OVERLAY">
+				<Texture parentKey="Hedge" file="Interface\AddOns\Narcissus\Art\Modules\PhotoMode\ModelControl\UncappedSlider">
+                    <Size x="40" y="16"/>
+                    <TexCoords left="0" right="0.140625" top="0.25" bottom="0.5"/>
+					<Anchors>
+						<Anchor point="RIGHT" relativeKey="$parent.Reference" relativePoint="LEFT" x="4" y="0"/>
+					</Anchors>
+				</Texture>
+            </Layer>
+            <Layer level="OVERLAY" textureSubLevel="4">
+				<Texture parentKey="Icon">
+                    <Size x="32" y="32"/>
+					<Anchors>
+						<Anchor point="CENTER" relativeKey="$parent.Hedge" relativePoint="CENTER" x="0" y="0"/>
+					</Anchors>
+				</Texture>
+            </Layer>
+        </Layers>
+        <Frames>
+            <Frame parentKey="ClipFrame" clipChildren="true" useParentLevel="false">
+                <Anchors>
+                    <Anchor point="TOPLEFT" relativeKey="$parent" relativePoint="TOPLEFT" x="-4" y="12"/>
+                    <Anchor point="BOTTOMRIGHT" relativeKey="$parent" relativePoint="BOTTOMRIGHT" x="4" y="-12"/>
+                </Anchors>
+            </Frame>
+            <Frame parentKey="LeftClipFrame" clipChildren="true" useParentLevel="false">
+                <Anchors>
+                    <Anchor point="TOPLEFT" relativeKey="$parent" relativePoint="TOPLEFT" x="-12" y="12"/>
+                    <Anchor point="BOTTOMRIGHT" relativeKey="$parent" relativePoint="BOTTOMRIGHT" x="0" y="-12"/>
+                </Anchors>
+            </Frame>
+            <Frame parentKey="OverlayFrame">
+                <Anchors>
+                    <Anchor point="TOPLEFT" relativeKey="$parent" relativePoint="TOPLEFT" x="0" y="0"/>
+                    <Anchor point="BOTTOMRIGHT" relativeKey="$parent" relativePoint="BOTTOMRIGHT" x="0" y="0"/>
+                </Anchors>
+                <Layers>
+                    <Layer level="OVERLAY">
+                        <Texture parentKey="Thumb" file="Interface\AddOns\Narcissus\Art\Modules\PhotoMode\ModelControl\UncappedSlider">
+                            <Size x="16" y="16"/>
+                            <TexCoords left="0.625" right="0.6875" top="0" bottom="0.25"/>
+                            <Anchors>
+                                <Anchor point="CENTER" relativePoint="LEFT" x="0"/>
+                            </Anchors>
+                        </Texture>
+                        <Texture parentKey="ThumbHighlight" file="Interface\AddOns\Narcissus\Art\Modules\PhotoMode\ModelControl\UncappedSlider" hidden="true">
+                            <Size x="16" y="16"/>
+                            <TexCoords left="0.6875" right="0.75" top="0" bottom="0.25"/>
+                            <Anchors>
+                                <Anchor point="CENTER" relativeKey="$parent.Thumb" relativePoint="CENTER" x="0"/>
+                            </Anchors>
+                        </Texture>
+                        <FontString inherits="NarciIndicatorLetter" parentKey="ValueText" justifyH="CENTER" text="0" hidden="true">
+                            <Color r="0.8" g="0.8" b="0.8"/>
+                            <Anchors>
+                                <Anchor point="BOTTOM" relativeKey="$parent.Thumb" relativePoint="TOP" x="0" y="0"/>
+                            </Anchors>
+                        </FontString>
+                    </Layer>
+                </Layers>
+            </Frame>
+            <Button parentKey="ZeroButton" hidden="true">
+                <Size x="24" y="24"/>
+                <Anchors>
+                    <Anchor point="RIGHT" relativeKey="$parent" relativePoint="LEFT" x="-8"/>
+                </Anchors>
+                <Layers>
+                    <Layer>
+                        <Texture parentKey="Normal" file="Interface\AddOns\Narcissus\Art\Modules\PhotoMode\ModelControl\ResetSliderButton">
+                            <Size x="28" y="28"/>
+                            <TexCoords left="0" right="0.5" top="0" bottom="1"/>
+                            <Anchors>
+                                <Anchor point="CENTER" relativePoint="CENTER" x="0"/>
+                            </Anchors>
+                        </Texture>
+                    </Layer>
+                    <Layer level="OVERLAY">
+                        <Texture file="Interface\AddOns\Narcissus\Art\Modules\PhotoMode\ModelControl\ResetSliderButton" parentKey="Highlight" hidden="true">
+                            <TexCoords left="0.5" right="1" top="0" bottom="1"/>
+                            <Size x="28" y="28"/>
+                            <Anchors>
+                                <Anchor point="CENTER" relativePoint="CENTER" x="0"/>
+                            </Anchors>
+                        </Texture>
+                    </Layer>
+                </Layers>
+                <Animations>
+                    <AnimationGroup parentKey="flyIn" setToFinalAlpha="true">
+                        <Alpha fromAlpha="0" toAlpha="0" duration="0" order="1"/>
+                        <Translation offsetX="6" duration="0" order="1"/>
+                        <Translation offsetX="-6" duration="0.25" order="2" smoothing="OUT"/>
+                        <Alpha fromAlpha="0" toAlpha="1" duration="0.15" order="2"/>
+                    </AnimationGroup>
+                </Animations>
+                <Scripts>
+                    <OnLoad>
+                        self.tooltip = Narci.L["Reset Slider"];
+                    </OnLoad>
+                    <OnClick>
+                        self:GetParent():SetValue(0);
+                    </OnClick>
+                    <OnEnter>
+                        if not IsMouseButtonDown() then
+                            self.Highlight:Show();
+							NarciTooltip:ShowTooltip(self, 0, -4);
+                        end
+                    </OnEnter>
+                    <OnLeave>
+                        self.Highlight:Hide();
+                        NarciTooltip:FadeOut();
+                    </OnLeave>
+                     <OnHide>
+                        self.flyIn:Stop();
+                    </OnHide>                   
+                </Scripts>
+            </Button>
+        </Frames>
+        <Scripts>
+            <OnLoad method="OnLoad"/>
+            <OnEnter method="OnEnter"/>
+            <OnLeave method="OnLeave"/>
+            <OnMouseDown method="OnMouseDown"/>
+            <OnMouseUp method="OnMouseUp"/>
+        </Scripts>
+    </Frame>
+
+    <!--Frame inherits="NarciUncappedSliderTemplate">
+        <Anchors>
+            <Anchor point="CENTER"/>
+        </Anchors>
+    </Frame-->
+</Ui>

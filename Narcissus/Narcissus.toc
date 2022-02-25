@@ -1,0 +1,89 @@
+## Interface: 90200
+## Plain Title: Narcissus
+## Version: 1.1.8
+
+## Title: |cffA236EFN|cff9448F1a|cff865BF2r|cff786DF4c|cff6A80F6i|cff5D92F7s|cff4FA4F9s|cff41B7FAu|cff33C9FCs|r
+
+## Notes: Immersive paperdoll frame and in-game studio. |n|cff959595Slash command: /Narci|r
+## Notes-zhCN: 为展示和分享而生的沉浸式角色界面|n|cff959595命令: /Narci|r
+## Notes-zhTW: 為展示和分享而生的沈浸式角色界面|n|cff959595命令: /Narci|r
+
+## Author: Peterodox
+## SavedVariables: NarcissusDB, NarciCreatureOptions, NarciAchievementOptions, NarciStatisticsDB, NarciTurntableOptions
+## SavedVariablesPerCharacter: NarcissusDB_PC, NarciStatisticsDB_PC
+
+
+Font\FontSettings.xml
+
+Initialization.lua
+Locales\Localization.xml
+
+NarciDB\TitleManagerDB.lua
+NarciDB\GearBonus.lua
+NarciDB\API.xml
+Widgets\NarciUITemplates.xml
+Widgets\NarciTooltip.xml
+Constants\Constants.xml
+
+Bridge\Bridge.xml
+
+#Expansion Feature
+Modules\CharacterFrame\Domination.xml
+#
+
+Modules\CharacterFrame\Enchant.lua
+Modules\CharacterFrame\TemporaryEnchant.xml
+Modules\EquipmentOption\EquipmentOption.xml
+Modules\CharacterFrame\ItemSocketing.xml
+Modules\CharacterFrame\ItemCooldown.xml
+Modules\CharacterFrame\Attributes.xml
+
+Modules\MsgAlert\Alert.xml
+
+Narcissus.xml
+Preference.xml
+
+Modules\CharacterFrame\Powers.xml
+Modules\CharacterFrame\EquipmentComparisonFlyout.xml
+Modules\CharacterFrame\TitleManager.xml
+Modules\CharacterFrame\EquipmentSetManager.xml
+
+Modules\Competitive\UI.xml
+
+Modules\CharacterFrame\NavBar.xml
+
+Modules\PhotoMode\Widgets.xml
+Modules\PhotoMode\PhotoMode.xml
+Modules\PhotoMode\SpellVisualBrowser.xml
+Modules\PhotoMode\NPCBrowser.xml
+Modules\PhotoMode\AnimationBrowser.xml
+Modules\PhotoMode\WeaponBrowser.xml
+Modules\PhotoMode\PetStable.xml
+Modules\PhotoMode\ExitConfirmationDialog.xml
+Modules\PhotoMode\SpeechBalloon.xml
+Modules\PhotoMode\Sticker.xml
+
+Modules\DressingRoom\DressingRoom.xml
+Modules\Showcase\Showcase.xml
+
+Modules\AFKScreen\AFKScreen.lua
+Modules\AR\AR.xml
+Modules\Splash\FakeMail.xml
+Modules\Splash\Splash.xml
+
+Modules\Achievement\Core.xml
+Modules\Statistics\Core.lua
+Modules\ModuleManager\ModuleManager.lua
+
+# Modules\ParticleSystem\ParticleSystem.xml
+
+Filters\CameraEffect.xml
+Filters\Letterbox.xml
+
+Guide\Guide.xml
+
+
+#Test
+# Modules\LootTracker\Main.lua
+# Modules\AnimKit\AnimKit.xml
+# Modules\Map\Map.xml

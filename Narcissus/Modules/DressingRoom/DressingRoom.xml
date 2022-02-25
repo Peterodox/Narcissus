@@ -1,0 +1,622 @@
+<Ui xsi:schemaLocation="http://www.blizzard.com/wow/ui/..\FrameXML\UI.xsd">
+	<Script file="Preload.lua"/>
+	<Script file="SlotFrame.lua"/>
+	<Script file="OptionButton.lua"/>
+	<Script file="TaintPopup.lua"/>
+    <Script file="DressingRoom.lua"/>
+	
+
+	<Button name="NarciRectangularItemButtonTemplate" virtual="true" mixin="NarciDressingRoomItemButtonMixin">
+		<Size x="26" y="26"/>
+		<!--HitRectInsets>
+			<AbsInset left="1" right="1" top="-2" bottom="-2"/>
+		</HitRectInsets-->
+		<Frames>
+			<Button parentKey="SecondaryButton" hidden="true">
+				<Size x="14" y="14"/>
+				<Anchors>
+					<Anchor point="CENTER" relativeKey="$parent" relativePoint="CENTER" x="10.6" y="10.6"/>
+				</Anchors>
+				<Layers>
+					<Layer level="OVERLAY" textureSubLevel="2">
+						<Texture parentKey="GreenTick" file="Interface\AddOns\Narcissus\Art\Modules\DressingRoom\GreenTick" hidden="false">
+							<Size x="12" y="12"/>
+							<Anchors>
+								<Anchor point="CENTER" relativeKey="$parent" relativePoint="BOTTOM" y="1"/>
+							</Anchors>
+						</Texture>
+					</Layer>
+				</Layers>
+			</Button>
+		</Frames>
+
+		<Layers>
+			<Layer level="BACKGROUND">
+				<Texture parentKey="ItemIcon">
+					<Size x="22" y="22"/>
+					<TexCoords left="0.075" right="0.925" top="0.075" bottom="0.925"/>
+					<Anchors>
+						<Anchor point="CENTER"/>
+					</Anchors>
+				</Texture>
+				<MaskTexture file="Interface\AddOns\Narcissus\Art\Masks\Circle" parentKey="IconMask" hWrapMode="CLAMPTOBLACKADDITIVE" vWrapMode="CLAMPTOBLACKADDITIVE">
+					<Anchors>
+						<Anchor point="TOPLEFT" relativeKey="$parent.ItemIcon" relativePoint="TOPLEFT"/>
+						<Anchor point="BOTTOMRIGHT" relativeKey="$parent.ItemIcon" relativePoint="BOTTOMRIGHT"/>
+					</Anchors>
+					<MaskedTextures>
+						<MaskedTexture childKey="ItemIcon"/>
+					</MaskedTextures>
+				</MaskTexture>
+			</Layer>
+			<Layer level="BACKGROUND" textureSubLevel="1">
+				<Texture parentKey="SecondaryItemIcon">
+					<Size x="12" y="12"/>
+					<TexCoords left="0.075" right="0.925" top="0.075" bottom="0.925"/>
+					<Anchors>
+						<Anchor point="CENTER" relativeKey="$parent.SecondaryButton" relativePoint="CENTER"/>
+					</Anchors>
+				</Texture>
+				<MaskTexture file="Interface\AddOns\Narcissus\Art\Masks\Circle" parentKey="SecondaryItemIconMask" hWrapMode="CLAMPTOBLACKADDITIVE" vWrapMode="CLAMPTOBLACKADDITIVE">
+					<Anchors>
+						<Anchor point="TOPLEFT" relativeKey="$parent.SecondaryItemIcon" relativePoint="TOPLEFT"/>
+						<Anchor point="BOTTOMRIGHT" relativeKey="$parent.SecondaryItemIcon" relativePoint="BOTTOMRIGHT"/>
+					</Anchors>
+					<MaskedTextures>
+						<MaskedTexture childKey="SecondaryItemIcon"/>
+					</MaskedTextures>
+				</MaskTexture>
+			</Layer>
+			<Layer level="ARTWORK">
+				<Texture parentKey="InnerHighlight" setAllPoints="true" file="Interface\AddOns\Narcissus\Art\Modules\DressingRoom\ItemBorderInnerHighlight" hidden="true" alphaMode="ADD" Alpha="0">
+					<Size x="34" y="34"/>
+					<Anchors>
+						<Anchor point="CENTER"/>
+					</Anchors>
+				</Texture>
+			</Layer>
+			<Layer level="OVERLAY">
+				<Texture parentKey="Border" setAllPoints="true" file="Interface\AddOns\Narcissus\Art\Modules\DressingRoom\ItemBorder">
+					<TexCoords left="0" right="0.5" top="0" bottom="1"/>
+					<Size x="68" y="68"/>
+					<Anchors>
+						<Anchor point="CENTER"/>
+					</Anchors>
+				</Texture>
+			</Layer>
+			<Layer level="OVERLAY" textureSubLevel="1">
+				<Texture parentKey="GreenTick" file="Interface\AddOns\Narcissus\Art\Modules\DressingRoom\GreenTick" hidden="true">
+					<Size x="13" y="13"/>
+					<Anchors>
+						<Anchor point="CENTER" relativeKey="$parent" relativePoint="BOTTOM" y="2"/>
+					</Anchors>
+				</Texture>
+				<Texture parentKey="YellowStar" file="Interface\AddOns\Narcissus\Art\Modules\DressingRoom\YellowStar" hidden="true">
+					<Size x="14" y="14"/>
+					<Anchors>
+						<Anchor point="CENTER" relativeKey="$parent" relativePoint="BOTTOM" y="2"/>
+					</Anchors>
+				</Texture>
+				<Texture parentKey="RedEye" file="Interface\AddOns\Narcissus\Art\Modules\DressingRoom\RedEye" hidden="true">
+					<Size x="12" y="12"/>
+					<Anchors>
+						<Anchor point="CENTER" relativeKey="$parent" relativePoint="CENTER" x="-9" y="9"/>
+					</Anchors>
+				</Texture>
+			</Layer>
+			<Layer level="OVERLAY" textureSubLevel="2">
+				<Texture parentKey="BorderShine" file="Interface\AddOns\Narcissus\Art\Modules\DressingRoom\ItemBorderOuterHighlight" hidden="true" alphaMode="ADD">
+					<Size x="68" y="68"/>
+					<Anchors>
+						<Anchor point="CENTER" relativeKey="$parent" relativePoint="CENTER" y="0"/>
+					</Anchors>
+                    <Animations>
+                        <AnimationGroup parentKey="Shine" setToFinalAlpha="true">
+                            <Alpha smoothing="OUT" order="1" duration="0.12" fromAlpha="0" toAlpha="1"/>
+                            <Scale smoothing="OUT" order="1" duration="0.25" fromScaleX="1.4" fromScaleY="1.4" toScaleX="1" toScaleY="1"/>
+                            <Alpha smoothing="OUT" order="2" startDelay="0.25" duration="0.5" fromAlpha="1" toAlpha="0"/>
+                            <Scripts>
+                                <OnFinished>
+                                    self:GetParent():Hide();
+                                </OnFinished>
+                                <OnStop>
+                                    self:GetParent():Hide();
+                                </OnStop>
+                            </Scripts>
+                        </AnimationGroup>
+                    </Animations>
+				</Texture>
+			</Layer>
+		</Layers>
+
+		<Scripts>
+			<OnLoad method="OnLoad"/>
+			<OnEnter method="OnEnter"/>
+			<OnLeave method="OnLeave"/>
+			<OnClick method="OnClick"/>
+			<OnMouseDown method="OnMouseDown"/>
+			<OnDragStart method="OnDragStart"/>
+			<OnDragStop method="OnDragStop"/>
+		</Scripts>
+	</Button>
+
+	<Texture name="NarciDressingRoomBackgroundTemplate" parentKey="ModelBackgroundOverlay" atlas="dressingroom-background-warrior" virtual="true" Alpha="0">
+		<Anchors>
+			<Anchor point="TOPLEFT" relativeKey="$parent.ModelScene"/>
+			<Anchor point="BOTTOMRIGHT" relativeKey="$parent.ModelScene"/>
+		</Anchors>
+		<Animations>
+			<AnimationGroup parentKey="animIn">
+				<Alpha fromAlpha="0" toAlpha="1" duration="0.5" order="1"/>
+				<Scripts>
+					<OnFinished>
+						local background = self:GetParent():GetParent().ModelBackground;
+						if background then
+							background:SetAtlas(self:GetParent():GetAtlas());
+						end
+					</OnFinished>
+				</Scripts>
+			</AnimationGroup>
+		</Animations>
+	</Texture>
+
+    <Button name="NarciDressingRoomOptionButtonTemplate" virtual="true" mixin="NarciDressingRoomOptionButtonMixin">
+        <Size x="32" y="32"/>
+		<HitRectInsets>
+			<AbsInset left="0" right="0" top="0" bottom="0"/>
+		</HitRectInsets>
+		<Layers>
+            <Layer level="BACKGROUND" textureSubLevel="1">
+				<Texture setAllPoints="true" parentKey="Background">
+					<TexCoords left="0" right="0.5" top="0" bottom="1"/>
+					<Size x="48" y="48"/>
+					<Anchors>
+						<Anchor point="CENTER" relativeKey="$parent" relativePoint="CENTER" x="0" y="0"/>
+					</Anchors>
+				</Texture>
+            </Layer>
+            <Layer level="BACKGROUND" textureSubLevel="2">
+				<Texture parentKey="Icon" Alpha="0.8" file="Interface\AddOns\Narcissus\Art\Modules\DressingRoom\Icons">
+					<TexCoords left="0" right="0.25" top="0" bottom="0.25"/>
+					<Size x="36" y="36"/>
+					<Anchors>
+						<Anchor point="CENTER" relativeKey="$parent" relativePoint="CENTER" x="0" y="0"/>
+					</Anchors>
+				</Texture>
+            </Layer>
+            <Layer level="ARTWORK" textureSubLevel="3">
+				<FontString inherits="NarciFontMedium12" justifyH="LEFT" justifyV="MIDDLE" parentKey="Label" hidden="true" ignoreParentScale="true">
+					<Color r="0.8" g="0.8" b="0.8" a="1"/>
+					<Anchors>
+						<Anchor point="LEFT" relativeKey="$parent" relativePoint="RIGHT" x="4" y="0"/>
+					</Anchors>
+				</FontString>
+            </Layer>       
+		</Layers>
+		<Scripts>
+			<OnLoad method="OnLoad"/>
+			<OnEnter method="OnEnter"/>
+			<OnLeave method="OnLeave"/>
+			<OnMouseDown method="OnMouseDown"/>
+			<OnMouseUp method="OnMouseUp"/>
+		</Scripts>
+    </Button>
+
+	<Frame name="NarciDressingRoomOverlayTemplate" virtual="true" parentKey="NarciDressingRoomOverlay" mixin="NarciDressingRoomOverlayMixin">
+		<Size x="0" y="0"/>
+		<Anchors>
+			<Anchor point="TOPLEFT" relativeKey="$parent" relativePoint="TOPLEFT"/>
+			<Anchor point="BOTTOMRIGHT" relativeKey="$parent" relativePoint="BOTTOMRIGHT"/>
+		</Anchors>
+		<Layers>
+			<Layer level="BACKGROUND">
+				<Texture parentKey="Background" setAllPoints="true" hidden="false">
+					<Size x="0" y="120"/>
+					<Anchors>
+						<Anchor point="BOTTOMLEFT" relativeKey="$parent.$parent.ModelScene" relativePoint="BOTTOMLEFT" x="0" y="0"/>	<!--10 30-->
+						<Anchor point="BOTTOMRIGHT" relativeKey="$parent.$parent.ModelScene" relativePoint="BOTTOMRIGHT" x="0" y="0"/>
+					</Anchors>
+					<Color r="0" g="0" b="0" a="1"/>
+                    <Gradient orientation="VERTICAL">
+                        <MinColor a="0.8" r="1" g="1" b="1"/>
+                        <MaxColor a="0" r="1" g="1" b="1"/>
+                    </Gradient>
+				</Texture>
+				<Texture parentKey="Blackness" setAllPoints="true" hidden="false">
+					<Anchors>
+						<Anchor point="TOPLEFT" relativeKey="$parent.$parent.ModelScene" relativePoint="TOPLEFT" x="0" y="0"/>	<!--10 30-->
+						<Anchor point="BOTTOMRIGHT" relativeKey="$parent.$parent.ModelScene" relativePoint="BOTTOMRIGHT" x="0" y="0"/>
+					</Anchors>
+					<Color r="0" g="0" b="0" a="0.2"/>
+                    <Gradient orientation="VERTICAL">
+                        <MinColor a="1" r="1" g="1" b="1"/>
+                        <MaxColor a="1" r="1" g="1" b="1"/>
+                    </Gradient>
+				</Texture>
+
+				<Texture parentKey="TurntableBlack" setAllPoints="true" hidden="true">
+					<Anchors>
+						<Anchor point="TOPLEFT" relativeKey="$parent.$parent.ModelScene" relativePoint="TOPLEFT" x="0" y="0"/>
+						<Anchor point="BOTTOMRIGHT" relativeKey="$parent.$parent.ModelScene" relativePoint="BOTTOMRIGHT" x="0" y="0"/>
+					</Anchors>
+					<Color r="0" g="0" b="0" a="1"/>
+				</Texture>
+			</Layer>
+
+			<Layer level="OVERLAY">
+				<Texture parentKey="TurntableIndicator" file="Interface\AddOns\Narcissus\Art\Modules\DressingRoom\TurntableIndicator" alpha="0.5" ignoreParentScale="true">
+					<Size x="4" y="4"/>
+					<Anchors>
+						<Anchor point="CENTER" relativeKey="$parent.$parent.ModelScene" relativePoint="RIGHT" x="-48" y="0"/>
+					</Anchors>
+				</Texture>
+			</Layer>
+		</Layers>
+		<Frames>
+			<Frame parentKey="OptionFrame" ignoreParentScale="true">
+				<Size x="8" y="240"/>
+				<Anchors>
+					<Anchor point="BOTTOMLEFT" relativeKey="$parent" relativePoint="BOTTOMRIGHT" x="-1"/>
+				</Anchors>
+				<Frames>
+					<!--Button name="NarciBridge_SaveToMogItButton" inherits="NarciDressingRoomOptionButtonTemplate" hidden="true" parentKey="MogItButton">
+						<Anchors>
+							<Anchor point="CENTER" relativeKey="$parent" relativePoint="BOTTOMLEFT" x="0" y="24"/>
+						</Anchors>
+						<Scripts>
+							<OnLoad>
+								self:OnLoad();
+								self:SetHeight(1);
+								self.Label:SetText(Narci.L["Add to MogIt Wishlist"]);
+								self.Icon:SetTexCoord(0.5, 0.75, 0, 0.25);
+							</OnLoad>
+						</Scripts>
+					</Button-->
+
+					<Button parentKey="ShareButton" inherits="NarciDressingRoomOptionButtonTemplate">
+						<Anchors>
+							<Anchor point="BOTTOMLEFT" relativeKey="$parent" relativePoint="BOTTOMLEFT" x="0" y="6"/>
+						</Anchors>
+						<Scripts>
+							<OnLoad>
+								self:OnLoad();
+								self.Label:SetText(Narci.L["Item List"]);
+								self.Icon:SetTexCoord(0, 0.25, 0.5, 0.75);
+							</OnLoad>
+						</Scripts>
+					</Button>
+
+					<Frame name="NarciDressingRoomSharePopup" parentKey="SharePopup" inherits="NarciFrameBorderTemplate" hidden="true" frameStrata="DIALOG" ignoreParentScale="true">
+						<Size x="256" y="251"/>
+						<KeyValues>
+							<KeyValue key="cornerRadius" value="8" type="number"/>
+						</KeyValues>
+						<Anchors>
+							<Anchor point="BOTTOMLEFT" relativeKey="$parent.ShareButton" relativePoint="BOTTOMRIGHT" x="-2" y="-8"/>
+						</Anchors>
+						<Frames>
+							<Frame parentKey="GearTextContainer" inherits="NarciScrollEditBoxTemplate" name="NarciDressingRoomGearTextsClipborad">
+								<KeyValues>
+									<KeyValue key="cornerRadius" value="4" type="number"/>
+									<KeyValue key="isSubFrame" value="true" type="bool"/>
+								</KeyValues>
+								<Size x="240" y="112"/>
+								<Anchors>
+									<Anchor point="BOTTOM" relativeKey="$parent" relativePoint="BOTTOM" x="0" y="8"/>
+								</Anchors>
+								<Layers>
+									<Layer level="OVERLAY">
+										<Texture parentKey="HeaderLogo" file="Interface\AddOns\Narcissus\Art\Modules\DressingRoom\SharePopupHeaderIcon">
+											<TexCoords left="0" right="0.25" top="0" bottom="1"/>
+											<Size x="12" y="12"/>
+											<Anchors>
+												<Anchor point="BOTTOMLEFT" relativeKey="$parent" relativePoint="TOPLEFT" x="8" y="-4"/>
+											</Anchors>
+										</Texture>
+										<FontString inherits="NarciFontNormal10" text="Item List" justifyH="LEFT">
+											<Size x="120" y="12"/>
+											<Color r="0.286" g="0.8" b="0.93"/>
+											<Anchors>
+												<Anchor point="LEFT" relativeKey="$parent.HeaderLogo" relativePoint="RIGHT" x="2" y="0"/>
+											</Anchors>
+										</FontString>
+									</Layer>
+								</Layers>
+							</Frame>
+
+							<Button parentKey="ItemIDToggle" mixin="NarciDressingRoomItemIDToggleMixin">
+								<Size x="12" y="12"/>
+								<HitRectInsets>
+									<AbsInset left="-4" right="-80" top="-4" bottom="-4"/>
+								</HitRectInsets>
+								<Anchors>
+									<Anchor point="BOTTOMLEFT" relativeKey="$parent.GearTextContainer" relativePoint="TOP" x="48" y="-4"/>
+								</Anchors>
+								<Layers>
+									<Layer level="BACKGROUND" textureSubLevel="2">
+										<Texture setAllPoints="true">
+											<Color r="0" g="0" b="0" a="0.9"/>
+											<Size x="12" y="12"/>
+											<Anchors>
+												<Anchor point="CENTER"/>
+											</Anchors>
+										</Texture>
+									</Layer>
+									<Layer level="BORDER">
+										<Texture file="Interface\AddOns\Narcissus\Art\BasicShapes\Square-GreyBorder" Alpha="1" parentKey="NormalBorder" snapToPixelGrid="false" texelSnappingBias="0.0">
+											<Size x="12" y="12"/>
+											<Anchors>
+												<Anchor point="TOPLEFT"/>
+											</Anchors>
+										</Texture>		
+									</Layer>
+									<Layer level="OVERLAY" textureSubLevel="4">
+										<FontString inherits="NarciFontMedium12" justifyH="LEFT" justifyV="MIDDLE" parentKey="Label" text="ItemID">
+											<Size x="0" y="0"/>
+											<Color r="0.72" g="0.72" b="0.72"/>
+											<Anchors>
+												<Anchor point="LEFT" relativeKey="$parent.NormalBorder" relativePoint="RIGHT" x="4" y="0"/>
+											</Anchors>
+										</FontString>
+										<Texture file="Interface\AddOns\Narcissus\Art\Widgets\Arrows\Tick" parentKey="Tick" hidden="true">
+											<Size x="12" y="12"/>
+											<Anchors>
+												<Anchor point="CENTER"/>
+											</Anchors>
+										</Texture>
+									</Layer>
+								</Layers>
+								<HighlightTexture file="Interface\AddOns\Narcissus\Art\BasicShapes\Square-WhiteBorder" parentKey="Highlight" snapToPixelGrid="false" texelSnappingBias="0.0">
+									<Size x="12" y="12"/>
+									<Anchors>
+										<Anchor point="CENTER"/>
+									</Anchors>
+								</HighlightTexture>
+								<Scripts>
+									<OnShow method="OnShow"/>
+									<OnClick method="OnClick"/>
+								</Scripts>
+							</Button>
+
+							<EditBox parentKey="ExternalLink" autoFocus="false" letters="1000" multiLine="false" inherits="NarciResponsiveEditBoxTemplate">
+								<Size x="240" y="42"/>
+								<Anchors>
+									<Anchor point="BOTTOM" relativeKey="$parent.GearTextContainer" relativePoint="TOP" x="0" y="12"/>
+								</Anchors>
+								<Layers>
+									<Layer level="OVERLAY">
+										<Texture parentKey="HeaderLogo" file="Interface\AddOns\Narcissus\Art\Modules\DressingRoom\SharePopupHeaderIcon">
+											<TexCoords left="0.25" right="0.5" top="0" bottom="1"/>
+											<Size x="12" y="12"/>
+											<Anchors>
+												<Anchor point="BOTTOMLEFT" relativeKey="$parent" relativePoint="TOPLEFT" x="8" y="-4"/>
+											</Anchors>
+										</Texture>
+										<FontString inherits="NarciFontNormal10" text="Wowhead" justifyH="LEFT">
+											<Size x="120" y="12"/>
+											<Color r="0.816" g="0.267" b="0.267"/>
+											<Anchors>
+												<Anchor point="LEFT" relativeKey="$parent.HeaderLogo" relativePoint="RIGHT" x="2" y="0"/>
+											</Anchors>
+										</FontString>
+									</Layer>
+								</Layers>
+							</EditBox>
+
+							<EditBox parentKey="SlashCommand" autoFocus="false" letters="1000" multiLine="false" inherits="NarciResponsiveEditBoxTemplate">
+								<Size x="240" y="42"/>
+								<Anchors>
+									<Anchor point="BOTTOM" relativeKey="$parent.ExternalLink" relativePoint="TOP" x="0" y="12"/>
+								</Anchors>
+								<Layers>
+									<Layer level="OVERLAY">
+										<Texture parentKey="HeaderLogo" file="Interface\AddOns\Narcissus\Art\Modules\DressingRoom\SharePopupHeaderIcon">
+											<TexCoords left="0.5" right="0.75" top="0" bottom="1"/>
+											<Size x="12" y="12"/>
+											<Anchors>
+												<Anchor point="BOTTOMLEFT" relativeKey="$parent" relativePoint="TOPLEFT" x="8" y="-4"/>
+											</Anchors>
+										</Texture>
+										<FontString inherits="NarciFontNormal10" text="In-Game Command" justifyH="LEFT">
+											<Size x="120" y="12"/>
+											<Color r="0.957" g="0.753" b="0.165"/>
+											<Anchors>
+												<Anchor point="LEFT" relativeKey="$parent.HeaderLogo" relativePoint="RIGHT" x="2" y="0"/>
+											</Anchors>
+										</FontString>
+									</Layer>
+								</Layers>
+							</EditBox>
+
+						</Frames>
+						<Scripts>
+							<OnHide>
+								self:Hide();
+							</OnHide>
+						</Scripts>
+					</Frame>
+
+					<Button parentKey="InspectButton" inherits="NarciDressingRoomOptionButtonTemplate" motionScriptsWhileDisabled="true">
+						<Anchors>
+							<Anchor point="BOTTOM" relativeKey="$parent.ShareButton" relativePoint="TOP" x="0" y="24"/>
+						</Anchors>
+						<Scripts>
+							<OnLoad>
+								self:OnLoad();
+								self.targetModelText = Narci.L["Use Target Model"];
+								self.yourModelText = Narci.L["Use Your Model"];
+								self.disabledText = "|cff959595".. Narci.L["Cannot Inspect Target"];
+								self.Icon:SetTexCoord(0.25, 0.5, 0, 0.25);
+							</OnLoad>
+							<OnDisable>
+								self.Icon:SetTexCoord(0.25, 0.5, 0.25, 0.5);
+								self.Label:SetText(self.disabledText);
+							</OnDisable>
+							<OnEnable>
+								self.Icon:SetTexCoord(0.25, 0.5, 0, 0.25);
+								if self.useTargetModel then
+									self.Label:SetText(self.targetModelText);
+								else
+									self.Label:SetText(self.yourModelText);
+								end
+							</OnEnable>
+						</Scripts>
+					</Button>
+
+					<Button parentKey="SpinButton" inherits="NarciDressingRoomOptionButtonTemplate">
+						<Anchors>
+							<Anchor point="BOTTOM" relativeKey="$parent.ShareButton" relativePoint="TOP" x="0" y="48"/>
+						</Anchors>
+					</Button>
+				</Frames>
+			</Frame>
+			<Frame parentKey="SlotFrame" ignoreParentScale="true" hidden="true" Mixin="NarciDressingRoomSlotFrameMixin">
+				<Size x="64" y="80"/>
+				<Anchors>
+					<Anchor point="BOTTOM" relativeKey="$parent.$parent.ModelScene" relativePoint="BOTTOM"/>
+				</Anchors>
+				<Layers>
+					<Layer>
+						<FontString inherits="NarciIndicatorLetter" justifyH="CENTER" justifyV="MIDDLE" parentKey="Notification" Alpha="0" hidden="true">
+							<Color r="1" g="1" b="1"/>
+							<Animations>
+								<AnimationGroup parentKey="fadeOut" setToFinalAlpha="true">
+									<Alpha fromAlpha="0" toAlpha="1" duration="0.15" order="1"/>
+									<Alpha startDelay="0.8" fromAlpha="1" toAlpha="0" duration="1.2" order="2"/>
+								</AnimationGroup>
+							</Animations>
+						</FontString>
+					</Layer>
+				</Layers>
+				<Scripts>
+					<OnLoad method="OnLoad"/>
+					<OnEnter method="OnEnter"/>
+					<OnLeave  method="OnLeave"/>
+					<OnHide method="OnHide"/>
+				</Scripts>
+			</Frame>
+			<Button parentKey="UndressButton">
+				<Size x="32" y="32"/>
+				<Anchors>
+					<Anchor point="CENTER" relativeTo="DressUpFrame" relativePoint="TOPLEFT" x="80" y="-42"/>
+				</Anchors>
+				<HitRectInsets>
+					<AbsInset left="-12" right="-12" top="-2" bottom="-2"/>
+				</HitRectInsets>
+				<Layers>
+					<Layer level="OVERLAY">
+						<Texture parentKey="Shirt">
+							<TexCoords left="0" right="0.5" top="0" bottom="0.5"/>
+							<Size x="36" y="36"/>
+							<Anchors>
+								<Anchor point="CENTER"/>
+							</Anchors>
+						</Texture>
+					</Layer>
+					<Layer level="OVERLAY" textureSubLevel="1">
+						<Texture parentKey="Arrow">
+							<TexCoords left="0.5" right="1" top="0" bottom="0.5"/>
+							<Size x="36" y="36"/>
+							<Anchors>
+								<Anchor point="CENTER" relativeKey="$parent.Shirt" relativePoint="RIGHT" x="-4"/>
+							</Anchors>
+							<Animations>
+								<AnimationGroup parentKey="AnimDrop">
+									<Translation order="1" smoothing="OUT" duration="0.25" offsetY="-4"/>
+									<Alpha order="1" fromAlpha="1" toAlpha="0" duration="0.25"/>
+									<Translation order="2" duration="0" offsetY="14"/>
+									<Alpha order="3" fromAlpha="0" toAlpha="1" duration="0.25"/>
+									<Translation smoothing="OUT" order="3" duration="0.5" offsetY="-10"/>
+								</AnimationGroup>
+							</Animations>
+						</Texture>
+					</Layer>
+				</Layers>
+			</Button>
+		</Frames>
+		<Scripts>	
+			<OnLoad method="OnLoad"/>
+			<OnShow method="OnShow"/>
+			<OnHide method="OnHide"/>
+			<OnEvent method="OnEvent"/>
+			<OnSizeChanged method="OnSizeChanged"/>
+		</Scripts>
+	</Frame>
+
+	<Frame name="NarciTaintAlertFrame" frameStrata="DIALOG" hidden="true" mixin="NarciTaintAlertFrameMixin" parent="UIParent" enableMouse="true">
+		<Size x="320" y="72"/>
+		<Anchors>
+			<Anchor point="TOP" relativeKey="$parent" relativePoint="TOP" y="-135"/>
+		</Anchors>
+		<Layers>
+			<!--Layer level="BACKGROUND">
+				<Texture parentKey="Backdrop" setAllPoints="true">
+					<Color r="0" g="0" b="0" a="0.8"/>
+				</Texture>
+			</Layer-->
+			<Layer>
+				<FontString parentKey="Text1" inherits="GameFontHighlight" text="Press Ctrl+C to copy" justifyH="LEFT">
+					<Size x="274" y="0"/>
+					<Anchors>
+						<Anchor point="TOP" y="-26"/>
+					</Anchors>
+				</FontString>
+			</Layer>
+		</Layers>
+		<Frames>
+			<Frame parentKey="Border" inherits="DialogBorderDarkTemplate"/>
+			<EditBox parentKey="Clipboard" autoFocus="false" letters="1000" multiLine="false" inherits="NarciResponsiveEditBoxTemplate">
+				<Size x="290" y="42"/>
+				<Anchors>
+					<Anchor point="TOP" relativeKey="$parent.Text1" relativePoint="BOTTOM" x="0" y="-2"/>
+				</Anchors>
+				<Scripts>
+					<OnCursorChanged>
+						self:HighlightText();
+					</OnCursorChanged>
+				</Scripts>
+			</EditBox>
+
+			<Button inherits="NarciSquareRedButtonTemplate" parentKey="CloseButton" hidden="false">
+				<Anchors>
+					<Anchor point="TOPRIGHT" relativeKey="$parent" relativePoint="TOPRIGHT" x="-7" y="-7"/>
+				</Anchors>
+				<KeyValues>
+					<KeyValue key="iconFile" value="Interface\AddOns\Narcissus\Art\RedButtons\Icon-X" type="string"/>
+				</KeyValues>
+			</Button>
+
+
+			<Button inherits="NarciRectRedButtonTemplate" parentKey="ShowMoreButton">
+				<Anchors>
+					<Anchor point="TOP" relativeKey="$parent.Clipboard" relativePoint="BOTTOM" y="-3"/>
+				</Anchors>
+				<KeyValues>
+					<KeyValue key="maxWidth" value="384" type="number"/>
+				</KeyValues>
+			</Button>
+
+			<Frame parentKey="TutorialFrame" hidden="true">
+				<Size x="274" y="200"/>
+				<Anchors>
+					<Anchor point="TOP" relativeKey="$parent.Clipboard" relativePoint="BOTTOM" y="-4"/>
+				</Anchors>
+				<Layers>
+					<Layer level="ARTWORK">
+						<Texture parentKey="Picture" file="Interface\AddOns\Narcissus\Art\Modules\DressingRoom\TaintSolution">
+							<TexCoords left="0.5" right="1" top="0" bottom="1"/>
+							<Size x="96" y="96"/>
+							<Anchors>
+								<Anchor point="TOPRIGHT"/>
+							</Anchors>
+						</Texture>
+					</Layer>
+				</Layers>
+			</Frame>
+		</Frames>
+		<Scripts>
+			<OnLoad method="OnLoad"/>
+			<OnHide method="OnHide"/>
+		</Scripts>
+	</Frame>
+</Ui>

@@ -1,0 +1,188 @@
+<Ui xsi:schemaLocation="http://www.blizzard.com/wow/ui/..\FrameXML\UI.xsd">
+    <Script file="Domination.lua"/>
+    
+    <Frame name="NarciDomimationItemHighlight" hidden="true" virtual="true" mixin="NarciDominationItemHighlightMixin">
+        <Layers>
+            <Layer level="BACKGROUND">
+                <Texture file="Interface\AddOns\Narcissus\Art\Widgets\Domination\PaperDollItemHighlight" parentKey="BorderHighlight" alphaMode="ADD">
+                    <Size x="37" y="37"/>
+                    <Anchors>
+                        <Anchor point="CENTER"/>
+                    </Anchors>
+                    <Animations>
+                        <AnimationGroup parentKey="Shine">
+                            <Alpha fromAlpha="0" toAlpha="1" duration="0.12" order="1"/>
+                        </AnimationGroup>
+                    </Animations>
+                </Texture>
+            </Layer>
+            <Layer level="OVERLAY">
+                <Texture file="Interface\AddOns\Narcissus\Art\Widgets\Domination\PaperDollItemRank" parentKey="RankIndicator">
+                    <TexCoords left="0" right="0.25" top="0" bottom="0.5"/>
+                </Texture>
+            </Layer>
+        </Layers>
+        <Scripts>
+            <OnHide>
+                self:StopAnimating();
+				self:Hide();
+            </OnHide>
+        </Scripts>
+    </Frame>
+
+    <Texture name="NarciDominationIndicatorNodeTemplate" file="Interface\AddOns\Narcissus\Art\Widgets\Domination\ShardNodeTiny" virtual="true">
+        <Size x="36" y="72"/>
+        <TexCoords left="0.75" right="1" top="0" bottom="1"/>
+    </Texture>
+
+    <Frame name="NarciCharacterFrameDominationIndicator" parent="CharacterFrame" mixin="NarciDominationIndicatorMixin" frameStrata="HIGH" id="2">
+        <Size x="72" y="72"/>
+        <Layers>
+            <Layer level="BACKGROUND" textureSubLevel="-1">
+                <Texture file="Interface\AddOns\Narcissus\Art\Widgets\Domination\IndicatorUI" parentKey="Highlight" hidden="true">
+                    <TexCoords left="0.5" right="0.75" top="0" bottom="0.25"/>
+                </Texture>
+            </Layer>
+            <Layer level="BACKGROUND">
+                <Texture file="Interface\AddOns\Narcissus\Art\Widgets\Domination\IndicatorUI" parentKey="Background">
+                    <TexCoords left="0" right="0.25" top="0" bottom="0.25"/>
+                </Texture>
+            </Layer>
+            <Layer level="OVERLAY">
+                <Texture parentKey="SpellIcon" hidden="true">
+                    <Size x="32" y="32"/>
+                    <Anchors>
+                        <Anchor point="CENTER"/>
+                    </Anchors>
+                </Texture>
+				<MaskTexture parentKey="SpellIconMask" file="Interface\AddOns\Narcissus\Art\Widgets\Domination\IndicatorIconMask" hWrapMode="CLAMPTOBLACKADDITIVE" vWrapMode="CLAMPTOBLACKADDITIVE">
+                    <Size x="36" y="36"/>
+                    <Anchors>
+                        <Anchor point="CENTER"/>
+                    </Anchors>
+					<MaskedTextures>
+						<MaskedTexture childKey="SpellIcon"/>
+					</MaskedTextures>
+				</MaskTexture>
+            </Layer>
+        </Layers>
+        <Scripts>
+            <OnLoad method="OnLoad"/>
+            <OnEnter method="OnEnter"/>
+            <OnLeave method="OnLeave"/>
+            <OnShow method="OnShow"/>
+            <OnHide method="OnHide"/>
+        </Scripts>
+    </Frame>
+
+    <Texture name="NarciDominationAlertWaveTexture" virtual="true" file="Interface\AddOns\Narcissus\Art\Widgets\Domination\SignalTower" parentArray="Waves" alpha="0" alphaMode="ADD" scale="1">
+        <Size x="24" y="24"/>
+        <TexCoords left="0.5" right="1" top="0.5" bottom="1"/>
+        <Anchors>
+            <Anchor point="CENTER" y="5"/>
+        </Anchors>
+        <Animations>
+            <AnimationGroup parentKey="Anim" setToFinalAlpha="true">
+                <Alpha fromAlpha="0" toAlpha="1" duration="0.2" order="1" parentKey="A1"/>
+                <Scale scaleX="1.3" scaleY="1.3" duration="0.2" order="1" parentKey="S1"/>
+                <Alpha fromAlpha="1" toAlpha="0" duration="1" order="2"/>
+                <Scale scaleX="2.5" scaleY="2.5" duration="1" order="2"/>
+                <Alpha fromAlpha="0" toAlpha="0" duration="3" order="3"/>
+            </AnimationGroup>
+        </Animations>
+    </Texture>
+
+    <Frame name="NarciDominationNoEffectAlert" mixin="NarciDominationNoEffectAlertMixin" movable="false" frameStrata="HIGH" scale="1" virtual="true" ignoreParentScale="true" ignoreParentAlpha="false" hidden="true">
+        <Size x="64" y="64"/>
+        <Anchors>
+            <Anchor point="CENTER" relativeTo="UIParent" relativePoint="CENTER"/>
+        </Anchors>
+        <Layers>
+            <!--Layer level="BACKGROUND" textureSubLevel="-2">
+                <Texture parentKey="FullScreenMask" hidden="true">
+                    <Color r="0" g="0" b="0" a="0.5"/>
+                    <Anchors>
+                        <Anchor point="TOPLEFT" relativeTo="UIParent" relativePoint="TOPLEFT" y="18"/>
+                        <Anchor point="BOTTOMRIGHT" relativeTo="UIParent" relativePoint="BOTTOMRIGHT"/>
+                    </Anchors>
+                </Texture>
+            </Layer-->
+            <Layer level="BACKGROUND">
+                <Texture parentKey="BackgroundLeft" file="Interface\AddOns\Narcissus\Art\Widgets\Domination\SignalTower">
+                    <Size x="64" y="64"/>
+                    <TexCoords left="0" right="0.5" top="0" bottom="0.5"/>
+                    <Anchors>
+                        <Anchor point="LEFT"/>
+                    </Anchors>
+                </Texture>
+                <Texture parentKey="BackgroundRight" file="Interface\AddOns\Narcissus\Art\Widgets\Domination\SignalTower">
+                    <Size x="64" y="64"/>
+                    <TexCoords left="0.5" right="1" top="0" bottom="0.5"/>
+                    <Anchors>
+                        <Anchor point="LEFT" relativeKey="$parent.BackgroundLeft" relativePoint="RIGHT"/>
+                    </Anchors>
+                </Texture>
+            </Layer>
+            <Layer level="OVERLAY">
+				<FontString inherits="NarciFontMedium12" justifyH="LEFT" justifyV="BOTTOM" parentKey="Header" text="No Service">
+					<Size x="0" y="0"/>
+					<Anchors>
+						<Anchor point="TOPLEFT" relativeKey="$parent.BackgroundLeft" relativePoint="TOPRIGHT" x="2" y="0"/>
+					</Anchors>
+				</FontString>
+				<FontString inherits="NarciFontThin9" justifyH="LEFT" justifyV="TOP" parentKey="Text1" spacing="2">
+					<Size x="0" y="0"/>
+					<Color r="0.8" g="0.8" b="0.8"/>
+					<Anchors>
+						<Anchor point="TOPLEFT" relativeKey="$parent.Header" relativePoint="BOTTOMLEFT" x="0" y="-4"/>
+					</Anchors>
+				</FontString>
+            </Layer>
+            <Layer level="BORDER">
+                <Texture parentKey="Highlight" file="Interface\AddOns\Narcissus\Art\Widgets\Domination\SignalTower" alphaMode="ADD" alpha="0">
+                    <TexCoords left="0" right="0.5" top="0.5" bottom="1"/>
+                    <Animations>
+                        <AnimationGroup parentKey="Blink" looping="REPEAT">
+							<Alpha fromAlpha="0" toAlpha="1" duration="0.5" order="1"/>
+							<Alpha startDelay="0.25" fromAlpha="1" toAlpha="0" duration="1" order="2"/>
+                            <Alpha fromAlpha="0" toAlpha="0" duration="0.25" order="3"/>
+                        </AnimationGroup>
+                    </Animations>
+                </Texture>
+            </Layer>
+        </Layers>
+        <Animations>
+            <AnimationGroup parentKey="AnimIn">
+                <Alpha fromAlpha="0" toAlpha="0" duration="0" order="1"/>
+                <Translation offsetY="-16" duration="0" order="1"/>
+                <Alpha fromAlpha="0" toAlpha="0" duration="1" order="2"/>
+                <Alpha fromAlpha="0" toAlpha="1" duration="0.25" order="3"/>
+                <Translation offsetY="12" duration="0.25" order="3"/>
+                <Translation smoothing="OUT" offsetY="4" duration="0.25" order="4"/>
+                <Scripts>
+                    <OnFinished>
+                        self:GetParent():PlayWaves();
+                    </OnFinished>
+                    <OnPlay>
+                        self:GetParent().Header:SetAlpha(0);
+                        self:GetParent().Text1:SetAlpha(0);
+                    </OnPlay>
+                </Scripts>
+            </AnimationGroup>
+            <AnimationGroup parentKey="AnimText" setToFinalAlpha="true">
+                <Alpha fromAlpha="0" toAlpha="0" duration="0" order="1" childKey="Header"/>
+                <Alpha fromAlpha="0" toAlpha="0" duration="0" order="1" childKey="Text1"/>
+                <Alpha fromAlpha="0" toAlpha="1" duration="0.25" order="2" childKey="Header"/>
+                <Alpha startDelay="0.25" fromAlpha="0" toAlpha="1" duration="0.25" order="2" childKey="Text1"/>
+            </AnimationGroup>
+        </Animations>
+        <Scripts>
+            <OnLoad method="OnLoad"/>
+            <OnMouseDown method="OnMouseDown"/>
+            <OnEnter method="OnEnter"/>
+            <OnLeave method="OnLeave"/>
+            <OnHide method="OnHide"/>
+            <OnShow method="OnShow"/>
+        </Scripts>
+    </Frame>
+</Ui>

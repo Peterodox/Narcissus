@@ -1,0 +1,499 @@
+<Ui xsi:schemaLocation="http://www.blizzard.com/wow/ui/..\FrameXML\UI.xsd">
+	<Script file="EquipmentComparisonFlyout.lua"/>
+
+	<FontString name="NarciTooltipAttributeTemplate" inherits="NarciFontNormal10White" justifyH="LEFT" justifyV="TOP" virtual="true">
+		<Color r="1" g="0.96" b="0.41" a="1"/>
+	</FontString>
+
+	<FontString name="NarciNumberAlignedtoLeft" inherits="NarciFontNormal10White" justifyH="LEFT" justifyV="TOP" virtual="true"/>
+	<FontString name="NarciNumberAlignedtoRight" inherits="NarciFontNormal10White" justifyH="RIGHT" justifyV="TOP" virtual="true"/>
+
+	<GameTooltip name="NarciRefVirtualTooltip" inherits="GameTooltipTemplate" parent="UIParent" enableMouse="false" toplevel="false" movable="false" frameStrata="LOW" scale="0.001" hidden="true" Alpha="0">
+		<Size>
+			<AbsDimension x="10" y="10"/>
+		</Size>
+		<Anchors>
+			<Anchor point="BOTTOM"/>
+		</Anchors>
+		<Scripts>
+			<OnLoad function="GameTooltip_OnLoad"/>
+			<OnTooltipSetItem function="Narci_Comparison_Resize"/>
+		</Scripts>
+	</GameTooltip>
+
+	<Frame name="NarciStatsComparisonTemplate" virtual="true">
+		<Size y="12"/>
+        <Layers>					
+            <Layer level="OVERLAY" textureSubLevel="2">
+				<FontString parentKey="Label" inherits="NarciTooltipAttributeTemplate">
+					<Size x="0" y="0"/>
+					<Anchors>
+						<Anchor point="LEFT" relativePoint="LEFT" x="0" y="0"/>
+					</Anchors>
+				</FontString>
+
+				<FontString parentKey="Num" inherits="NarciNumberAlignedtoLeft" name="$parentNum">
+					<Size x="0" y="0"/>
+					<Color r="0.92" g="0.92" b="0.92"/>
+					<Anchors>
+						<Anchor point="LEFT" relativeKey="$parent.$parent.GuideLineV1" relativePoint="LEFT" x="0"/>
+						<Anchor point="BOTTOM" relativeKey="$parent.Label" relativePoint="BOTTOM" y="0"/>					
+					</Anchors>
+				</FontString>
+
+				<FontString parentKey="NumDiff" inherits="NarciNumberAlignedtoLeft">
+					<Size x="0" y="0"/>
+					<Anchors>
+						<Anchor point="LEFT" relativeKey="$parent.$parent.GuideLineV2" relativePoint="LEFT" x="0"/>
+						<Anchor point="BOTTOM" relativeKey="$parent.Label" relativePoint="BOTTOM" y="0"/>	
+					</Anchors>
+				</FontString>
+
+                <Texture parentKey="Arrow" file="Interface\AddOns\Narcissus\Art\Tooltip\Arrows" hidden="true">
+					<TexCoords left="0" right="0.5" top="0" bottom="1"/>
+					<Size x="8" y="8"/>
+                    <Anchors>
+                        <Anchor point="RIGHT" relativeKey="$parent.NumDiff" relativePoint="LEFT" x="-4" y="0"/>
+                    </Anchors>
+                </Texture>
+
+				<FontString parentKey="PctDiff" inherits="NarciNumberAlignedtoRight">
+					<Size x="0" y="0"/>
+					<Anchors>
+						<Anchor point="RIGHT" relativePoint="RIGHT" x="0"/>
+					</Anchors>
+				</FontString>
+			</Layer>
+		</Layers>
+		<Scripts>
+			<OnLoad>
+				if not self:GetParent().StatsList then
+					self:GetParent().StatsList = {};
+				end
+				tinsert(self:GetParent().StatsList, self)
+			</OnLoad>		
+		</Scripts>
+	</Frame>
+
+	<Frame name="StatsIlvlComparisonTemplate" inherits="NarciStatsComparisonTemplate" virtual="true">
+		<Scripts>
+			<OnLoad>
+				self.Label:SetTextColor(1, 0.82, 0)
+				self.Num:SetTextColor(1, 0.82, 0)
+			</OnLoad>
+		</Scripts>
+	</Frame>
+
+	<Button name="NarciItemBonusTinyButtonTemplate" hidden="true" virtual="true">
+		<Size x="8" y="8"/>
+		<Layers>					
+			<Layer level="OVERLAY">
+				<Texture parentKey="BonusIcon" hidden="false">
+					<TexCoords left="0.05" right="0.95" top="0.05" bottom="0.95"/>
+					<Size x="8" y="8"/>
+					<Anchors>
+						<Anchor point="CENTER"/>
+					</Anchors>
+				</Texture>
+			</Layer>
+		</Layers>
+		<Scripts>
+			<OnEnter>
+				--print("enter")
+			</OnEnter>
+		</Scripts>
+	</Button>
+
+	<Button name="Narci_SubTooltip_Trait_Template" virtual="true">
+		<Size x="40" y="40"/>
+		<Layers>
+			<Layer level="BORDER">
+				<Texture file="Interface\AddOns\Narcissus\Art\Tooltip\AzeriteTrait-Border" setAllPoints="true" parentKey="Border0">
+					<TexCoords left="0" right="0.25" top="0" bottom="1"/>
+				</Texture>
+			</Layer>
+			<Layer level="ART">
+				<Texture parentKey="Icon">
+					<TexCoords left="0.08" right="0.92" top="0.08" bottom="0.92"/>
+					<Size x="24" y="24"/>
+					<Anchors>
+						<Anchor point="CENTER"/>
+					</Anchors>
+				</Texture>
+				<FontString inherits="NarciFontMedium12" justifyH="CENTER" justifyV="MIDDLE" hidden="true" parentKey="Level">
+					<Color r="0.6" g="0.6" b="0.6"/>
+					<Anchors>
+						<Anchor point="CENTER"/>
+					</Anchors>
+				</FontString>
+			</Layer>
+			<Layer level="OVERLAY">
+				<Texture file="Interface\AddOns\Narcissus\Art\Tooltip\AzeriteTrait-Border" setAllPoints="true" parentKey="Border1">
+					<TexCoords left="0.25" right="0.5" top="0" bottom="1"/>
+				</Texture>
+			</Layer>
+		</Layers>
+		<Frames>
+			<Frame parentKey="BaseTrait">
+				<Size x="32" y="32"/>
+				<Anchors>
+					<Anchor point="CENTER" relativeKey="$parent" relativePoint="BOTTOMRIGHT" x="-6" y="6"/>
+				</Anchors>
+				<Layers>
+					<Layer level="OVERLAY" textureSubLevel="2">
+						<Texture parentKey="Icon">
+							<TexCoords left="0.08" right="0.92" top="0.08" bottom="0.92"/>
+							<Size x="14" y="14"/>
+							<Anchors>
+								<Anchor point="CENTER"/>
+							</Anchors>
+						</Texture>
+					</Layer>
+					<Layer level="OVERLAY" textureSubLevel="3">
+						<Texture file="Interface\AddOns\Narcissus\Art\Tooltip\AzeriteTrait-TinyBorder" setAllPoints="true" parentKey="Border"/>
+					</Layer>
+				</Layers>
+			</Frame>
+		</Frames>
+		<Scripts>
+			<OnEnter>
+				--self:GetParent().Description1:SetText(self.Description);
+				--self:GetParent().Name1:SetText(self.Name);
+			</OnEnter>
+		</Scripts>
+	</Button>
+	
+	<Frame name="Narci_SubTooltip_Template" hidden="true" virtual="true">
+        <Layers>
+            <Layer level="BACKGROUND" textureSubLevel="1">
+                <Texture file="Interface\AddOns\Narcissus\Art\Tooltip\DropShadow" parentKey="Shadow">
+					<TexCoords left="0" right="0.5" top="0" bottom="0.7109375"/>
+                    <Anchors>
+                        <Anchor point="TOPLEFT" relativeKey="$parent" relativePoint="TOPLEFT" x="-20" y="20"/>
+						<Anchor point="BOTTOMRIGHT" relativeKey="$parent" relativePoint="BOTTOMRIGHT" x="30" y="-36"/>
+                    </Anchors>
+                </Texture>
+			</Layer>			
+            <Layer level="BACKGROUND" textureSubLevel="2">
+				<Texture setAllPoints="true" parentKey="BackgroundTop">
+					<Color a="1" r="1" g="1" b="1"/>
+					<Gradient orientation="VERTICAL">
+						<MinColor a="1" r="0.06" g="0.06" b="0.06"/>
+						<MaxColor a="1" r="0.12" g="0.12" b="0.12"/>
+					</Gradient>
+                    <Anchors>
+                        <Anchor point="TOPLEFT" relativeKey="$parent" relativePoint="TOPLEFT" x="0" y="0"/>
+                        <Anchor point="BOTTOMRIGHT" relativeKey="$parent" relativePoint="RIGHT" x="0" y="50"/>
+                    </Anchors>
+				</Texture>
+				<Texture setAllPoints="true" parentKey="BackgroundBottom">
+					<Color a="1" r="0.06" g="0.06" b="0.06"/>
+                    <Anchors>
+                        <Anchor point="TOPLEFT" relativeKey="$parent" relativePoint="LEFT" x="0" y="50"/>
+                        <Anchor point="BOTTOMRIGHT" relativeKey="$parent" relativePoint="BOTTOMRIGHT" x="0" y="0"/>
+                    </Anchors>
+				</Texture>
+            </Layer>
+			<Layer level="OVERLAY">
+				<FontString parentKey="Description" inherits="NarciFontNormal10White" justifyH="LEFT" justifyV="TOP" spacing="2" hidden="false">
+					<Color r="0.92" g="0.92" b="0.92" a="1"/>
+					<Anchors>
+						<Anchor point="TOPLEFT" relativeKey="$parent" relativePoint="TOPLEFT" x="32" y="-24"/>
+						<Anchor point="BOTTOMRIGHT" relativeKey="$parent" relativePoint="BOTTOMRIGHT" x="-12" y="12"/>
+					</Anchors>
+				</FontString>
+			</Layer>
+		</Layers>
+		<Frames>
+			<Frame inherits="NarciHeaderWithShadowTemplate">
+				<Anchors>
+					<Anchor point="CENTER" relativeKey="$parent" relativePoint="TOP" x="10" y="0"/>
+				</Anchors>		
+			</Frame>
+
+			<Frame parentKey="AzeriteTraits">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeKey="$parent" relativePoint="TOPLEFT"/>
+					<Anchor point="BOTTOMRIGHT" relativeKey="$parent" relativePoint="BOTTOMRIGHT"/>
+				</Anchors>
+				<Frames>
+					<Button inherits="Narci_SubTooltip_Trait_Template" name="$parent1" parentKey="Trait1">
+						<Anchors>
+							<Anchor point="LEFT" relativeKey="$parent.$parent" relativePoint="LEFT" x="28"/>
+							<Anchor point="TOP" relativeKey="$parent.$parent.Header" relativePoint="BOTTOM" y="-8"/>
+						</Anchors>
+						<Scripts>					
+						</Scripts>
+					</Button>
+				</Frames>
+				<Layers>
+					<Layer level="OVERLAY">
+						<FontString parentKey="Name1" inherits="NarciFontNormal10White" justifyH="LEFT" justifyV="TOP" spacing="2" text="Dagger in the Back">
+							<Size y="0"/>
+							<Color r="0.92" g="0.92" b="0.92" a="1"/>
+							<Anchors>
+								<Anchor point="TOPLEFT" relativeKey="$parent.Trait1" relativePoint="BOTTOMLEFT" x="3" y="-12"/>
+								<Anchor point="RIGHT" relativeKey="$parent.$parent" relativePoint="RIGHT" x="-10"/>
+							</Anchors>
+						</FontString>
+						<FontString parentKey="Description1" inherits="NarciFontNormal10White" justifyH="LEFT" justifyV="TOP" spacing="2" maxLines="2" text="NARCI_TEST_TRAIT">
+							<Color r="0.9" g="0.8" b="0.5" a="1"/>
+							<Size y="24"/>
+							<Anchors>
+								<Anchor point="TOPLEFT" relativeKey="$parent.Name1" relativePoint="BOTTOMLEFT" x="0" y="-4"/>
+								<Anchor point="RIGHT" relativeKey="$parent.$parent" relativePoint="RIGHT" x="-10"/>
+							</Anchors>
+						</FontString>
+						<FontString parentKey="Name2" inherits="NarciFontNormal10White" justifyH="LEFT" justifyV="TOP" spacing="2" text="Dagger in the Back">
+							<Size y="0"/>
+							<Color r="0.92" g="0.92" b="0.92" a="1"/>
+							<Anchors>
+								<Anchor point="TOPLEFT" relativeKey="$parent.Description1" relativePoint="BOTTOMLEFT" x="0" y="-8"/>
+								<Anchor point="RIGHT" relativeKey="$parent.$parent" relativePoint="RIGHT" x="-10"/>
+							</Anchors>
+						</FontString>
+						<FontString parentKey="Description2" inherits="NarciFontNormal10White" justifyH="LEFT" justifyV="TOP" spacing="2" maxLines="2" text="NARCI_TEST_TRAIT">
+							<Color r="0.9" g="0.8" b="0.5" a="1"/>
+							<Anchors>
+								<Anchor point="TOPLEFT" relativeKey="$parent.Name2" relativePoint="BOTTOMLEFT" x="0" y="-4"/>
+								<Anchor point="BOTTOMRIGHT" relativeKey="$parent.$parent" relativePoint="BOTTOMRIGHT" x="-10" y="10"/>
+							</Anchors>
+						</FontString>
+					</Layer>
+				</Layers>
+				<Scripts>
+					<OnLoad function="Narci_CreateAzeriteTraitTooltip"/>
+				</Scripts>
+			</Frame>
+		</Frames>
+		<Scripts>
+			<OnLoad>
+				self.WidthBAK = math.floor(self:GetWidth() + 0.5);
+				self:SetFrameLevel(self:GetParent():GetFrameLevel() - 1);
+			</OnLoad>
+			<OnHide>
+				self:SetWidth(self.WidthBAK);
+				self:Hide();
+			</OnHide>
+		</Scripts>
+	</Frame>
+
+    <Frame name="Narci_Comparison" parent="Narci_EquipmentFlyoutFrame" clampedToScreen="true" frameStrata="TOOLTIP" hidden="true" enableMouseMotion="false" clipChildren="false" frameLevel="18">
+        <Size x="256" y="160"/>
+        <Anchors>
+            <Anchor point="BOTTOMLEFT" relativePoint="TOPLEFT"  x="8" y="8"/>
+        </Anchors>
+        <Layers>
+            <Layer level="BACKGROUND" textureSubLevel="1">
+                <Texture file="Interface\AddOns\Narcissus\Art\Tooltip\DropShadow" parentKey="Shadow">
+					<TexCoords left="0" right="0.5" top="0" bottom="0.7109375"/>
+                    <Anchors>
+                        <Anchor point="TOPLEFT" relativeKey="$parent" relativePoint="TOPLEFT" x="-20" y="20"/>
+						<Anchor point="BOTTOMRIGHT" relativeKey="$parent" relativePoint="BOTTOMRIGHT" x="30" y="-36"/>
+                    </Anchors>
+                </Texture>
+			</Layer>			
+            <Layer level="BACKGROUND" textureSubLevel="2">
+				<Texture setAllPoints="true" parentKey="BackgroundTop">
+					<Color a="1" r="1" g="1" b="1"/>
+					<Gradient orientation="VERTICAL">
+						<MinColor a="1" r="0.05" g="0.05" b="0.05"/>
+						<MaxColor a="1" r="0.15" g="0.15" b="0.15"/>
+					</Gradient>
+                    <Anchors>
+                        <Anchor point="TOPLEFT" relativeKey="$parent" relativePoint="TOPLEFT" x="0" y="0"/>
+                        <Anchor point="BOTTOMRIGHT" relativeKey="$parent" relativePoint="RIGHT" x="0" y="30"/>
+                    </Anchors>
+				</Texture>
+				<Texture setAllPoints="true" parentKey="BackgroundBottom">
+					<Color a="1" r="0.05" g="0.05" b="0.05"/>
+                    <Anchors>
+                        <Anchor point="TOPLEFT" relativeKey="$parent" relativePoint="LEFT" x="0" y="30"/>
+                        <Anchor point="BOTTOMRIGHT" relativeKey="$parent" relativePoint="BOTTOMRIGHT" x="0" y="0"/>
+                    </Anchors>
+				</Texture>
+            </Layer>
+            <Layer level="BACKGROUND" textureSubLevel="3">
+                <Texture parentKey="Icon" desaturated="true" Alpha="0.06">
+					<TexCoords left="0.1" right="0.9" top="0.1" bottom="0.9"/>
+                    <Anchors>
+                        <Anchor point="TOPRIGHT" relativeKey="$parent" relativePoint="TOPRIGHT" x="0" y="0"/>
+                        <Anchor point="BOTTOMRIGHT" relativeKey="$parent" relativePoint="BOTTOMRIGHT" x="0" y="0"/>
+                    </Anchors>
+                </Texture>
+				<MaskTexture parentKey="HexMask" file="Interface\AddOns\Narcissus\Art\Tooltip\Icon-Mask" hWrapMode="CLAMPTOBLACKADDITIVE" vWrapMode="CLAMPTOBLACKADDITIVE">
+                    <Anchors>
+                        <Anchor point="TOPLEFT" relativeKey="$parent.Icon" relativePoint="TOPLEFT" x="0" y="0"/>
+                        <Anchor point="BOTTOMRIGHT" relativeKey="$parent.Icon" relativePoint="BOTTOMRIGHT" x="0" y="0"/>
+                    </Anchors>
+					<MaskedTextures>
+						<MaskedTexture childKey="Icon"/>
+					</MaskedTextures>
+				</MaskTexture>
+            </Layer>
+			<Layer level="OVERLAY">
+				<FontString inherits="NarciEquipLocFont" justifyH="LEFT" justifyV="BOTTOM" parentKey="Label" text="Placeholder">
+					<Size x="0" y="0"/>
+					<Anchors>
+						<Anchor point="TOPLEFT" relativeKey="$parent" relativePoint="TOPLEFT" x="14" y="-14"/>
+					</Anchors>
+				</FontString>
+
+				<FontString inherits="NarciEquipLocFont" justifyH="RIGHT" justifyV="BOTTOM" parentKey="EquipLoc" text="">
+					<Size x="0" y="0"/>
+					<Anchors>
+						<Anchor point="TOPRIGHT" relativeKey="$parent" relativePoint="TOPRIGHT" x="-14" y="-14"/>
+					</Anchors>
+				</FontString>
+
+				<FontString inherits="NarciFontMedium12" justifyH="LEFT" justifyV="BOTTOM" parentKey="ItemName" text="ItemName" spacing="2">
+					<Size x="232" y="0"/>
+					<Anchors>
+						<Anchor point="TOPLEFT" relativeKey="$parent.Label" relativePoint="BOTTOMLEFT" x="0" y="-4"/>
+					</Anchors>
+				</FontString>
+
+                <Texture parentKey="BonusIcon2" hidden="true">
+					<TexCoords left="0.05" right="0.95" top="0.05" bottom="0.95"/>
+					<Size x="8" y="8"/>
+                </Texture>
+
+				<FontString parentKey="PawnText" inherits="NarciFontNormal10White" justifyH="LEFT" justifyV="TOP" hidden="true" spacing="2">
+					<Size x="228" y="0"/>
+					<Anchors>
+						<Anchor point="BOTTOMLEFT" relativePoint="BOTTOMLEFT" x="14" y="13"/>
+					</Anchors>
+				</FontString>
+			
+            </Layer>
+        </Layers>
+		<Frames>
+			<Frame inherits="NarciGemSlotTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeKey="$parent" relativePoint="TOPRIGHT" x="-2" y="0"/>
+				</Anchors>
+				<Scripts>
+					<OnLoad>
+						self.GemBorder:SetTexCoord(1, 0, 0, 1);
+					</OnLoad>
+				</Scripts>
+			</Frame>
+
+			<Frame name="Narci_SubTooltip" inherits="Narci_SubTooltip_Template" parentKey="SubTooltip">
+				<Size x="240"/>
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeKey="$parent" relativePoint="TOPRIGHT" x="-20" y="-12"/>
+					<Anchor point="BOTTOMLEFT" relativeKey="$parent" relativePoint="BOTTOMRIGHT" x="-20" y="-12"/>
+				</Anchors>
+				<Layers>
+					<Layer level="BORDER">
+						<Texture file="Interface\AddOns\Narcissus\Art\Tooltip\Hinge" Alpha="0.06" parentKey="Hinge">
+							<Size x="23" y="23"/>
+							<Anchors>
+								<Anchor point="BOTTOMLEFT" relativeKey="$parent" relativePoint="BOTTOMLEFT" x="0"/>
+							</Anchors>
+						</Texture>
+					</Layer>
+				</Layers>
+				<Scripts>
+					<OnShow>
+						self.Hinge:SetAlpha(0.06);
+					</OnShow>
+				</Scripts>
+			</Frame>
+
+			<Frame parentKey="GuideLineV1" hidden="true">
+				<Size x="1" y="200"/>
+				<Anchors>
+					<Anchor point="LEFT" relativeKey="$parent" relativePoint="LEFT" x="80" y="0"/>
+				</Anchors>
+                <Layers>
+                    <Layer level="OVERLAY" textureSubLevel="3">
+                        <Texture setAllPoints="true">
+                            <Color r="1.0" g="1.0" b="0.0" a="0.5"/>
+                        </Texture>
+                    </Layer>
+                </Layers>			
+			</Frame>
+			<Frame parentKey="GuideLineV2" hidden="true">
+				<Size x="1" y="200"/>
+				<Anchors>
+					<Anchor point="LEFT" relativeKey="$parent.GuideLineV1" relativePoint="LEFT" x="70" y="0"/>
+				</Anchors>
+                <Layers>
+                    <Layer level="OVERLAY" textureSubLevel="3">
+                        <Texture setAllPoints="true">
+                            <Color r="1.0" g="1.0" b="1.0" a="0.5"/>
+                        </Texture>
+                    </Layer>
+                </Layers>			
+			</Frame>
+			<Button inherits="NarciItemBonusTinyButtonTemplate" parentKey="BonusButton1"/>
+			<Button inherits="NarciItemBonusTinyButtonTemplate" parentKey="BonusButton2"/>
+
+			<Frame inherits="StatsIlvlComparisonTemplate" parentKey="ilvl">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeKey="$parent.ItemName" relativePoint="BOTTOMLEFT" x="0" y="-8"/>
+					<Anchor point="RIGHT" relativeKey="$parent" relativePoint="RIGHT" x="-14"/>
+				</Anchors>
+			</Frame>
+
+			<Frame inherits="NarciStatsComparisonTemplate" parentKey="prim">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeKey="$parent.ilvl" relativePoint="BOTTOMLEFT" x="0" y="-4"/>
+					<Anchor point="RIGHT" relativeKey="$parent.ilvl" relativePoint="RIGHT" x="0" y="-4"/>
+				</Anchors>
+			</Frame>
+			<Frame inherits="NarciStatsComparisonTemplate" parentKey="stamina">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeKey="$parent.prim" relativePoint="BOTTOMLEFT" x="0" y="-4"/>
+					<Anchor point="TOPRIGHT" relativeKey="$parent.prim" relativePoint="BOTTOMRIGHT" x="0" y="-4"/>
+				</Anchors>
+			</Frame>
+			<Frame inherits="NarciStatsComparisonTemplate" parentKey="crit">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeKey="$parent.stamina" relativePoint="BOTTOMLEFT" x="0" y="-4"/>
+					<Anchor point="TOPRIGHT" relativeKey="$parent.stamina" relativePoint="BOTTOMRIGHT" x="0" y="-4"/>
+				</Anchors>
+			</Frame>
+			<Frame inherits="NarciStatsComparisonTemplate" parentKey="haste">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeKey="$parent.crit" relativePoint="BOTTOMLEFT" x="0" y="-4"/>
+					<Anchor point="TOPRIGHT" relativeKey="$parent.crit" relativePoint="BOTTOMRIGHT" x="0" y="-4"/>
+				</Anchors>
+			</Frame>
+			<Frame inherits="NarciStatsComparisonTemplate" parentKey="mastery">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeKey="$parent.haste" relativePoint="BOTTOMLEFT" x="0" y="-4"/>
+					<Anchor point="TOPRIGHT" relativeKey="$parent.haste" relativePoint="BOTTOMRIGHT" x="0" y="-4"/>
+				</Anchors>
+			</Frame>
+			<Frame inherits="NarciStatsComparisonTemplate" parentKey="versatility">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeKey="$parent.mastery" relativePoint="BOTTOMLEFT" x="0" y="-4"/>
+					<Anchor point="TOPRIGHT" relativeKey="$parent.mastery" relativePoint="BOTTOMRIGHT" x="0" y="-4"/>
+				</Anchors>
+			</Frame>
+		</Frames>
+		<Animations>
+			<AnimationGroup parentKey="animIn">
+				<Translation parentKey="Translation" offsetY="6" duration="0" order="1"/>
+				<Alpha fromAlpha="0" toAlpha="1" duration="0.15" order="2"/>
+				<Translation parentKey="Translation" offsetY="-6" duration="0.2" order="2" smoothing="OUT"/>
+			</AnimationGroup>
+		</Animations>		
+		<Scripts>
+			<OnSizeChanged>
+			    self.Icon:SetWidth(self:GetHeight());
+			</OnSizeChanged>
+			<OnShow>
+				self.Icon:SetAlpha(0.06);	--Item Icon
+				self:StopAnimating();
+				self.animIn:Play();
+			</OnShow>
+			<OnHide>
+				self:Hide();
+			</OnHide>
+		</Scripts>
+    </Frame>
+</Ui>

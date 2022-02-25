@@ -1,0 +1,97 @@
+<Ui xsi:schemaLocation="http://www.blizzard.com/wow/ui/..\FrameXML\UI.xsd">
+    <!--For Item Shop Customer Service-->
+    <Frame name="NarciMailItemTemplate" virtual="true">
+        <Size x="305" y="45"/>
+        <Layers>
+            <!--Layer level="BACKGROUND" textureSubLevel="-1">
+                <Texture>
+                    <Color r="1" a="0.5"/>
+                </Texture>
+            </Layer-->
+            <Layer level="BACKGROUND">
+                <Texture file="Interface\MailFrame\MailItemBorder">
+                    <Size x="42" y="48"/>
+                    <Anchors>
+                        <Anchor point="TOPLEFT"/>
+                    </Anchors>
+                    <TexCoords left="0" right="0.1640625" top="0" bottom="0.75"/>
+                </Texture>
+                <Texture file="Interface\MailFrame\MailItemBorder">
+                    <Size x="263" y="48"/>
+                    <Anchors>
+                        <Anchor point="TOPRIGHT"/>
+                    </Anchors>
+                    <TexCoords left="0.1640625" right="1.0" top="0" bottom="0.75"/>
+                </Texture>
+                <Texture>
+                <Size x="322" y="2"/>
+                    <Anchors>
+                        <Anchor point="TOP" relativePoint="BOTTOM" x="0" y="2"/>
+                    </Anchors>
+                    <Color r="0.33" g="0.16" b="0" a=".3"/>
+                </Texture>
+            </Layer>
+            <Layer level="OVERLAY">
+                <FontString parentKey="Sender" inherits="GameFontNormal" justifyH="LEFT">
+                    <Size x="200" y="16"/>
+                    <Anchors>
+                        <Anchor point="TOPLEFT" x="47" y="-4"/>
+                    </Anchors>
+                </FontString>
+                <FontString parentKey="Subject" inherits="GameFontHighlightSmall" justifyV="TOP" justifyH="LEFT">
+                    <Size x="248" y="18"/>
+                    <Anchors>
+                        <Anchor point="TOPLEFT" relativeKey="$parent.Sender" relativePoint="BOTTOMLEFT" x="0" y="0"/>
+                    </Anchors>
+                </FontString>
+                <FontString parentKey="ExpireTime" inherits="GameFontHighlightSmallRight">
+                    <Size x="100" y="16"/>
+                    <Anchors>
+                        <Anchor point="TOPRIGHT" x="-4" y="-4"/>
+                    </Anchors>
+                </FontString>
+            </Layer>
+        </Layers>
+        <Frames>
+            <CheckButton parentKey="Button">
+                <Size x="37" y="37"/>
+                <Anchors>
+                    <Anchor point="TOPLEFT" x="4" y="-3"/>
+                </Anchors>
+                <HighlightTexture file="Interface\Buttons\ButtonHilight-Square" alphaMode="ADD"/>
+                <CheckedTexture alphaMode="ADD" file="Interface\Buttons\CheckButtonHilight"/>
+                <Layers>
+                    <Layer level="BACKGROUND">
+                        <Texture parentKey="Slot" file="Interface\Buttons\UI-EmptySlot-White">
+                            <Size x="64" y="64"/>
+                            <Anchors>
+                                <Anchor point="CENTER" x="0" y="0"/>
+                            </Anchors>
+                        </Texture>
+                    </Layer>
+                    <Layer level="ARTWORK">
+                        <Texture parentKey="Icon" file="Interface\AddOns\Narcissus\Art\Splash\Mawmart\MailIcon">
+                            <Anchors>
+                                <Anchor point="TOPLEFT" relativeKey="$parent"/>
+                                <Anchor point="BOTTOMRIGHT" relativeKey="$parent" x="-1" y="1"/>
+                            </Anchors>
+                        </Texture>
+                    </Layer>
+                    <Layer level="OVERLAY">
+                        <Texture parentKey="IconBorder" file="Interface\Common\WhiteIconFrame">
+                            <Anchors>
+                                <Anchor point="TOPLEFT" relativeKey="$parent.Icon"/>
+                                <Anchor point="BOTTOMRIGHT" relativeKey="$parent.Icon"/>
+                            </Anchors>
+                        </Texture>
+                    </Layer>
+                </Layers>
+                <Scripts>
+                    <OnEnter>
+                        InboxFrameItem_OnEnter(self, motion);
+                    </OnEnter>
+                </Scripts>
+            </CheckButton>
+        </Frames>
+    </Frame>
+</Ui>

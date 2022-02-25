@@ -1,0 +1,674 @@
+<Ui xsi:schemaLocation="http://www.blizzard.com/wow/ui/..\FrameXML\UI.xsd">
+	<Button name="Narci_NPCBrowser_Toggle" inherits="Narci_ModelIndexPopUpButton_Template" parentKey="BrowserToggle" parent="Narci_ActorPanelPopUp">
+		<HitRectInsets>
+			<AbsInset left="0" right="0" top="0" bottom="-2.5"/>
+		</HitRectInsets>
+		<Anchors>
+			<Anchor point="CENTER" relativeKey="$parent" relativePoint="CENTER" y="40"/>
+		</Anchors>
+		<Scripts>
+			<OnLoad>
+				self.Label:SetText(Narci.L["NPC Browser"]);
+				self.Text:SetText(Narci.L["NPC Browser Tooltip"]);
+				self.Border:SetTexCoord(0.125, 0.25, 0, 0.5);
+				self.isTypeLocked = true;
+			</OnLoad>
+			<OnClick>
+				Narci_NPCBrowser:Open(self);
+			</OnClick>
+		</Scripts>
+	</Button>
+
+    <Script file="NPCBrowser.lua"/>
+
+	<Button name="NarciNPCCoverTemplate" virtual="true" mixin="NarciNPCBrowserCoverButtonMixin">
+		<Size x="64" y="96"/>
+		<Layers>
+			<Layer level="ARTWORK">
+				<Texture parentKey="Image" nounLoad="true">
+					<TexCoords left="0" right="0.66796875" top="0" bottom="1"/>
+				</Texture>
+			</Layer>
+			<Layer level="OVERLAY" textureSubLevel="2">
+				<Texture file="Interface\AddOns\Narcissus\Art\Widgets\NPCBrowser\Panel">
+					<TexCoords left="0" right="0.25" top="0.625" bottom="1"/>
+				</Texture>
+				<FontString inherits="NarciPastelBrownFont" justifyH="RIGHT" justifyV="MIDDLE" maxLines="1" parentKey="Count">
+					<Size x="0" y="0"/>
+					<Color r="0.5" g="0.5" b="0.5" a="1"/>
+					<Anchors>
+						<Anchor point="TOP" relativePoint="TOPRIGHT" x="-9"/>
+					</Anchors>
+				</FontString>
+				<FontString inherits="NarciPastelWhiteFont" justifyH="CENTER" justifyV="MIDDLE" maxLines="3" parentKey="Name">
+					<Size x="176" y="0"/>
+					<Color r="1" g="1" b="1" a="0.88"/>
+					<Anchors>
+						<Anchor point="BOTTOM" relativePoint="BOTTOM" x="0" y="10"/>
+					</Anchors>
+				</FontString>
+			</Layer>
+			<Layer level="OVERLAY" textureSubLevel="1">
+				<Texture file="Interface\AddOns\Narcissus\Art\Widgets\NPCBrowser\Panel" Alpha="0" parentKey="Highlight">
+					<TexCoords left="0.25" right="0.5" top="0.625" bottom="1"/>
+				</Texture>
+			</Layer>
+		</Layers>
+		<Scripts>
+			<OnLoad method="OnMouseUp"/>
+			<OnEnter method="OnEnter"/>
+			<OnLeave method="OnLeave"/>
+			<OnMouseDown method="OnMouseDown"/>
+			<OnMouseUp method="OnMouseUp"/>
+			<OnClick method="OnClick"/>
+		</Scripts>
+	</Button>
+
+	<Button name="NarciNPCButtonTemplate" virtual="true"  hidden="true" registerForClicks="LeftButtonUp, RightButtonUp">
+		<Size x="192" y="32"/>
+		<Layers>
+			<Layer level="ARTWORK" textureSubLevel="3">
+				<Texture parentKey="TextRef">
+					<Size x="192" y="32"/>
+					<Anchors>
+						<Anchor point="CENTER" relativeKey="$parent" relativePoint="CENTER" x="0" y="0"/>
+					</Anchors>
+				</Texture>
+				<FontString inherits="NarciPastelBrownFont" justifyH="LEFT" justifyV="BOTTOM" maxLines="1" parentKey="Title">
+					<Size x="176" y="0"/>
+					<Anchors>
+						<Anchor point="BOTTOMLEFT" relativeKey="$parent.TextRef" relativePoint="LEFT" x="8" y="0.5"/>
+					</Anchors>
+				</FontString>
+				<FontString inherits="NarciPastelWhiteFont" justifyH="LEFT" justifyV="TOP" maxLines="1" parentKey="Name">
+					<Size x="176" y="0"/>
+					<Anchors>
+						<Anchor point="TOPLEFT" relativeKey="$parent.TextRef" relativePoint="LEFT" x="8" y="-0.5"/>
+					</Anchors>
+				</FontString>
+				<FontString inherits="NarciPastelWhiteFont" justifyH="LEFT" justifyV="MIDDLE" maxLines="2" parentKey="NameCenter">
+					<Size x="176" y="0"/>
+					<Anchors>
+						<Anchor point="LEFT" relativeKey="$parent.TextRef" relativePoint="LEFT" x="8" y="0"/>
+					</Anchors>
+				</FontString>
+			</Layer>
+			<Layer level="OVERLAY" textureSubLevel="3">
+				<Texture file="Interface\AddOns\Narcissus\Art\Widgets\SpellVisualBrowser\Icons.tga" parentKey="Star" hidden="true">
+					<Size x="18" y="18"/>
+					<TexCoords left="0.75" right="1" top="0.25" bottom="0.5"/>
+					<Anchors>
+						<Anchor point="RIGHT" relativeKey="$parent" relativePoint="RIGHT" x="-2" y="0"/>
+					</Anchors>
+				</Texture>
+
+				<Texture file="Interface\AddOns\Narcissus\Art\Widgets\NPCBrowser\Panel"> <!--Inner Shadow-->
+					<TexCoords left="0" right="0.75" top="0.1875" bottom="0.3125"/>
+				</Texture>
+			</Layer>
+		</Layers>
+		<Scripts>
+			<OnMouseDown>
+				self.TextRef:SetPoint("CENTER", 1, -0.6);
+			</OnMouseDown>
+			<OnMouseUp>
+				self.TextRef:SetPoint("CENTER", 0, 0);
+			</OnMouseUp>
+
+		</Scripts>
+	</Button>
+
+	<Button name="NarciNPCButtonWithPortaitTemplate" virtual="true" inherits="NarciNPCButtonTemplate" hidden="true">
+		<Size x="192" y="32"/>
+		<Layers>
+			<Layer level="BACKGROUND">
+				<Texture parentKey="ColorBackground" hidden="true">
+					<Color r="0" g="0" b="0" a="1"/>
+					<Gradient orientation="VERTICAL">
+						<MaxColor r="0.28" g="0.28" b="0.28" a="1"/>
+						<MinColor r="0.05" g="0.05" b="0.05" a="1"/>
+					</Gradient>
+				</Texture>
+				<Texture parentKey="GreyBackground" file="Interface\AddOns\Narcissus\Art\Widgets\NPCBrowser\Panel" hidden="true">
+					<TexCoords left="0" right="0.75" top="0.5" bottom="0.5625"/>
+				</Texture>
+			</Layer>
+			<Layer level="BORDER">
+				<Texture setAllPoints="true" parentKey="HighlightFull" hidden="true" Alpha="0">
+					<Color r="1" g="1" b="1" a="0.08"/>		
+				</Texture>
+				<Texture parentKey="HighlightNPC" Alpha="0" hidden="true">
+					<Size x="128" y="32"/>
+					<TexCoords left="0" right="1" top="0.5" bottom="1"/>
+					<Anchors>
+						<Anchor point="RIGHT" relativeKey="$parent" relativePoint="RIGHT"/>
+					</Anchors>
+				</Texture>
+			</Layer>
+			
+			<Layer level="ARTWORK" textureSubLevel="1">
+				<FontString inherits="NarciPastelWhiteFont" justifyH="CENTER" justifyV="MIDDLE" maxLines="1" parentKey="CategoryName" hidden="true">
+					<Size x="176" y="0"/>
+					<Anchors>
+						<Anchor point="CENTER" relativePoint="CENTER"/>
+					</Anchors>
+				</FontString>
+				<FontString inherits="NarciPastelBrownFont" justifyH="RIGHT" justifyV="MIDDLE" maxLines="1" parentKey="Count" hidden="true">
+					<Size x="0" y="0"/>
+					<Color r="0.5" g="0.5" b="0.5" a="1"/>
+					<Anchors>
+						<Anchor point="RIGHT" relativePoint="RIGHT" x="-8"/>
+					</Anchors>
+				</FontString>
+				<Texture file="Interface\AddOns\Narcissus\Art\Widgets\SpellVisualBrowser\ExpandMark" hidden="true" parentKey="ExpandMark">
+					<Size x="12" y="12"/>
+					<Anchors>
+						<Anchor point="LEFT" relativeKey="$parent" relativePoint="LEFT" x="6" y="0"/>
+					</Anchors>
+					<TexCoords left="0" right="1" top="0" bottom="1"/>
+				</Texture>
+			</Layer>
+
+			<Layer level="OVERLAY" textureSubLevel="2">
+				<Texture parentKey="Portrait" hidden="true">
+					<Size x="128" y="32"/>
+					<TexCoords left="0" right="1" top="0" bottom="0.5"/>
+					<Anchors>
+						<Anchor point="RIGHT" relativeKey="$parent" relativePoint="RIGHT"/>
+					</Anchors>
+				</Texture>
+			</Layer>
+		</Layers>
+
+		<Frames>
+			<Frame parentKey="Drawer" clipChildren="true" frameLevel="1" Alpha="0">
+				<Size x="192" y="16"/>
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeKey="$parent" relativePoint="TOPLEFT" y="0"/>
+					<Anchor point="TOPRIGHT" relativeKey="$parent" relativePoint="TOPRIGHT" y="0"/>
+				</Anchors>
+			</Frame>
+		</Frames>
+		<Scripts>
+			<OnEnter>
+				if self.Highlight:IsShown() then
+					UIFrameFadeIn(self.Highlight, 0.12, self.Highlight:GetAlpha(), 1);
+				end
+			</OnEnter>
+			<OnLeave>
+				if self.Highlight:IsShown() then
+					UIFrameFadeOut(self.Highlight, 0.2, self.Highlight:GetAlpha(), 0);
+				end
+			</OnLeave>
+		</Scripts>
+	</Button>
+	
+	<Button name="NarciNPCMatchButtonTemplate" virtual="true" inherits="NarciNPCButtonTemplate" hidden="true">
+		<Layers>
+			<Layer level="ARTWORK" textureSubLevel="2">
+				<Texture setAllPoints="true" parentKey="Highlight" hidden="true" Alpha="0" file="Interface\AddOns\Narcissus\Art\Widgets\NPCBrowser\Gradient-90To10"/>
+			</Layer>
+		</Layers>
+		<Scripts>
+			<OnLeave>
+				if not self:IsMouseOver() then
+					UIFrameFadeOut(self.Highlight, 0.2, self.Highlight:GetAlpha(), 0);
+				end
+			</OnLeave>
+		</Scripts>
+	</Button>
+
+	<ScrollFrame name="Narci_NPCBrowser_ScrollFrameTemplate" clipChildren="true" frameLevel="60" virtual="true">
+		<Size x="192" y="192"/>
+		<Layers>
+			<Layer level="BACKGROUND">
+				<Texture>
+					<Color r="0.17" g="0.17" b="0.17" a="1.0"/>
+				</Texture>
+			</Layer>
+		</Layers>
+		<ScrollChild>
+			<Frame parentKey="ScrollChild">
+				<Size x="192" y="192"/>
+				<Layers>
+					<Layer level="BACKGROUND">
+						<Texture hidden="true">
+							<Color r="0.06" g="0.06" b="0.06" a="0.8"/>
+						</Texture>
+					</Layer>
+				</Layers>
+				<Anchors>
+					<Anchor point="TOP" relativeKey="$parent" relativePoint="TOP"/>
+				</Anchors>
+			</Frame>
+		</ScrollChild>
+		<Frames>
+			<Slider valueStep="0.01" parentKey="scrollBar" frameLevel="11">
+				<Size x="2" y="0"/>
+				<Anchors>
+					<Anchor point="TOPRIGHT" relativePoint="TOPRIGHT" x="-1.5" y="0"/>
+					<Anchor point="BOTTOMRIGHT" relativePoint="BOTTOMRIGHT" x="-1.5" y="0"/>
+				</Anchors>
+				<ThumbTexture setAllPoints="true" parentKey="Thumb" Alpha="1" hidden="true">
+					<Size x="2" y="32"/>
+					<Color r="1" g="1" b="1" a="0.1"/>
+				</ThumbTexture>
+				<Layers>
+					<Layer level="OVERLAY" textureSubLevel="5">
+						<Texture setAllPoints="true" parentKey="BottomShadow" file="Interface\AddOns\Narcissus\Art\Widgets\SpellVisualBrowser\Panel">
+							<TexCoords left="0" right="0.228515625" top="0.923828125" bottom="0.970703125"/>
+							<Size x="210" y="20"/>
+							<Anchors>
+								<Anchor point="BOTTOM" relativeKey="$parent.$parent" relativePoint="BOTTOM" x="0" y="-2"/>
+							</Anchors>
+						</Texture>
+						<Texture setAllPoints="true" parentKey="TopShadow" hidden="true" file="Interface\AddOns\Narcissus\Art\Widgets\SpellVisualBrowser\Panel">
+							<TexCoords left="0" right="0.228515625" top="0.970703125" bottom="0.923828125"/>
+							<Size x="210" y="20"/>
+							<Anchors>
+								<Anchor point="TOP" relativeKey="$parent.$parent" relativePoint="TOP" x="0" y="2"/>
+							</Anchors>
+						</Texture>
+					</Layer>
+				</Layers>
+				<Scripts>
+					<OnShow>
+						self:SetValueStep(0.01);
+					</OnShow>
+				</Scripts>
+			</Slider>
+		</Frames>
+		<Scripts>
+
+		</Scripts>
+	</ScrollFrame>
+
+	<Frame name="Narci_NPCBrowser" hidden="true" parent="Narci_ModelSettings" frameLevel="80" mixin="NarciNPCBrowserMixin" parentKey="NPCBrowser">
+		<Size x="194" y="208"/>
+		<Layers>
+			<!--Layer level="OVERLAY">
+				<Texture>
+					<Color r="0" g="1" b="0" a="0.5"/>
+				</Texture>
+			</Layer-->
+		</Layers>
+		<Frames>
+			<Frame inherits="NarciGreyBorderTemplate" frameLevel="81"/>
+
+			<Frame parentKey="Container" clipChildren="true">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeKey="$parent" relativePoint="TOPLEFT"/>
+					<Anchor point="BOTTOMRIGHT" relativeKey="$parent" relativePoint="BOTTOMRIGHT"/>
+				</Anchors>
+				<Frames>
+					<ScrollFrame parentKey="CategoryTab" inherits="Narci_NPCBrowser_ScrollFrameTemplate">
+						<Anchors>
+							<Anchor point="TOP" relativeKey="$parent.$parent" relativePoint="TOP" y="-16"/>
+						</Anchors>
+					</ScrollFrame>
+
+					<ScrollFrame parentKey="EntryTab" inherits="Narci_NPCBrowser_ScrollFrameTemplate">
+						<Anchors>
+							<Anchor point="LEFT" relativeKey="$parent.CategoryTab" relativePoint="RIGHT" x="2"/>
+						</Anchors>
+						<Frames>
+							
+						</Frames>
+					</ScrollFrame>
+
+					<ScrollFrame name="Narci_NPCBrowser_MatchTab" parentKey="MatchTab" inherits="Narci_NPCBrowser_ScrollFrameTemplate">
+						<Anchors>
+							<Anchor point="LEFT" relativeKey="$parent.EntryTab" relativePoint="RIGHT" x="2"/>
+						</Anchors>
+						<Layers>
+							<Layer level="OVERLAY" textureSubLevel="20">
+								<FontString inherits="NarciNonInteractiveFont" justifyH="CENTER" justifyV="TOP" parentKey="Notes" hidden="true">
+									<Size x="160" y="0"/>
+									<Anchors>
+										<Anchor point="TOP" relativeKey="$parent" relativePoint="TOP" y="-6"/>
+									</Anchors>
+								</FontString>
+								<Texture hidden="true" parentKey="LoadingIcon" file="Interface\AddOns\Narcissus\Art\Widgets\NPCBrowser\LoadingIcon">
+									<Size x="14" y="14"/>
+									<Anchors>
+										<Anchor point="CENTER" relativeKey="$parent" relativePoint="TOP" y="-11"/>
+									</Anchors>
+									<Animations>
+										<AnimationGroup parentKey="Rotate" looping="REPEAT">
+											<Rotation degrees="-360" duration="1" order="1"/>
+										</AnimationGroup>
+									</Animations>
+								</Texture>
+							</Layer>
+						</Layers>
+						<Frames>
+							<CinematicModel parentKey="IDModel" hidden="true" Alpha="0">
+								<Size x="192" y="192"/>
+								<Anchors>
+									<Anchor point="TOP" relativeKey="$parent" relativePoint="TOP"/>
+								</Anchors>
+								<Scripts>
+									<OnLoad>
+										self:UseModelCenterToTransform(true);
+									</OnLoad>
+									<OnHide>
+										self:ClearModel();
+										self:Hide();
+									</OnHide>
+									<OnModelLoaded>
+										self:SetCamera(0);
+										self:SetPortraitZoom(1);
+										self:SetPortraitZoom(0);
+									</OnModelLoaded>
+								</Scripts>				
+							</CinematicModel>
+							<CinematicModel parentKey="MatchPreview" hidden="true" Alpha="0" frameLevel="60" drawLayer="ARTWORK">
+								<Size x="192" y="192"/>
+								<Anchors>
+									<Anchor point="TOP" relativeKey="$parent" relativePoint="TOP"/>
+								</Anchors>
+								<Scripts>
+									<OnLoad>
+										self:SetFacing(-0.5236);
+										self:UseModelCenterToTransform(true);
+									</OnLoad>
+									<OnShow>
+										self:SetViewTranslation(48, 0);
+									</OnShow>
+									<OnHide>
+										self:ClearModel();
+										self:Hide();
+										self.id = nil;
+									</OnHide>
+									<OnModelLoaded>
+										self:SetCamera(0);
+										self:SetPortraitZoom(1);
+										self:SetPortraitZoom(0);
+									</OnModelLoaded>
+								</Scripts>				
+							</CinematicModel>
+						</Frames>
+					</ScrollFrame>
+					
+					<Frame parentKey="MouseOverButtons" frameLevel="62">
+						<Size x="36" y="18"/>
+						<Frames>
+							<Button inherits="NarciQuickFavoriteButtonTemplate">
+								<Size x="18" y="18"/>
+								<Anchors>
+									<Anchor point="RIGHT" relativeKey="$parent" relativePoint="RIGHT"/>
+								</Anchors>
+								<Scripts>
+									<OnLoad>
+										self:SetIconSize(18);
+									</OnLoad>
+								</Scripts>
+							</Button>
+
+							<Button parentKey="WeaponMark" registerForClicks="LeftButtonUp, RightButtonUp">
+								<Size x="12" y="18"/>
+								<Anchors>
+									<Anchor point="RIGHT" relativeKey="$parent.QuickFavoriteButton" relativePoint="LEFT" x="0"/>
+								</Anchors>
+								<Layers>
+									<Layer>
+										<Texture parentKey="Icon" file="Interface\AddOns\Narcissus\Art\Widgets\NPCBrowser\WeaponMark" hidden="false" Alpha="0.6">
+											<Size x="12" y="12"/>
+											<Anchors>
+												<Anchor point="CENTER" relativeKey="$parent" relativePoint="CENTER"/>
+											</Anchors>
+										</Texture>
+									</Layer>
+								</Layers>
+								<Scripts>
+									<OnLoad>
+										self.tooltip = Narci.L["NPC Has Weapons"];
+									</OnLoad>
+									<OnEnter>
+										NarciTooltip:ShowTooltip(self);
+										self.Icon:SetAlpha(1);
+									</OnEnter>
+									<OnLeave>
+										NarciTooltip:FadeOut();
+										self.Icon:SetAlpha(0.6);
+									</OnLeave>
+									<OnMouseDown>
+										NarciTooltip:FadeOut();
+										self.Icon:SetSize(11, 11);
+									</OnMouseDown>
+									<OnMouseUp>
+										self.Icon:SetSize(12, 12);
+									</OnMouseUp>
+								</Scripts>
+							</Button>
+
+
+						</Frames>
+					</Frame>
+
+					<Frame parentKey="Header" frameLevel="65">
+						<Size x="194" y="16"/>
+						<Anchors>
+							<Anchor point="TOP" relativeKey="$parent" relativePoint="TOP" y="0"/>
+						</Anchors>
+						<Layers>
+							<Layer level="BACKGROUND">
+								<Texture file="Interface\AddOns\Narcissus\Art\Widgets\NPCBrowser\Panel">
+									<TexCoords left="0" right="0.75" top="0" bottom="0.0625"/>
+								</Texture>
+								<Texture>
+									<Size y="2"/>
+									<Anchors>
+										<Anchor point="TOPLEFT" relativeKey="$parent" relativePoint="BOTTOMLEFT"/>
+										<Anchor point="TOPRIGHT" relativeKey="$parent" relativePoint="BOTTOMRIGHT"/>
+									</Anchors>									
+									<Color r="0" g="0" b="0" a="1"/>
+									<Gradient orientation="VERTICAL">
+										<MaxColor r="0" g="0" b="0" a="0.3"/>
+										<MinColor r="0" g="0" b="0" a="0"/>
+									</Gradient>
+								</Texture>
+							</Layer>
+							<Layer level="OVERLAY">
+								<FontString inherits="NarciNonInteractiveFont" justifyH="CENTER" justifyV="MIDDLE" maxLines="1" parentKey="Tab1Label">
+									<Size x="0" y="0"/>
+									<Color r="0.5" g="0.5" b="0.5"/>
+									<Anchors>
+										<Anchor point="BOTTOM" relativeKey="$parent.$parent.CategoryTab" relativePoint="TOP" y="3"/>
+									</Anchors>
+								</FontString>
+								<FontString inherits="NarciNonInteractiveFont" justifyH="CENTER" justifyV="MIDDLE" maxLines="1" parentKey="Tab2Label">
+									<Size x="90" y="0"/>
+									<Anchors>
+										<Anchor point="BOTTOM" relativeKey="$parent.$parent.EntryTab" relativePoint="TOP" x="0" y="3"/>
+									</Anchors>
+								</FontString>
+								<FontString inherits="NarciNonInteractiveFont" justifyH="CENTER" justifyV="MIDDLE" maxLines="1" parentKey="Tab3Label" hidden="true">
+									<Size x="90" y="0"/>
+									<Anchors>
+										<Anchor point="BOTTOM" relativeKey="$parent.$parent.MatchTab" relativePoint="TOP" x="0" y="3"/>
+									</Anchors>
+								</FontString>
+								<Texture file="Interface\AddOns\Narcissus\Art\Widgets\SpellVisualBrowser\Icons" parentKey="SearchIcon">
+									<TexCoords left="0.75" right="1" top="0.5" bottom="0.75"/>
+									<Size x="20" y="20"/>
+									<Anchors>
+										<Anchor point="CENTER" relativeKey="$parent.Tab1Label" relativePoint="LEFT" x="-6"/>
+									</Anchors>
+								</Texture>
+							</Layer>
+						</Layers>
+						<Frames>
+							<Button parentKey="HomeButton" hidden="true" inherits="Narci_NavigationButton_Template">
+								<HitRectInsets>
+									<AbsInset left="0" right="-10" top="-1" bottom="0"/>
+								</HitRectInsets>
+								<Anchors>
+									<Anchor point="LEFT" relativeKey="$parent" relativePoint="LEFT" x="1" y="0"/> 
+								</Anchors>
+								<Scripts>
+									<OnLoad>
+										self.tooltip = Narci.L["Return"];
+									</OnLoad>
+								</Scripts>
+							</Button>
+
+							<Button parentKey="CloseButton" inherits="Narci_NavigationButton_Template">
+								<HitRectInsets>
+									<AbsInset left="-6" right="0" top="-1" bottom="0"/>
+								</HitRectInsets>
+								<Anchors>
+									<Anchor point="RIGHT" relativeKey="$parent" relativePoint="RIGHT" x="-1" y="0"/> 
+								</Anchors>
+								<Scripts>
+									<OnLoad>
+										self.tooltip = Narci.L["Close"];
+										self.Background:SetTexCoord(1, 0, 0, 1);
+										self.Icon:SetTexCoord(0, 0.25, 0.75, 1);
+									</OnLoad>
+									<OnClick>
+										Narci_NPCBrowser:Close();
+									</OnClick>
+								</Scripts>
+							</Button>
+
+							<Button parentKey="SearchTrigger">
+								<Size x="160" y="16"/>
+								<HitRectInsets>
+									<AbsInset left="0" right="0" top="-6" bottom="-2"/>
+								</HitRectInsets>
+								<Anchors>
+									<Anchor point="CENTER" relativeKey="$parent" relativePoint="CENTER" x="0" y="0"/> 
+								</Anchors>
+								<Scripts>
+									<OnEnter>
+										self:GetParent().Tab1Label:SetTextColor(1, 1, 1);
+									</OnEnter>
+									<OnLeave>
+										self:GetParent().Tab1Label:SetTextColor(0.72, 0.72, 0.72);
+									</OnLeave>
+								</Scripts>
+							</Button>
+
+							<!--Button parentKey="DeleteTextButton" hidden="true">
+								<Size x="1" y="16"/>
+								<Anchors>
+									<Anchor point="RIGHT" relativeKey="$parent.CloseButton" relativePoint="LEFT" x="-4" y="0"/>
+								</Anchors>
+								<Layers>
+									<Layer level="ARTWORK">
+										<Texture parentKey="Highlight" hidden="true">
+											<Size x="20" y="12"/>
+											<Anchors>
+												<Anchor point="CENTER" relativeKey="$parent" relativePoint="CENTER" x="0" y="0"/>
+											</Anchors>
+											<Color r="1" g="1" b="1" a="0.2"/>
+										</Texture>
+									</Layer>
+									<Layer level="OVERLAY">
+										<FontString inherits="NarciNonInteractiveFont" justifyH="CENTER" justifyV="MIDDLE" parentKey="Text" text="DEL">
+											<Anchors>
+												<Anchor point="CENTER" relativeKey="$parent" relativePoint="CENTER" x="0" y="0"/>
+											</Anchors>
+										</FontString>
+									</Layer>
+								</Layers>
+								<Scripts>
+									<OnEnter>
+										self.Highlight:Show();
+										self.Text:SetTextColor(0.88, 0.88, 0.88);
+									</OnEnter>
+									<OnLeave>
+										self.Highlight:Hide();
+										self.Text:SetTextColor(0.42, 0.42, 0.42);
+									</OnLeave>
+									<OnMouseDown>
+										
+									</OnMouseDown>
+									<OnClick>
+										self:GetParent().SearchBox:ResetSearch();
+									</OnClick>
+									<OnShow>
+										self:SetWidth(20);
+									</OnShow>
+									<OnHide>
+										self:SetWidth(1);
+									</OnHide>
+								</Scripts>
+							</Button-->
+
+							<EditBox parentKey="SearchBox" autoFocus="false" mixin="NarciNPCSearchBoxMixin" hidden="true" inherits="NarciSearchBoxTemplate">
+								<Size y="16"/>
+								<Anchors>
+									<Anchor point="LEFT" relativeKey="$parent.HomeButton" relativePoint="RIGHT" x="6" y="-0.5"/>
+									<Anchor point="RIGHT" relativeKey="$parent.CloseButton" relativePoint="LEFT" x="-6" y="-0.5"/> 
+								</Anchors>
+								<FontString inherits="NarciPastelWhiteFont" justifyH="LEFT" justifyV="MIDDLE"/>
+								<Scripts>
+									<OnLoad method="OnLoad"/>
+									<OnTextChanged method="OnTextChanged"/>
+									<OnEditFocusGained method="OnFocusGained"/>
+									<OnMouseWheel method="OnMouseWheel"/>
+								</Scripts>
+							</EditBox>
+						</Frames>
+						<Scripts>
+							<OnLoad>
+								self.Tab1Label:SetText(Narci.L["Search for NPC"]);
+								self.Tab2Label:SetText(Narci.L["Sub-category"]);
+							</OnLoad>
+						</Scripts>
+					</Frame>
+
+					<Frame parentKey="LoadingIndicator" frameLevel="64" hidden="true">
+						<Size x="10" y="10"/>
+						<Anchors>
+							<Anchor point="CENTER" relativeKey="$parent" relativePoint="CENTER" y="20"/>
+						</Anchors>
+						<Layers>
+							<Layer level="OVERLAY" textureSubLevel="20">
+								<Texture parentKey="LoadingIcon" file="Interface\AddOns\Narcissus\Art\Widgets\NPCBrowser\LoadingIcon">
+									<Size x="14" y="14"/>
+									<Anchors>
+										<Anchor point="CENTER" relativeKey="$parent" relativePoint="CENTER" y="0"/>
+									</Anchors>
+									<Animations>
+										<AnimationGroup parentKey="Rotate" looping="REPEAT">
+											<Rotation degrees="-360" duration="1" order="1"/>
+										</AnimationGroup>
+									</Animations>
+								</Texture>
+								<FontString inherits="NarciNonInteractiveFont" justifyH="CENTER" justifyV="TOP" parentKey="Notes" hidden="false">
+									<Size x="180" y="0"/>
+									<Anchors>
+										<Anchor point="TOP" relativeKey="$parent.LoadingIcon" relativePoint="BOTTOM" y="-4"/>
+									</Anchors>
+								</FontString>
+								<FontString inherits="NarciNonInteractiveFont" justifyH="CENTER" justifyV="TOP" parentKey="Progress" hidden="false">
+									<Size x="180" y="0"/>
+									<Anchors>
+										<Anchor point="TOP" relativeKey="$parent.Notes" relativePoint="BOTTOM" y="-2"/>
+									</Anchors>
+								</FontString>
+							</Layer>
+						</Layers>
+						<Scripts>
+							<OnLoad>
+								self.Notes:SetText(Narci.L["Retrieving NPC Info"]);
+							</OnLoad>
+							<OnShow>
+								self.LoadingIcon.Rotate:Play();
+							</OnShow>
+						</Scripts>
+					</Frame>
+
+				</Frames>
+			</Frame>
+		</Frames>
+		<Scripts>
+			<OnLoad method="OnLoad"/>
+			<OnEnter method="OnEnter"/>
+			<OnHide method="OnHide"/>
+		</Scripts>
+	</Frame>
+</Ui>

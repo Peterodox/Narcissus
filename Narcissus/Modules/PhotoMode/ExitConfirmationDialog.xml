@@ -1,0 +1,559 @@
+<Ui xsi:schemaLocation="http://www.blizzard.com/wow/ui/..\FrameXML\UI.xsd">
+    <!-- © 2019 Peter Yu All Rights Reserved -->
+    <Script file="ExitConfirmationDialog.lua"/>
+
+	<Button name="NarciExitConfirmationButtonTemplate" virtual="true">
+		<Layers>
+			<Layer level="BORDER">
+				<Texture setAllPoints="true" parentKey="Highlight" hidden="true" Alpha="0">
+					<Color r="1" g="1" b="1" a="0.05"/>
+				</Texture>
+				<Texture setAllPoints="true" parentKey="Pushed" hidden="true">
+					<Color r="1" g="1" b="1" a="0.1"/>
+				</Texture>
+			</Layer>
+		</Layers>
+		<Scripts>
+			<OnEnter>
+				UIFrameFadeIn(self.Highlight, 0.12, self.Highlight:GetAlpha(), 1);
+			</OnEnter>
+			<OnLeave>
+				UIFrameFadeOut(self.Highlight, 0.2, self.Highlight:GetAlpha(), 0);
+			</OnLeave>
+			<OnDoubleClick>
+				return;
+			</OnDoubleClick>
+			<OnMouseDown>
+				self.Pushed:Show();
+			</OnMouseDown>
+			<OnMouseUp>
+				self.Pushed:Hide();
+			</OnMouseUp>
+		</Scripts>
+	</Button>
+
+	<Frame name="Narci_ExitConfirmationDialog" frameStrata="TOOLTIP" hidden="true" scale="1" Alpha="0">
+		<Size x="208" y="56"/>
+		<Anchors>
+			<Anchor point="CENTER" relativeTo="UIParent" relativePoint="CENTER" y="15"/>
+		</Anchors>
+		<Layers>
+			<Layer level="BACKGROUND" textureSubLevel="1">
+				<Texture setAllPoints="true" parentKey="FullScreenBlack">
+					<Color r="0" g="0" b="0" a="0.4"/>
+					<Anchors>
+						<Anchor point="TOPLEFT" relativeTo="UIParent" relativePoint="TOPLEFT"/>
+						<Anchor point="BOTTOMRIGHT" relativeTo="UIParent" relativePoint="BOTTOMRIGHT"/>
+					</Anchors>
+				</Texture>
+			</Layer>
+		</Layers>
+		<Frames>
+			<Frame parentKey="Background" frameLevel="6">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeKey="$parent" relativePoint="TOPLEFT"/>
+					<Anchor point="BOTTOMRIGHT" relativeKey="$parent" relativePoint="BOTTOMRIGHT"/>
+				</Anchors>
+				<Layers>
+					<Layer level="BACKGROUND" textureSubLevel="3">
+						<Texture setAllPoints="true" parentKey="Bound">
+							<Color r="1" g="1" b="1" a="1"/>
+							<Gradient orientation="VERTICAL">
+								<MaxColor a="0.8" r="0.1" g="0.1" b="0.1"/>
+								<MinColor a="1" r="0.2431" g="0.0706" b="0.0706"/>
+							</Gradient>
+							<Anchors>
+								<Anchor point="TOPLEFT" relativeKey="$parent" relativePoint="TOPLEFT" x="0" y="0"/>
+								<Anchor point="BOTTOMRIGHT" relativeKey="$parent" relativePoint="BOTTOMRIGHT" x="0" y="-24"/>
+							</Anchors>
+						</Texture>
+					</Layer>
+					<Layer level="BACKGROUND" textureSubLevel="2">
+						<Texture setAllPoints="true" parentKey="Border">
+							<Color r="0" g="0" b="0" a="0.6"/>
+							<Anchors>
+								<Anchor point="TOPLEFT" relativeKey="$parent.Bound" relativePoint="TOPLEFT" x="-1" y="1"/>
+								<Anchor point="BOTTOMRIGHT" relativeKey="$parent.Bound" relativePoint="BOTTOMRIGHT" x="1" y="-1"/>
+							</Anchors>
+						</Texture>
+					</Layer>
+					<Layer level="ARTWORK">
+						<Texture setAllPoints="true" parentKey="Gradient1">
+							<Color r="0.2" g="0.2" b="0.2" a="1"/>
+							<Gradient orientation="VERTICAL">
+								<MaxColor a="0" r="1" g="1" b="1"/>
+								<MinColor a="1" r="1" g="1" b="1"/>
+							</Gradient>
+							<Anchors>
+								<Anchor point="TOPLEFT" relativeKey="$parent" relativePoint="BOTTOMLEFT" x="0" y="1"/>
+								<Anchor point="BOTTOMRIGHT" relativeKey="$parent" relativePoint="BOTTOMRIGHT" x="0" y="-1"/>
+							</Anchors>
+						</Texture>
+						<Texture setAllPoints="true">
+							<Color r="0.2" g="0.2" b="0.2" a="1"/>
+							<Anchors>
+								<Anchor point="TOPLEFT" relativeKey="$parent.Gradient1" relativePoint="BOTTOMLEFT" x="0" y="0"/>
+								<Anchor point="BOTTOMRIGHT" relativeKey="$parent.Bound" relativePoint="BOTTOMRIGHT" x="0" y="0"/>
+							</Anchors>
+						</Texture>
+						<Texture setAllPoints="true">
+							<Color r="0" g="0" b="0" a="1"/>
+							<Gradient orientation="VERTICAL">
+								<MinColor a="0.5" r="1" g="1" b="1"/>
+								<MaxColor a="0" r="1" g="1" b="1"/>
+							</Gradient>
+							<Anchors>
+								<Anchor point="TOPLEFT" relativeKey="$parent" relativePoint="BOTTOMLEFT" x="0" y="10"/>
+								<Anchor point="BOTTOMRIGHT" relativeKey="$parent" relativePoint="BOTTOMRIGHT" x="0" y="0"/>
+							</Anchors>
+						</Texture>
+						<Texture setAllPoints="true">
+							<Color r="1" g="1" b="1" a="1"/>
+							<Gradient orientation="VERTICAL">
+								<MaxColor a="0.25" r="1" g="1" b="1"/>
+								<MinColor a="0" r="1" g="1" b="1"/>
+							</Gradient>
+							<Anchors>
+								<Anchor point="TOPLEFT" relativeKey="$parent" relativePoint="TOPLEFT" x="0" y="0"/>
+								<Anchor point="BOTTOMRIGHT" relativeKey="$parent" relativePoint="TOPRIGHT" x="0" y="-2"/>
+							</Anchors>
+						</Texture>
+					</Layer>
+					<Layer level="OVERLAY">
+						<Texture setAllPoints="true" parentKey="Divider">
+							<Size y="1"/>
+							<Color r="0" g="0" b="0" a="0.8"/>
+							<Anchors>
+								<Anchor point="BOTTOMLEFT" relativeKey="$parent" relativePoint="BOTTOMLEFT" x="2" y="0"/>
+								<Anchor point="BOTTOMRIGHT" relativeKey="$parent" relativePoint="BOTTOMRIGHT" x="-2" y="0"/>
+							</Anchors>
+						</Texture>
+
+						<!--Button Area-->
+
+						<Texture setAllPoints="true" parentKey="ButtonBackdrop">
+							<Color r="0.16" g="0.16" b="0.16" a="1"/>
+							<Anchors>
+								<Anchor point="TOPLEFT" relativeKey="$parent" relativePoint="BOTTOMLEFT" x="2" y="0"/>
+								<Anchor point="BOTTOMRIGHT" relativeKey="$parent" relativePoint="BOTTOMRIGHT" x="-2" y="-22"/>
+							</Anchors>
+						</Texture>
+					</Layer>
+					<Layer level="OVERLAY" textureSubLevel="2">
+						<Texture setAllPoints="true">
+							<Color r="0" g="0" b="0" a="1"/>
+							<Gradient orientation="VERTICAL">
+								<MaxColor a="0.6" r="0" g="0" b="0"/>
+								<MinColor a="0" r="0" g="0" b="0"/>
+							</Gradient>
+							<Anchors>
+								<Anchor point="TOPLEFT" relativeKey="$parent.ButtonBackdrop" relativePoint="TOPLEFT"/>
+								<Anchor point="BOTTOMRIGHT" relativeKey="$parent.ButtonBackdrop" relativePoint="TOPRIGHT" y="-6"/>
+							</Anchors>
+						</Texture>
+						<Texture setAllPoints="true">
+							<Color r="0" g="0" b="0" a="1"/>
+							<Gradient orientation="VERTICAL">
+								<MinColor a="0.6" r="0" g="0" b="0"/>
+								<MaxColor a="0" r="0" g="0" b="0"/>
+							</Gradient>
+							<Anchors>
+								<Anchor point="BOTTOMLEFT" relativeKey="$parent.ButtonBackdrop" relativePoint="BOTTOMLEFT"/>
+								<Anchor point="TOPRIGHT" relativeKey="$parent.ButtonBackdrop" relativePoint="TOPRIGHT" y="6"/>
+							</Anchors>
+						</Texture>
+						<Texture setAllPoints="true">
+							<Color r="0" g="0" b="0" a="1"/>
+							<Gradient orientation="HORIZONTAL">
+								<MinColor a="0.6" r="0" g="0" b="0"/>
+								<MaxColor a="0" r="0" g="0" b="0"/>
+							</Gradient>
+							<Anchors>
+								<Anchor point="TOPLEFT" relativeKey="$parent.ButtonBackdrop" relativePoint="TOPLEFT"/>
+								<Anchor point="BOTTOMRIGHT" relativeKey="$parent.ButtonBackdrop" relativePoint="BOTTOMLEFT" x="8"/>
+							</Anchors>
+						</Texture>
+						<Texture setAllPoints="true">
+							<Color r="0" g="0" b="0" a="1"/>
+							<Gradient orientation="HORIZONTAL">
+								<MinColor a="0.8" r="0" g="0" b="0"/>
+								<MaxColor a="0" r="0" g="0" b="0"/>
+							</Gradient>
+							<Anchors>
+								<Anchor point="TOPLEFT" relativeKey="$parent.ButtonBackdrop" relativePoint="TOP"/>
+								<Anchor point="BOTTOMRIGHT" relativeKey="$parent.ButtonBackdrop" relativePoint="BOTTOM" x="12"/>
+							</Anchors>
+						</Texture>
+						<Texture setAllPoints="true">
+							<Color r="0" g="0" b="0" a="1"/>
+							<Gradient orientation="HORIZONTAL">
+								<MaxColor a="0.6" r="0" g="0" b="0"/>
+								<MinColor a="0" r="0" g="0" b="0"/>
+							</Gradient>
+							<Anchors>
+								<Anchor point="TOPRIGHT" relativeKey="$parent.ButtonBackdrop" relativePoint="TOPRIGHT"/>
+								<Anchor point="BOTTOMLEFT" relativeKey="$parent.ButtonBackdrop" relativePoint="BOTTOMRIGHT" x="-8"/>
+							</Anchors>
+						</Texture>
+					</Layer>
+				</Layers>
+				<Animations>
+					<AnimationGroup parentKey="scaleIn" smoothing="OUT">
+						<Scale scaleX="0.5" scaleY="0.5" duration="0" order="1"/>
+						<Scale scaleX="2.1" scaleY="2.1" duration="0.15" order="2"/>
+						<Scale scaleX="0.952" scaleY="0.952" duration="0.15" order="3"/>
+						<Scripts>
+							<OnFinished>
+								local frame = self:GetParent():GetParent().HiddenFrame;
+								UIFrameFadeIn(frame, 0.12, 0, 1);
+							</OnFinished>
+						</Scripts>
+					</AnimationGroup>
+				</Animations>
+			</Frame>
+			<Button inherits="NarciExitConfirmationButtonTemplate" parentKey="Confirm" frameLevel="7">
+				<Anchors>
+					<Anchor point="TOPRIGHT" relativeKey="$parent" relativePoint="BOTTOM"/>
+					<Anchor point="BOTTOMLEFT" relativeKey="$parent" relativePoint="BOTTOMLEFT" x="2" y="-22"/>
+				</Anchors>
+				<Layers>
+					<Layer level="ARTWORK">
+					</Layer>
+				</Layers>
+				<Scripts>
+					<OnClick>
+						Narci.showExitConfirm = false;
+						if Narci.isActive then
+							Narci_Open();
+							NarciAPI_FadeFrame(self:GetParent(), 0.15, "OUT");
+						end
+					</OnClick>
+				</Scripts>
+			</Button>
+
+			<Button inherits="NarciExitConfirmationButtonTemplate" parentKey="Cancel" frameLevel="7">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeKey="$parent" relativePoint="BOTTOM"/>
+					<Anchor point="BOTTOMRIGHT" relativeKey="$parent" relativePoint="BOTTOMRIGHT" x="-2" y="-22"/>
+				</Anchors>
+				<Layers>
+				</Layers>
+				<Scripts>
+					<OnShow>
+
+					</OnShow>
+					<OnClick>
+						NarciAPI_FadeFrame(self:GetParent(), 0.15, "OUT");
+					</OnClick>
+				</Scripts>
+			</Button>
+
+			<Frame parentKey="HiddenFrame" Alpha="0" frameLevel="8">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeKey="$parent" relativePoint="TOPLEFT"/>
+					<Anchor point="BOTTOMRIGHT" relativeKey="$parent" relativePoint="BOTTOMRIGHT"/>
+				</Anchors>
+				<Layers>
+					<Layer level="OVERLAY">
+						<FontString inherits="NarciFontMedium12" justifyH="CENTER" justifyV="MIDDLE" parentKey="Label1" multiLine="false" text="">
+							<Size x="100" y="0"/>
+							<Anchors>
+								<Anchor point="CENTER" relativeKey="$parent.$parent.Confirm" relativePoint="CENTER" x="0" y="0"/>
+							</Anchors>
+						</FontString>
+						<FontString inherits="NarciFontMedium12" justifyH="CENTER" justifyV="MIDDLE" parentKey="Label2" multiLine="false" text="">
+							<Size x="100" y="0"/>
+							<Anchors>
+								<Anchor point="CENTER" relativeKey="$parent.$parent.Cancel" relativePoint="CENTER" x="0" y="0"/>
+							</Anchors>
+						</FontString>
+						<FontString inherits="NarciFontMedium12" justifyH="CENTER" justifyV="MIDDLE" parentKey="Text" text="Are you sure you want leave?">
+							<Size x="180" y="30"/>
+							<Color r="0.88" g="0.88" b="0.88"/>
+							<Anchors>
+								<Anchor point="CENTER" relativeKey="$parent.$parent" relativePoint="CENTER" x="0" y="0"/>
+							</Anchors>
+						</FontString>
+					</Layer>
+				</Layers>
+				<Scripts>
+					<OnLoad>
+						self.Label1:SetText(Narci.L["Exit Confirmation Leave"]);
+						self.Label2:SetText(Narci.L["Exit Confirmation Cancel"]);
+						self.Text:SetText(Narci.L["Exit Confirmation Texts"]);
+						self.Label2:SetTextColor(0.72, 0.72, 0.72);
+					</OnLoad>
+				</Scripts>
+			</Frame>
+		</Frames>
+		<Scripts>
+			<OnLoad>
+				local function OnSize(self)
+					local _, screenHeight = GetPhysicalScreenSize();
+					local uiScale = self:GetEffectiveScale(); 
+					local pixel = (768/screenHeight)/uiScale;
+					local d = pixel * 2;
+					self.Background.Border:SetPoint("TOPLEFT", self.Background.Bound, "TOPLEFT", -d, d);
+					self.Background.Border:SetPoint("BOTTOMRIGHT", self.Background.Bound, "BOTTOMRIGHT", d, -d);
+					self.Background.Divider:SetHeight(d);
+				end
+				self.OnSize = OnSize;
+			</OnLoad>
+			<OnShow>
+				PlaySound(138528, "SFX");
+				self.OnSize(self);
+				self.HiddenFrame:SetAlpha(0);
+				self.Background.scaleIn:Play();
+			</OnShow>
+			<OnSizeChanged>
+				self.OnSize(self);
+			</OnSizeChanged>
+		</Scripts>
+	</Frame>
+
+    <Button name="Narci_ChatButtonTemplate" virtual="true">
+        <Size x="160" y="20"/>
+        <Layers>
+			<Layer level="BACKGROUND" textureSubLevel="1">
+                <Texture setAllPoints="true" parentKey="Bling" Alpha="0">
+                    <Color r="0.25" g="0.78" b="0.92"/>
+					<Anchors>
+						<Anchor point="TOPLEFT" relativeKey="$parent" relativePoint="TOPLEFT" x="-2" y="2"/>
+						<Anchor point="BOTTOMRIGHT" relativeKey="$parent" relativePoint="BOTTOMRIGHT" x="2" y="-2"/>
+					</Anchors>
+					<Animations>
+						<AnimationGroup parentKey="animIn">
+							<Alpha fromAlpha="0" toAlpha="1" duration="0.25" order="1"/>
+							<Alpha fromAlpha="1" toAlpha="0" duration="1.5" order="2"/>
+							<Scripts>
+								<OnFinished>
+									if not self:GetParent():GetParent():IsMouseOver() then
+										self:Play();
+									end
+								</OnFinished>
+							</Scripts>
+						</AnimationGroup>
+					</Animations>
+                </Texture>
+			</Layer>
+            <Layer level="BACKGROUND" textureSubLevel="2">
+                <Texture setAllPoints="true">
+                    <Color r="0" g="0" b="0" a="0.95"/>
+                </Texture>
+                <Texture setAllPoints="true" parentKey="Highlight" Alpha="0">
+                    <Color r="1" g="1" b="1" a="0.35"/>
+                </Texture>
+            </Layer>
+            <Layer level="OVERLAY">
+                <FontString inherits="NarciFontMedium12" justifyH="LEFT" justifyV="MIDDLE" multiLine="true" text="What is this?" hidden="true" parentKey="VirtualText">
+                    <Size x="140" y="0"/>
+                    <Anchors>
+                        <Anchor point="LEFT" relativeKey="$parent" relativePoint="LEFT" x="10" y="0"/>
+                    </Anchors>
+                </FontString>
+            </Layer>
+        </Layers>
+        <ButtonText inherits="NarciFontMedium12" justifyH="LEFT" justifyV="MIDDLE" text="What is this?">
+            <Size x="0" y="0"/>
+			<Color r="0.25" g="0.78" b="0.92"/>
+            <Anchors>
+                <Anchor point="LEFT" relativeKey="$parent" relativePoint="LEFT" x="10" y="0"/>
+                <Anchor point="RIGHT" relativeKey="$parent" relativePoint="RIGHT" x="-10" y="0"/>
+            </Anchors>
+        </ButtonText>
+        <Scripts>
+			<OnShow>
+				self.Bling.animIn:Play();
+			</OnShow>
+            <OnEnter>
+                UIFrameFadeIn(self.Highlight, 0.15, self.Highlight:GetAlpha(), 1);
+				self.Bling.animIn:Stop();
+            </OnEnter>
+            <OnLeave>
+                UIFrameFadeOut(self.Highlight, 0.24, self.Highlight:GetAlpha(), 0);
+            </OnLeave>
+			<OnDisable>
+				self:SetText("...");
+				self.Bling.animIn:Stop();
+			</OnDisable>
+        </Scripts>
+    </Button>
+
+	<FontString name="Narci_ECDConversationFontstring" inherits="NarciFontMedium12" justifyV="TOP" multiLine="true" virtual="true" hidden="true">
+		<Size x="140" y="0"/>
+		<Color r="0.88" g="0.88" b="0.88"/>
+	</FontString>
+
+    <Frame name="Narci_ECDConversation" frameLevel="11" frameStrata="TOOLTIP" ignoreParentScale="true" virtual="true" hidden="true" clampedToScreen="true">
+        <Size x="250" y="48"/>
+        <Layers>
+            <Layer level="OVERLAY">
+                <Texture setAllPoints="true">
+                    <Color r="0" g="0" b="0" a="0.25"/>
+                </Texture>
+                <FontString inherits="Narci_ECDConversationFontstring" justifyH="RIGHT" parentKey="Q1">
+                    <Anchors>
+                        <Anchor point="TOPRIGHT" relativeKey="$parent" relativePoint="TOPRIGHT" x="-10" y="-10"/>
+                    </Anchors>
+                </FontString>
+                <FontString inherits="Narci_ECDConversationFontstring" justifyH="LEFT" parentKey="A1">
+                    <Anchors>
+                        <Anchor point="TOPRIGHT" relativeKey="$parent.Q1" relativePoint="BOTTOMLEFT" x="50"/>
+                    </Anchors>
+                </FontString>
+                <FontString inherits="Narci_ECDConversationFontstring" justifyH="RIGHT" parentKey="Q2">
+                    <Anchors>
+                        <Anchor point="TOPLEFT" relativeKey="$parent.A1" relativePoint="BOTTOMRIGHT" x="-50" y="-10"/>
+                    </Anchors>
+                </FontString>
+                <FontString inherits="Narci_ECDConversationFontstring" justifyH="LEFT" parentKey="A2">
+                    <Anchors>
+                        <Anchor point="TOPRIGHT" relativeKey="$parent.Q2" relativePoint="BOTTOMLEFT" x="50" y="-10"/>
+                    </Anchors>
+                </FontString>
+                <FontString inherits="Narci_ECDConversationFontstring" justifyH="RIGHT" parentKey="Q3">
+                    <Anchors>
+                        <Anchor point="TOPLEFT" relativeKey="$parent.A2" relativePoint="BOTTOMRIGHT" x="-50" y="-10"/>
+                    </Anchors>
+                </FontString>
+                <FontString inherits="Narci_ECDConversationFontstring" justifyH="LEFT" parentKey="A3">
+                    <Anchors>
+                        <Anchor point="TOPRIGHT" relativeKey="$parent.Q3" relativePoint="BOTTOMLEFT" x="50" y="-10"/>
+                    </Anchors>
+                </FontString>
+                <FontString inherits="Narci_ECDConversationFontstring" justifyH="RIGHT" parentKey="Q4">
+                    <Anchors>
+                        <Anchor point="TOPLEFT" relativeKey="$parent.A3" relativePoint="BOTTOMRIGHT" x="-50" y="-10"/>
+                    </Anchors>
+                </FontString>
+                <FontString inherits="Narci_ECDConversationFontstring" justifyH="LEFT" parentKey="A4">
+                    <Anchors>
+                        <Anchor point="TOPRIGHT" relativeKey="$parent.Q4" relativePoint="BOTTOMLEFT" x="50" y="-10"/>
+                    </Anchors>
+                </FontString>
+                <FontString inherits="Narci_ECDConversationFontstring" justifyH="RIGHT" parentKey="Q5">
+                    <Anchors>
+                        <Anchor point="TOPLEFT" relativeKey="$parent.A4" relativePoint="BOTTOMRIGHT" x="-50" y="-10"/>
+                    </Anchors>
+                </FontString>
+                <FontString inherits="Narci_ECDConversationFontstring" justifyH="LEFT" parentKey="A5" Alpha="0">
+                    <Anchors>
+                        <Anchor point="TOPRIGHT" relativeKey="$parent.Q5" relativePoint="BOTTOMLEFT" x="50" y="-10"/>
+                    </Anchors>
+                </FontString>
+            </Layer>
+        </Layers>
+        <Frames>
+			<Frame parentKey="Loading">
+				<Size x="32" y="32"/>
+				<Layers>
+					<Layer level="BORDER">
+						<Texture file="Interface\AddOns\Narcissus\Art\Widgets\ExitConfirmation\LoadingCircle" parentKey="Circle">
+							<Animations>
+								<AnimationGroup parentKey="Rotate" looping="REPEAT">
+									<Rotation degrees="-360" duration="1" order="1"/>
+								</AnimationGroup>
+							</Animations>
+						</Texture>
+					</Layer>
+				</Layers>
+				<Scripts>
+					<OnShow>
+						UIFrameFadeIn(self, 0.15, 0, 1);
+						self.Circle.Rotate:Play();
+					</OnShow>
+					<OnHide>
+						self:StopAnimating();
+					</OnHide>
+				</Scripts>
+			</Frame>
+            <Button inherits="Narci_ChatButtonTemplate" parentKey="Send">
+                <Anchors>
+                    <Anchor point="BOTTOMRIGHT" relativeKey="$parent" relativePoint="BOTTOMRIGHT"/>
+                </Anchors>
+            </Button>
+			<Frame parentKey="Clamp" frameLevel="6">
+				<Size x="16" y="512"/>
+				<Anchors>
+					<Anchor point="BOTTOM" relativeTo="Narci_ExitConfirmationDialog" relativePoint="TOP" x="0" y="300"/>
+				</Anchors>
+				<Layers>
+					<Layer level="BORDER">
+						<Texture file="Interface\AddOns\Narcissus\Art\Widgets\ExitConfirmation\Cable"/>
+					</Layer>
+					<Layer level="OVERLAY">
+						<Texture file="Interface\AddOns\Narcissus\Art\Widgets\ExitConfirmation\Clamp" parentKey="Front">
+							<TexCoords left="0.5" right="1" top="0" bottom="1"/>
+							<Size x="64" y="64"/>
+							<Anchors>
+								<Anchor point="TOPRIGHT" relativeKey="$parent" relativePoint="BOTTOM"/>
+							</Anchors>
+						</Texture>
+					</Layer>
+					<Layer level="BACKGROUND">
+						<Texture file="Interface\AddOns\Narcissus\Art\Widgets\ExitConfirmation\Clamp" parentKey="Back">
+							<TexCoords left="1" right="0.5" top="0" bottom="1"/>
+							<Size x="64" y="64"/>
+							<Anchors>
+								<Anchor point="TOPLEFT" relativeKey="$parent" relativePoint="BOTTOM"/>
+							</Anchors>
+						</Texture>
+					</Layer>
+					<Layer level="BACKGROUND">
+						<Texture file="Interface\AddOns\Narcissus\Art\Widgets\ExitConfirmation\Halo" parentKey="Halo" Alpha="0">
+							<Size x="1024" y="256"/>
+							<Anchors>
+								<Anchor point="TOP" relativeTo="UIParent" relativePoint="TOP"/>
+							</Anchors>
+							<Animations>
+								<AnimationGroup parentKey="animOut">
+									<Alpha fromAlpha="1" toAlpha="0" duration="1.2" order="1"/>
+								</AnimationGroup>
+								<AnimationGroup parentKey="Bling">
+									<Alpha fromAlpha="0" toAlpha="1" duration="0.08" order="1"/>
+									<Alpha fromAlpha="1" toAlpha="0.4" duration="0.03" order="2"/>
+									<Scripts>
+										<OnLoad>
+											self.loop = 0;
+										</OnLoad>
+									</Scripts>
+								</AnimationGroup>
+								<AnimationGroup parentKey="animIn">
+									<Alpha fromAlpha="0" toAlpha="1" duration="1.6" order="1"/>
+									<Alpha fromAlpha="1" toAlpha="1" duration="0" order="2"/>
+									<Scripts>
+										<OnFinished>
+											self:GetParent().Bling:Play();
+										</OnFinished>
+									</Scripts>
+								</AnimationGroup>
+							</Animations>
+						</Texture>
+					</Layer>
+					<Layer level="ARTWORK">
+						<Texture file="Interface\AddOns\Narcissus\Art\Widgets\ExitConfirmation\Dust" parentKey="Dust" Alpha="0">
+							<Size x="64" y="64"/>
+							<Anchors>
+								<Anchor point="CENTER" relativeKey="$parent.Front" relativePoint="RIGHT"/>
+							</Anchors>
+							<Animations>
+								<AnimationGroup parentKey="animIn">
+									<Alpha fromAlpha="0" toAlpha="1" duration="0.25" order="1"/>
+									<Scale scaleX="1.2" scaleY="1.2" duration="0.25" order="1"/>
+									<Alpha fromAlpha="1" toAlpha="0" duration="2" order="2"/>
+									<Scale scaleX="3" scaleY="3" duration="2.1" order="2"/>
+								</AnimationGroup>
+							</Animations>
+						</Texture>
+					</Layer>
+				</Layers>
+			</Frame>
+        </Frames>
+		<Scripts>
+			<OnHide>
+				self:Hide();
+				self:StopAnimating();
+			</OnHide>
+		</Scripts>
+    </Frame>
+</Ui>

@@ -1,0 +1,33 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/
+..\FrameXML\UI.xsd">
+    <Script file="SubclassIDxItemID.lua"/>
+    <Script file="ItemIDxVariations.lua"/>
+    
+    <Script file="ItemIDxFileID.lua"/>
+    <Script file="FileIDxItemID.lua"/>
+    <Script file="Search.lua"/>
+    <Script file="ItemValidForTryOn.lua"/>
+
+    <Script file="ItemIDxSourceID.lua"/>
+
+    <!--Script file="DevTool.lua"/>
+    <Script file="DevSourceID.lua"/-->
+
+    <!--Frame name="ScriptTest" mixin="ScriptTestMixin" hidden="true">
+        <Frames>
+            <Frame parentkey="ChildFrame" hidden="true">
+                <Scripts>
+                    <OnShow>
+                        print("Child Show");
+                        self:GetParent().var1 = 10;
+                    </OnShow>
+                </Scripts>
+            </Frame>
+        </Frames>
+        <Scripts>
+            <OnShow>
+                print("Parent Show");
+            </OnShow>
+        </Scripts>
+    </Frame-->
+</Ui>

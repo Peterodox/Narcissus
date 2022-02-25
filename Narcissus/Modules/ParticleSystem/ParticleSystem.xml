@@ -1,0 +1,117 @@
+<Ui xsi:schemaLocation="http://www.blizzard.com/wow/ui/..\FrameXML\UI.xsd">
+    <!-- © 2021 Peter Yu All Rights Reserved -->
+	<Script file="Particle.lua"/>
+	<Script file="Deformer.lua"/>
+	<Script file="Emitter.lua"/>
+	<Script file="DynamicTextGroup.lua"/>
+
+	<FontString name="NarciDynamicFontStringTemplate" virtual="true" inherits="NarciDynamicFontTest" justifyH="CENTER" justifyV="MIDDLE">
+		<!--Color r="0" g="0" b="1"/-->
+		<Color r="0.75" g="0.86" b="0.84"/>
+	</FontString>
+
+	<Texture name="NarciDynamicTextParticleTemplate" virtual="true">
+		<Size x="2" y="2"/>
+		<!--Color r="0.75" g="0.86" b="0.84"/-->
+		<!--Color r="1" g="0" b="0"/-->
+	</Texture>
+
+	<Frame name="NarciDynamicTextGroupTemplate" mixin="NarciDynamicTextGroupMixin" virtual="true">
+		<Layers>
+			<Layer level="BACKGROUND">
+				<Texture hidden="true">
+					<Color r="1" a="0.25"/>
+				</Texture>
+			</Layer>
+			<!--Layer level="OVERLAY">
+				<FontString inherits="NarciDynamicFontTest" justifyH="CENTER" justifyV="MIDDLE" parentKey="FontString1" multiLine="true" text="Hello World">
+					<Size x="256" y="0"/>
+					<Color r="0.4" g="0.4" b="0.4" a="1"/>
+					<Anchors>
+						<Anchor point="CENTER" relativeKey="$parent" relativePoint="CENTER" x="0" y="0"/>
+					</Anchors>
+				</FontString>
+			</Layer-->
+		</Layers>
+		<Frames>
+			<Frame parentKey="ClipFrame" clipChildren="true">
+				<Size x="64" y="64"/>
+				<Anchors>
+					<Anchor point="LEFT"/>
+				</Anchors>
+			</Frame>
+		</Frames>
+		<Scripts>
+			<OnLoad method="OnLoad"/>
+		</Scripts>
+	</Frame>
+
+	<Frame name="NarciDynamicTextGroup" inherits="NarciDynamicTextGroupTemplate" virtual="true">
+		<Anchors>
+			<Anchor point="CENTER"/>
+		</Anchors>
+		<Size x="64" y="64"/>
+	</Frame>
+
+	<Frame name="NarciItemCelebrationFrame" mixin="NarciItemCelebrationMixin" virtual="true">
+		<Size x="256" y="256"/>
+		<Anchors>
+			<Anchor point="TOP" relativePoint="TOP" y="-108"/>
+		</Anchors>
+		<Layers>
+			<Layer level="OVERLAY">
+				<Texture parentKey="Sigil">
+					<Size x="128" y="128"/>
+					<Anchors>
+						<Anchor point="TOP" relativeKey="$parent" relativePoint="TOP" x="0" y="32"/>
+					</Anchors>
+				</Texture>
+				<Texture hidden="true">
+					<Size x="64" y="64"/>
+					<Color r="1" a="0.5"/>
+					<Anchors>
+						<Anchor point="CENTER" relativeKey="$parent.Sigil" relativePoint="CENTER" x="0" y="0"/>
+					</Anchors>
+				</Texture>
+				<Texture hidden="true">
+					<Color b="1" a="0.25"/>
+				</Texture>
+				<FontString inherits="NarciSpeechBalloonToolbarFont" parentKey="Header" text="Legendary Item Accquired">
+					<Color r="0.53" g="0.7" b="0.74"/>
+					<Anchors>
+						<Anchor point="TOP" relativeKey="$parent" relativePoint="TOP" x="0" y="-72"/>
+					</Anchors>
+				</FontString>
+			</Layer>
+		</Layers>
+		<Frames>
+			<Frame inherits="NarciDynamicTextGroupTemplate" mixin="NarciDynamicTextGroupMixin" parentKey="DynamicText" name="NarciDynamicTextGroup2">
+				<Anchors>
+					<Anchor point="TOP" relativePoint="TOP" y="-84"/>
+				</Anchors>
+				<Size x="64" y="64"/>
+				<Layers>
+					<Layer level="BACKGROUND">
+						<Texture hidden="true">
+							<Color r="1" a="0.25"/>
+						</Texture>
+					</Layer>
+				</Layers>
+				<Frames>
+					<Frame parentKey="ClipFrame" clipChildren="true">
+						<Size x="64" y="256"/>
+						<Anchors>
+							<Anchor point="LEFT"/>
+						</Anchors>
+					</Frame>
+				</Frames>
+				<Scripts>
+					<OnLoad method="OnLoad"/>
+				</Scripts>
+			</Frame>
+		</Frames>
+		<Scripts>
+			<OnLoad method="OnLoad"/>
+		</Scripts>
+	</Frame>
+</Ui>

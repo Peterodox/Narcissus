@@ -1,0 +1,1024 @@
+<Ui xsi:schemaLocation="http://www.blizzard.com/wow/ui/..\FrameXML\UI.xsd">
+    <Script file="TabButton.lua"/>
+    <Script file="MythicPlus.lua"/>
+    <Script file="Main.lua"/>
+
+    <Script file="ActivitionAlert.lua"/>
+
+    <Button name="NarciCompetitiveTabButtonTemplate" mixin="NarciCompetitiveTabButtonMixin" virtual="true">
+        <Size x="60" y="24"/>
+        <HitRectInsets>
+            <AbsInset left="0" right="0" top="-8" bottom="-4"/>
+        </HitRectInsets>
+        <Layers>
+            <Layer level="BORDER">
+                <Texture file="Interface\AddOns\Narcissus\Art\NavBar\ButtonCorner">
+                    <Size x="48" y="24"/>
+                    <Anchors>
+                        <Anchor point="RIGHT" x="2"/>
+                    </Anchors>
+                </Texture>
+            </Layer>
+            <Layer level="ARTWORK">
+                <Texture file="Interface\AddOns\Narcissus\Art\NavBar\ButtonHighlight" Alpha="1" parentKey="Highlight" hidden="true">
+                    <Size y="16"/>
+                    <Anchors>
+                        <Anchor point="BOTTOMLEFT" x="-4"/>
+                        <Anchor point="BOTTOMRIGHT" x="4"/>
+                    </Anchors>
+                </Texture>
+            </Layer>
+            <Layer level="OVERLAY">
+				<FontString inherits="NarciFontMedium12" justifyH="CENTER" justifyV="MIDDLE" parentKey="Label" maxLines="1">
+					<Size x="0" y="16"/>
+					<Color r="0.5" g="0.5" b="0.5"/>
+					<Anchors>
+						<Anchor point="CENTER" relativeKey="$parent" relativePoint="CENTER" x="0" y="0"/>
+					</Anchors>
+				</FontString>
+            </Layer>
+        </Layers>
+        <Scripts>
+            <OnEnter method="OnEnter"/>
+            <OnLeave method="OnLeave"/>
+            <OnClick method="OnClick"/>
+            <OnMouseDown method="OnMouseDown"/>
+            <OnMouseUp method="OnMouseUp"/>
+        </Scripts>
+    </Button>
+
+    <Button name="NarciMythicPlusCompactRatingCardTemplate" mixin="NarciMythicPlusRatingCardMixin" virtual="true">
+		<Size>
+			<AbsDimension x="160" y="72"/>
+		</Size>
+        <Layers>
+            <Layer level="BACKGROUND">
+                <Texture parentKey="Background" Alpha="0.9">
+                    <Color r="0.1" g="0.1" b="0.1"/>
+                </Texture>
+            </Layer>
+            <Layer level="BACKGROUND" textureSubLevel="2">
+                <Texture parentKey="GreyBackground" Alpha="1">
+                    <Color r="0.1" g="0.1" b="0.1"/>
+                </Texture>
+            </Layer>
+            <Layer level="BACKGROUND" textureSubLevel="3">
+                <Texture parentKey="MapTexture">
+                    <TexCoords left="0" right="1" top="0" bottom="0.9"/>
+                    <Size x="160" y="72"/>
+                    <Anchors>
+                        <Anchor point="TOPRIGHT" relativeKey="$parent" relativePoint="TOPRIGHT"/>
+                    </Anchors>
+                </Texture>
+                <MaskTexture parentKey="MapMask" hWrapMode="CLAMPTOBLACKADDITIVE" vWrapMode="CLAMPTOBLACKADDITIVE" file="Interface\AddOns\Narcissus\Art\Modules\Competitive\MythicPlus\MapMask">
+                    <Size x="160" y="72"/>
+                    <Anchors>
+                        <Anchor point="TOPRIGHT" relativeKey="$parent" relativePoint="TOPRIGHT"/>
+                    </Anchors>
+					<MaskedTextures>
+						<MaskedTexture childKey="MapTexture"/>
+					</MaskedTextures>
+                </MaskTexture>
+            </Layer>
+            <Layer level="OVERLAY">
+                <FontString parentKey="Score" inherits="NarciFontNumber24Outline" justifyH="CENTER" justifyV="MIDDLE" text="128" hidden="true">
+                    <Size x="0" y="0"/>
+                    <Anchors>
+                        <Anchor point="CENTER" relativeKey="$parent" relativePoint="LEFT" x="36" y="-12"/>
+                    </Anchors>
+                </FontString>
+                <Texture parentKey="ScoreBound" file="Interface\AddOns\Narcissus\Art\Modules\Competitive\MythicPlus\ScoreBound" hidden="true" Alpha="0.4">
+                    <Size x="40" y="28"/>
+                    <Anchors>
+                        <Anchor point="CENTER" relativeKey="$parent" relativePoint="LEFT" x="36" y="-12"/>
+                    </Anchors>
+                </Texture>
+                <FontString parentKey="Level1" inherits="NarciFontNumber24Outline" justifyH="CENTER" justifyV="TOP" text="15" hidden="true" Alpha="0.8">
+                    <Size x="0" y="0"/>
+                    <Anchors>
+                        <Anchor point="TOP" relativeKey="$parent" relativePoint="TOPLEFT" x="88" y="-31.0"/>
+                    </Anchors>
+                </FontString>
+				<FontString parentKey="Duration1" inherits="NarciFontNumber12Outline" justifyH="CENTER" justifyV="BOTTOM" text="12:08" hidden="true">
+					<Size x="0" y="0"/>
+					<Color r="0.92" g="0.92" b="0.92"/>
+					<Anchors>
+						<Anchor point="BOTTOM" relativeKey="$parent" relativePoint="BOTTOMLEFT" x="88" y="7.0"/>
+					</Anchors>
+				</FontString>
+                <FontString parentKey="Level2" inherits="NarciFontNumber24Outline" justifyH="CENTER" justifyV="TOP" text="15" hidden="true" Alpha="0.8">
+                    <Size x="0" y="0"/>
+                    <Anchors>
+                        <Anchor point="TOP" relativeKey="$parent" relativePoint="TOPLEFT" x="128" y="-31.0"/>
+                    </Anchors>
+                </FontString>
+				<FontString parentKey="Duration2" inherits="NarciFontNumber12Outline" justifyH="CENTER" justifyV="BOTTOM" text="12:08" hidden="true">
+					<Size x="0" y="0"/>
+					<Color r="0.92" g="0.92" b="0.92"/>
+					<Anchors>
+						<Anchor point="BOTTOM" relativeKey="$parent" relativePoint="BOTTOMLEFT" x="128" y="7.0"/>
+					</Anchors>
+				</FontString>
+				<FontString parentKey="NoRecordLabel" inherits="NarciFontMedium12" justifyH="CENTER" justifyV="MIDDLE" text="No record" hidden="true">
+					<Size x="0" y="0"/>
+					<Color r="0.5" g="0.5" b="0.5"/>
+					<Anchors>
+						<Anchor point="CENTER" relativeKey="$parent" relativePoint="CENTER" x="0" y="-12"/>
+					</Anchors>
+				</FontString>
+                <Texture parentKey="Header" hidden="true">
+                    <Size y="24"/>
+                    <Anchors>
+                        <Anchor point="TOPLEFT"/>
+                        <Anchor point="TOPRIGHT"/>
+                    </Anchors>
+                    <Color r="0.1" g="0.1" b="0.1" a="0.8"/>
+                </Texture>
+                <Texture parentKey="HeaderBackground" file="Interface\AddOns\Narcissus\Art\Modules\Competitive\MythicPlus\HeaderBackground">
+                    <Size y="48"/>
+                    <Anchors>
+                        <Anchor point="TOPLEFT"/>
+                        <Anchor point="TOPRIGHT"/>
+                    </Anchors>
+                </Texture>
+            </Layer>
+            <Layer level="OVERLAY" textureSubLevel="2">
+				<FontString parentKey="MapName" inherits="NarciFontMedium12" justifyH="CENTER" justifyV="TOP" text="">
+					<Size x="0" y="0"/>
+					<Color r="0.8" g="0.8" b="0.8"/>
+					<Anchors>
+						<Anchor point="TOP" relativeKey="$parent" relativePoint="TOP" x="0" y="-8"/>
+					</Anchors>
+				</FontString>
+            </Layer>
+            <Layer level="OVERLAY" textureSubLevel="3">
+                <Texture parentKey="BlackOverlay">
+                    <Color r="0" g="0" b="0" a="0.2"/>
+                </Texture>
+            </Layer>
+        </Layers>
+        <Scripts>
+            <OnEnter method="OnEnter"/>
+            <OnLeave method="OnLeave"/>
+            <OnClick method="OnClick"/>
+        </Scripts>
+    </Button>
+
+    <Frame name="NarciMythicPlusRatingCardTemplate" mixin="NarciMythicPlusRatingCardMixin" clipChildren="true" virtual="true" parentArray="Cards">
+		<Size>
+			<AbsDimension x="320" y="48"/>
+		</Size>
+        <Layers>
+            <Layer level="BACKGROUND">
+                <Texture parentKey="Background" Alpha="0.9">
+                    <Color r="0.1" g="0.1" b="0.1"/>
+                </Texture>
+            </Layer>
+            <Layer level="BACKGROUND" textureSubLevel="1">
+                <Texture parentKey="ScoreShadow">
+                    <Size x="64"/>
+                    <Anchors>
+                        <Anchor point="TOPLEFT" relativeKey="$parent" relativePoint="TOPLEFT" x="4"/>
+                        <Anchor point="BOTTOMLEFT" relativeKey="$parent" relativePoint="BOTTOMLEFT" x="4"/>
+                    </Anchors>
+                    <Color r="0" g="0" b="0"/>
+					<Gradient orientation="HORIZONTAL">
+						<MinColor a="0.9"/>
+						<MaxColor a="0"/>
+					</Gradient>
+                </Texture>
+            </Layer>
+            <Layer level="BACKGROUND" textureSubLevel="2">
+                <Texture parentKey="GreyBackground" Alpha="1">
+                    <Color r="0.1" g="0.1" b="0.1"/>
+                </Texture>
+            </Layer>
+            <Layer level="BACKGROUND" textureSubLevel="3">
+                <Texture parentKey="MapTexture">
+                    <Size x="160" y="80"/>
+                    <Anchors>
+                        <Anchor point="TOPRIGHT" relativeKey="$parent" relativePoint="TOPRIGHT"/>
+                    </Anchors>
+                </Texture>
+                <!--MaskTexture parentKey="MapMask" hWrapMode="CLAMPTOBLACKADDITIVE" vWrapMode="CLAMPTOBLACKADDITIVE" file="Interface\AddOns\Narcissus\Art\Modules\Competitive\MythicPlus\MapMask">
+                    <Size x="160" y="80"/>
+                    <Anchors>
+                        <Anchor point="TOPRIGHT" relativeKey="$parent" relativePoint="TOPRIGHT"/>
+                    </Anchors>
+					<MaskedTextures>
+						<MaskedTexture childKey="MapTexture"/>
+					</MaskedTextures>
+                </MaskTexture-->
+            </Layer>
+            <Layer level="OVERLAY">
+                <FontString parentKey="Score" inherits="NarciFontNumber24Outline" justifyH="CENTER" justifyV="MIDDLE" text="128" hidden="true">
+                    <Size x="0" y="0"/>
+                    <Anchors>
+                        <Anchor point="CENTER" relativeKey="$parent" relativePoint="LEFT" x="40" y="0"/>
+                    </Anchors>
+                </FontString>
+                <Texture parentKey="ScoreBound" file="Interface\AddOns\Narcissus\Art\Modules\Competitive\MythicPlus\ScoreBound" hidden="true" Alpha="0.15">
+                    <Size x="40" y="28"/>
+                    <Anchors>
+                        <Anchor point="CENTER" relativeKey="$parent" relativePoint="LEFT" x="40" y="0"/>
+                    </Anchors>
+                </Texture>
+                <FontString parentKey="Level1" inherits="NarciFontNumber24Outline" justifyH="CENTER" justifyV="TOP" text="15" hidden="true" Alpha="0.8">
+                    <Size x="0" y="0"/>
+                    <Anchors>
+                        <Anchor point="TOP" relativeKey="$parent" relativePoint="TOPLEFT" x="96" y="-7.0"/>
+                    </Anchors>
+                </FontString>
+				<FontString parentKey="Duration1" inherits="NarciFontNumber12Outline" justifyH="CENTER" justifyV="BOTTOM" text="12:08" hidden="true">
+					<Size x="0" y="0"/>
+					<Color r="0.92" g="0.92" b="0.92"/>
+					<Anchors>
+						<Anchor point="BOTTOM" relativeKey="$parent" relativePoint="BOTTOMLEFT" x="96" y="7.0"/>
+					</Anchors>
+				</FontString>
+                <FontString parentKey="Level2" inherits="NarciFontNumber24Outline" justifyH="CENTER" justifyV="TOP" text="15" hidden="true" Alpha="0.8">
+                    <Size x="0" y="0"/>
+                    <Anchors>
+                        <Anchor point="TOP" relativeKey="$parent" relativePoint="TOPLEFT" x="144" y="-7.0"/>
+                    </Anchors>
+                </FontString>
+				<FontString parentKey="Duration2" inherits="NarciFontNumber12Outline" justifyH="CENTER" justifyV="BOTTOM" text="12:08" hidden="true">
+					<Size x="0" y="0"/>
+					<Color r="0.92" g="0.92" b="0.92"/>
+					<Anchors>
+						<Anchor point="BOTTOM" relativeKey="$parent" relativePoint="BOTTOMLEFT" x="144" y="7.0"/>
+					</Anchors>
+				</FontString>
+				<FontString parentKey="NoRecordLabel" inherits="NarciFontNumber12Outline" justifyH="CENTER" justifyV="BOTTOM" text="No record" hidden="true">
+					<Size x="0" y="0"/>
+					<Color r="0.25" g="0.25" b="0.25"/>
+					<Anchors>
+						<Anchor point="CENTER" relativeKey="$parent" relativePoint="LEFT" x="96" y="0"/>
+					</Anchors>
+				</FontString>
+            </Layer>
+            <Layer level="OVERLAY" textureSubLevel="2">
+                <Texture parentKey="BlackOverlay">
+                    <Color r="0" g="0" b="0" a="0.33"/>
+                </Texture>
+            </Layer>
+        </Layers>
+        <Scripts>
+            <OnEnter method="OnEnter"/>
+            <OnLeave method="OnLeave"/>
+        </Scripts>
+    </Frame>
+
+    <Frame name="NarciMythicPlusAffixFrameTemplate" mixin="NarciMythicPlusAffixFrameMixin" virtual="true" parentArray="AffixFrames" hidden="true">
+        <Size x="28" y="28"/>
+        <Layers>
+            <Layer level="OVERLAY">
+                <Texture parentKey="Icon">
+                    <TexCoords left="0.08" right="0.92" top="0.08" bottom="0.92"/>
+                </Texture>
+            </Layer>
+        </Layers>
+        <Scripts>
+            <OnEnter method="OnEnter"/>
+            <OnLeave method="OnLeave"/>
+            <OnMouseDown method="OnMouseDown"/>
+        </Scripts>
+    </Frame>
+
+    <Button name="NarciMythicPlusPageButtonTemplate" mixin="NarciMythicPlusPageButtonMixin" virtual="true">
+        <Size x="12" y="12"/>
+        <HitRectInsets>
+            <AbsInset left="-6" right="-6" top="-6" bottom="-6"/>
+        </HitRectInsets>
+        <Layers>
+            <Layer level="OVERLAY">
+                <Texture parentKey="Icon">
+                    <Size x="12" y="12"/>
+                    <Anchors>
+                        <Anchor point="CENTER"/>
+                    </Anchors>
+                </Texture>
+            </Layer>
+        </Layers>
+        <Scripts>
+            <OnLoad method="OnLoad"/>
+            <OnEnter method="OnEnter"/>
+            <OnLeave method="OnLeave"/>
+            <OnMouseDown method="OnMouseDown"/>
+            <OnMouseUp method="OnMouseUp"/>
+            <OnClick method="OnClick"/>
+        </Scripts>
+    </Button>
+
+    <Frame name="NarciMythicPlusHistogrameTemplate" mixin="NarciMythicPlusHistogrameMixin" virtual="true">
+        <Size x="320" y="24"/>
+        <Layers>
+            <Layer level="ARTWORK">
+                <Texture parentKey="Bar1" file="Interface\AddOns\Narcissus\Art\Modules\Competitive\MythicPlus\Bar">
+                    <Size x="2" y="12"/>
+                    <Anchors>
+                        <Anchor point="LEFT" relativeKey="$parent" relativePoint="LEFT" x="140"/>
+                    </Anchors>
+                </Texture>
+                <Texture parentKey="Bar2" file="Interface\AddOns\Narcissus\Art\Modules\Competitive\MythicPlus\Bar">
+                    <Size x="2" y="12"/>
+                    <Anchors>
+                        <Anchor point="LEFT" relativeKey="$parent.Bar1" relativePoint="RIGHT" x="0"/>
+                    </Anchors>
+                </Texture>
+            </Layer>
+            <Layer level="OVERLAY">
+                <FontString inherits="NarciFontMedium12" justifyH="RIGHT" justifyV="MIDDLE" parentKey="MapName" maxLines="1">
+                    <Size x="0" y="0"/>
+                    <Color r="0.8" g="0.8" b="0.8"/>
+                    <Anchors>
+                        <Anchor point="LEFT" relativeKey="$parent" relativePoint="LEFT" x="12" y="0"/>
+                        <Anchor point="RIGHT" relativeKey="$parent" relativePoint="LEFT" x="132" y="0"/>
+                    </Anchors>
+                </FontString>
+                <FontString inherits="NarciFontMedium12" justifyH="LEFT" justifyV="MIDDLE" parentKey="Count" maxLines="0">
+                    <Size x="0" y="0"/>
+                    <Color r="0.8" g="0.8" b="0.8"/>
+                    <Anchors>
+                        <Anchor point="LEFT" relativeKey="$parent.Bar2" relativePoint="RIGHT" x="4" y="0"/>
+                    </Anchors>
+                </FontString>
+
+                <FontString inherits="NarciTooltipDescriptionFontSemibold" justifyH="CENTER" justifyV="MIDDLE" parentKey="Text1" hidden="true">
+                    <Size x="0" y="0"/>
+                    <Color r="0" g="0" b="0"/>
+                    <Anchors>
+                        <Anchor point="CENTER" relativeKey="$parent.Bar1" relativePoint="CENTER" x="0" y="0"/>
+                    </Anchors>
+                </FontString>
+                <FontString inherits="NarciTooltipDescriptionFontSemibold" justifyH="CENTER" justifyV="MIDDLE" parentKey="Text2" hidden="true">
+                    <Size x="0" y="0"/>
+                    <Color r="0" g="0" b="0"/>
+                    <Anchors>
+                        <Anchor point="CENTER" relativeKey="$parent.Bar2" relativePoint="CENTER" x="0" y="0"/>
+                    </Anchors>
+                </FontString>
+            </Layer>
+        </Layers>
+        <Scripts>
+            <OnEnter method="OnEnter"/>
+            <OnLeave method="OnLeave"/>
+        </Scripts>
+    </Frame>
+
+    <Button name="NarciMythicPlusTabButtonTemplate" mixin="NarciMythicPlusTabButtonMixin" virtual="true">
+        <Size x="48" y="24"/>
+        <Layers>
+            <Layer level="OVERLAY">
+                <Texture parentKey="Center" file="Interface\AddOns\Narcissus\Art\Modules\Competitive\MythicPlus\TabButton" hidden="true">
+                    <Size x="38" y="38"/>
+                    <TexCoords left="0.125" right="0.375" top="0" bottom="0.5"/>
+                    <Anchors>
+                        <Anchor point="BOTTOM"/>
+                    </Anchors>
+                </Texture>
+                <Texture parentKey="Left" file="Interface\AddOns\Narcissus\Art\Modules\Competitive\MythicPlus\TabButton" hidden="true">
+                    <Size x="19" y="38"/>
+                    <TexCoords left="0" right="0.125" top="0" bottom="0.5"/>
+                    <Anchors>
+                        <Anchor point="RIGHT" relativeKey="$parent.Center" relativePoint="LEFT"/>
+                    </Anchors>
+                </Texture>
+                <Texture parentKey="Right" file="Interface\AddOns\Narcissus\Art\Modules\Competitive\MythicPlus\TabButton" hidden="true">
+                    <Size x="19" y="38"/>
+                    <TexCoords left="0.375" right="0.5" top="0" bottom="0.5"/>
+                    <Anchors>
+                        <Anchor point="LEFT" relativeKey="$parent.Center" relativePoint="RIGHT"/>
+                    </Anchors>
+                </Texture>
+            </Layer>
+            <Layer level="OVERLAY" textureSubLevel="1">
+                <Texture parentKey="Highlight" file="Interface\AddOns\Narcissus\Art\Modules\Competitive\MythicPlus\TabButton" hidden="true">
+                    <Size y="12"/>
+                    <TexCoords left="0" right="0.3125" top="0.75" bottom="1"/>
+                    <Anchors>
+                        <Anchor point="TOPLEFT" relativeKey="$parent" relativePoint="TOPLEFT" x="0"/>
+                        <Anchor point="TOPRIGHT" relativeKey="$parent" relativePoint="TOPRIGHT" x="0"/>
+                    </Anchors>
+                </Texture>
+            </Layer>
+            <Layer level="OVERLAY" textureSubLevel="2">
+                <FontString inherits="NarciFontMedium12" justifyH="CENTER" justifyV="MIDDLE" parentKey="ButtonText" maxLines="1">
+                    <Size x="0" y="0"/>
+                    <Color r="0.88" g="0.88" b="0.88"/>
+                    <Anchors>
+                        <Anchor point="CENTER" relativeKey="$parent" relativePoint="CENTER" x="0" y="0"/>
+                    </Anchors>
+                </FontString>
+            </Layer>
+        </Layers>
+        <Scripts>
+            <OnLoad method="OnLoad"/>
+            <OnEnter method="OnEnter"/>
+            <OnLeave method="OnLeave"/>
+            <OnClick method="OnClick"/>
+            <OnMouseDown method="OnMouseDown"/>
+            <OnMouseUp method="OnMouseUp"/>
+        </Scripts>
+    </Button>
+
+    <Frame name="Narci_CompetitiveDisplay" mixin="NarciCompetitiveDisplayMixin" parent="Narci_Attribute" hidden="true">
+		<Size>
+			<AbsDimension x="320" y="336"/>
+		</Size>
+        <Anchors>
+            <Anchor point="CENTER"/>
+            <!--Anchor point="TOP" relativeTo="Narci_ConciseStatFrame.Primary" relativePoint="TOP" y="0"/-->
+        </Anchors>
+        <Layers>
+			<Layer level="BACKGROUND">
+				<Texture>
+					<Color r="0.08" g="0.08" b="0.08" a="0.9"/>
+				</Texture>
+			</Layer>
+        </Layers>
+        <Frames>
+            <Frame parentKey="MythicPlus" mixin="NarciMythicPlusDisplayMixin">
+                <Size>
+                    <AbsDimension x="320" y="48"/>
+                </Size>
+                <Anchors>
+                    <Anchor point="TOP"/>
+                </Anchors>
+                <Layers>
+                    <Layer level="OVERLAY">
+                        <!--FontString inherits="NarciFontMedium12" justifyH="CENTER" justifyV="MIDDLE" parentKey="SeasonText" maxLines="1">
+                            <Size x="300" y="0"/>
+                            <Color r="0.5" g="0.5" b="0.5"/>
+                            <Anchors>
+                                <Anchor point="CENTER" relativeKey="$parent" relativePoint="TOP" x="0" y="-12"/>
+                            </Anchors>
+                        </FontString-->
+                    </Layer>
+                    <Layer level="OVERLAY" textureSubLevel="-1">
+                        <Texture file="Interface\AddOns\Narcissus\Art\NavBar\Shadow-Horizontal" parentKey="Divider">
+                            <Size x="320" y="12"/>
+                            <Anchors>
+                                <Anchor point="TOP" relativePoint="TOP" y="-24"/>
+                            </Anchors>
+                        </Texture>
+                    </Layer>
+                </Layers>
+                <Frames>
+                    <Frame parentKey="CardContainer" hidden="false">
+                        <Anchors>
+                            <Anchor point="TOPLEFT" relativeKey="$parent" relativePoint="TOPLEFT"/>
+                            <Anchor point="BOTTOMRIGHT" relativeKey="$parent" relativePoint="BOTTOMRIGHT"/>
+                        </Anchors>
+                        <Layers>
+                            <Layer level="OVERLAY">
+                                <FontString inherits="NarciFontMedium12" justifyH="RIGHT" justifyV="MIDDLE" parentKey="GraphDescription" maxLines="1">
+                                    <Size x="300" y="0"/>
+                                    <Color r="0.33" g="0.33" b="0.33"/>
+                                    <Anchors>
+                                        <Anchor point="CENTER" relativeKey="$parent" relativePoint="BOTTOM" x="0" y="12"/>
+                                    </Anchors>
+                                </FontString>
+                            </Layer>
+                        </Layers>
+                    </Frame>
+                    <Frame parentKey="MapDetail" hidden="true" frameStrata="HIGH">
+                        <Size x="320"/>
+                        <Anchors>
+                            <Anchor point="TOPLEFT"/>
+                        </Anchors>
+                        <Layers>
+                            <Layer level="BACKGROUND">
+                                <Texture parentKey="Header">
+                                    <Size y="48"/>
+                                    <TexCoords left="0" right="1" top="0.3" bottom="0.6"/>
+                                    <Anchors>
+                                        <Anchor point="TOPLEFT"/>
+                                        <Anchor point="TOPRIGHT"/>
+                                    </Anchors>
+                                </Texture>
+                                <Texture parentKey="ContentBackdrop">
+                                    <Color r="0.08" g="0.08" b="0.08"/>
+                                    <Anchors>
+                                        <Anchor point="TOPLEFT" relativeKey="$parent" relativePoint="TOPLEFT" x="0" y="-48"/>
+                                        <Anchor point="BOTTOMRIGHT" relativeKey="$parent" relativePoint="BOTTOMRIGHT" x="0" y="0"/>
+                                    </Anchors>
+                                </Texture>
+                            </Layer>
+                            <Layer level="OVERLAY">
+                                <FontString parentKey="MapName" inherits="NarciFontMedium12" justifyH="CENTER" justifyV="BOTTOM" text=" ">
+                                    <Size x="160" y="0"/>
+                                    <Color r="1" g="1" b="1"/>
+                                    <Anchors>
+                                        <Anchor point="BOTTOM" relativeKey="$parent.Header" relativePoint="CENTER" x="0" y="0"/>
+                                    </Anchors>
+                                </FontString>
+                                <FontString parentKey="Date" inherits="NarciFontMedium12" justifyH="CENTER" justifyV="TOP" text=" ">
+                                    <Size x="160" y="0"/>
+                                    <Color r="0.7" g="0.7" b="0.7"/>
+                                    <Anchors>
+                                        <Anchor point="TOP" relativeKey="$parent.Header" relativePoint="CENTER" x="0" y="-4"/>
+                                    </Anchors>
+                                </FontString>
+
+                                <FontString parentKey="Label1" inherits="NarciFontMedium12" justifyH="LEFT" justifyV="TOP" text="MYTHIC_PLUS_SEASON_BEST">
+                                    <Size x="0" y="0"/>
+                                    <Color r="0.33" g="0.33" b="0.33"/>
+                                    <Anchors>
+                                        <Anchor point="TOPLEFT" relativeKey="$parent.ContentBackdrop" relativePoint="TOPLEFT" x="24" y="-56"/>
+                                    </Anchors>
+                                </FontString>
+                                <Texture parentKey="ScoreBound" file="Interface\AddOns\Narcissus\Art\Modules\Competitive\MythicPlus\ScoreBound" Alpha="0.5">
+                                    <Size x="40" y="28"/>
+                                    <Anchors>
+                                        <Anchor point="TOPLEFT" relativeKey="$parent.ContentBackdrop" relativePoint="TOPLEFT" x="24" y="-74"/>
+                                    </Anchors>
+                                </Texture>
+                                <FontString parentKey="Score" inherits="NarciFontNumber24" justifyH="CENTER" justifyV="MIDDLE" text="250">
+                                    <Size x="0" y="0"/>
+                                    <Anchors>
+                                        <Anchor point="CENTER" relativeKey="$parent.ScoreBound" relativePoint="CENTER" x="0" y="0"/>
+                                    </Anchors>
+                                </FontString>
+                                <FontString parentKey="Level" inherits="NarciFontNumber24" justifyH="CENTER" justifyV="TOP" text="15">
+                                    <Size x="40" y="28"/>
+                                    <Color r="1" g="1" b="1"/>
+                                    <Anchors>
+                                        <Anchor point="TOP" relativeKey="$parent.ScoreBound" relativePoint="TOPLEFT" x="64" y="3"/>
+                                    </Anchors>
+                                </FontString>
+                                <FontString parentKey="Duration" inherits="NarciFontNumber12" justifyH="CENTER" justifyV="BOTTOM" text="12:08">
+                                    <Size x="0" y="0"/>
+                                    <Color r="1" g="1" b="1"/>
+                                    <Anchors>
+                                        <Anchor point="BOTTOM" relativeKey="$parent.Level" relativePoint="BOTTOM" x="0" y="-5"/>
+                                    </Anchors>
+                                </FontString>
+
+                                <FontString parentKey="Label2" inherits="NarciFontMedium12" justifyH="LEFT" justifyV="TOP" text="Affixes">
+                                    <Size x="0" y="0"/>
+                                    <Color r="0.33" g="0.33" b="0.33"/>
+                                    <Anchors>
+                                        <Anchor point="TOPLEFT" relativeKey="$parent.ContentBackdrop" relativePoint="TOPRIGHT" x="-148" y="-56"/>
+                                    </Anchors>
+                                </FontString>
+
+                                <FontString parentKey="Label3" inherits="NarciFontMedium12" justifyH="LEFT" justifyV="TOP" text="Timer">
+                                    <Size x="0" y="0"/>
+                                    <Color r="0.33" g="0.33" b="0.33"/>
+                                    <Anchors>
+                                        <Anchor point="TOPLEFT" relativeKey="$parent.ContentBackdrop" relativePoint="TOPLEFT" x="24" y="-128"/>
+                                    </Anchors>
+                                </FontString>
+                                <Texture parentKey="Timeline">
+                                    <Size x="260" y="2"/>
+                                    <Color r="0.5" g="0.5" b="0.5"/>
+                                    <Anchors>
+                                        <Anchor point="CENTER" relativeKey="$parent.ContentBackdrop" relativePoint="TOP" y="-176"/>
+                                    </Anchors>
+                                </Texture>
+                                <Texture parentKey="TimelineLeft">
+                                    <Size x="10" y="2"/>
+                                    <Color r="0.5" g="0.5" b="0.5"/>
+                                    <Gradient orientation="HORIZONTAL">
+                                        <MinColor r="1" g="1" b="1" a="0"/>
+                                        <MaxColor r="1" g="1" b="1" a="1"/>
+                                    </Gradient>
+                                    <Anchors>
+                                        <Anchor point="RIGHT" relativeKey="$parent.Timeline" relativePoint="LEFT"/>
+                                    </Anchors>
+                                </Texture>
+                                <Texture parentKey="TimelineRight">
+                                    <Size x="10" y="2"/>
+                                    <Color r="0.5" g="0.5" b="0.5"/>
+                                    <Gradient orientation="HORIZONTAL">
+                                        <MinColor r="1" g="1" b="1" a="1"/>
+                                        <MaxColor r="1" g="1" b="1" a="0"/>
+                                    </Gradient>
+                                    <Anchors>
+                                        <Anchor point="LEFT" relativeKey="$parent.Timeline" relativePoint="RIGHT"/>
+                                    </Anchors>
+                                </Texture>
+                                <Texture parentKey="Mark1">
+                                    <Size x="2" y="14"/>
+                                    <Color r="0.5" g="0.5" b="0.5"/>
+                                    <Anchors>
+                                        <Anchor point="BOTTOM" relativeKey="$parent.Timeline" relativePoint="CENTER" x="-64"/>
+                                    </Anchors>
+                                </Texture>
+                                <Texture parentKey="Mark2">
+                                    <Size x="2" y="14"/>
+                                    <Color r="0.5" g="0.5" b="0.5"/>
+                                    <Anchors>
+                                        <Anchor point="BOTTOM" relativeKey="$parent.Timeline" relativePoint="CENTER" x="0"/>
+                                    </Anchors>
+                                </Texture>
+                                <Texture parentKey="Mark3">
+                                    <Size x="2" y="14"/>
+                                    <Color r="0.5" g="0.5" b="0.5"/>
+                                    <Anchors>
+                                        <Anchor point="BOTTOM" relativeKey="$parent.Timeline" relativePoint="CENTER" x="64"/>
+                                    </Anchors>
+                                </Texture>
+                                <FontString parentKey="Timer3" inherits="NarciFontMedium12" justifyH="CENTER" justifyV="BOTTOM" text="22:48">
+                                    <Size x="0" y="0"/>
+                                    <Color r="0.33" g="0.33" b="0.33"/>
+                                    <Anchors>
+                                        <Anchor point="BOTTOM" relativeKey="$parent.Mark1" relativePoint="TOP" x="0" y="2"/>
+                                    </Anchors>
+                                </FontString>
+                                <FontString parentKey="Timer2" inherits="NarciFontMedium12" justifyH="CENTER" justifyV="BOTTOM" text="22:48">
+                                    <Size x="0" y="0"/>
+                                    <Color r="0.33" g="0.33" b="0.33"/>
+                                    <Anchors>
+                                        <Anchor point="BOTTOM" relativeKey="$parent.Mark2" relativePoint="TOP" x="0" y="2"/>
+                                    </Anchors>
+                                </FontString>
+                                <FontString parentKey="Timer1" inherits="NarciFontMedium12" justifyH="CENTER" justifyV="BOTTOM" text="22:48">
+                                    <Size x="0" y="0"/>
+                                    <Color r="0.33" g="0.33" b="0.33"/>
+                                    <Anchors>
+                                        <Anchor point="BOTTOM" relativeKey="$parent.Mark3" relativePoint="TOP" x="0" y="2"/>
+                                    </Anchors>
+                                </FontString>
+                                <FontString parentKey="Area3" inherits="NarciFontMedium12" justifyH="CENTER" justifyV="BOTTOM" text="+3">
+                                    <Size x="0" y="0"/>
+                                    <Color r="0.5" g="0.5" b="0.5"/>
+                                    <Anchors>
+                                        <Anchor point="BOTTOM" relativeKey="$parent.Timeline" relativePoint="TOP" x="-96" y="2"/>
+                                    </Anchors>
+                                </FontString>
+                                <FontString parentKey="Area2" inherits="NarciFontMedium12" justifyH="CENTER" justifyV="BOTTOM" text="+2">
+                                    <Size x="0" y="0"/>
+                                    <Color r="0.5" g="0.5" b="0.5"/>
+                                    <Anchors>
+                                        <Anchor point="BOTTOM" relativeKey="$parent.Timeline" relativePoint="TOP" x="-32" y="2"/>
+                                    </Anchors>
+                                </FontString>
+                                <FontString parentKey="Area1" inherits="NarciFontMedium12" justifyH="CENTER" justifyV="BOTTOM" text="+1">
+                                    <Size x="0" y="0"/>
+                                    <Color r="0.5" g="0.5" b="0.5"/>
+                                    <Anchors>
+                                        <Anchor point="BOTTOM" relativeKey="$parent.Timeline" relativePoint="TOP" x="32" y="2"/>
+                                    </Anchors>
+                                </FontString>
+                                <FontString parentKey="Area0" inherits="NarciFontMedium12" justifyH="CENTER" justifyV="BOTTOM" text="OT">
+                                    <Size x="0" y="0"/>
+                                    <Color r="0.5" g="0.5" b="0.5"/>
+                                    <Anchors>
+                                        <Anchor point="BOTTOM" relativeKey="$parent.Timeline" relativePoint="TOP" x="96" y="2"/>
+                                    </Anchors>
+                                </FontString>
+                                <Texture parentKey="Pointer">
+                                    <Size x="12" y="12"/>
+                                    <Anchors>
+                                        <Anchor point="TOP" relativeKey="$parent.Timeline" relativePoint="BOTTOM" x="0"/>
+                                    </Anchors>
+                                </Texture>
+
+                                <FontString parentKey="Label4" inherits="NarciFontMedium12" justifyH="LEFT" justifyV="TOP" text="Members">
+                                    <Size x="0" y="0"/>
+                                    <Color r="0.33" g="0.33" b="0.33"/>
+                                    <Anchors>
+                                        <Anchor point="TOPLEFT" relativeKey="$parent.ContentBackdrop" relativePoint="TOPLEFT" x="24" y="-216"/>
+                                    </Anchors>
+                                </FontString>
+                                <FontString parentKey="MemberText" inherits="NarciFontMedium12" justifyH="LEFT" justifyV="TOP" text=" " spacing="6">
+                                    <Size x="272" y="0"/>
+                                    <Color r="1" g="1" b="1"/>
+                                    <Anchors>
+                                        <Anchor point="TOPLEFT" relativeKey="$parent.ContentBackdrop" relativePoint="TOPLEFT" x="24" y="-234"/>
+                                    </Anchors>
+                                </FontString>
+
+                                <Texture parentKey="TabDivider" file="Interface\AddOns\Narcissus\Art\Modules\Competitive\MythicPlus\TabDivider">
+                                    <Size x="300" y="20"/>
+                                    <Anchors>
+                                        <Anchor point="TOP" relativeKey="$parent" relativePoint="TOP" y="-68"/>
+                                    </Anchors>
+                                </Texture>
+                            </Layer>
+                        </Layers>
+                        <Frames>
+                            <Button parentKey="LeftArrow" inherits="NarciMythicPlusPageButtonTemplate">
+                                <KeyValues>
+                                    <KeyValue key="increment" value="1" type="number"/>
+                                </KeyValues>
+                                <Anchors>
+                                    <Anchor point="RIGHT" relativeKey="$parent.Header" relativePoint="CENTER" x="-96"/>
+                                </Anchors>
+                            </Button>
+                            <Button parentKey="RightArrow" inherits="NarciMythicPlusPageButtonTemplate">
+                                <KeyValues>
+                                    <KeyValue key="increment" value="-1" type="number"/>
+                                </KeyValues>
+                                <Anchors>
+                                    <Anchor point="LEFT" relativeKey="$parent.Header" relativePoint="CENTER" x="96"/>
+                                </Anchors>
+                            </Button>
+
+                            <Button inherits="NarciMythicPlusTabButtonTemplate" id="1" parentKey="InTime">
+                                <Anchors>
+                                    <Anchor point="BOTTOMLEFT" relativeKey="$parent" relativePoint="TOPLEFT" x="24" y="-88"/>
+                                </Anchors>
+                            </Button>
+                            <Button inherits="NarciMythicPlusTabButtonTemplate" id="2" parentKey="OverTime">
+                                <Anchors>
+                                    <Anchor point="BOTTOMLEFT" relativeKey="$parent.InTime" relativePoint="BOTTOMRIGHT"/>
+                                </Anchors>
+                            </Button>
+                        </Frames>
+                    </Frame>
+                    <Frame parentKey="HistoryFrame" hidden="true">
+                        <Anchors>
+                            <Anchor point="TOPLEFT" relativeKey="$parent" relativePoint="TOPLEFT" y="-24"/>
+                            <Anchor point="BOTTOMRIGHT" relativeKey="$parent" relativePoint="BOTTOMRIGHT"/>
+                        </Anchors>
+                        <Layers>
+                            <Layer level="BACKGROUND">
+                                <FontString parentKey="NoRecordLabel" inherits="NarciFontMedium12" justifyH="CENTER" justifyV="MIDDLE" text="No record" hidden="true">
+                                    <Size x="0" y="0"/>
+                                    <Color r="0.5" g="0.5" b="0.5"/>
+                                    <Anchors>
+                                        <Anchor point="CENTER" relativeKey="$parent" relativePoint="CENTER" x="0" y="0"/>
+                                    </Anchors>
+                                </FontString>
+                                <FontString inherits="NarciFontMedium12" justifyH="RIGHT" justifyV="MIDDLE" parentKey="GraphDescription" maxLines="1">
+                                    <Size x="300" y="0"/>
+                                    <Color r="0.33" g="0.33" b="0.33"/>
+                                    <Anchors>
+                                        <Anchor point="CENTER" relativeKey="$parent" relativePoint="BOTTOM" x="0" y="12"/>
+                                    </Anchors>
+                                </FontString>
+                            </Layer>
+                        </Layers>
+                        <Frames>
+
+                        </Frames>
+                    </Frame>
+                </Frames>
+                <Scripts>
+                    <OnLoad method="OnLoad"/>
+                    <OnEvent method="OnEvent"/>
+                    <OnShow method="OnShow"/>
+                    <OnHide method="OnHide"/>
+                </Scripts>
+            </Frame>
+            <Frame parentKey="LoadingOverlay" frameStrata="FULLSCREEN">
+                <Anchors>
+                    <Anchor point="TOPLEFT"/>
+                    <Anchor point="BOTTOMRIGHT"/>
+                </Anchors>
+                <Layers>
+                    <Layer level="OVERLAY">
+                        <Texture parentKey="Black">
+                            <Color r="0" g="0" b="0" a="0.9"/>
+                        </Texture>
+                    </Layer>
+                    <Layer level="OVERLAY" textureSubLevel="1">
+                        <Texture parentKey="LoadingIndicator">
+                            <Size x="32" y="32"/>
+                            <Anchors>
+                                <Anchor point="CENTER" relativeKey="$parent" relativePoint="CENTER" y="16"/>
+                            </Anchors>
+                            <Animations>
+                                <AnimationGroup parentKey="Rotate" looping="REPEAT">
+                                    <Rotation degrees="-360" duration="1" order="1"/>
+                                </AnimationGroup>
+                            </Animations>
+                        </Texture>
+                        <FontString parentKey="LoadingText" inherits="NarciFontMedium12" justifyH="CENTER" justifyV="TOP" text="Loading Leaderboard">
+                            <Size x="0" y="0"/>
+                            <Color r="0.5" g="0.5" b="0.5"/>
+                            <Anchors>
+                                <Anchor point="TOP" relativeKey="$parent" relativePoint="CENTER" x="0" y="-18"/>
+                            </Anchors>
+                        </FontString>
+                    </Layer>
+                </Layers>
+				<Animations>
+					<AnimationGroup parentKey="FadeIn">
+						<Alpha fromAlpha="0" toAlpha="1" duration="0.2" order="1"/>
+					</AnimationGroup>
+					<AnimationGroup parentKey="FadeOut">
+						<Alpha fromAlpha="1" toAlpha="0" duration="0.25" order="1"/>
+						<Scripts>
+							<OnFinished>
+								self:GetParent():Hide();
+							</OnFinished>
+						</Scripts>
+					</AnimationGroup>
+				</Animations>
+                <Scripts>
+                    <OnShow>
+                        self.LoadingIndicator.Rotate:Play();
+                    </OnShow>
+                    <OnHide>
+                        self.LoadingIndicator.Rotate:Stop();
+                    </OnHide>
+                    <OnMouseDown>
+                        return;
+                    </OnMouseDown>
+                </Scripts>
+            </Frame>
+        </Frames>
+        <Scripts>
+            <OnLoad method="OnLoad"/>
+        </Scripts>
+    </Frame>
+
+    <!--Button name="NarciTestButton" hidden="true">
+        <Size x="32" y="32"/>
+        <Anchors>
+            <Anchor point="CENTER"/>
+        </Anchors>
+        <Layers>
+            <Layer level="ARTWORK">
+                <Texture parentKey="Icon">
+                    <TexCoords left="0.075" right="0.925" top="0.075" bottom="0.925"/>
+                </Texture>
+            </Layer>
+            <Layer level="OVERLAY">
+                <Texture file="Interface\AddOns\Narcissus\Art\IconHighlight\Border">
+
+                </Texture>
+            </Layer>
+        </Layers>
+        <Frames>
+            <Frame parentKey="ActivationAlert" mixin="NarciActivationAlertMixin" hidden="true">
+                <Size x="32" y="32"/>
+                <Anchors>
+                    <Anchor point="CENTER"/>
+                </Anchors>
+                <Layers>
+                    <Layer level="OVERLAY" textureSubLevel="-1">
+                        <Texture parentKey="OuterGlow">
+                            <Size x="64" y="64"/>
+                            <Anchors>
+                                <Anchor point="CENTER"/>
+                            </Anchors>
+                        </Texture>
+                    </Layer>
+                    <Layer level="OVERLAY">
+                        <Texture parentKey="InnerGlow">
+                            <Size x="32" y="32"/>
+                            <Anchors>
+                                <Anchor point="CENTER"/>
+                            </Anchors>
+                        </Texture>
+                    </Layer>
+                    <Layer level="OVERLAY" textureSubLevel="1">
+                        <Texture parentKey="Trail1">
+                            <Size x="64" y="64"/>
+                            <Anchors>
+                                <Anchor point="CENTER"/>
+                            </Anchors>
+                        </Texture>
+                        <Texture parentKey="Trail2">
+                            <Size x="64" y="64"/>
+                            <Anchors>
+                                <Anchor point="CENTER"/>
+                            </Anchors>
+                        </Texture>
+                        <Texture parentKey="Trail3">
+                            <Size x="64" y="64"/>
+                            <Anchors>
+                                <Anchor point="CENTER"/>
+                            </Anchors>
+                        </Texture>
+                        <Texture parentKey="Trail4">
+                            <Size x="64" y="64"/>
+                            <Anchors>
+                                <Anchor point="CENTER"/>
+                            </Anchors>
+                        </Texture>
+                        <MaskTexture parentKey="TrailMask1">
+                            <Size x="32" y="32"/>
+                            <Anchors>
+                                <Anchor point="CENTER"/>
+                            </Anchors>
+                            <MaskedTextures>
+                                <MaskedTexture childKey="Trail1"/>
+                            </MaskedTextures>
+                        </MaskTexture>
+                        <MaskTexture parentKey="TrailMask2">
+                            <Size x="32" y="32"/>
+                            <Anchors>
+                                <Anchor point="CENTER"/>
+                            </Anchors>
+                            <MaskedTextures>
+                                <MaskedTexture childKey="Trail2"/>
+                            </MaskedTextures>
+                        </MaskTexture>
+                        <MaskTexture parentKey="TrailMask3">
+                            <Size x="32" y="32"/>
+                            <Anchors>
+                                <Anchor point="CENTER"/>
+                            </Anchors>
+                            <MaskedTextures>
+                                <MaskedTexture childKey="Trail3"/>
+                            </MaskedTextures>
+                        </MaskTexture>
+                        <MaskTexture parentKey="TrailMask4">
+                            <Size x="32" y="32"/>
+                            <Anchors>
+                                <Anchor point="CENTER"/>
+                            </Anchors>
+                            <MaskedTextures>
+                                <MaskedTexture childKey="Trail4"/>
+                            </MaskedTextures>
+                        </MaskTexture>
+                    </Layer>
+                    <Layer level="OVERLAY" textureSubLevel="2">
+                        <Texture parentKey="Blip1">
+                            <Size x="16" y="16"/>
+                            <Anchors>
+                                <Anchor point="CENTER"/>
+                            </Anchors>
+                        </Texture>
+                        <Texture parentKey="Blip2">
+                            <Size x="16" y="16"/>
+                            <Anchors>
+                                <Anchor point="CENTER"/>
+                            </Anchors>
+                        </Texture>
+                        <Texture parentKey="Blip3">
+                            <Size x="16" y="16"/>
+                            <Anchors>
+                                <Anchor point="CENTER"/>
+                            </Anchors>
+                        </Texture>
+                        <Texture parentKey="Blip4">
+                            <Size x="16" y="16"/>
+                            <Anchors>
+                                <Anchor point="CENTER"/>
+                            </Anchors>
+                        </Texture>
+                    </Layer>
+                    <Layer level="OVERLAY" textureSubLevel="3">
+                        <Texture parentKey="WhiteBorder" Alpha="0">
+                            <Size x="32" y="32"/>
+                            <Anchors>
+                                <Anchor point="CENTER"/>
+                            </Anchors>
+                        </Texture>
+                    </Layer>
+                </Layers>
+                <Animations>
+                    <AnimationGroup parentKey="IntroAnim">
+                        <Alpha childKey="InnerGlow" smoothing="OUT" duration="0.2" fromAlpha="0" toAlpha="1" order="1"/>
+                        <Alpha childKey="OuterGlow" duration="0.2" fromAlpha="0" toAlpha="1" order="1"/>
+                        <Scale childKey="OuterGlow" smoothing="OUT" duration="0.2" fromScaleX="0.5" toScaleX="1" fromScaleY="0.5" toScaleY="1" order="1"/>
+                        <Alpha childKey="Blip1" duration="0.2" fromAlpha="0" toAlpha="1" order="1"/>
+                        <Alpha childKey="Blip2" duration="0.2" fromAlpha="0" toAlpha="1" order="1"/>
+                        <Alpha childKey="Blip3" duration="0.2" fromAlpha="0" toAlpha="1" order="1"/>
+                        <Alpha childKey="Blip4" duration="0.2" fromAlpha="0" toAlpha="1" order="1"/>
+                        <Scripts>
+                            <OnFinished>
+                                self:GetParent():PlayHold();
+                            </OnFinished>
+                        </Scripts>
+                    </AnimationGroup>
+                    <AnimationGroup parentKey="HoldAnim" looping="REPEAT">
+                        <Alpha childKey="OuterGlow" duration="0.5" fromAlpha="1" toAlpha="0.66" order="1"/>
+                        <Alpha childKey="OuterGlow" duration="0.5" fromAlpha="0.66" toAlpha="1" order="2"/>
+                    </AnimationGroup>
+                    <AnimationGroup parentKey="OutroAnim">
+                        <Alpha childKey="InnerGlow" duration="0.35" fromAlpha="1" toAlpha="0" order="1"/>
+
+                        <Alpha childKey="OuterGlow" duration="0.35" fromAlpha="1" toAlpha="0" order="1"/>
+
+                        <Alpha childKey="Blip1" duration="0.25" fromAlpha="1" toAlpha="0" order="1"/>
+                        <Alpha childKey="Blip2" duration="0.25" fromAlpha="1" toAlpha="0" order="1"/>
+                        <Alpha childKey="Blip3" duration="0.25" fromAlpha="1" toAlpha="0" order="1"/>
+                        <Alpha childKey="Blip4" duration="0.25" fromAlpha="1" toAlpha="0" order="1"/>
+
+                        <Alpha childKey="Trail1" duration="0.25" fromAlpha="1" toAlpha="0" order="1"/>
+                        <Alpha childKey="Trail2" duration="0.25" fromAlpha="1" toAlpha="0" order="1"/>
+                        <Alpha childKey="Trail3" duration="0.25" fromAlpha="1" toAlpha="0" order="1"/>
+                        <Alpha childKey="Trail4" duration="0.25" fromAlpha="1" toAlpha="0" order="1"/>
+
+                        <Alpha childKey="WhiteBorder" duration="0.35" fromAlpha="1" toAlpha="0" order="1"/>
+                        <Scripts>
+                            <OnFinished>
+                                self:GetParent():Release();
+                            </OnFinished>
+                        </Scripts>
+                    </AnimationGroup>
+                </Animations>
+                <Scripts>
+                    <OnLoad method="OnLoad"/>
+                    <OnUpdate method="OnUpdate"/>
+                </Scripts>
+            </Frame>
+        </Frames>
+        <Scripts>
+            <OnLoad>
+                self.Icon:SetTexture(1373912);
+            </OnLoad>
+            <OnClick>
+                self.ActivationAlert:PlayIntro(3);
+            </OnClick>
+        </Scripts>
+    </Button-->
+</Ui>

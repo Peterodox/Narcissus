@@ -1,0 +1,3189 @@
+<Ui xsi:schemaLocation="http://www.blizzard.com/wow/ui/..\FrameXML\UI.xsd">
+	<Script file="DataProvider.lua"/>
+	<Script file="RewardModelSceneMixin.lua"/>
+	<Script file="StatusBarMixin.lua"/>
+	<Script file="TabButtonMixin.lua"/>
+	<Script file="SimpleButtonMixin.lua"/>
+	<Script file="NavigationButtonMixin.lua"/>
+
+	<Script file="Settings.lua"/>
+	<Script file="FloatingCard.lua"/>
+	
+	<Script file="StatisticsPin.lua"/>
+	<Script file="StatisticsList.lua"/>
+	<Script file="StatisticsCard.lua"/>
+
+	<Script file="AchievementFrame.lua"/>
+	<Script file="Search.lua"/>
+
+	<Script file="DIY.lua"/>
+
+	<!--Script file="DevTool.lua"/-->
+
+	<Button name="NarciAchievementNavigationButtonTemplate" mixin="NarciAchievementNavigationButtonMixin" virtual="true">
+		<Size x="64" y="64"/>
+		<Layers>
+			<Layer>
+				<Texture file="Interface\AddOns\Narcissus_Achievements\Art\Shared\NextArrow" parentKey="Background">
+					<Size x="32" y="64"/>
+					<TexCoords left="0" right="0.5" top="0" bottom="1"/>
+					<Anchors>
+						<Anchor point="CENTER"/>
+					</Anchors>
+				</Texture>
+			</Layer>
+			<Layer level="OVERLAY">
+				<Texture file="Interface\AddOns\Narcissus_Achievements\Art\Shared\NextArrow" parentKey="Highlight" Alpha="0">
+					<Size x="32" y="64"/>
+					<TexCoords left="0.5" right="1" top="0" bottom="1"/>
+					<Anchors>
+						<Anchor point="TOPLEFT" relativeKey="$parent.Background" relativePoint="TOPLEFT"/>
+						<Anchor point="BOTTOMRIGHT" relativeKey="$parent.Background" relativePoint="BOTTOMRIGHT"/>
+					</Anchors>
+					<Animations>
+						<AnimationGroup parentKey="FlyIn" setToFinalAlpha="true">
+							<Scale scaleX="0.5" scaleY="0.5" duration="0" order="1"/>
+							<Alpha fromAlpha="0" toAlpha="0" duration="0" order="1"/>
+							<Translation offsetX="-24" duration="0" order="1" parentKey="Translation1"/>
+							<Scale scaleX="2" scaleY="2" duration="0.15" order="2"/>
+							<Translation offsetX="24" duration="0.15" order="2" parentKey="Translation2"/>
+							<Alpha fromAlpha="0" toAlpha="1" duration="0.15" order="2"/>
+							<Scripts>
+								<OnFinished>
+									self:GetParent():GetParent().FlyIn:Play();
+								</OnFinished>
+							</Scripts>
+						</AnimationGroup>
+						<AnimationGroup parentKey="FadeOut" setToFinalAlpha="true">
+							<Alpha fromAlpha="1" toAlpha="0" duration="0.2" order="1"/>
+						</AnimationGroup>
+					</Animations>
+				</Texture>
+			</Layer>
+		</Layers>
+		<Animations>
+			<AnimationGroup parentKey="FlyIn">
+				<Translation offsetX="6" duration="0.1" order="1" parentKey="Translation1"/>
+				<Translation offsetX="2" duration="0.1" order="2" parentKey="Translation2"/>
+				<Translation offsetX="0" duration="20" order="3" parentKey="Hold"/>
+				<Translation offsetX="-6" duration="0.1" order="4" parentKey="Translation3"/>
+				<Translation offsetX="-2" duration="0.1" order="5" parentKey="Translation4"/>
+			</AnimationGroup>
+		</Animations>
+		<Scripts>
+			<OnLoad method="OnLoad"/>
+			<OnShow method="OnShow"/>
+			<OnEnter method="OnEnter"/>
+			<OnLeave method="OnLeave"/>
+			<OnMouseDown method="OnMouseDown"/>
+			<OnMouseUp method="OnMouseUp"/>
+			<OnClick method="OnClick"/>
+			<OnEnable method="OnEnable"/>
+			<OnDisable method="OnDisable"/>
+		</Scripts>
+	</Button>
+
+	<Frame name="NarciAchievementEditorFrameTemplate" virtual="true" mixin="ExpansionTransitionBackdropTemplateMixin">
+		<Size x="232" y="60"/>
+		<HitRectInsets>
+			<AbsInset left="12" right="12" top="12" bottom="12"/>
+		</HitRectInsets>
+		<Layers>
+			<Layer level="BACKGROUND">
+				<Texture parentKey="colorBackground">
+					<Color r="0.15" g="0.12" b="0.1" a="1"/>
+					<Gradient orientation="VERTICAL">
+						<MaxColor a="0.9" r="1" g="1" b="1"/>
+						<MinColor a="0.9" r="0.5" g="0.5" b="0.5"/>
+					</Gradient>
+					<Anchors>
+						<Anchor point="TOPLEFT" relativePoint="TOPLEFT" x="13" y="-13"/>
+						<Anchor point="BOTTOMRIGHT" relativePoint="BOTTOMRIGHT" x="-14.5" y="14"/>
+					</Anchors>
+				</Texture>
+			</Layer>
+			<Layer>
+				<FontString inherits="NarciAchievementText" parentKey="label" text="" justifyH="LEFT" justifyV="MIDDLE" hidden="false" maxLines="2">
+					<Size x="180" y="0"/>
+					<!--Color r="0.5" g="0.5" b="0.5"/-->
+					<Anchors>
+						<Anchor point="TOPLEFT" relativeKey="$parent.colorBackground" relativePoint="TOPLEFT" x="8" y="-10"/>
+					</Anchors>
+				</FontString>
+			</Layer>
+		</Layers>
+		<Scripts>
+			<OnLoad>
+				local backdropInfo = {
+					edgeFile = "Interface\\AddOns\\Narcissus_Achievements\\ART\\Shared\\Tooltip-SoftShadowChamfer",
+					tile = true,
+					tileSize = 24,
+					edgeSize = 24,
+				}
+				self:SetBackdrop(backdropInfo);
+				self:SetBackdropBorderColor(0.4, 0.33, 0.29);
+
+				function self:OnHeightChanged(height)
+					self:SetHeight(62 + height)
+				end
+			</OnLoad>
+		</Scripts>
+	</Frame>
+
+	<Frame name="NarciAchievementEditorFrameWithEditBoxTemplate" inherits="NarciAchievementEditorFrameTemplate" virtual="true">
+		<Size x="232" y="76"/>
+		<Frames>
+			<EditBox parentKey="EditBox" multiLine="true" autoFocus="false">
+				<Size x="190" y="14"/>
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeKey="$parent.colorBackground" relativePoint="TOPLEFT" x="8" y="-24"/>
+				</Anchors>
+				<FontString inherits="NarciAchievementText" justifyH="LEFT" justifyV="TOP" spacing="2">
+					<Color r="0.64" g="0.58" b="0.55"/>
+				</FontString>
+				<!--Layers>
+					<Layer level="BACKGROUND">
+						<Texture>
+							<Color a="0.2"/>
+						</Texture>
+					</Layer>
+				</Layers-->
+				<Scripts>
+					<OnTextChanged>
+						local height = self:GetHeight();
+						if height ~= self.oldHeight then
+							self.oldHeight = height;
+							self:GetParent():OnHeightChanged(height);
+						end
+					</OnTextChanged>
+					<OnEscapePressed>
+						self:ClearFocus();
+					</OnEscapePressed>
+					<OnEnterPressed>
+						if not self.enableLineFeed then
+							self:ClearFocus();
+						else
+							self:Insert("\n")
+						end
+					</OnEnterPressed>
+					<OnEditFocusLost>
+						self:HighlightText(0, 0);
+					</OnEditFocusLost>
+				</Scripts>
+			</EditBox>
+		</Frames>
+		<Scripts>
+			<OnMouseDown>
+				self.EditBox:SetFocus();
+			</OnMouseDown>
+		</Scripts>
+	</Frame>
+
+	<Button name="NarciAchievementEditorSaveButtonTemplate" virtual="true" frameLevel="8" mixin="ExpansionTransitionBackdropTemplateMixin">
+		<Size x="120" y="52"/>
+		<Backdrop edgeFile="Interface\AddOns\Narcissus_Achievements\Art\Shared\Tooltip-SoftShadowChamfer" tile="true">
+			<EdgeSize>
+				<AbsValue val="24"/>
+			</EdgeSize>
+			<BorderColor r="0.5" g="0.5" b="0.5"/>
+		</Backdrop>
+		<HitRectInsets>
+			<AbsInset left="12" right="12" top="12" bottom="12"/>
+		</HitRectInsets>
+		<Layers>
+			<Layer level="BACKGROUND">
+				<Texture parentKey="colorBackground">
+					<Color r="0.2" g="0.2" b="0.2" a="1"/>
+					<Gradient orientation="VERTICAL">
+						<MaxColor a="1" r="0.5" g="0.5" b="0.5"/>
+						<MinColor a="1" r="0.1" g="0.1" b="0.1"/>
+					</Gradient>
+					<Anchors>
+						<Anchor point="TOPLEFT" relativePoint="TOPLEFT" x="13" y="-13"/>
+						<Anchor point="BOTTOMRIGHT" relativePoint="BOTTOMRIGHT" x="-14.5" y="14"/>
+					</Anchors>
+				</Texture>
+			</Layer>
+			<Layer level="OVERLAY" textureSubLevel="2">
+				<FontString inherits="NarciAchievementText" parentKey="label" text="" justifyH="CENTER" justifyV="MIDDLE" hidden="false" maxLines="2">
+					<Anchors>
+						<Anchor point="LEFT" relativeKey="$parent" relativePoint="LEFT" x="24" y="1"/>
+						<Anchor point="RIGHT" relativeKey="$parent" relativePoint="RIGHT" x="-24" y="1"/>
+					</Anchors>
+				</FontString>
+			</Layer>
+		</Layers>
+		<Scripts>
+			<OnLoad>
+				local backdropInfo = {
+					edgeFile = "Interface\\AddOns\\Narcissus_Achievements\\ART\\Shared\\Tooltip-SoftShadowChamfer",
+					tile = true,
+					tileSize = 24,
+					edgeSize = 24,
+				}
+				self:SetBackdrop(backdropInfo);
+			</OnLoad>
+			<OnEnter>
+				self.colorBackground:SetColorTexture(0.5, 0.5, 0.5);
+			</OnEnter>
+			<OnLeave>
+				self.colorBackground:SetColorTexture(0.2, 0.2, 0.2);
+			</OnLeave>
+			<OnMouseDown>
+				self.colorBackground:SetGradient("VERTICAL", 0.5, 0.5, 0.5, 0.1, 0.1, 0.1);
+			</OnMouseDown>
+			<OnMouseUp>
+				self.colorBackground:SetGradient("VERTICAL", 0.1, 0.1, 0.1, 0.5, 0.5, 0.5);
+			</OnMouseUp>
+		</Scripts>
+	</Button>
+
+	<Button name="NarciAchievementEditorConfirmCancelButtonTemplate" virtual="true">
+		<Size x="76" y="19"/>
+		<Layers>
+			<Layer level="BACKGROUND">
+				<Texture file="Interface\AddOns\Narcissus_Achievements\Art\Shared\EditorButtons" parentKey="background">
+					<TexCoords left="0" right="0.75" top="0" bottom="0.375"/>
+				</Texture>
+			</Layer>
+			<Layer level="OVERLAY" textureSubLevel="2">
+				<Texture file="Interface\AddOns\Narcissus_Achievements\Art\Shared\EditorButtons" parentKey="icon">
+					<Size x="16" y="16"/>
+					<TexCoords left="0.75" right="1" top="0" bottom="0.5"/>
+					<Anchors>
+						<Anchor point="CENTER" relativeKey="$parent" relativePoint="CENTER"/>
+					</Anchors>
+				</Texture>
+			</Layer>
+		</Layers>
+		<HighlightTexture file="Interface\AddOns\Narcissus_Achievements\Art\Shared\EditorButtons" alphaMode="ADD" Alpha="0.5">
+			<TexCoords left="0" right="0.75" top="0.5" bottom="0.875"/>
+		</HighlightTexture>
+	</Button>
+
+	<AnimationGroup name="NarciAchievementStarBlinkAnimationTemplate" parentKey="blink" virtual="true" setToFinalAlpha="true">
+		<Alpha fromAlpha="0.2" toAlpha="1" duration="0.25" order="1"/>
+		<Scale scaleX="1.25" scaleY="1.25" duration="0.25" order="1"/>
+		<Alpha fromAlpha="1" toAlpha="0.2" duration="0.25" order="2"/>
+		<Scale scaleX="0.80" scaleY="0.80" duration="0.25" order="2"/>
+		<Alpha fromAlpha="0.2" toAlpha="1" duration="0.25" order="3"/>
+		<Scale scaleX="1.25" scaleY="1.25" duration="0.25" order="3"/>
+		<Alpha fromAlpha="1" toAlpha="0.2" duration="0.25" order="4"/>
+		<Scale scaleX="0.80" scaleY="0.80" duration="0.25" order="4"/>
+		<Alpha fromAlpha="0.2" toAlpha="1" duration="0.25" order="5"/>
+		<Scale scaleX="1.25" scaleY="1.25" duration="0.25" order="5"/>
+		<Alpha fromAlpha="1" toAlpha="0.2" duration="0.25" order="6"/>
+		<Scale scaleX="0.80" scaleY="0.80" duration="0.25" order="6"/>
+		<Alpha fromAlpha="0.2" toAlpha="1" duration="0.25" order="7"/>
+		<Scale scaleX="1.25" scaleY="1.25" duration="0.25" order="7"/>
+		<!--Alpha fromAlpha="1" toAlpha="0.2" duration="0.25" order="8"/>
+		<Scale scaleX="0.80" scaleY="0.80" duration="0.25" order="8"/>
+		<Alpha fromAlpha="0.2" toAlpha="1" duration="0.25" order="9"/>
+		<Scale scaleX="1.25" scaleY="1.25" duration="0.25" order="9"/-->
+		<Alpha fromAlpha="1" toAlpha="0.5" duration="0.25" order="10"/>
+		<Scale scaleX="0.80" scaleY="0.80" duration="0.25" order="10"/>
+		<Alpha fromAlpha="0.5" toAlpha="0.25" duration="0.25" order="11"/>
+		<Scale scaleX="0.80" scaleY="0.80" duration="0.25" order="11"/>
+		<Alpha fromAlpha="0.25" toAlpha="0" duration="0.25" order="12"/>
+		<Scale scaleX="0.80" scaleY="0.80" duration="0.25" order="12"/>
+	</AnimationGroup>
+
+	<Button name="NarciAchievementSimpleButton" virtual="true" mixin="NarciSimpleButtonMixin">
+		<Size x="120" y="24"/>
+		<Layers>
+			<Layer level="OVERLAY">
+				<FontString inherits="NarciAchievementText" parentKey="label" text="" justifyH="CENTER" justifyV="MIDDLE">
+					<Size x="0"/>
+					<Anchors>
+						<Anchor point="CENTER" relativeKey="$parent" relativePoint="CENTER" x="0" y="0"/>
+					</Anchors>
+				</FontString>
+			</Layer>
+			<Layer level="BACKGROUND">
+				<Texture file="Interface\AddOns\Narcissus_Achievements\Art\Shared\SimpleButton" parentKey="middle" Alpha="0.5">
+					<Size y="24"/>
+					<TexCoords left="0.25" right="0.75" top="0" bottom="0.5"/>
+					<Anchors>
+						<Anchor point="LEFT" relativeKey="$parent.label" relativePoint="LEFT" x="12" y="0"/>
+						<Anchor point="RIGHT" relativeKey="$parent.label" relativePoint="RIGHT" x="-12" y="0"/>
+					</Anchors>
+				</Texture>
+				<Texture file="Interface\AddOns\Narcissus_Achievements\Art\Shared\SimpleButton" parentKey="left" Alpha="0.5">
+					<Size x="24" y="24"/>
+					<TexCoords left="0" right="0.25" top="0" bottom="0.5"/>
+					<Anchors>
+						<Anchor point="RIGHT" relativeKey="$parent.middle" relativePoint="LEFT" x="0" y="0"/>
+					</Anchors>
+				</Texture>
+				<Texture file="Interface\AddOns\Narcissus_Achievements\Art\Shared\SimpleButton" parentKey="right" Alpha="0.5">
+					<Size x="24" y="24"/>
+					<TexCoords left="0.75" right="1" top="0" bottom="0.5"/>
+					<Anchors>
+						<Anchor point="LEFT" relativeKey="$parent.middle" relativePoint="RIGHT" x="0" y="0"/>
+					</Anchors>
+				</Texture>
+				<Texture file="Interface\AddOns\Narcissus_Achievements\Art\Shared\SimpleButton" parentKey="highlight" Alpha="0">
+					<TexCoords left="0" right="1" top="0.5" bottom="1"/>
+				</Texture>
+			</Layer>
+		</Layers>
+		<Scripts>
+			<OnMouseDown method="OnMouseDown"/>
+			<OnMouseUp method="OnMouseUp"/>
+			<OnEnter method="OnEnter"/>
+			<OnLeave method="OnLeave"/>
+		</Scripts>
+	</Button>
+
+	<Button name="NarciAchievementCategoryButtonSharedTemplate" virtual="true" registerForClicks="LeftButtonUp, RightButtonUp">
+		<Layers>
+			<Layer level="BACKGROUND" textureSubLevel="-1">
+				<Texture file="Interface\AddOns\Narcissus_Achievements\Art\Shared\CategoryButtonShadow" Alpha="0.5">
+					<Anchors>
+						<Anchor point="TOPLEFT" relativeKey="$parent" relativePoint="TOPLEFT" x="-8"/>
+						<Anchor point="BOTTOMRIGHT" relativeKey="$parent" relativePoint="BOTTOMRIGHT" x="8" y="-10"/>
+					</Anchors>
+				</Texture>
+			</Layer>
+			<Layer level="OVERLAY">
+				<FontString inherits="NarciAchievementText" parentKey="label" text="Category Name" maxLines="1" justifyH="LEFT">
+					<Size x="160"/>
+					<Anchors>
+						<Anchor point="LEFT" relativeKey="$parent" relativePoint="LEFT" x="10" y="0"/>
+					</Anchors>
+				</FontString>
+
+				<FontString inherits="NarciAchievementDigit" text="25" justifyH="RIGHT" parentKey="value">
+					<Anchors>
+						<Anchor point="RIGHT" relativeKey="$parent" relativePoint="RIGHT" x="-16" y="0"/>
+					</Anchors>
+				</FontString>
+
+				<FontString inherits="NarciPercentSign" text="%" justifyH="RIGHT" justifyV="BOTTOM" parentKey="percentSign">
+					<Anchors>
+						<Anchor point="RIGHT" relativeKey="$parent" relativePoint="RIGHT" x="-8" y="-1.5"/>
+					</Anchors>
+				</FontString>
+
+				<FontString inherits="NarciAchievementDigit" text="" justifyH="RIGHT" parentKey="progress" hidden="true">
+					<Anchors>
+						<Anchor point="RIGHT" relativeKey="$parent" relativePoint="RIGHT" x="-10" y="0"/>
+					</Anchors>
+				</FontString>
+
+				<Texture file="Interface\AddOns\Narcissus_Achievements\Art\DarkWood\CategoryButtonBar" parentKey="fill" hidden="true">
+					<Size x="0.1" y="5"/>
+					<TexCoords left="0" right="0" top="0" bottom="1"/>
+					<Anchors>
+						<Anchor point="BOTTOMLEFT" relativeKey="$parent" relativePoint="BOTTOMLEFT" x="3" y="2"/>
+					</Anchors>
+				</Texture>
+				<Texture file="Interface\AddOns\Narcissus_Achievements\Art\DarkWood\CategoryButtonBar" parentKey="fillEnd" hidden="true">
+					<TexCoords left="0.75" right="0.765625" top="0" bottom="1"/>
+					<Size x="4" y="5"/>
+					<Anchors>
+						<Anchor point="LEFT" relativeKey="$parent.fill" relativePoint="RIGHT" x="-0.2" y="0"/>
+					</Anchors>
+				</Texture>
+			</Layer>
+		</Layers>
+		<Frames>
+			<Frame parentKey="drawer" hidden="true" frameLevel="3" Alpha="0">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeKey="$parent" relativePoint="TOPLEFT"/>
+					<Anchor point="BOTTOMRIGHT" relativeKey="$parent" relativePoint="BOTTOMRIGHT"/>
+				</Anchors>
+			</Frame>
+			<Frame parentKey="box">
+				<Size y="32"/>
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeKey="$parent" relativePoint="TOPLEFT"/>
+					<Anchor point="TOPRIGHT" relativeKey="$parent" relativePoint="TOPRIGHT"/>
+				</Anchors>
+			</Frame>
+		</Frames>
+	</Button>
+
+	<Button name="NarciAchievementCategoryButtonTemplate" inherits="NarciAchievementCategoryButtonSharedTemplate" virtual="true" frameLevel="5">
+		<Size x="208" y="32"/>
+		<KeyValues>
+			<KeyValue key="fillWidth" value="198" type="number"/>
+		</KeyValues>
+		<Layers>
+			<Layer level="BACKGROUND">
+				<Texture file="Interface\AddOns\Narcissus_Achievements\Art\DarkWood\CategoryButton" parentKey="background">
+					<TexCoords left="0.125" right="0.875" top="0" bottom="1"/>
+				</Texture>
+			</Layer>
+		</Layers>
+	</Button>
+
+	<Button name="NarciAchievementSubCategoryButtonTemplate" inherits="NarciAchievementCategoryButtonSharedTemplate" virtual="true">
+		<Size x="192" y="32"/>
+		<KeyValues>
+			<KeyValue key="fillWidth" value="182" type="number"/>
+		</KeyValues>
+		<Layers>
+			<Layer level="BACKGROUND">
+				<Texture file="Interface\AddOns\Narcissus_Achievements\Art\DarkWood\SubCategoryButton" parentKey="background">
+					<TexCoords left="0.203125" right="0.875" top="0" bottom="1"/>
+				</Texture>
+			</Layer>
+			<Layer level="OVERLAY">
+				<Texture file="Interface\AddOns\Narcissus_Achievements\Art\Shared\GreenCheck" parentKey="greenCheck" hidden="true">
+					<Size x="18" y="18"/>
+					<Anchors>
+						<Anchor point="LEFT" relativeKey="$parent" relativePoint="LEFT" x="6" y="0"/>
+					</Anchors>
+				</Texture>
+			</Layer>
+		</Layers>
+	</Button>
+
+	<Button name="NarciAchievementLargeCardTemplate" virtual="true" hidden="true" registerForClicks="LeftButtonUp, RightButtonUp" mixin="NarciAchievementLargeCardMixin">
+		<Size x="518" y="72"/>
+		<Layers>
+			<Layer level="OVERLAY">
+				<Texture file="Interface\AddOns\Narcissus_Achievements\Art\DarkWood\AchievementCardBorder" parentKey="border" nounload="true">
+					<TexCoords left="0.05078125" right="0.94921875" top="0" bottom="0.5"/>
+					<Size x="518" y="72"/>
+					<Anchors>
+						<Anchor point="TOP" relativeKey="$parent" relativePoint="TOP"/>
+						<!--Anchor point="TOPRIGHT" relativeKey="$parent" relativePoint="TOPRIGHT"/-->
+					</Anchors>
+				</Texture>
+				<MaskTexture file="Interface\AddOns\Narcissus_Achievements\Art\DarkWood\AchievementCardBorderMask" hWrapMode="CLAMPTOBLACKADDITIVE" vWrapMode="CLAMPTOBLACKADDITIVE" parentKey="mask" nounload="true">
+					<Anchors>
+						<Anchor point="TOPLEFT" relativeKey="$parent.border" relativePoint="TOPLEFT"/>
+						<Anchor point="BOTTOMRIGHT" relativeKey="$parent.border" relativePoint="BOTTOMRIGHT"/>
+					</Anchors>
+					<MaskedTextures>
+						<MaskedTexture childKey="border"/>
+					</MaskedTextures>
+				</MaskTexture>
+			</Layer>
+			<Layer level="ARTWORK">
+				<Texture parentKey="icon">
+					<Size x="48" y="48"/>
+					<Anchors>
+						<Anchor point="CENTER" relativeKey="$parent.border" relativePoint="LEFT" x="27" y="4"/>
+					</Anchors>
+				</Texture>
+			</Layer>
+			<Layer level="OVERLAY" textureSubLevel="2">
+				<!--FontString inherits="NarciAchievemtPoints" parentKey="AbsoluteIndex" justifyH="CENTER">
+					<Anchors>
+						<Anchor point="CENTER" relativeKey="$parent" relativePoint="CENTER" x="0" y="0"/>
+					</Anchors>
+				</FontString>
+				<FontString inherits="NarciAchievemtPoints" parentKey="TableIndex" justifyH="CENTER">
+					<Anchors>
+						<Anchor point="CENTER" relativeKey="$parent" relativePoint="CENTER" x="24" y="0"/>
+					</Anchors>
+					<Color r="1" g="0.5" b="0.5"/>
+				</FontString-->
+
+				<FontString inherits="NarciAchievementHeader" parentKey="header" text="Achievement Name" maxLines="1" justifyH="CENTER">
+					<Size x="300"/>
+					<Anchors>
+						<Anchor point="CENTER" relativeKey="$parent.border" relativePoint="TOP" x="0" y="-25"/>
+					</Anchors>
+				</FontString>
+				<FontString inherits="NarciAchievementText" parentKey="headerLong" text="Achievement Long Name" maxLines="1" justifyH="CENTER" hidden="true">
+					<Size x="330"/>
+					<Anchors>
+						<Anchor point="CENTER" relativeKey="$parent.border" relativePoint="TOP" x="-10" y="-25"/>
+					</Anchors>
+				</FontString>
+				<Texture parentKey="lion" file="Interface\AddOns\Narcissus_Achievements\Art\DarkWood\Lion" hidden="true">
+					<Size x="34" y="34"/>
+					<Anchors>
+						<Anchor point="CENTER" relativeKey="$parent.border" relativePoint="RIGHT" x="-22" y="3"/>
+					</Anchors>
+				</Texture>
+				<FontString inherits="NarciAchievemtPoints" parentKey="points" text="10" maxLines="1" justifyH="CENTER">
+					<Anchors>
+						<Anchor point="CENTER" relativeKey="$parent.lion" relativePoint="CENTER" x="0" y="2"/>
+					</Anchors>
+				</FontString>
+				<FontString inherits="NarciAchievementText" parentKey="description" text="This is the achievement's description." maxLines="0" spacing="2" justifyH="CENTER" justifyV="TOP">
+					<Anchors>
+						<Anchor point="TOP" relativeKey="$parent" relativePoint="TOP" x="0" y="-48"/>
+					</Anchors>
+					<Size x="390"/>
+				</FontString>
+				<FontString inherits="NarciAchievementTiny" parentKey="date" text="12/08/2012" justifyH="RIGHT">
+					<Anchors>
+						<Anchor point="RIGHT" relativeKey="$parent.border" relativePoint="TOPRIGHT" x="-48" y="-25"/>
+					</Anchors>
+					<Color r="0.7" g="0.7" b="0.7"/>
+				</FontString>
+			</Layer>
+
+			<Layer level="OVERLAY" textureSubLevel="3">
+				<Texture file="Interface\AddOns\Narcissus_Achievements\Art\Shared\RedCross.tga" parentKey="NotEarned" hidden="true">
+					<Size x="20" y="20"/>
+					<Anchors>
+						<Anchor point="TOPLEFT" relativeKey="$parent.icon" relativePoint="TOPRIGHT" x="8" y="-6"/>
+					</Anchors>
+				</Texture>
+				<Texture file="Interface\AddOns\Narcissus_Achievements\Art\Shared\Target.tga" parentKey="trackIcon" hidden="true">
+					<Size x="20" y="20"/>
+					<Anchors>
+						<Anchor point="LEFT" relativeKey="$parent.NotEarned" relativePoint="RIGHT" x="2" y="0"/>
+					</Anchors>
+				</Texture>
+			</Layer>
+		</Layers>
+
+		<Frames>
+			<!--Frame inherits="NarciFrameDispersiveShadowTemplate"/-->
+			<Frame parentKey="RewardFrame" hidden="true" useParentLevel="true">
+				<Size x="536" y="6"/>
+				<Anchors>
+					<Anchor point="TOP" relativeKey="$parent.description" relativePoint="BOTTOM" y="0"/>
+				</Anchors>
+				<HitRectInsets>
+					<AbsInset left="0" right="0" top="-6" bottom="-6"/>
+				</HitRectInsets>
+				<Layers>
+					<Layer level="OVERLAY" textureSubLevel="3">
+						<FontString inherits="NarciAchievementText" parentKey="reward" maxLines="1" justifyH="CENTER" justifyV="BOTTOM">
+							<Anchors>
+								<Anchor point="BOTTOM" relativeKey="$parent" relativePoint="BOTTOM" x="0" y="1"/>
+							</Anchors>
+						</FontString>
+						<Texture parentKey="rewardNodeLeft" file="Interface\AddOns\Narcissus_Achievements\Art\DarkWood\RewardLineNode" Alpha="0.5">
+							<Size x="4" y="4"/>
+							<Anchors>
+								<Anchor point="RIGHT" relativeKey="$parent.reward" relativePoint="LEFT" x="-8" y="0"/>
+							</Anchors>
+						</Texture>
+						<Texture parentKey="rewardNodeRight" file="Interface\AddOns\Narcissus_Achievements\Art\DarkWood\RewardLineNode" Alpha="0.5">
+							<Size x="4" y="4"/>
+							<Anchors>
+								<Anchor point="LEFT" relativeKey="$parent.reward" relativePoint="RIGHT" x="8" y="0"/>
+							</Anchors>
+						</Texture>
+						<Texture parentKey="rewardLineLeft" file="Interface\AddOns\Narcissus_Achievements\Art\DarkWood\RewardLineLeft" Alpha="0.2">
+							<Anchors>
+								<Anchor point="TOPRIGHT" relativeKey="$parent.rewardNodeLeft" relativePoint="TOPLEFT" x="-8" y="0"/>
+								<Anchor point="BOTTOMRIGHT" relativeKey="$parent.rewardNodeLeft" relativePoint="BOTTOMLEFT" x="-8" y="0"/>
+								<Anchor point="LEFT" relativeKey="$parent" relativePoint="LEFT" x="18" y="0"/>
+							</Anchors>
+						</Texture>
+						<Texture parentKey="rewardLineRight" file="Interface\AddOns\Narcissus_Achievements\Art\DarkWood\RewardLineLeft" Alpha="0.2">
+							<TexCoords left="1" right="0" top="0" bottom="1"/>
+							<Anchors>
+								<Anchor point="TOPLEFT" relativeKey="$parent.rewardNodeRight" relativePoint="TOPRIGHT" x="8" y="0"/>
+								<Anchor point="BOTTOMLEFT" relativeKey="$parent.rewardNodeRight" relativePoint="BOTTOMRIGHT" x="8" y="0"/>
+								<Anchor point="RIGHT" relativeKey="$parent" relativePoint="RIGHT" x="-18" y="0"/>
+							</Anchors>
+						</Texture>
+						<Texture parentKey="background" file="Interface\AddOns\Narcissus_Achievements\Art\Classic\RewardBackground" hidden="true">
+							<TexCoords left="0" right="1" top="0" bottom="0.65625"/>
+							<Size y="22"/>
+							<Anchors>
+								<Anchor point="BOTTOMLEFT" relativeKey="$parent" relativePoint="BOTTOMLEFT" y="-5"/>
+								<Anchor point="BOTTOMRIGHT" relativeKey="$parent" relativePoint="BOTTOMRIGHT" y="-5"/>
+							</Anchors>
+						</Texture>
+					</Layer>
+				</Layers>
+				<Scripts>
+
+				</Scripts>
+			</Frame>
+		</Frames>
+
+		<Layers>
+			<Layer level="BACKGROUND" textureSubLevel="-1">
+				<Texture file="Interface\AddOns\Narcissus_Achievements\Art\Shared\AchievementCardShadow" parentKey="shadow" nounload="true">
+					<Anchors>
+						<Anchor point="TOPLEFT" relativeKey="$parent" relativePoint="TOPLEFT" x="-12" y="0"/>
+						<Anchor point="BOTTOMRIGHT" relativeKey="$parent" relativePoint="BOTTOMRIGHT" x="12" y="-10"/>
+					</Anchors>					
+				</Texture>			
+			</Layer>
+			<Layer level="BACKGROUND">
+				<!--Texture>
+					<Color r="0" g="1" b="0" a="0.8"/>
+				</Texture-->
+				<Texture file="Interface\AddOns\Narcissus_Achievements\Art\DarkWood\AchievementCardBackground.jpg" parentKey="background" nounload="true">
+					<TexCoords left="0.05078125" right="0.94921875" top="0.385" bottom="0.485"/>
+					<Anchors>
+						<Anchor point="TOPLEFT" relativeKey="$parent" relativePoint="TOPLEFT" y="-38"/>
+						<Anchor point="TOPRIGHT" relativeKey="$parent" relativePoint="TOPRIGHT" y="-38"/>
+						<Anchor point="BOTTOM" relativeKey="$parent.RewardFrame" relativePoint="BOTTOM" y="0"/>
+					</Anchors>					
+				</Texture>
+				<Texture file="Interface\AddOns\Narcissus_Achievements\Art\DarkWood\AchievementCardBackground.jpg" parentKey="bottom" nounload="true">
+					<Size y="8"/>
+					<Anchors>
+						<Anchor point="TOPLEFT" relativeKey="$parent.background" relativePoint="BOTTOMLEFT" y="0.5"/>
+						<Anchor point="TOPRIGHT" relativeKey="$parent.background" relativePoint="BOTTOMRIGHT"/>
+					</Anchors>
+					<TexCoords left="0.05078125" right="0.94921875" top="0.485" bottom="0.5"/>
+				</Texture>
+				<MaskTexture file="Interface\AddOns\Narcissus_Achievements\Art\Shared\BottomMask" hWrapMode="CLAMPTOBLACKADDITIVE" vWrapMode="CLAMPTOBLACKADDITIVE" parentKey="bottomMask">
+					<Anchors>
+						<Anchor point="TOPLEFT" relativeKey="$parent.bottom" relativePoint="TOPLEFT"/>
+						<Anchor point="BOTTOMRIGHT" relativeKey="$parent.bottom" relativePoint="BOTTOMRIGHT"/>
+					</Anchors>
+					<MaskedTextures>
+						<MaskedTexture childKey="bottom"/>
+					</MaskedTextures>
+				</MaskTexture>
+			</Layer>
+		</Layers>
+
+		<Animations>
+			<AnimationGroup parentKey="AnimPushed">
+				<Translation offsetY="-2" duration="0.05" order="1"/>
+				<Translation offsetX="2" offsetY="-2" duration="0.05" order="2"/>
+				<Translation duration="20" order="3" parentKey="hold"/>
+				<Translation offsetX="-2" offsetY="2" duration="0.05" order="4"/>
+				<Translation offsetY="2" duration="0.05" order="5"/>
+			</AnimationGroup>
+		</Animations>
+		<Scripts>
+			<OnLoad method="OnLoad"/>
+			<OnMouseDown method="OnMouseDown"/>
+			<OnMouseUp method="OnMouseUp"/>
+			<OnDragStart method="OnDragStart"/>
+		</Scripts>
+	</Button>
+
+	<Button name="NarciAchievementFloatingCardTemplate" virtual="true" inherits="NarciAchievementLargeCardTemplate">
+		<Anchors>
+			<Anchor point="CENTER"  relativeTo="UIParent" relativePoint="CENTER"/>
+		</Anchors>
+		<Scripts>	
+			<OnMouseDown/>
+			<OnMouseUp/>
+		</Scripts>
+	</Button>
+
+	<Button name="NarciStatGenericCardTemplate" virtual="true" registerForClicks="LeftButtonUp, RightButtonUp" mixin="NarciStatGenericCardMixin" hidden="false">
+		<Size x="518" y="94"/>
+		<Layers>
+			<Layer level="OVERLAY" textureSubLevel="-1">
+				<Texture file="Interface\AddOns\Narcissus_Achievements\Art\DarkWood\StatCardBoss" parentKey="Background" nounload="true">
+					<TexCoords left="0.05078125" right="0.94921875" top="0" bottom="0.65234375"/>
+					<Size x="518" y="94"/>
+					<Anchors>
+						<Anchor point="TOP" relativeKey="$parent" relativePoint="TOP"/>
+						<!--Anchor point="TOPRIGHT" relativeKey="$parent" relativePoint="TOPRIGHT"/-->
+					</Anchors>
+				</Texture>
+				<MaskTexture file="Interface\AddOns\Narcissus_Achievements\Art\DarkWood\StatCardBossMask" hWrapMode="CLAMPTOBLACKADDITIVE" vWrapMode="CLAMPTOBLACKADDITIVE" parentKey="Mask" nounload="true">
+					<Size x="518" y="94"/>
+					<Anchors>
+						<Anchor point="CENTER" relativeKey="$parent.Background" relativePoint="CENTER"/>
+					</Anchors>
+					<MaskedTextures>
+						<MaskedTexture childKey="Background"/>
+					</MaskedTextures>
+				</MaskTexture>
+			</Layer>
+			<Layer level="OVERLAY" textureSubLevel="1">
+				<FontString inherits="NarciAchievementText" parentKey="Name" text=" " maxLines="1" justifyH="CENTER" justifyV="TOP">
+					<Size x="424"/>
+					<Anchors>
+						<Anchor point="CENTER" relativeKey="$parent.Background" relativePoint="TOP" x="0" y="-26"/>
+					</Anchors>
+				</FontString>
+				<FontString inherits="NarciAchievementHeader" parentKey="ValueText" text=" " maxLines="1" justifyH="CENTER" justifyV="MIDDLE">
+					<Size x="470"/>
+					<Anchors>
+						<Anchor point="CENTER" relativeKey="$parent.Background" relativePoint="BOTTOM" x="0" y="23"/>
+					</Anchors>
+				</FontString>
+			</Layer>
+			<Layer level="OVERLAY">
+				<Texture parentKey="NameBackground" hidden="true">
+					<Size x="24" y="24"/>
+					<Color r="0.1" g="0.1" b="0.1"/>
+					<Anchors>
+						<Anchor point="CENTER" relativeKey="$parent.Name" relativePoint="CENTER" x="0" y="0"/>
+					</Anchors>
+				</Texture>
+			</Layer>
+			<Layer level="ARTWORK">
+				<Texture parentKey="Icon">
+					<Size x="54" y="54"/>
+					<TexCoords left="0.05" right="0.95" top="0.05" bottom="0.95"/>
+					<Anchors>
+						<Anchor point="CENTER" relativeKey="$parent.Background" relativePoint="TOPLEFT" x="42" y="-48"/>
+					</Anchors>
+				</Texture>
+				<MaskTexture file="Interface\AddOns\Narcissus_Achievements\Art\Shared\StatCardIconMask" hWrapMode="CLAMPTOBLACKADDITIVE" vWrapMode="CLAMPTOBLACKADDITIVE" parentKey="IconMask" nounload="true">
+					<Size x="54" y="54"/>
+					<Anchors>
+						<Anchor point="CENTER" relativeKey="$parent.Icon" relativePoint="CENTER"/>
+					</Anchors>
+					<MaskedTextures>
+						<MaskedTexture childKey="Icon"/>
+					</MaskedTextures>
+				</MaskTexture>
+			</Layer>
+			<Layer level="BACKGROUND" textureSubLevel="-1">
+				<Texture file="Interface\AddOns\Narcissus_Achievements\Art\Shared\AchievementCardShadow" parentKey="Shadow" nounload="true">
+					<Anchors>
+						<Anchor point="TOPLEFT" relativeKey="$parent.Background" relativePoint="TOPLEFT" x="-12" y="0"/>
+						<Anchor point="BOTTOMRIGHT" relativeKey="$parent.Background" relativePoint="BOTTOMRIGHT" x="12" y="-16"/>
+					</Anchors>					
+				</Texture>			
+			</Layer>
+			<Layer level="OVERLAY" textureSubLevel="2">
+				<Texture file="Interface\AddOns\Narcissus_Achievements\Art\Shared\Target.tga" parentKey="TrackIcon" hidden="true">
+					<Size x="20" y="20"/>
+					<Anchors>
+						<Anchor point="CENTER" relativeKey="$parent.Background" relativePoint="LEFT" x="84" y="20"/>
+					</Anchors>
+				</Texture>
+				<!--Texture>
+					<Color r="1" a="0.5"/>
+					<Anchors>
+						<Anchor point="TOPLEFT" relativeKey="$parent.Name" relativePoint="TOPLEFT" x="0" y="0"/>
+						<Anchor point="BOTTOMRIGHT" relativeKey="$parent.Name" relativePoint="BOTTOMRIGHT" x="0" y="0"/>
+					</Anchors>
+				</Texture-->
+			</Layer>
+		</Layers>
+		<Frames>
+			<Frame parentKey="BossFrame" hidden="false" useParentLevel="true">
+				<Size x="48" y="48"/>
+					<Anchors>
+						<Anchor point="CENTER" relativeKey="$parent.Background" y="-26"/>
+					</Anchors>
+				<Layers>
+					<Layer level="OVERLAY" textureSubLevel="2">
+						<FontString inherits="NarciAchievementText" parentKey="Cate1" text="LFR" maxLines="1" justifyH="CENTER" justifyV="MIDDLE" hidden="true">
+							<Size x="90"/>
+							<Color r="0.5" g="0.5" b="0.5"/>
+							<Anchors>
+								<Anchor point="TOP" relativeKey="$parent" relativePoint="TOP" x="0" y="0"/>
+							</Anchors>
+						</FontString>
+						<FontString inherits="NarciAchievementHeader" parentKey="Value1" text="0" maxLines="1" justifyH="CENTER" justifyV="MIDDLE" hidden="true">
+							<Size x="90"/>
+							<Color r="0.9" g="0.82" b="0.58"/>
+							<Anchors>
+								<Anchor point="TOP" relativeKey="$parent.Cate1" relativePoint="BOTTOM" x="0" y="-4"/>
+							</Anchors>
+						</FontString>
+
+						<FontString inherits="NarciAchievementText" parentKey="Cate2" text="Normal" maxLines="1" justifyH="CENTER" justifyV="MIDDLE" hidden="true">
+							<Size x="90"/>
+							<Color r="0.5" g="0.5" b="0.5"/>
+							<Anchors>
+								<Anchor point="TOP" relativeKey="$parent" relativePoint="TOP" x="0" y="0"/>
+							</Anchors>
+						</FontString>
+						<FontString inherits="NarciAchievementHeader" parentKey="Value2" text="0" maxLines="1" justifyH="CENTER" justifyV="MIDDLE" hidden="true">
+							<Size x="90"/>
+							<Color r="0.9" g="0.82" b="0.58"/>
+							<Anchors>
+								<Anchor point="TOP" relativeKey="$parent.Cate2" relativePoint="BOTTOM" x="0" y="-4"/>
+							</Anchors>
+						</FontString>
+
+						<FontString inherits="NarciAchievementText" parentKey="Cate3" text="Heroic" maxLines="1" justifyH="CENTER" justifyV="MIDDLE" hidden="true">
+							<Size x="90"/>
+							<Color r="0.5" g="0.5" b="0.5"/>
+							<Anchors>
+								<Anchor point="TOP" relativeKey="$parent" relativePoint="TOP" x="0" y="0"/>
+							</Anchors>
+						</FontString>
+						<FontString inherits="NarciAchievementHeader" parentKey="Value3" text="0" maxLines="1" justifyH="CENTER" justifyV="MIDDLE" hidden="true">
+							<Size x="90"/>
+							<Color r="0.9" g="0.82" b="0.58"/>
+							<Anchors>
+								<Anchor point="TOP" relativeKey="$parent.Cate3" relativePoint="BOTTOM" x="0" y="-4"/>
+							</Anchors>
+						</FontString>
+
+						<FontString inherits="NarciAchievementText" parentKey="Cate4" text="Mythic" maxLines="1" justifyH="CENTER" justifyV="MIDDLE" hidden="true">
+							<Size x="90"/>
+							<Color r="0.5" g="0.5" b="0.5"/>
+							<Anchors>
+								<Anchor point="TOP" relativeKey="$parent" relativePoint="TOP" x="0" y="0"/>
+							</Anchors>
+						</FontString>
+						<FontString inherits="NarciAchievementHeader" parentKey="Value4" text="0" maxLines="1" justifyH="CENTER" justifyV="MIDDLE" hidden="true">
+							<Size x="90"/>
+							<Color r="0.9" g="0.82" b="0.58"/>
+							<Anchors>
+								<Anchor point="TOP" relativeKey="$parent.Cate4" relativePoint="BOTTOM" x="0" y="-4"/>
+							</Anchors>
+						</FontString>
+					</Layer>
+				</Layers>
+			</Frame>
+			<!--Frame parentKey="RaidBreak" hidden="true" useParentLevel="true">
+				<Size x="518" y="16"/>
+				<Anchors>
+					<Anchor point="BOTTOM" relativeKey="$parent" y="BOTTOM"/>
+				</Anchors>
+				<Layers>
+					<Layer level="BACKGROUND">
+						<Texture file="Interface\AddOns\Narcissus_Achievements\Art\DarkWood\RaidBreak" parentKey="Background">
+							<TexCoords left="0" right="1" top="0" bottom="0.65234375"/>
+							<Size x="576" y="72"/>
+							<Anchors>
+								<Anchor point="CENTER" relativeKey="$parent" relativePoint="CENTER"/>
+							</Anchors>
+						</Texture>
+						<MaskTexture file="Interface\AddOns\Narcissus_Achievements\Art\Shared\RaidBreakMask" hWrapMode="CLAMPTOBLACKADDITIVE" vWrapMode="CLAMPTOBLACKADDITIVE" parentKey="Mask">
+							<Size x="576" y="72"/>
+							<Anchors>
+								<Anchor point="CENTER" relativeKey="$parent" relativePoint="CENTER"/>
+							</Anchors>
+							<MaskedTextures>
+								<MaskedTexture childKey="Background"/>
+							</MaskedTextures>
+						</MaskTexture>
+					</Layer>
+				</Layers>
+			</Frame-->
+		</Frames>
+		<Animations>
+			<AnimationGroup parentKey="AnimPushed">
+				<Translation offsetY="-2" duration="0.05" order="1"/>
+				<Translation offsetX="2" offsetY="-2" duration="0.05" order="2"/>
+				<Translation duration="20" order="3" parentKey="hold"/>
+				<Translation offsetX="-2" offsetY="2" duration="0.05" order="4"/>
+				<Translation offsetY="2" duration="0.05" order="5"/>
+			</AnimationGroup>
+		</Animations>
+		<Scripts>
+			<OnLoad method="OnLoad"/>
+			<OnMouseDown method="OnMouseDown"/>
+			<OnMouseUp method="OnMouseUp"/>
+			<OnClick method="OnClick"/>
+			<OnDragStart method="OnDragStart"/>
+			<OnEnter method="OnEnter"/>
+			<OnLeave method="OnLeave"/>
+		</Scripts>
+	</Button>
+
+	<Button name="NarciStatFloatingCardTemplate" virtual="true" inherits="NarciStatGenericCardTemplate">
+		<Scripts>
+			<OnLoad/>
+			<OnMouseDown/>
+			<OnMouseUp/>
+		</Scripts>
+	</Button>
+
+	<!--Button name="NarciAchievementAlertCardTemplate" virtual="true" inherits="NarciAchievementLargeCardTemplate" mixin="NarciAchievementAlertMixin" hidden="true">
+		<Anchors>
+			<Anchor point="CENTER"  relativeTo="UIParent" relativePoint="CENTER"/>
+		</Anchors>
+		<Layers>
+			<Layer level="OVERLAY" textureSubLevel="5">
+				<Texture file="Interface\AddOns\Narcissus_Achievements\Art\Flat\HighlightBorder" parentKey="highlightTop" alphaMode="ADD" Alpha="0">
+					<TexCoords left="0.05078125" right="0.94921875" top="0.5" bottom="1"/>
+					<Size x="518" y="72"/>
+					<Anchors>
+						<Anchor point="TOP" relativeKey="$parent" relativePoint="TOP"/>
+					</Anchors>
+					<Animations>
+						<AnimationGroup parentKey="fade" setToFinalAlpha="true" smoothing="OUT">
+							<Alpha startDelay="1.5" fromAlpha="1" toAlpha="0" duration="1.5" order="2"/>
+						</AnimationGroup>
+					</Animations>
+				</Texture>
+				<Texture file="Interface\AddOns\Narcissus_Achievements\Art\Flat\HighlightBottom" parentKey="highlightCenter" alphaMode="ADD" Alpha="0">
+					<TexCoords left="0.05078125" right="0.94921875" top="0.5" bottom=" 0.90625 "/>
+					<Anchors>
+						<Anchor point="TOPLEFT" relativeKey="$parent.background" relativePoint="TOPLEFT" y="0"/>
+						<Anchor point="BOTTOMRIGHT" relativeKey="$parent.background" relativePoint="BOTTOMRIGHT"/>
+					</Anchors>
+					<Animations>
+						<AnimationGroup parentKey="fade" setToFinalAlpha="true" smoothing="OUT">
+							<Alpha startDelay="1.5" fromAlpha="1" toAlpha="0" duration="1.5" order="2"/>
+						</AnimationGroup>
+					</Animations>
+				</Texture>
+				<Texture file="Interface\AddOns\Narcissus_Achievements\Art\Flat\HighlightBottom" parentKey="highlightBottom" alphaMode="ADD" Alpha="0">
+					<TexCoords left="0.05078125" right="0.94921875" top=" 0.90625 " bottom="1"/>
+					<Anchors>
+						<Anchor point="TOPLEFT" relativeKey="$parent.bottom" relativePoint="TOPLEFT" y="-0.5"/>
+						<Anchor point="BOTTOMRIGHT" relativeKey="$parent.bottom" relativePoint="BOTTOMRIGHT" y="-4"/>
+					</Anchors>
+					<Animations>
+						<AnimationGroup parentKey="fade" setToFinalAlpha="true" smoothing="OUT">
+							<Alpha startDelay="1.5" fromAlpha="1" toAlpha="0" duration="1.5" order="2"/>
+						</AnimationGroup>
+					</Animations>
+				</Texture>
+
+				<Texture file="Interface\AddOns\Narcissus_Achievements\Art\Shared\Star" parentKey="star1" alphaMode="ADD" Alpha="0">
+					<Size x="48" y="48"/>
+					<Anchors>
+						<Anchor point="CENTER" relativeKey="$parent" relativePoint="TOP" x="0" y="-5"/>
+					</Anchors>
+					<Animations>
+						<AnimationGroup inherits="NarciAchievementStarBlinkAnimationTemplate"/>
+						<AnimationGroup parentKey="move">
+							<Rotation degrees="-0" duration="0" order="1" parentKey="r1"/>
+							<Translation offsetX="0" duration="0" order="1" parentKey="x1"/>
+							<Translation offsetX="260" offsetY="0" duration="2" order="2" parentKey="x2"/>
+							<Rotation degrees="-179" duration="2" order="2" parentKey="r2"/>
+							<Translation offsetX="0" offsetY="-80" duration="1" order="3"/>
+							<Rotation degrees="-72" duration="1" order="3"/>
+						</AnimationGroup>
+					</Animations>
+				</Texture>
+
+				<Texture file="Interface\AddOns\Narcissus_Achievements\Art\Shared\Star" parentKey="star2" alphaMode="ADD" Alpha="0">
+					<Size x="48" y="48"/>
+					<Anchors>
+						<Anchor point="CENTER" relativeKey="$parent" relativePoint="BOTTOM" x="0" y="5"/>
+					</Anchors>
+					<Animations>
+						<AnimationGroup inherits="NarciAchievementStarBlinkAnimationTemplate"/>
+						<AnimationGroup parentKey="move">
+							<Rotation degrees="-0" duration="0" order="1" parentKey="r1"/>
+							<Translation offsetX="0" duration="0" order="1" parentKey="x1"/>
+							<Translation offsetX="-260" offsetY="0" duration="2.5" order="2" parentKey="x2"/>
+							<Rotation degrees="-179" duration="2.5" order="2" parentKey="r2"/>
+							<Translation offsetX="0" offsetY="80" duration="1" order="3"/>
+							<Rotation degrees="-72" duration="1" order="3"/>
+						</AnimationGroup>
+					</Animations>
+				</Texture>
+			</Layer>
+		</Layers>
+		<Frames>
+			<ModelScene parentKey="VFX" inherits="NarciNonInteractableModelSceneTemplate" hidden="false" ignoreParentAlpha="true">
+				<Size x="518" y="518"/>
+				<Anchors>
+					<Anchor point="CENTER" relativeKey="$parent" relativePoint="TOP" x="0" y="-158"/>
+				</Anchors>
+				<Scripts>
+					<OnLoad>
+						self:OnLoad();
+						NarciAPI_SetupModelScene(self, 1893721, 20);
+						local actor = self.narciEffectActor;
+						actor:Hide();
+						actor.oneShot = true;
+					</OnLoad>
+					<OnHide>
+						local actor = self.narciEffectActor;
+						if actor then
+							actor:Hide();
+						end
+					</OnHide>
+				</Scripts>
+			</ModelScene>
+		</Frames>
+		<Scripts>
+			<OnDragStart/>
+			<OnDragStop/>
+			<OnLoad method="OnLoad"/>
+			<OnClick method="OnClick"/>
+			<OnHide method="OnHide"/>
+			<OnEnter method="OnEnter"/>
+			<OnLeave method="OnLeave"/>
+		</Scripts>
+	</Button-->
+
+	<Button name="NarciAchievementCriteriaNoteTemplate" virtual="true" mixin="NarciAchievementCriteriaNoteMixin" frameStrata="HIGH" registerForClicks="LeftButtonUp, RightButtonUp" hidden="true">
+		<Anchors>
+			<Anchor point="CENTER" relativeTo="UIParent" relativePoint="CENTER"/>
+		</Anchors>
+		<Size x="208" y="52.0"/>
+		<Layers>
+			<Layer level="OVERLAY">
+				<Texture parentKey="reference">
+					<Size x="126" y="24"/>
+					<Anchors>
+						<Anchor point="CENTER" relativeKey="$parent" relativePoint="CENTER" x="12" y="0"/>
+					</Anchors>
+				</Texture>
+				<FontString inherits="NarciCompletionHeader" text="Achievement Progress" parentKey="header">
+					<Anchors>
+						<Anchor point="TOP" relativeKey="$parent.reference" relativePoint="TOP" x="0" y="-1"/>
+					</Anchors>
+				</FontString>
+				<FontString inherits="NarciAchievementText" parentKey="description" text="This is a description." maxLines="1" justifyH="CENTER" justifyV="MIDDLE">
+					<Size x="0"/>
+					<Color r="0.88" g="0.88" b="0.88"/>
+					<Anchors>
+						<Anchor point="BOTTOM" relativeKey="$parent.reference" relativePoint="BOTTOM" x="0" y="-1"/>
+					</Anchors>
+				</FontString>
+			</Layer>
+			<Layer level="BACKGROUND">
+				<Texture file="Interface\AddOns\Narcissus_Achievements\Art\Classic\CriteriaBackground" parentKey="center">
+					<Size y="52.0"/>
+					<TexCoords left="0.25" right="0.90625" top="0" bottom="1"/>
+					<Anchors>
+						<Anchor point="LEFT" relativeKey="$parent.reference" relativePoint="LEFT" x="-4"/>
+						<Anchor point="RIGHT" relativeKey="$parent.reference" relativePoint="RIGHT" x="4"/>
+					</Anchors>
+				</Texture>
+				<Texture file="Interface\AddOns\Narcissus_Achievements\Art\Classic\CriteriaBackground" parentKey="left">
+					<Size x="52.0" y="52.0"/>
+					<TexCoords left="0" right="0.25" top="0" bottom="1"/>
+					<Anchors>
+						<Anchor point="RIGHT" relativeKey="$parent.center" relativePoint="LEFT"/>
+					</Anchors>
+				</Texture>
+				<Texture file="Interface\AddOns\Narcissus_Achievements\Art\Classic\CriteriaBackground" parentKey="right">
+					<Size x="20.0" y="52.0"/>
+					<TexCoords left="0.90625" right="1" top="0" bottom="1"/>
+					<Anchors>
+						<Anchor point="LEFT" relativeKey="$parent.center" relativePoint="RIGHT"/>
+					</Anchors>
+				</Texture>
+			</Layer>
+			<Layer level="OVERLAY" textureSubLevel="2">
+				<Texture file="Interface\AddOns\Narcissus_Achievements\Art\Classic\CriteriaCheck" parentKey="checkLeft">
+					<Size x="22" y="44"/>
+					<TexCoords left="0" right="0.5" top="0" bottom="1"/>
+					<Anchors>
+						<Anchor point="RIGHT" relativeKey="$parent.left" relativePoint="CENTER" x="0" y="0"/>
+					</Anchors>
+				</Texture>
+				<Texture file="Interface\AddOns\Narcissus_Achievements\Art\Classic\CriteriaCheck" parentKey="checkRight">
+					<Size x="22" y="44"/>
+					<TexCoords left="0.5" right="1" top="0" bottom="1"/>
+					<Anchors>
+						<Anchor point="LEFT" relativeKey="$parent.left" relativePoint="CENTER" x="0" y="0"/>
+					</Anchors>
+				</Texture>
+				<MaskTexture file="Interface\AddOns\Narcissus_Achievements\Art\Shared\CheckMask" hWrapMode="CLAMPTOBLACKADDITIVE" vWrapMode="CLAMPTOBLACKADDITIVE" parentKey="checkLeftMask">
+					<Size x="52" y="52"/>
+					<Anchors>
+						<Anchor point="CENTER" relativeKey="$parent.left" relativePoint="CENTER"/>
+					</Anchors>
+					<MaskedTextures>
+						<MaskedTexture childKey="checkLeft"/>
+					</MaskedTextures>
+				</MaskTexture>
+				<MaskTexture file="Interface\AddOns\Narcissus_Achievements\Art\Shared\CheckMask" hWrapMode="CLAMPTOBLACKADDITIVE" vWrapMode="CLAMPTOBLACKADDITIVE" parentKey="checkRightMask">
+					<Size x="52" y="52"/>
+					<Anchors>
+						<Anchor point="CENTER" relativeKey="$parent.left" relativePoint="CENTER" x="4" y="4"/>
+					</Anchors>
+					<MaskedTextures>
+						<MaskedTexture childKey="checkRight"/>
+					</MaskedTextures>
+				</MaskTexture>
+			</Layer>
+		</Layers>
+		<Animations>
+			<AnimationGroup parentKey="AnimPushed">
+				<Translation offsetY="-2" duration="0.05" order="1"/>
+				<Translation offsetX="2" offsetY="-2" duration="0.05" order="2"/>
+				<Translation duration="20" order="3" parentKey="hold"/>
+				<Translation offsetX="-2" offsetY="2" duration="0.05" order="4"/>
+				<Translation offsetY="2" duration="0.05" order="5"/>
+			</AnimationGroup>
+		</Animations>
+		<Scripts>
+			<OnLoad method="OnLoad"/>
+			<OnMouseDown method="OnMouseDown"/>
+			<OnMouseUp method="OnMouseUp"/>
+			<OnClick method="OnClick"/>
+			<OnHide method="OnHide"/>
+			<OnEnter method="OnEnter"/>
+			<OnLeave method="OnLeave"/>
+		</Scripts>
+	</Button>
+
+	<Button name="NarciAchievementObjectiveTextButton" virtual="true" hidden="true">
+		<Size x="250" y="18"/>
+		<Layers>
+			<Layer>
+				<FontString inherits="NarciAchievementText" parentKey="name" text="" justifyH="LEFT" justifyV="TOP" spacing="0">
+					<Anchors>
+						<Anchor point="TOPLEFT" relativeKey="$parent" relativePoint="TOPLEFT" x="24" y="-3"/>
+						<Anchor point="TOPRIGHT" relativeKey="$parent" relativePoint="TOPRIGHT" x="0" y="-3"/>
+					</Anchors>
+				</FontString>
+				<FontString inherits="NarciAchievementText" parentKey="dash" text="- " justifyH="RIGHT" justifyV="TOP">
+					<Anchors>
+						<Anchor point="TOPRIGHT" relativeKey="$parent.name" relativePoint="TOPLEFT" x="0" y="0"/>
+					</Anchors>
+				</FontString>
+				<Texture parentKey="icon">
+					<Size x="16" y="16"/>
+					<TexCoords left="0.05" right="0.95" top="0.05" bottom="0.95"/>
+					<Anchors>
+						<Anchor point="RIGHT" relativeKey="$parent.dash" relativePoint="RIGHT" x="0" y="0"/>
+					</Anchors>
+				</Texture>
+			</Layer>
+		</Layers>
+	</Button>
+
+	<Button name="NarciAchievementObjectiveMetaAchievementButton" virtual="true" hidden="true" mixin="NarciMetaAchievementButtonMixin">
+		<Size x="34" y="34"/>
+		<Layers>
+			<Layer level="ARTWORK" textureSubLevel="2">
+				<Texture parentKey="icon">
+					<Size x="24" y="24"/>
+					<TexCoords left="0.05" right="0.95" top="0.05" bottom="0.95"/>
+					<Anchors>
+						<Anchor point="CENTER" relativeKey="$parent" relativePoint="CENTER" x="0" y="0"/>
+					</Anchors>
+					<Animations>
+						<AnimationGroup parentKey="animIn">
+							<Scale scaleX="1.25" scaleY="1.25" duration="0.12" order="1"/>
+							<Scripts>
+								<OnFinished>
+									self:GetParent():SetScale(1.2);
+								</OnFinished>
+							</Scripts>
+						</AnimationGroup>
+					</Animations>
+				</Texture>
+			</Layer>
+			<Layer level="OVERLAY">
+				<Texture file="Interface\AddOns\Narcissus_Achievements\Art\Shared\IconBorderMini" parentKey="border">
+					<Size x="36" y="36"/>
+					<Anchors>
+						<Anchor point="CENTER" relativeKey="$parent.icon" relativePoint="CENTER" x="0" y="0"/>
+					</Anchors>
+					<Animations>
+						<AnimationGroup parentKey="animIn">
+							<Scale scaleX="1.25" scaleY="1.25" duration="0.12" order="1"/>
+							<Scripts>
+								<OnFinished>
+									self:GetParent():SetScale(1.2);
+								</OnFinished>
+							</Scripts>
+						</AnimationGroup>
+					</Animations>
+				</Texture>
+			</Layer>
+			<Layer level="OVERLAY" textureSubLevel="3">
+				<Texture file="Interface\AddOns\Narcissus_Achievements\Art\Shared\TargetThick.tga" parentKey="trackIcon" hidden="true">
+					<Size x="16" y="16"/>
+					<Anchors>
+						<Anchor point="CENTER" relativeKey="$parent" relativePoint="CENTER" x="0" y="-10"/>
+					</Anchors>
+				</Texture>
+			</Layer>
+		</Layers>
+		<Scripts>
+			<OnEnter method="OnEnter"/>
+			<OnLeave method="OnLeave"/>
+			<OnClick method="OnClick"/>
+		</Scripts>
+	</Button>
+
+	<Button name="NarciAchievementChainButton" inherits="NarciAchievementObjectiveMetaAchievementButton" mixin="NarciAchievementChainButtonMixin" virtual="true">
+		<HitRectInsets>
+			<AbsInset left="-0.5" right="-0.5" top="-0.5" bottom="-0.5"/>
+		</HitRectInsets>
+		<Layers>
+			<Layer level="BORDER">
+				<FontString inherits="NarciAchievementDate" parentKey="date" justifyH="CENTER" justifyV="BOTTOM" maxLines="2" text="" hidden="true" ignoreParentAlpha="false">
+					<Anchors>
+						<Anchor point="BOTTOM" relativeKey="$parent" relativePoint="TOP" y="0"/>
+					</Anchors>
+					<Animations>
+						<AnimationGroup parentKey="flyIn">
+							<Alpha fromAlpha="0" toAlpha="0" duration="0" order="1" parentKey="hold1"/>
+							<Translation offsetY="-18" duration="0" order="1" parentKey="hold2"/>
+							<Translation offsetY="18" duration="0.15" order="2" smoothing="OUT"/>
+							<Alpha fromAlpha="0" toAlpha="1" duration="0.15" order="2"/>
+						</AnimationGroup>
+					</Animations>
+				</FontString>
+			</Layer>
+		</Layers>
+		<Scripts>
+			<OnLoad method="OnLoad"/>
+			<OnMouseDown method="OnMouseDown"/>
+		</Scripts>
+	</Button>
+	
+	<Frame name="NarciAchievementObjectiveStatusBar" virtual="true" mixin="NarciAchievementStatusBarMixin">
+		<Size x="240" y="16"/>
+		<Layers>
+			<Layer level="BACKGROUND">
+				<Texture file="Interface\AddOns\Narcissus_Achievements\Art\Shared\ProgressBarShortEmpty" parentKey="background">
+					<Size x="240" y="16"/>
+					<Anchors>
+						<Anchor point="BOTTOMLEFT" relativeKey="$parent" relativePoint="BOTTOMLEFT" y="0"/>
+						<Anchor point="BOTTOMRIGHT" relativeKey="$parent" relativePoint="BOTTOMRIGHT" y="0"/>
+					</Anchors>
+				</Texture>
+			</Layer>
+			<Layer level="BACKGROUND" textureSubLevel="2">
+				<Texture file="Interface\AddOns\Narcissus_Achievements\Art\Shared\ProgressBarShortTexture" parentKey="fill" hidden="true" alphaMode="MOD">
+					<Size x="0.1"/>
+					<Anchors>
+						<Anchor point="TOPLEFT" relativeKey="$parent.background" relativePoint="TOPLEFT"/>
+						<Anchor point="BOTTOMLEFT" relativeKey="$parent.background" relativePoint="BOTTOMLEFT"/>
+					</Anchors>
+				</Texture>
+				<Texture parentKey="color">
+					<Color r="0" g="1" b="0"/>
+					<Gradient orientation="HORIZONTAL">
+						<MinColor a="1" r="0.25" g="0.25" b="0.25"/>
+						<MaxColor a="1" r="0.6" g="0.6" b="0.6"/>
+					</Gradient>
+					<Anchors>
+						<Anchor point="TOPLEFT" relativeKey="$parent.fill" relativePoint="TOPLEFT"/>
+						<Anchor point="BOTTOMRIGHT" relativeKey="$parent.fill" relativePoint="BOTTOMRIGHT"/>
+					</Anchors>
+				</Texture>
+			</Layer>
+			<Layer level="OVERLAY">
+				<Texture alphaMode="ADD" parentKey="border" Alpha="0.15">
+					<Anchors>
+						<Anchor point="TOPLEFT" relativeKey="$parent.background" relativePoint="TOPLEFT"/>
+						<Anchor point="BOTTOMRIGHT" relativeKey="$parent.background" relativePoint="BOTTOMRIGHT"/>
+					</Anchors>
+				</Texture>
+				<FontString inherits="NarciAchievementText" parentKey="label" justifyH="CENTER" justifyV="BOTTOM" spacing="2">
+					<Anchors>
+						<Anchor point="BOTTOMLEFT" relativeKey="$parent.background" relativePoint="TOPLEFT" x="0" y="5"/>
+						<Anchor point="BOTTOMRIGHT" relativeKey="$parent.background" relativePoint="TOPRIGHT" x="0" y="5"/>
+					</Anchors>
+				</FontString>
+				<FontString inherits="NarciAchievementText" parentKey="meter" maxLines="1" justifyH="CENTER" justifyV="MIDDLE">
+					<Color r="1" g="1" b="1"/>
+					<Anchors>
+						<Anchor point="CENTER" relativeKey="$parent.background" relativePoint="CENTER" x="0" y="0"/>
+					</Anchors>
+				</FontString>
+			</Layer>
+		</Layers>
+		<Scripts>
+			<OnLoad method="OnLoad"/>
+			<OnShow method="OnShow"/>
+			<OnHide method="OnHide"/>
+		</Scripts>
+	</Frame>
+
+	<Frame name="NarciAchievementObjectiveFrameTemplate" virtual="true">
+		<Layers>
+			<Layer level="BACKGROUND">
+				<FontString inherits="NarciCompletionHeader" text="COMPLETED" parentKey="header">
+					<Color r="0.216" g="0.502" b="0.2"/>
+					<Anchors>
+						<Anchor point="TOP" relativeKey="$parent" relativePoint="TOP" x="0" y="12"/>
+					</Anchors>
+				</FontString>
+				<Texture file="Interface\AddOns\Narcissus_Achievements\Art\DarkWood\DividerRight" Alpha="0.5">
+					<Size x="48" y="6"/>
+					<Anchors>
+						<Anchor point="LEFT" relativeKey="$parent.header" relativePoint="RIGHT" x="8" y="0"/>
+					</Anchors>
+				</Texture>
+				<Texture file="Interface\AddOns\Narcissus_Achievements\Art\DarkWood\DividerRight" Alpha="0.5">
+					<Size x="48" y="6"/>
+					<TexCoords left="1" right="0" top="0" bottom="1"/>
+					<Anchors>
+						<Anchor point="RIGHT" relativeKey="$parent.header" relativePoint="LEFT" x="-8" y="0"/>
+					</Anchors>
+				</Texture>
+				<FontString inherits="NarciAchievementDate" parentKey="count" text="" justifyH="CENTER">
+					<Anchors>
+						<Anchor point="BOTTOM" relativeKey="$parent.header" relativePoint="TOP" x="0" y="4"/>
+					</Anchors>
+				</FontString>
+				<!--Texture>
+					<Color r="1" g="0" b="0" a="0.2"/>
+				</Texture-->
+			</Layer>
+		</Layers>
+		<Frames>
+			<ScrollFrame parentKey="TextFrame">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeKey="$parent" relativePoint='TOPLEFT'/>
+					<Anchor point="BOTTOMRIGHT" relativeKey="$parent" relativePoint='BOTTOMRIGHT'/>
+				</Anchors>
+				<ScrollChild>
+					<Frame parentKey="ScrollChild">
+						<Anchors>
+							<Anchor point="TOP" relativeKey="$parent" relativePoint="TOP"/>
+						</Anchors>
+						<Layers>
+
+						</Layers>
+					</Frame>
+				</ScrollChild>
+				<Frames>
+					<Slider valueStep="0.01" parentKey="scrollBar">
+						<Size x="2" y="0"/>
+						<Anchors>
+							<Anchor point="TOPRIGHT" relativePoint="TOPRIGHT" x="4" y="-4"/>
+							<Anchor point="BOTTOMRIGHT" relativePoint="BOTTOMRIGHT" x="4" y="0"/>
+						</Anchors>
+						<ThumbTexture setAllPoints="true" parentKey="Thumb" Alpha="1" hidden="true">
+							<Size x="1" y="24"/>
+							<Color r="1" g="1" b="1" a="0.1"/>
+						</ThumbTexture>
+						<Layers>
+							<Layer>
+								<Texture file="Interface\AddOns\Narcissus_Achievements\Art\Shared\DividerBottomCenter" parentKey="divCenter" Alpha="0.5">
+									<Size x="12" y="6"/>
+									<Anchors>
+										<Anchor point="TOP" relativeKey="$parent.$parent" relativePoint="BOTTOM" x="0" y="-4"/>
+									</Anchors>
+									<Animations>
+										<AnimationGroup parentKey="spring" looping="REPEAT">
+											<Translation offsetY="-3" duration="0.25" order="1"/>
+											<Translation offsetY="6" duration="0.5" order="2"/>
+											<Translation offsetY="-3" duration="0.25" order="3"/>
+										</AnimationGroup>
+									</Animations>
+								</Texture>
+
+								<Texture file="Interface\AddOns\Narcissus_Achievements\Art\Shared\DividerBottomRight" parentKey="divRight" Alpha="0.5">
+									<Size x="192" y="6"/>
+									<Anchors>
+										<Anchor point="LEFT" relativeKey="$parent.divCenter" relativePoint="RIGHT" x="0" y="0"/>
+									</Anchors>
+								</Texture>
+
+								<Texture file="Interface\AddOns\Narcissus_Achievements\Art\Shared\DividerBottomRight" parentKey="divLeft" Alpha="0.5">
+									<Size x="192" y="6"/>
+									<TexCoords left="1" right="0" top="0" bottom="1"/>
+									<Anchors>
+										<Anchor point="RIGHT" relativeKey="$parent.divCenter" relativePoint="LEFT" x="0" y="0"/>
+									</Anchors>
+								</Texture>
+							</Layer>
+						</Layers>
+					</Slider>
+				</Frames>
+				<Scripts>
+					<OnLoad>
+						self.scrollBar.divCenter.spring:Play();
+					</OnLoad>
+				</Scripts>
+			</ScrollFrame>
+	
+			<ScrollFrame parentKey="MetaFrame" hidden="true">
+				<Size y="88"/>
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeKey="$parent" relativePoint='TOPLEFT'/>
+					<Anchor point="TOPRIGHT" relativeKey="$parent" relativePoint='TOPRIGHT'/>
+				</Anchors>
+				<ScrollChild>
+					<Frame parentKey="ScrollChild">
+						<Anchors>
+							<Anchor point="TOP" relativeKey="$parent" relativePoint="TOP"/>
+						</Anchors>
+					</Frame>
+				</ScrollChild>
+				<Frames>
+					<Slider valueStep="0.01" parentKey="scrollBar">
+						<Size x="2" y="0"/>
+						<Anchors>
+							<Anchor point="TOPRIGHT" relativePoint="TOPRIGHT" x="4" y="-4"/>
+							<Anchor point="BOTTOMRIGHT" relativePoint="BOTTOMRIGHT" x="4" y="0"/>
+						</Anchors>
+						<ThumbTexture setAllPoints="true" parentKey="Thumb" Alpha="1" hidden="true">
+							<Size x="1" y="24"/>
+							<Color r="1" g="1" b="1" a="0.1"/>
+						</ThumbTexture>
+						<Layers>
+							<Layer>
+								<Texture file="Interface\AddOns\Narcissus_Achievements\Art\Shared\DividerBottomCenter" parentKey="divCenter" Alpha="0.5">
+									<Size x="12" y="6"/>
+									<Anchors>
+										<Anchor point="TOP" relativeKey="$parent.$parent" relativePoint="BOTTOM" x="0" y="-4"/>
+									</Anchors>
+									<Animations>
+										<AnimationGroup parentKey="spring" looping="REPEAT">
+											<Translation offsetY="-3" duration="0.25" order="1"/>
+											<Translation offsetY="6" duration="0.5" order="2"/>
+											<Translation offsetY="-3" duration="0.25" order="3"/>
+										</AnimationGroup>
+									</Animations>
+								</Texture>
+
+								<Texture file="Interface\AddOns\Narcissus_Achievements\Art\Shared\DividerBottomRight" parentKey="divRight" Alpha="0.5">
+									<Size x="192" y="6"/>
+									<Anchors>
+										<Anchor point="LEFT" relativeKey="$parent.divCenter" relativePoint="RIGHT" x="0" y="0"/>
+									</Anchors>
+								</Texture>
+
+								<Texture file="Interface\AddOns\Narcissus_Achievements\Art\Shared\DividerBottomRight" parentKey="divLeft" Alpha="0.5">
+									<Size x="192" y="6"/>
+									<TexCoords left="1" right="0" top="0" bottom="1"/>
+									<Anchors>
+										<Anchor point="RIGHT" relativeKey="$parent.divCenter" relativePoint="LEFT" x="0" y="0"/>
+									</Anchors>
+								</Texture>
+							</Layer>
+						</Layers>
+					</Slider>
+				</Frames>
+
+				<Layers>
+					<Layer level="OVERLAY">
+						<FontString inherits="NarciAchievementText" parentKey="name" text="" justifyH="LEFT" justifyV="TOP" spacing="0">
+							<Size x="200"/>
+						</FontString>
+						<FontString inherits="NarciAchievementText" parentKey="description" text="" justifyH="LEFT" justifyV="TOP" spacing="2">
+							<Color r="0.6" g="0.6" b="0.6"/>
+							<Size x="240"/>
+							<Anchors>
+								<Anchor point="TOPLEFT" relativeKey="$parent.name" relativePoint="BOTTOMLEFT" x="0" y="-4"/>
+							</Anchors>
+						</FontString>
+						<FontString inherits="NarciAchievementText" parentKey="points" text="" justifyH="RIGHT" justifyV="TOP" maxLines="1">
+							<Color r="0.6" g="0.6" b="0.6"/>
+							<Size x="0"/>
+							<Anchors>
+								<Anchor point="TOPRIGHT" relativeKey="$parent.name" relativePoint="TOPLEFT" x="242" y="0"/>
+							</Anchors>
+						</FontString>
+						<Texture file="Interface\AddOns\Narcissus_Achievements\Art\Shared\MiniShieldFlat" parentKey="shield">
+							<Size x="10" y="10"/>
+							<Anchors>
+								<Anchor point="RIGHT" relativeKey="$parent.points" relativePoint="LEFT" x="0" y="0.5"/>
+							</Anchors>
+						</Texture>
+					</Layer>
+				</Layers>
+				
+				<Scripts>
+					<OnLoad>
+						self.scrollBar.divCenter.spring:Play();
+					</OnLoad>
+				</Scripts>
+			</ScrollFrame>
+
+			<Frame parentKey="BarFrame" hidden="true">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeKey="$parent" relativePoint='TOPLEFT'/>
+					<Anchor point="BOTTOMRIGHT" relativeKey="$parent" relativePoint='BOTTOMRIGHT'/>
+				</Anchors>
+			</Frame>
+		</Frames>
+		<Scripts>
+			<OnLoad>
+				self.TextFrame.ScrollChild:SetSize(self.TextFrame:GetSize());
+				self.MetaFrame.ScrollChild:SetSize(self.MetaFrame:GetSize());
+			</OnLoad>
+		</Scripts>
+	</Frame>
+
+	<ModelScene inherits="NonInteractableModelSceneMixinTemplate" name="NarciAchievementRewardModelTemplate" virtual="true" hidden="true" Alpha="0" mixin="NarciAchievementRewardModelMixin" frameStrata="HIGH">
+		<Size x="256" y="324"/>
+		<Anchors>
+			<Anchor point="LEFT" relativePoint="RIGHT"/>
+		</Anchors>
+		<Layers>
+			<Layer level="BACKGROUND">
+				<Texture>
+					<Color r="0" g="0" b="0" a="1"/>
+					<Gradient orientation="VERTICAL">
+						<MinColor a="1" r="0" g="0" b="0"/>
+						<MaxColor a="0.7" r="0.0" g="0.0" b="0.0"/>
+					</Gradient>
+				</Texture>
+			</Layer>
+			<Layer level="BACKGROUND" textureSubLevel="2">
+				<Texture parentKey="itemIcon" Alpha="0.4">
+					<Size x="96" y="96"/>
+					<TexCoords left="0.075" right="0.925" top="0.075" bottom="0.925"/>
+					<Anchors>
+						<Anchor point="TOPRIGHT" relativePoint="TOPRIGHT" x="0" y="0"/>
+					</Anchors>
+				</Texture>
+				<MaskTexture parentKey="mask" file="Interface\AddOns\Narcissus\Art\Tooltip\Icon-Mask" hWrapMode="CLAMPTOBLACKADDITIVE" vWrapMode="CLAMPTOBLACKADDITIVE">
+					<Anchors>
+						<Anchor point="TOPLEFT" relativeKey="$parent.itemIcon" relativePoint="TOPLEFT" x="0" y="0"/>
+						<Anchor point="BOTTOMRIGHT" relativeKey="$parent.itemIcon" relativePoint="BOTTOMRIGHT" x="0" y="0"/>
+					</Anchors>
+					<TexCoords left="1" right="0" top="0" bottom="1"/>
+					<MaskedTextures>
+						<MaskedTexture childKey="itemIcon"/>
+					</MaskedTextures>
+				</MaskTexture>
+			</Layer>
+			<Layer level="ARTWORK">
+				<FontString inherits="GameTooltipHeaderText" parentKey="header">
+					<Anchors>
+						<Anchor point="TOPLEFT" relativePoint="TOPLEFT" x="12" y="-12"/>
+						<Anchor point="TOPRIGHT" relativePoint="TOPRIGHT" x="-12" y="-12"/>
+					</Anchors>
+				</FontString>
+			</Layer>
+		</Layers>
+		<Frames>
+			<Frame inherits="NarciFrameDispersiveShadowBorderTemplate"/>
+			<Frame parentKey="ClipFrame" clipChildren="true">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeKey="$parent.header" relativePoint="BOTTOMLEFT" x="0" y="-4"/>
+					<Anchor point="BOTTOMRIGHT" relativeKey="$parent.header" relativePoint="TOPRIGHT" x="0" y="-76"/>
+				</Anchors>
+				<Layers>
+					<Layer level="ARTWORK">
+						<FontString inherits="GameTooltipText" parentKey="description" spacing="2" justifyV="TOP">
+							<Color r="0.6" g="0.6" b="0.6"/>
+							<Anchors>
+								<Anchor point="TOPLEFT" relativeKey="$parent" relativePoint="TOPLEFT"/>
+								<Anchor point="TOPRIGHT" relativeKey="$parent" relativePoint="TOPRIGHT"/>
+							</Anchors>
+							<Animations>
+								<AnimationGroup parentKey="flyIn" looping="REPEAT">
+									<Alpha fromAlpha="0" toAlpha="1" duration="0.2" order="1"/>
+									<Translation offsetY="0" duration="0.5" order="2"/>
+									<Translation startDelay="4" offsetY="0" duration="0" order="3" parentKey="offset"/>
+									<Translation offsetY="0" duration="4" order="4"/>
+									<Alpha fromAlpha="1" toAlpha="0" duration="0.35" order="5"/>
+									<Scripts>
+										<OnFinished>
+											if self:GetParent():IsMouseOver() then
+												self:Play();
+											end
+										</OnFinished>
+									</Scripts>
+								</AnimationGroup>
+							</Animations>
+						</FontString>
+					</Layer>
+				</Layers>
+			</Frame>
+
+			<Button parentKey="SummonButton" inherits="NarciAchievementSimpleButton" hidden="false" Alpha="1">
+				<Size x="120" y="24"/>
+				<Anchors>
+					<Anchor point="BOTTOM" relativeKey="$parent" relativePoint="BOTTOM" y="8"/>
+				</Anchors>
+				<Scripts>
+					<OnLoad>
+						self:SetLabelText("Mount");
+					</OnLoad>
+					<OnClick>
+						local mode = self:GetParent().mode;
+						if mode == "mount" then
+							local mountID = self:GetParent().mountID;
+							if mountID then
+								C_MountJournal.SummonByID(mountID);
+							end
+						elseif mode == "battlepet" then
+							local petGUID = self:GetParent().petGUID;
+							if petGUID and not InCombatLockdown() then
+								local currentID = C_PetJournal.GetSummonedPetGUID();
+								if petGUID ~= currentID then
+									C_PetJournal.SummonPetByGUID(petGUID);
+								end
+							end
+						end
+					</OnClick>
+
+				</Scripts>
+			</Button>
+		</Frames>
+		<Layers>
+			<Layer level="OVERLAY">
+				<Texture file="Interface\AddOns\Narcissus_Achievements\Art\Shared\DividerBottomCenter" parentKey="arrow" Alpha="1">
+					<Size x="12" y="6"/>
+					<Anchors>
+						<Anchor point="TOP" relativeKey="$parent.ClipFrame" relativePoint="BOTTOM" x="0" y="-4"/>
+					</Anchors>
+					<Animations>
+						<AnimationGroup parentKey="spring" looping="REPEAT">
+							<Translation offsetY="-3" duration="0.25" order="1"/>
+							<Translation offsetY="6" duration="0.5" order="2"/>
+							<Translation offsetY="-3" duration="0.25" order="3"/>
+						</AnimationGroup>
+					</Animations>
+				</Texture>
+			</Layer>
+		</Layers>
+		<Scripts>
+			<OnLoad method="Initialize"/>
+			<OnHide method="OnHide"/>
+		</Scripts>
+	</ModelScene>
+
+	<Button name="NarciAchievementHeaderButtonTemplate" frameLevel="15" virtual="true">
+		<HitRectInsets>
+			<AbsInset left="0" right="0" top="-5" bottom="-5"/>
+		</HitRectInsets>
+		<Scripts>
+			<OnLoad>
+				self.texture:SetVertexColor(0.66, 0.66, 0.66);
+			</OnLoad>
+			<OnEnter>
+				self.texture:SetVertexColor(1, 1, 1);
+			</OnEnter>	
+			<OnLeave>
+				self.texture:SetVertexColor(0.66, 0.66, 0.66);
+			</OnLeave>			
+		</Scripts>
+	</Button>
+
+	<Button name="NarciAchievementSearchResultButtonTemplate" virtual="true" mixin="NarciAchievementSearchResultButtonMixin">
+		<Size x="288" y="36"/>
+		<HitRectInsets>
+			<AbsInset left="-1" right="-1" top="-1" bottom="-1"/>
+		</HitRectInsets>
+		<Layers>
+			<Layer level="BORDER">
+				<Texture file="Interface\AddOns\Narcissus_Achievements\Art\DarkWood\ResultButton" parentKey="background" nounload="true">
+					<TexCoords left="0" right="1" top="0" bottom="0.5"/>
+				</Texture>
+				<MaskTexture file="Interface\AddOns\Narcissus_Achievements\Art\DarkWood\ResultButtonMask" hWrapMode="CLAMPTOBLACKADDITIVE" vWrapMode="CLAMPTOBLACKADDITIVE" nounload="true" parentKey="mask">
+					<MaskedTextures>
+						<MaskedTexture childKey="background"/>
+					</MaskedTextures>
+				</MaskTexture>
+			</Layer>
+			<Layer level="BACKGROUND">
+				<Texture parentKey="icon">
+					<Size x="32" y="32"/>
+					<Anchors>
+						<Anchor point="CENTER" relativeKey="$parent" relativePoint="LEFT" x="18"/>
+					</Anchors>
+				</Texture>
+			</Layer>
+			<Layer level="OVERLAY">
+				<FontString inherits="NarciAchievementText" parentKey="header" text="Achievement Name" maxLines="1" justifyH="LEFT" justifyV="TOP">
+					<Size x="240"/>
+					<Anchors>
+						<Anchor point="TOPLEFT" relativeKey="$parent.icon" relativePoint="TOPRIGHT" x="6" y="-3"/>
+					</Anchors>
+				</FontString>
+				<FontString inherits="NarciAchievementTiny" parentKey="path" text="120 Results" maxLines="1" justifyH="LEFT" justifyV="MIDDLE">
+					<Color r="0.6" g="0.6" b="0.6"/>
+					<Anchors>
+						<Anchor point="BOTTOMLEFT" relativeKey="$parent.icon" relativePoint="BOTTOMRIGHT" x="6" y="2"/>
+						<Anchor point="RIGHT" relativeKey="$parent" relativePoint="RIGHT" x="-18" y="0"/>
+					</Anchors>
+				</FontString>
+			</Layer>
+		</Layers>
+	
+		<Animations>
+			<AnimationGroup parentKey="AnimPushed">
+				<Translation offsetX="4" offsetY="0" duration="0.05" order="1"/>
+				<Translation offsetX="2" offsetY="0" duration="0.1" order="2"/>
+				<Translation duration="20" order="3" parentKey="hold"/>
+				<Translation offsetX="-4" offsetY="0" duration="0.05" order="4"/>
+				<Translation offsetX="-2" offsetY="0" duration="0.1" order="5"/>
+			</AnimationGroup>
+		</Animations>
+		<Scripts>
+			<OnMouseDown method="OnMouseDown"/>
+			<OnMouseUp method="OnMouseUp"/>
+			<OnClick method="OnClick"/>
+		</Scripts>
+	</Button>
+
+	<ScrollFrame name="NarciAchievementCategoryContainerTemplate" virtual="true">
+		<Size x="267"/>
+		<Anchors>
+			<Anchor point="TOPLEFT"  relativeKey="$parent" relativePoint="TOPLEFT" y="-34"/>
+			<Anchor point="BOTTOMLEFT"  relativeKey="$parent" relativePoint="BOTTOMLEFT"/>
+		</Anchors>
+
+		<ScrollChild>
+			<Frame parentKey="ScrollChild">
+				<Size x="288" y="160"/>
+				<Anchors>
+					<Anchor point="TOP" relativeKey="$parent" relativePoint="TOP"/>
+				</Anchors>
+				<Frames>
+					<Frame parentKey="PlayerCategory" hidden="false">
+						<Anchors>
+							<Anchor point="TOPLEFT" relativeKey="$parent" relativePoint="TOPLEFT"/>
+							<Anchor point="BOTTOMRIGHT" relativeKey="$parent" relativePoint="BOTTOMRIGHT"/>
+						</Anchors>
+					</Frame>
+					<Frame parentKey="GuildCategory" hidden="true">
+						<Anchors>
+							<Anchor point="TOPLEFT" relativeKey="$parent" relativePoint="TOPLEFT"/>
+							<Anchor point="BOTTOMRIGHT" relativeKey="$parent" relativePoint="BOTTOMRIGHT"/>
+						</Anchors>
+					</Frame>
+					<Frame parentKey="StatsCategory" hidden="true">
+						<Anchors>
+							<Anchor point="TOPLEFT" relativeKey="$parent" relativePoint="TOPLEFT"/>
+							<Anchor point="BOTTOMRIGHT" relativeKey="$parent" relativePoint="BOTTOMRIGHT"/>
+						</Anchors>
+					</Frame>
+				</Frames>
+			</Frame>
+		</ScrollChild>
+		<Frames>
+			<Slider valueStep="0.01" parentKey="scrollBar">
+				<HitRectInsets>
+					<AbsInset left="-10" right="-12" top="0" bottom="0"/>
+				</HitRectInsets>
+				<Size x="16" y="0"/>
+				<Anchors>
+					<Anchor point="TOPRIGHT" relativePoint="TOPRIGHT" x="-5.5" y="-12"/>
+					<Anchor point="BOTTOMRIGHT" relativePoint="BOTTOMRIGHT" x="-5.5" y="12"/>
+				</Anchors>
+				<ThumbTexture file="Interface\AddOns\Narcissus_Achievements\Art\DarkWood\SliderThumb" parentKey="Thumb" Alpha="1" hidden="false">
+					<Size x="16" y="64"/>
+				</ThumbTexture>
+			</Slider>
+
+			<Frame parentKey="OverlayFrame" frameLevel="5">
+				<Anchors>
+					<Anchor point="TOPLEFT"  relativeKey="$parent" relativePoint="TOPLEFT"/>
+					<Anchor point="BOTTOMRIGHT"  relativeKey="$parent" relativePoint="BOTTOMRIGHT"/>
+				</Anchors>
+				<Layers>
+					<Layer level="OVERLAY" textureSubLevel="2">
+						<Texture file="Interface\AddOns\Narcissus_Achievements\Art\DarkWood\BoxLeft" parentKey="top">
+							<Size y="16"/>
+							<TexCoords left="0" right="1" top="0" bottom="0.03125"/>
+							<Anchors>
+								<Anchor point="TOPLEFT"  relativeKey="$parent" relativePoint="TOPLEFT"/>
+								<Anchor point="TOPRIGHT"  relativeKey="$parent" relativePoint="TOPRIGHT"/>
+							</Anchors>
+						</Texture>
+						<Texture file="Interface\AddOns\Narcissus_Achievements\Art\DarkWood\BoxLeft" parentKey="bottom">
+							<Size y="16"/>
+							<TexCoords left="0" right="1" top="0.96875" bottom="1"/>
+							<Anchors>
+								<Anchor point="BOTTOMLEFT"  relativeKey="$parent" relativePoint="BOTTOMLEFT"/>
+								<Anchor point="BOTTOMRIGHT"  relativeKey="$parent" relativePoint="BOTTOMRIGHT"/>
+							</Anchors>
+						</Texture>
+						<Texture parentKey="topShadow">
+							<Size x="222" y="12"/>
+							<Color r="0" g="0" b="0"/>
+							<Gradient orientation="VERTICAL">
+								<MaxColor a="0"/>
+								<MinColor a="0.7"/>
+							</Gradient>
+							<Anchors>
+								<Anchor point="BOTTOM" relativeKey="$parent.bottom" relativePoint="TOP" x="0" y="0"/>
+							</Anchors>
+						</Texture>
+						<Texture parentKey="bottomShadow">
+							<Size x="222" y="12"/>
+							<Color r="0" g="0" b="0"/>
+							<Gradient orientation="VERTICAL">
+								<MaxColor a="0.9" r="1"/>
+								<MinColor a="0" r="1"/>
+							</Gradient>
+							<Anchors>
+								<Anchor point="TOP" relativeKey="$parent.top" relativePoint="BOTTOM" x="0" y="0"/>
+							</Anchors>
+						</Texture>
+
+						<MaskTexture file="Interface\AddOns\Narcissus_Achievements\Art\Shared\BoxLeftMask" hWrapMode="CLAMPTOBLACKADDITIVE" vWrapMode="CLAMPTOBLACKADDITIVE">
+							<Anchors>
+								<Anchor point="TOPLEFT"  relativeKey="$parent" relativePoint="TOPLEFT"/>
+								<Anchor point="BOTTOMRIGHT"  relativeKey="$parent" relativePoint="BOTTOMRIGHT"/>
+							</Anchors>
+							<MaskedTextures>
+								<MaskedTexture childKey="bottom"/>
+							</MaskedTextures>
+						</MaskTexture>
+					</Layer>
+				</Layers>
+			</Frame>
+		</Frames>
+		<Scripts>
+			<OnLoad>
+				self.ScrollChild:SetWidth(self:GetWidth());
+			</OnLoad>
+		</Scripts>
+	</ScrollFrame>
+
+	<ScrollFrame name="NarciAchievementCardContainerTemplate" virtual="true" hidden="true">
+		<Size x="584"/>
+		<Anchors>
+			<Anchor point="TOPRIGHT"  relativeKey="$parent" relativePoint="TOPRIGHT" y="-34"/>
+			<Anchor point="BOTTOMRIGHT"  relativeKey="$parent" relativePoint="BOTTOMRIGHT"/>
+		</Anchors>
+		<ScrollChild>
+			<Frame parentKey="ScrollChild">
+				<Size x="566" y="160"/>
+				<Anchors>
+					<Anchor point="TOP" relativeKey="$parent" relativePoint="TOP"/>
+				</Anchors>
+			</Frame>
+		</ScrollChild>
+		<Frames>
+			<Slider valueStep="0.01" parentKey="scrollBar">
+				<HitRectInsets>
+					<AbsInset left="-10" right="-12" top="0" bottom="0"/>
+				</HitRectInsets>
+				<Size x="16" y="0"/>
+				<Anchors>
+					<Anchor point="TOPRIGHT" relativePoint="TOPRIGHT" x="-18" y="-12"/>
+					<Anchor point="BOTTOMRIGHT" relativePoint="BOTTOMRIGHT" x="-18" y="12"/>
+				</Anchors>
+				<ThumbTexture file="Interface\AddOns\Narcissus_Achievements\Art\DarkWood\SliderThumb" parentKey="Thumb" Alpha="1" hidden="false">
+					<Size x="16" y="64"/>
+				</ThumbTexture>
+			</Slider>
+			<Frame parentKey="OverlayFrame" frameLevel="5">
+				<Anchors>
+					<Anchor point="TOPLEFT"  relativeKey="$parent" relativePoint="TOPLEFT"/>
+					<Anchor point="BOTTOMRIGHT"  relativeKey="$parent" relativePoint="BOTTOMRIGHT"/>
+				</Anchors>
+				<Layers>
+					<Layer level="OVERLAY" textureSubLevel="2">
+						<Texture file="Interface\AddOns\Narcissus_Achievements\Art\DarkWood\BoxRight" parentKey="top">
+							<Size y="16"/>
+							<TexCoords left="0" right="1" top="0" bottom="0.03125"/>
+							<Anchors>
+								<Anchor point="TOPLEFT"  relativeKey="$parent" relativePoint="TOPLEFT"/>
+								<Anchor point="TOPRIGHT"  relativeKey="$parent" relativePoint="TOPRIGHT"/>
+							</Anchors>
+						</Texture>
+						<Texture file="Interface\AddOns\Narcissus_Achievements\Art\DarkWood\BoxRight" parentKey="bottom">
+							<Size y="16"/>
+							<TexCoords left="0" right="1" top="0.96875" bottom="1"/>
+							<Anchors>
+								<Anchor point="BOTTOMLEFT"  relativeKey="$parent" relativePoint="BOTTOMLEFT"/>
+								<Anchor point="BOTTOMRIGHT"  relativeKey="$parent" relativePoint="BOTTOMRIGHT"/>
+							</Anchors>
+						</Texture>
+						<MaskTexture file="Interface\AddOns\Narcissus_Achievements\Art\Shared\BoxRightMask" hWrapMode="CLAMPTOBLACKADDITIVE" vWrapMode="CLAMPTOBLACKADDITIVE">
+							<Anchors>
+								<Anchor point="TOPLEFT"  relativeKey="$parent" relativePoint="TOPLEFT"/>
+								<Anchor point="BOTTOMRIGHT"  relativeKey="$parent" relativePoint="BOTTOMRIGHT"/>
+							</Anchors>
+							<MaskedTextures>
+								<MaskedTexture childKey="top"/>
+								<MaskedTexture childKey="bottom"/>
+							</MaskedTextures>
+						</MaskTexture>
+					</Layer>
+					<Layer level="OVERLAY" textureSubLevel="3">
+						<Texture parentKey="topShadow">
+							<Size x="521" y="12"/>
+							<Color r="0" g="0" b="0"/>
+							<Gradient orientation="VERTICAL">
+								<MinColor a="0.9"/>
+								<MaxColor a="0"/>
+							</Gradient>
+							<Anchors>
+								<Anchor point="BOTTOM" relativeKey="$parent.bottom" relativePoint="TOP" x="-10" y="-1"/>
+							</Anchors>
+						</Texture>
+						<Texture parentKey="bottomShadow">
+							<Size x="521" y="12"/>
+							<Color r="0" g="0" b="0"/>
+							<Gradient orientation="VERTICAL">
+								<MinColor a="0"/>
+								<MaxColor a="0.9"/>
+							</Gradient>
+							<Anchors>
+								<Anchor point="TOP" relativeKey="$parent.top" relativePoint="BOTTOM" x="-10" y="1"/>
+							</Anchors>
+						</Texture>
+					</Layer>
+				</Layers>
+			</Frame>
+		</Frames>
+	</ScrollFrame>
+
+	<Button name="NarciAchievementIconButtonTemplate" virtual="true">
+		<Size>
+			<AbsDimension x="36" y="36"/>
+		</Size>
+		<Layers>
+			<Layer level="ARTWORK">
+				<Texture parentKey="icon"/>
+			</Layer>
+		</Layers>
+		<HighlightTexture file="Interface\AddOns\Narcissus_Achievements\Art\Shared\IconHighlight">
+			<Size x="52" y="52"/>
+			<Anchors>
+				<Anchor point="CENTER"/>
+			</Anchors>
+		</HighlightTexture>
+		<Animations>
+			<AnimationGroup parentKey="fadeIn" setToFinalAlpha="true">
+				<Alpha fromAlpha="0" toAlpha="0" duration="0" order="1"/>
+				<Alpha startDelay="0" fromAlpha="0" toAlpha="1" duration="0.15" order="2" parentKey="a1"/>
+			</AnimationGroup>
+		</Animations>
+	</Button>
+
+	<Button name="NarciAchievementColorPickerButtonTemplate" virtual="true">
+		<Size>
+			<AbsDimension x="24" y="24"/>
+		</Size>
+		<Layers>
+			<Layer level="ARTWORK">
+				<Texture file="Interface\AddOns\Narcissus_Achievements\Art\Shared\ColorButton" parentKey="color">
+					<TexCoords left="0" right="0.5" top="0" bottom="1"/>
+				</Texture>
+			</Layer>
+		</Layers>
+		<HighlightTexture file="Interface\AddOns\Narcissus_Achievements\Art\Shared\ColorButton" parentKey="highlight">
+			<TexCoords left="0.5" right="1" top="0" bottom="1"/>
+		</HighlightTexture>
+		<Scripts>
+		</Scripts>
+	</Button>
+
+	<Button name="NarciAchievementTabButtonTemplate" virtual="true" mixin="NarciAchievementTabButtonMixin">
+		<Size x="128" y="64"/>
+		<HitRectInsets>
+			<AbsInset left="0" right="0" top="0" bottom="24"/>
+		</HitRectInsets>
+		<Layers>
+			<Layer level="OVERLAY">
+				<Texture parentKey="inset" hidden="true">
+					<Color r="0" g="1" b="0" a="0.5"/>
+					<Anchors>
+						<Anchor point="TOPLEFT" relativeKey="$parent" relativePoint="TOPLEFT" x="4"/>
+						<Anchor point="BOTTOMRIGHT" relativeKey="$parent" relativePoint="BOTTOMRIGHT" x="-4" y="28"/>
+					</Anchors>
+				</Texture>
+			</Layer>
+			<Layer level="OVERLAY" textureSubLevel="2">
+				<FontString inherits="NarciAchievementText" parentKey="label">
+					<Size x="0" y="0"/>
+					<Anchors>
+						<Anchor point="CENTER" relativeKey="$parent.inset" relativePoint="CENTER"/>
+					</Anchors>
+				</FontString>
+			</Layer>
+			<Layer level="BACKGROUND">
+				<Texture file="Interface\AddOns\Narcissus_Achievements\Art\DarkWood\TabButton" parentKey="normalMiddle" snapToPixelGrid="false" texelSnappingBias="0">
+					<TexCoords left="0.125" right="0.375" top="0" bottom="0.5"/>
+					<Size x="32" y="64"/>
+					<Anchors>
+						<Anchor point="TOP" relativeKey="$parent" relativePoint="TOP" x="0"/>
+					</Anchors>
+				</Texture>
+				<Texture file="Interface\AddOns\Narcissus_Achievements\Art\DarkWood\TabButton" parentKey="normalLeft" hidden="false" snapToPixelGrid="false" texelSnappingBias="0">
+					<TexCoords left="0" right="0.125" top="0" bottom="0.5"/>
+					<Size x="32" y="64"/>
+					<Anchors>
+						<Anchor point="RIGHT" relativeKey="$parent.normalMiddle" relativePoint="LEFT"/>
+					</Anchors>
+				</Texture>
+				<Texture file="Interface\AddOns\Narcissus_Achievements\Art\DarkWood\TabButton" parentKey="normalRight" hidden="false" snapToPixelGrid="false" texelSnappingBias="0">
+					<TexCoords left="0.375" right="0.5" top="0" bottom="0.5"/>
+					<Size x="32" y="64"/>
+					<Anchors>
+						<Anchor point="LEFT" relativeKey="$parent.normalMiddle" relativePoint="RIGHT"/>
+					</Anchors>
+				</Texture>
+			</Layer>
+			<Layer level="ARTWORK">
+				<Texture file="Interface\AddOns\Narcissus_Achievements\Art\TabButton" parentKey="highlight" alphaMode="ADD" Alpha="0" snapToPixelGrid="false" texelSnappingBias="0">
+					<TexCoords left="0" right="1" top="0.5" bottom="1"/>
+					<Anchors>
+						<Anchor point="TOPLEFT" relativeKey="$parent" relativePoint="TOPLEFT"/>
+						<Anchor point="BOTTOMRIGHT" relativeKey="$parent" relativePoint="BOTTOMRIGHT"/>
+					</Anchors>
+				</Texture>
+			</Layer>
+		</Layers>
+		<Scripts>
+			<OnLoad method="OnLoad"/>
+			<OnEnter method="OnEnter"/>
+			<OnLeave method="OnLeave"/>
+			<OnMouseDown method="ShowPushedTexture"/>
+			<OnMouseUp method="ShowNormalTexture"/>
+		</Scripts>
+	</Button>
+	
+	<Frame name="Narci_AchievementFrame" toplevel="true" parent="UIParent" frameStrata="MEDIUM" enableMouse="true" movable="true" hidden="true" clampedToScreen="true" mixin="NarciAchievementFrameMixin" Alpha="1">
+		<Size x="850" y="526"/>
+		<Anchors>
+			<Anchor point="TOPLEFT" relativeTo="UIParent" x="100" y="-104"/>
+		</Anchors>
+		<Layers>
+			<Layer level="BAACKGROUND" textureSubLevel="-1">
+				<FontString inherits="NarciAchievementText" parentKey="TextHeightRetriever" maxLines="0" spacing="2" justifyH="CENTER" justifyV="TOP" hidden="true">
+					<Anchors>
+						<Anchor point="CENTER" relativeKey="$parent" relativePoint="CENTER" x="0" y="0"/>
+					</Anchors>
+					<Size x="390"/>
+				</FontString>
+			</Layer>
+		</Layers>
+		<Frames>
+			<ScrollFrame parentKey="CategoryFrame" inherits="NarciAchievementCategoryContainerTemplate"/>
+
+			<ScrollFrame parentKey="AchievementCardFrame" inherits="NarciAchievementCardContainerTemplate">
+				<Scripts>
+					<OnLoad>
+
+					</OnLoad>
+				</Scripts>
+				<Frames>
+					<Frame parentKey="BossTooltip" frameLevel="6" hidden="true">
+						<Size x="120" y="24"/>
+						<Anchors>
+							<Anchor point="TOPRIGHT" x="-8" y="-8"/>
+						</Anchors>
+						<Layers>
+							<Layer level="OVERLAY">
+								<FontString inherits="NarciAchievementText" parentKey="Text" text="" maxLines="1" justifyH="CENTER" justifyV="MIDDLE">
+									<Size x="0"/>
+									<Anchors>
+										<Anchor point="RIGHT" relativeKey="$parent" relativePoint="RIGHT" x="-4" y="0"/>
+									</Anchors>
+								</FontString>
+							</Layer>
+							<Layer level="ARTWORK">
+								<Texture parentKey="Background">
+									<Size y="16"/>
+									<Color r="0" g="0" b="0" a="0.6"/>
+									<Anchors>
+										<Anchor point="LEFT" relativeKey="$parent.Text" relativePoint="LEFT" x="-4"/>
+										<Anchor point="RIGHT" relativeKey="$parent.Text" relativePoint="RIGHT" x="4"/>
+									</Anchors>
+								</Texture>
+							</Layer>
+						</Layers>
+					</Frame>
+				</Frames>
+			</ScrollFrame>
+
+			<ScrollFrame parentKey="StatCardFrame" inherits="NarciAchievementCardContainerTemplate" hidden="true">
+				<Scripts>
+					<OnLoad>
+
+					</OnLoad>
+				</Scripts>
+				<Frames>
+
+				</Frames>
+			</ScrollFrame>
+
+			<ScrollFrame parentKey="EditorContainer" inherits="NarciAchievementCategoryContainerTemplate" hidden="true">
+				<Layers>
+					<Layer level="OVERLAY">
+						<FontString inherits="NarciAchievementText" parentKey="notes" text="Select an entry to edit." justifyH="CENTER" justifyV="MIDDLE" hidden="false">
+							<Size x="460" y="0"/>
+							<Anchors>
+								<Anchor point="CENTER" relativeKey="$parent" relativePoint="CENTER" x="0" y="10"/>
+							</Anchors>
+						</FontString>
+					</Layer>
+				</Layers>
+				<Frames>
+					<Frame parentKey="ColorPicker" inherits="NarciAchievementEditorFrameTemplate">
+						<Size x="232" y="60"/>
+						<Anchors>
+							<Anchor point="TOP" relativeKey="$parent.CategoryFrame" relativePoint="TOP" x="0" y="-68"/>
+						</Anchors>
+					</Frame>
+					<Button parentKey="IconPicker" inherits="NarciAchievementEditorFrameTemplate">
+						<Size x="232" y="36"/>
+						<Anchors>
+							<Anchor point="TOP" relativeKey="$parent.ColorPicker" relativePoint="BOTTOM" x="0" y="12"/>
+						</Anchors>
+						<Layers>
+							<Layer level="OVERLAY">
+								<FontString inherits="NarciAchievementDate" parentKey="iconName" text="INV_MISC_QUESTIONMARK" justifyH="LEFT" justifyV="TOP" hidden="false">
+									<Size x="148" y="14"/>
+									<Color r="0.64" g="0.58" b="0.55"/>
+									<Anchors>
+										<Anchor point="BOTTOMLEFT" relativeKey="$parent.colorBackground" relativePoint="BOTTOMLEFT" x="8" y="8"/>
+									</Anchors>
+								</FontString>
+							</Layer>
+						</Layers>
+						<Frames>
+							<Frame parentKey="IconContainer">
+								<Size x="204" y="200"/>
+								<Anchors>
+									<Anchor point="TOP" relativeKey="$parent.colorBackground" relativePoint="TOP" x="-1" y="-46"/>
+								</Anchors>
+								<Layers>
+									<Layer level="OVERLAY">
+										<Texture>
+											<Size x="203" y="8"/>
+											<Anchors>
+												<Anchor point="TOP" relativeKey="$parent" relativePoint="TOP" x="0" y="0"/>
+											</Anchors>
+											<Color/>
+											<Gradient orientation="VERTICAL">
+												<MaxColor a="0.6"/>
+												<MinColor a="0"/>
+											</Gradient>
+										</Texture>
+										<FontString inherits="NarciAchievementDate" parentKey="pageText" text="" justifyH="CENTER" justifyV="TOP">
+											<Anchors>
+												<Anchor point="TOP" relativeKey="$parent" relativePoint="BOTTOM" x="0" y="-10"/>
+											</Anchors>
+											<Color r="0.4" g="0.33" b="0.29"/>
+										</FontString>
+										<FontString inherits="NarciAchievementDate" parentKey="iconName" text="INV_MISC_QUESTIONMARK" justifyH="CENTER" justifyV="TOP" hidden="false">
+											<Size x="148" y="18"/>
+											<Color r="0.64" g="0.58" b="0.55"/>
+											<Anchors>
+												<Anchor point="TOPLEFT" relativeKey="$parent.$parent.colorBackground" relativePoint="TOPLEFT" x="8" y="-6"/>
+											</Anchors>
+										</FontString>
+									</Layer>
+								</Layers>
+								<Frames>
+									<Button inherits="NarciAchievementEditorConfirmCancelButtonTemplate" parentKey="ConfirmButton">
+										<Anchors>
+											<Anchor point="BOTTOMLEFT" relativeKey="$parent" relativePoint="TOPLEFT" x="4" y="6"/>
+										</Anchors>
+									</Button>
+									<Button inherits="NarciAchievementEditorConfirmCancelButtonTemplate" parentKey="CancelButton">
+										<Anchors>
+											<Anchor point="LEFT" relativeKey="$parent.ConfirmButton" relativePoint="RIGHT" x="4" y="0"/>
+										</Anchors>
+									</Button>
+								</Frames>
+							</Frame>
+						</Frames>
+					</Button>
+					<Frame parentKey="HeaderEditor" inherits="NarciAchievementEditorFrameWithEditBoxTemplate">
+						<Anchors>
+							<Anchor point="TOP" relativeKey="$parent.IconPicker" relativePoint="BOTTOM" x="0" y="12"/>
+						</Anchors>
+					</Frame>
+					<Frame parentKey="DescriptionEditor" inherits="NarciAchievementEditorFrameWithEditBoxTemplate">
+						<Anchors>
+							<Anchor point="TOP" relativeKey="$parent.HeaderEditor" relativePoint="BOTTOM" x="0" y="12"/>
+						</Anchors>
+					</Frame>
+
+					<Frame parentKey="RewardEditor" inherits="NarciAchievementEditorFrameWithEditBoxTemplate">
+						<Anchors>
+							<Anchor point="TOP" relativeKey="$parent.DescriptionEditor" relativePoint="BOTTOM" x="0" y="12"/>
+						</Anchors>
+					</Frame>
+
+					<Frame parentKey="PointsEditor" inherits="NarciAchievementEditorFrameWithEditBoxTemplate">
+						<Anchors>
+							<Anchor point="TOP" relativeKey="$parent.RewardEditor" relativePoint="BOTTOM" x="0" y="12"/>
+						</Anchors>
+					</Frame>
+
+					<Frame parentKey="DateEditor" inherits="NarciAchievementEditorFrameWithEditBoxTemplate">
+						<Anchors>
+							<Anchor point="TOP" relativeKey="$parent.PointsEditor" relativePoint="BOTTOM" x="0" y="12"/>
+						</Anchors>
+					</Frame>
+
+					<Button parentKey="RemoveButton" inherits="NarciAchievementEditorSaveButtonTemplate">
+						<Size x="232" y="52"/>
+						<Anchors>
+							<Anchor point="TOP" relativeKey="$parent.DateEditor" relativePoint="BOTTOM" x="0" y="12"/>
+						</Anchors>
+						<Layers>
+							<Layer level="BACKGROUND" textureSubLevel="2">
+								<Texture setAllPoints="true" parentKey="fill" hidden="true">
+									<Anchors>
+										<Anchor point="TOPLEFT" relativeKey="$parent.colorBackground" relativePoint="TOPLEFT" x="0" y="0"/>
+										<Anchor point="BOTTOMRIGHT" relativeKey="$parent.colorBackground" relativePoint="BOTTOMRIGHT" x="0" y="0"/>
+									</Anchors>
+									<Color r="0.6" g="0" b="0" a="1"/>
+									<Animations>
+										<AnimationGroup parentKey="FadeOut" setToFinalAlpha="true">
+											<Alpha fromAlpha="1" toAlpha="0" duration="0.15" order="1"/>
+											<Scripts>
+												<OnFinished>
+													self:GetParent():Hide();
+												</OnFinished>
+											</Scripts>
+										</AnimationGroup>
+										<AnimationGroup parentKey="Timer">
+											<Alpha fromAlpha="0" toAlpha="1" duration="0" order="1"/>
+											<Scale startDelay="0.2" parentKey="scale" fromScaleX="0" toScaleX="1" fromScaleY="1" toScaleY="1" duration="0.7" order="2">
+												<Origin point="LEFT">
+													<Offset x="0" y="0"/>
+												</Origin>
+											</Scale>
+										</AnimationGroup>
+									</Animations>
+								</Texture>
+							</Layer>
+						</Layers>
+						<Scripts>
+							<OnHide>
+								self:StopAnimating();
+								self.fill:SetAlpha(0);
+							</OnHide>
+						</Scripts>
+					</Button>
+				</Frames>
+			</ScrollFrame>
+
+			<ScrollFrame parentKey="DIYContainer" inherits="NarciAchievementCardContainerTemplate" hidden="true">
+				<Layers>
+
+				</Layers>
+				<Frames>
+					<Button parentKey="NewEntry">
+						<Size x="518" y="72"/>
+						<HitRectInsets>
+							<AbsInset left="0" right="0" top="6" bottom="6"/>
+						</HitRectInsets>
+						<Anchors>
+							<Anchor point="TOP" relativeKey="$parent" relativePoint="TOP" y="-18"/>
+						</Anchors>
+						<Layers>
+							<Layer level="BACKGROUND">
+								<Texture file="Interface\AddOns\Narcissus_Achievements\Art\DarkWood\NewEntry" parentKey="background" Alpha="0.6">
+									<TexCoords left="0.05078125" right="0.94921875" top="0" bottom="1"/>
+									<Size x="518" y="72"/>
+								</Texture>
+							</Layer>
+							<Layer level="OVERLAY">
+								<FontString inherits="NarciAchievementText" parentKey="label" text="Create A New Entry" maxLines="1" justifyH="CENTER" justifyV="MIDDLE">
+									<Anchors>
+										<Anchor point="CENTER" relativeKey="$parent" relativePoint="CENTER" x="0" y="0"/>
+									</Anchors>
+								</FontString>
+								<Texture file="Interface\AddOns\Narcissus_Achievements\Art\Shared\PlusIcon" parentKey="plus">
+									<Size x="12" y="12"/>
+									<Anchors>
+										<Anchor point="RIGHT" relativeKey="$parent.label" relativePoint="LEFT" x="-8" y="0"/>
+									</Anchors>
+								</Texture>
+							</Layer>
+						</Layers>
+						<Animations>
+							<AnimationGroup parentKey="AnimPushed">
+								<Translation offsetY="-2" duration="0.05" order="1"/>
+								<Translation offsetX="2" offsetY="-2" duration="0.05" order="2"/>
+								<Translation duration="20" order="3" parentKey="hold"/>
+								<Translation offsetX="-2" offsetY="2" duration="0.05" order="4"/>
+								<Translation offsetY="2" duration="0.05" order="5"/>
+							</AnimationGroup>
+						</Animations>
+						<Scripts>
+							<OnLoad>
+								self:RegisterForDrag("LeftButton");
+							</OnLoad>	
+							<OnMouseDown>
+								self.AnimPushed:Stop();
+								self.AnimPushed.hold:SetDuration(20);
+								self.AnimPushed:Play();
+							</OnMouseDown>
+							<OnMouseUp>
+								self.AnimPushed.hold:SetDuration(0);
+							</OnMouseUp>
+							<OnDragStart>
+								self.AnimPushed.hold:SetDuration(0);
+							</OnDragStart>
+						</Scripts>
+					</Button>
+
+					<Frame parentKey="Editor" hidden="true">
+						<Size x="518" y="72"/>
+						<Layers>
+							<Layer level="OVERLAY" textureSubLevel="7">
+								<Texture file="Interface\AddOns\Narcissus_Achievements\Art\Shared\RemoveMark" parentKey="removeMark" hidden="true" alphaMode="BLEND" Alpha="0.8">
+									<Size x="540" y="68"/>
+									<Anchors>
+										<Anchor point="CENTER" relativeKey="$parent" relativePoint="CENTER"/>
+									</Anchors>
+								</Texture>
+								<MaskTexture file="Interface\AddOns\Narcissus\Art\Masks\Full" hWrapMode="CLAMPTOBLACKADDITIVE" vWrapMode="CLAMPTOBLACKADDITIVE" parentKey="markMask">
+									<Size x="540" y="68"/>
+									<Anchors>
+										<Anchor point="CENTER" relativeKey="$parent" relativePoint="CENTER"/>
+									</Anchors>
+									<MaskedTextures>
+										<MaskedTexture childKey="removeMark"/>
+									</MaskedTextures>
+								</MaskTexture>
+							</Layer>
+						</Layers>
+						<Frames>
+							<Button parentKey="SaveButton" inherits="NarciAchievementEditorSaveButtonTemplate">
+
+							</Button>
+
+							<Button parentKey="CancelButton" inherits="NarciAchievementEditorSaveButtonTemplate">
+
+							</Button>
+
+							<Frame parentKey="MouseBlocker" enableMouse="true">
+								<Anchors>
+									<Anchor point="TOPLEFT" relativeKey="$parent.SaveButton" relativePoint="TOP"/>
+									<Anchor point="BOTTOMRIGHT" relativeKey="$parent.CancelButton" relativePoint="BOTTOM"/>
+								</Anchors>
+								<Scripts>
+									
+								</Scripts>
+							</Frame>
+
+							<Button parentKey="IconArea" inherits="NarciInteractableLineBorderTemplate">
+								<Size x="48" y="48"/>
+							</Button>
+
+							<Button parentKey="PointsArea" inherits="NarciInteractableLineBorderTemplate">
+								<Size x="36" y="36"/>			
+							</Button>
+
+							<Button parentKey="NameArea" inherits="NarciInteractableLineBorderTemplate">
+								<Size x="300" y="24"/>		
+							</Button>
+
+							<Button parentKey="DescriptionArea" inherits="NarciInteractableLineBorderTemplate">
+								<Size x="390" y="24"/>			
+							</Button>
+
+							<Button parentKey="RewardArea" inherits="NarciInteractableLineBorderTemplate">
+								<Size x="480" y="12"/>
+							</Button>
+
+							<Button parentKey="DateArea" inherits="NarciInteractableLineBorderTemplate">
+								<Size x="80" y="14"/>			
+							</Button>
+						</Frames>
+					</Frame>
+				</Frames>
+			</ScrollFrame>
+
+			<Frame parentKey="SummaryFrame">
+				<Anchors>
+					<Anchor point="TOPLEFT"  relativeKey="$parent.AchievementCardFrame" relativePoint="TOPLEFT"/>
+					<Anchor point="BOTTOMRIGHT"  relativeKey="$parent.AchievementCardFrame" relativePoint="BOTTOMRIGHT"/>
+				</Anchors>
+			</Frame>
+
+			<Frame parentKey="InspectionFrame" frameLevel="10" hidden="true" enableMouse="true" mixin="NarciAchievementInspectionFrameMixin" clipChildren="true">
+				<Anchors>
+					<Anchor point="TOPLEFT"  relativeKey="$parent.CategoryFrame" relativePoint="TOPLEFT"/>
+					<Anchor point="BOTTOMRIGHT"  relativeKey="$parent" relativePoint="BOTTOMRIGHT"/>
+				</Anchors>
+				<Frames>
+					<ScrollFrame parentKey="blur" frameLevel="8" Alpha="0" enableMouse="false">
+						<Anchors>
+							<Anchor point="TOPLEFT"  relativeKey="$parent" relativePoint="TOPLEFT"/>
+							<Anchor point="BOTTOMRIGHT"  relativeKey="$parent" relativePoint="BOTTOMRIGHT" x="-8"/>
+						</Anchors>
+						<Layers>
+							<Layer level="BACKGROUND">
+								<Texture parentKey="blurLeft" file="Interface\AddOns\Narcissus_Achievements\Art\Shared\BlurLeft" nounload="true">
+									<Anchors>
+										<Anchor point="TOPLEFT"  relativeKey="$parent" relativePoint="TOPLEFT" x="8"/>
+										<Anchor point="BOTTOMRIGHT"  relativeKey="$parent.$parent.$parent.CategoryFrame" relativePoint="BOTTOMRIGHT"/>
+									</Anchors>
+								</Texture>
+							</Layer>
+						</Layers>
+						<ScrollChild>
+							<Frame parentKey="ScrollChild">
+								<Size y="940"/>
+								<Anchors>
+									<Anchor point="TOPRIGHT" relativeKey="$parent" relativePoint="TOPRIGHT"/>
+								</Anchors>					
+								<Layers>
+									<Layer level="BACKGROUND">
+										<Texture parentKey="blur1" file="Interface\AddOns\Narcissus_Achievements\Art\Shared\BlurRight" nounload="true">
+											<Size y="940"/>
+											<Anchors>
+												<Anchor point="TOPLEFT"  relativeKey="$parent" relativePoint="TOPLEFT"/>
+												<Anchor point="TOPRIGHT"  relativeKey="$parent" relativePoint="TOPRIGHT"/>
+											</Anchors>
+										</Texture>
+										<Texture parentKey="blur2" file="Interface\AddOns\Narcissus_Achievements\Art\Shared\BlurRight" nounload="true">
+											<Size y="940"/>
+											<Anchors>
+												<Anchor point="TOPLEFT"  relativeKey="$parent" relativePoint="BOTTOMLEFT" y="-940"/>
+												<Anchor point="TOPRIGHT"  relativeKey="$parent" relativePoint="BOTTOMRIGHT" y="-940"/>
+											</Anchors>
+										</Texture>
+									</Layer>
+								</Layers>
+							</Frame>
+						</ScrollChild>
+
+						<Frames>
+							<Slider valueStep="0.01" parentKey="scrollBar">
+								<Size x="1" y="0"/>
+								<Anchors>
+									<Anchor point="TOPRIGHT" relativePoint="TOPRIGHT" x="0" y="0"/>
+									<Anchor point="BOTTOMRIGHT" relativePoint="BOTTOMRIGHT" x="0" y="0"/>
+								</Anchors>
+								<ThumbTexture setAllPoints="true" parentKey="Thumb" Alpha="0" hidden="true">
+									<Size x="2" y="32"/>
+									<Color r="1" g="1" b="1" a="0"/>
+								</ThumbTexture>
+							</Slider>
+						</Frames>
+				
+						<Scripts>
+							<OnLoad>
+								self.ScrollChild:SetWidth(self:GetParent():GetParent().AchievementCardFrame:GetWidth());
+								self:SetHorizontalScroll(-266);
+							</OnLoad>
+						</Scripts>
+					</ScrollFrame>
+
+					<Button inherits="NarciAchievementLargeCardTemplate" parentKey="Card" frameLevel="13" hidden="true">
+						<Anchors>
+							<Anchor point="CENTER"  relativeKey="$parent" relativePoint="CENTER"/>
+						</Anchors>
+						<Frames>
+							<Button inherits="NarciAchievementChainButton" parentKey="ParentAchievmentButton">
+								<Anchors>
+									<Anchor point="RIGHT" relativeKey="$parent.icon" relativePoint="LEFT" x="-12"/>
+								</Anchors>
+							</Button>
+						</Frames>
+					</Button>
+
+					<Button inherits="NarciStatGenericCardTemplate" parentKey="StatCard" frameLevel="13" hidden="true">
+						<Anchors>
+							<Anchor point="BOTTOM"  relativeKey="$parent" relativePoint="CENTER" y="36"/>
+						</Anchors>
+						<KeyValues>
+							<KeyValue key="isHeader" value="true" type="bool"/>
+						</KeyValues>
+						<Scripts>
+							<OnLoad/>
+						</Scripts>
+					</Button>
+
+					<Button parentKey="ReturnButton" frameLevel="15" hidden="true" mixin="NarciAchievementReturnButtonMixin">
+						<Size x="64" y="24"/>
+						<HitRectInsets>
+							<AbsInset left="0" right="0" top="-4" bottom="-4"/>
+						</HitRectInsets>
+						<Anchors>
+							<Anchor point="TOP"  relativeKey="$parent.Card" relativePoint="BOTTOM" y="0"/>
+						</Anchors>
+						<Layers>
+							<Layer level="OVERLAY">
+								<FontString inherits="NarciAchievementText" parentKey="label" text="" justifyH="CENTER" justifyV="MIDDLE" maxLines="1">
+									<Color r="0.6" g="0.6" b="0.6"/>
+									<Size x="0"/>
+									<Anchors>
+										<Anchor point="CENTER" relativeKey="$parent" relativePoint="CENTER" x="0" y="0"/>
+									</Anchors>
+								</FontString>
+								<Texture file="Interface\AddOns\Narcissus_Achievements\Art\Shared\ReturnButton" parentKey="arrow" Alpha="1">
+									<Size x="24" y="12"/>
+									<TexCoords left="0" right="0.5" top="0" bottom="1"/>
+									<Anchors>
+										<Anchor point="RIGHT" relativeKey="$parent.label" relativePoint="LEFT" x="4" y="0"/>
+									</Anchors>
+								</Texture>
+								<Texture file="Interface\AddOns\Narcissus_Achievements\Art\Shared\ReturnButton" parentKey="tail" Alpha="1">
+									<Size x="20" y="12"/>
+									<TexCoords left="0.5" right="1" top="0" bottom="1"/>
+									<Anchors>
+										<Anchor point="LEFT" relativeKey="$parent.label" relativePoint="RIGHT" x="-6" y="0"/>
+									</Anchors>
+								</Texture>
+							</Layer>
+						</Layers>
+						<Animations>
+							<AnimationGroup parentKey="flyIn">
+								<Alpha fromAlpha="0" toAlpha="0" duration="0" order="1"/>
+								<Translation offsetX="16" duration="0" order="1"/>
+								<Alpha fromAlpha="0" toAlpha="1" duration="0.15" order="2"/>
+								<Translation offsetX="-12" duration="0.15" order="2"/>
+								<Translation offsetX="-4" duration="0.15" order="4"/>
+							</AnimationGroup>
+						</Animations>
+						<Scripts>
+							<OnLoad method="OnLoad"/>
+							<OnClick method="OnClick"/>
+							<OnEnter method="OnEnter"/>
+							<OnLeave method="OnLeave"/>
+							<OnHide method="OnHide"/>
+						</Scripts>
+					</Button>
+
+					<Frame parentKey="CriteriaFrame">
+						<Size x="520" y="160"/>
+						<Anchors>
+							<Anchor point="TOP"  relativeKey="$parent" relativePoint="CENTER" y="12"/>
+						</Anchors>
+						<Layers>
+							<Layer>
+								<!--Texture>
+									<Color r="0.8" g="0.8" b="0.8" a="0.2"/>
+								</Texture-->
+							</Layer>
+						</Layers>
+						<Frames>
+							<ScrollFrame parentKey="LeftInset" inherits="NarciAchievementObjectiveFrameTemplate">
+								<Anchors>
+									<Anchor point="TOPLEFT"  relativeKey="$parent" relativePoint="TOPLEFT" y="-16"/>
+									<Anchor point="BOTTOMRIGHT"  relativeKey="$parent" relativePoint="BOTTOM" x="-16"/>
+								</Anchors>
+							</ScrollFrame>
+							<ScrollFrame parentKey="RightInset" inherits="NarciAchievementObjectiveFrameTemplate">
+								<Anchors>
+									<Anchor point="TOPLEFT"  relativeKey="$parent" relativePoint="TOP" x="16" y="-16"/>
+									<Anchor point="BOTTOMRIGHT"  relativeKey="$parent" relativePoint="BOTTOMRIGHT"/>
+								</Anchors>		
+							</ScrollFrame>
+						</Frames>
+					</Frame>
+
+					<Frame parentKey="ChainFrame" hidden="true" frameLevel="15">
+						<Size x="518"/>
+						<Anchors>
+							<Anchor point="TOP" relativeKey="$parent" relativePoint="TOP" y="0"/>
+							<Anchor point="BOTTOM"  relativeKey="$parent.Card" relativePoint="TOP" y="0"/>
+						</Anchors>
+						<Layers>
+							<Layer level="BACKGROUND">
+								<Texture parentKey="reference">
+									<Size x="1" y="34"/>
+									<Anchors>
+										<Anchor point="BOTTOM" relativeKey="$parent" relativePoint="BOTTOM" x="0" y="0"/>
+									</Anchors>
+								</Texture>
+								<FontString inherits="NarciCompletionHeader" text="ACHIEVEMENT CHAIN" parentKey="header">
+									<Color r="0.576" g="0.506" b="0.451"/>
+									<Anchors>
+										<Anchor point="TOP" relativeKey="$parent.reference" relativePoint="TOP" x="0" y="12"/>
+									</Anchors>
+								</FontString>
+								<Texture file="Interface\AddOns\Narcissus_Achievements\Art\DarkWood\DividerRight" Alpha="0.5" parentKey="divRight">
+									<Size x="48" y="6"/>
+									<Anchors>
+										<Anchor point="LEFT" relativeKey="$parent.header" relativePoint="RIGHT" x="8" y="0"/>
+									</Anchors>
+								</Texture>
+								<Texture file="Interface\AddOns\Narcissus_Achievements\Art\DarkWood\DividerRight" Alpha="0.5"  parentKey="divLeft">
+									<Size x="48" y="6"/>
+									<TexCoords left="1" right="0" top="0" bottom="1"/>
+									<Anchors>
+										<Anchor point="RIGHT" relativeKey="$parent.header" relativePoint="LEFT" x="-8" y="0"/>
+									</Anchors>
+								</Texture>
+								<FontString inherits="NarciAchievementDate" parentKey="count" text="" justifyH="CENTER">
+									<Color r="0.576" g="0.506" b="0.451"/>
+									<Anchors>
+										<Anchor point="BOTTOM" relativeKey="$parent.header" relativePoint="TOP" x="0" y="4"/>
+									</Anchors>
+								</FontString>
+							</Layer>
+						</Layers>
+						<Frames>
+							<Button parentKey="DateToggle" inherits="NarciAchievementSimpleButton" hidden="true" Alpha="0">
+								<Size x="120" y="24"/>
+								<Anchors>
+									<Anchor point="BOTTOM" relativeKey="$parent.header" relativePoint="TOP" y="20"/>
+								</Anchors>
+								<Scripts>
+									<OnClick>
+										local parent = self:GetParent();
+										parent.showDates = not parent.showDates;
+										parent:GetParent():ShowOrHideChainDates();
+									</OnClick>
+									<OnHide>
+										self:SetAlpha(0);
+										self:Hide();
+									</OnHide>
+								</Scripts>
+							</Button>
+						</Frames>
+						<Scripts>
+							<OnLoad>
+								self.DateToggle:SetStaticWidth(80);
+								self.DateToggle:SetLabelText("Show Dates");
+							</OnLoad>
+							<OnEnter>
+								self.DateToggle:FadeIn()
+							</OnEnter>
+							<OnLeave>
+								if not self:IsMouseOver() then
+									self.DateToggle:FadeOut()
+								end
+							</OnLeave>
+							<OnMouseDown>
+								self:GetParent():OnMouseDown();
+							</OnMouseDown>
+						</Scripts>
+					</Frame>
+
+					<Button parentKey="NextButton" inherits="NarciAchievementNavigationButtonTemplate">
+						<KeyValues>
+							<KeyValue key="delta" value="-1" type="number"/>
+						</KeyValues>
+						<Anchors>
+							<Anchor point="CENTER" relativePoint="RIGHT" x="-32"/>
+						</Anchors>
+					</Button>
+
+					<Button parentKey="PrevButton" inherits="NarciAchievementNavigationButtonTemplate">
+						<KeyValues>
+							<KeyValue key="delta" value="1" type="number"/>
+						</KeyValues>
+						<Anchors>
+							<Anchor point="CENTER" relativePoint="LEFT" x="32"/>
+						</Anchors>
+					</Button>
+
+					<Button parentKey="GetLink" mixin="NarciAchievementGetLinkButtonMixin">
+						<Size x="80" y="40"/>
+						<Anchors>
+							<Anchor point="TOPRIGHT" relativeKey="$parent" relativePoint="TOPRIGHT" x="0" y="-18"/>
+						</Anchors>
+						<Layers>
+							<!--Layer level="ARTWORK">
+								<Texture>
+									<Color r="1" a="0.2"/>
+								</Texture>
+							</Layer-->
+							<Layer level="OVERLAY" textureSubLevel="2">
+								<Texture parentKey="Icon" Alpha="0.4" file="Interface\AddOns\Narcissus_Achievements\Art\Shared\Icons">
+									<TexCoords left="0" right="0.5" top="0" bottom="1"/>
+									<Size x="44" y="44"/>
+									<Anchors>
+										<Anchor point="RIGHT" relativeKey="$parent" relativePoint="RIGHT" x="-18" y="0"/>
+									</Anchors>
+								</Texture>
+							</Layer>
+							<Layer level="OVERLAY">
+								<FontString inherits="NarciAchievementText" parentKey="Label" justifyH="LEFT" justifyV="MIDDLE" hidden="false" Alpha="0">
+									<Size x="0"/>
+									<Anchors>
+										<Anchor point="RIGHT" relativeKey="$parent" relativePoint="RIGHT" x="-28" y="0"/>
+									</Anchors>
+								</FontString>
+							</Layer>
+						</Layers>
+						<Frames>
+							<Frame inherits="NarciClipboardTemplate" parentKey="Clipboard" hidden="true">
+								<Anchors>
+									<Anchor point="RIGHT" relativeKey="$parent.Label" relativePoint="RIGHT"/>
+								</Anchors>
+							</Frame>
+						</Frames>
+						<Scripts>
+							<OnLoad method="OnLoad"/>
+							<OnEnter method="OnEnter"/>
+							<OnLeave method="OnLeave"/>
+							<OnClick method="OnClick"/>
+						</Scripts>
+					</Button>
+
+					<Button parentKey="GoToCategoryButton" frameLevel="18" hidden="false" mixin="NarciAchievementGoToCategoryButtonMixin">
+						<Size x="80" y="40"/>
+						<Anchors>
+							<Anchor point="TOPLEFT" relativeKey="$parent" relativePoint="TOPLEFT" x="0" y="-18"/>
+						</Anchors>
+						<Layers>
+							<Layer level="OVERLAY" textureSubLevel="2">
+								<Texture parentKey="Icon" Alpha="0.4" file="Interface\AddOns\Narcissus_Achievements\Art\Shared\ReturnIcon">
+									<TexCoords left="0" right="0.5" top="0" bottom="1"/>
+									<Size x="40" y="40"/>
+									<Anchors>
+										<Anchor point="LEFT" relativeKey="$parent" relativePoint="LEFT" x="18" y="0"/>
+									</Anchors>
+								</Texture>
+							</Layer>
+							<Layer level="OVERLAY">
+								<FontString inherits="NarciAchievementText" parentKey="Label" justifyH="LEFT" justifyV="MIDDLE" hidden="false" Alpha="1">
+									<Size x="0"/>
+									<Anchors>
+										<Anchor point="LEFT" relativeKey="$parent" relativePoint="LEFT" x="56" y="0"/>
+									</Anchors>
+								</FontString>
+							</Layer>
+						</Layers>
+						<Scripts>
+							<OnLoad method="OnLoad"/>
+							<OnClick method="OnClick"/>
+							<OnEnter method="OnEnter"/>
+							<OnLeave method="OnLeave"/>
+						</Scripts>
+					</Button>
+
+					<Frame parentKey="HotkeyShiftClick" inherits="NarciHotkeyNotificationTemplate" ignoreParentScale="true" scale="0.8">
+						<Anchors>
+							<Anchor point="BOTTOMRIGHT" relativeKey="$parent" relativePoint="BOTTOMRIGHT" x="-24" y="16"/>
+						</Anchors>
+						<Scripts>
+							<OnLoad>
+								self:SetKey("Shift", "LeftButton", Narci.L["Track"], true);
+							</OnLoad>
+						</Scripts>
+					</Frame>
+					<Frame parentKey="HotkeyMouseWheel" inherits="NarciHotkeyNotificationTemplate" ignoreParentScale="true" scale="0.8">
+						<Anchors>
+							<Anchor point="BOTTOMRIGHT" relativeKey="$parent.HotkeyShiftClick" relativePoint="BOTTOMLEFT" x="-24" y="0"/>
+						</Anchors>
+						<Scripts>
+							<OnLoad>
+								self:SetKey(nil, "MouseWheel", Narci.L["Next Prev Card"], true);
+							</OnLoad>
+						</Scripts>
+					</Frame>
+				</Frames>
+				<Scripts>
+					<OnLoad method="OnLoad"/>
+					<OnShow method="OnShow"/>
+					<OnMouseDown method="OnMouseDown"/>
+					<OnMouseWheel method="OnMouseWheel"/>
+				</Scripts>
+			</Frame>
+
+			<Frame parentKey="Tooltip" mixin="NarciAchievementTooltipMixin" frameStrata="TOOLTIP" Alpha="0" hidden="true">
+				<Size x="344" y="64"/>
+				<Layers>
+					<Layer level="BACKGROUND">
+						<Texture>
+							<Color r="0" g="0" b="0" a="0.9"/>
+						</Texture>
+					</Layer>
+					<Layer level="OVERLAY">
+						<FontString inherits="NarciAchievementText" parentKey="name" text="" justifyH="LEFT" justifyV="TOP" spacing="0">
+							<Size x="200"/>
+							<Anchors>
+								<Anchor point="TOPLEFT" relativeKey="$parent" relativePoint="TOPLEFT" x="12" y="-12"/>
+							</Anchors>
+						</FontString>
+						<FontString inherits="NarciAchievementText" parentKey="description" text="" justifyH="LEFT" justifyV="TOP" spacing="2">
+							<Color r="0.6" g="0.6" b="0.6"/>
+							<Size x="250"/> <!--max 280-->
+							<Anchors>
+								<Anchor point="TOPLEFT" relativeKey="$parent.name" relativePoint="BOTTOMLEFT" x="0" y="-4"/>
+							</Anchors>
+						</FontString>
+						<FontString inherits="NarciAchievementText" parentKey="points" text="" justifyH="RIGHT" justifyV="TOP" maxLines="1">
+							<Color r="0.6" g="0.6" b="0.6"/>
+							<Size x="0"/>
+							<Anchors>
+								<Anchor point="TOPRIGHT" relativeKey="$parent" relativePoint="TOPRIGHT" x="-12" y="-12"/>
+							</Anchors>
+						</FontString>
+						<Texture file="Interface\AddOns\Narcissus_Achievements\Art\Shared\MiniShieldFlat" parentKey="shield">
+							<Size x="10" y="10"/>
+							<Anchors>
+								<Anchor point="RIGHT" relativeKey="$parent.points" relativePoint="LEFT" x="0" y="0.5"/>
+							</Anchors>
+						</Texture>
+						<FontString inherits="NarciAchievementText" parentKey="date" text="" justifyH="RIGHT" justifyV="TOP" maxLines="1">
+							<Color r="0.6" g="0.6" b="0.6"/>
+							<Size x="0"/>
+							<Anchors>
+								<Anchor point="TOPRIGHT" relativeKey="$parent.points" relativePoint="BOTTOMRIGHT" x="0" y="-4"/>
+							</Anchors>
+						</FontString>
+					</Layer>
+				</Layers>
+				<Frames>
+					<Frame inherits="NarciFrameDispersiveShadowBorderTemplate"/>
+				</Frames>
+				<Scripts>
+					<OnLoad method="OnLoad"/>
+					<OnHide method="OnHide"/>
+				</Scripts>
+			</Frame>
+
+			<Frame parentKey="HeaderFrame" frameLevel="14" hidden="false">
+				<Anchors>
+					<Anchor point="TOPLEFT"  relativeKey="$parent" relativePoint="TOPLEFT" x="0"/>
+					<Anchor point="BOTTOMRIGHT"  relativeKey="$parent" relativePoint="BOTTOMRIGHT" x="0" y="-2"/>
+				</Anchors>
+				<Layers>
+					<Layer level="BACKGROUND">
+						<Texture file="Interface\AddOns\Narcissus_Achievements\Art\DarkWood\BoxHeaderBorder" parentKey="background" nounload="true">
+							<TexCoords left="0" right="0.703125" top="0" bottom="0.87890625"/>
+						</Texture>
+						<MaskTexture file="Interface\AddOns\Narcissus_Achievements\Art\DarkWood\BoxHeaderBorderMask" hWrapMode="CLAMPTOBLACKADDITIVE" vWrapMode="CLAMPTOBLACKADDITIVE" nounload="true" parentKey="mask">
+							<Anchors>
+								<Anchor point="TOPLEFT"  relativeKey="$parent.background" relativePoint="TOPLEFT"/>
+								<Anchor point="BOTTOMRIGHT"  relativeKey="$parent.background" relativePoint="BOTTOMRIGHT"/>
+							</Anchors>
+							<MaskedTextures>
+								<MaskedTexture childKey="background"/>
+							</MaskedTextures>
+						</MaskTexture>
+					</Layer>
+					<Layer level="OVERLAY">
+						<FontString inherits="NarciAchievementText" parentKey="points" maxLines="1" justifyH="CENTER" justifyV="MIDDLE" text="27,665">
+							<Anchors>
+								<Anchor point="TOPRIGHT" relativeKey="$parent" relativePoint="TOP" x="137" y="-17"/>
+							</Anchors>
+						</FontString>
+						<Texture parentKey="reference" hidden="true">
+							<Size x="208" y="32"/>
+							<Anchors>
+								<Anchor point="TOPLEFT" relativeKey="$parent" relativePoint="TOPLEFT" x="31" y="-9"/>
+							</Anchors>
+						</Texture>
+						
+						<FontString inherits="NarciAchievementText" parentKey="totalAchievements" text="1000/1000" maxLines="1" justifyH="LEFT">
+							<Anchors>
+								<Anchor point="LEFT" relativeKey="$parent.reference" relativePoint="LEFT" x="11" y="0"/>
+							</Anchors>
+						</FontString>
+
+						<FontString inherits="NarciAchievementDigit" text="25" justifyH="RIGHT" parentKey="value">
+							<Anchors>
+								<Anchor point="RIGHT" relativeKey="$parent.reference" relativePoint="RIGHT" x="-16" y="0"/>
+							</Anchors>
+						</FontString>
+
+						<FontString inherits="NarciPercentSign" text="%" justifyH="RIGHT" justifyV="BOTTOM" parentKey="percentSign">
+							<Anchors>
+								<Anchor point="RIGHT" relativeKey="$parent.reference" relativePoint="RIGHT" x="-8" y="-1.5"/>
+							</Anchors>
+						</FontString>
+
+						<FontString inherits="NarciAchievementDigit" text="" justifyH="RIGHT" parentKey="progress" hidden="true">
+							<Anchors>
+								<Anchor point="RIGHT" relativeKey="$parent.reference" relativePoint="RIGHT" x="-10" y="0"/>
+							</Anchors>
+						</FontString>
+
+						<Texture file="Interface\AddOns\Narcissus_Achievements\Art\DarkWood\CategoryButtonBar" parentKey="fill" hidden="true">
+							<Size x="0.1" y="5"/>
+							<TexCoords left="0" right="0" top="0" bottom="1"/>
+							<Anchors>
+								<Anchor point="BOTTOMLEFT" relativeKey="$parent.reference" relativePoint="BOTTOMLEFT" x="4" y="2"/>
+							</Anchors>
+						</Texture>
+						<Texture file="Interface\AddOns\Narcissus_Achievements\Art\DarkWood\CategoryButtonBar" parentKey="fillEnd" hidden="true">
+							<TexCoords left="0.75" right="0.765625" top="0" bottom="1"/>
+							<Size x="4" y="5"/>
+							<Anchors>
+								<Anchor point="LEFT" relativeKey="$parent.fill" relativePoint="RIGHT" x="-0.2" y="0"/>
+							</Anchors>
+						</Texture>
+					</Layer>
+				</Layers>
+				<Frames>
+					<Frame inherits="NarciFrameDispersiveShadowTemplate" frameLevel="1"/>
+					<Frame inherits="NarciFrameDispersiveShadowTemplate" frameLevel="1"/>
+
+					<EditBox parentKey="SearchBox" letters="40" hidden="false" mixin="NarciAchievementSearchBoxMixin" autoFocus="false">
+						<Size x="100" y="38"/>
+						<Anchors>
+							<Anchor point="TOPRIGHT" relativeKey="$parent" relativePoint="TOPRIGHT" x="-67" y="-5"/>
+						</Anchors>
+						<FontString inherits="NarciAchievementTiny"/>
+						<Layers>
+							<Layer level="OVERLAY">
+								<Texture file="Interface\AddOns\Narcissus_Achievements\Art\Shared\SearchBoxIcons" parentKey="SearchIcon">
+									<Size x="14" y="14"/>
+									<TexCoords left="0" right="0.5" top="0" bottom="0.5"/>
+									<Anchors>
+										<Anchor point="LEFT" relativeKey="$parent" relativePoint="LEFT" x="0" y="0"/>
+									</Anchors>
+								</Texture>
+							</Layer>
+							<Layer level="BACKGROUND">
+								<FontString parentKey="Instructions" justifyH="LEFT" justifyV="MIDDLE" inherits="NarciAchievementTiny" setAllPoints="true">
+									<Color r="0.35" g="0.35" b="0.35"/>
+								</FontString>
+							</Layer>
+						</Layers>
+						<Frames>
+							<Button parentKey="ClearButton" hidden="true">
+								<Size x="24" y="20"/>
+								<Anchors>
+									<Anchor point="CENTER" relativeKey="$parent" relativePoint="RIGHT" x="-12"/>
+								</Anchors>
+								<Layers>
+									<Layer level="OVERLAY">
+										<Texture file="Interface\AddOns\Narcissus_Achievements\Art\Shared\SearchBoxIcons" parentKey="Icon" Alpha="0.5">
+											<Size x="14" y="14"/>
+											<TexCoords left="0.5" right="1" top="0" bottom="0.5"/>
+											<Anchors>
+												<Anchor point="CENTER" relativeKey="$parent" relativePoint="CENTER" x="0" y="0"/>
+											</Anchors>
+										</Texture>
+									</Layer>
+								</Layers>
+							</Button>
+							<Frame parentKey="ClipFrame" clipChildren="true" hidden="false">
+								<Anchors>
+									<Anchor point="TOPLEFT" relativeKey="$parent.$parent.$parent.CategoryFrame" relativePoint="TOPLEFT" y="-4"/>
+									<Anchor point="BOTTOMRIGHT" relativeKey="$parent.$parent.$parent.AchievementCardFrame" relativePoint="BOTTOMRIGHT"/>
+								</Anchors>
+								<Layers>
+									<!--Layer level="BACKGROUND">
+										<Texture>
+											<Color r="0" g="0" b="0" a="0.5"/>
+										</Texture>
+									</Layer-->
+								</Layers>
+								<Frames>
+									<Frame parentKey="ResultFrame" hidden="true">
+										<Size x="298" y="214"/>
+										<Anchors>
+											<Anchor point="TOPRIGHT" relativeKey="$parent.$parent" relativePoint="BOTTOMRIGHT" x="3" y="7"/>
+										</Anchors>
+										<Layers>
+											<Layer level="BACKGROUND" textureSubLevel="-1">
+												<Texture file="Interface\AddOns\Narcissus_Achievements\Art\Shared\SearchResultFrameShadow" Alpha="0.65">
+													<Anchors>
+														<Anchor point="TOPLEFT" relativeKey="$parent" relativePoint="TOPLEFT" x="-40" y="10"/>
+														<Anchor point="BOTTOMRIGHT" relativeKey="$parent" relativePoint="BOTTOMRIGHT" x="40" y="-40"/>
+													</Anchors>
+												</Texture>
+											</Layer>
+											<Layer level="BACKGROUND">
+												<Texture file="Interface\AddOns\Narcissus_Achievements\Art\Flat\SearchResultFrame" parentKey="background">
+													<TexCoords left="0" right="1" top="0" bottom="0.703125"/>
+												</Texture>
+												<MaskTexture file="Interface\AddOns\Narcissus_Achievements\Art\Shared\SearchResultFrameMask" hWrapMode="CLAMPTOBLACKADDITIVE" vWrapMode="CLAMPTOBLACKADDITIVE" >
+													<MaskedTextures>
+														<MaskedTexture childKey="background"/>
+													</MaskedTextures>
+												</MaskTexture>
+											</Layer>
+											<Layer level="OVERLAY">
+												<FontString inherits="NarciAchievementTiny" parentKey="count" text="120 Results" maxLines="1" justifyH="RIGHT">
+													<Color r="0.8" g="0.8" b="0.8"/>
+													<Size x="0"/>
+													<Anchors>
+														<Anchor point="TOPRIGHT" relativeKey="$parent" relativePoint="TOPRIGHT" x="-12" y="-7"/>
+													</Anchors>
+												</FontString>
+												<FontString inherits="NarciAchievementTiny" parentKey="label" text="Page" maxLines="1" justifyH="RIGHT">
+													<Color r="0.6" g="0.6" b="0.6"/>
+													<Size x="0"/>
+													<Anchors>
+														<Anchor point="TOPLEFT" relativeKey="$parent" relativePoint="TOPLEFT" x="12" y="-7"/>
+													</Anchors>
+												</FontString>
+												<FontString inherits="NarciAchievementTiny" parentKey="pageText" text="25/26" maxLines="1" justifyH="RIGHT">
+													<Color r="0.8" g="0.8" b="0.8"/>
+													<Size x="40"/>
+													<Anchors>
+														<Anchor point="LEFT" relativeKey="$parent.label" relativePoint="RIGHT" x="0" y="0"/>
+													</Anchors>
+												</FontString>
+											</Layer>
+										</Layers>
+										<Scripts>
+											<OnMouseDown>
+												self:Hide();
+											</OnMouseDown>
+											<OnHide>
+												self:SetAlpha(0);
+											</OnHide>
+										</Scripts>
+									</Frame>
+								</Frames>
+							</Frame>
+						</Frames>
+						<Scripts>
+							<OnLoad method="OnLoad"/>
+							<OnTextChanged method="OnTextChanged"/>
+							<OnEvent method="OnEvent"/>
+							<OnEditFocusGained method="OnEditFocusGained"/>
+							<OnEditFocusLost method="OnEditFocusLost"/>
+							<OnHide method="OnHide"/>
+							<OnEnterPressed method="OnEnterPressed"/>
+							<OnEscapePressed method="QuitEditing"/>
+						</Scripts>
+					</EditBox>
+
+				</Frames>
+			</Frame>
+
+			<Button parentKey="SummaryButton" inherits="NarciAchievementHeaderButtonTemplate" hidden="true" mixin="NarciAchievementSummaryButtonMixin">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeKey="$parent" relativePoint="TOPLEFT" x="32" y="-8"/>
+				</Anchors>
+				<Size x="208" y="32"/>
+				<HitRectInsets>
+					<AbsInset left="0" right="0" top="0" bottom="0"/>
+				</HitRectInsets>
+				<Layers>
+					<Layer level="BACKGROUND">
+						<Texture parentKey="texture" file="Interface\AddOns\Narcissus_Achievements\Art\DarkWood\SummaryButton">
+							<TexCoords left="0" right="1" top="0" bottom="0.3125"/>
+						</Texture>
+					</Layer>
+					<Layer level="OVERLAY">
+						<!--Texture>
+							<Color g="1"/>
+						</Texture-->
+						<FontString inherits="NarciAchievementText" parentKey="label" maxLines="1" justifyH="CENTER" justifyV="MIDDLE" text="ACHIEVEMENT_SUMMARY_CATEGORY">
+							<Anchors>
+								<Anchor point="CENTER" relativeKey="$parent" relativePoint="CENTER" x="0" y="0"/>
+							</Anchors>
+						</FontString>
+						<Texture parentKey="rewardNodeLeft" file="Interface\AddOns\Narcissus_Achievements\Art\DarkWood\RewardLineNode" Alpha="0.5">
+							<Size x="4" y="4"/>
+							<Anchors>
+								<Anchor point="RIGHT" relativeKey="$parent.label" relativePoint="LEFT" x="-8" y="0"/>
+							</Anchors>
+						</Texture>
+						<Texture parentKey="rewardNodeRight" file="Interface\AddOns\Narcissus_Achievements\Art\DarkWood\RewardLineNode" Alpha="0.5">
+							<Size x="4" y="4"/>
+							<Anchors>
+								<Anchor point="LEFT" relativeKey="$parent.label" relativePoint="RIGHT" x="8" y="0"/>
+							</Anchors>
+						</Texture>
+						<Texture parentKey="rewardLineLeft" file="Interface\AddOns\Narcissus_Achievements\Art\DarkWood\RewardLineLeft" Alpha="0.25">
+							<Anchors>
+								<Anchor point="TOPRIGHT" relativeKey="$parent.rewardNodeLeft" relativePoint="TOPLEFT" x="-8" y="0"/>
+								<Anchor point="BOTTOMRIGHT" relativeKey="$parent.rewardNodeLeft" relativePoint="BOTTOMLEFT" x="-8" y="0"/>
+								<Anchor point="LEFT" relativeKey="$parent" relativePoint="LEFT" x="4" y="0"/>
+							</Anchors>
+						</Texture>
+						<Texture parentKey="rewardLineRight" file="Interface\AddOns\Narcissus_Achievements\Art\DarkWood\RewardLineLeft" Alpha="0.25">
+							<TexCoords left="1" right="0" top="0" bottom="1"/>
+							<Anchors>
+								<Anchor point="TOPLEFT" relativeKey="$parent.rewardNodeRight" relativePoint="TOPRIGHT" x="8" y="0"/>
+								<Anchor point="BOTTOMLEFT" relativeKey="$parent.rewardNodeRight" relativePoint="BOTTOMRIGHT" x="8" y="0"/>
+								<Anchor point="RIGHT" relativeKey="$parent" relativePoint="RIGHT" x="-4" y="0"/>
+							</Anchors>
+						</Texture>
+					</Layer>
+				</Layers>
+				<Scripts>
+					<OnMouseDown method="OnMouseDown"/>
+					<OnMouseUp method="OnMouseUp"/>
+					<OnClick method="OnClick"/>
+					<OnEnable method="OnEnable"/>
+					<OnDisable method="OnDisable"/>
+				</Scripts>
+			</Button>
+
+			<Button parentKey="CloseButton" inherits="NarciAchievementHeaderButtonTemplate">
+				<Size x="36" y="26"/>
+				<HitRectInsets>
+					<AbsInset left="0" right="0" top="-5" bottom="-5"/>
+				</HitRectInsets>
+				<Anchors>
+					<Anchor point="TOPRIGHT" relativeKey="$parent" relativePoint="TOPRIGHT" x="-11" y="-11"/>
+				</Anchors>
+				<Layers>
+					<Layer>
+						<Texture parentKey="texture" file="Interface\AddOns\Narcissus_Achievements\Art\DarkWood\CloseButton">
+							<TexCoords left="0" right="0.75" top="0" bottom="0.5"/>
+						</Texture>
+					</Layer>
+				</Layers>
+				<Scripts>
+					<OnClick>
+						self:GetParent():Hide();
+					</OnClick>
+					<OnMouseDown>
+						self.texture:SetTexCoord(0, 0.75, 0.5, 1);
+					</OnMouseDown>
+					<OnMouseUp>
+						self.texture:SetTexCoord(0, 0.75, 0, 0.5);
+					</OnMouseUp>		
+				</Scripts>
+			</Button>
+
+			<Button parentKey="FilterButton" inherits="NarciAchievementHeaderButtonTemplate" mixin="NarciAchievementFilterButtonMixin">
+				<Size x="134" y="25"/>
+				<HitRectInsets>
+					<AbsInset left="0" right="0" top="-5" bottom="-5"/>
+				</HitRectInsets>
+				<Anchors>
+					<Anchor point="TOPRIGHT" relativeKey="$parent" relativePoint="TOP" x="-2" y="-12"/>
+				</Anchors>
+				<Layers>
+					<Layer>
+						<Texture parentKey="texture" file="Interface\AddOns\Narcissus_Achievements\Art\Flat\DropDownButton">
+							<Size x="26" y="26"/>
+							<TexCoords left="0" right="1" top="0" bottom="0.5"/>
+							<Anchors>
+								<Anchor point="RIGHT" relativeKey="$parent" relativePoint="RIGHT" y="0"/>
+							</Anchors>
+						</Texture>
+						<FontString inherits="NarciAchievementTiny" parentKey="label" text="Incomplete First" maxLines="1" justifyH="LEFT" justifyV="MIDDLE">
+							<Color r="0.8" g="0.8" b="0.8"/>
+							<Size x="96"/>
+							<Anchors>
+								<Anchor point="LEFT" relativeKey="$parent" relativePoint="LEFT" x="8" y="0"/>
+							</Anchors>
+						</FontString>
+					</Layer>
+				</Layers>
+				<Scripts>
+					<OnLoad method="OnLoad"/>
+					<OnClick method="OnClick"/>
+					<OnEnable method="OnEnable"/>
+					<OnDisable method="OnDisable"/>
+					<OnMouseDown method="OnMouseDown"/>
+					<OnMouseUp method="OnMouseUp"/>
+					<OnEnter method="OnEnter"/>
+					<OnLeave method="OnLeave"/>
+				</Scripts>
+			</Button>
+
+			<Frame name="Narci_AchievementSettings" parentKey="Settings" inherits="NarciChamferedFrameTemplate" ignoreParentScale="true" frameStrata="HIGH" hidden="true" frameLevel="8">
+				<Size x="248" y="260"/>
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeKey="$parent" relativePoint="TOPRIGHT" x="8" y="-4"/>
+				</Anchors>
+				<Frames>
+					<Button inherits="NarciCloseButtonTemplate">
+						<Anchors>
+							<Anchor point="TOPRIGHT" relativePoint="TOPRIGHT" x="0" y="0"/>
+						</Anchors>
+						<Scripts>
+							<OnClick>
+								self:GetParent():Hide();
+							</OnClick>
+						</Scripts>
+					</Button>
+				</Frames>
+				<Scripts>
+				</Scripts>
+			</Frame>
+		</Frames>
+
+		<Layers>
+			<Layer level="BACKGROUND">
+				<Texture file="Interface\AddOns\Narcissus_Achievements\Art\DarkWood\BoxRight" parentKey="background" nounload="true">
+					<Anchors>
+						<Anchor point="TOPLEFT"  relativeKey="$parent.AchievementCardFrame" relativePoint="TOPLEFT"/>
+						<Anchor point="BOTTOMRIGHT"  relativeKey="$parent.AchievementCardFrame" relativePoint="BOTTOMRIGHT"/>
+					</Anchors>
+				</Texture>
+				<MaskTexture file="Interface\AddOns\Narcissus_Achievements\Art\Shared\BoxRightMask" hWrapMode="CLAMPTOBLACKADDITIVE" vWrapMode="CLAMPTOBLACKADDITIVE" nounload="true">
+					<Anchors>
+						<Anchor point="TOPLEFT"  relativeKey="$parent.background" relativePoint="TOPLEFT"/>
+						<Anchor point="BOTTOMRIGHT"  relativeKey="$parent.background" relativePoint="BOTTOMRIGHT"/>
+					</Anchors>
+					<MaskedTextures>
+						<MaskedTexture childKey="background"/>
+					</MaskedTextures>
+				</MaskTexture>
+			</Layer>
+			<Layer level="BACKGROUND" textureSubLevel="1">
+				<Texture file="Interface\AddOns\Narcissus_Achievements\Art\DarkWood\BoxLeft" parentKey="categoryBackground" nounload="true">
+					<Anchors>
+						<Anchor point="TOPLEFT"  relativeKey="$parent.CategoryFrame" relativePoint="TOPLEFT"/>
+						<Anchor point="BOTTOMRIGHT"  relativeKey="$parent.CategoryFrame" relativePoint="BOTTOMRIGHT"/>
+					</Anchors>
+				</Texture>
+				<MaskTexture file="Interface\AddOns\Narcissus_Achievements\Art\Shared\BoxLeftMask" hWrapMode="CLAMPTOBLACKADDITIVE" vWrapMode="CLAMPTOBLACKADDITIVE" nounload="true">
+					<Anchors>
+						<Anchor point="TOPLEFT"  relativeKey="$parent.categoryBackground" relativePoint="TOPLEFT"/>
+						<Anchor point="BOTTOMRIGHT"  relativeKey="$parent.categoryBackground" relativePoint="BOTTOMRIGHT"/>
+					</Anchors>
+					<MaskedTextures>
+						<MaskedTexture childKey="categoryBackground"/>
+					</MaskedTextures>
+				</MaskTexture>
+			</Layer>
+			<Layer level="OVERLAY">
+				<FontString inherits="NarciAchievementText" parentKey="FeatOfStrengthText" text="FEAT_OF_STRENGTH_DESCRIPTION" justifyH="LEFT" justifyV="MIDDLE" hidden="true">
+					<Size x="460" y="0"/>
+					<Anchors>
+						<Anchor point="CENTER" relativeKey="$parent.background" relativePoint="CENTER" x="-10" y="10"/>
+					</Anchors>
+				</FontString>
+			</Layer>
+		</Layers>
+
+		<Scripts>
+			<OnLoad method="OnLoad"/>
+			<OnDragStart method="OnDragStart"/>
+			<OnDragStop method="OnDragStop"/>
+			<OnShow method="OnShow"/>
+			<OnHide method="OnHide"/>
+			<OnEvent method="OnEvent"/>
+		</Scripts>
+	</Frame>
+</Ui>

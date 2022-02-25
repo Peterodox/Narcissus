@@ -1,0 +1,20 @@
+Night Elf Male
+722, squat bow
+892, weird dance
+
+1608, kneel use
+1626, kneel sick 2646
+1921, kneel weapon ready
+1924, 1943, kneel eat
+1944, kneel talk
+1945, kneel cheer
+1998, kneel choke
+2685, sit cross legs, 2125 +eat, 15047 +laugh
+2122, kneel fishing  2357 hover fishing
+2153, kneel work
+
+
+14958, hover rifle ready
+15435, sit leg crossed elegent
+17312, read and cast
+22063

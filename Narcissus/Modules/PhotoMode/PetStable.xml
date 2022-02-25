@@ -1,0 +1,461 @@
+<Ui xsi:schemaLocation="http://www.blizzard.com/wow/ui/..\FrameXML\UI.xsd">
+	<Button inherits="Narci_ModelIndexPopUpButton_Template" parentKey="PetStableToggle" parent="Narci_ActorPanelPopUp" hidden="true">
+		<HitRectInsets>
+			<AbsInset left="0" right="0" top="0" bottom="0"/>
+		</HitRectInsets>
+		<Anchors>
+			<Anchor point="CENTER" relativeKey="$parent" relativePoint="CENTER" y="32"/>
+		</Anchors>
+		<Scripts>
+			<OnLoad>
+				self.Label:SetText(STABLES);
+				self.Text:SetText(Narci.L["PetStable Tooltip"]);
+                local texOffset = 3;
+				self.Border:SetTexCoord(0.125 * texOffset, 0.125 + 0.125 * texOffset, 0, 0.5);
+				self.isTypeLocked = true;
+			</OnLoad>
+			<OnClick>
+				Narci_PetStable:Open(self);
+			</OnClick>
+		</Scripts>
+	</Button>
+
+    <Script file="PetStable.lua"/>
+
+    <Button name="NarciPetSlotButtonTemplate" virtual="true" mixin="NarciPetSlotButtonMixin">
+        <Size x="24" y="24"/>
+        <Layers>
+            <Layer level="ARTWORK">
+                <Texture parentKey="Icon"/>
+            </Layer>
+        </Layers>
+        <Scripts>
+            <OnEnter method="OnEnter"/>
+            <OnLeave method="OnLeave"/>
+            <OnClick method="OnClick"/>
+        </Scripts>
+    </Button>
+
+    <Button name="NarciPetTypeDropDownButtonTemplate" virtual="true" mixin="NarciPetTypeDropDownButtonMixin">
+        <Size x="128" y="16"/>
+        <Layers>
+            <Layer level="BACKGROUND">
+                <Texture parentKey="BackdropLeft" file="Interface\AddOns\Narcissus\Art\Modules\PhotoMode\PetStable\TypeDropDown">
+                    <TexCoords left="0" right="0.0625" top="0" bottom="0.125"/>
+                    <Size x="16" y="16"/>
+                    <Anchors>
+                        <Anchor point="LEFT"/>
+                    </Anchors>
+                </Texture>
+                <Texture parentKey="BackdropRight" file="Interface\AddOns\Narcissus\Art\Modules\PhotoMode\PetStable\TypeDropDown">
+                    <TexCoords left="0.4375" right="0.5" top="0" bottom="0.125"/>
+                    <Size x="16" y="16"/>
+                    <Anchors>
+                        <Anchor point="RIGHT"/>
+                    </Anchors>
+                </Texture>
+                <Texture parentKey="BackdropCenter" file="Interface\AddOns\Narcissus\Art\Modules\PhotoMode\PetStable\TypeDropDown">
+                    <TexCoords left="0.0625" right="0.4375" top="0" bottom="0.125"/>
+                    <Size x="96" y="16"/>
+                    <Anchors>
+                        <Anchor point="CENTER"/>
+                    </Anchors>
+                </Texture>
+            </Layer>
+			<Layer level="ARTWORK">
+				<Texture setAllPoints="true" parentKey="Highlight" hidden="true" Alpha="0">
+					<Color r="1" g="1" b="1" a="0.08"/>		
+				</Texture>
+			</Layer>
+            <Layer level="OVERLAY">
+                <FontString inherits="NarciDisabledButtonFont" justifyH="LEFT" justifyV="MIDDLE" maxLines="1" parentKey="TypeName" text="Pet Type">
+                    <Size x="0" y="0"/>
+                    <Anchors>
+                        <Anchor point="LEFT" relativeKey="$parent" relativePoint="LEFT" x="6" y="0"/>
+                    </Anchors>
+                </FontString>
+                <FontString inherits="NarciNonInteractiveFont" justifyH="RIGHT" justifyV="MIDDLE" maxLines="1" parentKey="Count" text="0">
+                    <Size x="0" y="0"/>
+                    <Anchors>
+                        <Anchor point="RIGHT" relativeKey="$parent" relativePoint="RIGHT" x="-6" y="0"/>
+                    </Anchors>
+                </FontString>
+            </Layer>
+        </Layers>
+        <Scripts>
+            <OnEnter method="OnEnter"/>
+            <OnLeave method="OnLeave"/>
+            <OnClick method="OnClick"/>
+        </Scripts>
+    </Button>
+
+	<Frame name="Narci_PetStable" hidden="true" frameLevel="76" enableMouse="true" mixin="NarciPetStableMixin" parent="Narci_ModelSettings" parentKey="PetStable">
+		<Size x="192" y="224"/>
+        <Anchors>
+            <Anchor point="CENTER"/>
+        </Anchors>
+		<Layers>
+			<Layer level="BACKGROUND">
+				<Texture>
+					<Color r="0.08" g="0.08" b="0.08" a="1.0"/>
+				</Texture>
+			</Layer>
+            <Layer level="BACKGROUND" textureSubLevel="1">
+                <Texture>
+                    <Size y="2"/>
+                    <Anchors>
+                        <Anchor point="BOTTOMLEFT" relativeKey="$parent" relativePoint="BOTTOMLEFT" y="64"/>
+                        <Anchor point="BOTTOMRIGHT" relativeKey="$parent" relativePoint="BOTTOMRIGHT" y="64"/>
+                    </Anchors>									
+                    <Color r="0" g="0" b="0" a="1"/>
+                    <Gradient orientation="VERTICAL">
+                        <MaxColor r="0" g="0" b="0" a="0"/>
+                        <MinColor r="0" g="0" b="0" a="0.3"/>
+                    </Gradient>
+                </Texture>
+            </Layer>
+		</Layers>
+		<Frames>
+			<Frame inherits="NarciGreyBorderTemplate" frameLevel="85"/>
+
+            <Frame parentKey="LoadingIndicator" frameLevel="84" hidden="true" enableMouse="true">
+                <Size x="192"/>
+                <Anchors>
+                    <Anchor point="TOPLEFT" y="-16"/>
+                    <Anchor point="BOTTOMRIGHT"/>
+                </Anchors>
+                <Layers>
+                    <Layer level="OVERLAY" textureSubLevel="2">
+                        <Texture>
+                            <Color r="0.08" g="0.08" b="0.08" a="0.9"/>
+                        </Texture>
+                    </Layer>
+                    <Layer level="OVERLAY" textureSubLevel="3">
+                        <FontString inherits="NarciNonInteractiveFont" justifyH="CENTER" justifyV="TOP" parentKey="ProgressHeader">
+                            <Size x="168" y="0"/>
+                            <Anchors>
+                                <Anchor point="CENTER" relativeKey="$parent" relativePoint="CENTER" y="0"/>
+                            </Anchors>
+                        </FontString>
+                        <FontString inherits="NarciNonInteractiveFont" justifyH="CENTER" justifyV="TOP" parentKey="Progress">
+                            <Size x="168" y="0"/>
+                            <Anchors>
+                                <Anchor point="CENTER" relativeKey="$parent" relativePoint="CENTER" y="-12"/>
+                            </Anchors>
+                        </FontString>
+                        <Texture parentKey="LoadingIcon" file="Interface\AddOns\Narcissus\Art\Widgets\NPCBrowser\LoadingIcon">
+                            <Size x="14" y="14"/>
+                            <Anchors>
+                                <Anchor point="CENTER" relativeKey="$parent" relativePoint="CENTER" y="18"/>
+                            </Anchors>
+                            <Animations>
+                                <AnimationGroup parentKey="Rotate" looping="REPEAT">
+                                    <Rotation degrees="-360" duration="1" order="1"/>
+                                </AnimationGroup>
+                            </Animations>
+                        </Texture>
+                    </Layer>
+                </Layers>
+                <Scripts>
+                    <OnShow>
+                        self.LoadingIcon.Rotate:Play();
+                    </OnShow>
+                    <OnHide>
+                        self:Hide();
+                        self.LoadingIcon.Rotate:Stop();
+                    </OnHide>
+                    <OnMouseWheel>
+                        return;
+                    </OnMouseWheel>
+                </Scripts>
+            </Frame>
+
+            <Frame parentKey="Tooltip" hidden="true" frameLevel="86">
+                <Size x="16" y="16"/>
+                <Layers>
+                    <Layer level="OVERLAY">
+                        <FontString inherits="NarciNonInteractiveFont" justifyH="LEFT" justifyV="MIDDLE" maxLines="1" parentKey="Name" text="Pet Name">
+                            <Size x="0" y="0"/>
+                            <Color r="0.5" g="0.5" b="0.5"/>
+                            <Anchors>
+                                <Anchor point="LEFT" relativeKey="$parent" relativePoint="LEFT" x="4" y="0"/>
+                            </Anchors>
+                        </FontString>
+                    </Layer>
+                    <Layer level="BACKGROUND">
+                        <Texture parentKey="Background">
+                            <Size y="16"/>
+                            <Color r="0.0" g="0.0" b="0.0" a="0.9"/>
+                            <Anchors>
+                                <Anchor point="LEFT" relativeKey="$parent.Name" relativePoint="LEFT" x="-4"/>
+                                <Anchor point="RIGHT" relativeKey="$parent.Name" relativePoint="RIGHT" x="4"/>
+                            </Anchors>
+                        </Texture>
+                    </Layer>
+                </Layers>
+            </Frame>
+            <Frame parentKey="Header" frameLevel="83">
+                <Size x="192" y="16"/>
+                <Anchors>
+                    <Anchor point="TOP" relativeKey="$parent" relativePoint="TOP" y="0"/>
+                </Anchors>
+                <Layers>
+                    <Layer level="BACKGROUND">
+                        <Texture file="Interface\AddOns\Narcissus\Art\Widgets\NPCBrowser\Panel">
+                            <TexCoords left="0" right="0.75" top="0" bottom="0.0625"/>
+                        </Texture>
+                        <Texture>
+                            <Size y="2"/>
+                            <Anchors>
+                                <Anchor point="TOPLEFT" relativeKey="$parent" relativePoint="BOTTOMLEFT"/>
+                                <Anchor point="TOPRIGHT" relativeKey="$parent" relativePoint="BOTTOMRIGHT"/>
+                            </Anchors>									
+                            <Color r="0" g="0" b="0" a="1"/>
+                            <Gradient orientation="VERTICAL">
+                                <MaxColor r="0" g="0" b="0" a="0.3"/>
+                                <MinColor r="0" g="0" b="0" a="0"/>
+                            </Gradient>
+                        </Texture>
+                    </Layer>
+                    <Layer level="OVERLAY">
+                        <FontString inherits="NarciNonInteractiveFont" justifyH="CENTER" justifyV="MIDDLE" maxLines="1" parentKey="Label" text="STABLES">
+                            <Size x="0" y="0"/>
+                            <Color r="0.5" g="0.5" b="0.5"/>
+                            <Anchors>
+                                <Anchor point="CENTER" relativeKey="$parent" relativePoint="CENTER" y="0"/>
+                            </Anchors>
+                        </FontString>
+                    </Layer>
+                </Layers>
+                <Frames>
+                    <Button parentKey="CloseButton" inherits="Narci_NavigationButton_Template">
+                        <HitRectInsets>
+                            <AbsInset left="-6" right="0" top="-1" bottom="0"/>
+                        </HitRectInsets>
+                        <Anchors>
+                            <Anchor point="RIGHT" relativeKey="$parent" relativePoint="RIGHT" x="-1" y="0"/> 
+                        </Anchors>
+                        <Scripts>
+                            <OnLoad>
+                                self.tooltip = Narci.L["Close"];
+                                self.Background:SetTexCoord(1, 0, 0, 1);
+                                self.Icon:SetTexCoord(0, 0.25, 0.75, 1);
+                            </OnLoad>
+                            <OnClick>
+                                self:GetParent():GetParent():Close();
+                            </OnClick>
+                        </Scripts>
+                    </Button>
+                </Frames>
+            </Frame>
+
+            <Button parentKey="AddButton" frameLevel="80">
+                <Size x="24" y="24"/>
+                <HitRectInsets>
+                    <AbsInset left="-2" right="-24" top="0" bottom="0"/>
+                </HitRectInsets>
+                <Layers>
+                    <Layer level="ARTWORK">
+                        <Texture parentKey="Background">
+                            <Size x="32" y="32"/>
+                            <Anchors>
+                                <Anchor point="CENTER"/>
+                            </Anchors>
+                        </Texture>
+                    </Layer>
+                    <Layer level="OVERLAY">
+                        <Texture parentKey="Icon">
+                            <Size x="32" y="32"/>
+                            <Anchors>
+                                <Anchor point="CENTER"/>
+                            </Anchors>
+                        </Texture>
+                        <FontString inherits="NarciNonInteractiveFont" justifyH="LEFT" justifyV="MIDDLE" maxLines="1" parentKey="Label" text="Add">
+                            <Size x="0" y="0"/>
+                            <Anchors>
+                                <Anchor point="LEFT" relativeKey="$parent" relativePoint="LEFT" x="25" y="0"/>
+                            </Anchors>
+                        </FontString>
+                    </Layer>
+                </Layers>
+            </Button>
+
+            <Frame parentKey="SelectionOverlay" frameLevel="85" hidden="true">
+                <Size x="24" y="24"/>
+                <Layers>
+                    <Layer>
+                        <Texture file="Interface\AddOns\Narcissus\Art\Modules\PhotoMode\PetStable\Selection"/>
+                    </Layer>
+                </Layers>
+            </Frame>
+
+            <Frame parentKey="PetSlotFrame" frameLevel="80">
+                <Size x="192" y="48"/>
+                <Anchors>
+                    <Anchor point="BOTTOM"/>
+                </Anchors>
+            </Frame>
+            
+            <Button parentKey="FilterButton" frameLevel="81">
+                <Size x="96" y="16"/>
+                <Anchors>
+                    <Anchor point="BOTTOMLEFT" y="48"/>
+                </Anchors>
+                <Layers>
+                    <Layer level="BACKGROUND">
+                        <Texture file="Interface\AddOns\Narcissus\Art\Modules\PhotoMode\PetStable\Panel" parentKey="Background">
+                            <TexCoords left="0" right="0.75" top="0" bottom="0.125"/>
+                        </Texture>
+                    </Layer>
+                    <Layer level="ARTWORK">
+                        <Texture parentKey="Highlight" hidden="true">
+                            <Color r="1" g="1" b="1" a="0.2"/>
+                        </Texture>
+                    </Layer>
+                    <Layer level="OVERLAY">
+                        <Texture parentKey="Icon" file="Interface\AddOns\Narcissus\Art\Modules\PhotoMode\PetStable\Panel" hidden="true">
+                            <TexCoords left="0.875" right="1" top="0.5" bottom="0.625"/>
+                            <Size x="16" y="16"/>
+                            <Anchors>
+                                <Anchor point="LEFT" x="2"/>
+                            </Anchors>
+                        </Texture>
+                        <FontString inherits="NarciNonInteractiveFont" justifyH="LEFT" justifyV="MIDDLE" maxLines="1" parentKey="Label" text="FILTER">
+                            <Size x="0" y="0"/>
+                            <Anchors>
+                                <Anchor point="LEFT" x="6" y="0"/>
+                                <Anchor point="RIGHT" x="-18" y="0"/>
+                            </Anchors>
+                        </FontString>
+                    </Layer>
+                </Layers>
+                <Frames>
+                    <Button parentKey="RemoveFilter" hidden="true">
+                        <Size x="16" y="16"/>
+                        <HitRectInsets>
+                            <AbsInset left="-4" right="0" top="0" bottom="0"/>
+                        </HitRectInsets>
+                        <Anchors>
+                            <Anchor point="RIGHT" x="0"/>
+                        </Anchors>
+                        <Layers>
+                            <Layer level="BACKGROUND" textureSubLevel="1">
+                                <Texture file="Interface\AddOns\Narcissus\Art\Modules\PhotoMode\PetStable\Panel" parentKey="Background">
+                                    <TexCoords left="0.875" right="1" top="0" bottom="0.125"/>
+                                </Texture>
+                            </Layer>
+                            <Layer level="ARTWORK">
+                                <Texture parentKey="Highlight" hidden="true">
+                                    <Color r="1" g="1" b="1" a="0.2"/>
+                                </Texture>
+                            </Layer>
+                            <Layer level="OVERLAY">
+                                <Texture file="Interface\AddOns\Narcissus\Art\Modules\PhotoMode\PetStable\Panel" parentKey="Icon">
+                                    <TexCoords left="0.875" right="1" top="0.625" bottom="0.75"/>
+                                    <Size x="16" y="16"/>
+                                    <Anchors>
+                                        <Anchor point="CENTER"/>
+                                    </Anchors>
+                                </Texture>
+                            </Layer>
+                        </Layers>
+                    </Button>
+                </Frames>
+            </Button>
+
+            <Frame parentKey="FilterDropDown" hidden="true" frameLevel="87" ClipChildren="true" Alpha="0">
+                <Size x="96" y="16"/>
+                <Anchors>
+                    <Anchor point="BOTTOMLEFT" relativeKey="$parent.FilterButton" relativePoint="TOPLEFT" y="0"/>
+                </Anchors>
+            </Frame>
+
+            <Frame parentKey="PageControl" frameLevel="81">
+                <Size x="96" y="16"/>
+                <Anchors>
+                    <Anchor point="BOTTOMRIGHT" y="48"/>
+                </Anchors>
+                <Layers>
+                    <Layer level="BACKGROUND">
+                        <Texture file="Interface\AddOns\Narcissus\Art\Modules\PhotoMode\PetStable\Panel">
+                            <TexCoords left="0" right="0.75" top="0.125" bottom="0.25"/>
+                        </Texture>
+                    </Layer>
+                    <Layer level="OVERLAY">
+                        <FontString inherits="NarciNonInteractiveFont" justifyH="LEFT" justifyV="MIDDLE" maxLines="1" parentKey="PageText" text="Page 0/0">
+                            <Size x="0" y="0"/>
+                            <Color r="0.3" g="0.3" b="0.3"/>
+                            <Anchors>
+                                <Anchor point="LEFT" x="6" y="0"/>
+                            </Anchors>
+                        </FontString>
+                    </Layer>
+                </Layers>
+                <Frames>
+                    <Button parentKey="Right">
+                        <Size x="16" y="16"/>
+                        <Anchors>
+                            <Anchor point="RIGHT"/>
+                        </Anchors>
+                        <Layers>
+                            <Layer level="BACKGROUND">
+                                <Texture file="Interface\AddOns\Narcissus\Art\Modules\PhotoMode\PetStable\Panel" parentKey="Background">
+                                    <TexCoords left="0.875" right="1" top="0" bottom="0.125"/>
+                                </Texture>
+                            </Layer>
+                            <Layer level="ARTWORK">
+                                <Texture parentKey="Highlight" hidden="true">
+                                    <Color r="1" g="1" b="1" a="0.2"/>
+                                </Texture>
+                            </Layer>
+                            <Layer level="OVERLAY">
+                                <Texture file="Interface\AddOns\Narcissus\Art\Modules\PhotoMode\PetStable\Panel" parentKey="Icon">
+                                    <TexCoords left="0.875" right="1" top="0.375" bottom="0.5"/>
+                                    <Size x="16" y="16"/>
+                                    <Anchors>
+                                        <Anchor point="CENTER"/>
+                                    </Anchors>
+                                </Texture>
+                            </Layer>
+                        </Layers>
+                    </Button>
+                    <Button parentKey="Left">
+                        <Size x="16" y="16"/>
+                        <Anchors>
+                            <Anchor point="RIGHT" x="-16"/>
+                        </Anchors>
+                        <Layers>
+                            <Layer level="BACKGROUND">
+                                <Texture file="Interface\AddOns\Narcissus\Art\Modules\PhotoMode\PetStable\Panel" parentKey="Background">
+                                    <TexCoords left="0.875" right="1" top="0" bottom="0.125"/>
+                                </Texture>
+                            </Layer>
+                            <Layer level="ARTWORK">
+                                <Texture parentKey="Highlight" hidden="true">
+                                    <Color r="1" g="1" b="1" a="0.2"/>
+                                </Texture>
+                            </Layer>
+                            <Layer level="OVERLAY">
+                                <Texture file="Interface\AddOns\Narcissus\Art\Modules\PhotoMode\PetStable\Panel" parentKey="Icon">
+                                    <TexCoords left="0.875" right="1" top="0.25" bottom="0.375"/>
+                                    <Size x="16" y="16"/>
+                                    <Anchors>
+                                        <Anchor point="CENTER"/>
+                                    </Anchors>
+                                </Texture>
+                            </Layer>
+                        </Layers>
+                    </Button>
+
+                </Frames>
+            </Frame>
+        </Frames>
+        <Scripts>
+            <OnLoad method="OnLoad"/>
+            <OnShow method="OnShow"/>
+            <OnHide method="OnHide"/>
+            <OnEvent method="OnEvent"/>
+            <OnMouseWheel method="OnMouseWheel"/>
+        </Scripts>
+    </Frame>
+</Ui>

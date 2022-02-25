@@ -1,0 +1,13 @@
+<Ui xsi:schemaLocation="http://www.blizzard.com/wow/ui/..\FrameXML\UI.xsd">
+    <!-- © 2021 Peter Yu All Rights Reserved -->
+    <Script file="Constants.lua"/>
+    
+    <Script file="Loader.lua"/>
+    
+    <!--Use Lua Error Popup to update some constants-->
+    <!--Script file="IntentionalError_AnimationID.lua"/-->
+
+
+    <!--Module Ending-->
+    <Script  file="Init.lua"/>
+</Ui>

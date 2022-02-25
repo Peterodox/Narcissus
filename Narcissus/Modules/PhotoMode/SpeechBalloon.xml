@@ -1,0 +1,1320 @@
+<Ui xsi:schemaLocation="http://www.blizzard.com/wow/ui/..\FrameXML\UI.xsd">
+    <Script file="SpeechBalloon.lua"/>
+    
+	<Button name="NarciSpeechBalloonControlNodeTemplate" virtual="true" mixin="NarciSpeechBalloonControlNodeMixin" FrameStrata="FULLSCREEN_DIALOG" topLevel="true" hidden="false">
+		<Size x="10" y="10"/>
+		<Layers>
+			<Layer level="ARTWORK">
+				<Texture file="Interface\AddOns\Narcissus\Art\Modules\PhotoMode\SpeechBalloon\ControlNode" parentKey="Bling" hidden="true" Alpha="0">
+					<TexCoords left="0" right="0.5" top="0.5" bottom="1"/>
+					<Size x="14" y="14"/>
+					<Anchors>
+						<Anchor point="CENTER" relativeKey="$parent" relativePoint="CENTER" x="0" y="0"/>
+					</Anchors>
+					<Animations>
+						<AnimationGroup parentKey="animScale">
+							<Scale scaleX="1" scaleY="1" duration="0" order="1"/>
+							<Alpha fromAlpha="0" toAlpha="0" duration="0" order="1"/>
+							<Scale scaleX="2.4" scaleY="2.4" duration="0.6" order="2" smoothing="OUT"/>
+							<Alpha fromAlpha="1" toAlpha="0" duration="0.6" order="2"/>
+							<Scripts>
+								<OnFinished>
+									self:GetParent():Hide();
+								</OnFinished>
+							</Scripts>				
+						</AnimationGroup>
+					</Animations>
+				</Texture>
+			</Layer>
+			<Layer level="ARTWORK" textureSubLevel="2">
+				<Texture parentKey="Texture">
+					<TexCoords left="0.5" right="1" top="0" bottom="0.5"/>
+					<Size x="14" y="14"/>
+					<Anchors>
+						<Anchor point="CENTER" relativeKey="$parent" relativePoint="CENTER" x="0" y="0"/>
+					</Anchors>
+				</Texture>
+			</Layer>
+		</Layers>
+		<HighlightTexture file="Interface\AddOns\Narcissus\Art\Modules\PhotoMode\SpeechBalloon\ControlNode" parentKey="Highlight">
+			<TexCoords left="0" right="0.5" top="0" bottom="0.5"/>
+			<Size x="14" y="14"/>
+			<Anchors>
+				<Anchor point="CENTER" relativeKey="$parent" relativePoint="CENTER" x="0" y="0"/>
+			</Anchors>
+		</HighlightTexture>
+		<Scripts>
+			<OnLoad method="OnLoad"/>
+			<OnClick method="OnClick"/>
+			<OnEnter method="OnEnter"/>
+			<OnLeave method="OnLeave"/>
+			<OnMouseDown method="OnMouseDown"/>
+			<OnMouseUp method="OnMouseUp"/>
+		</Scripts>
+	</Button>
+
+	<Button name="NarciSimpleSpeechBalloonTemplate" virtual="true" mixin="NarciSimpleSpeechBalloonMixin" movable="true" Scale="1" FrameStrata="FULLSCREEN_DIALOG" topLevel="true">
+		<Size x="430" y="120"/>
+        <Anchors>
+            <Anchor point="CENTER"/>
+        </Anchors>
+		<Layers>
+			<Layer level="BACKGROUND">
+				<Texture parentKey="Background" snapToPixelGrid="false">
+					<Color r="1" g="1" b="1" a="1"/>
+					<Anchors>
+						<Anchor point="TOPLEFT" relativePoint="TOPLEFT" x="4" y="-4"/>
+						<Anchor point="BOTTOMRIGHT" relativePoint="BOTTOMRIGHT" x="-4" y="3"/>
+					</Anchors>
+				</Texture>
+			</Layer>
+			<Layer level="BORDER" textureSubLevel="1" snapToPixelGrid="false">
+				<Texture parentKey="Tail">
+					<Anchors>
+						<Anchor point="CENTER" relativePoint="BOTTOM" x="0" y="4"/>
+					</Anchors>
+				</Texture>
+			</Layer>
+			<Layer>
+				<FontString inherits="NarciSpeechBalloonFontRegular" parentKey="ShownText" text="" spacing="2" justifyH="CENTER" justifyV="MIDDLE">
+					<Anchors>
+						<Anchor point="TOPLEFT" relativeKey="$parent.Background" relativePoint="TOPLEFT" x="12" y="-12"/>
+                        <Anchor point="BOTTOMRIGHT" relativeKey="$parent.Background" relativePoint="BOTTOMRIGHT" x="-12" y="12"/>
+					</Anchors>
+				</FontString>
+			</Layer>
+		</Layers>
+		<Frames>
+			<Button parentKey="WidthNode" inherits="NarciSpeechBalloonControlNodeTemplate">
+				<Anchors>
+					<Anchor point="CENTER" relativeKey="$parent" relativePoint="CENTER"/>
+				</Anchors>
+				<Layers>
+					<Layer level="BACKGROUND">
+						<Texture parentKey="Mark" file="Interface\AddOns\Narcissus\Art\Modules\PhotoMode\SpeechBalloon\Mark-MoveX" hidden="true">
+							<Size x="52" y="26"/>
+							<Anchors>
+								<Anchor point="CENTER"/>
+							</Anchors>
+						</Texture>
+					</Layer>
+				</Layers>
+			</Button>
+			<Button parentKey="WidthNodeRight" inherits="NarciSpeechBalloonControlNodeTemplate">
+				<Anchors>
+					<Anchor point="CENTER" relativeKey="$parent" relativePoint="CENTER"/>
+				</Anchors>
+				<Layers>
+					<Layer level="BACKGROUND">
+						<Texture parentKey="Mark" file="Interface\AddOns\Narcissus\Art\Modules\PhotoMode\SpeechBalloon\Mark-MoveX" hidden="true">
+							<Size x="52" y="26"/>
+							<Anchors>
+								<Anchor point="CENTER"/>
+							</Anchors>
+						</Texture>
+					</Layer>
+				</Layers>
+			</Button>
+			<Button parentKey="HeightNode" inherits="NarciSpeechBalloonControlNodeTemplate">
+				<Anchors>
+					<Anchor point="CENTER" relativeKey="$parent" relativePoint="CENTER"/>
+				</Anchors>
+				<Layers>
+					<Layer level="BACKGROUND">
+						<Texture parentKey="Mark" file="Interface\AddOns\Narcissus\Art\Modules\PhotoMode\SpeechBalloon\Mark-MoveY" hidden="true">
+							<Size x="26" y="52"/>
+							<Anchors>
+								<Anchor point="CENTER"/>
+							</Anchors>
+						</Texture>
+					</Layer>
+				</Layers>
+			</Button>
+			<Button parentKey="TailAttachNode" inherits="NarciSpeechBalloonControlNodeTemplate" frameLevel="5">
+				<Anchors>
+					<Anchor point="CENTER" relativeKey="$parent" relativePoint="BOTTOM"/>
+				</Anchors>
+				<Layers>
+					<Layer level="BACKGROUND">
+						<Texture parentKey="Mark" file="Interface\AddOns\Narcissus\Art\Modules\PhotoMode\SpeechBalloon\Mark-MoveX" hidden="true">
+							<Size x="52" y="26"/>
+							<Anchors>
+								<Anchor point="CENTER"/>
+							</Anchors>
+						</Texture>
+					</Layer>
+				</Layers>
+			</Button>
+		</Frames>
+		<Scripts>
+			<OnLoad method="OnLoad"/>
+			<OnDragStart method="OnDragStart"/>
+			<OnDragStop method="OnDragStop"/>
+			<OnClick method="OnClick"/>
+			<OnEnter method="OnEnter"/>
+			<OnLeave method="OnLeave"/>
+		</Scripts>
+	</Button>
+
+	<Button name="NarciAdjustableSpeechBalloonTemplate" virtual="true" mixin="NarciAdjustableSpeechBalloonMixin" movable="true" Scale="1" FrameStrata="FULLSCREEN_DIALOG" topLevel="true">
+		<Size x="300" y="200"/>
+        <Anchors>
+            <Anchor point="CENTER"/>
+        </Anchors>
+		<Layers>
+			<Layer level="BACKGROUND" textureSubLevel="4">
+				<Texture parentKey="InnerShadowTop">
+					<Size y="6"/>
+					<Anchors>
+						<Anchor point="TOPLEFT" relativePoint="TOPLEFT"/>
+						<Anchor point="TOPRIGHT" relativePoint="TOPRIGHT"/>
+					</Anchors>
+					<Color r="0" g="0" b="0" a="1"/>
+					<Gradient orientation="VERTICAL">
+						<MinColor a="0" r="0" g="0" b="0"/>
+						<MaxColor a="0.25" r="0" g="0" b="0"/>
+					</Gradient>
+				</Texture>
+				<Texture parentKey="InnerShadowLeft">
+					<Size x="4"/>
+					<Anchors>
+						<Anchor point="TOPLEFT" relativePoint="TOPLEFT"/>
+						<Anchor point="BOTTOMLEFT" relativePoint="BOTTOMLEFT"/>
+					</Anchors>
+					<Color r="0" g="0" b="0" a="1"/>
+					<Gradient orientation="HORIZONTAL">
+						<MinColor a="0.2" r="0" g="0" b="0"/>
+						<MaxColor a="0" r="0" g="0" b="0"/>
+					</Gradient>
+				</Texture>
+				<Texture parentKey="InnerShadowRight">
+					<Size x="4"/>
+					<Anchors>
+						<Anchor point="TOPRIGHT" relativePoint="TOPRIGHT"/>
+						<Anchor point="BOTTOMRIGHT" relativePoint="BOTTOMRIGHT"/>
+					</Anchors>
+					<Color r="0" g="0" b="0" a="1"/>
+					<Gradient orientation="HORIZONTAL">
+						<MinColor a="0" r="0" g="0" b="0"/>
+						<MaxColor a="0.2" r="0" g="0" b="0"/>
+					</Gradient>
+				</Texture>
+			</Layer>
+			<Layer level="BACKGROUND" textureSubLevel="3">
+				<Texture parentKey="BackgroundLeft" snapToPixelGrid="false">
+					<Color r="1" g="1" b="1" a="1"/>
+					<Anchors>
+						<Anchor point="TOPLEFT" relativePoint="TOPLEFT" x="0" y="-0"/>
+						<Anchor point="BOTTOMRIGHT" relativePoint="BOTTOM" x="0" y="0"/>
+					</Anchors>
+				</Texture>
+				<Texture parentKey="BackgroundRight" snapToPixelGrid="false">
+					<Color r="1" g="1" b="1" a="1"/>
+					<Anchors>
+						<Anchor point="TOPLEFT" relativePoint="TOP" x="0" y="-0"/>
+						<Anchor point="BOTTOMRIGHT" relativePoint="BOTTOMRIGHT" x="-0" y="0"/>
+					</Anchors>
+				</Texture>
+				<MaskTexture file="Interface\AddOns\Narcissus\Art\Modules\PhotoMode\SpeechBalloon\CornerMask-TopLeft" parentKey="CornerTopLeft" hWrapMode="CLAMPTOBLACK" vWrapMode="CLAMPTOBLACK" snapToPixelGrid="false" nounload="true">
+					<Size x="48" y="48"/>
+					<Anchors>
+						<Anchor point="TOPLEFT" relativeKey="$parent" relativePoint="TOPLEFT" x="0" y="-0"/>
+					</Anchors>
+					<MaskedTextures>
+						<MaskedTexture childKey="BackgroundLeft"/>
+						<MaskedTexture childKey="InnerShadowTop"/>
+						<MaskedTexture childKey="InnerShadowLeft"/>
+					</MaskedTextures>
+				</MaskTexture>
+				<MaskTexture file="Interface\AddOns\Narcissus\Art\Modules\PhotoMode\SpeechBalloon\CornerMask-BottomLeft" parentKey="CornerBottomLeft" hWrapMode="CLAMPTOBLACK" vWrapMode="CLAMPTOBLACK" snapToPixelGrid="false" nounload="true">
+					<Size x="48" y="48"/>
+					<Anchors>
+						<Anchor point="BOTTOMLEFT" relativeKey="$parent" relativePoint="BOTTOMLEFT" x="0" y="0"/>
+					</Anchors>
+					<MaskedTextures>
+						<MaskedTexture childKey="BackgroundLeft"/>
+						<MaskedTexture childKey="InnerShadowLeft"/>
+					</MaskedTextures>
+				</MaskTexture>
+				<MaskTexture file="Interface\AddOns\Narcissus\Art\Modules\PhotoMode\SpeechBalloon\CornerMask-TopRight" parentKey="CornerTopRight" hWrapMode="CLAMPTOBLACK" vWrapMode="CLAMPTOBLACK" snapToPixelGrid="false" nounload="true">
+					<Size x="48" y="48"/>
+					<Anchors>
+						<Anchor point="TOPRIGHT" relativeKey="$parent" relativePoint="TOPRIGHT" x="-0" y="-0"/>
+					</Anchors>
+					<MaskedTextures>
+						<MaskedTexture childKey="BackgroundRight"/>
+						<MaskedTexture childKey="InnerShadowTop"/>
+						<MaskedTexture childKey="InnerShadowRight"/>
+					</MaskedTextures>
+				</MaskTexture>
+				<MaskTexture file="Interface\AddOns\Narcissus\Art\Modules\PhotoMode\SpeechBalloon\CornerMask-BottomRight" parentKey="CornerBottomRight" hWrapMode="CLAMPTOBLACK" vWrapMode="CLAMPTOBLACK" snapToPixelGrid="false" nounload="true">
+					<Size x="48" y="48"/>
+					<Anchors>
+						<Anchor point="BOTTOMRIGHT" relativeKey="$parent" relativePoint="BOTTOMRIGHT" x="-0" y="0"/>
+					</Anchors>
+					<MaskedTextures>
+						<MaskedTexture childKey="BackgroundRight"/>
+						<MaskedTexture childKey="InnerShadowRight"/>
+					</MaskedTextures>
+				</MaskTexture>
+			</Layer>
+
+			<Layer level="BACKGROUND" textureSubLevel="-1">
+				<Texture parentKey="TailBorder" hidden="false">
+					<Color r="0" g="0" b="0" a="1"/>
+					<Anchors>
+						<Anchor point="TOP" relativeKey="$parent" relativePoint="BOTTOM" y="4"/>
+						<Anchor point="BOTTOMLEFT" relativeKey="$parent" relativePoint="BOTTOMLEFT" x="-600" y="-600"/>
+						<Anchor point="BOTTOMRIGHT" relativeKey="$parent" relativePoint="BOTTOMRIGHT" x="600" y="-600"/>
+					</Anchors>
+				</Texture>
+				<MaskTexture file="Interface\AddOns\Narcissus\Art\Modules\PhotoMode\SpeechBalloon\CircleOuter-ShowRight" parentKey="TailBorderCircle1" hWrapMode="CLAMPTOWHITE" vWrapMode="CLAMPTOWHITE" snapToPixelGrid="false" nounload="true">
+					<Size x="256" y="256"/>
+					<Anchors>
+						<Anchor point="CENTER" relativeKey="$parent" relativePoint="BOTTOM" x="0" y="0"/>
+					</Anchors>
+					<MaskedTextures>
+						<MaskedTexture childKey="TailBorder"/>
+					</MaskedTextures>
+				</MaskTexture>
+				<MaskTexture file="Interface\AddOns\Narcissus\Art\Modules\PhotoMode\SpeechBalloon\Circle512" parentKey="TailBorderCircle2" hWrapMode="CLAMPTOBLACKADDITIVE" vWrapMode="CLAMPTOBLACKADDITIVE" snapToPixelGrid="false" nounload="true">
+					<Size x="256" y="256"/>
+					<Color r="1" a="0.2"/>
+					<Anchors>
+						<Anchor point="CENTER" relativeKey="$parent" relativePoint="BOTTOM" x="0" y="0"/>
+					</Anchors>
+					<MaskedTextures>
+						<MaskedTexture childKey="TailBorder"/>
+					</MaskedTextures>
+				</MaskTexture>
+			</Layer>
+
+			<Layer level="BACKGROUND">
+				<Texture parentKey="BorderLeft" snapToPixelGrid="false">
+					<Color r="0" g="0" b="0" a="1"/>
+					<Anchors>
+						<Anchor point="TOPLEFT" relativePoint="TOPLEFT" x="-2" y="2"/>
+						<Anchor point="BOTTOMRIGHT" relativePoint="BOTTOM" x="0" y="-2"/>
+					</Anchors>
+				</Texture>
+				<Texture parentKey="BorderRight" snapToPixelGrid="false">
+					<Color r="0" g="0" b="0" a="1"/>
+					<Anchors>
+						<Anchor point="TOPLEFT" relativePoint="TOP" x="-0" y="2"/>
+						<Anchor point="BOTTOMRIGHT" relativePoint="BOTTOMRIGHT" x="2" y="-2"/>
+					</Anchors>
+				</Texture>
+				<MaskTexture file="Interface\AddOns\Narcissus\Art\Modules\PhotoMode\SpeechBalloon\CornerMask-TopLeft" parentKey="BorderMaskTopLeft" hWrapMode="CLAMPTOBLACK" vWrapMode="CLAMPTOBLACK" snapToPixelGrid="false" nounload="true">
+					<Size x="50" y="50"/>
+					<Anchors>
+						<Anchor point="TOPLEFT" relativeKey="$parent.BorderLeft" relativePoint="TOPLEFT" x="0" y="-0"/>
+					</Anchors>
+					<MaskedTextures>
+						<MaskedTexture childKey="BorderLeft"/>
+					</MaskedTextures>
+				</MaskTexture>
+				<MaskTexture file="Interface\AddOns\Narcissus\Art\Modules\PhotoMode\SpeechBalloon\CornerMask-BottomLeft" parentKey="BorderMaskBottomLeft" hWrapMode="CLAMPTOBLACK" vWrapMode="CLAMPTOBLACK" snapToPixelGrid="false" nounload="true">
+					<Size x="50" y="50"/>
+					<Anchors>
+						<Anchor point="BOTTOMLEFT" relativeKey="$parent.BorderLeft" relativePoint="BOTTOMLEFT" x="0" y="0"/>
+					</Anchors>
+					<MaskedTextures>
+						<MaskedTexture childKey="BorderLeft"/>
+					</MaskedTextures>
+				</MaskTexture>
+				<MaskTexture file="Interface\AddOns\Narcissus\Art\Modules\PhotoMode\SpeechBalloon\CornerMask-TopRight" parentKey="BorderMaskTopRight" hWrapMode="CLAMPTOBLACK" vWrapMode="CLAMPTOBLACK" snapToPixelGrid="false" nounload="true">
+					<Size x="50" y="50"/>
+					<Anchors>
+						<Anchor point="TOPRIGHT" relativeKey="$parent.BorderRight" relativePoint="TOPRIGHT" x="-0" y="-0"/>
+					</Anchors>
+					<MaskedTextures>
+						<MaskedTexture childKey="BorderRight"/>
+					</MaskedTextures>
+				</MaskTexture>
+				<MaskTexture file="Interface\AddOns\Narcissus\Art\Modules\PhotoMode\SpeechBalloon\CornerMask-BottomRight" parentKey="BorderMaskBottomRight" hWrapMode="CLAMPTOBLACK" vWrapMode="CLAMPTOBLACK" snapToPixelGrid="false" nounload="true">
+					<Size x="50" y="50"/>
+					<Anchors>
+						<Anchor point="BOTTOMRIGHT" relativeKey="$parent.BorderRight" relativePoint="BOTTOMRIGHT" x="-0" y="0"/>
+					</Anchors>
+					<MaskedTextures>
+						<MaskedTexture childKey="BorderRight"/>
+					</MaskedTextures>
+				</MaskTexture>
+			</Layer>
+			<Layer level="BACKGROUND" textureSubLevel="2">
+				<Texture parentKey="TailBackground" hidden="false">
+					<Color r="1" g="1" b="1" a="1"/>
+					<Anchors>
+						<Anchor point="TOP" relativeKey="$parent" relativePoint="BOTTOM" y="4"/>
+						<Anchor point="BOTTOMLEFT" relativeKey="$parent" relativePoint="BOTTOMLEFT" x="-600" y="-600"/>
+						<Anchor point="BOTTOMRIGHT" relativeKey="$parent" relativePoint="BOTTOMRIGHT" x="600" y="-600"/>
+					</Anchors>
+				</Texture>
+
+				<MaskTexture file="Interface\AddOns\Narcissus\Art\Modules\PhotoMode\SpeechBalloon\CircleOuter-ShowRight" parentKey="Circle1" hWrapMode="CLAMPTOWHITE" vWrapMode="CLAMPTOWHITE" snapToPixelGrid="false" nounload="true">
+					<Size x="256" y="256"/>
+					<Anchors>
+						<Anchor point="CENTER" relativeKey="$parent" relativePoint="BOTTOM" x="0" y="0"/>
+					</Anchors>
+					<MaskedTextures>
+						<MaskedTexture childKey="TailBackground"/>
+					</MaskedTextures>
+				</MaskTexture>
+				<MaskTexture file="Interface\AddOns\Narcissus\Art\Modules\PhotoMode\SpeechBalloon\Circle512" parentKey="Circle2" hWrapMode="CLAMPTOBLACKADDITIVE" vWrapMode="CLAMPTOBLACKADDITIVE" snapToPixelGrid="false" nounload="true">
+					<Size x="256" y="256"/>
+					<Color r="1" a="0.2"/>
+					<Anchors>
+						<Anchor point="CENTER" relativeKey="$parent" relativePoint="BOTTOM" x="0" y="0"/>
+					</Anchors>
+					<MaskedTextures>
+						<MaskedTexture childKey="TailBackground"/>
+					</MaskedTextures>
+				</MaskTexture>
+			</Layer>
+			<Layer level="OVERLAY">
+				<FontString inherits="NarciSpeechBalloonFontItalic" parentKey="ShownText" text="Master Shaw, we need you to come with us." spacing="2" justifyH="CENTER" justifyV="MIDDLE">
+					<Color r="0" g="0" b="0"/>
+					<Anchors>
+						<Anchor point="TOPLEFT" relativeKey="$parent" relativePoint="TOPLEFT" x="12" y="-12"/>
+                        <Anchor point="BOTTOMRIGHT" relativeKey="$parent" relativePoint="BOTTOMRIGHT" x="-12" y="12"/>
+					</Anchors>
+				</FontString>
+
+				<Texture parentKey="MN" hidden="true">
+					<Size x="4" y="4"/>
+					<Color g="1" a="0.8"/>
+					<Anchors>
+						<Anchor point="CENTER" relativeKey="$parent" relativePoint="BOTTOM" x="0" y="0"/>
+					</Anchors>
+				</Texture>
+				<Texture parentKey="OO" hidden="true">
+					<Size x="4" y="4"/>
+					<Color g="1" a="0.8"/>
+					<Anchors>
+						<Anchor point="CENTER" relativeKey="$parent" relativePoint="BOTTOM" x="0" y="0"/>
+					</Anchors>
+				</Texture>
+				<Line setAllPoints="true" thickness="1" parentKey="lt" snapToPixelGrid="false" texelSnappingBias="0">
+					<Anchors>
+						<Anchor point="CENTER" relativeKey="$parent" relativePoint="CENTER" x="0" y="0"/>
+					</Anchors>
+					<Color r="0.5" g="0.5" b="0.5" a="0"/>
+					<StartAnchor relativeKey="$parent.MN" relativePoint="CENTER" x="0" y="0"/>
+					<EndAnchor relativeKey="$parent.OO" relativePoint="CENTER" x="0" y="0"/>
+				</Line>
+				<Texture parentKey="MidPoint">
+					<Size x="4" y="4"/>
+					<Color g="1" a="0"/>
+					<Anchors>
+						<Anchor point="CENTER" relativeKey="$parent" relativePoint="BOTTOM" x="0" y="0"/>
+					</Anchors>
+				</Texture>
+				<Texture parentKey="MN2">
+					<Size x="4" y="4"/>
+					<Color g="1" a="0"/>
+					<Anchors>
+						<Anchor point="CENTER" relativeKey="$parent" relativePoint="BOTTOM" x="0" y="0"/>
+					</Anchors>
+				</Texture>
+				<Line setAllPoints="true" thickness="1" parentKey="lr" snapToPixelGrid="false" texelSnappingBias="0">
+					<Anchors>
+						<Anchor point="CENTER" relativeKey="$parent" relativePoint="CENTER" x="0" y="0"/>
+					</Anchors>
+					<Color r="0.5" g="0.5" b="0.5" a="0"/>
+					<StartAnchor relativeKey="$parent.MidPoint" relativePoint="CENTER" x="0" y="0"/>
+					<EndAnchor relativeKey="$parent.MN2" relativePoint="CENTER" x="0" y="0"/>
+				</Line>
+				<Texture parentKey="MN3" hidden="true">
+					<Size x="4" y="4"/>
+					<Color g="1" a="0"/>
+					<Anchors>
+						<Anchor point="CENTER" relativeKey="$parent" relativePoint="BOTTOM" x="0" y="0"/>
+					</Anchors>
+				</Texture>
+				<Line setAllPoints="true" thickness="1" parentKey="ll" snapToPixelGrid="false" texelSnappingBias="0">
+					<Anchors>
+						<Anchor point="CENTER" relativeKey="$parent" relativePoint="CENTER" x="0" y="0"/>
+					</Anchors>
+					<Color r="0.5" g="0.5" b="0.5" a="0"/>
+					<StartAnchor relativeKey="$parent.MidPoint" relativePoint="CENTER" x="0" y="0"/>
+					<EndAnchor relativeKey="$parent.MN3" relativePoint="CENTER" x="0" y="0"/>
+				</Line>
+				<Texture parentKey="P0" hidden="true">
+					<Size x="4" y="4"/>
+					<Color r="1" a="0.8"/>
+					<Anchors>
+						<Anchor point="CENTER" relativeKey="$parent" relativePoint="BOTTOM" x="0" y="0"/>
+					</Anchors>
+				</Texture>
+			</Layer>
+		</Layers>
+		<Frames>
+			<Button parentKey="CornerNode" inherits="NarciSpeechBalloonControlNodeTemplate">
+				<Anchors>
+					<Anchor point="CENTER" relativeKey="$parent" relativePoint="TOPLEFT"/>
+				</Anchors>
+				<Layers>
+					<Layer level="BACKGROUND">
+						<Texture parentKey="Mark" file="Interface\AddOns\Narcissus\Art\Modules\PhotoMode\SpeechBalloon\Mark-Fillet" hidden="true">
+							<Size x="26" y="26"/>
+							<Anchors>
+								<Anchor point="CENTER" relativeKey="$parent" relativePoint="CENTER" x="0" y="0"/>
+							</Anchors>
+						</Texture>
+					</Layer>
+				</Layers>
+			</Button>
+			<Button parentKey="WidthNode" inherits="NarciSpeechBalloonControlNodeTemplate">
+				<Anchors>
+					<Anchor point="CENTER" relativeKey="$parent" relativePoint="CENTER"/>
+				</Anchors>
+				<Layers>
+					<Layer level="BACKGROUND">
+						<Texture parentKey="Mark" file="Interface\AddOns\Narcissus\Art\Modules\PhotoMode\SpeechBalloon\Mark-MoveX" hidden="true">
+							<Size x="52" y="26"/>
+							<Anchors>
+								<Anchor point="CENTER"/>
+							</Anchors>
+						</Texture>
+					</Layer>
+				</Layers>
+			</Button>
+			<Button parentKey="WidthNodeRight" inherits="NarciSpeechBalloonControlNodeTemplate">
+				<Anchors>
+					<Anchor point="CENTER" relativeKey="$parent" relativePoint="CENTER"/>
+				</Anchors>
+				<Layers>
+					<Layer level="BACKGROUND">
+						<Texture parentKey="Mark" file="Interface\AddOns\Narcissus\Art\Modules\PhotoMode\SpeechBalloon\Mark-MoveX" hidden="true">
+							<Size x="52" y="26"/>
+							<Anchors>
+								<Anchor point="CENTER"/>
+							</Anchors>
+						</Texture>
+					</Layer>
+				</Layers>
+			</Button>
+			<Button parentKey="HeightNode" inherits="NarciSpeechBalloonControlNodeTemplate">
+				<Anchors>
+					<Anchor point="CENTER" relativeKey="$parent" relativePoint="CENTER"/>
+				</Anchors>
+				<Layers>
+					<Layer level="BACKGROUND">
+						<Texture parentKey="Mark" file="Interface\AddOns\Narcissus\Art\Modules\PhotoMode\SpeechBalloon\Mark-MoveY" hidden="true">
+							<Size x="26" y="52"/>
+							<Anchors>
+								<Anchor point="CENTER"/>
+							</Anchors>
+						</Texture>
+					</Layer>
+				</Layers>
+			</Button>
+			<Button parentKey="TailAttachNode" inherits="NarciSpeechBalloonControlNodeTemplate" frameLevel="5">
+				<Anchors>
+					<Anchor point="CENTER" relativeKey="$parent" relativePoint="BOTTOM"/>
+				</Anchors>
+				<Layers>
+					<Layer level="BACKGROUND">
+						<Texture parentKey="Mark" file="Interface\AddOns\Narcissus\Art\Modules\PhotoMode\SpeechBalloon\Mark-MoveX" hidden="true">
+							<Size x="52" y="26"/>
+							<Anchors>
+								<Anchor point="CENTER"/>
+							</Anchors>
+						</Texture>
+					</Layer>
+				</Layers>
+			</Button>
+			<Button parentKey="TailWidthNode" inherits="NarciSpeechBalloonControlNodeTemplate">
+				<Anchors>
+					<Anchor point="CENTER" relativeKey="$parent" relativePoint="BOTTOM" x="0"/>
+				</Anchors>
+				<Layers>
+					<Layer level="BACKGROUND">
+						<Texture parentKey="Mark1" file="Interface\AddOns\Narcissus\Art\Modules\PhotoMode\SpeechBalloon\Mark-Gap" hidden="true">
+							<Size x="26" y="26"/>
+							<Anchors>
+								<Anchor point="CENTER"/>
+							</Anchors>
+						</Texture>
+						<Texture parentKey="Mark2" file="Interface\AddOns\Narcissus\Art\Modules\PhotoMode\SpeechBalloon\Mark-Gap" hidden="true">
+							<Size x="26" y="26"/>
+							<TexCoords left="1" right="0" top="0" bottom="1"/>
+							<Anchors>
+								<Anchor point="CENTER"/>
+							</Anchors>
+						</Texture>
+					</Layer>
+					<Layer level="BACKGROUND" textureSubLevel="1">
+						<Texture parentKey="Mark" file="Interface\AddOns\Narcissus\Art\Modules\PhotoMode\SpeechBalloon\Mark-GapLine" hidden="true">
+							<Size x="26" y="26"/>
+							<TexCoords left="1" right="0" top="0" bottom="1"/>
+							<Anchors>
+								<Anchor point="LEFT" relativeKey="$parent.Mark1" relativePoint="RIGHT" x="-1"/>
+								<Anchor point="RIGHT" relativeKey="$parent.Mark2" relativePoint="LEFT" x="1"/>
+							</Anchors>
+						</Texture>
+					</Layer>
+				</Layers>
+			</Button>
+			<Button parentKey="TailEndNode" inherits="NarciSpeechBalloonControlNodeTemplate">
+				<Anchors>
+					<Anchor point="CENTER" relativeKey="$parent" relativePoint="CENTER"/>
+				</Anchors>
+			</Button>
+			<Button parentKey="TailArcNode" inherits="NarciSpeechBalloonControlNodeTemplate">
+				<Anchors>
+					<Anchor point="CENTER" relativeKey="$parent" relativePoint="BOTTOM" x="0"/>
+				</Anchors>
+				<Layers>
+					<Layer level="BACKGROUND" textureSubLevel="1">
+						<Texture parentKey="Mark" file="Interface\AddOns\Narcissus\Art\Modules\PhotoMode\SpeechBalloon\Mark-Arc" hidden="true">
+							<Size x="52" y="26"/>
+							<Anchors>
+								<Anchor point="CENTER"/>
+							</Anchors>
+						</Texture>
+					</Layer>
+				</Layers>
+			</Button>
+
+			<Button parentKey="ColorButton" hidden="true">
+				<Size x="16" y="16"/>
+				<Anchors>
+					<Anchor point="BOTTOMRIGHT" relativeKey="$parent" relativePoint="TOPRIGHT" y="4"/>
+				</Anchors>
+				<Layers>
+					<Layer>
+						<Texture>
+							<Color r="1"/>
+						</Texture>
+					</Layer>
+				</Layers>
+				<HighlightTexture>
+					<Color r="1" g="1" b="1" a="0.5"/>
+				</HighlightTexture>
+			</Button>
+		</Frames>
+		<Scripts>
+			<OnLoad method="OnLoad"/>
+			<OnDragStart method="OnDragStart"/>
+			<OnDragStop method="OnDragStop"/>
+			<OnEnter method="OnEnter"/>
+			<OnLeave method="OnLeave"/>
+			<OnClick method="OnClick"/>
+			<OnDoubleClick method="OnDoubleClick"/>
+		</Scripts>
+	</Button>
+
+	<Frame name="NarciSpeechBalloonToolbarTemplate" virtual="true">
+		<Size x="48" y="24"/>
+		<Layers>
+			<Layer level="BACKGROUND">
+				<Texture file="Interface\AddOns\Narcissus\Art\Modules\PhotoMode\SpeechBalloon\ToolbarBackground" parentKey="Left">
+					<Size x="6" y="24"/>
+					<TexCoords left="0" right="0.25" top="0" bottom="1"/>
+					<Anchors>
+						<Anchor point="LEFT" relativeKey="$parent" relativePoint="LEFT" x="-0"/>
+					</Anchors>
+				</Texture>
+				<Texture file="Interface\AddOns\Narcissus\Art\Modules\PhotoMode\SpeechBalloon\ToolbarBackground" parentKey="Right">
+					<Size x="6" y="24"/>
+					<TexCoords left="0.75" right="1" top="0" bottom="1"/>
+					<Anchors>
+						<Anchor point="RIGHT" relativeKey="$parent" relativePoint="RIGHT" x="0"/>
+					</Anchors>
+				</Texture>
+				<Texture file="Interface\AddOns\Narcissus\Art\Modules\PhotoMode\SpeechBalloon\ToolbarBackground" parentKey="Center">
+					<Size y="24"/>
+					<TexCoords left="0.25" right="0.75" top="0" bottom="1"/>
+					<Anchors>
+						<Anchor point="LEFT" relativeKey="$parent.Left" relativePoint="RIGHT" x="-0"/>
+						<Anchor point="RIGHT" relativeKey="$parent.Right" relativePoint="LEFT" x="0"/>
+					</Anchors>
+				</Texture>
+			</Layer>
+		</Layers>
+	</Frame>
+
+	<Button name="NarciSpeechBalloonSquareButtonTemplate" virtual="true" mixin="NarciSpeechBalloonToolbarButtonMixin">
+		<Size x="16" y="16"/>
+		<Layers>
+			<Layer level="BACKGROUND">
+				<Texture file="Interface\AddOns\Narcissus\Art\Modules\PhotoMode\SpeechBalloon\SquareOutline4px" parentKey="Background"/>
+			</Layer>
+			<Layer level="OVERLAY">
+				<Texture parentKey="Icon">
+					<Size x="16" y="16"/>
+					<Anchors>
+						<Anchor point="CENTER" relativeKey="$parent" relativePoint="CENTER"/>
+					</Anchors>
+				</Texture>
+				<Texture parentKey="Arrow" inherits="NarciDropDownArrowTemplate" hidden="true">
+					<TexCoords left="0" right="1" top="0" bottom="1"/>
+					<Anchors>
+						<Anchor point="TOP" relativeKey="$parent" relativePoint="BOTTOM"/>
+					</Anchors>
+				</Texture>
+			</Layer>
+		</Layers>
+		<HighlightTexture file="Interface\AddOns\Narcissus\Art\Modules\PhotoMode\SpeechBalloon\SquareHighlight" alphaMode="ADD" parentKey="HighlightTexture">
+
+		</HighlightTexture>
+		<Scripts>
+			<OnEnter method="OnEnter"/>
+			<OnLeave method="OnLeave"/>
+			<OnEvent method="OnEvent"/>
+		</Scripts>
+	</Button>
+
+	<Button name="NarciSpeechBalloonColorButtonTemplate" virtual="true" mixin="NarciSpeechBalloonToolbarColorButtonMixin" inherits="NarciSpeechBalloonSquareButtonTemplate" frameLevel="15">
+		<Layers>
+			<Layer level="ARTWORK">
+				<Texture file="Interface\AddOns\Narcissus\Art\Modules\PhotoMode\SpeechBalloon\SquareBorderOverlay" alphaMode="ADD" Alpha="0.5"/>
+			</Layer>
+		</Layers>
+		<Scripts>
+			<OnLoad method="OnLoad"/>
+			<OnClick method="OnClick"/>
+		</Scripts>
+	</Button>
+
+	<Button name="NarciSpeechBalloonRemoveButtonTemplate" inherits="NarciSpeechBalloonSquareButtonTemplate" virtual="true">
+		<Layers>
+			<Layer level="ARTWORK" textureSubLevel="2">
+				<Texture setAllPoints="true" parentKey="Fill" hidden="false" Alpha="0">
+					<Anchors>
+						<Anchor point="TOPLEFT" relativeKey="$parent" relativePoint="TOPLEFT" x="0" y="0"/>
+						<Anchor point="BOTTOMRIGHT" relativeKey="$parent" relativePoint="BOTTOMRIGHT" x="0" y="0"/>
+					</Anchors>
+					<Color r="1" g="0" b="0" a="0.8"/>
+					<Animations>
+						<AnimationGroup parentKey="FadeOut">
+							<Alpha fromAlpha="1" toAlpha="0" duration="0.15" order="1"/>
+						</AnimationGroup>
+						<AnimationGroup parentKey="Timer">
+							<Alpha fromAlpha="1" toAlpha="1" duration="0" order="1"/>
+							<Scale startDelay="0.0" parentKey="scale" fromScaleX="1" toScaleX="1" fromScaleY="0" toScaleY="1" duration="0.7" order="2">
+								<Origin point="BOTTOM">
+									<Offset x="0" y="0"/>
+								</Origin>
+							</Scale>
+						</AnimationGroup>
+					</Animations>
+				</Texture>
+			</Layer>
+		</Layers>
+	</Button>
+
+	<Button name="NarciSpeechBalloonLongButtonTemplate" virtual="true" mixin="NarciSpeechBalloonToolbarLongButtonMixin">
+		<Size x="48" y="16"/>
+		<Layers>
+			<Layer level="BACKGROUND">
+				<Texture file="Interface\AddOns\Narcissus\Art\Modules\PhotoMode\SpeechBalloon\SquareOutline4px" parentKey="Left">
+					<TexCoords left="0" right="0.25" top="0" bottom="1"/>
+					<Size x="4" y="16"/>
+					<Anchors>
+						<Anchor point="LEFT" relativeKey="$parent" relativePoint="LEFT" x="-0"/>
+					</Anchors>
+				</Texture>
+				<Texture file="Interface\AddOns\Narcissus\Art\Modules\PhotoMode\SpeechBalloon\SquareOutline4px" parentKey="Right">
+					<TexCoords left="0.75" right="1" top="0" bottom="1"/>
+					<Size x="4" y="16"/>
+					<Anchors>
+						<Anchor point="RIGHT" relativeKey="$parent" relativePoint="RIGHT" x="0"/>
+					</Anchors>
+				</Texture>
+				<Texture file="Interface\AddOns\Narcissus\Art\Modules\PhotoMode\SpeechBalloon\SquareOutline4px" parentKey="Middle">
+					<Size y="16"/>
+					<TexCoords left="0.25" right="0.75" top="0" bottom="1"/>
+					<Anchors>
+						<Anchor point="LEFT" relativeKey="$parent.Left" relativePoint="RIGHT" x="-0"/>
+						<Anchor point="RIGHT" relativeKey="$parent.Right" relativePoint="LEFT" x="0"/>
+					</Anchors>
+				</Texture>
+			</Layer>
+			<Layer level="OVERLAY">
+				<FontString inherits="NarciSpeechBalloonToolbarFont" parentKey="Label" text="1 x" justifyH="LEFT" justifyV="MIDDLE">
+					<Size y="16"/>
+					<Anchors>
+						<Anchor point="LEFT" relativeKey="$parent" relativePoint="LEFT" x="4" y="0"/>
+					</Anchors>
+				</FontString>
+				<Texture parentKey="Arrow" inherits="NarciDropDownArrowTemplate" hidden="true">
+					<TexCoords left="0" right="1" top="0" bottom="1"/>
+					<Anchors>
+						<Anchor point="TOP" relativeKey="$parent" relativePoint="BOTTOM"/>
+					</Anchors>
+				</Texture>
+			</Layer>
+		</Layers>
+		<Scripts>
+			<OnEnter method="OnEnter"/>
+			<OnLeave method="OnLeave"/>
+			<OnEvent method="OnEvent"/>
+		</Scripts>
+	</Button>
+
+	<Button name="NarciSpeechBalloonLineThicknessButtonTemplate" inherits="NarciSpeechBalloonLongButtonTemplate" mixin="NarciSpeechBalloonLineThicknessButtonMixin" virtual="true">
+		<Layers>
+			<Layer level="OVERLAY">
+				<Texture parentKey="Icon" file="Interface\AddOns\Narcissus\Art\Modules\PhotoMode\SpeechBalloon\LineThickness">
+					<Size x="16" y="16"/>
+					<TexCoords left="0.25" right="0.5" top="0" bottom="1"/>
+					<Anchors>
+						<Anchor point="RIGHT" relativeKey="$parent" relativePoint="RIGHT" x="-4"/>
+					</Anchors>
+				</Texture>
+			</Layer>
+		</Layers>
+		<Scripts>
+			<OnClick method="OnClick"/>
+			<OnEvent method="OnEvent"/>
+		</Scripts>
+	</Button>
+
+	<Button name="NarciSpeechBalloonTextWrappingButtonTemplate" virtual="true" mixin="NarciSpeechBalloonTextWrappingButtonMixin">
+		<Size x="16" y="16"/>
+		<Layers>
+			<Layer level="BACKGROUND">
+				<Texture file="Interface\AddOns\Narcissus\Art\Modules\PhotoMode\SpeechBalloon\CurveWrappingButton" parentKey="Background">
+					<TexCoords left="0" right="0.5" top="0" bottom="0.5"/>
+				</Texture>
+			</Layer>
+		</Layers>
+		<HighlightTexture file="Interface\AddOns\Narcissus\Art\Modules\PhotoMode\SpeechBalloon\CurveWrappingButton" alphaMode="ADD">
+			<TexCoords left="0" right="0.5" top="0.5" bottom="1"/>
+		</HighlightTexture>
+		<Scripts>
+			<OnEnter method="OnEnter"/>
+			<OnLeave method="OnLeave"/>
+			<OnClick method="OnClick"/>
+		</Scripts>
+	</Button>
+
+
+
+	<Button name="NarciTalkingHeadTemplate" mixin="NarciCustomTalkingHeadMixin" FrameStrata="FULLSCREEN_DIALOG" virtual="true">
+		<Size x="570" y="155"/>
+		<Anchors>
+		<Anchor point="BOTTOM" x="0" y="96"/>
+		</Anchors>
+		<Layers>
+			<Layer level="BACKGROUND">
+				<Texture parentKey="TextBackground" hidden="false" alpha="1.00" alphaMode="BLEND" atlas="TalkingHeads-TextBackground" useAtlasSize="true"/>
+			</Layer>
+			<Layer level="OVERLAY" textureSubLevel="2">
+				<Texture parentKey="Portrait" hidden="false" alpha="1.00" alphaMode="BLEND" atlas="TalkingHeads-Alliance-PortraitFrame" useAtlasSize="true">
+				<Anchors>
+					<Anchor point="TOPLEFT" x="5" y="-6"/>
+				</Anchors>
+				</Texture>
+			</Layer>
+			<Layer level="ARTWORK">
+				<FontString parentKey="Name" inherits="Fancy22Font" alpha="1" justifyH="LEFT" Text="Name">
+					<Anchors>
+						<Anchor point="TOPLEFT" relativeKey="$parent.Portrait" relativePoint="TOPRIGHT" x="2" y="-19"/>
+						<Anchor point="TOPRIGHT" relativeKey="$parent" relativePoint="TOPRIGHT" x="-42" y="-19"/>
+					</Anchors>
+					<Color r="1" g=".82" b="0"/>
+				</FontString>
+				<FontString parentKey="Text" inherits="GameFontHighlightLarge" alpha="1.00" justifyH="LEFT" justifyV="TOP" mixin="ShrinkUntilTruncateFontStringMixin">
+					<Anchors>
+						<Anchor point="TOPLEFT" relativeKey="$parent.Name" relativePoint="BOTTOMLEFT" x="0" y="-3"/>
+						<Anchor point="BOTTOMRIGHT" x="-42" y="12"/>
+					</Anchors>
+					<Color r="1" g="1" b="1"/>
+				</FontString>
+			</Layer>
+		</Layers>
+		<Frames>
+			<PlayerModel parentKey="Model" alpha="1.00" useParentLevel="true">
+				<Size x="115" y="115"/>
+				<Anchors>
+					<Anchor point="TOPLEFT" x="21" y="-21"/>
+				</Anchors>
+				<Layers>
+					<Layer level="BACKGROUND">
+						<Texture parentKey="PortraitBg" hidden="false" alpha="1.00" alphaMode="BLEND" atlas="TalkingHeads-PortraitBg" useAtlasSize="true">
+							<Anchors>
+								<Anchor point="TOPLEFT"/>
+							</Anchors>
+						</Texture>
+					</Layer>
+				</Layers>
+			</PlayerModel>
+			<Button parentKey="InteractableArea" registerForClicks="LeftButtonUp, RightButtonUp" Alpha="0">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeKey="$parent.Model" relativePoint="TOPLEFT"/>
+					<Anchor point="BOTTOMRIGHT" relativeKey="$parent.Model" relativePoint="BOTTOMRIGHT" x="-3"/>
+				</Anchors>
+				<Layers>
+					<Layer level="ARTWORK">
+						<Texture>
+							<Color r="0" g="0" b="0" a="0.5"/>
+						</Texture>
+					</Layer>
+					<Layer level="OVERLAY">
+						<FontString inherits="NarciPastelWhiteFont" justifyH="CENTER" justifyV="MIDDLE" text="[Show Options]" maxLines="2" parentKey="Label" ignoreParentScale="true">
+							<Size x="120" y="32"/>
+							<Anchors>
+								<Anchor point="CENTER" relativeKey="$parent" relativePoint="CENTER" x="0" y="0"/>
+							</Anchors>
+						</FontString>
+					</Layer>
+				</Layers>
+			</Button>
+			<Button parentKey="CloseButton" inherits="UIPanelCloseButtonNoScripts" alpha="1.00">
+				<Anchors>
+					<Anchor point="TOPRIGHT" x="-12" y="-12"/>
+				</Anchors>
+				<HitRectInsets>
+					<AbsInset left="2" right="2" top="2" bottom="2"/>
+				</HitRectInsets>
+				<Scripts>
+					<OnClick>
+						self:GetParent():Hide();
+					</OnClick>
+				</Scripts>
+			</Button>
+		</Frames>
+		<Scripts>
+			<OnLoad method="OnLoad"/>
+			<OnClick method="OnClick"/>
+			<OnShow method="OnShow"/>
+			<OnDragStart method="OnDragStart"/>
+			<OnDragStop method="OnDragStop"/>
+		</Scripts>
+	</Button>
+
+	<Button name="NarciNewTextOverlayButtonTemplate" parentKey="Variation" mixin="NarciNewTextOverlayButtonMixin" virtual="true">
+		<Size x="24" y="24"/>
+		<Layers>
+			<Layer level="OVERLAY">	
+				<Texture parentKey="Icon">
+					<TexCoords left="0.75" right="1" top="0" bottom="0.5"/>
+					<Size x="22" y="22"/>
+					<Anchors>
+						<Anchor point="CENTER"/>
+					</Anchors>
+				</Texture>
+			</Layer>
+		</Layers>
+		<Scripts>
+			<OnLoad method="OnLoad"/>
+			<OnEnter method="OnEnter"/>
+			<OnLeave method="OnLeave"/>
+			<OnClick method="OnClick"/>
+			<OnMouseDown method="OnMouseDown"/>
+			<OnMouseUp method="OnMouseUp"/>
+			<OnDoubleClick method="OnDoubleClick"/>
+		</Scripts>					
+	</Button>
+
+	<Button name="NarciTalkingHeadModelDropDownButtonTemplate" virtual="true">
+		<Size x="128" y="16"/>
+		<HighlightTexture alphaMode="ADD">
+			<Color r="0.2" g="0.2" b="0.2"/>
+		</HighlightTexture>
+		<Layers>
+			<Layer level="BACKGROUND">
+				<Texture>
+					<Color r="0.1" g="0.1" b="0.1"/>
+				</Texture>
+			</Layer>
+			<Layer level="OVERLAY">
+				<FontString inherits="NarciPastelWhiteFont" justifyH="LEFT" justifyV="MIDDLE" text="Self" maxLines="1" parentKey="Label">
+					<Size x="116" y="16"/>
+					<Anchors>
+						<Anchor point="LEFT" relativeKey="$parent" relativePoint="LEFT" x="6" y="0"/>
+					</Anchors>
+				</FontString>
+			</Layer>
+		</Layers>
+	</Button>
+
+	<Frame name="NarciTextOverlayContainer" FrameStrata="HIGH" setAllPoints="true" mixin="NarciTextOverlayContainerMixin" hidden="true">
+		<Layers>
+			<Layer>
+				<FontString inherits="NarciSpeechBalloonFontItalic" text="CACHE" hidden="true"/>
+				<FontString inherits="NarciSpeechBalloonFontBold" text="CACHE" hidden="true"/>
+				<FontString inherits="NarciSpeechBalloonFontBoldItalic" text="CACHE" hidden="true"/>
+			</Layer>
+		</Layers>
+		<Frames>
+			<EditBox parentKey="PrimaryEditBox" multiLine="true" autoFocus="false" mixin="NarciSpeechBalloonEditBoxMixin" frameLevel="8" hidden="true">
+				<Size x="200" y="120"/>
+				<Anchors>
+					<Anchor point="CENTER"/>
+				</Anchors>
+				<FontString inherits="NarciSpeechBalloonFontRegular" justifyH="CENTER" justifyV="MIDDLE" spacing="2"  wordwrap="false">
+					<Color r="0" g="0" b="0"/>
+				</FontString>
+				<Layers>
+					<Layer>
+						<Texture parentKey="Highlight" hidden="true">
+							<Color r="0.25" g="0.78" b="0.92" a="0.2"/>
+						</Texture>
+					</Layer>
+				</Layers>
+				<Scripts>
+					<OnLoad method="OnLoad"/>
+					<OnEnable method="OnEnable"/>
+					<OnDisable method="OnDisable"/>
+					<OnEscapePressed method="OnEscapePressed"/>
+				</Scripts>
+			</EditBox>
+
+			<Button parentKey="EditButton" mixin="NarciTextOverlayEditButtonMixin" FrameStrata="TOOLTIP" frameLevel="10">
+				<Size x="40" y="40"/>
+				<Anchors>
+					<Anchor point="CENTER" relativeKey="$parent" relativePoint="BOTTOMRIGHT" x="80" y="-80"/>
+				</Anchors>
+				<HitRectInsets>
+					<AbsInset left="6" right="6" top="6" bottom="6"/>
+				</HitRectInsets>
+				<Layers>
+					<Layer level="BACKGROUND">
+						<Texture parentKey="Texture" snapToPixelGrid="false">
+							<TexCoords left="0" right="0.5" top="0" bottom="0.5"/>
+						</Texture>
+					</Layer>
+					<Layer level="ARTWORK">
+						<Texture parentKey="Highlight" hidden="true" Alpha="0" snapToPixelGrid="false">
+							<TexCoords left="0.5" right="1" top="0" bottom="0.5"/>
+						</Texture>
+					</Layer>
+					<Layer level="OVERLAY">
+						<Texture parentKey="Icon" snapToPixelGrid="false">
+							<Size x="40" y="40"/>
+							<TexCoords left="0" right="0.5" top="0.5" bottom="1"/>
+							<Anchors>
+								<Anchor point="CENTER" relativeKey="$parent" relativePoint="CENTER" x="0" y="0"/>
+							</Anchors>
+							<Animations>
+								<AnimationGroup parentKey="rotateClockwise">
+									<Rotation degrees="20" duration="0" order="1"/>
+									<!--Alpha fromAlpha="0" toAlpha="0" duration="0" order="1"/-->
+									<Rotation degrees="-20" duration="0.15" order="2" smoothing="IN_OUT"/>
+									<!--Alpha fromAlpha="0" toAlpha="1" duration="0.2" order="2"/-->
+								</AnimationGroup>
+								<AnimationGroup parentKey="rotateCounterClockwise">
+									<Rotation degrees="-20" duration="0" order="1"/>
+									<!--Alpha fromAlpha="0" toAlpha="0" duration="0" order="1"/-->
+									<Rotation degrees="20" duration="0.15" order="2" smoothing="IN_OUT"/>
+									<!--Alpha fromAlpha="0" toAlpha="1" duration="0.2" order="2"/-->
+								</AnimationGroup>
+							</Animations>
+						</Texture>
+					</Layer>
+				</Layers>
+
+				<Animations>
+					<AnimationGroup parentKey="animPushed">
+						<Scale scaleX="0.8" scaleY="0.8" duration="0.12" order="1" smoothing="IN_OUT"/>
+						<Translation duration="20" order="2" parentKey="hold"/>
+						<Scale scaleX="1.25" scaleY="1.25" duration="0.15" order="3" smoothing="IN_OUT"/>
+					</AnimationGroup>
+				</Animations>
+				<Scripts>
+					<OnLoad method="OnLoad"/>
+					<OnMouseDown method="OnMouseDown"/>
+					<OnMouseUp method="OnMouseUp"/>
+					<OnEnter method="OnEnter"/>
+					<OnLeave method="OnLeave"/>
+					<OnClick method="OnClick"/>
+					<OnHide method="OnHide"/>
+				</Scripts>
+			</Button>
+
+			<Frame parentKey="Toolbar" clampedToScreen="true" mixin="NarciSpeechBalloonToolbarMixin" FrameStrata="TOOLTIP">
+				<Scripts>
+					<OnLoad method="OnLoad"/>
+				</Scripts>
+			</Frame>
+
+			<Frame parentKey="Tooltip" FrameStrata="TOOLTIP" mixin="NarciTextOverlayTooltipMixin" hidden="true" frameLevel="60">
+				<Size x="16" y="16"/>
+				<Layers>
+					<Layer level="BACKGROUND">
+						<Texture file="Interface\AddOns\Narcissus\Art\Modules\PhotoMode\SpeechBalloon\SquareOutline2px" parentKey="Left">
+							<TexCoords left="0" right="0.25" top="0" bottom="1"/>
+							<Size x="4" y="16"/>
+							<Anchors>
+								<Anchor point="LEFT" relativeKey="$parent" relativePoint="LEFT" x="-0"/>
+							</Anchors>
+						</Texture>
+						<Texture file="Interface\AddOns\Narcissus\Art\Modules\PhotoMode\SpeechBalloon\SquareOutline2px" parentKey="Right">
+							<TexCoords left="0.75" right="1" top="0" bottom="1"/>
+							<Size x="4" y="16"/>
+							<Anchors>
+								<Anchor point="RIGHT" relativeKey="$parent" relativePoint="RIGHT" x="0"/>
+							</Anchors>
+						</Texture>
+						<Texture file="Interface\AddOns\Narcissus\Art\Modules\PhotoMode\SpeechBalloon\SquareOutline2px" parentKey="Middle">
+							<Size y="16"/>
+							<TexCoords left="0.25" right="0.75" top="0" bottom="1"/>
+							<Anchors>
+								<Anchor point="LEFT" relativeKey="$parent.Left" relativePoint="RIGHT" x="-0"/>
+								<Anchor point="RIGHT" relativeKey="$parent.Right" relativePoint="LEFT" x="0"/>
+							</Anchors>
+						</Texture>
+					</Layer>
+					<Layer level="OVERLAY">
+						<FontString inherits="NarciTooltipDescriptionFontSmall" justifyH="CENTER" justifyV="MIDDLE" parentKey="Description">
+							<Color r="0" g="0" b="0"/>
+							<Anchors>
+								<Anchor point="CENTER" relativeKey="$parent" relativePoint="CENTER" x="0" y="-1"/>
+							</Anchors>
+						</FontString>
+					</Layer>
+				</Layers>
+				<Scripts>
+					<OnLoad method="OnLoad"/>
+					<OnHide method="OnHide"/>
+					<OnShow method="OnShow"/>
+					<OnEvent method="OnEvent"/>
+				</Scripts>
+			</Frame>
+
+			<EditBox parentKey="GenericEditBox" mixin="NarciTextOverlayGenericEditBoxMixin" multiLine="true" autoFocus="false" frameLevel="8" hidden="true" FrameStrata="FULLSCREEN_DIALOG">
+				<Layers>
+					<Layer>
+						<Texture parentKey="Highlight">
+							<Color r="0.25" g="0.78" b="0.92" a="0.2"/>
+						</Texture>
+					</Layer>
+				</Layers>
+				<Frames>
+					<Button parentKey="ConfirmButton" mixin="NarciTextOverlayGenericEditBoxConfirmButtonMixin" FrameStrata="TOOLTIP" frameLevel="10" ignoreParentScale="true" clampedToScreen="true" hidden="true">
+						<Size x="40" y="40"/>
+						<Anchors>
+							<Anchor point="BOTTOM" relativeKey="$parent" relativePoint="TOP" x="0" y="0"/>
+						</Anchors>
+						<!--HitRectInsets>
+							<AbsInset left="4" right="4" top="4" bottom="4"/>
+						</HitRectInsets-->
+						<Layers>
+							<Layer level="BACKGROUND">
+								<Texture parentKey="Texture" snapToPixelGrid="false">
+									<TexCoords left="0" right="0.5" top="0" bottom="0.5"/>
+								</Texture>
+							</Layer>
+							<Layer level="ARTWORK">
+								<Texture parentKey="Highlight" hidden="true" Alpha="0" snapToPixelGrid="false">
+									<TexCoords left="0.5" right="1" top="0" bottom="0.5"/>
+								</Texture>
+							</Layer>
+							<Layer level="OVERLAY">
+								<Texture parentKey="Icon" snapToPixelGrid="false">
+									<Size x="40" y="40"/>
+									<TexCoords left="0.5" right="1" top="0.5" bottom="1"/>
+									<Anchors>
+										<Anchor point="CENTER" relativeKey="$parent" relativePoint="CENTER" x="0" y="0"/>
+									</Anchors>
+									<Animations>
+										<AnimationGroup parentKey="rotateClockwise">
+											<Rotation degrees="20" duration="0" order="1"/>
+											<!--Alpha fromAlpha="0" toAlpha="0" duration="0" order="1"/-->
+											<Rotation degrees="-20" duration="0.15" order="2" smoothing="IN_OUT"/>
+											<!--Alpha fromAlpha="0" toAlpha="1" duration="0.2" order="2"/-->
+										</AnimationGroup>
+										<AnimationGroup parentKey="rotateCounterClockwise">
+											<Rotation degrees="-20" duration="0" order="1"/>
+											<!--Alpha fromAlpha="0" toAlpha="0" duration="0" order="1"/-->
+											<Rotation degrees="20" duration="0.15" order="2" smoothing="IN_OUT"/>
+											<!--Alpha fromAlpha="0" toAlpha="1" duration="0.2" order="2"/-->
+										</AnimationGroup>
+									</Animations>
+								</Texture>
+							</Layer>
+						</Layers>
+
+						<Animations>
+							<AnimationGroup parentKey="animPushed">
+								<Scale scaleX="0.8" scaleY="0.8" duration="0.12" order="1" smoothing="IN_OUT"/>
+								<Translation duration="20" order="2" parentKey="hold"/>
+								<Scale scaleX="1.25" scaleY="1.25" duration="0.15" order="3" smoothing="IN_OUT"/>
+							</AnimationGroup>
+						</Animations>
+						<Scripts>
+							<OnLoad method="OnLoad"/>
+							<OnMouseDown method="OnMouseDown"/>
+							<OnMouseUp method="OnMouseUp"/>
+							<OnEnter method="OnEnter"/>
+							<OnLeave method="OnLeave"/>
+							<OnHide method="OnHide"/>
+						</Scripts>
+					</Button>
+				</Frames>
+				<Scripts>
+					<OnEscapePressed method="OnEscapePressed"/>
+					<OnEditFocusLost method="OnEditFocusLost"/>
+				</Scripts>		
+			</EditBox>
+
+			<Frame parentKey="SubtitleFrame" setAllPoints="true" hidden="true">
+				<Layers>
+					<Layer level="ARTWORK">
+						<Texture parentKey="BlackBarTop">
+							<Size>
+								<AbsDimension x="0" y="0"/>
+							</Size>
+							<Anchors>
+								<Anchor point="TOPLEFT"/>
+								<Anchor point="TOPRIGHT"/>
+							</Anchors>
+							<Color r="0.0" g="0.0" b="0.0"/>
+						</Texture>
+						<Texture parentKey="BlackBarBottom">
+							<Size>
+								<AbsDimension x="0" y="0"/>
+							</Size>
+							<Anchors>
+								<Anchor point="BOTTOMLEFT"/>
+								<Anchor point="BOTTOMRIGHT"/>
+							</Anchors>
+							<Color r="0.0" g="0.0" b="0.0"/>
+						</Texture>
+					</Layer>
+					<Layer level="OVERLAY">
+						<FontString parentKey="Subtitle" inherits="GameFontHighlightLarge" justifyH="CENTER" justifyV="TOP" mixin="ShrinkUntilTruncateFontStringMixin">
+							<Anchors>
+								<Anchor point="TOPLEFT" relativeKey="$parent.BlackBarBottom" x="100" y="-8"/>
+								<Anchor point="BOTTOMRIGHT" x="-100" y="4"/>
+							</Anchors>
+						</FontString>
+					</Layer>
+				</Layers>
+			</Frame>
+
+			<Frame parentKey="MovieSubtitleFrame" setAllPoints="true" hidden="true">
+				<Layers>
+					<Layer level="OVERLAY">
+						<FontString parentKey="MovieSubtitle" inherits="MovieSubtitleFont" hidden="false">
+						<Size x="800" y="64"/>
+						<Anchors>
+							<Anchor point="BOTTOM" x="0" y="38"/>
+						</Anchors>
+						</FontString>
+					</Layer>
+				</Layers>
+			</Frame>
+
+			<Frame parentKey="ModelDropDownMenu" FrameStrata="TOOLTIP" hidden="true" clampedToScreen="true" enableMouse="true">
+				<Size x="128" y="80"/>
+				<Layers>
+					<Layer level="BACKGROUND">
+						<Texture>
+							<Color r="0.05" g="0.05" b="0.05"/>
+						</Texture>
+					</Layer>
+					<Layer level="OVERLAY">
+						<FontString inherits="NarciNonInteractiveFont" justifyH="CENTER" justifyV="MIDDLE" text="Unit" maxLines="1" parentKey="Label">
+							<Size x="116" y="16"/>
+							<Anchors>
+								<Anchor point="TOP" relativeKey="$parent" relativePoint="TOP" x="0" y="0"/>
+							</Anchors>
+						</FontString>
+						<FontString inherits="NarciNonInteractiveFont" justifyH="CENTER" justifyV="MIDDLE" text="NPC" maxLines="1" parentKey="Label">
+							<Size x="116" y="16"/>
+							<Anchors>
+								<Anchor point="TOP" relativeKey="$parent" relativePoint="TOP" x="0" y="-48"/>
+							</Anchors>
+						</FontString>
+						<FontString inherits="NarciNonInteractiveFont" justifyH="LEFT" justifyV="MIDDLE" text="NONE" maxLines="1" parentKey="None" hidden="true">
+							<Size x="116" y="16"/>
+							<Anchors>
+								<Anchor point="TOP" relativeKey="$parent" relativePoint="TOP" x="0" y="-64"/>
+							</Anchors>
+						</FontString>
+					</Layer>
+				</Layers>
+			</Frame>
+		</Frames>
+
+		<Scripts>
+			<OnLoad method="OnLoad"/>
+			<OnHide method="OnHide"/>
+		</Scripts>
+	</Frame>
+
+	<Frame name="Narci_TextOverlay" frameLevel="60" parent="Narci_ModelSettings">
+		<Size x="223" y="31"/>
+		<Anchors>
+			<Anchor point="BOTTOMLEFT" relativeTo="Narci_ActorPanel" relativePoint="TOPLEFT" x="0" y="-1"/>
+		</Anchors>
+		<Layers>
+			<Layer level="OVERLAY" textureSubLevel="2">
+				<Texture file="Interface\AddOns\Narcissus\Art\Modules\PhotoMode\SpeechBalloon\Panel" parentKey="Border" snapToPixelGrid="false">
+					<TexCoords left="0" right="0.81640625" top="0" bottom="0.15234375"/>
+					<Size x="223" y="41.7"/>
+					<Anchors>
+						<Anchor point="TOPLEFT"/>
+					</Anchors>
+				</Texture>
+			</Layer>
+			<Layer level="BACKGROUND">
+				<Texture file="Interface\AddOns\Narcissus\Art\Modules\PhotoMode\SpeechBalloon\Panel" parentKey="Background" snapToPixelGrid="false">
+					<TexCoords left="0" right="0.81640625" top="0.15234375" bottom="0.3046875"/>
+					<Size x="223" y="41.7"/>
+					<Anchors>
+						<Anchor point="TOPLEFT"/>
+					</Anchors>
+				</Texture>
+			</Layer>
+			<Layer level="OVERLAY">
+				<FontString inherits="NarciNonInteractiveFont" justifyH="LEFT" justifyV="MIDDLE" text="Text Overlay" maxLines="1" parentKey="Label">
+					<Size x="90" y="24"/>
+					<Anchors>
+						<Anchor point="LEFT" relativeKey="$parent" relativePoint="LEFT" x="28" y="0"/>
+					</Anchors>
+				</FontString>
+			</Layer>
+		</Layers>
+		<Frames>
+			<Frame inherits="NarciIDFrameTemplate" parentKey="Tooltip"/>
+
+			<Button inherits="Narci_RoundButtonTemplate" parentKey="VisibilityButton" useParentLevel="true">
+				<Anchors>
+					<Anchor point="LEFT" relativeKey="$parent" relativePoint="LEFT" x="3" y="0"/>
+				</Anchors>
+				<Layers>
+					<Layer level="ARTWORK" textureSubLevel="2">	
+						<Texture parentKey="Icon">
+							<TexCoords left="0.25" right="0.5" top="0" bottom="0.5"/>
+							<Size x="22" y="22"/>
+							<Anchors>
+								<Anchor point="CENTER"/>
+							</Anchors>
+						</Texture>
+					</Layer>
+				</Layers>
+			</Button>
+			<Button inherits="NarciNewTextOverlayButtonTemplate" parentKey="Button5" id="5">
+				<Anchors>
+					<Anchor point="RIGHT" relativeKey="$parent" relativePoint="RIGHT" x="-5" y="0"/>
+				</Anchors>
+			</Button>
+			<Button inherits="NarciNewTextOverlayButtonTemplate" parentKey="Button4" id="4">
+				<Anchors>
+					<Anchor point="RIGHT" relativeKey="$parent.Button5" relativePoint="LEFT" x="0" y="0"/>
+				</Anchors>
+			</Button>
+			<Button inherits="NarciNewTextOverlayButtonTemplate" parentKey="Button3" id="3">
+				<Anchors>
+					<Anchor point="RIGHT" relativeKey="$parent.Button4" relativePoint="LEFT" x="0" y="0"/>
+				</Anchors>
+			</Button>
+			<Button inherits="NarciNewTextOverlayButtonTemplate" parentKey="Button2" id="2">
+				<Anchors>
+					<Anchor point="RIGHT" relativeKey="$parent.Button3" relativePoint="LEFT" x="0" y="0"/>
+				</Anchors>
+			</Button>
+			<Button inherits="NarciNewTextOverlayButtonTemplate" parentKey="Button2" id="1">
+				<Anchors>
+					<Anchor point="RIGHT" relativeKey="$parent.Button2" relativePoint="LEFT" x="0" y="0"/>
+				</Anchors>
+			</Button>
+		</Frames>
+	</Frame>
+</Ui>

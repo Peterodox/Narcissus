@@ -1,0 +1,145 @@
+<Ui xsi:schemaLocation="http://www.blizzard.com/wow/ui/..\FrameXML\UI.xsd">
+	<Script file="Guide.lua"/>
+
+    <Frame name="NarciGenericGuideTemplate" inherits="NarciFrameWithShadowTemplate" frameStrata="TOOLTIP" clampedToScreen="true" hidden="true" ignoreParentScale="true" parentKey="Guide" frameLevel="80" ignoreParentAlpha="true" virtual="true" mixin="NarciGuideMixin">
+		<Size x="12" y="8"/>
+        <Layers>
+			<Layer level="ART">
+				<Texture setAllPoints="true" parentKey="Gradient">
+					<Anchors>
+						<Anchor point="TOPLEFT" relativeKey="$parent.inset" relativePoint="TOPLEFT"/>
+						<Anchor point="BOTTOMRIGHT" relativeKey="$parent.inset" relativePoint="BOTTOMRIGHT"/>
+					</Anchors>
+					<Color r="1" g="1" b="1" a="1"/>
+					<Gradient orientation="VERTICAL">
+						<MaxColor r="1" g="1" b="1" a="1"/>
+						<MinColor r="0.82" g="0.82" b="0.82" a="1"/>
+					</Gradient>
+				</Texture>
+			</Layer>
+			<Layer level="ART">
+				<Texture File="Interface\AddOns\Narcissus\Art\Tooltip\Tooltip-White-Arrow" nounload="true" parentKey="Pointer"> <!--Vertical Bottom-->
+					<Size x="16" y="16"/>
+					<TexCoords left="0" right="0.5" top="0" bottom="1"/>
+					<Anchors>
+						<Anchor point="CENTER" relativeKey="$parent.inset" relativePoint="BOTTOM" x="0" y="0.5"/>
+					</Anchors>				
+				</Texture>
+
+				<Texture File="Interface\AddOns\Narcissus\Art\Tooltip\Tooltip-White-Arrow-Right" nounload="true" parentKey="Pointer2" hidden="true"> <!--Horizontal Right-->
+					<Size x="16" y="16"/>
+					<TexCoords left="0" right="1" top="0" bottom="0.5"/>
+					<Anchors>
+						<Anchor point="CENTER" relativeKey="$parent.inset" relativePoint="RIGHT"  x="-0.5" y="0"/>
+					</Anchors>				
+				</Texture>
+			</Layer>
+			<Layer level="OVERLAY">
+				<FontString inherits="NarciTooltipHeaderFontSemibold" justifyH="LEFT" justifyV="MIDDLE" parentKey="Header">
+                    <Color r="0" g="0" b="0"/>
+					<Shadow>
+						<Color a="1" r="1" g="1" b="1"/>
+					</Shadow>
+					<Anchors>
+						<Anchor point="TOPLEFT" relativeKey="$parent.inset" relativePoint="TOPLEFT" x="12" y="-12"/>
+						<Anchor point="TOPRIGHT" relativeKey="$parent.inset" relativePoint="TOPRIGHT" x="-12" y="-12"/>
+					</Anchors>
+				</FontString>
+
+				<FontString inherits="NarciTooltipDescriptionFontRegularWhite" justifyH="LEFT" justifyV="MIDDLE" parentKey="Text">
+                    <Color r="0" g="0" b="0"/>
+					<Shadow>
+						<Color a="1" r="1" g="1" b="1"/>
+					</Shadow>
+					<Anchors>
+						<Anchor point="TOP" relativeKey="$parent.Header" relativePoint="BOTTOM" y="-8"/>
+						<Anchor point="LEFT" relativeKey="$parent.inset" relativePoint="LEFT" x="12"/>
+						<Anchor point="RIGHT" relativeKey="$parent.inset" relativePoint="RIGHT" x="-12"/>
+					</Anchors>
+				</FontString>
+			</Layer>
+		</Layers>
+        <Frames>
+            <Button parentKey="Next" hidden="true">
+                <Size x="20" y="20"/>
+                <Anchors>
+                    <Anchor point="TOPRIGHT" relativeKey="$parent.inset" relativePoint="TOPRIGHT" x="-4" y="-4"/>
+                </Anchors>
+                <Layers>
+                    <Layer level="BACKGROUND">
+                        <Texture setAllPoints="true" parentKey="Hightlight" hidden="true">
+                            <Color r="0" g="0" b="0" a="0.8"/>
+                        </Texture>
+                    </Layer>
+                    <Layer level="OVERLAY">
+                        <Texture file="Interface\AddOns\Narcissus\Guide\UI\NextAndClose" parentKey="IconNext">
+                            <Size x="24" y="24"/>
+                            <TexCoords left="0" right="0.25" top="0" bottom="1"/>
+                            <Anchors>
+                                <Anchor point="CENTER" relativeKey="$parent" relativePoint="CENTER"/>
+                            </Anchors>
+                        </Texture>
+                        <Texture file="Interface\AddOns\Narcissus\Guide\UI\NextAndClose" parentKey="IconClose" hidden="true">
+                            <TexCoords left="0.5" right="0.75" top="0" bottom="1"/>
+                            <Anchors>
+                                <Anchor point="TOPLEFT" relativeKey="$parent.IconNext" relativePoint="TOPLEFT"/>
+                                <Anchor point="BOTTOMRIGHT" relativeKey="$parent.IconNext" relativePoint="BOTTOMRIGHT"/>
+                            </Anchors>
+                        </Texture>
+                    </Layer>
+                    <Layer level="ARTWORK">
+                        <Texture setAllPoints="true" parentKey="Bling">
+                            <Color r="0" g="0" b="0" a="0.35"/>
+							<Animations>
+								<AnimationGroup parentKey="animIn">
+									<Alpha fromAlpha="0" toAlpha="1" duration="0.35" order="1"/>
+                                    <Alpha fromAlpha="1" toAlpha="0" duration="2.15" order="2"/>
+                                    <Alpha fromAlpha="0" toAlpha="0" duration="0.25" order="3"/>
+                                    <Scripts>
+                                        <OnPlay>
+                                            self:GetParent():SetAlpha(1);
+                                        </OnPlay>
+                                        <OnFinished>
+                                            self:GetParent():SetAlpha(0);
+                                            if not self:GetParent():GetParent():IsMouseOver() then
+                                                self:Play();
+                                            end
+                                        </OnFinished>
+                                    </Scripts>
+								</AnimationGroup>
+							</Animations>
+                        </Texture>
+                    </Layer>
+                </Layers>
+                <Scripts>
+                    <OnShow>
+                        self.Bling.animIn:Play();
+                    </OnShow>
+                    <OnEnter>
+                        self.IconNext:SetTexCoord(0.25, 0.5, 0, 1);
+                        self.IconClose:SetTexCoord(0.75, 1, 0, 1);
+                        self.Hightlight:Show();
+                    </OnEnter>
+                    <OnLeave>
+                        self.IconNext:SetTexCoord(0, 0.25, 0, 1);
+                        self.IconClose:SetTexCoord(0.5, 0.75, 0, 1);
+                        self.Hightlight:Hide();
+                        self.Bling.animIn:Play();
+                    </OnLeave>
+                    <OnMouseDown>
+                        self.IconNext:SetSize(22, 22);
+                    </OnMouseDown>
+                    <OnMouseUp>
+                        self.IconNext:SetSize(24, 24);
+                    </OnMouseUp>                  
+                </Scripts>
+            </Button>
+        </Frames>
+		<Scripts>
+			<OnShow method="OnShow"/>
+            <OnEnter>
+                return;
+            </OnEnter>
+		</Scripts>
+    </Frame>
+</Ui>

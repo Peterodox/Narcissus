@@ -1,0 +1,449 @@
+<Ui xsi:schemaLocation="http://www.blizzard.com/wow/ui/..\FrameXML\UI.xsd">
+	<Script file="CorruptionSystem.lua"/>
+
+    <FontString name="NarciCorruptionBarText" inherits="NarciFontStatusNumber" justifyH="LEFT" justifyV="CENTER" virtual="true">
+        <Color r="0.584" g="0.428" b="0.82"/>
+        <Shadow>
+            <Offset>
+                <AbsDimension x="0.8" y="-0.8"/>
+            </Offset>
+            <Color a="1" r="0" g="0" b="0"/>
+        </Shadow>
+    </FontString>
+
+    <Button name="NarciCorruptionTooltipTemplate" virtual="true" motionScriptsWhileDisabled="true">
+        <Size x="180" y="72"/>
+        <Layers>
+            <Layer level="BACKGROUND">
+                <Texture setAllPoints="true">
+                    <Color r="1" g="1" b="1" a="1"/>
+                    <Gradient orientation="VERTICAL">
+                        <MinColor a="1" r="0.06" g="0.06" b="0.06"/>
+                        <MaxColor a="1" r="0.08" g="0.08" b="0.08"/>
+                    </Gradient>
+                </Texture>
+            </Layer>
+            <Layer level="ARTWORK">
+                <Texture parentKey="Icon" desaturated="true" Alpha="0.06">
+                    <TexCoords left="0.08" right="0.92" top="0.08" bottom="0.92"/>
+                    <Anchors>
+                        <Anchor point="TOPRIGHT" relativeKey="$parent" relativePoint="TOPRIGHT"/>
+                        <Anchor point="BOTTOMRIGHT" relativeKey="$parent" relativePoint="BOTTOMRIGHT"/>
+                    </Anchors>
+                </Texture>
+                <Texture parentKey="IconHighlight" desaturated="false" Alpha="0">
+                    <TexCoords left="0.08" right="0.92" top="0.08" bottom="0.92"/>
+                    <Anchors>
+                        <Anchor point="TOPLEFT" relativeKey="$parent.Icon" relativePoint="TOPLEFT"/>
+                        <Anchor point="BOTTOMRIGHT" relativeKey="$parent.Icon" relativePoint="BOTTOMRIGHT"/>
+                    </Anchors>
+                </Texture>
+				<MaskTexture file="Interface\AddOns\Narcissus\Art\Tooltip\Icon-Mask" hWrapMode="CLAMPTOBLACKADDITIVE" vWrapMode="CLAMPTOBLACKADDITIVE">
+                    <Anchors>
+                        <Anchor point="TOPLEFT" relativeKey="$parent.Icon" relativePoint="TOPLEFT" x="0" y="0"/>
+                        <Anchor point="BOTTOMRIGHT" relativeKey="$parent.Icon" relativePoint="BOTTOMRIGHT" x="0" y="0"/>
+                    </Anchors>
+					<MaskedTextures>
+						<MaskedTexture childKey="Icon"/>
+                        <MaskedTexture childKey="IconHighlight"/>
+					</MaskedTextures>
+				</MaskTexture>
+            </Layer>
+            <Layer level="OVERLAY">
+                <FontString parentKey="Name" inherits="NarciFontMedium12" justifyH="LEFT" justifyV="TOP" text="Name">
+                    <Color r="0.584" g="0.428" b="0.82"/>
+                    <Size x="220" y="12"/>
+                    <Anchors>
+                        <Anchor point="TOPLEFT" relativeKey="$parent" relativePoint="TOPLEFT" x="12" y="-12"/>
+                    </Anchors>
+                </FontString>
+                <FontString parentKey="Effect" inherits="NarciFontMedium12" justifyH="LEFT" justifyV="TOP" text="Effect" spacing="2">  <!--NarciTooltipDescriptionFontRegularShadow-->
+                    <Color r="0.643" g="0.608" b="0.71"/>
+                    <Anchors>
+                        <Anchor point="TOPLEFT" relativeKey="$parent.Name" relativePoint="BOTTOMLEFT" x="0" y="-6"/>
+                        <Anchor point="BOTTOM" relativeKey="$parent" relativePoint="BOTTOM" y="12"/>
+                        <Anchor point="RIGHT" relativeKey="$parent" relativePoint="RIGHT" x="-12"/>
+                    </Anchors>
+                </FontString>
+                <FontString parentKey="Description" inherits="NarciFontMedium12" justifyH="LEFT" justifyV="MIDDLE" text="Description" spacing="0" hidden="true" Alpha="0" maxLines="5">
+                    <Color r="0.584" g="0.428" b="0.82"/>
+                    <Anchors>
+                        <Anchor point="TOPLEFT" relativeKey="$parent" relativePoint="TOPLEFT" x="12" y="-4"/>
+                        <Anchor point="BOTTOMRIGHT" relativeKey="$parent" relativePoint="BOTTOMRIGHT" x="-12" y="4"/>
+                    </Anchors>
+                </FontString>
+                <Texture parentKey="Pointer" file="Interface\AddOns\Narcissus\Art\Widgets\Arrows\Pointer-Left" hidden="true">
+                    <Size x="20" y="20"/>
+                    <TexCoords left="1" right="0" top="0" bottom="1"/>
+                    <Anchors>
+                        <Anchor point="CENTER" relativeKey="$parent" relativePoint="LEFT" x="3"/>
+                    </Anchors>
+                </Texture>
+            </Layer>
+        </Layers>
+        <Scripts>
+            <OnLoad>
+                self:Disable();
+                self.Icon:SetWidth(self:GetHeight());
+                self.Name:SetText("Grasping Tendrils");
+                self.Description:SetText("|cffffffff3,900|r initial damage\n|cffffffff6 yd|r range");
+                self.Icon:SetTexture(3004126);
+            </OnLoad>
+            <OnEnable>
+                self.Icon:SetAlpha(0.2);
+                self.Icon:SetDesaturated(false);
+                self.IconHighlight:SetDesaturated(false);
+                self.Name:SetTextColor(0.584, 0.428, 0.82);
+                self.Effect:SetTextColor(0.643, 0.608, 0.71);
+                self.Effect:SetAlpha(1);
+            </OnEnable>
+            <OnDisable>
+                self.Icon:SetAlpha(0.06);
+                self.Icon:SetDesaturated(true);
+                self.IconHighlight:SetDesaturated(true);
+                self.Name:SetTextColor(0.4, 0.4, 0.4);
+                self.Effect:SetTextColor(1, 1, 1);
+                self.Effect:SetAlpha(0.4);
+            </OnDisable>
+        </Scripts>
+    </Button>
+
+    <Frame name="Narci_CorruptionTooltip" frameStrata="HIGH" movable="false" enableMouse="true" scale="1" ignoreParentScale="false" hidden="true" clampedToScreen="false" Alpha="0">
+        <Size x="360" y="360"/>
+        <HitRectInsets>
+            <AbsInset left="0" right="-32" top="-32" bottom="-24"/>
+        </HitRectInsets>
+        <Anchors>
+            <Anchor point="CENTER"/>
+        </Anchors>
+        <Frames>
+            <Frame inherits="NarciFrameWithShadowTemplate" useParentLevel="true">
+                <Anchors>
+                    <Anchor point="TOPLEFT" relativePoint="TOPLEFT" x="-11" y="11"/>
+                    <Anchor point="BOTTOMRIGHT" relativePoint="BOTTOMRIGHT" x="11" y="-11"/>
+                </Anchors>
+            </Frame>
+
+            <Button inherits="NarciCorruptionTooltipTemplate" parentKey="Entry1">
+                <Anchors>
+                    <Anchor point="BOTTOMLEFT" relativeKey="$parent" relativePoint="BOTTOMLEFT"/>
+                </Anchors>
+            </Button>
+            <Button inherits="NarciCorruptionTooltipTemplate" parentKey="Entry2">
+                <Anchors>
+                    <Anchor point="BOTTOMRIGHT" relativeKey="$parent.Entry1" relativePoint="BOTTOMRIGHT"/>
+                    <Anchor point="BOTTOMLEFT" relativeKey="$parent.Entry1" relativePoint="TOPLEFT"/>
+                </Anchors>
+            </Button>
+            <Button inherits="NarciCorruptionTooltipTemplate" parentKey="Entry3">
+                <Anchors>
+                    <Anchor point="BOTTOMRIGHT" relativeKey="$parent.Entry2" relativePoint="BOTTOMRIGHT"/>
+                    <Anchor point="BOTTOMLEFT" relativeKey="$parent.Entry2" relativePoint="TOPLEFT"/>
+                </Anchors>
+            </Button>
+            <Button inherits="NarciCorruptionTooltipTemplate" parentKey="Entry4">
+                <Anchors>
+                    <Anchor point="BOTTOMRIGHT" relativeKey="$parent.Entry3" relativePoint="BOTTOMRIGHT"/>
+                    <Anchor point="BOTTOMLEFT" relativeKey="$parent.Entry3" relativePoint="TOPLEFT"/>
+                </Anchors>
+            </Button>
+
+            <Button inherits="NarciCorruptionTooltipTemplate" parentKey="Entry5">
+                <Anchors>
+                    <Anchor point="BOTTOMRIGHT" relativeKey="$parent.Entry4" relativePoint="BOTTOMRIGHT"/>
+                    <Anchor point="BOTTOMLEFT" relativeKey="$parent.Entry4" relativePoint="TOPLEFT"/>
+                </Anchors>
+            </Button>
+            <Frame parentKey="CorruptionBar">
+                <Size x="6"/>
+                <Anchors>
+                    <Anchor point="BOTTOMLEFT" relativeKey="$parent.Entry1" relativePoint="BOTTOMRIGHT"/>
+                    <Anchor point="TOPLEFT" relativeKey="$parent.Entry5" relativePoint="TOPRIGHT"/>
+                </Anchors>
+                <Layers>
+                    <Layer level="BACKGROUND">
+                        <Texture parentKey="Empty">
+                            <Color r="0.2" g="0.2" b="0.2"/>
+                        </Texture>
+                    </Layer>
+                </Layers>
+                <Frames>
+                    <Frame parentKey="FluidFrame" clipChildren="true">
+                        <Size x="6"/>
+                        <Anchors>
+                            <Anchor point="BOTTOM" relativeKey="$parent" relativePoint="BOTTOM"/>
+                        </Anchors>
+                        <Layers>
+                            <Layer level="ARTWORK">
+                                <Texture parentKey="FluidP2O">
+                                    <Color r="1" g="1" b="1"/>
+                                    <Gradient orientation="VERTICAL">
+                                        <MinColor a="1" r="0.64" g="0.21" b="0.93"/>
+                                        <MaxColor a="1" r="1" g="0.52" b="0.0"/>
+                                    </Gradient>
+                                    <Anchors>
+                                        <Anchor point="BOTTOM" relativeKey="$parent.$parent" relativePoint="BOTTOM"/>
+                                        <Anchor point="TOP" relativeKey="$parent.$parent" relativePoint="CENTER" y="48"/>
+                                    </Anchors>
+                                </Texture>
+                                <Texture parentKey="FluidO2R">
+                                    <Color r="1" g="1" b="1"/>
+                                    <Anchors>
+                                        <Anchor point="BOTTOM" relativeKey="$parent.FluidP2O" relativePoint="TOP"/>
+                                        <Anchor point="TOP" relativeKey="$parent.$parent" relativePoint="TOP"/>
+                                    </Anchors>
+                                </Texture>
+                            </Layer>
+                        </Layers>
+                    </Frame>
+                    <Frame parentKey="OverlayFrame">
+                        <Anchors>
+                            <Anchor point="TOPLEFT" relativeKey="$parent" relativePoint="TOPLEFT"/>
+                            <Anchor point="BOTTOMRIGHT" relativeKey="$parent" relativePoint="BOTTOMRIGHT"/>
+                        </Anchors>
+                        <Layers>
+                            <Layer level="OVERLAY" textureSubLevel="2">
+                                <Texture parentKey="Shadow">
+                                    <Color r="0" g="0" b="0"/>
+                                    <Anchors>
+                                        <Anchor point="TOPLEFT" relativeKey="$parent" relativePoint="TOPLEFT" x="-4"/>
+                                        <Anchor point="BOTTOMRIGHT" relativeKey="$parent" relativePoint="BOTTOMLEFT"/>
+                                    </Anchors>
+                                    <Gradient orientation="HORIZONTAL">
+                                        <MinColor a="0" r="1" g="1" b="1"/>
+                                        <MaxColor a="0.6" r="1" g="1" b="1"/>
+                                    </Gradient>
+                                </Texture>
+                                <Texture>
+                                    <Color r="0" g="0" b="0" a="0.45"/>
+                                    <Anchors>
+                                        <Anchor point="TOPLEFT" relativePoint="TOP" x="-0.25"/>
+                                        <Anchor point="BOTTOMRIGHT" relativePoint="BOTTOMRIGHT" x="0.25"/>
+                                    </Anchors>
+                                </Texture>
+                            </Layer>
+                            <Layer level="OVERLAY" textureSubLevel="3">
+                                <FontString inherits="NarciCorruptionBarText" text="0" justifyH="CENTER" parentKey="CorruptionValue" Alpha="0.8">
+                                    <Anchors>
+                                        <Anchor point="BOTTOM" relativeKey="$parent.$parent.FluidFrame" relativePoint="TOP" x="0" y="2"/>
+                                    </Anchors>
+                                    <Color r="0.78" g="0.72" b="0.89"/>
+                                </FontString>
+                            </Layer>
+                        </Layers>
+                    </Frame>
+                </Frames>
+                <Scripts>
+                    <OnLoad>
+                        local barWidth = self:GetWidth();
+                        self.FluidFrame:SetHeight(self:GetHeight());
+                        self.FluidFrame.FluidP2O:SetWidth(barWidth);
+                        self.FluidFrame.FluidO2R:SetWidth(barWidth);
+                        self.Empty:SetWidth(barWidth);
+                        self.FluidFrame.FluidP2O:SetGradient("VERTICAL", 113 / 255, 32 / 255, 206 / 255, 212 / 255, 94 / 255, 16 / 255);
+                        self.FluidFrame.FluidO2R:SetGradient("VERTICAL", 212 / 255, 94 / 255, 16 / 255, 255 / 255, 20 / 255, 0 / 255);
+                    </OnLoad>
+                </Scripts>
+            </Frame>
+
+            <ModelScene parentKey="ModelScene" inherits="NarciNonInteractableModelSceneTemplate" hidden="false" alpha="1">
+                <Anchors>
+                    <Anchor point="TOPRIGHT" relativeKey="$parent" relativePoint="TOPRIGHT" x="0" y="0"/>
+                    <Anchor point="BOTTOMLEFT" relativeKey="$parent.CorruptionBar" relativePoint="BOTTOMRIGHT" x="-0.2" y="0"/>
+                </Anchors>
+                <Layers>
+                    <Layer level="BACKGROUND">
+                        <Texture setAllPoints="true" parentKey="Background">
+                            <Color r="0.04" g="0.04" b="0.04" a="1"/>
+                            <Gradient orientation="VERTICAL">
+                                <MinColor a="1" r="1" g="1" b="1"/>
+                                <MaxColor a="0.1" r="1" g="1" b="1"/>
+                            </Gradient>
+                        </Texture>
+                    </Layer>
+                </Layers>
+                <Scripts>
+                    <OnLoad method="OnLoad"/>
+                    <OnUpdate method="OnUpdate"/>
+                </Scripts>
+            </ModelScene>
+
+            <Button inherits="NarciCloseButtonTemplate">
+                <Anchors>
+                    <Anchor point="TOPRIGHT" relativeKey="$parent" relativePoint="TOPRIGHT" x="-6" y="-6"/>
+                </Anchors>
+            </Button>
+
+            <Button parentKey="ModelToggle">
+                <Size x="12" y="12"/>
+                <Anchors>
+                    <Anchor point="TOPLEFT" relativeKey="$parent.CorruptionBar" relativePoint="TOPRIGHT" x="6" y="-6"/>
+                </Anchors>
+                <HitRectInsets>
+                    <AbsInset left="-9" right="-9" top="-9" bottom="-9"/>
+                </HitRectInsets>
+                <Anchors>
+                    <Anchor point="TOPRIGHT" relativeKey="$parent" relativePoint="TOPRIGHT" x="0" y="0"/>
+                    <Anchor point="BOTTOMLEFT" relativeKey="$parent.CorruptionBar" relativePoint="BOTTOMRIGHT" x="-0.2" y="0"/>
+                </Anchors>
+                <Layers>
+                    <Layer level="OVERLAY" textureSubLevel="4">
+                        <Texture file="Interface\AddOns\Narcissus\ART\Widgets\Arrows\Arrow-Transparent-H" Alpha="1" parentKey="tex1">
+                            <TexCoords left="0" right="0.5" top="0" bottom="1"/>
+                        </Texture>
+                    </Layer>
+                    <Layer level="OVERLAY" textureSubLevel="5">
+                        <Texture file="Interface\AddOns\Narcissus\ART\Widgets\Arrows\Arrow-Transparent-H" Alpha="0.2" alphaMode="ADD" parentKey="tex2">
+                            <TexCoords left="0.5" right="1" top="0" bottom="1"/>
+                        </Texture>
+                    </Layer>
+                </Layers>
+                <HighlightTexture file="Interface\AddOns\Narcissus\Art\Widgets\Arrows\Arrow-Transparent-H" Alpha="0.5" alphaMode="ADD" parentKey="tex3">
+                    <Size x="12" y="12"/>
+                    <Anchors>
+                        <Anchor point="CENTER"/>
+                    </Anchors>
+                    <TexCoords left="0.5" right="1" top="0" bottom="1"/>
+                </HighlightTexture>
+                <Scripts>
+                    <OnLoad>
+                        self.tooltip = Narci.L["Toggle 3D Model"];
+                    </OnLoad>
+                    <OnEnter>
+                        NarciTooltip:ShowTooltip(self, 0, 0, 0);
+                    </OnEnter>
+                    <OnLeave>
+                        NarciTooltip:JustHide();
+                    </OnLeave>
+                    <OnMouseDown>
+                        NarciTooltip:JustHide();
+                    </OnMouseDown>
+                </Scripts>
+            </Button>
+            <!--Frame parentKey="Entrance" frameLevel="20" Alpha="0" ignoreParentAlpha="true">
+                <Size x="368" y="368"/>
+                <Anchors>
+                    <Anchor point="TOPLEFT" relativeKey="$parent" relativePoint="TOPLEFT" x="-66" y="8"/>
+                </Anchors>
+                <Layers>
+                    <Layer level="OVERLAY">
+                        <Texture file="Interface\AddOns\Narcissus\Art\Widgets\CorruptionSystem\EyeScan" nounLoad="true"/>
+                    </Layer>
+                </Layers>
+                <Animations>
+                    <AnimationGroup parentKey="Bling">
+                        <Alpha fromAlpha="0" toAlpha="1" duration="0.02" order="1"/>
+                        <Alpha fromAlpha="1" toAlpha="1" duration="0.1" order="2"/>
+                        <Alpha fromAlpha="1" toAlpha="0" duration="0.6" order="3"/>
+                        <Scripts>
+                            <OnPlay>
+                                local frame = self:GetParent():GetParent();
+                                C_Timer.After(0.1, function()
+                                UIFrameFadeIn(frame, 0.25, 0, 1);
+                                end)
+                            </OnPlay>
+                        </Scripts>
+                    </AnimationGroup>
+                </Animations>
+                <Scripts>
+                    <OnShow>
+                        self.Bling:Play();
+                    </OnShow>
+                    <OnHide>
+                        self:StopAnimating();
+                    </OnHide>
+                </Scripts>
+            </Frame-->
+        </Frames>
+        <Scripts>
+            <OnLeave>
+                if not self:IsMouseOver(8, 0, 0, 8) then
+                    self.CloseButton:Click();
+                end
+            </OnLeave>
+        </Scripts>
+    </Frame>
+    
+    <Frame parentKey="NarciCorruptionBar" name="Narci_CorruptionBar">
+        <Size x="26" y="104"/>
+        <Layers>
+            <Layer level="BACKGROUND">
+                <Texture file="Interface\AddOns\Narcissus\Art\Widgets\CorruptionSystem\CorruptionBar">
+                    <TexCoords left="0" right="0.25" top="0" bottom="1"/>
+                </Texture>
+            </Layer>
+            <Layer level="ARTWORK">
+                <Texture file="Interface\AddOns\Narcissus\Art\Widgets\CorruptionSystem\CorruptionBar" parentKey="Fluid">
+                    <TexCoords left="0.9375" right="1" top="0" bottom="1"/>
+                    <Size x="3" y="37"/>    <!--Max: 74-->
+                    <Anchors>
+                        <Anchor point="BOTTOM" relativeKey="$parent" relativePoint="BOTTOM" x="0" y="14"/>
+                    </Anchors>
+                </Texture>
+            </Layer>
+            <Layer level="OVERLAY">
+                <Texture file="Interface\AddOns\Narcissus\Art\Widgets\CorruptionSystem\CorruptionBar">
+                    <TexCoords left="0.25" right="0.5" top="0" bottom="1"/>
+                </Texture>
+            </Layer>
+            <Layer level="OVERLAY">
+                <FontString inherits="NarciCorruptionBarText" text="20" parentKey="Floor">
+                    <Anchors>
+                        <Anchor point="BOTTOMLEFT" relativeKey="$parent" relativePoint="BOTTOM" x="7" y="8"/>
+                    </Anchors>
+                </FontString>
+                <FontString inherits="NarciCorruptionBarText" text="40" parentKey="Ceiling">
+                    <Anchors>
+                        <Anchor point="TOPLEFT" relativeKey="$parent" relativePoint="TOP" x="7" y="-8"/>
+                    </Anchors>
+                </FontString>
+                <FontString inherits="NarciCorruptionBarText" text="30" parentKey="Current">
+                    <Anchors>
+                        <Anchor point="LEFT" relativeKey="$parent.Fluid" relativePoint="TOP" x="7" y="0"/>
+                    </Anchors>
+                    <Color r="0.78" g="0.72" b="0.89"/>
+                </FontString>
+            </Layer>
+        </Layers>
+        <Scripts>
+            <OnLoad>
+                local parent = CharacterStatsPane.ItemLevelFrame.Corruption;
+                if not parent then return; end;
+                self:SetParent(parent);
+                self:SetPoint("LEFT", parent, "CENTER", 8, 0);
+            </OnLoad>
+            <OnShow>
+                self:RegisterEvent("COMBAT_RATING_UPDATE");
+                Narci_SetCorruptionBar(self);
+                --self:SetAlpha(1);
+            </OnShow>
+            <OnEvent function="Narci_CorruptionBar_OnEvent"/>
+        </Scripts>
+    </Frame>
+
+    <Frame name="Narci_CloakHighlight" parent="CharacterBackSlot" Alpha="0">
+        <Anchors>
+            <Anchor point="TOPRIGHT" relativeKey="$parent" relativePoint="TOPRIGHT" x="18" y="18"/>
+            <Anchor point="BOTTOMLEFT" relativeKey="$parent" relativePoint="BOTTOMLEFT" x="-18" y="-18"/>
+        </Anchors>
+        <Layers>
+            <Layer level="BACKGROUND">
+                <Texture file="Interface\AddOns\Narcissus\Art\Widgets\CorruptionSystem\CloakHighlight"/>
+            </Layer>
+        </Layers>
+        <Animations>
+            <AnimationGroup parentKey="Bling">
+                <Alpha fromAlpha="0" toAlpha="1" duration="0.5" order="1"/>
+                <Alpha fromAlpha="1" toAlpha="0" duration="1" order="2"/>
+                <Alpha fromAlpha="0" toAlpha="1" duration="0.5" order="3"/>
+                <Alpha fromAlpha="1" toAlpha="0" duration="1" order="4"/>
+            </AnimationGroup>
+        </Animations>
+        <Scripts>
+            <OnHide>
+                self:StopAnimating();
+                self:SetAlpha(0);
+            </OnHide>
+        </Scripts>
+    </Frame>
+</Ui>

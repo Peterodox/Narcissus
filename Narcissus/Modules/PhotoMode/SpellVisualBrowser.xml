@@ -1,0 +1,1305 @@
+<Ui xsi:schemaLocation="http://www.blizzard.com/wow/ui/..\FrameXML\UI.xsd">
+    <Script file="SpellVisualBrowser.lua"/>
+	
+	<Button name="Narci_SquareButton_Template" virtual="true">
+		<Size x="24" y="24"/>
+		<HitRectInsets>
+			<AbsInset left="2" right="2" top="2" bottom="2"/>
+		</HitRectInsets>
+		<Layers>
+			<Layer level="BACKGROUND">
+				<Texture file="Interface\AddOns\Narcissus\Art\Widgets\SpellVisualBrowser\SquareButton" parentKey="Background">
+					<Size x="34" y="34"/>
+					<TexCoords left="0.5" right="0.75" top="0" bottom="1"/>
+					<Anchors>
+						<Anchor point="CENTER"/>
+					</Anchors>
+				</Texture>
+			</Layer>
+			<Layer level="ARTWORK">
+				<Texture setAllPoints="true" parentKey="Highlight" hidden="true">
+					<Color r="1" g="1" b="1" a="0.25"/>
+					<Size x="16" y="16"/>
+					<Anchors>
+						<Anchor point="CENTER"/>
+					</Anchors>			
+				</Texture>
+			</Layer>
+			<Layer level="OVERLAY" textureSubLevel="2">
+				<Texture file="Interface\AddOns\Narcissus\Art\Widgets\SpellVisualBrowser\Icons" parentKey="Icon">
+					<TexCoords left="0" right="0" top="0" bottom="0"/>
+					<Size x="18" y="18"/>
+					<Anchors>
+						<Anchor point="CENTER" relativeKey="$parent" relativePoint="CENTER"/>
+					</Anchors>
+				</Texture>
+			</Layer>
+			<Layer level="OVERLAY" textureSubLevel="3">
+				<Texture file="Interface\AddOns\Narcissus\Art\Widgets\SpellVisualBrowser\SquareButton" parentKey="Border">
+					<TexCoords left="0" right="0.25" top="0" bottom="1"/>
+					<Anchors>
+						<Anchor point="TOPLEFT" relativeKey="$parent.Background" relativePoint="TOPLEFT"/>
+						<Anchor point="BOTTOMRIGHT" relativeKey="$parent.Background" relativePoint="BOTTOMRIGHT"/>
+					</Anchors>
+				</Texture>
+			</Layer>
+		</Layers>
+		<Scripts>
+			<OnEnter>
+				self.Highlight:Show();
+			</OnEnter>
+			<OnLeave>
+				self.Highlight:Hide();
+			</OnLeave>
+			<OnMouseDown>
+				self.Icon:SetSize(16, 16);
+			</OnMouseDown>
+			<OnMouseUp>
+				self.Icon:SetSize(18, 18);
+			</OnMouseUp>
+			<OnDoubleClick>
+				return;
+			</OnDoubleClick>
+		</Scripts>
+	</Button>
+
+	<Button name="Narci_SquareButtonWithTooltip_Template" inherits="Narci_SquareButton_Template" virtual="true">
+		<Scripts>
+			<OnEnter>
+				NarciTooltip:ShowTooltip(self, 0, nil, 1);
+				self.Highlight:Show();
+			</OnEnter>
+			<OnLeave>
+				NarciTooltip:FadeOut();
+				self.Highlight:Hide();
+			</OnLeave>
+			<OnMouseDown>
+				self.Icon:SetSize(16, 16);
+			</OnMouseDown>
+		</Scripts>
+	</Button>
+
+	<Frame name="Narci_1x8Template" virtual="true">
+		<Size x="199" y="30"/>
+		<Layers>
+			<Layer level="BACKGROUND">
+				<Texture file="Interface\AddOns\Narcissus\Art\Widgets\SpellVisualBrowser\Panel" parentKey="Background">
+					<TexCoords left="0" right="0.36328125" top="0.10546875" bottom="0.21875"/>
+				</Texture>
+			</Layer>
+			<Layer level="OVERLAY">
+				<FontString inherits="NarciNonInteractiveFont" justifyH="LEFT" justifyV="MIDDLE" maxLines="1" parentKey="Label">
+					<Size x="90" y="0"/>
+					<Anchors>
+						<Anchor point="LEFT" relativePoint="LEFT" x="11"/>
+					</Anchors>
+				</FontString>
+			</Layer>
+		</Layers>
+		<Frames>
+			<Frame inherits="NarciArtFrameTemplate" parentKey="ArtFrame">
+				<Layers>
+					<Layer level="OVERLAY" textureSubLevel="2">
+						<Texture file="Interface\AddOns\Narcissus\Art\Widgets\SpellVisualBrowser\Panel" parentKey="Background">
+							<TexCoords left="0" right="0.36328125" top="0" bottom="0.109375"/>
+						</Texture>
+					</Layer>
+				</Layers>			
+			</Frame>
+		</Frames>
+	</Frame>
+
+	<Button name="Narci_1x3SquareButtonTemplate" virtual="true">
+		<Size x="76" y="16"/>
+		<HitRectInsets>
+			<AbsInset left="4" right="4" top="0" bottom="0"/>
+		</HitRectInsets>
+		<Layers>
+			<Layer level="BACKGROUND">
+				<Texture file="Interface\AddOns\Narcissus\Art\Widgets\SpellVisualBrowser\Panel">
+					<Size x="76" y="24"/>
+					<TexCoords left="0.45703125" right="0.595703125" top="0.884765625" bottom="0.970703125"/>
+					<Anchors>
+						<Anchor point="CENTER" relativeKey="$parent" relativePoint="CENTER"/>
+					</Anchors>
+				</Texture>		
+			</Layer>
+			<Layer level="ARTWORK">
+				<Texture setAllPoints="true" parentKey="Highlight" hidden="true">
+					<Color r="1" g="1" b="1" a="0.15"/>
+					<Size x="68" y="16"/>
+					<Anchors>
+						<Anchor point="CENTER"/>
+					</Anchors>			
+				</Texture>
+			</Layer>
+		</Layers>
+		<ButtonText inherits="NarciPastelBrownFont" justifyH="CENTER" justifyV="MIDDLE" maxLines="1" parentKey="Label">
+			<Size x="60" y="0"/>
+			<Anchors>
+				<Anchor point="CENTER" relativePoint="CENTER"/>
+			</Anchors>
+		</ButtonText>
+        <PushedTextOffset>
+            <AbsDimension x="1" y="-0.6"/>
+        </PushedTextOffset>
+		<Scripts>
+			<OnEnter>
+				self.Highlight:Show();
+				if self.tooltip then
+					NarciTooltip:ShowTooltip(self, nil, nil, 1);
+				end
+			</OnEnter>
+			<OnLeave>
+				self.Highlight:Hide();
+				if self.tooltip then
+					NarciTooltip:FadeOut();
+				end
+			</OnLeave>
+			<OnHide>
+				self.Highlight:Hide();
+			</OnHide>
+		</Scripts>		
+	</Button>
+
+	<Button name="Narci_SpellVisualButtonSharedTemplate" virtual="true" registerForClicks="LeftButtonUp, RightButtonUp">
+		<Size x="116" y="16"/>
+		<ButtonText inherits="NarciPastelBrownFont" justifyH="LEFT" justifyV="MIDDLE" maxLines="1" text="Name" parentKey="ButtonText">
+			<Size x="104" y="0"/>
+			<Anchors>
+				<Anchor point="CENTER" relativePoint="CENTER" x="0"/>
+			</Anchors>
+		</ButtonText>
+        <PushedTextOffset>
+            <AbsDimension x="1" y="-0.6"/>
+        </PushedTextOffset>
+		<Layers>
+			<Layer level="OVERLAY" textureSubLevel="2">
+				<Texture setAllPoints="true" parentKey="Highlight" hidden="true">
+					<Color r="1" g="1" b="1" a="0.08"/>		
+				</Texture>
+			</Layer>
+			<Layer level="OVERLAY" textureSubLevel="3">
+				<Texture Alpha="1" parentKey="Icon">
+					<Size x="12" y="12"/>
+					<Anchors>
+						<Anchor point="LEFT" relativeKey="$parent" relativePoint="LEFT" x="4" y="0"/>
+					</Anchors>
+				</Texture>
+			</Layer>
+		</Layers>
+		<Scripts>
+			<OnEnter>
+				UIFrameFadeIn(self.Highlight, 0.12, self.Highlight:GetAlpha(), 1);
+			</OnEnter>
+			<OnLeave>
+				UIFrameFadeOut(self.Highlight, 0.2, self.Highlight:GetAlpha(), 0);
+			</OnLeave>
+			<OnDoubleClick>
+				return;
+			</OnDoubleClick>
+		</Scripts>
+	</Button>
+
+	<Button name="Narci_SpellVisualCategoryButtonTemplate" inherits="Narci_SpellVisualButtonSharedTemplate" virtual="true" frameLevel="2">
+		<Layers>
+			<Layer level="BACKGROUND">
+				<Texture file="Interface\AddOns\Narcissus\Art\Widgets\SpellVisualBrowser\Panel" parentKey="Background">
+					<TexCoords left="0" right="0.228515625" top="0.23046875" bottom="0.30078125"/>
+					<Size x="126" y="16.0"/>
+					<Anchors>
+						<Anchor point="CENTER" relativeKey="$parent" relativePoint="CENTER"/>
+					</Anchors>
+				</Texture>
+			</Layer>
+			<Layer level="BACKGROUND">
+				<Texture file="Interface\AddOns\Narcissus\Art\Widgets\SpellVisualBrowser\Panel" parentKey="Divider" hidden="true">
+					<TexCoords left="0" right="0.228515625" top="0.970703125" bottom="1"/>
+					<Size x="126" y="6.67"/>
+					<Anchors>
+						<Anchor point="BOTTOM" relativeKey="$parent" relativePoint="BOTTOM"/>
+					</Anchors>
+				</Texture>
+			</Layer>
+			<Layer level="OVERLAY">
+				<FontString inherits="NarciPastelBrownFont" justifyH="RIGHT" justifyV="MIDDLE" maxLines="1" parentKey="Count" text="0">
+					<Size x="0" y="0"/>
+					<Color r="0.5" g="0.5" b="0.5" a="1"/>
+					<Anchors>
+						<Anchor point="RIGHT" relativePoint="RIGHT" x="-6"/>
+					</Anchors>
+				</FontString>
+				<FontString inherits="NarciPastelBrownFont" justifyH="RIGHT" justifyV="MIDDLE" maxLines="1" parentKey="Differential" text="">
+					<Size x="0" y="0"/>
+					<Anchors>
+						<Anchor point="RIGHT" relativeKey="$parent.Count" relativePoint="LEFT" x="-2"/>
+					</Anchors>
+					<Animations>
+						<AnimationGroup parentKey="FadeText" setToFinalAlpha="true">
+							<Alpha fromAlpha="0" toAlpha="1" duration="0.15" order="1"/>
+							<Alpha startDelay="2" fromAlpha="1" toAlpha="0" duration="1" order="2"/>
+						</AnimationGroup>
+					</Animations>
+				</FontString>
+			</Layer>
+		</Layers>
+	</Button>
+
+	<Button name="Narci_OptionalSpellVisualButtonTemplate" inherits="Narci_SpellVisualCategoryButtonTemplate" virtual="true" >
+		<Layers>
+			<Layer level="OVERLAY">
+				<Texture file="Interface/AddOns/Narcissus/Art/Widgets/SpellVisualBrowser/Icons.tga" parentKey="Star" hidden="true">
+					<Size x="16" y="16"/>
+					<TexCoords left="0.75" right="1" top="0.25" bottom="0.5"/>
+					<Anchors>
+						<Anchor point="RIGHT" relativeKey="$parent" relativePoint="RIGHT" x="-2"/>
+					</Anchors>
+				</Texture>
+			</Layer>
+		</Layers>
+		<Frames>
+			<Frame parentKey="Drawer" clipChildren="true" frameLevel="1" Alpha="0">
+				<Size y="16"/>
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeKey="$parent" relativePoint="TOPLEFT" y="-1"/>
+					<Anchor point="TOPRIGHT" relativeKey="$parent" relativePoint="TOPRIGHT" y="-1"/>
+				</Anchors>
+			</Frame>
+		</Frames>
+	</Button>
+
+	<Button name="Narci_SavedSpellVisualButton_EditButtonTemplate" virtual="true">
+		<Size x="8" y="12"/>
+		<Layers>
+			<Layer level="OVERLAY">
+				<Texture file="Interface/AddOns/Narcissus/Art/Widgets/SpellVisualBrowser/Icons.tga" parentKey="Icon" Alpha="0.4">
+					<Size x="16" y="16"/>
+					<TexCoords left="0" right="0" top="0" bottom="0"/>
+					<Anchors>
+						<Anchor point="CENTER" relativeKey="$parent" relativePoint="CENTER"/>
+					</Anchors>
+				</Texture>
+			</Layer>
+		</Layers>
+		<Scripts>
+			<OnEnter>
+				self.Icon:SetAlpha(1);
+				NarciTooltip:ShowTooltip(self, nil, nil, 1);
+			</OnEnter>
+			<OnLeave>
+				NarciTooltip:JustHide();
+				self.Icon:SetAlpha(0.4);
+			</OnLeave>
+			<OnMouseDown>
+				NarciTooltip:JustHide();
+				self.Icon:SetSize(14, 14);
+			</OnMouseDown>
+			<OnMouseUp>
+				self.Icon:SetSize(16, 16);
+			</OnMouseUp>
+			<OnDoubleClick>
+				return;
+			</OnDoubleClick>
+		</Scripts>
+	</Button>
+
+	<Button name="Narci_SavedSpellVisualButtonTemplate" inherits="Narci_SpellVisualButtonSharedTemplate" motionScriptsWhileDisabled="true" virtual="true">
+		<Layers>
+			<Layer level="ARTWORK">
+				<Texture setAllPoints="true" parentKey="Green" Alpha="0">
+					<Color r="0.48627" g="0.77255" b="0.46275" a="0.5"/>
+					<Animations>
+						<AnimationGroup parentKey="animIn">
+							<Alpha fromAlpha="1" toAlpha="1" duration="0.25" order="1"/>
+							<Scale fromScaleX="0" toScaleX="1" fromScaleY="1" toScaleY="1" duration="0.25" order="1">
+								<Origin point="LEFT">
+									<Offset x="0" y="0"/>
+								</Origin>
+							</Scale>
+							<Alpha startDelay="1" fromAlpha="1" toAlpha="0" duration="1" order="2"/>
+						</AnimationGroup>
+					</Animations>
+				</Texture>
+			</Layer>
+			<Layer level="OVERLAY" textureSubLevel="1">
+				<Texture parentKey="Overlay" setAllPoints="true" hidden="true"/>
+			</Layer>
+		</Layers>
+		<Scripts>
+			<OnLoad>
+				local a = 44/255;
+				self.Overlay:SetColorTexture(a, a, a, 1);
+			</OnLoad>
+			<OnDisable>
+				self.Icon:SetDesaturated(true);
+				self:SetAlpha(0.4);
+			</OnDisable>
+			<OnEnable>
+				self.Icon:SetDesaturated(false);
+				self:SetAlpha(1);
+			</OnEnable>
+		</Scripts>
+	</Button>
+
+	<Button name="Narci_HistoryButtonTemplate" inherits="Narci_SquareButton_Template" virtual="true" hidden="false">
+		<Layers>
+			<Layer level="ARTWORK">
+				<Texture file="Interface\AddOns\Narcissus\Art\Widgets\SpellVisualBrowser\Icons" parentKey="IconColor">
+					<TexCoords left="0" right="0" top="0" bottom="0"/>
+					<Size x="12" y="12"/>
+					<Anchors>
+						<Anchor point="CENTER" relativeKey="$parent" relativePoint="CENTER"/>
+					</Anchors>
+				</Texture>
+			</Layer>
+			<Layer level="OVERLAY">
+				<FontString inherits="NarciPastelBrownFont" justifyH="CENTER" justifyV="MIDDLE" maxLines="1" parentKey="ID" hidden="true">
+					<Size x="24" y="24"/>
+				</FontString>
+			</Layer>
+			<Layer level="OVERLAY" textureSubLevel="5">
+				<FontString inherits="NarciPastelBrownFont" justifyH="LEFT" justifyV="MIDDLE" parentKey="Label" hidden="true">
+					<Color r="0.6" g="0.6" b="0.6"/>
+					<Size x="0" y="12"/>
+					<Anchors>
+						<Anchor point="BOTTOM" relativeKey="$parent" relativePoint="TOP" x="0" y="0"/>
+					</Anchors>
+				</FontString>
+			</Layer>
+		</Layers>
+		<Animations>
+			<AnimationGroup parentKey="animIn">
+				<Scale fromScaleX="0.2" toScaleX="1" fromScaleY="0.2" toScaleY="1" duration="0.45" order="1">
+					<Origin point="CENTER">
+						<Offset x="0" y="0"/>
+					</Origin>
+				</Scale>
+			</AnimationGroup>
+		</Animations>
+		<Scripts>
+			<OnMouseDown>
+			</OnMouseDown>
+			<OnMouseUp>
+			</OnMouseUp>
+		</Scripts>
+	</Button>
+
+	<ScrollFrame name="Narci_SpellVisualBrowser_ScrollFrameTemplate" clipChildren="true" virtual="true">
+		<Size x="116" y="144"/>
+		<Anchors>
+			<Anchor point="LEFT" relativeKey="$parent.Category" relativePoint="RIGHT" x="1"/>
+		</Anchors>
+		<Layers>
+			<Layer level="BACKGROUND">
+				<Texture setAllPoints="true" hidden="true">
+					<Color r="0" g="1" b="0" a="0.25"/>
+					<Size x="116" y="144"/>	
+				</Texture>
+			</Layer>
+		</Layers>
+		<ScrollChild>
+			<Frame parentKey="ScrollChild">
+				<Size x="114" y="200"/>
+				<Layers>
+					<Layer level="BACKGROUND">
+						<Texture hidden="true">
+							<Color r="0.06" g="0.06" b="0.06" a="0.8"/>
+						</Texture>
+					</Layer>
+				</Layers>
+				<Anchors>
+					<Anchor point="TOP" relativeKey="$parent" relativePoint="TOP"/>
+				</Anchors>
+			</Frame>
+		</ScrollChild>
+		<Frames>
+			<Slider valueStep="0.01" parentKey="scrollBar" frameLevel="11" inherits="NarciSimpleSliderTemplate">
+				<Anchors>
+					<Anchor point="TOPRIGHT" relativePoint="TOPRIGHT" x="-3" y="-16"/>
+					<Anchor point="BOTTOMRIGHT" relativePoint="BOTTOMRIGHT" x="-3" y="0"/>
+				</Anchors>
+				<Layers>
+					<Layer level="OVERLAY" textureSubLevel="5">
+						<Texture setAllPoints="true" parentKey="BottomShadow" file="Interface\AddOns\Narcissus\Art\Widgets\SpellVisualBrowser\Panel">
+							<TexCoords left="0" right="0.228515625" top="0.923828125" bottom="0.970703125"/>
+							<Size x="126" y="20"/>
+							<Anchors>
+								<Anchor point="BOTTOM" relativeKey="$parent.$parent" relativePoint="BOTTOM" x="0" y="-2"/>
+							</Anchors>
+						</Texture>
+						<Texture setAllPoints="true" parentKey="TopShadow" hidden="true" file="Interface\AddOns\Narcissus\Art\Widgets\SpellVisualBrowser\Panel">
+							<TexCoords left="0" right="0.228515625" top="0.970703125" bottom="0.923828125"/>
+							<Size x="126" y="20"/>
+							<Anchors>
+								<Anchor point="TOP" relativeKey="$parent.$parent" relativePoint="TOP" x="0" y="-15"/>
+							</Anchors>
+						</Texture>
+					</Layer>
+				</Layers>
+			</Slider>
+		</Frames>
+	</ScrollFrame>
+
+	<Button name="Narci_FavoritePopUpButtonTemplate" virtual="true">
+		<Size x="24" y="24"/>
+		<HitRectInsets>
+			<AbsInset left="2" right="2" top="2" bottom="2"/>
+		</HitRectInsets>
+		<Layers>
+			<Layer level="ARTWORK">
+				<Texture setAllPoints="true" parentKey="Highlight" hidden="true">
+					<Color r="1" g="1" b="1" a="0.25"/>
+					<Size x="18" y="18"/>
+					<Anchors>
+						<Anchor point="CENTER"/>
+					</Anchors>			
+				</Texture>
+			</Layer>
+			<Layer level="OVERLAY" textureSubLevel="2">
+				<Texture file="Interface\AddOns\Narcissus\Art\Widgets\SpellVisualBrowser\PopUpButtons" parentKey="Icon">
+					<TexCoords left="0" right="0" top="0" bottom="0"/>
+					<Size x="12" y="12"/>
+					<Anchors>
+						<Anchor point="CENTER" relativeKey="$parent" relativePoint="CENTER"/>
+					</Anchors>
+				</Texture>
+			</Layer>
+		</Layers>
+		<Scripts>
+			<OnEnter>
+				self.Highlight:Show();
+			</OnEnter>
+			<OnLeave>
+				self.Highlight:Hide();
+			</OnLeave>
+			<OnMouseDown>
+				self.Icon:SetSize(10, 10);
+			</OnMouseDown>
+			<OnMouseUp>
+				self.Icon:SetSize(12, 12);
+			</OnMouseUp>
+			<OnDoubleClick>
+				return;
+			</OnDoubleClick>
+		</Scripts>
+	</Button>
+
+	<Frame name="Narci_SpellVisualBrowser" parent="Narci_ModelSettings" Alpha="0" parentKey="SpellPanel">
+		<Size x="200" y="34"/>	<!-- full height: 216 -->
+		<Anchors>
+			<Anchor point="BOTTOMRIGHT" relativeTo="Narci_AnimationIDFrame" relativePoint="BOTTOMLEFT" x="150" y="-6"/>	<!-- -28 -->
+		</Anchors>
+		<Layers>
+			<Layer level="BACKGROUND">
+				<Texture setAllPoints="true" hidden="true">
+					<Color r="1" g="0" b="0" a="0.25"/>
+				</Texture>
+			</Layer>
+		</Layers>
+		<Frames>
+			<Frame inherits="Narci_1x8Template" name="Narci_VisualIDFrame" parentKey="VisualIDFrame" frameLevel="20">
+				<Anchors>
+					<Anchor point="BOTTOMRIGHT" relativePoint="BOTTOMRIGHT" y="3"/>
+				</Anchors>
+				<Scripts>
+					<OnLoad>
+						self.Label:SetText(Narci.L["Visual ID"]);
+						--self.ArtFrame.Background:SetTexCoord(0.36328126,  0.7265625, 0, 0.109375);	--(0, 0.36328125, 0, 0.109375);
+						--self.Background:SetTexCoord(0.36328126,  0.7265625, 0.10546875, 0.21875);
+					</OnLoad>
+				</Scripts>
+			</Frame>
+
+			<Frame parentKey="ExpandableFrames" hidden="true" Alpha="0">
+				<Size x="10" y="10"/> <!--Size is not relevant-->
+				<Anchors>
+					<Anchor point="BOTTOM" relativeKey="$parent.VisualIDFrame" relativePoint="TOP" x="0" y="-40"/>	<!-- y="0" -->
+				</Anchors>
+				<Frames>
+					<Button inherits="Narci_SquareButtonWithTooltip_Template" parentKey="ResetButton" frameLevel="22">
+						<Anchors>
+							<Anchor point="RIGHT" relativeKey="$parent.$parent.VisualIDFrame" relativePoint="RIGHT" x="-3"/>
+						</Anchors>
+						<Scripts>
+							<OnLoad>
+								self.Icon:SetTexCoord(0.5, 0.75, 0, 0.25);
+								self.tooltip = Narci.L["Refresh Model"];
+							</OnLoad>
+						</Scripts>
+					</Button>
+					<Button inherits="Narci_SquareButtonWithTooltip_Template" parentKey="ApplyButton" frameLevel="22">
+						<Anchors>
+							<Anchor point="RIGHT" relativeKey="$parent.ResetButton" relativePoint="LEFT"/>
+						</Anchors>
+						<Scripts>
+							<OnLoad>
+								self.Icon:SetTexCoord(0.25, 0.5, 0, 0.25);
+								self.tooltip = Narci.L["Apply"];
+							</OnLoad>
+						</Scripts>
+					</Button>
+					<Button inherits="Narci_SquareButtonWithTooltip_Template" parentKey="PlusButton" registerForClicks="LeftButtonUp, RightButtonUp" frameLevel="22">
+						<Anchors>
+							<Anchor point="RIGHT" relativeKey="$parent.ApplyButton" relativePoint="LEFT"/>
+						</Anchors>
+						<Scripts>
+							<OnLoad>
+								self.Icon:SetTexCoord(0, 0.25, 0, 0.25);
+								self.tooltip = Narci.L["Next And Previous"];
+							</OnLoad>
+						</Scripts>
+					</Button>
+
+					<Button inherits="Narci_SquareButton_Template" parentKey="FavoriteButton" hidden="false" frameLevel="22">
+						<Anchors>
+							<Anchor point="RIGHT" relativeKey="$parent.PlusButton" relativePoint="LEFT"/>
+						</Anchors>
+						<Scripts>
+							<OnLoad>
+								self.IsFav = false;
+								self.IsFirstClick = true;
+								self.Border:Hide();
+								self.Icon:SetTexture("Interface/AddOns/Narcissus/Art/Widgets/SpellVisualBrowser/Favorites.tga", nil, nil, "LINEAR");
+								self.Icon:SetTexCoord(0, 0.25, 0, 1);
+								self.Icon:SetAlpha(0.6);
+								self.Icon:SetSize(16, 16);
+							</OnLoad>
+							<OnMouseDown>
+								self.Icon:SetSize(14, 14);
+							</OnMouseDown>
+							<OnMouseUp>
+								self.Icon:SetSize(16, 16);
+							</OnMouseUp>
+						</Scripts>
+					</Button>
+
+					<Frame name="Narci_SpellVisualBrowser_PopUpFrame" parentKey="PopUpFrame" frameLevel="45" hidden="true" Alpha="0">
+						<Size x="137" y="48"/>
+						<HitRectInsets>
+							<AbsInset left="0" right="0" top="0" bottom="12"/>
+						</HitRectInsets>
+						<Anchors>
+							<Anchor point="BOTTOM" relativeKey="$parent.FavoriteButton" relativePoint="CENTER" y="2"/>
+						</Anchors>
+						<Layers>
+							<Layer level="BACKGROUND">
+								<Texture file="Interface\AddOns\Narcissus\Art\Widgets\SpellVisualBrowser\SaveToFavoritesPopUp">
+									<Size x="274" y="137"/>
+									<Anchors>
+										<Anchor point="CENTER" relativeKey="$parent" relativePoint="CENTER" y="0"/>
+									</Anchors>
+								</Texture>
+							</Layer>
+						</Layers>
+						<Frames>
+							<Frame parentKey="HiddenFrame" Alpha="0">
+								<Anchors>
+									<Anchor point="TOPLEFT" relativeKey="$parent" relativePoint="TOPLEFT"/>
+									<Anchor point="BOTTOMRIGHT" relativeKey="$parent" relativePoint="BOTTOMRIGHT"/>
+								</Anchors>
+								<Layers>
+									<Layer level="OVERLAY">
+										<FontString inherits="NarciPastelBrownFont" justifyH="CENTER" justifyV="MIDDLE" maxLines="1" parentKey="Header">
+											<Size x="120" y="24"/>
+											<Color r="0.5" g="0.5" b="0.5" a="1"/>
+											<Shadow>
+												<Offset>
+													<AbsDimension x="-1" y="1"/>
+												</Offset>
+												<Color a="0.8" r="0" g="0" b="0"/>
+											</Shadow>
+											<Anchors>
+												<Anchor point="CENTER" relativeKey="$parent" relativePoint="CENTER" y="16"/>
+											</Anchors>
+										</FontString>
+									</Layer>
+								</Layers>
+								<Frames>
+									<EditBox parentKey="EditBox" letters="16" inherits="NarciEditBoxTemplate" multiLine="false">
+										<Size x="90" y="24"/>
+										<Anchors>
+											<Anchor point="CENTER" relativeKey="$parent" relativePoint="CENTER" x="0"/>
+										</Anchors>
+										<FontString inherits="NarciPastelBrownFont" justifyH="CENTER" justifyV="BOTTOM" maxLines="1">
+											<Color r="0.902" g="0.8" b="0.502" a="1"/>
+										</FontString>
+										<Scripts>
+										</Scripts>
+									</EditBox>
+									<Button inherits="Narci_FavoritePopUpButtonTemplate" parentKey="ConfirmButton">
+										<Anchors>
+											<Anchor point="LEFT" relativeKey="$parent" relativePoint="LEFT" x="0"/>
+										</Anchors>
+										<Scripts>
+											<OnLoad>
+												self.Icon:SetTexCoord(0, 0.5, 0, 1);
+											</OnLoad>
+										</Scripts>
+									</Button>
+									<Button inherits="Narci_FavoritePopUpButtonTemplate" parentKey="CancelButton">
+										<Anchors>
+											<Anchor point="RIGHT" relativeKey="$parent" relativePoint="RIGHT" x="0"/>
+										</Anchors>
+										<Scripts>
+											<OnLoad>
+												self.Icon:SetTexCoord(0.5, 1, 0, 1);
+											</OnLoad>
+										</Scripts>
+									</Button>
+								</Frames>
+							</Frame>
+							<Button parentKey="HideButton" frameLevel="42">
+								<Size x="240" y="240"/>
+								<Anchors>
+									<Anchor point="BOTTOM" relativeKey="$parent" relativePoint="BOTTOM"/>
+								</Anchors>
+								<Scripts>
+									<OnClick>
+										self:GetParent().HiddenFrame.CancelButton:Click();
+									</OnClick>
+								</Scripts>
+							</Button>
+						</Frames>
+						<Animations>
+							<AnimationGroup parentKey="animIn" smoothing="OUT">
+								<Scale scaleX="0.6" scaleY="0.6" duration="0" order="1"/>
+								<Scale scaleX="1.75" scaleY="1.75" duration="0.15" order="2"/>
+								<Scale scaleX="0.952" scaleY="0.952" duration="0.15" order="3"/>
+								<Scripts>
+									<OnFinished>
+										local frame = self:GetParent().HiddenFrame;
+										UIFrameFadeIn(frame, 0.12, 0, 1);
+										C_Timer.After(0.1, function()
+											frame.EditBox:SetFocus();
+											frame.EditBox:HighlightText();
+										end)
+									</OnFinished>
+								</Scripts>
+							</AnimationGroup>
+						</Animations>
+						<Scripts>
+							<OnEnter>
+								return;
+							</OnEnter>
+							<OnShow>
+								self.animIn:Play();
+							</OnShow>
+							<OnHide>
+								self:Hide();
+								self:SetAlpha(0);
+								self.HiddenFrame:SetAlpha(0);
+							</OnHide>
+						</Scripts>
+					</Frame>
+
+					<EditBox parentKey="EditBox" id="1" numeric="true" autoFocus="false" letters="6" multiLine="false" frameLevel="22">
+						<Size x="44" y="30"/>
+						<Anchors>
+							<Anchor point="RIGHT" relativeKey="$parent.FavoriteButton" relativePoint="LEFT" x="-0.4"/>
+						</Anchors>
+						<HitRectInsets>
+							<AbsInset left="0" right="0" top="2" bottom="2"/>
+						</HitRectInsets>
+						<FontString inherits="NarciPastelBrownFont" justifyH="CENTER" justifyV="MIDDLE" text="1" maxLines="1" parentKey="ID">
+							<Size x="48" y="30"/>
+							<Color r="0.25" g="0.78" b="0.92" a="1"/>
+						</FontString>											
+						<Layers>
+							<Layer level="BORDER">
+								<Texture file="Interface\AddOns\Narcissus\Art\Widgets\SpellVisualBrowser\Panel" Alpha="1" hidden="false" parentKey="Background">
+									<TexCoords left="0.8125" right="1" top="0.109375" bottom="0.21875"/>
+									<Size x="102.8" y="30"/>
+									<Anchors>
+										<Anchor point="LEFT" relativeKey="$parent" relativePoint="LEFT" x="-20" y="0"/>
+									</Anchors>
+								</Texture>
+							</Layer>
+							<Layer level="ARTWORK" textureSubLevel="1">
+								<Texture file="Interface\AddOns\Narcissus\Art\Widgets\SpellVisualBrowser\Panel" Alpha="1" parentKey="Highlight" hidden="true" setAllPoints="true">
+									<TexCoords left="0.8125" right="1" top="0" bottom="0.109375"/>
+									<Anchors>
+										<Anchor point="TOPLEFT" relativeKey="$parent.Background" relativePoint="TOPLEFT" x="0" y="0"/>
+										<Anchor point="BOTTOMRIGHT" relativeKey="$parent.Background" relativePoint="BOTTOMRIGHT" x="0" y="0"/>
+									</Anchors>
+								</Texture>
+							</Layer>
+						</Layers>
+						<Animations>
+							<AnimationGroup parentKey="Timer">
+								<Scale duration="3"/>
+								<Scripts>
+									<OnFinished>
+										self:GetParent():ClearFocus();
+										self:GetParent().Highlight:Hide();
+									</OnFinished>
+								</Scripts>
+							</AnimationGroup>
+						</Animations>
+						<Scripts>
+							<OnLoad>
+								self:SetNumber(0);
+								self.oldID = 0;
+							</OnLoad>
+							<OnEnter>
+								self.Highlight:Show();
+								self.Timer:Stop();
+							</OnEnter>
+							<OnLeave>
+								if not self:HasFocus() then
+									self.Highlight:Hide();
+								else
+									self.Timer:Play();
+								end
+							</OnLeave>
+							<OnEscapePressed>
+								self:ClearFocus();
+							</OnEscapePressed>
+							<OnEditFocusLost>
+								self:HighlightText(0,0);
+								self.Highlight:Hide();
+								if not tonumber(self:GetText()) then
+									self:SetText(self.oldID);
+								end
+							</OnEditFocusLost>
+							<OnEditFocusGained>
+								self.oldID = tonumber(self:GetText()) or 0;
+							</OnEditFocusGained>
+						</Scripts>
+					</EditBox>
+
+
+					<Frame inherits="Narci_1x8Template" parentKey="HistoryFrame">
+						<Anchors>
+							<Anchor point="BOTTOM" relativeKey="$parent" relativePoint="BOTTOM" y="-2"/>
+						</Anchors>
+						<Layers>
+							<Layer level="OVERLAY">
+								<FontString inherits="NarciNonInteractiveFont" justifyH="CENTER" justifyV="MIDDLE" maxLines="1" parentKey="Note">
+									<Size x="160" y="0"/>
+									<Anchors>
+										<Anchor point="CENTER" relativePoint="CENTER" x="-8"/>
+									</Anchors>
+								</FontString>
+							</Layer>
+						</Layers>
+						<Frames>
+							<Button inherits="Narci_SquareButton_Template" parentKey="DeleteButton" frameLevel="18">
+								<Anchors>
+									<Anchor point="RIGHT" relativeKey="$parent" relativePoint="RIGHT" x="-3"/>
+								</Anchors>
+								<Layers>
+									<Layer level="ARTWORK" textureSubLevel="2">
+										<Texture setAllPoints="true" parentKey="Fill" hidden="false" Alpha="0">
+											<Anchors>
+												<Anchor point="TOPLEFT" relativeKey="$parent.Highlight" relativePoint="TOPLEFT" x="0" y="0"/>
+												<Anchor point="BOTTOMRIGHT" relativeKey="$parent.Highlight" relativePoint="BOTTOMRIGHT" x="0" y="-1"/>
+											</Anchors>
+											<Color r="1" g="0" b="0" a="0.8"/>
+											<Animations>
+												<AnimationGroup parentKey="FadeOut">
+													<Alpha fromAlpha="1" toAlpha="0" duration="0.15" order="1"/>
+												</AnimationGroup>
+												<AnimationGroup parentKey="Timer">
+													<Alpha fromAlpha="1" toAlpha="1" duration="0" order="1"/>
+													<Scale startDelay="0.2" parentKey="scale" fromScaleX="1" toScaleX="1" fromScaleY="0" toScaleY="1" duration="0.7" order="2">
+														<Origin point="BOTTOM">
+															<Offset x="0" y="0"/>
+														</Origin>
+													</Scale>
+												</AnimationGroup>
+											</Animations>
+										</Texture>
+									</Layer>
+								</Layers>
+								<Scripts>
+									<OnLoad>
+										self.Background:SetTexture("Interface/AddOns/Narcissus/Art/Widgets/SpellVisualBrowser/SquareButton.tga")
+										self.Background:SetTexCoord(0.75, 1, 0, 1);
+										self.Border:Hide();
+										self.Icon:SetTexCoord(0.75, 1, 0, 0.25);
+										self.Icon:SetDesaturated(true);
+										self.Highlight:SetColorTexture(1, 0, 0, 0.2);
+									</OnLoad>
+									<OnMouseDown>
+										self.Fill.Timer:Play();
+										self.Icon:SetSize(16, 16);
+									</OnMouseDown>
+									<OnMouseUp>
+										self.Fill.Timer:Stop();
+										self.Icon:SetSize(18, 18);
+									</OnMouseUp>
+									<OnEnter>
+										self.Highlight:Show();
+									</OnEnter>
+									<OnLeave>
+										self.Highlight:Hide();
+									</OnLeave>
+								</Scripts>
+							</Button>
+							<Frame clipChildren="true" parentKey="HistoryButtonFrame">
+								<Size x="120" y="24"/>
+								<Anchors>
+									<Anchor point="BOTTOMRIGHT" relativeKey="$parent.DeleteButton" relativePoint="BOTTOMLEFT"/>
+								</Anchors>
+							</Frame>
+						</Frames>
+
+						<Scripts>
+							<OnLoad>
+								self.Label:SetAlpha(0);
+								self.Label:SetText(Narci.L["Applied"]);
+								self.Note:SetText(Narci.L["History Panel Note"]);
+							</OnLoad>
+						</Scripts>
+					</Frame>
+
+					<Frame parentKey="SuggestionFrame">
+						<Size x="76" y="61"/>
+						<Anchors>
+							<Anchor point="BOTTOMRIGHT" relativeKey="$parent.HistoryFrame" relativePoint="TOPRIGHT" x="0" y="-2"/>
+						</Anchors>
+						<Layers>
+							<Layer level="BACKGROUND">
+								<Texture file="Interface\AddOns\Narcissus\Art\Widgets\SpellVisualBrowser\Panel" parentKey="Background">
+									<TexCoords left="0.595703125" right="0.734375" top="0.662109375" bottom="0.884765625"/>
+									<Anchors>
+										<Anchor point="TOPLEFT" relativeKey="$parent" relativePoint="TOPLEFT"/>
+										<Anchor point="BOTTOMRIGHT" relativeKey="$parent" relativePoint="BOTTOMRIGHT"/>
+									</Anchors>
+								</Texture>
+								<FontString inherits="NarciNonInteractiveFont" justifyH="CENTER" justifyV="MIDDLE" maxLines="1" parentKey="Label">
+									<Size x="68" y="0"/>
+									<Color r="0.5" g="0.5" b="0.5"/>
+									<Anchors>
+										<Anchor point="CENTER" relativePoint="CENTER"/>
+									</Anchors>
+								</FontString>
+							</Layer>
+						</Layers>
+						<Frames>
+							<Button inherits="Narci_1x3SquareButtonTemplate" parentKey="VirtualButton" hidden="true">
+								<Anchors>
+									<Anchor point="CENTER" relativeKey="$parent" relativePoint="CENTER"/>
+								</Anchors>
+								<Scripts>
+									<OnLoad>
+										self:Disable(0);
+									</OnLoad>
+								</Scripts>
+							</Button>
+							<Button inherits="Narci_1x3SquareButtonTemplate" parentKey="AutoPlay">
+								<Anchors>
+									<Anchor point="BOTTOM" relativeKey="$parent.VirtualButton" relativePoint="TOP"/>
+								</Anchors>
+								<Layers>
+									<Layer level="OVERLAY">
+										<Texture file="Interface\AddOns\Narcissus\Art\Widgets\SpellVisualBrowser\Icons" parentKey="Tick">
+											<Size x="18" y="18"/>
+											<TexCoords left="0.5" right="0.75" top="0.5" bottom="0.75"/>
+											<Anchors>
+												<Anchor point="LEFT" relativeKey="$parent" relativePoint="LEFT" x="6"/>
+											</Anchors>
+										</Texture>
+									</Layer>
+								</Layers>
+								<Scripts>
+									<OnLoad>
+										self.EnabledText = Narci.L["Auto-play"];
+										self:GetParent().Label:SetText(Narci.L["Animation ID Abbre"]);
+										self.DisabledText = "|cffa7a7a7"..Narci.L["Auto-play"];
+										self.tooltip = Narci.L["Auto-play Tooltip"];
+									</OnLoad>
+								</Scripts>
+							</Button>
+							<Button inherits="Narci_1x3SquareButtonTemplate" parentKey="IDButton">
+								<Anchors>
+									<Anchor point="TOP" relativeKey="$parent.VirtualButton" relativePoint="BOTTOM"/>
+								</Anchors>
+								<Scripts>
+									<OnLoad>
+										self:SetText("|cffa7a7a7".."N/A");
+									</OnLoad>
+								</Scripts>
+							</Button>
+
+							<Frame inherits="NarciArtFrameTemplate">
+								<Layers>
+									<Layer level="OVERLAY" textureSubLevel="2">
+										<Texture file="Interface\AddOns\Narcissus\Art\Widgets\SpellVisualBrowser\Panel">
+											<TexCoords left="0.45703125" right="0.595703125" top="0.662109375" bottom="0.884765625"/>
+											<Anchors>
+												<Anchor point="TOPLEFT" relativeKey="$parent.Background" relativePoint="TOPLEFT"/>
+												<Anchor point="BOTTOMRIGHT" relativeKey="$parent.Background" relativePoint="BOTTOMRIGHT"/>
+											</Anchors>
+										</Texture>		
+									</Layer>
+								</Layers>
+							</Frame>
+
+						</Frames>
+					</Frame>
+
+					<Button parentKey="Preview" mixin="NarciSpellVisualBrowserPreviewFrameMixin">
+						<Size x="96" y="96"/>
+						<HitRectInsets>
+							<AbsInset left="30" right="12" top="12" bottom="12"/>
+						</HitRectInsets>
+						<Anchors>
+							<Anchor point="BOTTOMRIGHT" relativeKey="$parent.SuggestionFrame" relativePoint="TOPRIGHT" y="-2"/>
+						</Anchors>
+						<Layers>
+							<Layer level="BACKGROUND">
+								<Texture file="Interface\AddOns\Narcissus\Art\Widgets\SpellVisualBrowser\Panel" parentKey="Background">
+									<TexCoords left="0.6318359375" right="0.806640625" top="0.3125" bottom="0.662109375"/>
+								</Texture>
+							</Layer>
+							<Layer level="ARTWORK" textureSubLevel="1">
+								<Texture parentKey="BottomImage">
+									<Size x="84" y="84"/>
+									<Anchors>
+										<Anchor point="CENTER" relativePoint="CENTER"/>
+									</Anchors>
+								</Texture>
+							</Layer>
+							<Layer level="ARTWORK" textureSubLevel="2">
+								<Texture parentKey="TopImage" file="Interface\AddOns\Narcissus\Art\SpellVisualPreviews\Pack-Standard">
+									<Size x="84" y="84"/>
+									<Anchors>
+										<Anchor point="CENTER" relativePoint="CENTER"/>
+									</Anchors>
+									<Animations>
+										<AnimationGroup parentKey="FadeOut">
+											<Alpha fromAlpha="1" toAlpha="0" duration="0.15" order="1"/>
+											<Scripts>
+												<OnFinished>
+													local image0 = self:GetParent():GetParent().BottomImage;
+													self:GetParent():SetTexture(image0:GetTexture());
+												</OnFinished>
+											</Scripts>
+										</AnimationGroup>
+									</Animations>
+								</Texture>
+								<MaskTexture file="Interface\AddOns\Narcissus\Art\Widgets\SpellVisualBrowser\PreviewMask" hWrapMode="CLAMPTOBLACKADDITIVE" vWrapMode="CLAMPTOBLACKADDITIVE">
+									<Size x="137" y="137"/>
+									<Anchors>
+										<Anchor point="CENTER" relativePoint="CENTER"/>
+									</Anchors>
+									<MaskedTextures>
+										<MaskedTexture childKey="TopImage"/>
+										<MaskedTexture childKey="BottomImage"/>
+									</MaskedTextures>
+								</MaskTexture>
+							</Layer>
+							<Layer level="OVERLAY">
+								<Texture file="Interface\AddOns\Narcissus\Art\Widgets\SpellVisualBrowser\Panel">
+									<TexCoords left="0.45703125" right="0.6318359375" top="0.3125" bottom="0.662109375"/>
+								</Texture>
+							</Layer>
+						</Layers>
+						<HighlightTexture file="Interface\AddOns\Narcissus\Art\Widgets\SpellVisualBrowser\PreviewHighlight" parentKey="Highlight" alphaMode="ADD">
+							<Size x="137" y="137"/>
+							<Anchors>
+								<Anchor point="CENTER" relativePoint="CENTER"/>
+							</Anchors>
+						</HighlightTexture>
+						<Scripts>
+							<OnLoad method="OnLoad"/>
+							<OnHide method="OnHide"/>
+							<OnClick method="OnClick"/>
+							<OnEnter method="OnEnter"/>
+							<OnLeave method="OnLeave"/>
+						</Scripts>
+					</Button>
+
+					<Frame parentKey="ListFrame" frameLevel="8">
+						<Size x="125" y="155"/>
+						<Anchors>
+							<Anchor point="BOTTOMLEFT" relativeKey="$parent.HistoryFrame" relativePoint="TOPLEFT" y="-2"/>
+						</Anchors>
+						<Layers>
+							<Layer level="BACKGROUND">
+								<Texture file="Interface\AddOns\Narcissus\Art\Widgets\SpellVisualBrowser\Panel" parentKey="Background">
+									<TexCoords left="0.228515625" right="0.45703125" top="0.3125" bottom="0.87890625"/>
+								</Texture>
+							</Layer>
+						</Layers>
+						<Frames>
+							<Frame parentKey="Container" clipChildren="true">
+								<Size x="116" y="144"/>
+								<Anchors>
+									<Anchor point="CENTER" relativeKey="$parent" relativePoint="CENTER"/>
+								</Anchors>
+								<Frames>
+									<Frame parentKey="Category" clipChildren="true">
+										<Size x="116" y="144"/>
+										<Anchors>
+											<Anchor point="CENTER" relativeKey="$parent" relativePoint="CENTER"/>
+										</Anchors>
+										<Scripts>
+											<OnMouseWheel>
+												return;
+											</OnMouseWheel>
+										</Scripts>
+									</Frame>
+
+									<ScrollFrame parentKey="ScrollFrame" inherits="Narci_SpellVisualBrowser_ScrollFrameTemplate">
+										<Anchors>
+											<Anchor point="LEFT" relativeKey="$parent.Category" relativePoint="RIGHT" x="1"/>
+										</Anchors>
+										<Frames>
+											<Button inherits="NarciQuickFavoriteButtonTemplate" frameLevel="12" hidden="true">
+												<Scripts>
+													<OnLoad>
+														self:SetIconSize(16);
+													</OnLoad>
+												</Scripts>
+											</Button>
+										</Frames>
+									</ScrollFrame>
+
+									<ScrollFrame parentKey="MyFavorites" inherits="Narci_SpellVisualBrowser_ScrollFrameTemplate">
+										<Anchors>
+											<Anchor point="LEFT" relativeKey="$parent.ScrollFrame" relativePoint="RIGHT" x="0"/>
+										</Anchors>
+										<Frames>
+											<Frame parentKey="EditFrame" hidden="true" frameLevel="12">
+												<!--Waiting to be assigned anchors-->
+												<Size x="20" y="16"/>
+												<Layers>
+	
+												</Layers>
+												<Frames>
+													<Button inherits="Narci_SavedSpellVisualButton_EditButtonTemplate" parentKey="DeleteButton">
+														<Anchors>
+															<Anchor point="RIGHT" relativeKey="$parent" relativePoint="RIGHT" x="0"/>
+														</Anchors>
+														<Scripts>
+															<OnLoad>
+																self.Icon:SetTexCoord(0.75, 1, 0, 0.25);
+																self.tooltip = Narci.L["Remove"];
+															</OnLoad>
+														</Scripts>
+													</Button>
+													<Button inherits="Narci_SavedSpellVisualButton_EditButtonTemplate" parentKey="RenameButton">
+														<Anchors>
+															<Anchor point="RIGHT" relativeKey="$parent.DeleteButton" relativePoint="LEFT" x="-2"/>
+														</Anchors>
+														<Scripts>
+															<OnLoad>
+																self.Icon:SetTexCoord(0.25, 0.5, 0.25, 0.5);
+																self.tooltip = Narci.L["Rename"];
+																self.IsOn = false;
+															</OnLoad>
+														</Scripts>
+													</Button>
+
+													<EditBox parentKey="EditBox" inherits="NarciEditBoxTemplate" letters="16" multiLine="false" hidden="true">
+														<Size x="90" y="16"/>
+														<Anchors>
+															<Anchor point="RIGHT" relativeKey="$parent" relativePoint="LEFT" x="17"/>
+														</Anchors>
+														<FontString inherits="NarciPastelBrownFont" justifyH="LEFT" justifyV="MIDDLE" maxLines="1">
+															<Color r="0.902" g="0.8" b="0.502" a="1"/>
+														</FontString>
+														<Scripts>
+															<OnHide>
+																self:ClearFocus();
+																self:HighlightText(0,0);
+																self:GetParent().RenameButton.IsOn = false;
+															</OnHide>
+														</Scripts>
+													</EditBox>
+												</Frames>
+												<Scripts>
+													<OnLoad>
+													</OnLoad>
+													<OnEnter>
+														return;
+													</OnEnter>
+													<OnHide>
+														self.EditBox:Hide();
+														self.RenameButton.IsOn = false;
+													</OnHide>
+												</Scripts>
+											</Frame>
+										</Frames>
+									</ScrollFrame>
+
+									<Frame parentKey="Header" frameLevel="10">
+										<Size x="116" y="16"/>
+										<Anchors>
+											<Anchor point="TOP" relativeKey="$parent" relativePoint="TOP" y="0"/>
+										</Anchors>
+										<Layers>
+											<Layer level="BACKGROUND">
+												<Texture file="Interface\AddOns\Narcissus\Art\Widgets\SpellVisualBrowser\Panel">
+													<Size x="128" y="21"/>
+													<TexCoords left="0.228515625" right="0.45703125" top="0.21875" bottom="0.3125"/>
+													<Anchors>
+														<Anchor point="CENTER" relativeKey="$parent" relativePoint="CENTER"/>
+													</Anchors>
+												</Texture>
+											</Layer>
+											<Layer level="OVERLAY">
+												<FontString inherits="NarciNonInteractiveFont" justifyH="CENTER" justifyV="MIDDLE" maxLines="1" parentKey="Tab1Label" text="Category">
+													<Size x="90" y="0"/>
+													<Anchors>
+														<Anchor point="TOP" relativeKey="$parent.$parent.Category" relativePoint="TOP" y="-4"/>
+													</Anchors>
+												</FontString>
+												<FontString inherits="NarciNonInteractiveFont" justifyH="CENTER" justifyV="MIDDLE" maxLines="1" parentKey="Tab2Label" text="Sub-category">
+													<Size x="90" y="0"/>
+													<Anchors>
+														<Anchor point="TOP" relativeKey="$parent.$parent.ScrollFrame" relativePoint="TOP" x="6" y="-4"/>
+													</Anchors>
+												</FontString>
+												<FontString inherits="NarciNonInteractiveFont" justifyH="CENTER" justifyV="MIDDLE" maxLines="1" parentKey="Tab3Label" text="My Favorites">
+													<Size x="90" y="0"/>
+													<Anchors>
+														<Anchor point="TOP" relativeKey="$parent.$parent.MyFavorites" relativePoint="TOP" x="6" y="-4"/>
+													</Anchors>
+												</FontString>
+											</Layer>
+										</Layers>
+										<Frames>
+											<Button parentKey="HomeButton" hidden="true" inherits="Narci_NavigationButton_Template" Alpha="0">
+												<HitRectInsets>
+													<AbsInset left="0" right="-10" top="-1" bottom="0"/>
+												</HitRectInsets>
+												<Anchors>
+													<Anchor point="LEFT" relativeKey="$parent" relativePoint="LEFT" x="2" y="0"/> 
+												</Anchors>
+											</Button>
+										</Frames>
+										<Scripts>
+											<OnLoad>
+												self.Tab1Label:SetText(Narci.L["Category"]);
+												self.Tab2Label:SetText(Narci.L["Sub-category"]);
+												self.Tab3Label:SetText(Narci.L["My Favorites"]);
+											</OnLoad>
+										</Scripts>
+									</Frame>
+								</Frames>
+							</Frame>
+							<Frame inherits="NarciArtFrameTemplate">
+								<Layers>
+									<Layer level="OVERLAY">
+										<Texture file="Interface\AddOns\Narcissus\Art\Widgets\SpellVisualBrowser\Panel">
+											<TexCoords left="0" right="0.228515625" top="0.3125" bottom="0.87890625"/>
+										</Texture>
+									</Layer>
+								</Layers>
+							</Frame>
+						</Frames>
+					</Frame>
+				</Frames>
+			</Frame>
+
+			<Frame inherits="NarciIDFrameTemplate" parentKey="HistoryTooltip" frameLevel="30"/>
+
+			<Frame inherits="NarciHotkeyNotificationTemplate">
+				<Anchors>
+					<Anchor point="BOTTOM" relativeKey="$parent.ExpandableFrames.ListFrame" relativePoint="TOP" x="4" y="0"/>
+				</Anchors>
+				<Scripts>
+					<OnLoad>
+						self:SetKey(nil, "RightButton", "Apply visuals");
+					</OnLoad>
+				</Scripts>
+			</Frame>
+
+			<Frame inherits="NarciArtFrameTemplate" parentKey="ArtFrame" frameLevel="50">
+				<Layers>
+					<Layer level="OVERLAY" textureSubLevel="4">
+						<Texture file="Interface\AddOns\Narcissus\Art\Widgets\SpellVisualBrowser\Favorites" Alpha="0" hidden="false" parentKey="Bling">
+							<TexCoords left="0.5" right="0.75" top="0" bottom="1"/>
+							<Size x="18" y="18"/>
+							<Anchors>
+								<Anchor point="CENTER" relativeKey="$parent.$parent.ExpandableFrames.FavoriteButton" relativePoint="CENTER" x="0" y="0"/>
+							</Anchors>
+							<Animations>
+								<AnimationGroup parentKey="animIn">
+									<Scale startDelay="0" fromScaleX="1" toScaleX="2.25" fromScaleY="1" toScaleY="2.25" duration="0.6" order="1"/>
+									<Alpha startDelay="0" fromAlpha="1" toAlpha="0" duration="0.5" order="1"/>
+								</AnimationGroup>
+							</Animations>
+						</Texture>
+					</Layer>
+				</Layers>
+			</Frame>
+		</Frames>
+		<Scripts>
+			<OnLoad function="Narci_SpellVisualBrowser_OnLoad"/>
+		</Scripts>
+	</Frame>
+
+	<Button parentKey="SpellPanelToggle">
+		<Size x="58" y="30"/>
+		<Anchors>
+			<Anchor point="RIGHT" relativeTo="Narci_AnimationIDFrame" relativePoint="LEFT" x="0"/>
+		</Anchors>
+		<Layers>
+			<Layer level="BACKGROUND">
+				<Texture setAllPoints="true" hidden="true">
+					<Color r="1" g="0" b="0" a="0.5"/>
+				</Texture>
+			</Layer>
+			<Layer level="ARTWORK">
+				<Texture file="Interface\AddOns\Narcissus\Art\Widgets\SpellVisualBrowser\ExpandButton" parentKey="Background">
+					<Size x="58" y="30"/>
+					<TexCoords left="0" right="0.42578125" top="0" bottom="0.21875"/>
+					<Anchors>
+						<Anchor point="LEFT" relativeTo="Narci_VisualIDFrame" relativePoint="LEFT" x="-6"/>
+					</Anchors>
+				</Texture>
+			</Layer>
+			<Layer level="OVERLAY">
+				<FontString inherits="NarciPastelBrownFont" justifyH="CENTER" justifyV="MIDDLE" maxLines="1" parentKey="Label">
+					<Size x="40" y="0"/>
+					<Color r="0.25" g="0.78" b="0.92"/>
+					<Anchors>
+						<Anchor point="CENTER" relativeKey="$parent.Background" relativePoint="LEFT" x="31"/>
+					</Anchors>
+				</FontString>
+			</Layer>
+
+			<Layer level="OVERLAY">
+				<Texture file="Interface\AddOns\Narcissus\Art\Widgets\SpellVisualBrowser\ExpandButton" parentKey="RightArrow">	<!--Arrow at the right end-->
+					<Size x="30" y="30"/>
+					<Anchors>
+						<Anchor point="LEFT" relativeTo="Narci_VisualIDFrame" relativePoint="RIGHT" x="-2"/>
+					</Anchors>
+					<TexCoords left="0.7734375" right="1" top="0" bottom="0.21875"/>
+				</Texture>
+			</Layer>
+		</Layers>
+		<Scripts>
+			<OnLoad>
+				self.isActive = false;
+				self.tooltip = Narci.L["Toggle Browser"];
+				self.Label:SetText(Narci.L["Visuals"]);
+				self:SetParent(Narci_ModelSettings.BasicPanel);
+				self.parentObject = Narci_ModelSettings;
+			</OnLoad>
+			<OnEnter>
+				NarciTooltip:ShowTooltip(self);
+				self.Background:SetTexCoord(0, 0.42578125, 0.21875, 0.4375);
+				self.RightArrow:SetTexCoord(0.7734375, 1, 0.21875, 0.4375);
+				self.parentObject:OnEnter();
+			</OnEnter>
+			<OnLeave>
+				NarciTooltip:FadeOut();
+				self.Background:SetTexCoord(0, 0.42578125, 0, 0.21875);
+				self.RightArrow:SetTexCoord(0.7734375, 1, 0, 0.21875);
+				self.parentObject:OnLeave();
+			</OnLeave>
+			<OnClick function="Narci_ToggleSpellVisualBrowser"/>
+			<OnDoubleClick>
+				return;
+			</OnDoubleClick>
+			<OnMouseDown>
+				NarciTooltip:JustHide();
+			</OnMouseDown>
+		</Scripts>
+	</Button>
+</Ui>

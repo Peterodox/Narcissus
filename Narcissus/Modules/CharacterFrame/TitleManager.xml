@@ -1,0 +1,390 @@
+<Ui xsi:schemaLocation="http://www.blizzard.com/wow/ui/..\FrameXML\UI.xsd">
+	<Script file="TitleManager.lua"/>
+    <Button name="NarciTitleOptionTemplate" registerForClicks="LeftButtonUp, RightButtonUp" virtual="true" mixin="NarciTitleOptionMixin">
+		<Size>
+			<AbsDimension y="20"/>
+		</Size>
+        <Anchors>
+            <Anchor point="LEFT"/>
+            <Anchor point="RIGHT"/>
+        </Anchors>
+        <PushedTextOffset>
+            <AbsDimension x="1" y="-0.6"/>
+        </PushedTextOffset>
+        <Layers>
+            <Layer level="BORDER">
+				<Texture setAllPoints="true" parentKey="BackgroundColor">
+					<Anchors>
+						<Anchor point="TOPLEFT" relativeKey="$parent" relativePoint="TOPLEFT" x="0" y="0"/>
+						<Anchor point="BOTTOMRIGHT" relativeKey="$parent" relativePoint="BOTTOMRIGHT" x="0" y="0"/>
+					</Anchors>
+					<Color a="0.9" r="1" g="1" b="1"/>
+					<Gradient orientation="HORIZONTAL">
+						<MinColor a="1" r="0" g="0" b="0"/>
+						<MaxColor a="1" r="0.2" g="0.2" b="0.2"/>
+					</Gradient>
+				</Texture>
+            </Layer>
+            <Layer level="ARTWORK">
+                <Texture parentKey="HighlightColor" setAllPoints="true" Alpha="1" alphaMode="NORMAL" hidden="true">
+                    <Color a="1" r="0.1372" g="0.3765" b="0.5765"/>
+                </Texture>
+				<Texture parentKey="SelectedColor" setAllPoints="true" hidden="true" Alpha="0.6">
+					<Color a="1" r="0.1372" g="0.3765" b="0.5765"/>
+				</Texture>
+            </Layer>
+            
+            <Layer level="OVERLAY" textureSubLevel="1">
+                <Texture parentKey="Star" alphaMode="NORMAL" hidden="true">
+                    <Size x="12" y="12"/>
+                    <Anchors>
+                        <Anchor point="CENTER" relativeKey="$parent" relativePoint="LEFT" x="10" y="0"/>
+                    </Anchors>
+                </Texture>
+            </Layer>
+            
+        </Layers>
+		<ButtonText inherits="NarciFontNormal10" justifyH="LEFT" maxLines="1" parentKey="Name">
+            <Color r="0.8" g="0.8" b="0.8" a="1"/>
+            <Anchors>
+                <Anchor point="LEFT" relativeKey="$parent" relativePoint="LEFT" x="20" y="0"/>
+                <Anchor point="RIGHT" relativeKey="$parent" relativePoint="RIGHT" x="-16" y="0"/>
+            </Anchors>
+		</ButtonText>
+	
+        <Scripts>
+            <OnLoad method="OnLoad"/>
+            <OnClick method="OnClick"/>
+            <OnEnter method="OnEnter"/>
+            <OnLeave method="OnLeave"/>
+            <OnHide method="OnHide"/>
+        </Scripts>
+    </Button>
+    <Button name="NarciTitleCategoryLabelTemplate" virtual="true" mixin="NarciTitleCategoryButtonMixin">
+		<Size>
+			<AbsDimension x="100" y="16"/>
+		</Size>
+        <Layers>
+            <Layer level="OVERLAY">
+                <FontString parentKey="Label" inherits="NarciFontNormal10" justifyH="LEFT" justifyV="TOP" text="Label">
+                    <Size x="0" y="0"/>
+                    <Color r="1" g="1" b="1" a="0.5"/>
+                    <Anchors>
+                        <Anchor point="TOPLEFT" x="4" y="0"/>
+                    </Anchors>
+                </FontString>
+            </Layer>
+        </Layers>
+        <Scripts>
+            <OnEnter method="OnEnter"/>
+            <OnLeave method="OnLeave"/>
+            <OnClick method="OnClick"/>
+        </Scripts>
+    </Button>
+
+    <Frame name="Narci_TitleFrame" parent="Narci_PlayerInfoFrame" frameLevel="18" hidden="true">
+        <Size x="196" y="320"/>
+        <Anchors>
+            <Anchor point="TOP" relativePoint="BOTTOM" y="-8"/>
+        </Anchors>
+        <Frames>
+            <Frame setAllPoints="true" parentKey="BlackScreen" Alpha="0">
+                <Anchors>
+                    <Anchor point="TOPLEFT" relativeTo="UIParent" relativePoint="TOPLEFT" x="0" y="0"/>
+                    <Anchor point="BOTTOMRIGHT" relativeTo="UIParent" relativePoint="BOTTOMRIGHT" x="0" y="0" />
+                </Anchors>
+                <Layers>
+                    <Layer level="BACKGROUND" textureSubLevel="3">
+                        <Texture setAllPoints="true">
+                            <Anchors>
+                                <Anchor point="TOPLEFT" relativePoint="TOPLEFT" x="0" y="0"/>
+                                <Anchor point="TOPRIGHT" relativePoint="TOP" x="0" y="0"/>
+                                <Anchor point="BOTTOMLEFT" relativePoint="BOTTOMLEFT" x="0" y="0" />
+                                 <Anchor point="BOTTOMRIGHT" relativePoint="BOTTOM" x="0" y="0" />
+                            </Anchors>
+                            <Color r="0.0" g="0.0" b="0.0" a="1"/>
+                            <Gradient orientation="HORIZONTAL">
+                                <MinColor r="0" g="0" b="0" a="0.5"/>
+                                <MaxColor r="0" g="0" b="0" a="0.5"/>
+                            </Gradient>
+                        </Texture>
+                        <Texture setAllPoints="true">
+                            <Anchors>
+                                <Anchor point="TOPLEFT" relativePoint="TOP" x="0" y="0"/>
+                                <Anchor point="TOPRIGHT" relativePoint="TOPRIGHT" x="0" y="0"/>
+                                <Anchor point="BOTTOMLEFT" relativePoint="BOTTOM" x="0" y="0" />
+                                 <Anchor point="BOTTOMRIGHT" relativePoint="BOTTOMRIGHT" x="0" y="0" />
+                            </Anchors>
+                            <Color r="0.0" g="0.0" b="0.0" a="1"/>
+                            <Gradient orientation="HORIZONTAL">
+                                <MinColor r="0" g="0" b="0" a="0.5"/>
+                                <MaxColor r="0" g="0" b="0" a="0.9"/>
+                            </Gradient>
+                        </Texture>
+                    </Layer>
+                </Layers>
+            </Frame>
+
+            <Frame name="Narci_TitleManager_TitleTooltip" parentKey="TooltipFrame" frameLevel="30" Alpha="0" mixin="NarciTitleTooltipMixin">
+                <Size x="240" y="60"/>
+                <HitRectInsets>
+                    <AbsInset left="-4" right="-4" top="-4" bottom="-4"/>
+                </HitRectInsets>
+                <Anchors>
+                    <Anchor point="TOPRIGHT" relativePoint="TOPLEFT" X="-10"/>
+                </Anchors>
+                <Layers>
+                    <Layer level="ART">
+                        <Texture parentKey="Icon">
+                            <TexCoords left="0.08" right="0.92" top="0.08" bottom="0.92"/>
+                            <Size x="36" y="36"/>
+                            <Anchors>
+                                <Anchor point="TOPLEFT" relativeKey="$parent" relativePoint="TOPLEFT" x="10" y="-10"/>
+                            </Anchors>
+                        </Texture>
+                    </Layer>
+                    <Layer level="OVERLAY">
+                        <Texture file="Interface\AddOns\Narcissus\Art\Tooltip\Shadow-Inner-Thin">
+                            <Anchors>
+                                <Anchor point="TOPLEFT" relativeKey="$parent.Icon" relativePoint="TOPLEFT" x="0" y="0"/>
+                                <Anchor point="BOTTOMRIGHT" relativeKey="$parent.Icon" relativePoint="BOTTOMRIGHT" x="0" y="0"/>
+                            </Anchors>
+                        </Texture>
+                        <FontString parentKey="Title" inherits="NarciFontPlayerInfo" justifyH="LEFT" justifyV="TOP" text="Title">
+                            <Size y="0"/>
+                            <Color r="0.25" g="0.78" b="0.92" a="1"/>
+                            <Anchors>
+                                <Anchor point="TOPLEFT" relativeKey="$parent.Icon" relativePoint="TOPRIGHT" x="10" y="0"/>
+                                <Anchor point="TOPRIGHT" relativeKey="$parent" relativePoint="TOPRIGHT" x="-10" y="0"/>
+                            </Anchors>
+                        </FontString>
+                        <FontString parentKey="Description" inherits="NarciFontNormal10" justifyH="LEFT" justifyV="TOP" text="Description" spacing="2">
+                            <Size x="180" y="0"/>
+                            <Color r="0.8" g="0.8" b="0.8" a="1"/>
+                            <Anchors>
+                                <Anchor point="TOPLEFT" relativeKey="$parent.Title" relativePoint="BOTTOMLEFT" x="0" y="-2"/>
+                            </Anchors>
+                        </FontString>
+                    </Layer>
+                    <Layer level="BACKGROUND" textureSubLevel="10">
+                        <Texture parentKey="Background" setAllPoints="true">
+                            <Color a="1" r="1" g="1" b="1"/>
+                            <Gradient orientation="VERTICAL">
+                                <MinColor a="1" r="0.0" g="0.0" b="0.0"/>
+                                <MaxColor a="1" r="0.1" g="0.1" b="0.1"/>
+                            </Gradient>
+                            <Anchors>
+                                <Anchor point="TOPLEFT" relativeKey="$parent" relativePoint="TOPLEFT" x="0" y="0"/>
+                                <Anchor point="BOTTOMRIGHT" relativeKey="$parent.Description" relativePoint="BOTTOMRIGHT" x="10" y="-10"/>
+                            </Anchors>
+                        </Texture>
+                    </Layer>
+                    <Layer level="OVERLAY">
+                         <Texture parentKey="Pointer" alphaMode="NORMAL" hidden="false">
+                            <Size x="14" y="14"/>
+                            <Anchors>
+                                <Anchor point="CENTER" relativeKey="$parent.Background" relativePoint="TOPRIGHT" x="-2" y="-10"/>
+                            </Anchors>
+                        </Texture> 
+                    </Layer>                  
+                </Layers>
+                <Scripts>
+                    <OnLoad method="OnLoad"/>
+                    <OnHide method="OnHide"/>
+                </Scripts>
+            </Frame>
+
+            <Frame name="Narci_TitleManager" hidden="false" clipChildren="true" frameLevel="22"> <!--/run Narci_TitleManager:SetClipsChildren(false)-->
+                <Size x="380" y="0"/>   <!--0-->
+                <Anchors>
+                    <Anchor point="TOPLEFT" relativeKey="$parent" relativePoint="TOP" x="-98" y="0"/><!--half of ListScrollFrame's width-->
+                </Anchors>
+                <Layers>
+                    <Layer level="BACKGROUND">
+                        <Texture setAllPoints="true" hidden="true">
+                            <Anchors>
+                                <Anchor point="TOPLEFT" relativeKey="$parent" relativePoint="TOPLEFT" x="0" y="0"/>
+                                <Anchor point="BOTTOMRIGHT" relativeKey="$parent" relativePoint="BOTTOMRIGHT" x="0" y="0"/>
+                            </Anchors>
+                            <Color a="0.2" r="0" g="0" b="0"/>
+                        </Texture>
+                    </Layer>
+                </Layers>
+                <Frames>
+                    <Button parentKey="FilterButton" FrameLevel="35" Alpha="1" mixin="NarciTitleFilterButtonMixin">
+                        <Size x="196" y="20"/>
+                        <HitRectInsets>
+                            <AbsInset left="0" right="0" top="2" bottom="0"/>
+                        </HitRectInsets>
+                        <Anchors>
+                            <Anchor point="TOPLEFT" relativeKey="$parent" relativePoint="TOPLEFT" x="0" y="-1"/>
+                        </Anchors>
+                        <ButtonText parentKey="Method" inherits="NarciFontNormal10" justifyH="RIGHT" maxLines="1" text="CATEGORY">
+                            <Size x="100" y="20"/>
+                            <Color r="0.25" g="0.78" b="0.92" a="1"/>
+                            <Anchors>
+                                <Anchor point="RIGHT" x="-10" y="0"/>
+                            </Anchors>
+                        </ButtonText>
+                        <Layers>
+                            <Layer level="OVERLAY">
+                                <FontString parentKey="Label" inherits="NarciFontNormal10" justifyH="LEFT" justifyV="MIDDLE" text="COMPACT_UNIT_FRAME_PROFILE_SORTBY">
+                                    <Size X="0" y="20"/>
+                                    <Color r="1" g="1" b="1" a="1"/>                            
+                                    <Anchors>
+                                        <Anchor point="LEFT" x="10" y="0"/>
+                                    </Anchors>
+                                </FontString>
+                                <Texture parentKey="Star" hidden="true">
+                                    <Size x="12" y="12"/>
+                                    <Anchors>
+                                        <Anchor point="LEFT" relativeKey="$parent.Label" relativePoint="RIGHT" x="10" y="0"/>
+                                    </Anchors>
+                                </Texture>
+                                <FontString parentKey="numRare" inherits="NarciFontNormal10" justifyH="LEFT" justifyV="MIDDLE" text="1208" hidden="true">
+                                    <Size X="0" y="20"/>
+                                    <Color r="1" g="1" b="1" a="1"/>                            
+                                    <Anchors>
+                                        <Anchor point="LEFT" relativeKey="$parent.Star" relativePoint="RIGHT" x="2" y="0"/>
+                                    </Anchors>
+                                </FontString>
+                                <Texture parentKey="TopGradient" setAllPoints="true">
+                                    <Color a="1" r="1" g="1" b="1"/>
+                                    <Size y="4"/>
+                                    <Anchors>
+                                        <Anchor point="TOPLEFT" relativePoint="BOTTOMLEFT" x="0" y="0"/>
+                                        <Anchor point="TOPRIGHT" relativePoint="BOTTOMRIGHT" x="0" y="0"/>
+                                    </Anchors>
+                                    <Gradient orientation="VERTICAL">
+                                        <MinColor a="0" r="0.0" g="0.0" b="0.0"/>
+                                        <MaxColor a="0.6" r="0" g="0" b="0"/>
+                                    </Gradient>
+                                </Texture>
+                            </Layer>
+                            <Layer level="BACKGROUND" textureSubLevel="10">
+                                <Texture parentKey="Background" setAllPoints="true">
+                                    <Color a="1" r="1" g="1" b="1"/>
+                                    <Gradient orientation="VERTICAL">
+                                        <MinColor a="1" r="0.0" g="0.0" b="0.0"/>
+                                        <MaxColor a="1" r="0.1" g="0.1" b="0.1"/>
+                                    </Gradient>
+                                </Texture>
+                            </Layer>
+                            <Layer level="BORDER">
+                                <Texture parentKey="Highlight" setAllPoints="true" hidden="true">
+                                    <Color a="1" r="1" g="1" b="1"/>
+                                    <Gradient orientation="VERTICAL">
+                                        <MinColor a="1" r="0.1" g="0.1" b="0.1"/>
+                                        <MaxColor a="1" r="0.25" g="0.25" b="0.25"/>
+                                    </Gradient>
+                                </Texture>
+                            </Layer>                
+                        </Layers>
+                        <Scripts>
+                            <OnLoad method="OnLoad"/>
+                            <OnEnter method="OnEnter"/>
+                            <OnLeave method="OnLeave"/>
+                            <OnClick method="OnClick"/>
+                        </Scripts>
+                    </Button>
+                    <ScrollFrame parentKey="ScrollFrame">
+                        <Size x="196" y="320"/>
+                        <Anchors>
+                            <Anchor point="TOPLEFT" relativeKey="$parent" relativePoint="TOPLEFT" x="0" y="-21"/>
+                        </Anchors>
+                        <ScrollChild>
+                            <Frame parentKey="ScrollChild">
+                            </Frame>
+                        </ScrollChild>
+                        <Layers>
+                            <Layer level="OVERLAY" textureSubLevel="3">
+                                <Texture setAllPoints="true">
+                                    <Color r="0.0" g="0.0" b="0.0" a="0"/>
+                                </Texture>
+                            </Layer>
+                        </Layers>
+                        <Frames>
+                            <Slider parentKey="scrollBar" frameLevel="10" obeyStepOnDrag="false">
+                                <Size x="10" y="0"/>
+                                <Anchors>
+                                    <Anchor point="TOPLEFT" relativePoint="TOPRIGHT" x="0" y="0"/>
+                                    <Anchor point="BOTTOMLEFT" relativePoint="BOTTOMRIGHT" x="0" y="0"/>
+                                </Anchors>
+                                <ThumbTexture setAllPoints="true" parentKey="thumbTexture" Alpha="1">
+                                    <Size x="5" y="40"/>
+                                    <Color r="0.25" g="0.78" b="0.92" a="1"/>
+                                </ThumbTexture>
+                            </Slider>
+                        </Frames>
+                        <Scripts>
+                            <OnLoad function="Narci_TitleManager_ScrollFrame_OnLoad"/>
+                        </Scripts>
+                    </ScrollFrame>
+
+                    <Button FrameLevel="2">
+                        <Anchors>
+                            <Anchor point="TOPLEFT" relativeKey="$parent" relativePoint="TOPLEFT" x="180" y="0"/>
+                            <Anchor point="BOTTOMRIGHT" relativeKey="$parent" relativePoint="BOTTOMRIGHT" x="0" y="1"/>
+                        </Anchors>
+                        <Layers>
+                            <Layer level="BACKGROUND">
+                                <Texture setAllPoints="true">
+                                    <Color a="1" r="1" g="1" b="1"/>
+                                    <Gradient orientation="HORIZONTAL">
+                                        <MinColor a="1" r="0" g="0" b="0"/>
+                                        <MaxColor a="0" r="0" g="0" b="0"/>
+                                    </Gradient>
+                                </Texture>
+                            </Layer>
+                        </Layers>
+                        <Scripts>
+                            <OnEnter/>
+                        </Scripts>
+                    </Button>
+                    <Frame FrameLevel="40">
+                        <Size x="196" y="4"/>
+                        <Anchors>
+                            <Anchor point="BOTTOMLEFT" relativeKey="$parent" relativePoint="BOTTOMLEFT" x="0" y="0"/>
+                        </Anchors>
+                        <Layers>
+                            <Layer level="OVERLAY" textureSubLevel="4">
+                                <!--Left for overlapping ScrollChild-->
+                            </Layer>
+                        </Layers>
+                    </Frame>
+                </Frames>
+            </Frame>
+        </Frames>
+    </Frame>
+
+    <Button name="Narci_TitleManager_Switch" parent="Narci_PlayerInfoFrame" Alpha="0" mixin="NarciTitleManagerSwitchMixin">
+        <Size x="200" y="20"/>
+        <Anchors>
+            <Anchor point="TOPLEFT" relativeKey="$parent.Miscellaneous" relativePoint="TOPLEFT" x="-8" y="8"/>
+            <Anchor point="BOTTOMRIGHT" relativeKey="$parent.Miscellaneous" relativePoint="BOTTOMRIGHT" x="8" y="-8"/>
+        </Anchors>
+        <HitRectInsets>
+            <AbsInset left="-10" right="-10" top="4" bottom="0"/>
+        </HitRectInsets>
+        <Layers>
+            <Layer level="OVERLAY">
+                <FontString parentKey="Tooltip" inherits="NarciFontPlayerInfo" justifyH="CENTER" justifyV="MIDDLE" text="Open Title Manager" Alpha="0">
+                    <Size x="0" y="0"/>
+                    <Color r="0.25" g="0.78" b="0.92" a="0"/>
+                    <Anchors>
+                        <Anchor point="CENTER" relativeKey="$parent" relativePoint="CENTER" x="0" y="0"/>
+                    </Anchors>
+                </FontString>        
+            </Layer>
+        </Layers>
+        <Scripts>
+            <OnLoad method="OnLoad"/>
+            <OnClick method="OnClick"/>
+            <OnEnter method="OnEnter"/>
+            <OnLeave method="OnLeave"/>
+            <OnShow method="OnShow"/>
+            <OnHide method="OnHide"/>
+            <OnEvent method="OnEvent"/>
+        </Scripts>
+    </Button>
+</Ui>

@@ -1,0 +1,1030 @@
+<Ui xsi:schemaLocation="http://www.blizzard.com/wow/ui/..\FrameXML\UI.xsd">
+    <Script file="EnchantData.lua"/>
+    <Script file="GemData.lua"/>
+    <Script file="TempEnchantData.lua"/>
+    <Script file="RuneAnimation.lua"/>
+    <Script file="ItemPushAnimation.lua"/>
+    <Script file="CastingBar.lua"/>
+    <Script file="ActionButton.lua"/>
+    <Script file="EnchantButton.lua"/>
+	<Script file="EquipmentOption.lua"/>
+    <Script file="RedButtonFlash.lua"/>
+
+    <Button name="NarciEquipmentOptionButtonSharedTemplate" virtual="true" motionScriptsWhileDisabled="true">
+        <Size x="240" y="48"/>
+        <Layers>
+            <Layer level="OVERLAY">
+                <Texture parentKey="Icon">
+                    <Size x="28" y="28"/>
+                    <TexCoords left="0.075" right="0.925" top="0.075" bottom="0.925"/>
+                    <Anchors>
+                        <Anchor point="CENTER" relativeKey="$parent" relativePoint="LEFT" x="24" y="0"/>
+                    </Anchors>
+                </Texture>
+                <FontString inherits="NarciFontMedium12" justifyH="LEFT" justifyV="BOTTOM" parentKey="Text1" text=" ">
+                    <Size x="180"/>
+                    <Color r="0.92" g="0.92" b="0.92"/>
+                    <Anchors>
+                        <Anchor point="BOTTOMLEFT" relativeKey="$parent.Icon" relativePoint="RIGHT" x="7" y="1"/>
+                    </Anchors>
+                </FontString>
+                <FontString inherits="NarciFontNormal10White" justifyH="LEFT" justifyV="TOP" parentKey="Text2" text=" " maxLines="1">
+                    <Size x="180"/>
+                    <Color r="0.5" g="0.5" b="0.5"/>
+                    <Anchors>
+                        <Anchor point="TOPLEFT" relativeKey="$parent.Icon" relativePoint="RIGHT" x="7" y="-2"/>
+                    </Anchors>
+                </FontString>
+            </Layer>
+            <Layer level="OVERLAY" textureSubLevel="1">
+                <Texture parentKey="IconBorder" file="Interface\AddOns\Narcissus\Art\EquipmentOption\IconBorder">
+                    <Size x="48" y="48"/>
+                    <Anchors>
+                        <Anchor point="CENTER" relativeKey="$parent.Icon" relativePoint="CENTER" x="0" y="0"/>
+                    </Anchors>
+                </Texture>
+            </Layer>
+            <Layer level="OVERLAY" textureSubLevel="2">
+                <Texture parentKey="IconBorderRed" file="Interface\AddOns\Narcissus\Art\EquipmentOption\IconBorderRed" hidden="true">
+                    <Size x="48" y="48"/>
+                    <Anchors>
+                        <Anchor point="CENTER" relativeKey="$parent.Icon" relativePoint="CENTER" x="0" y="0"/>
+                    </Anchors>
+                </Texture>
+            </Layer>
+        </Layers>
+
+		<Animations>
+			<AnimationGroup parentKey="AnimPushed">
+				<Translation offsetX="2" duration="0.1" order="1"/>
+				<Translation duration="20" order="2" parentKey="Hold"/>
+				<Translation offsetX="-2" duration="0.1" order="3"/>
+			</AnimationGroup>
+            <AnimationGroup parentKey="FadeOut">
+                <Alpha fromAlpha="1" toAlpha="0" duration="0.5" order="1"/>
+                <Scripts>
+                    <OnFinished>
+                        self:GetParent():Hide();
+                    </OnFinished>
+                </Scripts>
+            </AnimationGroup>
+        </Animations>
+    </Button>
+
+    <Button name="NarciEquipmentOptionButtonTemplate" inherits="NarciEquipmentOptionButtonSharedTemplate" mixin="NarciEquipmentOptionButtonMixin" virtual="true" registerForClicks="LeftButtonUp">
+        <Layers>
+            <Layer level="BORDER">
+                <Texture parentKey="Highlight" hidden="true">
+                    <Color r="0.2" g="0.2" b="0.2" a="1"/>
+                    <Gradient orientation="HORIZONTAL">
+                        <MinColor a="1" r="1" g="1" b="1"/>
+                        <MaxColor a="0" r="1" g="1" b="1"/>
+                    </Gradient>
+                </Texture>
+            </Layer>
+        </Layers>
+        <Scripts>
+            <OnLoad method="OnLoad"/>
+            <OnEnter method="OnEnter"/>
+            <OnLeave method="OnLeave"/>
+            <OnMouseUp method="OnMouseUp"/>
+            <OnMouseDown method="OnMouseDown"/>
+            <OnClick method="OnClick"/>
+            <OnEnable method="OnEnable"/>
+            <OnDisable method="OnDisable"/>
+        </Scripts>
+    </Button>
+
+    <Button name="NarciEquipmentEnchantButtonTemplate" inherits="NarciEquipmentOptionButtonSharedTemplate" mixin="NarciEquipmentEnchantButtonMixin" virtual="true" hidden="true" registerForClicks="LeftButtonUp, RightButtonUp">
+        <Layers>
+            <Layer level="OVERLAY" textureSubLevel="1">
+				<Texture parentKey="ItemCountBackdrop" hidden="true">
+                    <Size x="14" y="11"/>
+                    <Color r="0" g="0" b="0" a="0.8"/>
+					<Anchors>
+                        <Anchor point="BOTTOMRIGHT" relativeKey="$parent.Icon" relativePoint="BOTTOMRIGHT" x="-1" y="1"/>
+					</Anchors>
+				</Texture>
+                <Texture parentKey="InUseMark" hidden="true">
+                    <Size x="3"/>
+                    <Color r="0.3725" g="0.7412" b="0.4196"/>
+					<Anchors>
+                        <Anchor point="TOPRIGHT" relativeKey="$parent.Icon" relativePoint="TOPLEFT" x="-1" y="0"/>
+                        <Anchor point="BOTTOMRIGHT" relativeKey="$parent.Icon" relativePoint="BOTTOMLEFT" x="-1" y="0"/>
+					</Anchors>
+                </Texture>
+            </Layer>
+            <Layer level="OVERLAY" textureSubLevel="2">
+				<FontString inherits="NarciIndicatorTiny" justifyH="CENTER" justifyV="MIDDLE" hidden="true" parentKey="ItemCount" text="0">
+					<Color r="0.92" g="0.92" b="0.92"/>
+                    <Shadow>
+                    </Shadow>
+					<Anchors>
+						<Anchor point="CENTER" relativeKey="$parent.ItemCountBackdrop" relativePoint="CENTER" x="0" y="0"/>
+					</Anchors>
+				</FontString>
+            </Layer>
+            <Layer level="OVERLAY" textureSubLevel="3">
+                <Texture parentKey="LoadingIndicator" hidden="true" file="Interface\AddOns\Narcissus\Art\EquipmentOption\LoadingIcon">
+                    <Size x="24" y="24"/>
+                    <Anchors>
+                        <Anchor point="CENTER" relativeKey="$parent" relativePoint="CENTER" x="0" y="0"/>
+                    </Anchors>
+                    <Animations>
+                        <AnimationGroup parentKey="Rotate" looping="REPEAT">
+                            <Rotation degrees="-360" duration="1" order="1"/>
+                        </AnimationGroup>
+                    </Animations>
+                </Texture>
+            </Layer>
+        </Layers>
+        <Scripts>
+            <OnLoad method="OnLoad"/>
+            <OnEnter method="OnEnter"/>
+            <OnLeave method="OnLeave"/>
+            <OnMouseUp method="OnMouseUp"/>
+            <OnMouseDown method="OnMouseDown"/>
+            <OnClick method="OnClick"/>
+        </Scripts>
+    </Button>
+
+    <Frame name="Narci_EquipmentOption" mixin="NarciEquipmentOptionMixin" frameStrata="DIALOG" hidden="true" inherits="NarciAnimatedSizingFrameTemplate" clampedToScreen="true">
+        <Size x="48" y="48"/>
+        <Anchors>
+            <Anchor point="TOPLEFT" relativeTo="UIParent" relativePoint="CENTER" y="120"/>
+        </Anchors>
+        <Layers>
+            <Layer level="BORDER" textureSubLevel="3">
+                <Texture parentKey="Pointer" file="Interface\AddOns\Narcissus\Art\EquipmentOption\Shadow" parentArray="BorderTextures">
+                    <Size x="32" y="32"/>
+                    <TexCoords left="0.25" right="0.5" top="0.25" bottom="0.5"/>
+                    <Anchors>
+                        <Anchor point="CENTER" relativePoint="RIGHT"/>
+                    </Anchors>
+                </Texture>
+            </Layer>
+            <Layer level="BORDER" textureSubLevel="2">
+                <Texture parentKey="PointerBackdrop" file="Interface\AddOns\Narcissus\Art\EquipmentOption\Shadow">
+                    <Size x="32" y="32"/>
+                    <TexCoords left="0.5" right="0.75" top="0.25" bottom="0.5"/>
+                    <Anchors>
+                        <Anchor point="CENTER" relativeKey="$parent.Pointer" relativePoint="CENTER"/>
+                    </Anchors>
+                </Texture>
+            </Layer>
+        </Layers>
+        <Frames>
+            <Frame parentKey="ArtFrame" useParentLevel="false" clipChildren="true">
+                <Anchors>
+                    <Anchor point="TOPLEFT"/>
+                    <Anchor point="BOTTOMRIGHT"/>
+                </Anchors>
+                <Layers>
+                    <Layer level="ARTWORK" textureSubLevel="1">
+                        <Texture parentKey="Stain" file="Interface\AddOns\Narcissus\Art\EquipmentOption\Stain">
+                            <Size x="240" y="240"/>
+                            <Anchors>
+                                <Anchor point="TOPRIGHT"/>
+                            </Anchors>
+                        </Texture>
+                    </Layer>
+                </Layers>
+            </Frame>
+            <Frame parentKey="Menu">
+                <Anchors>
+                    <Anchor point="TOPLEFT"/>
+                    <Anchor point="BOTTOMRIGHT"/>
+                </Anchors>
+            </Frame>
+            <ScrollFrame parentKey="ItemList" hidden="true">
+                <Anchors>
+                    <Anchor point="TOPLEFT"/>
+                    <Anchor point="BOTTOMRIGHT"/>
+                </Anchors>
+                <ScrollChild>
+                    <Frame parentKey="ScrollChild">
+                        <Size x="16" y="16"/>
+                        <Anchors>
+                            <Anchor point="TOPLEFT" relativeKey="$parent" relativePoint="TOPLEFT"/>
+                        </Anchors>
+                        <Layers>
+
+                        </Layers>
+                        <Frames>
+                            <Frame parentKey="HighlightFrame" hidden="true" useParentLevel="true" mixin="NarciItemListButtonHighlightMixin">
+                                <Size x="240" y="48"/>
+                                <Layers>
+                                    <Layer level="BORDER">
+                                        <Texture parentKey="Highlight">
+                                            <Color r="0.2" g="0.2" b="0.2" a="1"/>
+                                            <Gradient orientation="HORIZONTAL">
+                                                <MinColor a="1" r="1" g="1" b="1"/>
+                                                <MaxColor a="0" r="1" g="1" b="1"/>
+                                            </Gradient>
+                                        </Texture>
+                                    </Layer>
+                                    <Layer level="ARTWORK">
+                                        <Texture parentKey="IconRight" desaturated="true" Alpha="0.25" hidden="false">
+                                            <TexCoords left="0.2" right="0.8" top="0.35" bottom="0.65"/>
+                                            <Size x="96" y="48"/>
+                                            <Anchors>
+                                                <Anchor point="LEFT" relativeKey="$parent" relativePoint="LEFT" x="0" y="0"/>
+                                            </Anchors>
+                                            <Animations>
+                                                <AnimationGroup parentKey="FlyIn" setToFinalAlpha="true">
+                                                    <Translation offsetX="-8" duration="0" order="1"/>
+                                                    <Alpha fromAlpha="0" toAlpha="0" duration="0" order="1"/>
+                                                    <Translation offsetX="6" duration="0.15" order="2"/>
+                                                    <Alpha fromAlpha="0" toAlpha="0.25" duration="0.15" order="2"/>
+                                                    <Translation offsetX="2" duration="0.1" order="3" smoothing="OUT"/>
+                                                </AnimationGroup>
+                                            </Animations>
+                                        </Texture>
+                                        <MaskTexture file="Interface\AddOns\Narcissus\Art\EquipmentOption\BackdropIconMask" hWrapMode="CLAMPTOBLACKADDITIVE" vWrapMode="CLAMPTOBLACKADDITIVE">
+                                            <Anchors>
+                                                <Anchor point="TOPLEFT" relativeKey="$parent.IconRight" relativePoint="TOPLEFT" x="0" y="0"/>
+                                                <Anchor point="BOTTOMRIGHT" relativeKey="$parent.IconRight" relativePoint="BOTTOMRIGHT" x="0" y="0"/>
+                                            </Anchors>
+                                            <MaskedTextures>
+                                                <MaskedTexture childKey="IconRight"/>
+                                            </MaskedTextures>
+                                        </MaskTexture>
+                                    </Layer>
+                                </Layers>
+                                <Scripts>
+                                    <OnLoad method="OnLoad"/>
+                                </Scripts>
+                            </Frame>
+                        </Frames>
+                    </Frame>
+                </ScrollChild>
+                <Frames>
+                    <Slider valueStep="0.01" parentKey="ScrollBar" inherits="NarciVerticalLineSliderTemplate" frameLevel="5">
+                        <Size x="12"/>
+                        <Anchors>
+                            <Anchor point="TOPRIGHT" relativePoint="TOPRIGHT" x="0" y="-8"/>
+                            <Anchor point="BOTTOMRIGHT" relativePoint="BOTTOMRIGHT" x="0" y="8"/>
+                        </Anchors>
+                    </Slider>
+                    <Button parentKey="FilterToggle" mixin="NarciEquipmentListFilterButtonMixin">
+                        <Size x="64" y="24"/>
+                        <Anchors>
+                            <Anchor point="BOTTOMRIGHT" relativeKey="$parent" relativePoint="TOPRIGHT" x="0" y="2"/>
+                        </Anchors>
+                        <Layers>
+                            <Layer level="ARTWORK">
+                                <Texture parentKey="Square" file="Interface\AddOns\Narcissus\Art\EquipmentOption\Toggle">
+                                    <Size x="18" y="18"/>
+                                    <TexCoords left="0.125" right="0.875" top="0.125" bottom="0.875"/>
+                                    <Anchors>
+                                        <Anchor point="RIGHT"/>
+                                    </Anchors>
+                                </Texture>
+                            </Layer>
+                            <Layer level="OVERLAY">
+                                <Texture parentKey="Check" file="Interface\AddOns\Narcissus\Art\EquipmentOption\ToggleCheck">
+                                    <Size x="24" y="24"/>
+                                    <Anchors>
+                                        <Anchor point="CENTER" relativeKey="$parent.Square" relativePoint="CENTER"/>
+                                    </Anchors>
+                                    <Animations>
+                                        <AnimationGroup parentKey="AnimIn">
+                                            <Alpha fromAlpha="0" toAlpha="1" duration="0.1" order="1"/>
+                                            <Scale fromScaleX="0.5" toScaleX="1" fromScaleY="0.5" toScaleY="1" duration="0.12" order="1"/>
+                                        </AnimationGroup>
+                                    </Animations>
+                                </Texture>
+                                <FontString inherits="NarciFontNormal10White" justifyH="RIGHT" justifyV="MIDDLE" parentKey="Label">
+                                    <Size x="0" y="16"/>
+                                    <Color r="0.5" g="0.5" b="0.5"/>
+                                    <Anchors>
+                                        <Anchor point="RIGHT" relativeKey="$parent.Square" relativePoint="LEFT" x="-4" y="0"/>
+                                    </Anchors>
+                                    <Animations>
+                                        <AnimationGroup parentKey="FadeIn">
+                                            <Alpha fromAlpha="0" toAlpha="0" duration="0" order="1"/>
+                                            <Alpha fromAlpha="0" toAlpha="1" duration="0.15" startDelay="0.15" order="2"/>
+                                        </AnimationGroup>
+                                    </Animations>
+                                </FontString>
+                            </Layer>
+                            <Layer level="BACKGROUND">
+                                <Texture parentKey="Shadow" file="Interface\AddOns\Narcissus\Art\EquipmentOption\ToggleLabelShadow">
+                                    <Size x="96" y="36"/>
+                                    <Anchors>
+                                        <Anchor point="BOTTOMRIGHT" y="-2"/>
+                                    </Anchors>
+                                </Texture>
+                            </Layer>
+                        </Layers>
+                        <Animations>
+                            <AnimationGroup parentKey="FlyUp">
+                                <Translation offsetY="-12" duration="0" order="1"/>
+                                <Alpha fromAlpha="0" toAlpha="0" duration="0" order="1"/>
+                                <Translation offsetY="12" duration="0.15" order="2" smoothing="OUT"/>
+                                <Alpha fromAlpha="0" toAlpha="1" duration="0.12" order="2"/>
+                            </AnimationGroup>
+                        </Animations>
+                        <Scripts>
+                            <OnLoad method="OnLoad"/>
+                            <OnEnter method="OnEnter"/>
+                            <OnLeave method="OnLeave"/>
+                            <OnClick method="OnClick"/>
+                            <OnShow method="OnShow"/>
+                        </Scripts>
+                    </Button>
+                    <Frame parentKey="Tooltip" mixin="NarciEquipmentListTooltipMixin" inherits="NarciAnimatedSizingFrameTemplate" hidden="true" alpha="0" clampedToScreen="true">
+                        <Size x="32" y="24"/>
+                        <Frames>
+                            <Frame parentKey="ClipFrame" clipChildren="true">
+                                <Anchors>
+                                    <Anchor point="TOPLEFT"/>
+                                    <Anchor point="BOTTOMRIGHT"/>
+                                </Anchors>
+                                <Layers>
+                                    <Layer level="BORDER">
+                                        <Texture parentKey="Icon" desaturated="true" Alpha="0.4">
+                                            <TexCoords left="0.075" right="0.925" top="0.075" bottom="0.925"/>
+                                            <Size x="24" y="24"/>
+                                            <Anchors>
+                                                <Anchor point="TOPRIGHT" relativeKey="$parent" relativePoint="TOPRIGHT" x="0" y="0"/>
+                                            </Anchors>
+                                        </Texture>
+                                        <MaskTexture file="Interface\AddOns\Narcissus\Art\EquipmentOption\TooltipIconMask" hWrapMode="CLAMPTOBLACKADDITIVE" vWrapMode="CLAMPTOBLACKADDITIVE">
+                                            <Anchors>
+                                                <Anchor point="TOPLEFT" relativeKey="$parent.Icon" relativePoint="TOPLEFT" x="0" y="0"/>
+                                                <Anchor point="BOTTOMRIGHT" relativeKey="$parent.Icon" relativePoint="BOTTOMRIGHT" x="0" y="0"/>
+                                            </Anchors>
+                                            <MaskedTextures>
+                                                <MaskedTexture childKey="Icon"/>
+                                            </MaskedTextures>
+                                        </MaskTexture>
+                                    </Layer>
+                                    <Layer level="ARTWORK">
+                                        <FontString inherits="NarciFontNormal10White" justifyH="LEFT" justifyV="TOP" parentKey="Description" spacing="2">
+                                            <Size x="0" y="0"/>
+                                            <Color r="0.529" g="0.863" b="0.6"/>
+                                            <Anchors>
+                                                <Anchor point="TOPLEFT" relativeKey="$parent" relativePoint="TOPLEFT" x="6" y="-6"/>
+                                            </Anchors>
+                                            <Animations>
+                                                <AnimationGroup parentKey="FadeIn">
+                                                    <Alpha fromAlpha="0" toAlpha="1" duration="0.2" order="1"/>
+                                                </AnimationGroup>
+                                            </Animations>
+                                        </FontString>
+                                    </Layer>
+                                    <Layer level="OVERLAY" textureSubLevel="2">
+                                        <Texture parentKey="LoadingIndicator" hidden="true" file="Interface\AddOns\Narcissus\Art\EquipmentOption\LoadingIcon">
+                                            <Size x="24" y="24"/>
+                                            <Anchors>
+                                                <Anchor point="CENTER" relativeKey="$parent" relativePoint="CENTER" x="0" y="0"/>
+                                            </Anchors>
+                                            <Animations>
+                                                <AnimationGroup parentKey="Rotate" looping="REPEAT">
+                                                    <Rotation degrees="-360" duration="1" order="1"/>
+                                                </AnimationGroup>
+                                            </Animations>
+                                        </Texture>
+                                    </Layer>
+                                </Layers>
+                            </Frame>
+                        </Frames>
+                        <Scripts>
+                            <OnLoad method="OnLoad"/>
+                            <OnShow method="OnShow"/>
+                            <OnHide method="OnHide"/>
+                            <OnEvent method="OnEvent"/>
+                        </Scripts>
+                    </Frame>
+                    <Frame parentKey="SelectionOverlay" frameLevel="4" hidden="true" clipChildren="true" alpha="0">
+                        <Anchors>
+                            <Anchor point="TOPLEFT"/>
+                            <Anchor point="BOTTOMRIGHT"/>
+                        </Anchors>
+                        <Layers>
+                            <Layer level="OVERLAY">
+                                <Texture parentKey="Black">
+                                    <Color r="0" g="0" b="0" a="0.5"/>
+                                </Texture>
+                            </Layer>
+                        </Layers>
+                    </Frame>
+
+                    <Button name="NarciEquipmentGemActionButton" mixin="NarciEquipmentGemActionButtonMixin" registerForClicks="LeftButtonUp, RightButtonUp" ignoreParentAlpha="true" hidden="true" parentKey="GemActionButton">
+                        <Size x="240" y="48"/>
+                        <Layers>
+                            <Layer level="BACKGROUND">
+                                <Texture parentKey="Backdrop" Alpha="1">
+                                    <Color r="0.5" g="0.5" b="0.5" a="1"/>
+                                    <Animations>
+                                        <AnimationGroup parentKey="Shine" setToFinalAlpha="true">
+                                            <Alpha fromAlpha="0.2" toAlpha="0.5" duration="0.05" order="1"/>
+                                            <Alpha fromAlpha="0.5" toAlpha="0.25" duration="0.2" order="2"/>
+                                        </AnimationGroup>
+                                    </Animations>
+                                </Texture>
+                            </Layer>
+                            <Layer level="ARTWORK">
+                                <FontString inherits="NarciFontNormal10White" justifyH="CENTER" justifyV="BOTTOM" parentKey="Header" maxLines="1" text="Continue with">
+                                    <Size x="208" y="0"/>
+                                    <Color r="0.92" g="0.92" b="0.92"/>
+                                    <Anchors>
+                                        <Anchor point="BOTTOM" relativeKey="$parent" relativePoint="CENTER" x="0" y="2"/>
+                                    </Anchors>
+                                    <Animations>
+                                        <AnimationGroup parentKey="FlyIn" setToFinalAlpha="true">
+                                            <Translation offsetX="-6" duration="0" order="1"/>
+                                            <Translation offsetX="4" duration="0.1" order="2"/>
+                                            <Translation offsetX="2" duration="0.1" order="3" smoothing="OUT"/>
+                                            <Alpha fromAlpha="0" toAlpha="0" duration="0" order="1"/>
+                                            <Alpha fromAlpha="0" toAlpha="1" duration="0.1" order="2"/>
+                                        </AnimationGroup>
+                                        <AnimationGroup parentKey="FlyDown" setToFinalAlpha="true">
+                                            <Translation offsetY="-6" duration="0.15" order="1"/>
+                                            <Alpha fromAlpha="1" toAlpha="0" duration="0.12" order="1"/>
+                                        </AnimationGroup>
+                                    </Animations>
+                                </FontString>
+                                <FontString inherits="NarciFontNormal10White" justifyH="CENTER" justifyV="TOP" parentKey="NewItemName" maxLines="1">
+                                    <Size x="208" y="0"/>
+                                    <Color r="0.3725" g="0.7412" b="0.4196"/>
+                                    <Anchors>
+                                        <Anchor point="TOP" relativeKey="$parent" relativePoint="CENTER" x="0" y="-2"/>
+                                    </Anchors>
+                                    <Animations>
+                                        <AnimationGroup parentKey="FlyIn">
+                                            <Translation offsetX="-6" duration="0" order="1"/>
+                                            <Translation offsetX="4" duration="0.1" order="2"/>
+                                            <Translation offsetX="2" duration="0.1" order="3" smoothing="OUT"/>
+                                            <Alpha fromAlpha="0" toAlpha="0" duration="0" order="1"/>
+                                            <Alpha fromAlpha="0" toAlpha="1" duration="0.1" order="2"/>
+                                        </AnimationGroup>
+                                    </Animations>
+                                </FontString>
+                                <FontString inherits="NarciFontNormal10White" justifyH="CENTER" justifyV="MIDDLE" parentKey="ResultText" maxLines="2" text="Enchanting" hidden="true">
+                                    <Size x="208" y="0"/>
+                                    <Color r="0.92" g="0.92" b="0.92"/>
+                                    <Anchors>
+                                        <Anchor point="CENTER" relativeKey="$parent" relativePoint="CENTER" x="0" y="0"/>
+                                    </Anchors>
+                                    <Animations>
+                                        <AnimationGroup parentKey="FlyIn" setToFinalAlpha="true">
+                                            <Translation offsetY="6" duration="0" order="1"/>
+                                            <Alpha fromAlpha="0" toAlpha="1" duration="0.1" order="2"/>
+                                            <Translation offsetY="-4" duration="0.1" order="2"/>
+                                            <Translation offsetY="-2" duration="0.1" order="3" smoothing="OUT"/>
+                                            <Alpha fromAlpha="1" toAlpha="1" duration="0.25" order="4"/>
+                                            <Scripts>
+                                                <OnFinished>
+                                                    self:GetParent().Blink:Play();
+                                                </OnFinished>
+                                            </Scripts>
+                                        </AnimationGroup>
+                                        <AnimationGroup parentKey="Blink" looping="REPEAT">
+                                            <Alpha fromAlpha="1" toAlpha="0.5" duration="0.5" order="1"/>
+                                            <Alpha fromAlpha="0.5" toAlpha="1" duration="0.5" order="2"/>
+                                        </AnimationGroup>
+                                    </Animations>
+                                </FontString>
+                            </Layer>
+                        </Layers>
+                        <Frames>
+                            <Frame parentKey="EventFrame" hidden="true">
+                                <Size x="240" y="48"/>
+                                <Anchors>
+                                    <Anchor point="CENTER"/>
+                                </Anchors>
+                            </Frame>
+                        </Frames>
+                        <Scripts>
+                            <OnLoad method="OnLoad"/>
+                            <OnClick method="OnClick"/>
+                            <OnHide method="OnHide"/>
+                        </Scripts>
+                    </Button>
+
+                    <Frame parentKey="ActionBlocker" hidden="true" frameLevel="8">
+                        <Anchors>
+                            <Anchor point="TOPLEFT"/>
+                            <Anchor point="BOTTOMRIGHT"/>
+                        </Anchors>
+                        <Layers>
+                            <Layer>
+                                <FontString inherits="NarciFontNormal10White" justifyH="CENTER" justifyV="MIDDLE" parentKey="ErrorMsg" text="Extract Shard">
+                                    <Size x="208" y="0"/>
+                                    <Color r="0.5" g="0.5" b="0.5"/>
+                                    <Anchors>
+                                        <Anchor point="CENTER" relativeKey="$parent" relativePoint="CENTER" x="0" y="0"/>
+                                    </Anchors>
+                                </FontString>
+                            </Layer>
+                        </Layers>
+                        <Scripts>
+                            <OnMouseDown/>
+                            <OnMouseWheel/>
+                        </Scripts>
+                    </Frame>
+                </Frames>
+                <Layers>
+                    <Layer level="OVERLAY">
+                        <FontString inherits="NarciFontNormal10White" justifyH="CENTER" justifyV="MIDDLE" parentKey="NoItemText" hidden="true">
+                            <Color r="0.5" g="0.5" b="0.5"/>
+                            <Anchors>
+                                <Anchor point="CENTER" relativeKey="$parent" relativePoint="CENTER" x="" y="0"/>
+                            </Anchors>
+                        </FontString>
+                    </Layer>
+                </Layers>
+            </ScrollFrame>
+        </Frames>
+        <Scripts>
+            <OnLoad method="OnLoad"/>
+            <OnHide method="OnHide"/>
+            <OnEvent method="OnEvent"/>
+            <OnMouseWheel>
+                return;
+            </OnMouseWheel>
+        </Scripts>
+    </Frame>
+
+	<Button name="NarciEquipmentEnchantActionButton" mixin="NarciEquipmentEnchantActionButtonMixin" inherits="SecureActionButtonTemplate" parent="NarciSecureFrameContainer" frameStrata="DIALOG" registerForClicks="LeftButtonUp, RightButtonUp" ignoreParentAlpha="true" frameLevel="10">
+		<Size x="240" y="48"/>
+        <Layers>
+            <Layer level="BACKGROUND">
+                <Texture parentKey="Backdrop" Alpha="1">
+                    <Color r="0.5" g="0.5" b="0.5" a="1"/>
+                    <Animations>
+                        <AnimationGroup parentKey="Shine" setToFinalAlpha="true">
+                            <Alpha fromAlpha="0.2" toAlpha="0.5" duration="0.05" order="1"/>
+                            <Alpha fromAlpha="0.5" toAlpha="0.25" duration="0.2" order="2"/>
+                        </AnimationGroup>
+                    </Animations>
+                </Texture>
+            </Layer>
+            <Layer level="ARTWORK">
+                <FontString inherits="NarciFontNormal10White" justifyH="CENTER" justifyV="BOTTOM" parentKey="Header" maxLines="1" text="Continue with">
+                    <Size x="208" y="0"/>
+                    <Color r="0.92" g="0.92" b="0.92"/>
+                    <Anchors>
+                        <Anchor point="BOTTOM" relativeKey="$parent" relativePoint="CENTER" x="0" y="2"/>
+                    </Anchors>
+                    <Animations>
+                        <AnimationGroup parentKey="FlyIn" setToFinalAlpha="true">
+                            <Translation offsetX="-6" duration="0" order="1"/>
+                            <Translation offsetX="4" duration="0.1" order="2"/>
+                            <Translation offsetX="2" duration="0.1" order="3" smoothing="OUT"/>
+                            <Alpha fromAlpha="0" toAlpha="0" duration="0" order="1"/>
+                            <Alpha fromAlpha="0" toAlpha="1" duration="0.1" order="2"/>
+                        </AnimationGroup>
+                        <AnimationGroup parentKey="FlyDown" setToFinalAlpha="true">
+                            <Translation offsetY="-6" duration="0.15" order="1"/>
+                            <Alpha fromAlpha="1" toAlpha="0" duration="0.12" order="1"/>
+                        </AnimationGroup>
+                    </Animations>
+                </FontString>
+                <FontString inherits="NarciFontNormal10White" justifyH="CENTER" justifyV="TOP" parentKey="NewItemName" maxLines="1">
+                    <Size x="208" y="0"/>
+                    <Color r="0.3725" g="0.7412" b="0.4196"/>
+                    <Anchors>
+                        <Anchor point="TOP" relativeKey="$parent" relativePoint="CENTER" x="0" y="-2"/>
+                    </Anchors>
+                    <Animations>
+                        <AnimationGroup parentKey="FlyIn">
+                            <Translation offsetX="-6" duration="0" order="1"/>
+                            <Translation offsetX="4" duration="0.1" order="2"/>
+                            <Translation offsetX="2" duration="0.1" order="3" smoothing="OUT"/>
+                            <Alpha fromAlpha="0" toAlpha="0" duration="0" order="1"/>
+                            <Alpha fromAlpha="0" toAlpha="1" duration="0.1" order="2"/>
+                        </AnimationGroup>
+                    </Animations>
+                </FontString>
+                <FontString inherits="NarciFontNormal10White" justifyH="CENTER" justifyV="MIDDLE" parentKey="CastText" maxLines="1" text="Enchanting" hidden="true">
+                    <Size x="208" y="0"/>
+                    <Color r="0.92" g="0.92" b="0.92"/>
+                    <Anchors>
+                        <Anchor point="CENTER" relativeKey="$parent" relativePoint="CENTER" x="0" y="0"/>
+                    </Anchors>
+                    <Animations>
+                        <AnimationGroup parentKey="FlyIn" setToFinalAlpha="true">
+                            <Translation offsetY="6" duration="0" order="1"/>
+                            <Alpha fromAlpha="0" toAlpha="1" duration="0.1" order="2"/>
+                            <Translation offsetY="-4" duration="0.1" order="2"/>
+                            <Translation offsetY="-2" duration="0.1" order="3" smoothing="OUT"/>
+                            <Alpha fromAlpha="1" toAlpha="1" duration="0.25" order="4"/>
+                            <Scripts>
+                                <OnFinished>
+                                    self:GetParent().Blink:Play();
+                                </OnFinished>
+                            </Scripts>
+                        </AnimationGroup>
+                        <AnimationGroup parentKey="Blink" looping="REPEAT">
+                            <Alpha fromAlpha="1" toAlpha="0.5" duration="0.5" order="1"/>
+                            <Alpha fromAlpha="0.5" toAlpha="1" duration="0.5" order="2"/>
+                        </AnimationGroup>
+                    </Animations>
+                </FontString>
+            </Layer>
+        </Layers>
+        <Frames>
+            <Frame parentKey="ClipFrame" clipChildren="true">
+                <Size x="240" y="48"/>
+                <Anchors>
+                    <Anchor point="CENTER"/>
+                </Anchors>
+                <Layers>
+                    <Layer level="OVERLAY" textureSubLevel="2">
+                        <Texture parentKey="Flash" file="Interface\AddOns\Narcissus\Art\EquipmentOption\SelectionHighlight" alphaMode="ADD" alpha="0.6" hidden="true">
+                            <Size x="96" y="48"/>
+                            <Anchors>
+                                <Anchor point="RIGHT" relativeKey="$parent" relativePoint="LEFT"/>
+                            </Anchors>
+                            <Animations>
+                                <AnimationGroup parentKey="FlyBy">
+                                    <Translation offsetX="336" duration="0.25" order="1" smoothing="IN_OUT"/>
+                                </AnimationGroup>
+                            </Animations>
+                        </Texture>
+                    </Layer>
+                </Layers>
+            </Frame>
+            <Frame parentKey="CastFrame" clipChildren="true" mixin="NarciCastingBarMixin" hidden="true">
+                <Size x="240" y="48"/>
+                <Anchors>
+                    <Anchor point="CENTER"/>
+                </Anchors>
+                <Layers>
+                    <!--Layer level="BACKGROUND">
+                        <Texture>
+                            <Color r="0.1" g="0.1" b="0.1"/>
+                        </Texture>
+                    </Layer-->
+                    <Layer level="BORDER">
+                        <Texture parentKey="Shadow">
+                            <Size x="240" y="6"/>
+                            <Anchors>
+                                <Anchor point="BOTTOM" relativeKey="$parent" relativePoint="BOTTOM" y="-8"/>
+                            </Anchors>
+                            <Color r="0" g="0" b="0" a="1"/>
+                            <Gradient orientation="VERTICAL">
+                                <MaxColor a="0.6" r="1" g="1" b="1"/>
+                                <MimColor a="0" r="1" g="1" b="1"/>
+                            </Gradient>
+                        </Texture>
+                    </Layer>
+                    <Layer level="BORDER" textureSubLevel="1">
+                        <Texture parentKey="BlackLine">
+                            <Size y="1"/>
+                            <Color r="0" g="0" b="0" a="1"/>
+                            <Anchors>
+                                <Anchor point="BOTTOMLEFT" relativeKey="$parent.Shadow" relativePoint="TOPLEFT"/>
+                                <Anchor point="BOTTOMRIGHT" relativeKey="$parent.Shadow" relativePoint="TOPRIGHT"/>
+                            </Anchors>
+                        </Texture>
+                    </Layer>
+                    <Layer level="OVERLAY">
+                        <Texture parentKey="Fill">
+                            <Size x="120" y="2"/>
+                            <Color r="0.2" g="0.2" b="0.2" a="1"/>
+                            <Anchors>
+                                <Anchor point="TOPLEFT" relativeKey="$parent.Shadow" relativePoint="TOPLEFT"/>
+                            </Anchors>
+                            <Animations>
+                                <AnimationGroup parentKey="Shine" setToFinalAlpha="true">
+                                    <Alpha fromAlpha="0" toAlpha="1" duration="0.25" order="1"/>
+                                    <Alpha fromAlpha="1" toAlpha="0" duration="0.72" order="2"/>
+                                </AnimationGroup>
+                            </Animations>
+                        </Texture>
+                    </Layer>
+                    <Layer level="OVERLAY" textureSubLevel="2">
+                        <Texture parentKey="Tail">
+                            <Size x="48" y="2"/>
+                            <Color r="1" g="1" b="1" a="1"/>
+                            <Anchors>
+                                <Anchor point="TOPRIGHT" relativeKey="$parent.Fill" relativePoint="TOPRIGHT"/>
+                            </Anchors>
+                            <Gradient orientation="HORIZONTAL">
+                                <MaxColor a="0.6" r="1" g="1" b="1"/>
+                                <MimColor a="0" r="1" g="1" b="1"/>
+                            </Gradient>
+                        </Texture>
+                        <Texture parentKey="BlipCenter" hidden="true">
+                            <Size x="2" y="2"/>
+                            <Color r="1" g="1" b="1" a="1"/>
+                            <Anchors>
+                                <Anchor point="TOPRIGHT" relativeKey="$parent.Fill" relativePoint="TOPRIGHT"/>
+                            </Anchors>
+                        </Texture>
+                        <Texture parentKey="Blip" file="Interface\AddOns\Narcissus\Art\EquipmentOption\CastingBarBlip" alphaMode="ADD" hidden="true">
+                            <Size x="16" y="16"/>
+                            <Anchors>
+                                <Anchor point="CENTER" relativeKey="$parent.BlipCenter" relativePoint="CENTER"/>
+                            </Anchors>
+                            <Animations>
+                                <AnimationGroup parentKey="Anim" looping="REPEAT" setToFinalAlpha="true">
+                                    <Alpha fromAlpha="0" toAlpha="1" duration="0.25" order="1"/>
+                                    <Alpha fromAlpha="1" toAlpha="0" duration="0.25" order="2"/>
+                                </AnimationGroup>
+                            </Animations>
+                        </Texture>
+                        <FontString inherits="NarciFontNormal10White" justifyH="CENTER" justifyV="MIDDLE" parentKey="SpellName" maxLines="1" hidden="true">
+                            <Size x="208" y="0"/>
+                            <Color r="0.92" g="0.92" b="0.92"/>
+                            <Anchors>
+                                <Anchor point="CENTER" relativeKey="$parent" relativePoint="CENTER" x="0" y="0"/>
+                            </Anchors>
+                            <Animations>
+                                <AnimationGroup parentKey="FlyIn" setToFinalAlpha="true">
+                                    <Translation offsetY="6" duration="0" order="1"/>
+                                    <Alpha fromAlpha="0" toAlpha="1" duration="0.1" order="2"/>
+                                    <Translation offsetY="-4" duration="0.1" order="2"/>
+                                    <Translation offsetY="-2" duration="0.1" order="3" smoothing="OUT"/>
+                                    <Alpha fromAlpha="1" toAlpha="1" duration="0.25" order="4"/>
+                                    <Scripts>
+                                        <OnFinished>
+                                            self:GetParent().Blink:Play();
+                                        </OnFinished>
+                                    </Scripts>
+                                </AnimationGroup>
+                                <AnimationGroup parentKey="Blink" looping="REPEAT">
+                                    <Alpha fromAlpha="1" toAlpha="0.25" duration="1" order="1"/>
+                                    <Alpha fromAlpha="0.25" toAlpha="1" duration="1" order="2"/>
+                                </AnimationGroup>
+                            </Animations>
+                        </FontString>
+                    </Layer>
+                </Layers>
+                <Scripts>
+                    <OnShow method="OnShow"/>
+                    <OnHide method="OnHide"/>
+                    <OnEvent method="OnEvent"/>
+                </Scripts>
+            </Frame>
+        </Frames>
+        <Scripts>
+            <OnLoad method="OnLoad"/>
+            <OnLeave method="OnLeave"/>
+            <PostClick method="PostClick"/>
+            <OnEvent method="OnEvent"/>
+            <OnShow method="OnShow"/>
+            <OnHide method="OnHide"/>
+        </Scripts>
+    </Button>
+
+    <Frame name="NarciRuneAnimationOverlay" mixin="NarciRuneAnimationMixin" movable="false" enableMouse="false" frameStrata="FULLSCREEN" hidden="true">
+        <Size x="32" y="64"/>
+        <Anchors>
+            <Anchor point="CENTER"/>
+        </Anchors>
+        <Layers>
+            <Layer level="ARTWORK" textureSubLevel="2">
+                <Texture parentKey="Rune1">
+                    <Size x="32" y="32"/>
+                    <Animations>
+                        <AnimationGroup parentKey="Anim" setToFinalAlpha="true">
+                            <Alpha fromAlpha="0" toAlpha="0" duration="0" order="1"/>
+                            <Alpha fromAlpha="0" toAlpha="1" duration="0.15" order="2"/>
+                            <Scale scaleX="2" scaleY="2" duration="0.15" order="2"/>
+                            <Translation offsetX="-12" offsetY="8" duration="0.2" order="2" smoothing="OUT" parentKey="Fly1"/>
+                            <Translation offsetX="-12" offsetY="4" duration="1.3" order="3" parentKey="Fly2"/>
+                            <Rotation degrees="-25" duration="1.3" order="3" parentKey="Rotate2"/>
+                            <Translation offsetX="24" offsetY="-12" duration="0.12" order="4" smoothing="OUT" parentKey="Fly3"/>
+                            <Scale scaleX="0.5" scaleY="0.5" duration="0.12" order="4"/>
+                            <Rotation degrees="25" duration="0.12" order="4" parentKey="Rotate3"/>
+                            <Alpha startDelay="0.5" fromAlpha="1" toAlpha="0" duration="1" order="5"/>
+                        </AnimationGroup>
+                    </Animations>
+                </Texture>
+                <Texture parentKey="Rune2">
+                    <Size x="32" y="32"/>
+                    <Animations>
+                        <AnimationGroup parentKey="Anim" setToFinalAlpha="true">
+                            <Alpha fromAlpha="0" toAlpha="0" duration="0" order="1"/>
+                            <Alpha startDelay="0.2" fromAlpha="0" toAlpha="1" duration="0.15" order="2"/>
+                            <Scale startDelay="0.2" scaleX="2" scaleY="2" duration="0.15" order="2"/>
+                            <Translation startDelay="0.2" offsetX="-13" offsetY="0" duration="0.2" order="2" smoothing="OUT" parentKey="Fly1"/>
+                            <Translation offsetX="-12" offsetY="0" duration="1.1" order="3" parentKey="Fly2"/>
+                            <Translation offsetX="25" offsetY="0" duration="0.12" order="4" smoothing="OUT" parentKey="Fly3"/>
+                            <Scale scaleX="0.5" scaleY="0.5" duration="0.12" order="4"/>
+                            <Alpha startDelay="0.5" fromAlpha="1" toAlpha="0" duration="1" order="5"/>
+                        </AnimationGroup>
+                    </Animations>
+                </Texture>
+                <Texture parentKey="Rune3">
+                    <Size x="32" y="32"/>
+                    <Animations>
+                        <AnimationGroup parentKey="Anim" setToFinalAlpha="true">
+                            <Alpha fromAlpha="0" toAlpha="0" duration="0" order="1"/>
+                            <Alpha startDelay="0.4" fromAlpha="0" toAlpha="1" duration="0.15" order="2"/>
+                            <Scale startDelay="0.4" scaleX="2" scaleY="2" duration="0.15" order="2"/>
+                            <Translation startDelay="0.4" offsetX="-14" offsetY="-8" duration="0.2" order="2" smoothing="OUT" parentKey="Fly1"/>
+                            <Translation offsetX="-12" offsetY="-4" duration="0.9" order="3" parentKey="Fly2"/>
+                            <Rotation degrees="12" duration="0.9" order="3" parentKey="Rotate2"/>
+                            <Translation offsetX="26" offsetY="12" duration="0.12" order="4" smoothing="OUT" parentKey="Fly3"/>
+                            <Scale scaleX="0.5" scaleY="0.5" duration="0.12" order="4"/>
+                            <Rotation degrees="-12" duration="0.12" order="4" parentKey="Rotate3"/>
+                            <Alpha startDelay="0.5" fromAlpha="1" toAlpha="0" duration="1" order="5"/>
+                        </AnimationGroup>
+                    </Animations>
+                </Texture>
+            </Layer>
+            <Layer level="ARTWORK">
+                <Texture parentKey="Shine" file="Interface\AddOns\Narcissus\Art\EquipmentOption\RuneShine" alpha="0">
+                    <Size x="32" y="32"/>
+                    <Anchors>
+                        <Anchor point="CENTER"/>
+                    </Anchors>
+                    <Animations>
+                        <AnimationGroup parentKey="Anim" setToFinalAlpha="true">
+                            <Alpha fromAlpha="0" toAlpha="0" duration="0" order="1"/>
+                            <Alpha startDelay="1.52" fromAlpha="0" toAlpha="1" duration="0.1" order="2" parentKey="Hold"/>
+                            <Alpha fromAlpha="1" toAlpha="0" duration="1" order="3"/>
+                        </AnimationGroup>
+                    </Animations>
+                </Texture>
+            </Layer>
+        </Layers>
+        <Animations>
+            <AnimationGroup parentKey="FadeOut" setToFinalAlpha="true">
+                <Alpha fromAlpha="1" toAlpha="0" duration="0.2" order="1"/>
+            </AnimationGroup>
+        </Animations>
+        <Scripts>
+            <OnLoad method="OnLoad"/>
+            <OnShow method="OnShow"/>
+            <OnHide method="OnHide"/>
+
+            <!--
+            <OnMouseDown method="OnMouseDown"/>
+            <OnDragStart method="OnDragStart"/>
+            <OnDragStop method="OnDragStop"/>
+            -->
+        </Scripts>
+    </Frame>
+
+
+	<Frame name="NarciGemSlotOverlay" inherits="NarciGemSlotTemplate" frameLevel="20" hidden="true">
+		<Size x="30" y="30"/>
+		<Layers>
+			<Layer level="OVERLAY" textureSubLevel="5">
+				<Texture parentKey="Bling" file="Interface\AddOns\Narcissus\Art\GemBorder\GemSlotHighlight" hidden="false" Alpha="0">
+					<TexCoords left="0" right="0.5" top="0" bottom="1"/>
+					<Size x="60" y="60"/>
+					<Anchors>
+						<Anchor point="CENTER" relativeKey="$parent" relativePoint="CENTER" x="0" y="0"/>
+					</Anchors>
+					<Animations>
+						<AnimationGroup parentKey="FadeOut" setToFinalAlpha="true">
+							<Alpha startDelay="1.4" fromAlpha="1" toAlpha="0" duration="0.5" order="1"/>
+							<Scripts>
+                                <OnFinished>
+                                    self:GetParent():GetParent():Hide();
+                                </OnFinished>
+							</Scripts>
+						</AnimationGroup>
+					</Animations>
+				</Texture>
+				<Texture parentKey="Flare" file="Interface\AddOns\Narcissus\Art\GemBorder\GemSlotHighlight" hidden="false" Alpha="0">
+					<TexCoords left="0.5" right="1" top="0" bottom="1"/>
+					<Size x="72" y="72"/>
+					<Anchors>
+						<Anchor point="CENTER" relativeKey="$parent.GemIcon" relativePoint="CENTER" x="0" y="0"/>
+					</Anchors>
+					<Animations>
+						<AnimationGroup parentKey="Rotate" setToFinalAlpha="true">
+							<Alpha fromAlpha="0" toAlpha="1" duration="0.2" order="1"/>
+							<Alpha startDelay="0.8" fromAlpha="1" toAlpha="0" duration="0.5" order="1"/>
+							<Rotation degrees="45" duration="1.5" order="1"/>
+							<Scripts>
+								<OnPlay>
+									self:GetParent():SetAlpha(1);
+									local root = self:GetParent():GetParent()
+									root.Bling:SetAlpha(1);
+									root.Bling.FadeOut:Play();
+									root.GemBorder:SetTexture(nil);
+									root.GemIcon:SetTexture(nil);
+								</OnPlay>
+								<OnStop>
+									self:GetParent():SetAlpha(0);
+									self:GetParent():GetParent().Bling:SetAlpha(0);
+								</OnStop>
+							</Scripts>
+						</AnimationGroup>
+					</Animations>
+				</Texture>
+				<Texture parentKey="Pulse" file="Interface\AddOns\Narcissus\Art\GemBorder\Domination\Pulse" hidden="false" Alpha="0" alphaMode="ADD">
+					<Size x="64" y="64"/>
+					<Anchors>
+						<Anchor point="CENTER" relativeKey="$parent" relativePoint="CENTER" x="0" y="0"/>
+					</Anchors>
+					<Animations>
+						<AnimationGroup parentKey="Shrink">
+							<Alpha fromAlpha="0" toAlpha="0" duration="0" order="1"/>
+							<Alpha fromAlpha="0" toAlpha="1" duration="0.25" order="2"/>
+							<Scale fromScaleX="1.5" toScaleX="1" fromScaleY="1.5" toScaleY="1" duration="0.25" smoothing="IN_OUT" order="2"/>
+							<Alpha fromAlpha="1" toAlpha="1" duration="2" order="3"/>
+						</AnimationGroup>
+						<AnimationGroup parentKey="Expand">
+							<Alpha fromAlpha="1" toAlpha="0" duration="0.25" order="1"/>
+							<Scale scaleX="2" scaleY="2" duration="0.25" smoothing="IN_OUT" order="1"/>
+						</AnimationGroup>
+					</Animations>
+				</Texture>
+			</Layer>
+		</Layers>
+		<Scripts>
+			<OnLoad>
+				self.GemIcon:Show();
+
+                function self:StartAnimation()
+                    self:StopAnimating();
+                    self.Flare.Rotate:Play();
+                end
+
+                function self:HideIfIdle()
+                    if self:IsShown() and not self.Bling.FadeOut:IsPlaying() then
+                        self:Hide();
+                    end
+                end
+			</OnLoad>
+			<OnHide>
+				self:Hide();
+			</OnHide>
+		</Scripts>		
+	</Frame>
+
+    <Frame name="NarciItemPushOverlay" hidden="true" mixin="NarciItemPushOverlayMixin">
+        <Size x="38" y="38"/>
+        <Layers>
+            <Layer level="OVERLAY">
+                <Texture parentKey="Icon" setAllPoints="true" hidden="true"/>
+            </Layer>
+        </Layers>
+        <Animations>
+            <AnimationGroup parentKey="FlyOut">
+                <Scale childKey="Icon" fromScaleX="1" fromScaleY="1" toScaleX="0.125" toScaleY="0.125" duration="1" order="1"/>
+                <Alpha childKey="Icon" fromAlpha="1" toAlpha="0" duration="1" order="1"/>
+                <Path childKey="Icon" curve="SMOOTH" duration="1" order="1">
+                    <ControlPoints>
+                        <ControlPoint offsetX="0" offsetY="60"/>
+                        <ControlPoint offsetX="60" offsetY="0"/>
+                    </ControlPoints>
+                </Path>
+                <Scripts>
+                    <OnPlay>
+                        self:GetParent().Icon:Show();
+                    </OnPlay>
+                    <OnFinished>
+                        self:GetParent().Icon:Hide();
+                    </OnFinished>
+                </Scripts>
+            </AnimationGroup>
+        </Animations>
+        <Scripts>
+            <OnShow method="OnShow"/>
+            <OnHide method="OnHide"/>
+            <OnEvent method="OnEvent"/>
+        </Scripts>
+    </Frame>
+
+    <Frame name="NarciRedButtonFlash" hidden="true" mixin="NarciRedButtonFlashMixin">
+        <Size x="24" y="24"/>
+        <Layers>
+            <Layer level="OVERLAY">
+                <Texture file="Interface\AddOns\Narcissus\Art\EquipmentOption\BlizzardButtonFlash" parentKey="Left">
+                    <Size x="24" y="24"/>
+                    <TexCoords left="0" right="0.25" top="0" bottom="1"/>
+                    <Anchors>
+                        <Anchor point="CENTER" relativeKey="$parent" relativePoint="LEFT"/>
+                    </Anchors>
+                </Texture>
+                <Texture file="Interface\AddOns\Narcissus\Art\EquipmentOption\BlizzardButtonFlash" parentKey="Right">
+                    <Size x="24" y="24"/>
+                    <TexCoords left="0.75" right="1" top="0" bottom="1"/>
+                    <Anchors>
+                        <Anchor point="CENTER" relativeKey="$parent" relativePoint="RIGHT"/>
+                    </Anchors>
+                </Texture>
+                <Texture file="Interface\AddOns\Narcissus\Art\EquipmentOption\BlizzardButtonFlash" parentKey="Center">
+                    <Size x="48" y="24"/>
+                    <TexCoords left="0.25" right="0.75" top="0" bottom="1"/>
+                    <Anchors>
+                        <Anchor point="LEFT" relativeKey="$parent.Left" relativePoint="Right"/>
+                        <Anchor point="RIGHT" relativeKey="$parent.Right" relativePoint="Left"/>
+                    </Anchors>
+                </Texture>
+            </Layer>
+        </Layers>
+        <Animations>
+            <AnimationGroup parentKey="Anim" looping="REPEAT">
+                <Alpha fromAlpha="0" toAlpha="1" duration="0.5" order="1"/>
+                <Alpha fromAlpha="1" toAlpha="0" duration="1.5" order="2"/>
+                <Alpha fromAlpha="0" toAlpha="0" duration="0.25" order="3"/>
+            </AnimationGroup>
+        </Animations>
+        <Scripts>
+            <OnHide method="OnHide"/>
+        </Scripts>
+    </Frame>
+</Ui>

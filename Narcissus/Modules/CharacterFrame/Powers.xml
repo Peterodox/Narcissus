@@ -1,0 +1,713 @@
+<Ui xsi:schemaLocation="http://www.blizzard.com/wow/ui/..\FrameXML\UI.xsd">
+    <Script file="Powers.lua"/>
+
+    <Frame name="Narci_PowersFrame" enableMouse="true" parent="Narci_Attribute" hidden="true" Alpha="0" mixin="NarciPowersFrameMixin">
+        <Size x="320" y="216"/>
+        <Anchors>
+            <Anchor point="CENTER"/>
+        </Anchors>
+        <Scripts>
+            <OnLoad method="OnLoad"/>
+        </Scripts>
+    </Frame>
+
+    <Script file="Soulbinds.lua"/>
+    <Script file="SoulbindsTabs.lua"/>
+    <Script file="ConduitCollection.lua"/>
+    <Script file="Talents.lua"/>
+
+    <Texture name="NarciSoulbindsPipeTextureTemplate" virtual="true" file="Interface\AddOns\Narcissus\Art\Modules\CharacterFrame\Soulbinds\Pipe">
+        <Size x="48" y="48"/>
+        <TexCoords left="0" right="0.25" top="0" bottom="0.5"/>
+    </Texture>
+
+    <Button name="NarciConduitNodeButtonTemplate" virtual="true" mixin="NarciConduitNodeButtonMixin">
+        <Size x="24" y="24"/>
+        <Layers>
+            <Layer level="ARTWORK">
+                <Texture parentKey="Icon">
+                    <Size x="22" y="22"/>
+                    <Color r="0" g="0" b="0"/>
+                    <Anchors>
+                        <Anchor point="CENTER"/>
+                    </Anchors>
+                </Texture>
+                <MaskTexture parentKey="Mask" file="Interface\AddOns\Narcissus\Art\Modules\CharacterFrame\Soulbinds\MaskCircle" hWrapMode="CLAMPTOBLACKADDITIVE" vWrapMode="CLAMPTOBLACKADDITIVE">
+                    <Size x="24" y="24"/>
+                    <Anchors>
+                        <Anchor point="CENTER"/>
+                    </Anchors>
+                    <MaskedTextures>
+                        <MaskedTexture childKey="Icon"/>
+                    </MaskedTextures>
+                </MaskTexture>
+            </Layer>
+            <Layer level="OVERLAY">
+                <Texture parentKey="ConduitBorder">
+                    <Size x="27" y="27"/>
+                    <TexCoords left="0" right="0.25" top="0" bottom="1"/>
+                    <Anchors>
+                        <Anchor point="CENTER"/>
+                    </Anchors>
+                </Texture>
+            </Layer>
+            <Layer level="OVERLAY" textureSubLevel="1">
+                <Texture file="Interface\AddOns\Narcissus\Art\Modules\CharacterFrame\Soulbinds\ConduitBorderHighlight" parentKey="Highlight" Alpha="0" hidden="true">
+                    <Size x="54" y="54"/>
+                    <TexCoords left="0" right="0.5" top="0" bottom="1"/>
+                    <Anchors>
+                        <Anchor point="CENTER"/>
+                    </Anchors>
+                    <Animations>
+                        <AnimationGroup parentKey="Glow" setToFinalAlpha="true">
+                            <Alpha parentKey="Delay" order="1" duration="0" fromAlpha="0" toAlpha="0"/>
+                            <Alpha childKey="Highlight" smoothing="OUT" order="2" duration="0.12" fromAlpha="0" toAlpha="1"/>
+                            <Scale childKey="Highlight" smoothing="OUT" order="2" duration="0.3" fromScaleX="1.6" fromScaleY="1.6" toScaleX="1" toScaleY="1"/>
+                            <Alpha childKey="Highlight" smoothing="OUT" order="3" startDelay="0.25" duration="0.5" fromAlpha="1" toAlpha="0"/>
+                            <Scripts>
+                                <OnFinished>
+                                    self:GetParent():Hide();
+                                </OnFinished>
+                            </Scripts>
+                        </AnimationGroup>
+                    </Animations>
+                </Texture>
+            </Layer>
+        </Layers>
+        <Scripts>
+            <OnLoad method="OnLoad"/>
+            <OnEnter method="OnEnter"/>
+            <OnLeave method="OnLeave"/>
+            <OnClick method="OnClick"/>
+        </Scripts>
+    </Button>
+
+    <Frame name="NarciActiveConduitFrameTemplate" virtual="true" mixin="NarciSoulbindsConduitFrameMixin">
+        <Size x="200" y="24"/>
+		<Layers>
+            <Layer level="BACKGROUND">
+				<!--Texture setAllPoints="true" parentKey="Color">
+					<Size x="160" y="24"/>
+					<Color r="0.2" g="0.2" b="0.2" a="0.75"/>
+					<Gradient orientation="HORIZONTAL">
+						<MinColor a="1" r="1" g="1" b="1"/>
+						<MaxColor a="1" r="0.6" g="0.6" b="0.6"/>
+					</Gradient>
+				</Texture-->
+            </Layer>
+			<Layer level="OVERLAY">
+                <Texture parentKey="ConduitTypeIcon" file="Interface\AddOns\Narcissus\Art\Modules\CharacterFrame\Soulbinds\ConduitTypeIcons">
+                    <Size x="16" y="16"/>
+                    <TexCoords left="0.75" right="1" top="0" bottom="1"/>
+                    <Anchors>
+                        <Anchor point="LEFT" x="2"/>
+                    </Anchors>
+                </Texture>
+
+				<FontString inherits="NarciFontMedium12" justifyH="LEFT" justifyV="MIDDLE" parentKey="Name" text="Label">
+					<Size x="150" y="0"/>
+					<Color r="0.8" g="0.8" b="0.8"/>
+					<Anchors>
+						<Anchor point="LEFT" relativeKey="$parent" relativePoint="LEFT" x="18" y="0"/>
+					</Anchors>
+				</FontString>
+
+				<FontString inherits="NarciFontStatusNumber" justifyH="RIGHT" justifyV="MIDDLE" parentKey="ItemLevel" text="128">
+					<Size x="0" y="0"/>
+					<Color r="0.5" g="0.5" b="0.5"/>
+					<Anchors>
+						<Anchor point="RIGHT" relativeKey="$parent" relativePoint="RIGHT" x="-10" y="0"/>
+					</Anchors>
+				</FontString>
+			</Layer>
+		</Layers>
+        <Scripts>
+            <OnLoad method="OnLoad"/>
+            <OnEnter method="OnEnter"/>
+            <OnLeave method="OnLeave"/>
+        </Scripts>
+    </Frame>
+
+    <Button name="NarciSoulbindsCharacterButton" virtual="true" mixin="NarciSoulbindsCharacterButtonMixin">
+        <Size x="16" y="16"/>
+		<HitRectInsets>
+			<AbsInset left="-12" right="-10" top="0" bottom="0"/>
+		</HitRectInsets>
+        <Layers>
+            <Layer level="BACKGROUND">
+                <Texture parentKey="Texture" file="Interface\AddOns\Narcissus\Art\Modules\CharacterFrame\Soulbinds\Diamond">
+                    <Size x="32" y="32"/>
+                    <TexCoords left="0" right="0.5" top="0" bottom="0.5"/>
+                    <Anchors>
+                        <Anchor point="CENTER"/>
+                    </Anchors>
+                </Texture>
+            </Layer>
+        </Layers>
+        <HighlightTexture file="Interface\AddOns\Narcissus\Art\Modules\CharacterFrame\Soulbinds\Diamond" parentKey="Highlight">
+            <Size x="32" y="32"/>
+            <TexCoords left="0" right="0.5" top="0.5" bottom="1"/>
+            <Anchors>
+                <Anchor point="CENTER"/>
+            </Anchors>
+        </HighlightTexture>
+        <Scripts>
+            <OnEnter method="OnEnter"/>
+            <OnLeave method="OnLeave"/>
+            <OnClick method="OnClick"/>
+            <OnMouseDown method="OnMouseDown"/>
+            <OnMouseUp method="OnMouseUp"/>
+        </Scripts>
+    </Button>
+
+    <Button name="NarciCharacterFlatButtonTemplate" virtual="true">
+        <Size x="48" y="24"/>
+        <Layers>
+            <Layer level="ARTWORK">
+                <Texture parentKey="Icon">
+                    <Color r="0.1" g="0.1" b="0.1"/>
+                    <TexCoords left="0.025" right="0.975" top="0.275" bottom="0.725"/>
+                    <Anchors>
+                        <Anchor point="TOPLEFT" relativeKey="$parent" relativePoint="TOPLEFT"/>
+                        <Anchor point="BOTTOMRIGHT" relativeKey="$parent" relativePoint="BOTTOMRIGHT"/>
+                    </Anchors>
+                </Texture>
+                <MaskTexture hWrapMode="CLAMPTOBLACKADDITIVE" vWrapMode="CLAMPTOBLACKADDITIVE" parentKey="IconMask">
+                    <Anchors>
+                        <Anchor point="TOPLEFT" relativeKey="$parent" relativePoint="TOPLEFT"/>
+                        <Anchor point="BOTTOMRIGHT" relativeKey="$parent" relativePoint="BOTTOMRIGHT"/>
+                    </Anchors>
+                    <MaskedTextures>
+                        <MaskedTexture childKey="Icon"/>
+                    </MaskedTextures>
+                </MaskTexture>
+            </Layer>
+            <Layer level="OVERLAY">
+                <Texture parentKey="IconOverlay" hidden="false">
+                    <Anchors>
+                        <Anchor point="TOPLEFT" relativeKey="$parent" relativePoint="TOPLEFT"/>
+                        <Anchor point="BOTTOMRIGHT" relativeKey="$parent" relativePoint="BOTTOMRIGHT"/>
+                    </Anchors>
+                </Texture>
+				<FontString inherits="NarciFontStatusNumber" justifyH="CENTER" justifyV="MIDDLE" parentKey="UnlockLevel" hidden="true">
+					<Size x="0" y="0"/>
+					<Color r="0.5" g="0.5" b="0.5"/>
+					<Anchors>
+						<Anchor point="CENTER" relativeKey="$parent" relativePoint="CENTER" x="0" y="0"/>
+					</Anchors>
+				</FontString>
+            </Layer>
+        </Layers>
+    </Button>
+
+    <Button name="NarciTalentFlatButtonTemplate" virtual="true" mixin="NarciTalentFlatButtonMixin" inherits="NarciSkewedRectButtonTemplate" useParentLevel="true">
+        <Size x="48" y="24"/>
+        <KeyValues>
+            <KeyValue key="buttonType" value="talent" type="string"/>
+        </KeyValues>
+        <Layers>
+            <Layer level="OVERLAY" textureSubLevel="1">
+				<FontString inherits="NarciFontStatusNumber" justifyH="CENTER" justifyV="MIDDLE" parentKey="UnlockLevel" hidden="true">
+					<Size x="0" y="0"/>
+					<Color r="0.5" g="0.5" b="0.5"/>
+					<Anchors>
+						<Anchor point="CENTER" relativeKey="$parent" relativePoint="CENTER" x="0" y="0"/>
+					</Anchors>
+				</FontString>
+            </Layer>
+        </Layers>
+        <Scripts>
+            <OnLoad method="OnLoad"/>
+            <OnEnter method="OnEnter"/>
+            <OnLeave method="OnLeave"/>
+        </Scripts>
+    </Button>
+
+    <Button name="NarciConduitFlatButtonTemplate" virtual="true" mixin="NarciConduitFlatButtonMixin" inherits="NarciSkewedRectButtonTemplate" useParentLevel="true">
+        <KeyValues>
+            <KeyValue key="buttonType" value="conduit" type="string"/>
+        </KeyValues>
+        <Layers>
+            <Layer level="OVERLAY" textureSubLevel="1">
+                <Texture parentKey="ConduitTypeIcon" file="Interface\AddOns\Narcissus\Art\Modules\CharacterFrame\Soulbinds\ConduitTypeIcons">
+                    <Size x="16" y="16"/>
+                    <TexCoords left="0.75" right="1" top="0" bottom="1"/>
+                    <Anchors>
+                        <Anchor point="CENTER" relativeKey="$parent" relativePoint="BOTTOM" x="0" y="2"/>
+                    </Anchors>
+                </Texture>
+				<FontString inherits="NarciFontStatusNumber" justifyH="CENTER" justifyV="MIDDLE" parentKey="UnlockLevel" hidden="true">
+					<Size x="0" y="0"/>
+					<Color r="0.5" g="0.5" b="0.5"/>
+					<Anchors>
+						<Anchor point="CENTER" relativeKey="$parent" relativePoint="CENTER" x="0" y="0"/>
+					</Anchors>
+				</FontString>
+            </Layer>
+        </Layers>
+        <Scripts>
+            <OnLoad method="OnLoad"/>
+            <OnEnter method="OnEnter"/>
+            <OnLeave method="OnLeave"/>
+        </Scripts>
+    </Button>
+
+    <Button name="NarciConduitCollectionConduitButtonTemplate" virtual="true" mixin="NarciConduitCollectionButtonMixin">
+        <Size x="170" y="32"/>
+		<HitRectInsets>
+			<AbsInset left="0" right="0" top="-1" bottom="-1"/>
+		</HitRectInsets>
+        <Layers>
+            <Layer level="OVERLAY">
+                <Texture parentKey="Border" file="Interface\AddOns\Narcissus\Art\Modules\CharacterFrame\Soulbinds\ConduitQualityBorder">
+                    <Size x="27" y="27"/>
+                    <TexCoords left="0" right="0.25" top="0" bottom="1"/>
+                    <Anchors>
+                        <Anchor point="LEFT" relativePoint="LEFT" x="0"/>
+                    </Anchors>
+                </Texture>
+				<FontString inherits="NarciFontMedium12" justifyH="LEFT" justifyV="BOTTOM" parentKey="Name" text=" " maxLines="1">
+					<Size x="150" y="0"/>
+					<Color r="0.8" g="0.8" b="0.8"/>
+					<Anchors>
+						<Anchor point="BOTTOMLEFT" relativeKey="$parent" relativePoint="LEFT" x="29" y="-1"/>
+					</Anchors>
+				</FontString>
+				<FontString inherits="NarciFontStatusNumber10" justifyH="LEFT" justifyV="TOP" parentKey="ItemLevel" text=" ">
+					<Size x="0" y="0"/>
+					<Color r="0.5" g="0.5" b="0.5"/>
+					<Anchors>
+						<Anchor point="TOPLEFT" relativeKey="$parent" relativePoint="LEFT" x="29" y="-1"/>
+					</Anchors>
+				</FontString>
+            </Layer>
+            <Layer level="ARTWORK">
+                <Texture parentKey="Icon">
+                    <Size x="22" y="22"/>
+                    <Color r="0" g="0" b="0"/>
+                    <Anchors>
+                        <Anchor point="CENTER" relativeKey="$parent.Border" relativePoint="CENTER"/>
+                    </Anchors>
+                </Texture>
+                <MaskTexture parentKey="Mask" file="Interface\AddOns\Narcissus\Art\Modules\CharacterFrame\Soulbinds\MaskOctagon" hWrapMode="CLAMPTOBLACKADDITIVE" vWrapMode="CLAMPTOBLACKADDITIVE">
+                    <Size x="24" y="24"/>
+                    <Anchors>
+                        <Anchor point="CENTER" relativeKey="$parent.Border" relativePoint="CENTER"/>
+                    </Anchors>
+                    <MaskedTextures>
+                        <MaskedTexture childKey="Icon"/>
+                    </MaskedTextures>
+                </MaskTexture>
+            </Layer>
+        </Layers>
+        <Scripts>
+            <OnEnter method="OnEnter"/>
+            <OnLeave method="OnLeave"/>
+        </Scripts>
+    </Button>
+
+    <Frame name="NarciConduitCollectionCategoryButtonTemplate" virtual="true">
+        <Size x="172" y="24"/>
+        <Frames>
+            <Button parentKey="Button" mixin="NarciConduitCollectionCategoryButtonMixin">
+                <Size x="172" y="24"/>
+                <Anchors>
+                    <Anchor point="TOP" relativeKey="$parent" relativePoint="TOP"/>
+                </Anchors>
+                <Layers>
+                    <Layer level="BACKGROUND">
+                        <Texture file="Interface\AddOns\Narcissus\Art\Modules\CharacterFrame\Soulbinds\ConduitCategoryButton" parentKey="Background">
+                            <Size x="224" y="28"/>
+                            <Anchors>
+                                <Anchor point="CENTER"/>
+                            </Anchors>
+                        </Texture>
+                    </Layer>
+                    <Layer level="OVERLAY" textureSubLevel="3">
+                        <Texture parentKey="ExpandMark" file="Interface\AddOns\Narcissus\Art\Modules\CharacterFrame\Soulbinds\ExpandMark">
+                            <Size x="8" y="8"/>
+                            <TexCoords left="0" right="0.5" top="0" bottom="1"/>
+                            <Anchors>
+                                <Anchor point="LEFT" relativeKey="$parent.Background" relativePoint="LEFT" x="36"/>
+                            </Anchors>
+                        </Texture>
+                        <Texture parentKey="ConduitTypeIcon" file="Interface\AddOns\Narcissus\Art\Modules\CharacterFrame\Soulbinds\ConduitTypeIcons">
+                            <Size x="16" y="16"/>
+                            <TexCoords left="0.75" right="1" top="0" bottom="1"/>
+                            <Anchors>
+                                <Anchor point="LEFT" relativeKey="$parent.Background" relativePoint="LEFT" x="48"/>
+                            </Anchors>
+                        </Texture>
+                        <FontString inherits="NarciFontMedium12" justifyH="LEFT" justifyV="MIDDLE" parentKey="ButtonText" text="Conduit Type">
+                            <Size x="120" y="24"/>
+                            <Color r="1" g="0.698" b="0.659"/>
+                            <Anchors>
+                                <Anchor point="LEFT" relativeKey="$parent.ConduitTypeIcon" relativePoint="RIGHT" x="0" y="0"/>
+                            </Anchors>
+                        </FontString>
+                    </Layer>
+                </Layers>
+                <Scripts>
+                    <OnMouseDown method="OnMouseDown"/>
+                    <OnMouseUp method="OnMouseUp"/>
+                    <OnEnter method="OnEnter"/>
+                    <OnLeave method="OnLeave"/>
+                    <OnClick method="OnClick"/>
+                </Scripts>
+            </Button>
+
+            <Frame parentKey="Drawer" hidden="false" Alpha="1">
+                <Size x="172" y="24"/>
+                <Anchors>
+                    <Anchor point="TOP" relativeKey="$parent" relativePoint="TOP"/>
+                </Anchors>
+            </Frame>
+        </Frames>
+    </Frame>
+
+    <Button name="NarciSoulbindsTabButtonTemplate" virtual="true" mixin="NarciSoulbindsTabButtonMixin">
+        <Size x="74" y="24"/>
+        <KeyValues>
+            <KeyValue key="tabIndex" value="1" type="number"/>
+        </KeyValues>
+        <ButtonText inherits="NarciFontMedium12" justifyH="CENTER" justifyV="MIDDLE" text="Label" parentKey="ButtonText">
+            <Size x="74" y="24"/>
+            <Color r="0.188" g="0.506" b="0.8"/>
+            <Anchors>
+                <Anchor point="CENTER" relativePoint="CENTER" y="0"/>
+            </Anchors>
+        </ButtonText>
+        <PushedTextOffset>
+            <AbsDimension x="1" y="-0.6"/>
+        </PushedTextOffset>
+        <Scripts>
+            <OnLoad method="OnLoad"/>
+            <OnClick method="OnClick"/>
+            <OnEnter method="OnEnter"/>
+            <OnLeave method="OnLeave"/>
+        </Scripts>
+    </Button>
+
+    <Frame name="Narci_SoulbindsFrame" mixin="NarciSoulbindsMixin" parent="Narci_PowersFrame" parentKey="Soulbinds">
+        <Size x="320" y="24"/>
+        <Anchors>
+            <Anchor point="TOP"/>
+        </Anchors>
+		<Layers>
+            <Layer level="BACKGROUND">
+				<Texture setAllPoints="true" parentKey="Color">
+                    <Size x="240"/>
+                    <Anchors>
+                        <Anchor point="TOPRIGHT"/>
+                        <Anchor point="BOTTOMRIGHT"/>
+                    </Anchors>
+					<Color r="0.08" g="0.08" b="0.08" a="0.9"/>
+				</Texture>
+            </Layer>
+            <Layer level="BACKGROUND" textureSubLevel="1">
+				<Texture parentKey="Portrait" Alpha="0.33">
+                    <Anchors>
+                        <Anchor point="TOPRIGHT"/>
+                        <Anchor point="BOTTOMRIGHT"/>
+                    </Anchors>
+                    <Animations>
+                        <AnimationGroup parentKey="ActivateAnim" setToFinalAlpha="true">
+                            <Alpha childKey="Portrait" smoothing="OUT" duration="0.2" fromAlpha="0" toAlpha="0.33" order="1"/>
+                        </AnimationGroup>
+                    </Animations>
+				</Texture>
+            </Layer>
+            <Layer level="ARTWORK">
+                <Texture parentKey="Stone" file="Interface\AddOns\Narcissus\Art\Modules\CharacterFrame\Soulbinds\Stone">
+                    <Size x="136" y="272"/>
+                    <Anchors>
+                        <Anchor point="CENTER" relativeKey="$parent" relativePoint="LEFT" x="60"/>
+                    </Anchors>
+                </Texture>
+                <MaskTexture file="Interface\AddOns\Narcissus\Art\Modules\CharacterFrame\Soulbinds\StoneMask" hWrapMode="CLAMPTOBLACKADDITIVE" vWrapMode="CLAMPTOBLACKADDITIVE" parentKey="StoneMask">
+                    <Size x="136" y="272"/>
+                    <Anchors>
+                        <Anchor point="TOPLEFT" relativeKey="$parent.Stone" relativePoint="TOPLEFT"/>
+                        <Anchor point="BOTTOMRIGHT" relativeKey="$parent.Stone" relativePoint="BOTTOMRIGHT"/>
+                    </Anchors>
+                    <MaskedTextures>
+                        <MaskedTexture childKey="Stone"/>
+                    </MaskedTextures>
+                </MaskTexture>
+            </Layer>
+            <Layer level="OVERLAY">
+                <Texture parentKey="ActivateFXDiamond" alpha="0" alphaMode="ADD" atlas="Soulbinds_Tree_ActivateFX_Diamond" useAtlasSize="true">
+                    <Anchors>
+                        <Anchor point="CENTER" relativeKey="$parent.Stone" relativePoint="CENTER" x="0" y="0"/>
+                    </Anchors>
+                    <Animations>
+                        <AnimationGroup parentKey="ActivateAnim" inherits="VisibleWhilePlayingAnimGroupTemplate" setToFinalAlpha="true">
+                            <Alpha childKey="ActivateFXDiamond" smoothing="OUT" order="1" startDelay="0" duration="1.4" fromAlpha="1" toAlpha="0"/>
+                            <Scale childKey="ActivateFXDiamond" smoothing="OUT" order="1" duration="0.3" fromScaleX="1.5" fromScaleY="1.5" toScaleX="1" toScaleY="1"/>
+                            <Scale childKey="ActivateFXDiamond" smoothing="OUT" order="1" startDelay="0.3" duration="1.1" fromScaleX="1" fromScaleY="1" toScaleX="0.9" toScaleY="0.9"/>
+                        </AnimationGroup>
+                    </Animations>
+                </Texture>
+            </Layer>
+        </Layers>
+        <Frames>
+            <Button parentKey="ActivateButton" mixin="NarciSoulbindsActivateButtonMixin" motionScriptsWhileDisabled="true" useParentLevel="true">
+                <Size x="96" y="24"/>
+                <Anchors>
+                    <Anchor point="CENTER" relativeKey="$parent" relativePoint="TOPLEFT" x="60" y="-36"/>
+                </Anchors>
+                <Layers>
+                    <Layer level="ARTWORK" textureSubLevel="-2">
+                        <Texture parentKey="Background" file="Interface\AddOns\Narcissus\Art\Modules\CharacterFrame\Soulbinds\ActivateButton">
+                            <Size x="136" y="68"/>
+                            <Anchors>
+                                <Anchor point="CENTER"/>
+                            </Anchors>
+                        </Texture>
+                    </Layer>
+                    <Layer level="OVERLAY" textureSubLevel="3">
+                        <FontString inherits="NarciFontMedium12" justifyH="CENTER" justifyV="MIDDLE" parentKey="ButtonText" text="SOULBIND_ACTIVATE_BUTTON">
+                            <Size x="96" y="24"/>
+                            <Color r="0.8" g="0.8" b="0.8"/>
+                            <Anchors>
+                                <Anchor point="CENTER" relativeKey="$parent" relativePoint="CENTER" x="0" y="0"/>
+                            </Anchors>
+                        </FontString>
+                    </Layer>
+                    <Layer level="OVERLAY" textureSubLevel="2">
+                        <Texture file="Interface\AddOns\Narcissus\Art\Modules\CharacterFrame\Soulbinds\ActivateButtonGlow" alphaMode="ADD" hidden="false" parentKey="Shimmer" alpha="0">
+                            <Size x="136" y="136"/>
+                            <Anchors>
+                                <Anchor point="CENTER"/>
+                            </Anchors>
+                            <Animations>
+                                <AnimationGroup parentKey="Anim" looping="REPEAT">
+                                    <Alpha fromAlpha="0" toAlpha="0.6" duration="0.4" order="1"/>
+                                    <Alpha fromAlpha="0.6" toAlpha="0" startDelay="0.25" duration="1.5" order="2"/>
+                                    <Alpha fromAlpha="0" toAlpha="0" duration="0.35" order="3"/>
+                                </AnimationGroup>
+                            </Animations>
+                        </Texture>
+                    </Layer>
+                </Layers>
+                <Scripts>
+                    <OnLoad method="OnLoad"/>
+                    <OnEnter method="OnEnter"/>
+                    <OnLeave method="OnLeave"/>
+                    <OnClick method="OnClick"/>
+                    <OnShow method="OnShow"/>
+                    <OnHide method="OnHide"/>
+                    <OnEvent method="OnEvent"/>
+                </Scripts>
+            </Button>
+            <Frame parentKey="ConduitNodesFrame">
+                <Size x="120" y="24"/>
+                <HitRectInsets>
+                    <AbsInset left="0" right="0" top="0" bottom="-12"/>
+                </HitRectInsets>
+                <Anchors>
+                    <Anchor point="TOPLEFT" relativeKey="$parent" relativePoint="TOPLEFT"/>
+                </Anchors>
+                <Frames>
+                    <Frame parentKey="ActiveNodesFrame">
+                    </Frame>
+                    <Frame parentKey="InactiveNodesFrame" hidden="true" Alpha="0">        
+                    </Frame>
+                </Frames>
+            </Frame>
+            <Frame parentKey="TabHolder">
+                <Size x="176" y="11"/>
+                <Anchors>
+                    <Anchor point="BOTTOMRIGHT" relativeKey="$parent" relativePoint="TOPRIGHT" x="-12" y="0"/>
+                </Anchors>
+                <Layers>
+                    <Layer level="BACKGROUND">
+                        <Texture parentKey="Background" file="Interface\AddOns\Narcissus\Art\Modules\CharacterFrame\Soulbinds\TabBackground">
+                            <Size x="176" y="11"/>
+                        </Texture>
+                        <Texture file="Interface\AddOns\Narcissus\Art\Modules\CharacterFrame\Soulbinds\TabShadow">
+                            <Size x="188" y="9"/>
+                            <Anchors>
+                                <Anchor point="TOP" relativeKey="$parent" relativePoint="TOP" x="0" y="-18"/>
+                            </Anchors>                       
+                        </Texture>
+                    </Layer>
+                    <Layer level="OVERLAY">
+                        <Texture>
+                            <Size x="1" y="10"/>
+                            <Color r="0.2" g="0.2" b="0.2"/>
+                            <Anchors>
+                                <Anchor point="CENTER" y="-3"/>
+                            </Anchors>
+                        </Texture>
+                    </Layer>
+                </Layers>
+                <Frames>
+                    <Button parentKey="Selected" inherits="NarciSoulbindsTabButtonTemplate">
+                        <Anchors>
+                            <Anchor point="RIGHT" relativePoint="CENTER" y="-4"/>
+                        </Anchors>
+                    </Button>
+                    <Button parentKey="Collected" inherits="NarciSoulbindsTabButtonTemplate">
+                        <Anchors>
+                            <Anchor point="LEFT" relativePoint="CENTER" y="-4"/>
+                        </Anchors>
+                        <KeyValues>
+                            <KeyValue key="tabIndex" value="2" type="number"/>
+                        </KeyValues>
+                    </Button>
+                </Frames>
+            </Frame>
+            <Frame parentKey="AcitveNodesList">
+                <Size x="200" y="24"/>
+                <Anchors>
+                    <Anchor point="TOPRIGHT" relativePoint="TOPRIGHT"/>
+                </Anchors>
+            </Frame>
+            <ScrollFrame parentKey="ConduitCollection" hidden="true" clipChildren="true" mixin="NarciConduitCollectionMixin">
+                <Size x="200" y="24"/>
+                <!--Layers>
+                    <Layer>
+                        <Texture>
+                            <Color r="1" a="0.2"/>
+                        </Texture>
+                    </Layer>
+                </Layers-->
+                <Anchors>
+                    <Anchor point="TOPRIGHT" relativePoint="TOPRIGHT" y="-8"/>
+                    <Anchor point="BOTTOMRIGHT" relativePoint="TOBOTTOMRIGHTPRIGHT" y="2"/>
+                </Anchors>
+                <Layers>
+                    <!--Layer level="BORDER">
+                        <Texture file="Interface\AddOns\Narcissus\Art\Modules\CharacterFrame\Soulbinds\ConduitTooltipTop" parentKey="ButtonHighlight" hidden="true">
+                            <Size x="168" y="42"/>
+                        </Texture>
+                    </Layer-->
+                </Layers>
+                <ScrollChild>
+                    <Frame parentKey="ScrollChild">
+                        <Size x="200" y="24"/>
+                        <Anchors>
+                            <Anchor point="TOP" relativeKey="$parent" relativePoint="TOP"/>
+                        </Anchors>
+                        <Layers>
+
+                        </Layers>
+                    </Frame>
+                </ScrollChild>
+                <Frames>
+                    <Slider parentKey="scrollBar" inherits="NarciVerticalLineSliderTemplate">
+                        <Size x="8"/>
+                        <Anchors>
+                            <Anchor point="TOPRIGHT" relativePoint="TOPRIGHT" x="-6" y="-8"/>
+                            <Anchor point="BOTTOMRIGHT" relativePoint="BOTTOMRIGHT" x="-6" y="12"/>
+                        </Anchors>
+                    </Slider>
+                </Frames>
+            </ScrollFrame>
+
+            <Frame parentKey="ConduitTooltip" mixin="NarciConduitTooltipMixin">
+                <Size x="180" y="32"/>
+
+                <Frames>
+                    <Frame parentKey="BonusTextFrame" hidden="true" useParentLevel="true" clipChildren="true">
+                        <Size x="156" y="32"/>
+                        <Anchors>
+                            <Anchor point="TOPRIGHT" relativeKey="$parent" relativePoint="TOPRIGHT"/>
+                        </Anchors>
+                        <Layers>
+                            <Layer level="BACKGROUND" textureSubLevel="1">
+                                <Texture parentKey="Background" file="Interface\AddOns\Narcissus\Art\Modules\CharacterFrame\Soulbinds\ConduitTooltipBackground"/>
+                            </Layer>
+                        </Layers>
+                    </Frame>
+                </Frames>
+                
+                <Layers>
+                    <Layer level="BORDER" textureSubLevel="0">
+                        <Texture file="Interface\AddOns\Narcissus\Art\Modules\CharacterFrame\Soulbinds\ConduitTooltipHighlightTop" parentKey="ButtonHighlightTop" hidden="false">
+                            <Size x="168" y="42"/>
+                            <Anchors>
+                                <Anchor point="TOP" relativePoint="TOP" y="6"/>
+                            </Anchors>
+                        </Texture>
+                    </Layer>
+                    <Layer level="OVERLAY" textureSubLevel="1">
+                        <Texture file="Interface\AddOns\Narcissus\Art\Modules\CharacterFrame\Soulbinds\ConduitBorderHighlight" parentKey="BorderHighlight" alphaMode="ADD">
+                            <Size x="54" y="54"/>
+                            <TexCoords left="0.5" right="1" top="0" bottom="1"/>
+                            <Anchors>
+                                <Anchor point="CENTER" relativeKey="$parent" relativePoint="LEFT" x="13"/>
+                            </Anchors>
+                        </Texture>
+                    </Layer>
+                    <Layer level="OVERLAY">
+                        <FontString inherits="NarciFontMedium12" justifyH="LEFT" justifyV="TOP" parentKey="Name" text="">
+                            <Size x="150" y="0"/>
+                            <Color r="0.8" g="0.8" b="0.8"/>
+                            <Anchors>
+                                <Anchor point="BOTTOMLEFT" relativeKey="$parent" relativePoint="LEFT" x="29" y="-1"/>
+                            </Anchors>
+                        </FontString>
+                        <FontString inherits="NarciFontStatusNumber10" justifyH="LEFT" justifyV="TOP" parentKey="ItemLevel" text="128">
+                            <Size x="0" y="0"/>
+                            <Color r="0.5" g="0.5" b="0.5"/>
+                            <Anchors>
+                                <Anchor point="TOPLEFT" relativeKey="$parent.Name" relativePoint="BOTTOMLEFT" x="0" y="0"/>
+                            </Anchors>
+                        </FontString>
+
+                        <FontString inherits="NarciFontStatusNumber10" justifyH="LEFT" justifyV="TOP" parentKey="Text1" text="Description">
+                            <Size x="146" y="0"/>
+                            <Color r="0.529" g="0.863" b="0.6"/>
+                            <Anchors>
+                                <Anchor point="TOPLEFT" relativeKey="$parent.ItemLevel" relativePoint="BOTTOMLEFT" x="0" y="-2"/>
+                            </Anchors>
+                        </FontString>
+
+                        <FontString inherits="NarciFontStatusNumber10" justifyH="LEFT" justifyV="MIDDLE" parentKey="TextLeft2" text="ItemLevel" hidden="true">
+                            <Size x="146" y="0"/>
+                            <Color r="1" g="0.82" b="0"/>
+                            <Anchors>
+                                <Anchor point="TOPLEFT" relativeKey="$parent.Text1" relativePoint="BOTTOMLEFT" x="0" y="-2"/>
+                            </Anchors>
+                        </FontString>
+                        <FontString inherits="NarciFontStatusNumber10" justifyH="RIGHT" justifyV="MIDDLE" parentKey="TextRight2" text="Effect" hidden="true">
+                            <Size x="146" y="0"/>
+                            <Color r="0.8" g="0.8" b="0.8"/>
+                            <Anchors>
+                                <Anchor point="TOPRIGHT" relativeKey="$parent.Text1" relativePoint="BOTTOMRIGHT" x="0" y="-2"/>
+                            </Anchors>
+                        </FontString>
+                    </Layer>
+
+                    <Layer level="BORDER">
+                        <Texture file="Interface\AddOns\Narcissus\Art\Modules\CharacterFrame\Soulbinds\ConduitTooltipHighlightBottom" parentKey="BottomHighlightLeft" hidden="false">
+                            <Size x="24" y="8"/>
+                            <TexCoords left="0" right="0.125" top="0" bottom="1"/>
+                            <Anchors>
+                                <Anchor point="BOTTOMLEFT" relativeKey="$parent" relativePoint="BOTTOMLEFT" y="-4"/>
+                            </Anchors>
+                        </Texture>
+                        <Texture file="Interface\AddOns\Narcissus\Art\Modules\CharacterFrame\Soulbinds\ConduitTooltipHighlightBottom" parentKey="BottomHighlightRight" hidden="false">
+                            <Size x="156" y="8"/>
+                            <TexCoords left="0.125" right="1" top="0" bottom="1"/>
+                            <Anchors>
+                                <Anchor point="BOTTOMRIGHT" relativeKey="$parent.BonusTextFrame" relativePoint="BOTTOMRIGHT" y="-4"/>
+                            </Anchors>
+                        </Texture>
+                    </Layer>
+                </Layers>
+                <Scripts>
+                    <OnLoad method="OnLoad"/>
+                </Scripts>
+            </Frame>
+        </Frames>
+        <Scripts>
+            <OnLoad method="OnLoad"/>
+            <OnShow method="OnShow"/>
+            <OnHide method="OnHide"/>
+            <OnEvent method="OnEvent"/>
+        </Scripts>
+    </Frame>
+</Ui>
