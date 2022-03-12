@@ -1,5 +1,6 @@
 local After = C_Timer.After;
 local db;
+local GetItemModelFileID = NarciItemDatabase.GetItemModelFileID;
 
 ------Acquire ModelFileID------
 local NUM_WIDGETS = 50;
@@ -103,6 +104,17 @@ end
 function ProcessWeapons()
     --Get Model FileID
     flatIDs = NarciItemDatabase.HoldableItems;
+    local unprocessed = {};
+    local itemID, fileID;
+    for i = 1, #flatIDs do
+        itemID = flatIDs[i][3];
+        fileID = GetItemModelFileID(itemID);
+        if not fileID then
+            tinsert(unprocessed, itemID);
+            print(itemID)
+        end
+    end
+    flatIDs = unprocessed;
     numTotal = #flatIDs;
     numLeft = numTotal;
     if not NarciItemDatabaseOutput then
@@ -119,7 +131,7 @@ end
 
 
 function GetItemsWithNoModel()
-    local validItems = NarciItemDatabase.GetGetFlatList();
+    local validItems = NarciItemDatabase.GetFlatList();
     local IS_VALID = {};
     for i = 1, #validItems do
         IS_VALID[ validItems[i] ] = true;
@@ -138,7 +150,7 @@ function GetItemsWithNoModel()
 end
 
 ------Sort Item------
-local GetItemModelFileID = NarciItemDatabase.GetItemModelFileID;
+
 
 local function SortByModelFileID(a, b)
     local itemID1, itemID2;

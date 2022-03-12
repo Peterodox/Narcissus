@@ -278,15 +278,6 @@ NarciAPI.GetAttributeAbbrByEnchantID = GetAttributeAbbrByEnchantID;
 
 
 
---Temporary Enchant--
-local tempEnchantIDs = {
-    6224, 6225,
-    6198, 6199, 6200, 6201,
-};
-
-local tempEnchantNames;
-
-
 --Corruption System
 --Info based on Corruption System Overview (Squishei, Wowhead)
 --[[

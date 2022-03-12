@@ -252,15 +252,15 @@ local function MixScripts(object, scripts)
     end
 end
 
-local function FadeOptionFrame_OnUpdate(self, elapased)
+local function FadeOptionFrame_OnUpdate(self, elapsed)
     if self.toAlpha > self.alpha then
-        self.alpha = self.alpha + elapased * 4;
+        self.alpha = self.alpha + elapsed * 4;
         if self.alpha >= self.toAlpha then
             self.alpha = self.toAlpha;
             self:SetScript("OnUpdate", nil);
         end
     elseif self.toAlpha < self.alpha then
-        self.alpha = self.alpha - elapased * 4;
+        self.alpha = self.alpha - elapsed * 4;
         if self.alpha <= self.toAlpha then
             self.alpha = self.toAlpha;
             self:SetScript("OnUpdate", nil);
@@ -308,8 +308,8 @@ end
 
 local SourceCacher = CreateFrame("Frame");
 
-local function SourceCacher_OnUpdate(self, elapased)
-    self.t = self.t + elapased;
+local function SourceCacher_OnUpdate(self, elapsed)
+    self.t = self.t + elapsed;
     if self.t > 1 then
         self.t = 0;
         self:ProcessQueue();
@@ -497,10 +497,8 @@ function NarciShowcaseSheatheButtonMixin:OnShow()
     self.hotkey = hotkey;
     if hotkey then
         self.Label:SetText("|cffffd100("..hotkey..")|r "..self.labelText);
-        --self:SetScript("OnKeyDown", SheatheButton_OnKeyDown);
     else
         self.Label:SetText(self.labelText);
-        --self:SetScript("OnKeyDown", nil);
     end
     self:SetScript("OnKeyDown", SheatheButton_OnKeyDown);
 end
@@ -862,7 +860,7 @@ function NarciShowcaseModelSceneMixin:ResetView()
     end
 end
 
-local function ModelScene_OnUpdate(self, elapased)
+local function ModelScene_OnUpdate(self, elapsed)
     local hasAction;
 
     if self.leftButtonDown then
@@ -889,7 +887,7 @@ local function ModelScene_OnUpdate(self, elapased)
         local diff = self.toCamX - self.fromCamX;
         if diff > 0.01 or diff < -0.01 then
             hasAction = true;
-            self.fromCamX = self.fromCamX + elapased*10*diff;
+            self.fromCamX = self.fromCamX + elapsed*10*diff;
             self:SetCameraPosition(self.fromCamX, 0, 0)
         end
     end
@@ -941,8 +939,8 @@ local function SetUpSpinTexture(self, sequence)
     self.sequence = sequence;
 end
 
-local function SpinButton_OnUpdate(self, elapased)
-    self.t = self.t + elapased;
+local function SpinButton_OnUpdate(self, elapsed)
+    self.t = self.t + elapsed;
     if self.t >= 0.125 then
         self.t = 0;
         self.sequence = self.sequence + 1;
@@ -1718,8 +1716,8 @@ function NarciOutfitShowcaseMixin:RearangeControlPanel()
     if self.ControlPanel:GetTop() + 4 > self:GetBottom() then
         if self.extruding then return end
         self.extruding = true;
-        local function ControlPanel_OnUpdate(f, elapased)
-            f.t = f.t + elapased;
+        local function ControlPanel_OnUpdate(f, elapsed)
+            f.t = f.t + elapsed;
             if f.t > 1 then
                 f.t = 0;
                 if f:IsMouseOver() or (DropDownPanel:IsShown() and DropDownPanel:IsMouseOver()) then
@@ -1740,7 +1738,7 @@ function NarciOutfitShowcaseMixin:RearangeControlPanel()
                 end
             end
             if f.delta then
-                f.alpha = f.alpha + f.delta * elapased;
+                f.alpha = f.alpha + f.delta * elapsed;
                 if f.alpha >= 1 then
                     f.alpha = 1;
                     f.delta = nil;
@@ -1842,8 +1840,8 @@ function NarciOutfitShowcaseMixin:GetPixelSize()
     return PIXEL, IMAGE_HEIGHT/600;
 end
 
-local function Turntable_OnUpdate(self, elapased)
-    self.yaw = self.yaw + elapased * PI2 * ROTATION_PERIOD;
+local function Turntable_OnUpdate(self, elapsed)
+    self.yaw = self.yaw + elapsed * PI2 * ROTATION_PERIOD;
     MainFrame.actor:SetYaw(self.yaw);
 end
 
@@ -2021,9 +2019,9 @@ function NarciAutoFittingActorMixin:OnAnimFinished()
     end
 end
 
-function NarciAutoFittingActorMixin:OnUpdate(elapased)
+function NarciAutoFittingActorMixin:OnUpdate(elapsed)
     if self.isPlaying then
-        self.t = self.t + elapased;
+        self.t = self.t + elapsed;
         AnimationSlider:SetValue(1000 * self.t);
     end
 end
@@ -2374,10 +2372,10 @@ function NarciShowcaseDropDownButtonMixin:SetValueText(text)
 end
 
 
-local function TabSelection_OnUpdate(self, elapased)
+local function TabSelection_OnUpdate(self, elapsed)
     local complete;
     local diff = self.toX - self.x;
-    local delta = elapased * 16 * diff;
+    local delta = elapsed * 16 * diff;
     if diff >= 0 and (diff < 1 or (self.x + delta >= self.toX)) then
         self.x = self.toX;
         complete = true;
@@ -2389,7 +2387,7 @@ local function TabSelection_OnUpdate(self, elapased)
     end
 
     diff = self.toWidth - self.width;
-    delta = elapased * 16 * diff;
+    delta = elapsed * 16 * diff;
     if diff >= 0 and (diff < 1 or (self.width + delta >= self.toWidth)) then
         self.width = self.toWidth;
         complete = complete and true;

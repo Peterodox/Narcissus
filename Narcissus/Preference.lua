@@ -2,7 +2,7 @@ local L = Narci.L;
 --NARCI_NEW_ENTRY_PREFIX..
 local TabNames = { 
     L["Interface"], L["Shortcuts"], L["Themes"], L["Effects"], L["Camera"], L["Transmog"],
-    L["Photo Mode"], L["NPC"], EXPANSION_NAME8, L["Extensions"],
+    L["Photo Mode"], L["NPC"], NARCI_NEW_ENTRY_PREFIX..EXPANSION_NAME8, L["Extensions"],
 };  --Credits and About will be inserted later
 
 local FadeFrame = NarciFadeUI.Fade;
@@ -682,8 +682,8 @@ local function ConduitTooltipSwitch_SetState(self, state)
     NarciAPI.EnableConduitTooltip(state);
 end
 
-local function DominationIndicator_SetState(self, state)
-    NarciCharacterFrameDominationIndicator:SetEnabled(state);
+local function PaperDollWidget_SetState(self, state)
+    NarciPaperDollWidgetController:SetEnabled(state);
 end
 
 
@@ -844,7 +844,7 @@ local Structure = {
         { name = "BlizzardUI", type = "header", localizedName = L["Blizzard UI"], },
         { name = "ConduitTooltip", type = "checkbox", localizedName = L["Conduit Tooltip"], valueFunc = ConduitTooltipSwitch_SetState},
         { name = "Space", type = "space", height = 96},
-        { name = "DominationIndicator", type = "checkbox", localizedName = L["Domination Indicator"], valueFunc = DominationIndicator_SetState},
+        { name = "PaperDollWidget", type = "checkbox", localizedName = NARCI_NEW_ENTRY_PREFIX..L["Paperdoll Widget"], valueFunc = PaperDollWidget_SetState},
     }},
 };
 

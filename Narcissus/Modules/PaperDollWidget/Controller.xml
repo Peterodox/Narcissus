@@ -1,0 +1,14 @@
+<Ui xsi:schemaLocation="http://www.blizzard.com/wow/ui/..\FrameXML\UI.xsd">
+    <Script file="Controller.lua"/>
+    
+    <Frame name="NarciPaperDollWidgetController" mixin="NarciPaperDollWidgetControllerMixin">
+        <Frames>
+            <Frame parentKey="WidgetContainer" hidden="true">
+                <Size x="4" y="4"/>
+            </Frame>
+        </Frames>
+        <Scripts>
+            <OnEvent method="OnEvent"/>
+        </Scripts>
+    </Frame>
+</Ui>

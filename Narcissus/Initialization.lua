@@ -55,7 +55,7 @@ local DefaultValue = {
     ["CameraTransition"] = true,                    --(2nd you use the Character Pane) Camera moves smoothly bewtween presets
     ["UseBustShot"] = true,                         --Zoom in to the upper torso
     ["ConduitTooltip"] = false,                     --Show conduit effects of higher ranks
-    ["DominationIndicator"] = true,                 --Show Domination indicator on the Blizzard character pane
+    ["PaperDollWidget"] = true,                     --Show Domination/Class Set indicator on the Blizzard character pane
     ["OnlyShowOwnedUpgradeItem"] = true,            --Filter for gems/enchant scrolls
 
     --# Internal Hotkey

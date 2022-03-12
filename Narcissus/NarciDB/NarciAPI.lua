@@ -231,7 +231,8 @@ local mapColors = {
 
     --[UiMapID] = {r, g, b}
     --Shadowlands
-    [1670] = {76, 86, 109},    --Oribos
+    [1970] = {137, 218, 247},   --Zereth Mortis
+    [1670] = {76, 86, 109},     --Oribos
 
     [1533] = {197, 185, 172},	--Bastion
     [1707] = {193, 199, 210},   --Elysian Hold
@@ -501,22 +502,46 @@ local gemBorderTexture = {
 	[9]  = "Yellow",	--Empty
 	[10] = "Red",		--Red
 	[11] = "White",			--Artifact
-}
+    [12] = "Crystallic",
+};
 
+local specialGemBoder = {
+    [153714] = 10,
+    [173125] = 10,
+    [153715] = 2,
+    [169220] = 2,
+    [173126] = 2,
+    [168636] = 1,
+    [168637] = 1,
+    [168638] = 1,
+    [153707] = 1,
+    [153708] = 1,
+    [153709] = 1,
+    [189723] = 12,
+    [189722] = 12,
+    [189732] = 12,
+    [189560] = 12,
+    [189763] = 12,
+    [189724] = 12,
+    [189725] = 12,
+    [189726] = 12,
+    [189762] = 12,
+    [189727] = 12,
+    [189728] = 12,
+    [189729] = 12,
+    [189730] = 12,
+    [189731] = 12,
+    [189764] = 12,
+    [189733] = 12,
+    [189734] = 12,
+    [189760] = 12,
+    [189761] = 12,
+    [189735] = 12,
+};
 
 --itemID, itemType, itemSubType, itemEquipLoc, icon, itemClassID, itemSubClassID = GetItemInfoInstant(itemID or "itemString" or "itemName" or "itemLink")
 local function GetGemBorderTexture(itemSubClassID, itemID)
-    local index = itemSubClassID or 0;
-    if itemID then
-        if itemID == 153714 or itemID == 173125 then
-            index = 10;     --Red EXP bonus
-        elseif itemID == 153715 or itemID == 169220 or itemID == 173126 then
-            index = 2;      --Movement Speed
-        elseif itemID == 168636 or itemID == 168637 or itemID == 168638 or
-        itemID == 153707 or itemID == 153708 or itemID == 153709 then
-            index = 1;      --Primary
-        end
-    end
+    local index = (itemID and specialGemBoder[itemID]) or itemSubClassID or 0;
     return gemBorderTexture.filePrefix..gemBorderTexture[index], index
 end
 
@@ -616,6 +641,7 @@ local DoesItemExist = C_Item.DoesItemExist;
 local GetCurrentItemLevel = C_Item.GetCurrentItemLevel;
 local GetItemLink = C_Item.GetItemLink
 local GetItemStats = GetItemStats;
+local GetItemGem = GetItemGem;
 
 function NarciAPI_GetItemStats(itemLocation)
     local statsTable = {};
@@ -739,16 +765,15 @@ TP:SetOwner(UIParent, 'ANCHOR_NONE');
 
 local function IsItemSocketable(itemLink, socketID)
     if not itemLink then return; end
-    if not socketID then socketID = 1; end
 
-    local gemName, gemLink = GetItemGem(itemLink, socketID)
+    local gemName, gemLink = GetItemGem(itemLink, socketID or 1)
     if gemLink then
         return gemName or "...", gemLink;
     end
 
     local tex, texID;
     for i = 1, 3 do
-        tex = _G["NarciVirtualTooltip".."Texture"..i];
+        tex = _G["NarciVirtualTooltipTexture"..i];
         if tex then
             tex = tex:SetTexture(nil);
         end
@@ -757,7 +782,7 @@ local function IsItemSocketable(itemLink, socketID)
     TP:SetHyperlink(itemLink);
 
     for i = 1, 3 do     --max 10
-        tex = _G["NarciVirtualTooltip".."Texture"..i]
+        tex = _G["NarciVirtualTooltipTexture"..i]
         texID = tex and tex:GetTexture();
         --print(texID)
         if texID == 458977 then     --458977: Regular empty socket texture  --Doesn't include domination socket
@@ -1064,9 +1089,9 @@ local function NarciAPI_GetGemBonus(itemID)
     --itemID: Gem's Item ID or hyperlink
     if not itemID then return; end
     if type(itemID) == "number" then
-        TP:SetItemByID(itemID)
+        TP:SetItemByID(itemID);
     else
-        TP:SetHyperlink(itemID)
+        TP:SetHyperlink(itemID);
     end
     local num = TP:NumLines();
     local bonusText;
@@ -1093,7 +1118,7 @@ local function NarciAPI_GetGemBonus(itemID)
             end
         end
         
-        if not bonusText and strsub(str, 1, 1) == "+" then
+        if not bonusText and string.sub(str, 1, 1) == "+" then
             bonusText = str;
         end
 

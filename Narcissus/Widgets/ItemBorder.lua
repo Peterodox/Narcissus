@@ -1,16 +1,22 @@
 local unpack = unpack;
 local CreateColor = NarciAPI.CreateColor;
+local IsItemProgenitorSet = NarciAPI.IsItemProgenitorSet;
 
 local FILE_PATH_DARK = "Interface/AddOns/Narcissus/Art/ItemBorder-Dark/JPG/";
 
 local itemBorderMask = {
     [1] = "Interface/AddOns/Narcissus/Art/ItemBorder-Dark/Mask/RegularHeavy",    --Regular Hexagon Heavy
+    [2] = "Interface/AddOns/Narcissus/Art/ItemBorder-Dark/Mask/RegularSolid",
 
     [8001] = "Interface/AddOns/Narcissus/Art/ItemBorder-Dark/Mask/Heart",
     [9001] = "Interface/AddOns/Narcissus/Art/ItemBorder-Dark/Mask/Runeforge",
 
     [9101] = "Interface/AddOns/Narcissus/Art/ItemBorder-Dark/Mask/Sylvanas",
     [9102] = "Interface/AddOns/Narcissus/Art/ItemBorder-Dark/Mask/Garrosh",
+
+    [9200] = "Interface/AddOns/Narcissus/Art/ItemBorder-Dark/Mask/Progenitor",
+    [9201] = "Interface/AddOns/Narcissus/Art/ItemBorder-Dark/Mask/Menethil",
+    [9202] = "Interface/AddOns/Narcissus/Art/ItemBorder-Dark/Mask/Anduin",
 }
 
 local itemBorderHeavy = {
@@ -31,42 +37,15 @@ local itemBorderHeavy = {
     Runeforge = {"Runeforge", 9001},    --Sylvanas's Legendary Bow
     Sylvanas = {"Sylvanas", 9101},
     Garrosh = {"Garrosh", 9102},
-}
-
-local itemBorderTexture = {
-    [1]  = {
-        [0] = "Interface/AddOns/Narcissus/Art/Border/HexagonBorder-Black",
-        [1] = "Interface/AddOns/Narcissus/Art/Border/HexagonBorder",
-        [2] = "Interface/AddOns/Narcissus/Art/Border/HexagonBorder-Uncommon",
-        [3] = "Interface/AddOns/Narcissus/Art/Border/HexagonBorder-Rare",
-        [4] = "Interface/AddOns/Narcissus/Art/Border/HexagonBorder-Epic",   --Epic NZoth
-        [5] = "Interface/AddOns/Narcissus/Art/Border/HexagonBorder-Legendary",
-        [6] = "Interface/AddOns/Narcissus/Art/Border/HexagonBorder-Artifact",
-        [7] = "Interface/AddOns/Narcissus/Art/Border/HexagonBorder-Heirloom",	--Void
-        [8] = "Interface/AddOns/Narcissus/Art/Border/HexagonBorder-Azerite",
-        [12] = "Interface/AddOns/Narcissus/Art/Border/HexagonBorder-Special",
-        ["Heart"] = "Interface/AddOns/Narcissus/Art/Border/HexagonBorder-Heart",    --Heart
-        ["NZoth"] = "Interface/AddOns/Narcissus/Art/Border/HexagonBorder-NZoth",
-        ["BlackDragon"] = "Interface/AddOns/Narcissus/Art/Border/HexagonBorder-BlackDragon",    --8.3 Legendary Cloak
-        ["Runeforge"] = "Interface/AddOns/Narcissus/Art/ItemBorder-Dark/Runeforge",
-    },
-
-    [2] = {
-        [0] = "Black",
-        [1] = "Black",
-        [2] = "Uncommon",
-        [3] = "Rare",
-        [4] = "Epic",    --Epic
-        [5] = "Legendary",
-        [6] = "Artifact",
-        [7] = "Heirloom",	--Void
-        [8] = "Azerite",
-        [12] = "Black",
-        ["Heart"] = "Heart",    --Heart
-        ["NZoth"] = "NZoth",
-        ["BlackDragon"] = "BlackDragon",    --8.3 Legendary Cloak
-        ["Runeforge"] = "Sylvanas",
-    },
+    Progenitor = {"Progenitor", 9200},
+    Cosmos = {"Cosmos", 2},
+    Arbiter = {"Arbiter", 2},
+    Menethil = {"Menethil", 9201},
+    Varian = {"Varian", 2},
+    Anduin = {"Anduin", 9202},
+    Genesis = {"Genesis", 2},
+    Shield = {"Shield", 1},
+    Strife = {"Strife", 2},
 }
 
 local function GetBorderThemeName()
@@ -104,7 +83,7 @@ local function SetBorderTexture(object, textureKey, themeIndex)
         local mask = object:GetParent():CreateMaskTexture(nil, layer, nil, sublevel);
         mask:SetPoint("TOPLEFT", object, "TOPLEFT", 0, 0);
         mask:SetPoint("BOTTOMRIGHT", object, "BOTTOMRIGHT", 0, 0);
-        object:AddMaskTexture(mask)
+        object:AddMaskTexture(mask);
         object.BorderMask = mask;
     end
     object.BorderMask:SetTexture(maskFile, "CLAMPTOBLACKADDITIVE", "CLAMPTOBLACKADDITIVE")
@@ -114,13 +93,29 @@ NarciAPI.SetBorderTexture = SetBorderTexture;
 
 
 local itemIDxBorderArt = {
+    --[itemID] = {borderName, vfxName, color}
     [186429] = {"Garrosh", "Garrosh", CreateColor(235, 91, 80)},    --177057
     [186414] = {"Sylvanas", "Sylvanas",  CreateColor(148, 188, 203)},
+
+    [189852] = {"Cosmos", nil, CreateColor(169, 218, 215)},         --Shadow of the Cosmos
+    [189862] = {"Arbiter", nil, CreateColor(180, 216, 222)},        --Gravel of the First Arbiter
+    [189841] = {"Menethil", nil, CreateColor(240, 104, 104)},       --Soulwarped Seal of Wrynn
+    [189839] = {"Varian", nil, CreateColor(116, 208, 249)},         --Soulwarped Seal of Wrynn
+    [188262] = {"Anduin", "LigntFall", CreateColor(255, 204, 58)},  --The Lion's Roar
+    [189845] = {"Shield", nil, nil},                                --Ruined Crest of Lordaeron
+    [189754] = {"Genesis", nil, CreateColor(216, 212, 155)},        --Genesis Lathe
+    [188253] = {"Strife", "OrangeRune", nil},                       --Scars of Fraternal Strife
+
+    Progenitor = {"Progenitor", nil, CreateColor(230, 204, 128)},   --Class Sets
 };
 
 local function GetBorderArtByItemID(itemID)
-    if itemIDxBorderArt[itemID] then
-        return unpack(itemIDxBorderArt[itemID]);
+    if IsItemProgenitorSet(itemID) then
+        return unpack(itemIDxBorderArt.Progenitor);
+    else
+        if itemIDxBorderArt[itemID] then
+            return unpack(itemIDxBorderArt[itemID]);
+        end
     end
 end
 
@@ -241,6 +236,22 @@ local itemVFXInfo = {
             {fileID = 3483468},
         },
         offset = {x = 0, y = 0},
+    },
+
+    LigntFall = {
+        camera = { zoomDistance = 10, direction = "FRONT" },
+        actors = {
+            {fileID = 2429902, animationID = 158, animationSpeed = 8, modelOffset = {-1, -3.2}, alpha = 0.65, particleScale = 2,};
+        },
+        offset = {x = 0, y = 0 },
+    },
+
+    OrangeRune = {
+        camera = { zoomDistance = 5, direction = "FRONT" },
+        actors = {
+            {fileID = 3656114, animationID = 158, modelOffset = {0.2,-0.05}, alpha = 1, particleScale = 1,};
+        },
+        offset = {x = 0, y = 0 },
     }
 };
 NarciItemVFXMixin = {};
@@ -339,6 +350,8 @@ function NarciItemVFXMixin:SetUp(modelSceneInfo, useCustomPosition)
         else
             actor:Hide();
         end
+
+        ACTOR = actor
     end
     local frameOffset = modelSceneInfo.offset;
     self:ClearAllPoints();

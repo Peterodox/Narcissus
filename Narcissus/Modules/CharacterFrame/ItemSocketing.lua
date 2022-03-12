@@ -150,7 +150,11 @@ function NarciGemSlotMixin:OnEnter()
         if self.isDomiationSocket then
             bonusText = GetShardBonus(self.sockedGemItemID);
         else
-            bonusText = GetGemBonus(link);
+            if NarciAPI.GetCrystallicSpell(self.sockedGemItemID) then
+                bonusText = NarciAPI.GetCrystallicEffect(self.sockedGemItemID);
+            else
+                bonusText = GetGemBonus(link);
+            end
         end
         name, _, quality, _, _, _, _, _, _, icon = GetItemInfo(link);
         Bonus:SetPoint("BOTTOMLEFT", tooltip, "LEFT", offsetX, 1);
@@ -180,7 +184,7 @@ function NarciGemSlotMixin:OnEnter()
 	ItemName:SetText(name);
 	ItemName:SetTextColor(r, g, b);
 	Bonus:SetText(bonusText);
-    tooltip:SetWidth(max(tooltip.Bonus:GetWrappedWidth(),ItemName:GetWrappedWidth(), sgf.Text:GetWrappedWidth()) + extraWidth + offsetX);
+    tooltip:SetWidth(max(Bonus:GetWrappedWidth(),ItemName:GetWrappedWidth(), sgf.Text:GetWrappedWidth()) + extraWidth + offsetX);
 	tooltip:SetParent(self);
 	tooltip:SetFrameStrata("TOOLTIP");
 

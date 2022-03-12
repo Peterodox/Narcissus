@@ -176,7 +176,7 @@ function MD:FindValidForDressUpModel(index)
             break
         end
 
-        itemID = AllWeaponsInCategory[i];
+        itemID = AllWeaponsInCategory[i][3];
 
         if not DB[itemID] then
             self:Undress(16);
@@ -202,7 +202,7 @@ autoRun:SetScript("OnUpdate", function(self, elapsed)
     self.t = self.t + elapsed;
     if self.t > 0.1 then
         self.t = 0;
-        local isComplete = MD:FindBestItemForEachVisual(self.index);   --FindItemInfo, FindAllWeapons, FindItemSourceInfo, FindItemVisualInfo, FindBestItemForEachVisual, FindValidForDressUpModel
+        local isComplete = MD:FindValidForDressUpModel(self.index);   --FindItemInfo, FindAllWeapons, FindItemSourceInfo, FindItemVisualInfo, FindBestItemForEachVisual, FindValidForDressUpModel
         if isComplete then
             self:Reset();
             return

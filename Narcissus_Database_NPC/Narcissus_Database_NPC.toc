@@ -1,6 +1,6 @@
 ## Interface: 90200
 ## Plain Title: Narcissus Database NPC
-## Version: 9.2.0
+## Version: 9.2.1
 ## LoadOnDemand: 1
 ## RequiredDeps: Narcissus
 ## SavedVariables: UniqueCreatureIDs, LocalizedNames, SortedNames, CreatureIDxModelFileID, UnprocessedCreatures

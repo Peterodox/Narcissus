@@ -1,6 +1,6 @@
 ## Interface: 90200
 ## Plain Title: Narcissus Database Item
-## Version: 9.1.0
+## Version: 9.2.0
 ## LoadOnDemand: 1
 ## RequiredDeps: Narcissus
 # SavedVariables: NarciItemDatabaseOutput, NarciItemDatabaseFailure, NarciItemDatabaseCount

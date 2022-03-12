@@ -200,7 +200,7 @@ L["Camera Transition Description On"] = "当你打开角色面板时镜头会平
 L["Camera Transition Description Off"] = "镜头转换变为瞬时。此效果将在你第二次使用角色面板时开始生效。\n此效果会占用镜头预设#4。";
 L["Interface Options Tab Description"] = "你也可以点击位于屏幕左下角Narcissus工具栏右端的小齿轮按钮来打开偏好设置。";
 L["Conduit Tooltip"] = "显示更高级别的导灵器效果";
-L["Domination Indicator"] = "统御碎片指示器";
+L["Paperdoll Widget"] = "角色界面小部件";
 
 --模型控制面板--
 NARCI_STAND_IDLY = "普通站姿";
@@ -439,7 +439,7 @@ L["Splash Content7 Description"] = "-六边形装备边框有了新的外观。�
 
 --Project Details--
 NARCI_ALL_PROJECTS = "全部项目";
-NARCI_PROJECT_DETAILS = "|cFFFFD100插件作者: Peterodox\n更新日期: 2022.2.25|r\n\n感谢你使用此插件！如果你遇到任何问题，或者有任何想法或建议，请在CurseForge项目主页上留言，或者在以下网站上联系我。";
+NARCI_PROJECT_DETAILS = "|cFFFFD100插件作者: Peterodox\n更新日期: 2022.3.13|r\n\n感谢你使用此插件！如果你遇到任何问题，或者有任何想法或建议，请在CurseForge项目主页上留言，或者在以下网站上联系我。";
 NARCI_PROJECT_AAA_SUMMARY = "探索艾泽拉斯上的不同景点，并收集各种故事和照片。";
 NARCI_PROJECT_NARCISSUS_SUMMARY = "沉浸式角色面板；你最好的截图助手。"
 
@@ -529,3 +529,8 @@ L["Showcase Splash 1"] = "使用Narcissus和录屏软件来制作转台动画以
 L["Showcase Splash 2"] = "点击下方按钮来复制试衣间中的物品。";
 L["Showcase Splash 3"] = "点击下方按钮可让你的角色旋转起来。";
 L["Showcase Splash 4"] = "录制屏幕然后将视频转换为GIF动图。";
+
+--Item Sets--
+L["Cycle Spec"] = "按Tab键切换专精";
+L["Paperdoll Splash 1"] = "使用套装指示器？";
+L["Paperdoll Splash 2"] = "选择主题色";

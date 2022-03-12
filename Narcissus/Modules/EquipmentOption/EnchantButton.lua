@@ -10,6 +10,7 @@ local GetShardBonus = NarciAPI.GetDominationShardBonus;
 local GetItemBagPosition = NarciAPI.GetItemBagPosition;
 local GetItemTempEnchantType = NarciAPI.GetItemTempEnchantType;
 local IsWeaponValidForEnchant = NarciAPI.IsWeaponValidForEnchant;
+local GetCachedItemTooltipTextByLine = NarciAPI.GetCachedItemTooltipTextByLine;
 
 local GetSpellInfo = GetSpellInfo;
 local GetSpellDescription = GetSpellDescription;
@@ -117,10 +118,14 @@ EventListener:SetScript("OnEvent", function(self, event, ...)
             for _, button in pairs(self.spellQueue[spellID]) do
                 if button.spellID == spellID then
                     self.spellQueue[spellID] = nil;
-                    local name = GetSpellInfo(spellID);
-                    button.Text1:SetText(name);
-                    button:ShowLoadingIcon(false);
-                    button.itemName = name;
+                    if button.socketType == 3 then
+                        button:SetCrystallicData(button.itemID, true);
+                    else
+                        local name = GetSpellInfo(spellID);
+                        button.Text1:SetText(name);
+                        button:ShowLoadingIcon(false);
+                        button.itemName = name;
+                    end
                     break
                 end
             end
@@ -139,7 +144,7 @@ EventListener:SetScript("OnEvent", function(self, event, ...)
                         button.Text2:SetTextColor(r, g, b, 0.6);
                     end
                     local name = GetItemInfo(itemID);
-                    if button.isShard then
+                    if button.socketType == 2 then
                         button:SetButtonText(GetShardBonus(itemID), name);
                     elseif button.useActionButton then
                         --Temp Enchant
@@ -411,7 +416,7 @@ function NarciEquipmentEnchantButtonMixin:SetEnchantData(spellID, itemID, enchan
         end
         return
     end
-    self.isShard = nil;
+    self.socketType = nil;
     self.enchantID = enchantID;
     self.itemID = itemID;
     self.useActionButton = 1;
@@ -456,7 +461,7 @@ function NarciEquipmentEnchantButtonMixin:SetTempEnchantData(spellID, itemID, en
         end
         return
     end
-    self.isShard = nil;
+    self.socketType = nil;
     self.enchantID = enchantID;
     self.itemID = itemID;
     self.requirementID = requirementID;
@@ -545,7 +550,7 @@ function NarciEquipmentEnchantButtonMixin:SetGemData(itemID)
         return
     end
     self.spellID = nil;
-    self.isShard = nil;
+    self.socketType = 1;
     self.enchantID = nil;
     self.useActionButton = nil;
     if itemID then
@@ -585,7 +590,7 @@ function NarciEquipmentEnchantButtonMixin:SetDominationShardData(itemID)
     self.enchantID = nil;
     self.useActionButton = nil;
     if itemID then
-        self.isShard = true;
+        self.socketType = 2;
         local icon = GetItemIcon(itemID);
         self.Icon:SetTexture(icon);
         local name = GetItemInfo(itemID);
@@ -604,7 +609,46 @@ function NarciEquipmentEnchantButtonMixin:SetDominationShardData(itemID)
         self:SetItemCount(itemID);
         self:Show();
     else
-        self.isShard = nil;
+        self.socketType = nil;
+        self:Hide();
+    end
+end
+
+function NarciEquipmentEnchantButtonMixin:SetCrystallicData(itemID, forceUpdate)
+    if itemID ~= self.itemID then
+        self.itemID = itemID;
+    elseif not forceUpdate then
+        if not itemID then
+            self:Hide();
+        end
+        return
+    end
+    self.spellID = nil;
+    self.socketType = 3;
+    self.enchantID = nil;
+    self.useActionButton = nil;
+    if itemID then
+        local spellID = NarciAPI.GetCrystallicSpell(itemID);
+        self.spellID = spellID;
+        local name, _, icon = GetSpellInfo(spellID);
+        local gemBonus = GetSpellDescription(spellID);
+        self.Icon:SetTexture(icon);
+        local quality = 2;
+        self:SetUsed(itemID == InUseIDs.gemID, itemID == InUseIDs.newGemID);
+        --local gemBonus, isCached = GetCachedItemTooltipTextByLine(itemID, 4);
+        local r, g, b = GetItemQualityColor(quality);
+        self.Text2:SetTextColor(r, g, b, 1);
+        if name and name ~= "" and gemBonus and gemBonus ~= "" then
+            self:SetButtonText(gemBonus, name);
+            self:ShowLoadingIcon(false);
+            self.itemName = name;
+        else
+            EventListener:AddSpell(spellID, self);
+            self:ShowLoadingIcon(true);
+        end
+        self:SetItemCount(itemID);
+        self:Show();
+    else
         self:Hide();
     end
 end

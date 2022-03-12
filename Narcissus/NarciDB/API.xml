@@ -8,6 +8,6 @@
     <Script file="Color.lua"/>
     <Script file="ScrollFrame.lua"/>
     <Script file="TooltipParser.lua"/>
-
+    <Script file="CypherEquipment.lua"/>
     <!--Script file="Utilities.lua"/-->
 </Ui>

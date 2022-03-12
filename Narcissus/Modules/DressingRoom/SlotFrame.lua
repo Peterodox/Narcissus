@@ -936,7 +936,7 @@ local function DressUpSources(sources, mainHandEnchant, offHandEnchant)
             if slotID == 16 or slotID == 17 then
                 currentInfo = playerActor:GetItemTransmogInfo(slotID);
                 if not sources[slotID]:IsEqual(currentInfo) then
-                    playerActor:SetItemTransmogInfo(sources[slotID], slotID);
+                    playerActor:SetItemTransmogInfo(sources[slotID], slotID, slotID ~= 16);     --FIX ME?
                 end
             else
                 playerActor:SetItemTransmogInfo(transmogInfo);

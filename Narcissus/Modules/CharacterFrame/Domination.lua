@@ -18,11 +18,9 @@ local DoesItemExist = C_Item.DoesItemExist;
 local GetItemLink = C_Item.GetItemLink;
 local GetItemID = C_Item.GetItemID;
 local GetPlayerAuraBySpellID = GetPlayerAuraBySpellID;
-local FadeFrame = NarciFadeUI.Fade;
 local GetBestMapForUnit = C_Map.GetBestMapForUnit;
 local GetMapInfo = C_Map.GetMapInfo;
 
-local PaperDollIndicator;
 
 local function IsZoneValidForDomination()
     --Shard of Domination is only functioning in the Maw since 9.2
@@ -533,70 +531,19 @@ function ShardMixin:SetType(typeID)
 end
 
 
-local EventListener = CreateFrame("Frame");
-
-EventListener:RegisterEvent("PLAYER_ENTERING_WORLD");
-
-EventListener:SetScript("OnEvent", function(self, event)
-    if event == "PLAYER_ENTERING_WORLD" then
-        self:UnregisterEvent(event);
-    else
-        if not self.pauseUpdate then
-            self.pauseUpdate = true;
-            After(0, function()
-                PaperDollIndicator:Update();
-                self.pauseUpdate = nil;
-            end);
-        end
-    end
-end);
-
-function EventListener:On()
-    self:RegisterEvent("PLAYER_EQUIPMENT_CHANGED");
-    self:RegisterEvent("BAG_UPDATE");
-end
-
-function EventListener:Off()
-    self:UnregisterEvent("PLAYER_EQUIPMENT_CHANGED");
-    self:UnregisterEvent("BAG_UPDATE");
-end
-
-
 NarciDominationIndicatorMixin = {};
 
 function NarciDominationIndicatorMixin:OnLoad()
-    PaperDollIndicator = self;
-    local parentFrame = PaperDollFrame;
-
-    self:ClearAllPoints();
-    self:SetParent(parentFrame);
-    self:SetFrameStrata("HIGH");
-    self:SetPoint("CENTER", parentFrame, "TOPRIGHT", -1, -119);
-
-    parentFrame:HookScript("OnShow", function()
-        if self.isEnabled then
-            EventListener:On();
-            self:Update();
-        end
-    end);
-    parentFrame:HookScript("OnHide", function()
-        EventListener:Off();
-    end);
-
-    local titleFrame = PaperDollTitlesPane;
-    titleFrame:HookScript("OnShow", function()
-        EventListener:Off();
-        self:Hide();
-    end);
-    titleFrame:HookScript("OnHide", function()
-        if self.isEnabled and parentFrame:IsVisible() then
-            EventListener:On();
-            self:Update();
-        end
-    end);
-
     self.OnLoad = nil;
     self:SetScript("OnLoad", nil);
+
+    NarciPaperDollWidgetController:AddWidget(self, 1);
+end
+
+function NarciDominationIndicatorMixin:ResetAnchor()
+    self:ClearAllPoints();
+    self:SetParent(self.parent);
+    self:SetPoint("CENTER", self.parent, "TOPRIGHT", -1, -119);
 end
 
 function NarciDominationIndicatorMixin:OnEnter()
@@ -658,14 +605,12 @@ function NarciDominationIndicatorMixin:OnEnter()
     end
 
     tooltip:Show();
-    --FadeFrame(self.Highlight, 0.25, 1);
     self.Highlight:Show();
     self:CheckSetBonus();
 end
 
 function NarciDominationIndicatorMixin:OnLeave()
     GameTooltip:Hide();
-    --FadeFrame(self.Highlight, 0.25, 0);
     SlotHighlighter:DehighlightAllSlots();
     self.Highlight:Hide();
 end
@@ -676,19 +621,6 @@ end
 
 function NarciDominationIndicatorMixin:OnHide()
 
-end
-
-function NarciDominationIndicatorMixin:SetEnabled(state)
-    self.isEnabled = state;
-    if state then
-        if CharacterFrame:IsVisible() then
-            EventListener:On();
-            self:Update();
-        end
-    else
-        self:Hide();
-        EventListener:Off();
-    end
 end
 
 function NarciDominationIndicatorMixin:IsNarcissusUI()
@@ -704,6 +636,7 @@ function NarciDominationIndicatorMixin:Update()
         if data then
             self:Show();
         else
+            self:Hide();
             return false
         end
     else

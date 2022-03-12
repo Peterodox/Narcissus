@@ -1802,6 +1802,12 @@ end
 ------------------------------------------------------------------------
 DataProvider.specialItemZoomDistance = {
     --[fileID] = distance
+    [3846175] = 6,
+    [3620241] = 8,
+    [4323001] = 7,
+    [3996209] = 8,
+    [3813079] = 7,
+
     [3562415] = 3.5,    --Reven Dagger AGI
     [294450] = 7.5,   --Lance
     [3587362] = 6.5,    --Fae Glaive
@@ -1884,7 +1890,7 @@ DataProvider.specialItemZoomDistance = {
     [3195516] = 7,
 
     [3955579] = 7,
-    [3949874] = 6,
+    [3949874] = 20,
     [3620241] = 7,
     [3615460] = 6.5,
     [4064752] = 6.5,
@@ -1893,6 +1899,10 @@ DataProvider.specialItemZoomDistance = {
 };
 
 DataProvider.specialItemCameraOffset = {
+    [3885243] = 8,
+    [3620241] = 4,
+    [4323001] = 16,
+    [3813079] = 6,
     [531010] = 12,
     [3511043] = 26,     --Revendreth Lantern
     [3257381] = 26,     --Lantern

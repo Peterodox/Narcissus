@@ -51,7 +51,7 @@
 				</Texture>
 			</Layer>
             <Layer level="OVERLAY" textureSubLevel="4">
-                <Texture parentKey="BlipTexture" hidden="true" file="Interface\AddOns\Narcissus\Art\Solid\HexagonSolid-Highlight" alphaMode="ADD" Alpha="0" ignoreParentAlpha="true">
+                <Texture parentKey="BlipTexture" hidden="true" file="Interface\AddOns\Narcissus\Art\Cooldown\Beating" alphaMode="ADD" Alpha="0" ignoreParentAlpha="true">
                     <Size x="52" y="52"/>
                     <Anchors>
                         <Anchor point="CENTER" relativeKey="$parent" x="0" y="0"/>

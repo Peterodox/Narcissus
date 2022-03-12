@@ -94,7 +94,9 @@ function SearchUtil:DivideListByInitials()
                 return n1 < n2
             end
         else
-            return m1 > m2
+            if m1 and m2 then
+                return m1 > m2
+            end
         end
     end
     

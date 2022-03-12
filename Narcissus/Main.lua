@@ -691,7 +691,6 @@ CameraMover.smoothYaw:SetScript("OnUpdate", function(frame, elapsed)
 	end
 end);
 
-
 CameraMover.smoothPitch = NarciAPI_CreateAnimationFrame(1.5);
 CameraMover.smoothPitch:SetScript("OnUpdate", function(frame, elapsed)
 	frame.total = frame.total + elapsed
@@ -1966,9 +1965,6 @@ function NarciEquipmentSlotMixin:Refresh(forceRefresh)
 					return
 				end
 			end
-
-
-			
 			
 			local itemVFX;
 			local itemID = GetItemInfoInstant(itemLink);
@@ -2207,6 +2203,7 @@ function NarciEquipmentSlotMixin:Refresh(forceRefresh)
 		self.GemSlot.sockedGemItemID = nil;
 	end
 
+	--if slotID == 13 then itemName = "The Lion\'s Roar"; end	--Antumbra, Shadow of the Cosmos
 	--------------------------------------------------
 	if self:IsVisible() then
 		self:SetBorderTexture(self.Border, borderTexKey);
@@ -2555,9 +2552,10 @@ end
 	Ring		1.7626*ilvl - 246.88		(sum + 246.88) / 1.7626				40  / 1.7626 = 22.6937
 --]]
 
-NarciItemLevelFrameMixin = {};
+
 
 function NarciItemLevelFrameMixin:OnLoad()
+	--Declared in Modules\CharacterFrame\ItemLevelFrame.lua
 	ItemLevelFrame = self;
 	if NarciDominationIndicatorMixin then
 		local inhertMethods = {
@@ -2586,274 +2584,6 @@ function NarciItemLevelFrameMixin:OnLoad()
 	end);
 end
 
-function NarciItemLevelFrameMixin:Update(playerLevel)
-	playerLevel = playerLevel or UnitLevel("player");
-	local avgItemLevel, avgItemLevelEquipped, avgItemLevelPvp = GetAverageItemLevel();
-	local avgItemLevelBase = floor(avgItemLevel);
-	avgItemLevel = floor(avgItemLevel * 100 + 0.5)/100;
-	avgItemLevelEquipped = floor(avgItemLevelEquipped * 100 + 0.5)/100;
-	avgItemLevelPvp = floor(avgItemLevelEquipped * 100 + 0.5)/100;
-
-	self.LeftButton.avgItemLevel = avgItemLevel;
-	self.LeftButton.avgItemLevelPvp = avgItemLevelPvp;
-	self.LeftButton.isSameLevel = (avgItemLevel == avgItemLevelEquipped);
-	self.LeftButton.Level:SetText(avgItemLevelEquipped);
-	
-	local r, g, b = 0.25, 0.25, 0.25;
-	local colorName, qualityIndex;
-	local covenantID;
-	if playerLevel >= 48 then
-		covenantID = C_Covenants.GetActiveCovenantID();
-	end
-	if covenantID and covenantID ~= 0 then
-		self:UpdateRenownLevel();
-		if covenantID == 1 then
-			colorName = "CovenantKyrian";
-			r, g, b = 0.76, 0.89, 0.94;
-		elseif covenantID == 2 then
-			colorName = "CovenantVenthyr";
-			r, g, b = 0.55, 0, 0.19;
-		elseif covenantID == 3 then
-			colorName = "CovenantNightFae";
-			r, g, b = 0.11, 0.42, 0.80;
-		elseif covenantID == 4 then
-			colorName = "CovenantNecrolord";
-			r, g, b = 0, 0.63, 0.43;
-		end
-	else
-		self:UpdateRenownLevel(0);
-		if playerLevel <= 15 then
-			colorName = "Grey";
-			qualityIndex = 0;
-		elseif playerLevel <= 30 then
-			colorName = "Green";
-			qualityIndex = 2;
-		elseif playerLevel <= 45 then
-			colorName = "Blue";
-			qualityIndex = 3;
-		elseif playerLevel > 45 then
-			if avgItemLevel < 85 then
-				colorName = "Blue";
-				qualityIndex = 3;
-			else
-				colorName = "Purple";
-				qualityIndex = 4;
-			end
-		elseif playerLevel > 50 then
-			if avgItemLevel < 158 then
-				colorName = "Green";
-				qualityIndex = 2;
-			elseif avgItemLevel < 183 then
-				colorName = "Blue";
-				qualityIndex = 3;
-			else
-				colorName = "Purple";
-				qualityIndex = 4;
-			end
-		end
-		r, g, b = GetItemQualityColor(qualityIndex);
-	end
-
-	local frame = self.CenterButton;
-	frame.Background:SetTexture("Interface\\AddOns\\Narcissus\\ART\\Solid\\"..colorName);
-	frame.Background:SetTexCoord(0, 1, 0, 1);
-	frame.Fluid:SetColorTexture(r, g, b);
-
-	local percentage = avgItemLevel - avgItemLevelBase;
-
-	local height;		--Set the bar(Fluid) height in the Tube
-	if percentage < 0.10 then
-		height = 0.1;
-	elseif percentage > 0.90 then
-		height = 84;
-	else
-		height = 84 * percentage;
-	end
-	frame.Fluid:SetHeight(height);
-	frame.Level:SetText(avgItemLevelBase);
-	frame.tooltip = STAT_AVERAGE_ITEM_LEVEL .." "..avgItemLevel;
-end
-
-function NarciItemLevelFrameMixin:UpdateRenownLevel(newLevel)
-	local renownLevel = newLevel or C_CovenantSanctumUI.GetRenownLevel() or 0;
-	local headerText = string.format(COVENANT_SANCTUM_LEVEL, renownLevel);
-	if C_CovenantSanctumUI.HasMaximumRenown() then
-		headerText = headerText.. "  (maxed)";
-	else
-		--to-do: get max level: C_CovenantSanctumUI.GetRenownLevels is too much
-	end
-	local frame = self.RightButton;
-	frame.Header:SetText("RN");
-	frame.tooltipHeadline = headerText;
-	frame.Number:SetText(renownLevel);
-
-	if renownLevel == 0 then
-		frame.tooltipLineOpen = "You will be able to join a Covenant and progress Renown level once you reach 60.";
-	else
-		frame.tooltipLineOpen = COVENANT_RENOWN_TUTORIAL_PROGRESS;
-	end
-end
-
-function NarciItemLevelFrameMixin:SetTheme(isDomination)
-	local file;
-	if isDomination then
-		file = "Interface\\AddOns\\Narcissus\\Art\\Widgets\\Domination\\ItemLevelHexagon";
-		self.CenterButton:ShowMaxLevel(false);
-		self.CenterButton.Highlight:SetTexture("Interface\\AddOns\\Narcissus\\Art\\Widgets\\Domination\\ItemLevelHexagonHighlight");
-		self.CenterButton.Highlight:SetSize(128, 128);
-		self.CenterButton.Highlight:SetBlendMode("BLEND");
-	else
-		file = "Interface\\AddOns\\Narcissus\\Art\\Widgets\\ItemLevel\\HexagonTube";
-		self.CenterButton:ShowMaxLevel(true);
-		self.CenterButton.Highlight:SetTexture("Interface\\AddOns\\Narcissus\\Art\\Solid\\HexagonSolid-Highlight");
-		self.CenterButton.Highlight:SetSize(100, 100);
-		self.CenterButton.Highlight:SetBlendMode("ADD");
-	end
-	local textures = {
-		self.CenterButton.FluidBackground, self.CenterButton.TubeBorder,
-		self.LeftButton.Background, self.LeftButton.Highlight,
-		self.RightButton.Background, self.RightButton.Highlight,
-	};
-	for k, tex in pairs(textures) do
-		tex:SetTexture(file);
-	end
-end
-
-function NarciItemLevelFrameMixin:UpdateDomination()
-	if not self.checkDomination then return end;
-	if not self.pauseUpdate then
-		self.pauseUpdate = true;
-		After(0, function()
-			local isDomination = self.DominationOverlay:Update();
-			self.CenterButton.isDomination = isDomination;
-			if self.isDomination ~= isDomination then
-				self.isDomination = isDomination;
-				self:SetTheme(isDomination);
-			end
-			self.pauseUpdate = nil;
-		end)
-	end
-end
-
-function NarciItemLevelFrameMixin:ToggleExtraInfo(state, replayAnimation)
-	if not self.animFrame then
-		self.animFrame = CreateFrame("Frame");
-		self.animFrame:Hide();
-		self.animFrame:SetScript("OnUpdate", function(f, elapsed)
-			f.t = f.t + elapsed;
-			local offsetX = outSine(f.t, f.fromX, f.toX, 0.4);
-			if f.t >= 0.4 then
-				offsetX = f.toX;
-				f:Hide();
-				if f.hideButton then
-					self.LeftButton:Hide();
-					self.RightButton:Hide();
-				end
-			end
-			self.LeftButton:SetPoint("RIGHT", self, "CENTER", -offsetX, 0);
-			self.RightButton:SetPoint("LEFT", self, "CENTER", offsetX, 0);
-		end);
-	end
-	self.animFrame:Hide();
-	self.animFrame.t = 0;
-	local _, _, _, fromX = self.RightButton:GetPoint();
-	self.animFrame.fromX = fromX;
-	if state then
-		self.animFrame.toX = 28;
-		self.LeftButton:Show();
-		self.RightButton:Show();
-		self.animFrame.hideButton = false;
-	else
-		self.animFrame.toX = -32;
-		self.animFrame.hideButton = true;
-	end
-	if fromX ~= self.animFrame.toX or replayAnimation then
-		self.animFrame:Show();
-	end
-end
-
-
-NarciItemLevelCenterButtonMixin = {};
-
-function NarciItemLevelCenterButtonMixin:OnLoad()
-	self.tooltip2 = HIGHLIGHT_FONT_COLOR_CODE .. STAT_AVERAGE_ITEM_LEVEL_TOOLTIP .. FONT_COLOR_CODE_CLOSE;
-	--self.tooltip3 = L["Toggle Equipment Set Manager"];
-
-	self:SetScript("OnLoad", nil);
-	self.OnLoad = nil;
-end
-
-function NarciItemLevelCenterButtonMixin:OnEnter()
-	FadeFrame(self.Highlight, 0.2, 1);
-
-	--EquipmentSetManager
-
-	--corruption or not
-	--[[
-	if self.isCorrupted then
-		NarciAPI_RunDelayedFunction(self, 0.2, function()
-			local frame = Narci_CorruptionTooltip;
-			if not frame:IsVisible() and not self.isSetManagerOpen and not IsMouseButtonDown() then
-				frame:ClearAllPoints();
-				frame.ModelScene.Background:SetGradientAlpha("VERTICAL", 1, 1, 1, 1, 1, 1, 1, 1);
-				frame:SetScale(self:GetScale());
-				frame:SetParent(self);
-				frame:SetPoint("TOP", self, "BOTTOM", 0, -12);
-				frame:SetHitRectInsets(-32, -32, -32, -32);
-				FadeFrame(frame, 0.25, 1);
-			end
-		end);
-	end
-	--]]
-
-	if self.isDomination then
-		NarciAPI_RunDelayedFunction(self, 0.2, function()
-			self:GetParent().DominationOverlay:ShowTooltip(DefaultTooltip, "TOP", self, "BOTTOM", 0, -12);
-			DefaultTooltip:SetAlpha(0);
-			FadeFrame(DefaultTooltip, 0.2, 1);
-		end);
-	else
-		Narci_ShowStatTooltipDelayed(self);
-	end
-end
-
-function NarciItemLevelCenterButtonMixin:OnMouseDown()
-	self.Background:SetPoint("CENTER", 0, -4);
-	if self.isCorrupted then
-		NarciAPI_FadeFrame(Narci_CorruptionTooltip, 0.2, 0);
-	end
-end
-
-function NarciItemLevelCenterButtonMixin:OnMouseUp()
-	self.Background:SetPoint("CENTER", 0, 0);
-end
-
-function NarciItemLevelCenterButtonMixin:OnLeave()
-	FadeFrame(self.Highlight, 0.2, 0);
-	Narci:HideButtonTooltip();
-end
-
-function NarciItemLevelCenterButtonMixin:OnClick()
-	Narci_NavBar:ToggleView(2);
-end
-
-function NarciItemLevelCenterButtonMixin:OnHide()
-	if self.onHideFunc then
-		self.onHideFunc(self);
-	end
-end
-
-function NarciItemLevelCenterButtonMixin:ShowItemLevel()
-	ItemLevelFrame:Update();
-end
-
-function NarciItemLevelCenterButtonMixin:ShowMaxLevel(state)
-	self.Header:SetShown(state);
-	self.Level:SetShown(state);
-	self.Surface:SetShown(state);
-	self.Fluid:SetShown(state);
-	self.Background:SetShown(state);
-end
 
 local function UpdateCharacterInfoFrame(newLevel)
 	local level = newLevel or UnitLevel("player");
@@ -2880,7 +2610,7 @@ local function UpdateCharacterInfoFrame(newLevel)
 		end
 	end
 
-	ItemLevelFrame:Update(level);
+	ItemLevelFrame:UpdateItemLevel(level);
 end
 
 local SlotController = {};
@@ -3747,8 +3477,7 @@ StatsUpdator:SetScript("OnUpdate", function(self, elapsed)
 end);
 
 function StatsUpdator:Gradual()
-	ItemLevelFrame:Update();
-	ItemLevelFrame:UpdateDomination();
+	ItemLevelFrame:AsyncUpdate(0.05);
 	self.index = 1;
 	self.t = 0;
 	self:Show();
@@ -6062,7 +5791,7 @@ EL:SetScript("OnEvent",function(self, event, ...)
 			EquipmentFlyoutFrame:DisplayItemsBySlotID(slotID, false);
 		end
 		USE_DELAY = true;
-		ItemLevelFrame:UpdateDomination();
+		ItemLevelFrame:AsyncUpdate();
 
 	elseif event == "AZERITE_ESSENCE_ACTIVATED" then
 		local neckSlotID = 2;
@@ -6072,7 +5801,7 @@ EL:SetScript("OnEvent",function(self, event, ...)
         if not self.isRefreshing then
             self.isRefreshing = true;
             After(0, function()    -- only want 1 update per 0.1s
-				ItemLevelFrame:Update();
+				ItemLevelFrame:UpdateItemLevel();
 				After(0.1, function()
 					self.isRefreshing = nil;
 				end)
@@ -6081,7 +5810,7 @@ EL:SetScript("OnEvent",function(self, event, ...)
 
 	elseif event == "COVENANT_CHOSEN" then
 		local covenantID = ...;
-		ItemLevelFrame:Update();
+		ItemLevelFrame:AsyncUpdate();
 		MiniButton:SetBackground(covenantID);
 
 	elseif event == "COVENANT_SANCTUM_RENOWN_LEVEL_CHANGED" then
@@ -6162,7 +5891,7 @@ EL:SetScript("OnEvent",function(self, event, ...)
 		else
 			self.lastTime = newTime;
 		end
-		ItemLevelFrame:UpdateDomination();
+		ItemLevelFrame:AsyncUpdate(0.1);
 
 	elseif event == "UNIT_INVENTORY_CHANGED" then
 		SlotController:LazyRefresh("temp");

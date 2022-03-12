@@ -92,6 +92,8 @@ local AreaData = {
     [53] = {"gorgrond", 6721},
     [54] = {"deadwind_pass", 41},
     [55] = {"tanaris", 440},
+
+    [56] = {"the_crucible", 13655},
 };
 
 local RaceImage = {

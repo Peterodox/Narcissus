@@ -32,10 +32,13 @@ local tinsert = table.insert;
 local tremove = table.remove;
 
 local FadeFrame = NarciFadeUI.Fade;
+local NarciAPI = NarciAPI;
 local IsItemDominationShard = NarciAPI.IsItemDominationShard;
 local RemoveColorString = NarciAPI.RemoveColorString;
 local GetCachedItemTooltipTextByLine = NarciAPI.GetCachedItemTooltipTextByLine;
 local GetItemTempEnchantRequirement = NarciAPI.GetItemTempEnchantRequirement;
+local DoesItemHaveCrystallicSocket = NarciAPI.DoesItemHaveCrystallicSocket;
+local GetSocketTypes = GetSocketTypes;
 
 local sin = math.sin;
 local cos = math.cos;
@@ -108,6 +111,10 @@ end
 
 local function SetButtonTempEnchant(button, ...)
     button:SetTempEnchantData(...);
+end
+
+local function SetButtonCrystallic(button, ...)
+    button:SetCrystallicData(...);
 end
 
 SetButtonData = SetButtonEnchant;
@@ -361,6 +368,17 @@ function NarciEquipmentOptionMixin:SetBackdropColor(r, g, b, alpha)
     self.PointerBackdrop:SetVertexColor(r, g, b, alpha);
 end
 
+
+local SocketTypeNameDatabase = {
+    Prismatic = 1,
+    Domination = 2,
+    Cypher = 3,
+};
+
+local function GetSocketTypeID(typeName)
+    return (typeName and SocketTypeNameDatabase[typeName]) or 1
+end
+
 function NarciEquipmentOptionMixin:SetFromSlotButton(slotButton, returnHome)
     self.isNarcissusUI = true;
     local slotID = slotButton.slotID;
@@ -372,7 +390,25 @@ function NarciEquipmentOptionMixin:SetFromSlotButton(slotButton, returnHome)
     end
 
     self.slotButton = slotButton;
-    self.isDominationItem = slotButton.isDominationItem;
+
+    --[[
+        --Need a better approach: this one opens SocketingFrame, ArtifactFrame... in the background
+    SocketInventoryItem(slotID);
+    local typeName = GetSocketTypes(1);
+    local socketType = GetSocketTypeID(typeName);
+    --]]
+    
+    local socketType;
+    if DoesItemHaveCrystallicSocket(slotButton.itemLink) then
+        socketType = 3;
+    elseif slotButton.isDominationItem then
+        socketType = 2;
+    else
+        socketType = 1;
+    end
+
+    self.socketType = socketType;
+    self.isDominationItem = socketType == 2;
 
     local runeOverlay = NarciRuneAnimationOverlay;
     if slotButton.isRight then
@@ -396,7 +432,7 @@ function NarciEquipmentOptionMixin:SetFromSlotButton(slotButton, returnHome)
     validForEnchant = validForEnchant and isWeaponValidForEnchant;
 
     TempDataProvider:SetSubset(slotID);
-    GemDataProvider:SetSubset(self.isDominationItem);
+    GemDataProvider:SetSubset(socketType);
 
     Narci_FlyoutBlack:In();
     Narci_FlyoutBlack:RaiseFrameLevel(slotButton);
@@ -463,14 +499,28 @@ function NarciEquipmentOptionMixin:SetGemListForBlizzardUI(id1, id2)
     end
 
     local itemID, _, _, invType = GetItemInfoInstant(itemLink);
-    self.isDominationItem = NarciAPI.DoesItemHaveDomationSocket(itemID);
+    local typeName = GetSocketTypes(1);
+    local socketType = GetSocketTypeID(typeName);
+    socketType = (typeName and SocketTypeNameDatabase[typeName]) or 1;
+    --[[
+    if typeName == "Cypher" then    --DoesItemHaveCrystallicSocket(itemID)
+        socketType = 3;
+    elseif NarciAPI.DoesItemHaveDomationSocket(itemID) then
+        socketType = 2;
+    else
+        socketType = 1;
+    end
+    --]]
+    self.isDominationItem = socketType == 2;
+    self.socketType = socketType;
+
     local slotID = NarciAPI.GetSlotIDByInvType(invType);
     self.slotID = slotID;
     self.slotButton = nil;
     self.inUseGemID, self.inUsedEnchantID = GetAppliedEnhancement(itemLink);
     local newGemID = GetNewGemID(true);
     EnchantDataProvider:SetSubset(slotID);
-    GemDataProvider:SetSubset(self.isDominationItem);
+    GemDataProvider:SetSubset(socketType);
 
     self:ClearAllPoints();
     self:SetIgnoreParentScale(true);
@@ -627,8 +677,10 @@ end
 
 function NarciEquipmentOptionMixin:ShowGemList()
     DataProvider = GemDataProvider;
-    if self.isDominationItem then
+    if self.socketType == 2 then
         SetButtonData = SetButtonShard;
+    elseif self.socketType == 3 then
+        SetButtonData = SetButtonCrystallic;
     else
         SetButtonData = SetButtonGem;
     end
@@ -871,7 +923,10 @@ function NarciEquipmentListTooltipMixin:SetItem(itemID)
             return
         end
         local name, spellID = GetItemSpell(itemID);
-        if spellID then
+        local isCrystallic = NarciAPI.GetCrystallicSpell(itemID);
+        if isCrystallic then
+            self:SetSpell(isCrystallic);
+        elseif spellID then
             self:SetSpell(spellID);
         else
             local line;

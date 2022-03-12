@@ -101,6 +101,30 @@ local shardData = {
     187312,     --Bek R5
 };
 
+local cypherData = {
+    --Crystallic Spheroid
+    189723,
+    189722,
+    189732,
+    189560,
+    189763,
+    189724,
+    189725,
+    189726,
+    189762,
+    189727,
+    189728,
+    189729,
+    189730,
+    189731,
+    189764,
+    189733,
+    189734,
+    189760,
+    189761,
+    189735,
+};
+
 
 local DataProvider = {};
 addon.GemDataProvider = DataProvider;
@@ -109,12 +133,14 @@ DataProvider.filteredData = {};
 
 local subset = {};
 
-function DataProvider:SetSubset(isDominationItem)
-    self.isDominationItem = isDominationItem;
-    if isDominationItem then
-        subset = shardData or {};
-    else
+function DataProvider:SetSubset(dataSetID)
+    self.isDominationItem = dataSetID == 2;
+    if dataSetID == 1 then
         subset = gemData or {};
+    elseif dataSetID == 2 then
+        subset = shardData or {};
+    elseif dataSetID == 3 then
+        subset = cypherData or {};
     end
 end
 

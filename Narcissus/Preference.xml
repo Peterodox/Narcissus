@@ -693,9 +693,10 @@
                                             </Anchors>
                                         </Texture>
                                         <Texture file="Interface\AddOns\Narcissus\Art\Preference\DominationIndicator" parentKey="Preview2">
-                                            <Size x="96" y="96"/>
+                                            <Size x="144" y="96"/>
+                                            <TexCoords left="0" right="0.75" top="0" bottom="1"/>
                                             <Anchors>
-                                                <Anchor point="TOPRIGHT" relativeKey="$parent" relativePoint="TOPRIGHT" x="-28" y="-160"/>
+                                                <Anchor point="TOPRIGHT" relativeKey="$parent" relativePoint="TOPRIGHT" x="-20" y="-160"/>
                                             </Anchors>
                                         </Texture>
                                     </Layer>

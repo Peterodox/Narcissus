@@ -940,12 +940,12 @@
 
 			</Layer>
 			<Layer level="OVERLAY" textureSubLevel="1">
-				<Texture parentKey="Highlight" hidden="true" file="Interface\AddOns\Narcissus\Art\Solid\HexagonSolid-Highlight" alphaMode="ADD" Alpha="0" nounload="true">
+				<Texture parentKey="Highlight" hidden="true" file="Interface\AddOns\Narcissus\Art\Widgets\ItemLevel\GenericHighlight" alphaMode="ADD" Alpha="0">
 					<Size x="52" y="52"/>
 					<Anchors>
 						<Anchor point="CENTER" relativeKey="$parent" x="0" y="-1"/>
 					</Anchors>
-					<Animations>
+					<!--Animations>
 						<AnimationGroup parentKey="BlingIn" looping="NONE" setToFinalAlpha="true">
 							<Alpha fromAlpha="0" toAlpha="1" duration="0.2" order="1" parentKey="a1"/>
 							<Scripts>
@@ -971,7 +971,7 @@
 								</OnFinished>
 							</Scripts>
 						</AnimationGroup>
-					</Animations>
+					</Animations-->
 				</Texture>
 			</Layer>
 		</Layers>
@@ -1322,8 +1322,7 @@
 					</Layer>
 				</Layers>
 			</Frame>
-		</Frames>	
-
+		</Frames>
 		<Scripts>
 			<OnLoad function="Narci_GuideLineFrame_OnSizing"/>
 		</Scripts>
@@ -3026,7 +3025,7 @@
 								</Texture>
 							</Layer>
 							<Layer level="ARTWORK" textureSubLevel="1">
-								<Texture parentKey="Background" hidden="false" file="Interface\AddOns\Narcissus\Art\Solid\Purple" snapToPixelGrid="false" texelSnappingBias="0">
+								<Texture parentKey="Background" hidden="false" file="Interface\AddOns\Narcissus\Art\Widgets\ItemLevel\QualityGrey" snapToPixelGrid="false" texelSnappingBias="0">
 									<Size x="80" y="80"/>
 									<Anchors>
 										<Anchor point="CENTER" relativeKey="$parent" x="0" y="0"/>
@@ -3052,7 +3051,7 @@
 								</Texture>
 							</Layer>		
 							<Layer level="OVERLAY" textureSubLevel="1">
-								<Texture parentKey="Highlight" hidden="true" file="Interface\AddOns\Narcissus\Art\Solid\HexagonSolid-Highlight" alphaMode="ADD" Alpha="0">
+								<Texture parentKey="Highlight" hidden="true" file="Interface\AddOns\Narcissus\Art\Widgets\ItemLevel\GenericHighlight" alphaMode="ADD" Alpha="0">
 									<Size x="100" y="100"/>
 									<Anchors>
 										<Anchor point="CENTER" relativeKey="$parent" x="0" y="0"/>
@@ -3220,7 +3219,7 @@
 										<Anchor point="BOTTOM" relativeKey="$parent.$parent.CenterButton.Level" relativePoint="BOTTOM" y="3"/>
 									</Anchors>
 								</FontString>
-								<FontString inherits="NarciFontSemplicita9" justifyH="CENTER" justifyV="BOTTOM" text="TC" hidden="false" parentKey="Header">
+								<FontString inherits="NarciFontSemplicita9" justifyH="CENTER" justifyV="BOTTOM" text="RN" hidden="false" parentKey="Header">
 									<Size x="0" y="0"/>
 									<Anchors>
 										<Anchor point="BOTTOM" relativeKey="$parent.Number" relativePoint="TOP" x="0" y="2"/>
@@ -3273,6 +3272,13 @@
 								</MaskTexture>
 							</Layer>
 						</Layers>
+					</Frame>
+
+					<Frame parentKey="ProgenitorOverlay" hidden="true" ItemLevel="12">
+						<Size x="104.0" y="104.0"/>
+						<Anchors>
+							<Anchor point="CENTER"/>
+						</Anchors>
 					</Frame>
 				</Frames>
 				<Scripts>
