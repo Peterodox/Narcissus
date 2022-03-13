@@ -2,7 +2,7 @@
 
 local _, addon = ...
 
-local MAX_INDEX = 55;
+local MAX_INDEX = 57;
 local NUM_ROW = 6;
 local NUM_COL = 4;
 
@@ -77,7 +77,7 @@ local AreaData = {
     [40] = {"torghast", 10472},
 
     [41] = {"oribos", 10565},
-    [42] = {"Stormwind_rain", 5151},
+    [42] = {"stormwind_rain", 5151},
     [43] = {"undercity", 1497},
     [44] = {"silvermoon_city", 3487},
     [45] = {"broken_shore", 7543},
@@ -94,6 +94,7 @@ local AreaData = {
     [55] = {"tanaris", 440},
 
     [56] = {"the_crucible", 13655},
+    [57] = {"provis_fauna", 13706},
 };
 
 local RaceImage = {

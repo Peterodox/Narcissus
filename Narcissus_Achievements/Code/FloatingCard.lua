@@ -119,6 +119,7 @@ function FloatingCard:Acquire(cardType)
         end
         if not card then
             card = CreateFrame("Button", nil, self, template);
+            card:SetClampedToScreen(true);
             card.index = i;
             card:SetFrameStrata("DIALOG");
             card:SetFrameLevel(i);
@@ -128,9 +129,9 @@ function FloatingCard:Acquire(cardType)
             card:SetScript("OnEnter", FloatingCard_OnEnter);
             card:SetScript("OnLeave", FloatingCard_OnLeave);
             card:RegisterForDrag("LeftButton");
+            card.isFloatingCard = true;   --Hide Pin
             if isStat then
                 card.isHeader = true;   --force to refresh layout
-                card.isFloatingCard = true;   --Hide Pin
             end
             tinsert(cardPool, card);
             break

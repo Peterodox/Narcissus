@@ -550,7 +550,7 @@
 					<Layer level="OVERLAY" textureSubLevel="3">
 						<FontString inherits="NarciAchievementText" parentKey="reward" maxLines="1" justifyH="CENTER" justifyV="BOTTOM">
 							<Anchors>
-								<Anchor point="BOTTOM" relativeKey="$parent" relativePoint="BOTTOM" x="0" y="1"/>
+								<Anchor point="BOTTOM" relativeKey="$parent" relativePoint="BOTTOM" x="0" y="3"/>
 							</Anchors>
 						</FontString>
 						<Texture parentKey="rewardNodeLeft" file="Interface\AddOns\Narcissus_Achievements\Art\DarkWood\RewardLineNode" Alpha="0.5">

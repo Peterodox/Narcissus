@@ -935,8 +935,8 @@ local function DressUpSources(sources, mainHandEnchant, offHandEnchant)
             end
             if slotID == 16 or slotID == 17 then
                 currentInfo = playerActor:GetItemTransmogInfo(slotID);
-                if not sources[slotID]:IsEqual(currentInfo) then
-                    playerActor:SetItemTransmogInfo(sources[slotID], slotID, slotID ~= 16);     --FIX ME?
+                if not transmogInfo:IsEqual(currentInfo) then
+                    playerActor:TryOn(transmogInfo.appearanceID, (slotID == 16 and "MAINHANDSLOT") or "SECONDARYHANDSLOT", transmogInfo.illusionID);    --ME FIXED?
                 end
             else
                 playerActor:SetItemTransmogInfo(transmogInfo);

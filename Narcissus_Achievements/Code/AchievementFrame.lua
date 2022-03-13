@@ -107,6 +107,8 @@ local function ReskinButton(button)
     button.RewardFrame.rewardNodeRight:SetShown(isDarkTheme);
     button.RewardFrame.rewardLineLeft:SetShown(isDarkTheme);
     button.RewardFrame.rewardLineRight:SetShown(isDarkTheme);
+    button.RewardFrame.reward:SetPoint("BOTTOM", button.RewardFrame, "BOTTOM", 0, (isDarkTheme and 3) or 1);
+
     if isDarkTheme then
         button.description:SetFontObject(NarciAchievementText);
     else
@@ -141,7 +143,8 @@ end
 
 
 local MainFrame, InspectionFrame, MountPreview, Tooltip, ReturnButton, SummaryButton, GoToCategoryButton, FilterButton;
-local CategoryContainer, AchievementContainer, DIYContainer, EditorContainer, SummaryFrame, AchievementCards, SummaryCards, TabButtons;
+local CategoryContainer, AchievementContainer, DIYContainer, EditorContainer, SummaryFrame, AchievementCards, TabButtons;
+local UpdateSummaryFrame;
 
 local TabUtil = {};
 addon.TabUtil = TabUtil;
@@ -153,7 +156,7 @@ local CategoryButtons = {
 };
 
 local IS_STAT_CATEGORY = {
-    [-1] = true,    --Used to show pinned statistics
+    [-2] = true,    --Used to show pinned statistics
 };
 
 function CategoryButtons:GetActiveParentButtons(tabID)
@@ -501,8 +504,7 @@ local function GetProgressivePoints(achievementID, basePoints)
 end
 
 
-local function FormatAchievementCard(buttonIndex, id, name, points, completed, month, day, year, description, flags, icon, rewardText, isGuild, wasEarnedByMe)
-    local button = AchievementCards[buttonIndex];
+local function FormatAchievementCard(button, id, name, points, completed, month, day, year, description, flags, icon, rewardText, isGuild, wasEarnedByMe)
     if not button then
         return
     end
@@ -510,7 +512,7 @@ local function FormatAchievementCard(buttonIndex, id, name, points, completed, m
 
     button.id = id;
     button.trackIcon:SetShown( DataProvider:IsTrackedAchievement(id) );
-    if (not (wasEarnedByMe and completed) ) and (showNotEarnedMark) and (not isGuildView) then
+    if ( not completed or ( not isGuild and not wasEarnedByMe ) ) and (showNotEarnedMark) then
         button.NotEarned:Show();
     else
         button.NotEarned:Hide();
@@ -584,7 +586,7 @@ local function FormatAchievementCard(buttonIndex, id, name, points, completed, m
     local shadowHeight = 0;
     if rewardText and rewardText ~= "" then
         local itemID;
-        rewardHeight = 24;
+        rewardHeight = 22;
         rewardText, itemID = FormatRewardText(id, rewardText);
         button.RewardFrame.reward:SetText(rewardText);
         button.RewardFrame.itemID = itemID;
@@ -637,13 +639,6 @@ local function FormatAchievementCard(buttonIndex, id, name, points, completed, m
         button.date:SetText( FormatDate(day, month, year) );
         button.RewardFrame.reward:SetAlpha(1);
 
-        if buttonIndex > 7 or buttonIndex < 0 then
-            button:SetAlpha(1);
-        else
-            button.toAlpha = 1;
-           -- button:SetAlpha(0);     --for flip animation
-        end
-
         if (button.isDark == nil) or (button.isDark) then
             button.isDark = false;
             button.icon:SetDesaturated(false);
@@ -665,13 +660,6 @@ local function FormatAchievementCard(buttonIndex, id, name, points, completed, m
     else
         button.date:SetText("");
         button.RewardFrame.reward:SetAlpha(0.60);
-
-        if buttonIndex > 7 or buttonIndex < 0 then
-            button:SetAlpha(1); --0.5
-        else
-            button.toAlpha = 1  --0.5;
-            --button:SetAlpha(0);     --for flip animation
-        end
 
         if (button.isDark == nil) or (not button.isDark) then
             button.isDark = true;
@@ -696,6 +684,17 @@ local function FormatAchievementCard(buttonIndex, id, name, points, completed, m
     button:SetShown(id);
 end
 
+local function FormatAchievementCardByIndex(buttonIndex, ...)
+    local button = AchievementCards[buttonIndex];
+    if button then
+        FormatAchievementCard(button, ...);
+        if buttonIndex > 7 or buttonIndex < 0 then
+            button:SetAlpha(1);
+        else
+            button.toAlpha = 1;     --for flip animation
+        end
+    end
+end
 
 local function InspectAchievement(achievementID)
     if not achievementID then return end;
@@ -713,7 +712,7 @@ local function InspectAchievement(achievementID)
     else
         displayCard = InspectionFrame.Card;
         InspectionFrame.StatCard:Hide();
-        FormatAchievementCard(-1, id, name, points, completed, month, day, year, description, flags, icon, rewardText, isGuild, wasEarnedByMe);
+        FormatAchievementCardByIndex(-1, id, name, points, completed, month, day, year, description, flags, icon, rewardText, isGuild, wasEarnedByMe);
     end
     animFlyOut.Card = displayCard;
 
@@ -749,7 +748,7 @@ ScrollUtil.heightData = {};
 ScrollUtil.achievementID = {};
 ScrollUtil.totalHeight = 0;
 ScrollUtil.positionToButton = {};
-ScrollUtil.formatFunc = FormatAchievementCard;
+ScrollUtil.formatFunc = FormatAchievementCardByIndex;
 
 function ScrollUtil:ResetHeights()
     self.totalHeight = 18;
@@ -770,7 +769,7 @@ end
 function ScrollUtil:SetCardData(cardIndex, achievementID, description, rewardText)
     local rewardHeight;
     if rewardText and rewardText ~= "" then
-        rewardHeight = 24;
+        rewardHeight = 22;
     else
         if isDarkTheme then
             rewardHeight = 2;
@@ -960,7 +959,7 @@ local function Slice_UpdateAchievementCards(categoryID, startIndex)
         id, name, points, completed, month, day, year, description, flags, icon, rewardText, isGuild, wasEarnedByMe = DataProvider:GetAchievementInfoByOrder(categoryID, i);
         if i > 0 and id then
             if i <= NUM_ACHIEVEMENT_CARDS then
-                FormatAchievementCard(i, id, name, points, completed, month, day, year, description, flags, icon, rewardText, isGuild, wasEarnedByMe);
+                FormatAchievementCardByIndex(i, id, name, points, completed, month, day, year, description, flags, icon, rewardText, isGuild, wasEarnedByMe);
             end
             ScrollUtil:SetCardData(i, id, description, rewardText);
             numProcessed = i;
@@ -986,7 +985,7 @@ local function Slice_ReverselyUpdateAchievementCards_Callback(categoryID, startI
         if i <= numCompleted then
             index = i + numIncomplete;
             if i <= NUM_ACHIEVEMENT_CARDS then
-                FormatAchievementCard(index, id, name, points, completed, month, day, year, description, flags, icon, rewardText, isGuild, wasEarnedByMe);
+                FormatAchievementCardByIndex(index, id, name, points, completed, month, day, year, description, flags, icon, rewardText, isGuild, wasEarnedByMe);
             end
             ScrollUtil:SetCardData(index, id, description, rewardText);
             numProcessed = i;
@@ -1014,7 +1013,7 @@ local function Slice_ReverselyUpdateAchievementCards(categoryID, startIndex)
             --print("id #"..id)
             if not completed then
                 if i <= NUM_ACHIEVEMENT_CARDS then
-                    FormatAchievementCard(i, id, name, points, completed, month, day, year, description, flags, icon, rewardText, isGuild, wasEarnedByMe);
+                    FormatAchievementCardByIndex(i, id, name, points, completed, month, day, year, description, flags, icon, rewardText, isGuild, wasEarnedByMe);
                 end
                 ScrollUtil:SetCardData(i, id, description, rewardText);
                 numProcessed = i;
@@ -1075,7 +1074,7 @@ function animFlip:Play(groupIndex)
     if groupIndex == 1 then
         objects = AchievementCards;
     else
-        objects = SummaryCards;
+        return
     end
     local numObjects = #objects;
     numObjects = min(numObjects, 6);
@@ -1129,6 +1128,7 @@ local function UpdateAchievementCardsBySlice(categoryID)
     for i = 1, NUM_ACHIEVEMENT_CARDS do
         AchievementCards[i]:Hide();
     end
+
     local numAchievements, numCompleted, numIncomplete = GetCategoryNumAchievements(categoryID, false);
     DataProvider.numAchievements = numAchievements;
     processor.arg1 = categoryID;
@@ -1150,7 +1150,7 @@ local function SwitchToSortMethod(index)
     end
 
     local categoryID = DataProvider.currentCategory;
-    if categoryID and categoryID ~= 0 then
+    if categoryID and categoryID > 0 then
         UpdateAchievementCardsBySlice(categoryID);
     end
 end
@@ -1423,12 +1423,20 @@ local function SelectCategory(categoryID)
         ScrollUtil.activeCards = StatCardController:GetTable();
         UpdateStatCardsBySlice(categoryID);
         ReleaseAchievementCard();
+        SummaryFrame:Hide();
     else
         AchievementContainer:Show();
-        ScrollUtil.formatFunc = FormatAchievementCard;
+        ScrollUtil.formatFunc = FormatAchievementCardByIndex;
         ScrollUtil.activeCards = AchievementCards;
         StatCardController:ReleaseAll();
-        UpdateAchievementCardsBySlice(categoryID);
+        if categoryID == -1 then
+            UpdateSummaryFrame();
+            SummaryFrame:Show();
+        else
+            UpdateAchievementCardsBySlice(categoryID);
+            SummaryFrame:Hide();
+        end
+
     end
     InspectionFrame.numAchievements = GetCategoryNumAchievements(categoryID, false);
 end
@@ -1468,7 +1476,6 @@ local function ToggleFeatOfStrenghtText(button)
 end
 
 local function CategoryButton_OnClick(button, mouse)
-    SummaryFrame:Hide();
     SummaryButton:Show();
 
     local expandedHeight = button.expandedHeight;
@@ -2413,7 +2420,6 @@ function NarciAchievementGoToCategoryButtonMixin:OnClick()
             InspectionFrame:ScrollToCategoryButton(categoryButton);
 
             AchievementContainer:Show();
-            SummaryFrame:Hide();
             SummaryButton:Show();
         else
             animFlyOut:Play();
@@ -2762,202 +2768,46 @@ function DateUtil:GetPastDays(day, month, year)
 end
 
 
-local function FormatRecentAchievementButton(button, id, name, points, completed, month, day, year, description, flags, icon, rewardText, useRelativeDate)
-    local headerObject, numLines, textHeight;
-    button.id = id;
-
-    --for long text
-    button.header:SetText(name);
-    if button.header:IsTruncated() then
-        headerObject = button.headerLong;
-        headerObject:SetText(name);
-        button.header:Hide();
-    else
-        headerObject = button.header;
-        button.headerLong:Hide();
-    end
-    headerObject:Show();
-
-    if IsAccountWide(flags) then
-        if completed then
-            if isDarkTheme then
-                headerObject:SetTextColor(0.427, 0.812, 0.965); --(0.427, 0.812, 0.965)(0.4, 0.755, 0.9)
-            else
-                headerObject:SetTextColor(1, 1, 1);
-            end
-        else
-            if isDarkTheme then
-                headerObject:SetTextColor(0.214, 0.406, 0.484);
-            else
-                headerObject:SetTextColor(0.5, 0.5, 0.5);
-            end
-        end
-    else
-        if completed then
-            if isDarkTheme then
-                headerObject:SetTextColor(0.9, 0.82, 0.58);  --(1, 0.91, 0.647); --(0.9, 0.82, 0.58) --(0.851, 0.774, 0.55)
-            else
-                headerObject:SetTextColor(1, 1, 1);
-            end
-        else
-            if isDarkTheme then
-                headerObject:SetTextColor(0.5, 0.46, 0.324);
-            else
-                headerObject:SetTextColor(0.5, 0.5, 0.5);
-            end
-        end
-    end
-
-    points = GetProgressivePoints(id, points);
-    if points == 0 then
-        button.points:SetText("");
-        button.lion:Show();
-    else
-        if points >= 100 then
-            if not button.useSmallPoints then
-                button.useSmallPoints = true;
-                button.points:SetFontObject(NarciAchievemtPointsSmall);
-            end
-        else
-            if button.useSmallPoints then
-                button.useSmallPoints = nil;
-                button.points:SetFontObject(NarciAchievemtPoints);
-            end
-        end
-        button.points:SetText(points);
-        button.lion:Hide();
-    end
-
-    button.icon:SetTexture(icon);
-
-    local rewardHeight;
-    local shadowHeight = 0;
-    if rewardText and rewardText ~= "" then
-        local itemID;
-        rewardHeight = 24;
-        shadowHeight = 6;
-        rewardText, itemID = FormatRewardText(id, rewardText);
-        button.RewardFrame.reward:SetText(rewardText);
-        button.RewardFrame.itemID = itemID;
-        button.itemID = itemID;
-        button.RewardFrame:Show();
-    else
-        if isDarkTheme then
-            rewardHeight = 2;
-        else
-            rewardHeight = 8;
-        end
-        button.RewardFrame:Hide();
-        button.RewardFrame:SetHeight(2);
-    end
-    button.RewardFrame:SetHeight(rewardHeight);
-
-    button.description:SetHeight(0);
-    button.description:SetText(description);
-    local descriptionHeight = button.description:GetHeight();
-    button.description:SetHeight(descriptionHeight)
-    textHeight = floor( button.background:GetHeight() + 0.5 );
-    numLines = ceil( descriptionHeight / 14 - 0.1 );
-    button:SetHeight(72 + rewardHeight + 14*(numLines - 1) );
-    button.shadow:SetPoint("BOTTOMRIGHT", button, "BOTTOMRIGHT", 12, - 6 - numLines * 6 - shadowHeight);
-
-    if IsAccountWide(flags) then     --ACHIEVEMENT_FLAGS_ACCOUNT
-        button.accountWide = true;
-        button.border:SetTexCoord(0.05078125, 0.94921875, 0.5, 1);
-        button.bottom:SetTexCoord(0.05078125, 0.94921875, 0.985, 1);
-        if textHeight <= 288 then
-            button.background:SetTexCoord(0.05078125, 0.94921875, 0.985 - textHeight/288/2, 0.985);
-        else
-            button.background:SetTexCoord(0.05078125, 0.94921875,  0.5, 0.985);
-        end
-    else
-        button.accountWide = nil;
-        button.border:SetTexCoord(0.05078125, 0.94921875, 0, 0.5);
-        button.bottom:SetTexCoord(0.05078125, 0.94921875, 0.485, 0.5);
-        if textHeight <= 288 then
-            button.background:SetTexCoord(0.05078125, 0.94921875, 0.485 - textHeight/288/2, 0.485);
-        else
-            button.background:SetTexCoord(0.05078125, 0.94921875,  0, 0.485);
-        end
-    end
-
-    --button.date:SetText( FormatDate(day, month, year) );
-    if useRelativeDate then
-        button.date:SetText( DateUtil:GetPastDays(day, month, year) );
-    else
-        button.date:SetText( FormatDate(day, month, year) );
-    end
-    button.RewardFrame.reward:SetAlpha(1);
-
-    button.toAlpha = 1; --for flip animation
-end
-
-
 local UpdateHeaderFrame;
 
-local function CreateSummaryButtons()
-    local MAX_SUMMARY_ACHIEVEMENTS = 5;
-
-    if not SummaryCards then
-        SummaryCards = {};
-    end
-
-    local button;
-    for i = 1, MAX_SUMMARY_ACHIEVEMENTS do
-        button = SummaryCards[i];
-        if not button then
-            button = CreateFrame("Button", nil, SummaryFrame, "NarciAchievementLargeCardTemplate");
-            button:SetScript("OnClick", InspectResult);
-            button.header:SetWidth(274);
-            button.description:SetMaxLines(1);
-            tinsert(SummaryCards, button);
-            if i == 1 then
-                button:SetPoint("TOP", SummaryFrame, "TOP", -9, -18);
-            else
-                button:SetPoint("TOP", SummaryCards[i - 1], "BOTTOM", 0, -4);
-            end
-            button:Hide();
-
-            ReskinButton(button);
-        end
-    end
-end
-
-local function UpdateSummaryFrame(breakLoop, noRenderWhileHidden)
-    if noRenderWhileHidden and not SummaryFrame:IsShown() then return end;
-
-    local button;
+function UpdateSummaryFrame(breakLoop)
     local recentAchievements = { GetLatestCompletedAchievements(isGuildView) };
-
-    if (#recentAchievements <= 5) and (not breakLoop) then
-        SummaryFrame:SetAlpha(0);
+    local numAchievements = #recentAchievements;
+    if (numAchievements < 5) and (not breakLoop) then
         After(0.05, function()
             UpdateSummaryFrame(true);
         end);
         return
     end
 
-    local id, name, points, completed, month, day, year, description, flags, icon, rewardText;
-    local useRelativeDate = true;
-    for i = 1, 5 do
-        button = SummaryCards[i];
+    ScrollUtil:ResetHeights();
+    processor:Hide();
+    AchievementContainer.scrollBar:SetValue(0);
+    for i = 1, NUM_ACHIEVEMENT_CARDS do
+        AchievementCards[i]:Hide();
+    end
+    local id, name, points, completed, month, day, year, description, flags, icon, rewardText, isGuild;
+    for i = 1, #recentAchievements do
         id = recentAchievements[i];
         if id then
-            id, name, points, completed, month, day, year, description, flags, icon, rewardText = DataProvider:GetAchievementInfo(id);
-            FormatRecentAchievementButton(button, id, name, points, completed, month, day, year, description, flags, icon, rewardText, useRelativeDate);
-            ReskinButton(button);
-            button:SetAlpha(0);
-            button:Show();
+            id, name, points, completed, month, day, year, description, flags, icon, rewardText, isGuild = DataProvider:GetAchievementInfo(id);
+            if i <= NUM_ACHIEVEMENT_CARDS then
+                FormatAchievementCardByIndex(i, id, name, points, completed, month, day, year, description, flags, icon, rewardText, isGuild, true);
+                AchievementCards[i].date:SetText( DateUtil:GetPastDays(day, month, year) );
+            end
+            ScrollUtil:SetCardData(i, id, description, rewardText);
         else
-            button:Hide();
+            break;
         end
     end
-
-    SummaryFrame:SetAlpha(1);
+    UpdateAchievementScrollRange();
+    ScrollUtil:UpdateScrollChild(0);
     UpdateHeaderFrame(isGuildView);
-    animFlip:Play(2);
+    if numAchievements ~= 0 then
+        animFlip:Play(1);
+    end
+    InspectionFrame.numAchievements = numAchievements;
 end
-
 
 ----------------------------------------------------------------------------------
 
@@ -2997,7 +2847,6 @@ function TabUtil:ResumeOffset()
     end
     if lastButton then
         AchievementContainer:Show();
-        SummaryFrame:Hide();
         SummaryButton:Show();
         SubCategoryButton_OnClick(lastButton);
         ToggleFeatOfStrenghtText(lastButton);
@@ -3042,7 +2891,6 @@ function TabUtil:ToggleStats()
     CategoryContainer.ScrollChild.GuildCategory:Hide();
     MainFrame.FeatOfStrengthText:Hide();
     MainFrame:UpdatePinCount();
-    SummaryFrame:Hide();
     DIYContainer:Hide();
     EditorContainer:Hide();
     CategoryContainer:Show();
@@ -3067,7 +2915,6 @@ function TabUtil:ToggleDIY()
     
     EditorContainer:Show();
     CategoryContainer:Hide();
-    SummaryFrame:Hide();
     AchievementContainer:Hide();
     FilterButton:Disable();
     SummaryButton:SetMode(3);
@@ -3138,16 +2985,12 @@ function NarciAchievementSummaryButtonMixin:OnClick()
     local categoryID;
     if self.modeID == 2 then
         AchievementContainer:Show();
-        SummaryFrame:Hide();
-        SelectCategory(-1);
+        SelectCategory(-2);
         animExpand:CollapseAll();
-        categoryID = - 1;
+        categoryID = - 2;
     else
-
-        categoryID = 0;
-        UpdateSummaryFrame();
-        AchievementContainer:Hide();
-        SummaryFrame:Show();
+        categoryID = -1;
+        SelectCategory(-1);
     end
     if DataProvider.currentCategory ~= categoryID then
         animExpand:CollapseAll();
@@ -3452,8 +3295,6 @@ local function InitializeFrame(frame)
 
     --SummaryFrame
     SummaryFrame = frame.SummaryFrame;
-    CreateSummaryButtons();
-    UpdateSummaryFrame();
 
     --DIY Achievements
     DIYContainer = frame.DIYContainer;
@@ -3467,13 +3308,13 @@ local function InitializeFrame(frame)
     tinsert(UISpecialFrames, frame:GetName());
 
     frame:Show();
+    UpdateSummaryFrame();
 
     --Reclaim Temp
     wipe(CategoryStructure);
     CategoryStructure = nil;
     CreateCategoryButtons = nil;
     CreateAchievementButtons = nil;
-    CreateSummaryButtons = nil;
     CreateTabButtons = nil;
     InitializeFrame = nil;
 end
@@ -3674,8 +3515,10 @@ end
 function NarciAchievementLargeCardMixin:UpdateTheme()
     ReskinButton(self);
     if self.id then
-        local id, name, points, completed, month, day, year, description, flags, icon, rewardText = DataProvider:GetAchievementInfo(self.id);
-        FormatRecentAchievementButton(self, id, name, points, true, month, day, year, description, flags, icon, rewardText);
+        local visibility = self:IsShown();
+        local id, name, points, completed, month, day, year, description, flags, icon, rewardText, isGuild, earnedByMe  = DataProvider:GetAchievementInfo(self.id);
+        FormatAchievementCard(self, id, name, points, completed, month, day, year, description, flags, icon, rewardText, isGuild, earnedByMe);
+        self:SetShown(visibility);
     end
 end
 
@@ -3731,7 +3574,7 @@ function NarciAchievement_SelectTheme(index)
     local inspectedAchievementID = AchievementCards[-1].id;
     if inspectedAchievementID then
         local id, name, points, completed, month, day, year, description, flags, icon, rewardText = DataProvider:GetAchievementInfo(inspectedAchievementID);
-        FormatAchievementCard(-1, id, name, points, completed, month, day, year, description, flags, icon, rewardText);
+        FormatAchievementCardByIndex(-1, id, name, points, completed, month, day, year, description, flags, icon, rewardText);
     end
     
     if SummaryFrame:IsVisible() then
@@ -3919,7 +3762,6 @@ function NarciAchievementFrameMixin:Init()
     InitializeFrame(Narci_AchievementFrame);
     self:RegisterEvent("ACHIEVEMENT_EARNED");
     self:RegisterEvent("CRITERIA_EARNED");
-    
     self.Init = nil;
 end
 
@@ -3975,6 +3817,7 @@ end)
 
 
 addon.ReskinButton = ReskinButton;
+addon.FormatAchievementCard = FormatAchievementCard;
 
 local function IsDarkTheme()
     return isDarkTheme;

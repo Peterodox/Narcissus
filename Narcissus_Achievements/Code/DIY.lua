@@ -450,7 +450,7 @@ function FormatCardByIndex(buttonIndex, name, description, icon, points, date, r
     local rewardHeight;
     local shadowHeight = 0;
     if rewardText and rewardText ~= "" then
-        rewardHeight = 24;
+        rewardHeight = 22;
         shadowHeight = 6;
         if isDarkTheme then
             button.RewardFrame.reward:SetTextColor(0.64, 0.83, 0.61);
