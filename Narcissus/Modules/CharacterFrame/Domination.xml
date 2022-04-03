@@ -4,7 +4,7 @@
     <Frame name="NarciDomimationItemHighlight" hidden="true" virtual="true" mixin="NarciDominationItemHighlightMixin">
         <Layers>
             <Layer level="BACKGROUND">
-                <Texture file="Interface\AddOns\Narcissus\Art\Widgets\Domination\PaperDollItemHighlight" parentKey="BorderHighlight" alphaMode="ADD">
+                <Texture file="Interface\AddOns\Narcissus\Art\IconHighlight\PaperDollItemHighlight" parentKey="BorderHighlight" alphaMode="ADD">
                     <Size x="37" y="37"/>
                     <Anchors>
                         <Anchor point="CENTER"/>

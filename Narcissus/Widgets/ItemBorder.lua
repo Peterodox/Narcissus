@@ -86,7 +86,7 @@ local function SetBorderTexture(object, textureKey, themeIndex)
         object:AddMaskTexture(mask);
         object.BorderMask = mask;
     end
-    object.BorderMask:SetTexture(maskFile, "CLAMPTOBLACKADDITIVE", "CLAMPTOBLACKADDITIVE")
+    object.BorderMask:SetTexture(maskFile, "CLAMPTOBLACKADDITIVE", "CLAMPTOBLACKADDITIVE");
 end
 
 NarciAPI.SetBorderTexture = SetBorderTexture;

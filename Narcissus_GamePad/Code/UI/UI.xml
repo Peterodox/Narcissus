@@ -1,0 +1,176 @@
+<Ui xsi:schemaLocation="http://www.blizzard.com/wow/ui/..\FrameXML\UI.xsd">
+	<Frame name="NarciGamePadOverlay" hidden="true">
+		<Size x="8" y="8"/>
+		<Anchors>
+			<Anchor point="TOP"/>
+		</Anchors>
+	</Frame>
+
+    <Script file="ItemBorder.lua"/>
+	<Script file="ControllerButton.lua"/>
+	<Script file="NavBar.lua"/>
+
+	<Frame parentKey="SlotBorder" hidden="true" mixin="NarciGamePadSlotOverlayMixin" parent="NarciGamePadOverlay">
+		<Size x="64" y="64"/>
+		<Layers>
+			<Layer level="OVERLAY" textureSubLevel="5">
+				<Texture parentKey="HexGlow" file="Interface\AddOns\Narcissus_GamePad\Art\Equipment\HexagonHighlight" Alpha="1">
+					<Size x="128" y="128"/>
+					<Anchors>
+						<Anchor point="CENTER"/>
+					</Anchors>
+					<Animations>
+						<AnimationGroup parentKey="FadeIn">
+							<Alpha fromAlpha="0" toAlpha="1" duration="0.12" order="1"/>
+							<Scale scaleX="1.150" scaleY="1.150" duration="0.12" order="1" smoothing="OUT"/>
+							<Scripts>
+								<OnFinished>
+									self:GetParent():SetScale(1.150);
+								</OnFinished>
+							</Scripts>
+						</AnimationGroup>
+					</Animations>
+				</Texture>
+			</Layer>
+		</Layers>
+		<Frames>
+			<Frame parentKey="ButtonNote" fixedFrameStrata="true" frameStrata="DIALOG">
+				<Size x="64" y="64"/>
+				<Anchors>
+					<Anchor point="CENTER"/>
+				</Anchors>
+				<Layers>
+					<Layer level="OVERLAY" textureSubLevel="4">
+						<Texture parentKey="Background" file="Interface\AddOns\Narcissus_GamePad\Art\Shared\FaceButtonBackground">
+							<Size x="180" y="180"/>
+							<Anchors>
+								<Anchor point="LEFT" relativeKey="$parent" relativePoint="RIGHT" x="-60" y="0"/>
+							</Anchors>
+						</Texture>
+					</Layer>
+				</Layers>
+				<Animations>
+					<AnimationGroup parentKey="FadeIn">
+						<Alpha fromAlpha="0" toAlpha="0" duration="0" order="1"/>
+						<Alpha startDelay="0.25" fromAlpha="0" toAlpha="1" duration="0.25" order="2"/>
+					</AnimationGroup>
+				</Animations>
+			</Frame>
+		</Frames>
+		<Scripts>
+			<OnHide method="OnHide"/>
+		</Scripts>
+	</Frame>
+
+	<Frame name="NarciGamePadControllerButtonTemplate" virtual="true" mixin="NarciGamePadControllerButtonMixin" fixedFrameStrata="true" frameStrata="TOOLTIP">
+		<Size x="24" y="24"/>
+		<Layers>
+			<Layer level="OVERLAY">
+				<Texture parentKey="ButtonIcon" file="Interface\AddOns\Narcissus_GamePad\Art\Xbox\FaceButton">
+					<Size x="24" y="24"/>
+					<TexCoords left="0" right="0.5" top="0" bottom="0.5"/>
+					<Anchors>
+						<Anchor point="CENTER"/>
+					</Anchors>
+					<Animations>
+						<AnimationGroup parentKey="PressFeedback">
+							<Scale scaleX="0.75" scaleY="0.75" duration="0.05" order="1"/>
+							<Scale scaleX="1.333" scaleY="1.333" duration="0.25" order="2"/>
+						</AnimationGroup>
+					</Animations>
+				</Texture>
+				<FontString inherits="NarciFontMedium12" justifyH="LEFT" justifyV="MIDDLE" parentKey="Label" text="Select">
+					<Size x="0" y="24"/>
+					<Color r="0.92" g="0.92" b="0.92"/>
+					<Anchors>
+						<Anchor point="LEFT" relativeKey="$parent" relativePoint="CENTER" x="16" y="0"/>
+					</Anchors>
+				</FontString>
+			</Layer>
+			<Layer level="ARTWORK">
+				<Texture parentKey="ButtonOuterGlow" file="Interface\AddOns\Narcissus_GamePad\Art\Shared\FaceButtonOuterGlow" alphaMode="ADD">
+					<Size x="48" y="48"/>
+					<Anchors>
+						<Anchor point="CENTER"/>
+					</Anchors>
+					<Animations>
+						<AnimationGroup parentKey="PressFeedback">
+							<Scale scaleX="0.75" scaleY="0.75" duration="0.05" order="1"/>
+							<Scale scaleX="1.333" scaleY="1.333" duration="0.25" order="2"/>
+							<Alpha fromAlpha="0" toAlpha="1" duration="0.25" order="2"/>
+						</AnimationGroup>
+					</Animations>
+				</Texture>
+			</Layer>
+		</Layers>
+		<Animations>
+			<AnimationGroup parentKey="FadeIn">
+				<Scale scaleX="1.2" scaleY="1.2" duration="0.1" order="1" childKey="ButtonIcon"/>
+				<Scale scaleX="0.833" scaleY="0.833" duration="0.15" order="2" childKey="ButtonIcon"/>
+				<Scale scaleX="1.2" scaleY="1.2" duration="0.1" order="1" childKey="ButtonOuterGlow"/>
+				<Scale scaleX="0.833" scaleY="0.833" duration="0.15" order="2" childKey="ButtonOuterGlow"/>
+			</AnimationGroup>
+		</Animations>
+		<Scripts>
+			<OnLoad method="OnLoad"/>
+			<OnHide method="OnHide"/>
+		</Scripts>
+	</Frame>
+
+	<Button name="NarciGamePadNavBarButtonTemplate" mixin="NarciGamePadNavBarButtonMixin" virtual="true">
+		<Size x="48" y="24"/>
+		<Layers>
+			<Layer level="OVERLAY">
+				<FontString parentKey="ButtonName" inherits="NarciFontMedium12" justifyH="CENTER">
+					<Size y='24'/>
+					<Color r="0.6" g="0.6" b="0.6"/>
+					<Anchors>
+						<Anchor point="CENTER"/>
+					</Anchors>
+				</FontString>
+			</Layer>
+		</Layers>
+		<Scripts>
+			<OnEnter method="OnEnter"/>
+			<OnLeave method="OnLeave"/>
+			<OnMouseDown method="OnMouseDown"/>
+			<OnMouseUp method="OnMouseUp"/>
+			<OnClick method="OnClick"/>
+		</Scripts>
+	</Button>
+
+	<Frame parent="Narci_Attribute" mixin="NarciGamePadNavBarMixin">
+		<Size x="360" y="24"/>
+		<Layers>
+			<Layer level="BACKGROUND">
+				<Texture parentKey="Background">
+					<Color r="0" g="0" b="0" a="0.8"/>
+				</Texture>
+			</Layer>
+			<Layer level="OVERLAY">
+				<Texture parentKey="LeftBumper">
+					<Size x="28" y="28"/>
+					<TexCoords left="0" right="0.5" top="0" bottom="0.5"/>
+					<Anchors>
+						<Anchor point="LEFT" x="3"/>
+					</Anchors>
+				</Texture>
+				<Texture parentKey="RightBumper">
+					<Size x="28" y="28"/>
+					<TexCoords left="0.5" right="1" top="0" bottom="0.5"/>
+					<Anchors>
+						<Anchor point="RIGHT" x="-3"/>
+					</Anchors>
+				</Texture>
+
+				<Texture file="Interface\AddOns\Narcissus\Art\NavBar\ButtonHighlight" Alpha="1" parentKey="SelectionHighlight" hidden="true">
+					<Size y="16"/>
+				</Texture>
+			</Layer>
+		</Layers>
+		<Scripts>
+			<OnLoad method="OnLoad"/>
+			<OnShow method="OnShow"/>
+		</Scripts>
+	</Frame>
+</Ui>

@@ -8,7 +8,7 @@ local function outSine(t, b, c, d)
 end
 
 local AR = CreateFrame("Frame", "NarciAR");
-local TurningFrame = CreateFrame("Frame", nil, NarciAR);
+local TurningFrame = CreateFrame("Frame", nil, AR);
 NarciAR.Turning = TurningFrame;
 TurningFrame:Hide();
 
@@ -118,15 +118,15 @@ TurningFrame:SetScript("OnHide", Turning_OnHide);
 TurningFrame:SetScript("OnShow", Turning_OnShow);
 
 
---Gamepad
-local GamepadTurning = CreateFrame("Frame", nil, NarciAR);
-NarciAR.GamepadTurning = GamepadTurning;
-GamepadTurning:Hide();
-GamepadTurning.angle = 0;
-GamepadTurning.threshhold = 20;
-GamepadTurning.offset = 0;
+--GamePad
+local GamePadTurning = CreateFrame("Frame", nil, AR);
+NarciAR.GamePadTurning = GamePadTurning;
+GamePadTurning:Hide();
+GamePadTurning.angle = 0;
+GamePadTurning.threshhold = 20;
+GamePadTurning.offset = 0;
 
-local function GamepadTurning_OnUpdate(self, elapsed)
+local function GamePadTurning_OnUpdate(self, elapsed)
     local newOffset = self.newOffset;
     if not newOffset then return; end;
     self.offset = self.offset + (newOffset - self.offset)*10*elapsed;
@@ -138,10 +138,10 @@ local function GamepadTurning_OnUpdate(self, elapsed)
     --print(self.offset);
 end
 
-GamepadTurning:SetScript("OnShow", Turning_OnShow);
-GamepadTurning:SetScript("OnUpdate", GamepadTurning_OnUpdate);
+GamePadTurning:SetScript("OnShow", Turning_OnShow);
+GamePadTurning:SetScript("OnUpdate", GamePadTurning_OnUpdate);
 
-function GamepadTurning:Start(joyStickOffsetX)
+function GamePadTurning:Start(joyStickOffsetX)
     self.newOffset = joyStickOffsetX;
     self:Show();
 end

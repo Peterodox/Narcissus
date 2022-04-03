@@ -1,7 +1,7 @@
 <Ui xsi:schemaLocation="http://www.blizzard.com/wow/ui/..\FrameXML\UI.xsd">
     <Script file="SpeechBalloon.lua"/>
     
-	<Button name="NarciSpeechBalloonControlNodeTemplate" virtual="true" mixin="NarciSpeechBalloonControlNodeMixin" FrameStrata="FULLSCREEN_DIALOG" topLevel="true" hidden="false">
+	<Button name="NarciSpeechBalloonControlNodeTemplate" virtual="true" mixin="NarciSpeechBalloonControlNodeMixin" FrameStrata="FULLSCREEN_DIALOG" topLevel="true" hidden="false" parentArray="Nodes">
 		<Size x="10" y="10"/>
 		<Layers>
 			<Layer level="ARTWORK">
@@ -59,15 +59,6 @@
             <Anchor point="CENTER"/>
         </Anchors>
 		<Layers>
-			<Layer level="BACKGROUND">
-				<Texture parentKey="Background" snapToPixelGrid="false">
-					<Color r="1" g="1" b="1" a="1"/>
-					<Anchors>
-						<Anchor point="TOPLEFT" relativePoint="TOPLEFT" x="4" y="-4"/>
-						<Anchor point="BOTTOMRIGHT" relativePoint="BOTTOMRIGHT" x="-4" y="3"/>
-					</Anchors>
-				</Texture>
-			</Layer>
 			<Layer level="BORDER" textureSubLevel="1" snapToPixelGrid="false">
 				<Texture parentKey="Tail">
 					<Anchors>
@@ -78,8 +69,8 @@
 			<Layer>
 				<FontString inherits="NarciSpeechBalloonFontRegular" parentKey="ShownText" text="" spacing="2" justifyH="CENTER" justifyV="MIDDLE">
 					<Anchors>
-						<Anchor point="TOPLEFT" relativeKey="$parent.Background" relativePoint="TOPLEFT" x="12" y="-12"/>
-                        <Anchor point="BOTTOMRIGHT" relativeKey="$parent.Background" relativePoint="BOTTOMRIGHT" x="-12" y="12"/>
+						<Anchor point="TOPLEFT" relativeKey="$parent" relativePoint="TOPLEFT" x="16" y="-16"/>
+                        <Anchor point="BOTTOMRIGHT" relativeKey="$parent" relativePoint="BOTTOMRIGHT" x="-16" y="16"/>
 					</Anchors>
 				</FontString>
 			</Layer>
@@ -842,7 +833,7 @@
 					</Layer>
 				</Layers>
 			</PlayerModel>
-			<Button parentKey="InteractableArea" registerForClicks="LeftButtonUp, RightButtonUp" Alpha="0">
+			<Button parentKey="ModelOptionButton" registerForClicks="LeftButtonUp, RightButtonUp" Alpha="0">
 				<Anchors>
 					<Anchor point="TOPLEFT" relativeKey="$parent.Model" relativePoint="TOPLEFT"/>
 					<Anchor point="BOTTOMRIGHT" relativeKey="$parent.Model" relativePoint="BOTTOMRIGHT" x="-3"/>
@@ -900,13 +891,13 @@
 			</Layer>
 		</Layers>
 		<Scripts>
-			<OnLoad method="OnLoad"/>
 			<OnEnter method="OnEnter"/>
 			<OnLeave method="OnLeave"/>
 			<OnClick method="OnClick"/>
 			<OnMouseDown method="OnMouseDown"/>
 			<OnMouseUp method="OnMouseUp"/>
 			<OnDoubleClick method="OnDoubleClick"/>
+			<OnHide method="OnHide"/>
 		</Scripts>					
 	</Button>
 
@@ -961,6 +952,7 @@
 					<OnEnable method="OnEnable"/>
 					<OnDisable method="OnDisable"/>
 					<OnEscapePressed method="OnEscapePressed"/>
+					<OnEditFocusLost method="OnEditFocusLost"/>
 				</Scripts>
 			</EditBox>
 
@@ -1026,9 +1018,11 @@
 				</Scripts>
 			</Button>
 
-			<Frame parentKey="Toolbar" clampedToScreen="true" mixin="NarciSpeechBalloonToolbarMixin" FrameStrata="TOOLTIP">
+			<Frame parentKey="Toolbar" clampedToScreen="true" mixin="NarciSpeechBalloonToolbarMixin" FrameStrata="TOOLTIP" hidden="true">
 				<Scripts>
 					<OnLoad method="OnLoad"/>
+					<OnShow method="OnShow"/>
+					<OnHide method="OnHide"/>
 				</Scripts>
 			</Frame>
 
@@ -1084,68 +1078,6 @@
 						</Texture>
 					</Layer>
 				</Layers>
-				<Frames>
-					<Button parentKey="ConfirmButton" mixin="NarciTextOverlayGenericEditBoxConfirmButtonMixin" FrameStrata="TOOLTIP" frameLevel="10" ignoreParentScale="true" clampedToScreen="true" hidden="true">
-						<Size x="40" y="40"/>
-						<Anchors>
-							<Anchor point="BOTTOM" relativeKey="$parent" relativePoint="TOP" x="0" y="0"/>
-						</Anchors>
-						<!--HitRectInsets>
-							<AbsInset left="4" right="4" top="4" bottom="4"/>
-						</HitRectInsets-->
-						<Layers>
-							<Layer level="BACKGROUND">
-								<Texture parentKey="Texture" snapToPixelGrid="false">
-									<TexCoords left="0" right="0.5" top="0" bottom="0.5"/>
-								</Texture>
-							</Layer>
-							<Layer level="ARTWORK">
-								<Texture parentKey="Highlight" hidden="true" Alpha="0" snapToPixelGrid="false">
-									<TexCoords left="0.5" right="1" top="0" bottom="0.5"/>
-								</Texture>
-							</Layer>
-							<Layer level="OVERLAY">
-								<Texture parentKey="Icon" snapToPixelGrid="false">
-									<Size x="40" y="40"/>
-									<TexCoords left="0.5" right="1" top="0.5" bottom="1"/>
-									<Anchors>
-										<Anchor point="CENTER" relativeKey="$parent" relativePoint="CENTER" x="0" y="0"/>
-									</Anchors>
-									<Animations>
-										<AnimationGroup parentKey="rotateClockwise">
-											<Rotation degrees="20" duration="0" order="1"/>
-											<!--Alpha fromAlpha="0" toAlpha="0" duration="0" order="1"/-->
-											<Rotation degrees="-20" duration="0.15" order="2" smoothing="IN_OUT"/>
-											<!--Alpha fromAlpha="0" toAlpha="1" duration="0.2" order="2"/-->
-										</AnimationGroup>
-										<AnimationGroup parentKey="rotateCounterClockwise">
-											<Rotation degrees="-20" duration="0" order="1"/>
-											<!--Alpha fromAlpha="0" toAlpha="0" duration="0" order="1"/-->
-											<Rotation degrees="20" duration="0.15" order="2" smoothing="IN_OUT"/>
-											<!--Alpha fromAlpha="0" toAlpha="1" duration="0.2" order="2"/-->
-										</AnimationGroup>
-									</Animations>
-								</Texture>
-							</Layer>
-						</Layers>
-
-						<Animations>
-							<AnimationGroup parentKey="animPushed">
-								<Scale scaleX="0.8" scaleY="0.8" duration="0.12" order="1" smoothing="IN_OUT"/>
-								<Translation duration="20" order="2" parentKey="hold"/>
-								<Scale scaleX="1.25" scaleY="1.25" duration="0.15" order="3" smoothing="IN_OUT"/>
-							</AnimationGroup>
-						</Animations>
-						<Scripts>
-							<OnLoad method="OnLoad"/>
-							<OnMouseDown method="OnMouseDown"/>
-							<OnMouseUp method="OnMouseUp"/>
-							<OnEnter method="OnEnter"/>
-							<OnLeave method="OnLeave"/>
-							<OnHide method="OnHide"/>
-						</Scripts>
-					</Button>
-				</Frames>
 				<Scripts>
 					<OnEscapePressed method="OnEscapePressed"/>
 					<OnEditFocusLost method="OnEditFocusLost"/>
@@ -1238,7 +1170,7 @@
 		</Scripts>
 	</Frame>
 
-	<Frame name="Narci_TextOverlay" frameLevel="60" parent="Narci_ModelSettings">
+	<Frame name="Narci_TextOverlay" frameLevel="60" parent="Narci_ModelSettings" mixin="NarciTextOverlayFrameMixin" hidden="true">
 		<Size x="223" y="31"/>
 		<Anchors>
 			<Anchor point="BOTTOMLEFT" relativeTo="Narci_ActorPanel" relativePoint="TOPLEFT" x="0" y="-1"/>
@@ -1290,31 +1222,10 @@
 					</Layer>
 				</Layers>
 			</Button>
-			<Button inherits="NarciNewTextOverlayButtonTemplate" parentKey="Button5" id="5">
-				<Anchors>
-					<Anchor point="RIGHT" relativeKey="$parent" relativePoint="RIGHT" x="-5" y="0"/>
-				</Anchors>
-			</Button>
-			<Button inherits="NarciNewTextOverlayButtonTemplate" parentKey="Button4" id="4">
-				<Anchors>
-					<Anchor point="RIGHT" relativeKey="$parent.Button5" relativePoint="LEFT" x="0" y="0"/>
-				</Anchors>
-			</Button>
-			<Button inherits="NarciNewTextOverlayButtonTemplate" parentKey="Button3" id="3">
-				<Anchors>
-					<Anchor point="RIGHT" relativeKey="$parent.Button4" relativePoint="LEFT" x="0" y="0"/>
-				</Anchors>
-			</Button>
-			<Button inherits="NarciNewTextOverlayButtonTemplate" parentKey="Button2" id="2">
-				<Anchors>
-					<Anchor point="RIGHT" relativeKey="$parent.Button3" relativePoint="LEFT" x="0" y="0"/>
-				</Anchors>
-			</Button>
-			<Button inherits="NarciNewTextOverlayButtonTemplate" parentKey="Button2" id="1">
-				<Anchors>
-					<Anchor point="RIGHT" relativeKey="$parent.Button2" relativePoint="LEFT" x="0" y="0"/>
-				</Anchors>
-			</Button>
 		</Frames>
+		<Scripts>
+			<OnLoad method="OnLoad"/>
+			<OnShow method="OnShow"/>
+		</Scripts>
 	</Frame>
 </Ui>

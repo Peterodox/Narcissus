@@ -1,6 +1,7 @@
 <Ui xsi:schemaLocation="http://www.blizzard.com/wow/ui/..\FrameXML\UI.xsd">
 	<Script file="TitleManager.lua"/>
-    <Button name="NarciTitleOptionTemplate" registerForClicks="LeftButtonUp, RightButtonUp" virtual="true" mixin="NarciTitleOptionMixin">
+
+    <Button name="NarciTitleOptionTemplate" registerForClicks="LeftButtonUp, RightButtonUp" virtual="true" mixin="NarciTitleOptionMixin" useParentLevel="true">
 		<Size>
 			<AbsDimension y="20"/>
 		</Size>
@@ -83,7 +84,7 @@
     </Button>
 
     <Frame name="Narci_TitleFrame" parent="Narci_PlayerInfoFrame" frameLevel="18" hidden="true">
-        <Size x="196" y="320"/>
+        <Size x="196" y="360"/>
         <Anchors>
             <Anchor point="TOP" relativePoint="BOTTOM" y="-8"/>
         </Anchors>
@@ -125,7 +126,7 @@
                 </Layers>
             </Frame>
 
-            <Frame name="Narci_TitleManager_TitleTooltip" parentKey="TooltipFrame" frameLevel="30" Alpha="0" mixin="NarciTitleTooltipMixin">
+            <Frame parentKey="TooltipFrame" frameLevel="30" Alpha="0" mixin="NarciTitleTooltipMixin">
                 <Size x="240" y="60"/>
                 <HitRectInsets>
                     <AbsInset left="-4" right="-4" top="-4" bottom="-4"/>
@@ -194,10 +195,10 @@
                 </Scripts>
             </Frame>
 
-            <Frame name="Narci_TitleManager" hidden="false" clipChildren="true" frameLevel="22"> <!--/run Narci_TitleManager:SetClipsChildren(false)-->
+            <Frame parentKey="TitleList" hidden="false" clipChildren="true" frameLevel="22">
                 <Size x="380" y="0"/>   <!--0-->
                 <Anchors>
-                    <Anchor point="TOPLEFT" relativeKey="$parent" relativePoint="TOP" x="-98" y="0"/><!--half of ListScrollFrame's width-->
+                    <Anchor point="TOPLEFT" relativeKey="$parent" relativePoint="TOP" x="-98" y="0"/>
                 </Anchors>
                 <Layers>
                     <Layer level="BACKGROUND">
@@ -294,6 +295,19 @@
                         </Anchors>
                         <ScrollChild>
                             <Frame parentKey="ScrollChild">
+                                <Layers>
+                                    <Layer level="OVERLAY" textureSubLevel="6">
+                                        <Texture parentKey="TitleFlash" file="Interface\AddOns\Narcissus\Art\EquipmentOption\SelectionHighlight" alphaMode="ADD" alpha="0.4" hidden="true">
+                                            <TexCoords left="0" right="1" top="0.25" bottom="0.75"/>
+                                            <Size x="96" y="20"/>
+                                            <Animations>
+                                                <AnimationGroup parentKey="FlyBy">
+                                                    <Translation offsetX="292" duration="0.25" order="1" smoothing="IN_OUT"/>
+                                                </AnimationGroup>
+                                            </Animations>
+                                        </Texture>
+                                    </Layer>
+                                </Layers>
                             </Frame>
                         </ScrollChild>
                         <Layers>
@@ -317,41 +331,9 @@
                             </Slider>
                         </Frames>
                         <Scripts>
-                            <OnLoad function="Narci_TitleManager_ScrollFrame_OnLoad"/>
+                            <OnLoad function="Narci_TitleList_ScrollFrame_OnLoad"/>
                         </Scripts>
                     </ScrollFrame>
-
-                    <Button FrameLevel="2">
-                        <Anchors>
-                            <Anchor point="TOPLEFT" relativeKey="$parent" relativePoint="TOPLEFT" x="180" y="0"/>
-                            <Anchor point="BOTTOMRIGHT" relativeKey="$parent" relativePoint="BOTTOMRIGHT" x="0" y="1"/>
-                        </Anchors>
-                        <Layers>
-                            <Layer level="BACKGROUND">
-                                <Texture setAllPoints="true">
-                                    <Color a="1" r="1" g="1" b="1"/>
-                                    <Gradient orientation="HORIZONTAL">
-                                        <MinColor a="1" r="0" g="0" b="0"/>
-                                        <MaxColor a="0" r="0" g="0" b="0"/>
-                                    </Gradient>
-                                </Texture>
-                            </Layer>
-                        </Layers>
-                        <Scripts>
-                            <OnEnter/>
-                        </Scripts>
-                    </Button>
-                    <Frame FrameLevel="40">
-                        <Size x="196" y="4"/>
-                        <Anchors>
-                            <Anchor point="BOTTOMLEFT" relativeKey="$parent" relativePoint="BOTTOMLEFT" x="0" y="0"/>
-                        </Anchors>
-                        <Layers>
-                            <Layer level="OVERLAY" textureSubLevel="4">
-                                <!--Left for overlapping ScrollChild-->
-                            </Layer>
-                        </Layers>
-                    </Frame>
                 </Frames>
             </Frame>
         </Frames>

@@ -4,7 +4,8 @@ local NarciThemeUtil = NarciThemeUtil;
 local floor = math.floor;
 local max = math.max;
 
-local TitleTooltip;
+local TitleTooltip, TitleList, TitleButtons, TitleFlash;
+local NUM_TITLE_BUTTONS = 17;
 
 -----------------------------
 ------Build Title Table------
@@ -158,8 +159,8 @@ end
 
 local function CreateTitleOptions(self, buttonTemplate, initialOffsetX, initialOffsetY, initialPoint, initialRelative, offsetX, offsetY, point, relativePoint)
 	local ScrollChild = self.ScrollChild;
-	local button, numButtons;
-	local buttons = {};
+	local button;
+	TitleButtons = {};
 	initialPoint = initialPoint or "TOPLEFT";
 	initialRelative = initialRelative or "TOPLEFT";
 	point = point or "TOPLEFT";
@@ -168,7 +169,9 @@ local function CreateTitleOptions(self, buttonTemplate, initialOffsetX, initialO
 	offsetY = offsetY or 0;
 
 	local buttonHeight = 20;
-	local numButtons = math.ceil(self:GetHeight() / buttonHeight) + 1;
+	local numButtons = NUM_TITLE_BUTTONS;
+	self:SetHeight(buttonHeight * (numButtons - 1));
+
 	local buttonName = "NarciTitleOptionButton";
 
 	for i = 1, numButtons do
@@ -182,7 +185,7 @@ local function CreateTitleOptions(self, buttonTemplate, initialOffsetX, initialO
 				button.BackgroundColor:SetGradient("HORIZONTAL", 0.1, 0.1 ,0.1, 0.3, 0.3, 0.3);
 			end
 		end
-		tinsert(buttons, button);
+		tinsert(TitleButtons, button);
 	end
 
 	self.buttonHeight = floor(buttonHeight + 0.5) - offsetY;
@@ -191,12 +194,11 @@ local function CreateTitleOptions(self, buttonTemplate, initialOffsetX, initialO
 	ScrollChild:SetHeight(numButtons * buttonHeight);
 	self:SetVerticalScroll(0);
 	self:UpdateScrollChildRect();
+	self.buttons = TitleButtons;
 
-	self.buttons = buttons;
 	local scrollBar = self.scrollBar;
 	scrollBar:SetMinMaxValues(0, numButtons * buttonHeight);
 	scrollBar.buttonHeight = buttonHeight;
-	--scrollBar:SetStepsPerPage(numButtons - 2);
 	scrollBar:SetValue(0);
 
 	ScrollChild:SetScript("OnShow", function(ScrollChild)
@@ -204,9 +206,9 @@ local function CreateTitleOptions(self, buttonTemplate, initialOffsetX, initialO
 		if index ~= ScrollChild.index then
 			ScrollChild.index = index;
 			local r, g, b = NarciThemeUtil:GetColor()
-			for i = 1, #buttons do
-				buttons[i].HighlightColor:SetColorTexture(r, g, b);
-				buttons[i].SelectedColor:SetColorTexture(r, g, b);
+			for i = 1, numButtons do
+				TitleButtons[i].HighlightColor:SetColorTexture(r, g, b);
+				TitleButtons[i].SelectedColor:SetColorTexture(r, g, b);
 			end
 		end
 	end);
@@ -247,7 +249,7 @@ end
 
 --Derivative from Blizzard: HybridScrollFrame_Update
 local function TitileManager_UpdateList()
-	local scrollFrame = Narci_TitleManager.ScrollFrame;
+	local scrollFrame = TitleList.ScrollFrame;
 	local List = scrollFrame.updatedList;
 	local offset = HybridScrollFrame_GetOffset(scrollFrame);
 	local buttons = scrollFrame.buttons;
@@ -308,7 +310,7 @@ local sortedList = {};
 local CategoryNumDetails = {};
 
 local function SortTitleList(method)
-	local scrollFrame = Narci_TitleManager.ScrollFrame;
+	local scrollFrame = TitleList.ScrollFrame;
 	sortedList, CategoryNumDetails = BuildTitleList(method);
 	scrollFrame.updatedList = sortedList;
 	TitileManager_UpdateList();
@@ -320,9 +322,9 @@ local function CreateSliderTextureAndLabel()
 		return;
 	end
 	local numTotal = CategoryNumDetails.sum or 1;
-	local slider = Narci_TitleManager.ScrollFrame.scrollBar;
+	local slider = TitleList.ScrollFrame.scrollBar;
 	local ScrollChildHeight = numTotal * 20 --Title Button Height;
-	local baseHeight = Narci_TitleManager.ScrollFrame:GetHeight() or 1;
+	local baseHeight = TitleList.ScrollFrame:GetHeight() or 1;
 	local offsetX = 2;
 	local width = 2;
 	local minHeight = 8;
@@ -338,7 +340,7 @@ local function CreateSliderTextureAndLabel()
 	local num = CategoryNumDetails[1][1] or 0;
 	local lastNum = 0;
 
-	local FilterButton = Narci_TitleManager.FilterButton;
+	local FilterButton = TitleList.FilterButton;
 	local numRare = CategoryNumDetails.rare or 0;
 	FilterButton.Label:SetText(TOTAL.." "..(numTotal-1))
 	if numRare > 0 then
@@ -402,7 +404,7 @@ local function CreateSliderTextureAndLabel()
 end
 
 local function HideSliderLabel()
-	local slider = Narci_TitleManager.ScrollFrame.scrollBar;
+	local slider = TitleList.ScrollFrame.scrollBar;
 	if not(slider.Texs and slider.buttons) then
 		return;
 	end
@@ -427,10 +429,21 @@ local function ScrollFrame_PositionFunc(endValue, delta, scrollBar, isTop, isBot
 end
 
 local function ScrollFrame_OnScrollFinishedFunc()
-	TitleTooltip.isPaused = false;
+	TitleTooltip:OnScrollStopped();
 end
 
-function Narci_TitleManager_ScrollFrame_OnLoad(self)
+function Narci_TitleList_ScrollFrame_OnLoad(self)
+	TitleList = self:GetParent();
+	TitleFlash = self.ScrollChild.TitleFlash;
+
+	function TitleFlash:FlashOnButton(f)
+		self:ClearAllPoints();
+		self:SetPoint("RIGHT", f, "LEFT", 0, 0);
+		self.FlyBy:Stop();
+		self.FlyBy:Play();
+		self:Show();
+	end
+
     self:EnableMouse(true);
     CreateTitleOptions(self, "NarciTitleOptionTemplate", 0, 0, nil, nil, 0, 0);
 	NarciAPI_SmoothScroll_Initialization(self, nil, TitileManager_UpdateList, 3, 0.2, nil, ScrollFrame_PositionFunc, ScrollFrame_OnScrollFinishedFunc);
@@ -466,6 +479,10 @@ function Narci_TitleManager_ScrollFrame_OnLoad(self)
 	end)
 
 	scrollBar:SetObeyStepOnDrag(false);
+
+
+	self:SetScript("OnLoad", nil);
+	Narci_TitleList_ScrollFrame_OnLoad = nil;
 end
 
 
@@ -525,7 +542,7 @@ local function ShowTitleMangerTooltip(self, elapsed)
 	if self.counter > 0.8 then
 		local tooltipFrame = self.Tooltip;
 		local titleFrame = Narci_PlayerInfoFrame.Miscellaneous;
-		if self.IsOn then
+		if self.isOn then
 			tooltipFrame:SetText(L["Close Title Manager"]);
 		else
 			tooltipFrame:SetText(L["Open Title Manager"]);
@@ -548,13 +565,15 @@ function NarciTitleOptionMixin:OnLoad()
 	self.Star:SetTexture("Interface/AddOns/Narcissus/Art/Tooltip/Hexagram", nil, nil, "TRILINEAR");
 end
 
-function NarciTitleOptionMixin:OnClick(button, down, isGamepad)
-	if self.titleID and not isGamepad then
+function NarciTitleOptionMixin:OnClick(button, down)
+	if self.titleID then
 		PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_OFF);
 		SetCurrentTitle(self.titleID);
-		local scrollFrame = Narci_TitleManager.ScrollFrame;
+		local scrollFrame = TitleList.ScrollFrame;
 		scrollFrame.updatedList.CurrentTitle = self.titleID;
 		TitileManager_UpdateList();
+
+		TitleFlash:FlashOnButton(self);
 	end
 end
 
@@ -563,11 +582,10 @@ function NarciTitleOptionMixin:OnEnter()
 	self.Name:SetTextColor(1, 1, 1, 1);
 
 	local id = self.titleID;
-	--print(id)
-	--print(TitlesDB[id][3])
+	TitleTooltip.parentButton = self;
 
-	if TitlesDB[id] and not TitleTooltip.isPaused then
-		if not id or id == -1 then
+	if not TitleTooltip.isPaused then
+		if not id or id == -1 or not TitlesDB[id] then
 			TitleTooltip:FadeOut();
 		else
 			TitleTooltip:SetSource(self, TitlesDB[id][3]);
@@ -578,6 +596,8 @@ end
 function NarciTitleOptionMixin:OnLeave()
 	self.Name:SetTextColor(0.8, 0.8, 0.8, 1);
 	self.HighlightColor:Hide();
+	TitleTooltip:FadeOut();
+	TitleTooltip.parentButton = nil;
 end
 
 function NarciTitleOptionMixin:OnHide()
@@ -585,11 +605,11 @@ function NarciTitleOptionMixin:OnHide()
 end
 
 function NarciTitleOptionMixin:OnMouseDown(button, isGamepad)
-	--Narci_LinearScrollUpdater:Start(Narci_TitleManager.ScrollFrame, 80, true);
+
 end
 
 function NarciTitleOptionMixin:OnMouseUp(button, isGamepad)
-	--Narci_LinearScrollUpdater:Stop();
+
 	TitleTooltip.isPaused = false;
 end
 
@@ -607,7 +627,7 @@ end
 
 function NarciTitleCategoryButtonMixin:OnClick()
 	if self.value then
-		local scrollFrame = Narci_TitleManager.ScrollFrame;
+		local scrollFrame = TitleList.ScrollFrame;
 		local top = scrollFrame:GetTop();
 		local bottom = self:GetTop();
 		local offset = top - bottom;
@@ -637,6 +657,13 @@ function NarciTitleTooltipMixin:PauseAndHide()
 	self.isPaused = true;
 end
 
+function NarciTitleTooltipMixin:OnScrollStopped()
+	self.isPaused = false;
+	if self.parentButton then
+		self.parentButton:OnEnter();
+	end
+end
+
 function NarciTitleTooltipMixin:ShowSource()
 	local _, name, description, icon;
 	if self.achievementID then
@@ -663,7 +690,10 @@ function NarciTitleTooltipMixin:ShowSource()
 end
 
 function NarciTitleTooltipMixin:SetSource(button, achievementID)
-	if not achievementID then return end;
+	if not achievementID then
+		self:FadeOut();
+		return
+	end
 
 	self.achievementID = achievementID;
 	if self:ShowSource() then
@@ -707,7 +737,7 @@ function NarciTitleFilterButtonMixin:OnClick()
 	NarcissusDB.IsSortedByCategory = not NarcissusDB.IsSortedByCategory;
 	UpdateFilter(self);
 	HideSliderLabel();
-	Narci_TitleManager.ScrollFrame.scrollBar:SetValue(0);
+	TitleList.ScrollFrame.scrollBar:SetValue(0);
 	TitleTooltip:FadeOut();
 end
 
@@ -715,7 +745,7 @@ end
 NarciTitleManagerSwitchMixin = CreateFromMixins(ExpansionTransitionBackdropTemplateMixin);
 
 function NarciTitleManagerSwitchMixin:OnLoad()
-	self.IsOn = false;
+	self.isOn = false;
 	self.counter = 0;
 
 	local backdropInfo = {
@@ -729,12 +759,12 @@ function NarciTitleManagerSwitchMixin:OnLoad()
 end
 
 function NarciTitleManagerSwitchMixin:Close()
-	if self.IsOn then
-		self.IsOn = false;
-		TitleTooltip.isPaused = true;
+	if self.isOn then
+		self.isOn = false;
 		animList:Collapse()
+		TitleTooltip.isPaused = true;
+		TitleTooltip:Hide();
 		self.Tooltip:SetText(L["Open Title Manager"]);
-		TitleTooltip:FadeOut();
 		self:SetScript("OnUpdate", nil);
 		self.counter = 0;
 		self:UnregisterEvent("GLOBAL_MOUSE_DOWN");
@@ -742,8 +772,8 @@ function NarciTitleManagerSwitchMixin:Close()
 end
 
 function NarciTitleManagerSwitchMixin:OnClick()
-	self.IsOn = not self.IsOn;
-	if self.IsOn then
+	self.isOn = not self.isOn;
+	if self.isOn then
 		TitleTooltip.isPaused = false;
 		Narci_TitleFrame:Show()
 		animList:Expand();
@@ -777,23 +807,30 @@ function NarciTitleManagerSwitchMixin:OnLeave()
 end
 
 function NarciTitleManagerSwitchMixin:OnShow()
-	local manager = Narci_TitleManager;
-	manager:SetHeight(0.1);
+	TitleList:SetHeight(0.1);
+	TitleList.ScrollFrame.scrollBar:SetValue(40);   --workaround
+	TitleList.ScrollFrame.scrollBar:SetValue(0);
 	animList:Hide();
 	Narci_TitleFrame.BlackScreen:SetAlpha(0);
-	manager.ScrollFrame.scrollBar:SetValue(40);   --workaround
-	manager.ScrollFrame.scrollBar:SetValue(0);
 end
 
 function NarciTitleManagerSwitchMixin:OnHide()
 	self:SetAlpha(0);
 	self.counter = 0;
 	self:UnregisterEvent("GLOBAL_MOUSE_DOWN");
+	if self.isOn then
+		self.isOn = nil;
+		self.Tooltip:SetText(L["Open Title Manager"]);
+		TitleTooltip:Hide();
+		animList.TitleListFrame:SetHeight(0.1);
+		animList.BlackScreen:SetAlpha(0);
+		Narci_TitleFrame:Hide();
+	end
 end
 
 
 function NarciTitleManagerSwitchMixin:IsInBound()
-	return (Narci_TitleManager:IsMouseOver() or self:IsMouseOver() or TitleTooltip:IsMouseOver());
+	return (TitleList:IsMouseOver(0, 0, -72, 0) or self:IsMouseOver());
 end
 
 function NarciTitleManagerSwitchMixin:OnEvent(event)
@@ -807,9 +844,9 @@ LoadSettings:RegisterEvent("PLAYER_ENTERING_WORLD");
 LoadSettings:SetScript("OnEvent",function(self,event,...)
 	self:UnregisterEvent("PLAYER_ENTERING_WORLD");
 	animList.BlackScreen = Narci_TitleFrame.BlackScreen;
-	animList.TitleListFrame = Narci_TitleManager;
+	animList.TitleListFrame = TitleList;
 	C_Timer.After(2, function()
-		UpdateFilter(Narci_TitleManager.FilterButton);
+		UpdateFilter(TitleList.FilterButton);
 		CreateSliderTextureAndLabel();
 		HideSliderLabel();
 	end)

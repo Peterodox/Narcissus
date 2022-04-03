@@ -95,9 +95,9 @@ local function SetTutorialFrame(self, msg)
 	end
 end
 
-local isScaleLinked = false;
-local IsLightLinked = true;
-local GlobalCameraPitch = pi/2;
+local LINK_SCALE = false;
+local LINK_LIGHT = true;
+local GLOBAL_CAMERA_PITCH = pi/2;
 
 local ModelSettings = {
 	["Generic"] = { panMaxLeft = -4, panMaxRight = 3, panMaxTop = 1.2, panMaxBottom = -1.6, panValue = 40 },
@@ -229,9 +229,7 @@ local TranslateValue_Female = {
 TranslateValue_Female[36] = TranslateValue_Female[2];
 
 local function ReAssignRaceID(raceID, custom)
-	if raceID == 28 then		--Hightmountain
-		raceID = 6;
-	elseif raceID == 30 then	--Lightforged
+	if raceID == 30 then	--Lightforged
 		raceID = 11;
 	elseif raceID == 36 then	--Mag'har Orc
 		--raceID = 2;
@@ -244,7 +242,7 @@ local function ReAssignRaceID(raceID, custom)
 		end
 	elseif raceID == 25 or raceID == 26 then --Pandaren A|H
 		raceID = 24;
-	elseif raceID == 28 then
+	elseif raceID == 28 then	--Hightmountain
 		raceID = 6;
 	elseif raceID == 29 then
 		raceID = 10;
@@ -507,7 +505,7 @@ function LightControl:UpdateModel()
 	if true then return end;
 	--]]
 	
-	if IsLightLinked then
+	if LINK_LIGHT then
 		for i = 1, #ModelFrames do
 			ModelFrames[i]:SetLight(true, false, rX, rY, rZ, ambIntensity, ambR, ambG, ambB, dirIntensity, dirR, dirG, dirB);
 		end
@@ -949,7 +947,7 @@ local function HideAllModels()
 end
 
 PMAO:SetScript("OnShow", function(self)
-	GlobalCameraPitch = pi/2;
+	GLOBAL_CAMERA_PITCH = pi/2;
 	self.Facing = PrimaryPlayerModel:GetFacing();
 	local _;
 	_, self.PosY, self.PosZ = PrimaryPlayerModel:GetPosition();
@@ -1007,7 +1005,7 @@ local function UpdateGlobalCameraPitch(pitch)
 			UpdateCameraPosition(model);
 		end
 	end
-	GlobalCameraPitch = pitch;
+	GLOBAL_CAMERA_PITCH = pitch;
 end
 
 local function Smooth_Zoom_Update(self, elapsed)
@@ -1015,7 +1013,7 @@ local function Smooth_Zoom_Update(self, elapsed)
 	local EndPoint = self.EndPoint;
 	local StartPoint = self.StartPoint;
 	local Value = outSine(self.t, StartPoint, EndPoint - StartPoint, self.duration) --0.11 NE
-	if isScaleLinked then
+	if LINK_SCALE then
 		for i = 1, #ModelFrames do
 			--ModelFrames[i]:SetCameraDistance(Value);
 			ModelFrames[i].cameraDistance = Value;
@@ -1333,8 +1331,9 @@ function Narci_LayerButton_OnLoad(self)
 		--3D Model Visibility
 		self.Label:SetText(L["3D Model"]);
 		self:SetScript("OnClick", PlayerModelLayerButton_OnClick);
-		self:SetScript("OnShow", function(self)
-			HighlightButton(self, true);
+		self:SetScript("OnShow", function(f)
+			HighlightButton(f, true);
+			f.isOn = Narci_ModelContainer:IsShown();
 		end)
 		self.tooltip = L["Toggle 3D Model"];
 
@@ -2313,7 +2312,7 @@ local function InitializeModelLight(newModel)
 	local model = ModelFrames[activeModelIndex];
 	local r, g, b = HSV2RGB(xHUE, xSAT, xBRT);
 	local _;
-	if IsLightLinked then
+	if LINK_LIGHT then
 		newModel:SetLight(model:GetLight());
 		--[[
 		if LightControl.ambientMode then
@@ -2332,7 +2331,7 @@ local function SetModelLightColor()
 	local model = ModelFrames[activeModelIndex];
 	local r, g, b = HSV2RGB(xHUE, xSAT, xBRT);
 	local _;
-	if IsLightLinked then
+	if LINK_LIGHT then
 		if LightControl.ambientMode then
 			_, _, XdirX, XdirY, XdirZ, _, _, _, _, _, XdirR, XdirG, XdirB = model:GetLight();
 			for i = 1, #ModelFrames do
@@ -2773,7 +2772,7 @@ end
 
 function NarciGenericModelMixin:ResetCameraPosition()
 	local d = self:GetCameraDistance();
-	local radian = GlobalCameraPitch;
+	local radian = GLOBAL_CAMERA_PITCH;
 	self:MakeCurrentCameraCustom();
 	self:SetCameraPosition(d*sin(radian), 0, d*cos(radian) + 0.8);
 	self:SetCameraTarget(0, 0, 0.8);
@@ -2851,7 +2850,7 @@ function NarciGenericModelMixin:OnUpdate()
 			self:SetPosition(self.posX, posY, posZ);
 			--print("Y: "..posY.." Z: "..posZ.." Dis: "..self.cameraDistance)
 		else
-			if isScaleLinked then
+			if LINK_SCALE then
 				for i = 1, #ModelFrames do
 					--ModelFrames[i]:SetCameraDistance(Value);
 					ModelFrames[i].cameraDistance = self.cameraDistance - diff * 0.01;
@@ -3477,12 +3476,14 @@ function Narci_ExtraPanel_OnLoad(self)
 	self.buttons = buttons;
 end
 
-function Narci_ModelIndexButton_RepositionFrame_OnLoad(self)
+NarciIndexRepositionFrameMixin = {};
+
+function NarciIndexRepositionFrameMixin:OnLoad()
 	self.orderTable = {};
-	self.ref = self:GetParent().ReferenceFrame;	
+	self.ref = self:GetParent().ReferenceFrame;
 end
 
-function Narci_ModelIndexButton_RepositionFrame_OnShow(self)
+function NarciIndexRepositionFrameMixin:OnShow()
 	self.x0 = self:GetParent().ReferenceFrame:GetLeft();
 	self.order = nil;
 	self.xmin = self.x0 + 0.1 + 12;
@@ -3490,7 +3491,7 @@ function Narci_ModelIndexButton_RepositionFrame_OnShow(self)
 	self.scale = self:GetEffectiveScale() or 1;
 end
 
-function Narci_ModelIndexButton_RepositionFrame_OnUpdate(self)
+function NarciIndexRepositionFrameMixin:OnUpdate(elapsed)
 	--drag an index button to replace model's framelevel--
 	local xpos, _ = GetCursorPosition();
 	xpos = xpos / self.scale;
@@ -3521,10 +3522,11 @@ function Narci_ModelIndexButton_RepositionFrame_OnUpdate(self)
 	button:SetPoint("CENTER", self.ref, "LEFT", ofsx, 0);
 end
 
-function Narci_ModelIndexButton_RepositionFrame_OnHide(self)
+function NarciIndexRepositionFrameMixin:OnHide()
 	IndexButtonPosition = CopyTable(self.orderTable) or IndexButtonPosition;
 	AssignOrder(IndexButtonPosition);
 end
+
 
 local function RemoveActor(actorIndex)
 	local ID, model;
@@ -3721,7 +3723,7 @@ end
 
 function Narci_LinkLightButton_OnClick(self)
 	self.isOn = not self.isOn;
-	IsLightLinked = self.isOn;
+	LINK_LIGHT = self.isOn;
 	HighlightButton(self, self.isOn);
 	self.ClipFrame.LinkButton:Click();
 	--self.LinkButton.FadeOut:Play();
@@ -3729,7 +3731,7 @@ end
 
 function Narci_LinkScaleButton_OnClick(self)
 	self.isOn = not self.isOn;
-	isScaleLinked = self.isOn;
+	LINK_SCALE = self.isOn;
 	HighlightButton(self, self.isOn);
 	self.ClipFrame.LinkButton:Click();
 	--self.LinkButton.FadeOut:Play();
@@ -3913,66 +3915,49 @@ end
 
 ---------------------------------------------------------------------------
 --Expand Animation
-local PanelAnim = CreateFrame("Frame");		--3D UI
-PanelAnim:Hide()
-PanelAnim.SequenceInfo = Narci.AnimSequenceInfo.ActorPanel;
-PanelAnim.Pending = false;
-PanelAnim.last = 0
-PanelAnim.TotalTime = 0;
-PanelAnim.Index = 1;
-PanelAnim.IsPlaying = false;
 
-local function AnimationContainer_OnHide(self)
-	self.TotalTime = 0;
-	self.last = 0;
-	if self.Index <= 0 then
-		self.Index = 0;
-	end
-end
+local FRAME_GAP = 0.0166;	--60FPS
 
-local FrameGap = 1/60;
-local PlayAnimationSequence = NarciAPI_PlayAnimationSequence;
+local AnimationInfo = {
+	frames = 26,
+	cX = 0.4296875,
+	cY = 0.056640625,
+	colum = 2,
+	row = 17,
+};
 
 local function AnimationSequence_OnUpdate(self, elapsed)
-	if self.Pending then
-		return;
-	end
+	self.t = self.t + elapsed;
+	if self.t >= FRAME_GAP then
+		self:SetAlpha(1);
+		self.i = self.i + math.floor(self.t / FRAME_GAP);
+		self.t = 0;
 
-	self.last = self.last + elapsed;
-	self.TotalTime = self.TotalTime + elapsed;
-	
-	if self.last >= FrameGap then
-		self.last = 0;
-		self.Index = self.Index + 1;
-		if self.Index == 20 then
-			FadeIn(ActorPanel.ExtraPanel, 0.0833, 1);
-		elseif self.Index == 26 then
-			ActorPanel.ExtraPanel.buttons[1]:SetAlpha(1);
+		local alpha = 0;
+
+		if self.i >= AnimationInfo.frames then
+			self.i = AnimationInfo.frames;
+			self.isPlaying = nil;
+			alpha = 1;
+		elseif self.i >= 20 then
+			alpha = (self.i - 20) / 6;
 		end
-		if not PlayAnimationSequence(self.Index, self.SequenceInfo, self.Target) then
-			self:Hide()
-			self.IsPlaying = false;
-			local Animation = ActorPanel.Animation;
-			return
+
+		self:SetSubFrameAlpha(alpha);
+
+		local col = math.ceil(self.i / AnimationInfo.row);
+		local row =  self.i + (1 - col) * AnimationInfo.row;
+
+		local left, right = (col -1) * AnimationInfo.cX, col * AnimationInfo.cX;
+		local top, bottom = (row -1) * AnimationInfo.cY, row * AnimationInfo.cY;
+		self.SequenceTexture:SetTexCoord(left, right, top, bottom);
+
+		if not self.isPlaying then
+			self:StopAnimation();
 		end
 	end
 end
 
-PanelAnim:SetScript("OnUpdate", AnimationSequence_OnUpdate)
-PanelAnim:SetScript("OnHide", AnimationContainer_OnHide)
-PanelAnim:SetScript("OnShow", function(self)
-	self.Index = 0;
-	self.IsPlaying = true;
-	self.Target:SetAlpha(1);
-end)
-
-function Narci_ActorIndexPanel_OnLoad(self)
-	PanelAnim.Target = self.Sequence;
-	self:SetScript("OnHide", function(self)
-		self.Sequence:SetAlpha(0);
-		self.Sequence:SetTexCoord(0, 0.4296875, 0, 0.056640625);
-	end)
-end
 
 local ExpandAnim =  CreateFrame("Frame");		--name frame moves to the right
 ExpandAnim:Hide();
@@ -3995,19 +3980,39 @@ ExpandAnim:SetScript("OnUpdate", function(self, elapsed)
 end)
 
 
+NarciPhotoModeExtraPanelMixin = {};
+
+function NarciPhotoModeExtraPanelMixin:StopAnimation()
+	self:SetScript("OnUpdate", nil);
+end
+
+function NarciPhotoModeExtraPanelMixin:ShowFrame()
+	self.i = 0;
+	self.t = FRAME_GAP;
+	self.isPlaying = true;
+	self:SetScript("OnUpdate", AnimationSequence_OnUpdate);
+	self:Show();
+	self:SetAlpha(0);
+	self:SetSubFrameAlpha(0);
+end
+
+function NarciPhotoModeExtraPanelMixin:SetSubFrameAlpha(alpha)
+	self.buttons[1]:SetAlpha(alpha);
+	self.buttons[2]:SetAlpha(alpha);
+	self.ArtFrame:SetAlpha(alpha);
+end
+
 function Narci_GroupPhotoToggle_OnClick(self)
 	ResetIndexButton();
-	self:GetParent().Animation:SetAlpha(1);
-	PanelAnim:Show();
+
 	local ExtraPanel = ActorPanel.ExtraPanel;
 	ActorPanel.ActorButton.ActorName:SetWidth(120);
 	FadeIn(ActorPanel.NameFrame.HiddenFrames, 0.5);
-	ExtraPanel:SetAlpha(0);
-	ExtraPanel.buttons[1]:SetAlpha(0);
+
 	ExpandAnim:Show();
+	ExtraPanel:ShowFrame();
 	After(0, function()
 		self:Hide();
-		ExtraPanel:Show();
 	end)
 
 	if Narci_SlotLayerButton.isOn then
@@ -4399,11 +4404,15 @@ function NarciModelSettingsMixin:OnEnter()
 	self:FadeIn(0.15);
 end
 
+local function IsFrameFocused(frame)
+	return frame and frame:IsFocused();
+end
+
 function NarciModelSettingsMixin:OnLeave()
-	if self:IsMouseOver(24, -24, -36, 24) or Narci_SpellVisualBrowser:IsMouseOver(0, 0, 0, 0) or Narci_TextOverlay:IsMouseOver(0, 0, 0, 96) or
-	(self.NPCBrowser:IsShown() and self.NPCBrowser:IsMouseOver()) or
-	(self.PetStable:IsShown() and self.PetStable:IsMouseOver()) or
-	IsMouseButtonDown() then return end;
+	if self:IsMouseOver(24, -24, -36, 24) or Narci_SpellVisualBrowser:IsMouseOver(0, 0, 0, 0) or IsFrameFocused(self.TextOverlayMenu) or
+	IsFrameFocused(self.NPCBrowser) or IsFrameFocused(self.PetStable) or IsFrameFocused(self.StickerToggle)
+	or IsMouseButtonDown() then return end;
+
 	self:FadeOut(0.2);
 end
 
@@ -4463,6 +4472,15 @@ function NarciModelSettingsMixin:SetPanelAlpha(value, smoothing)
         self.BasicPanel:SetAlpha(value);
     end
 end
+
+function NarciModelSettingsMixin:AddSubFrame(frame, key)
+	frame:SetParent(self.ActorPanel.NameFrame.HiddenFrames);
+	frame:Show();
+	if key and not self[key] then
+		self[key] = frame;
+	end
+end
+
 ----------------------------------------------------
 local function InitializeScripts()
 	local CaptureButton = Narci_Model_CaptureButton;

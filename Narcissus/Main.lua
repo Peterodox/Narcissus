@@ -33,12 +33,12 @@ local DoesItemHaveDomationSocket = NarciAPI.DoesItemHaveDomationSocket;
 local GetDominationBorderTexture = NarciAPI.GetDominationBorderTexture;
 local GetItemDominationGem = NarciAPI.GetItemDominationGem;
 local GetVerticalRunicLetters = NarciAPI.GetVerticalRunicLetters;
-local GetTemporaryItemBuff = NarciAPI.GetTemporaryItemBuff;
 local FadeFrame = NarciFadeUI.Fade;
 
 --local GetCorruptedItemAffix = NarciAPI_GetCorruptedItemAffix;
 local Narci_AlertFrame_Autohide = Narci_AlertFrame_Autohide;
 local C_Item = C_Item;
+local C_LegendaryCrafting = C_LegendaryCrafting;
 local C_TransmogCollection = C_TransmogCollection;
 local After = C_Timer.After;
 local ItemLocation = ItemLocation;
@@ -55,6 +55,7 @@ local ItemLevelFrame;
 local Toolbar;
 local RadarChart;
 local MiniButton;
+local ItemTooltip;
 
 local NarciThemeUtil = NarciThemeUtil;
 
@@ -130,18 +131,21 @@ end
 
 
 local DefaultTooltip;
+local ShowDelayedTooltip = NarciAPI_ShowDelayedTooltip;
+
 function Narci_ShowButtonTooltip(self)
-	DefaultTooltip:Hide();
+	DefaultTooltip:HideTooltip();
 	DefaultTooltip:SetOwner(self, "ANCHOR_NONE");
 	if not self.tooltipHeadline then
 		return
 	end
 
+	DefaultTooltip:SetPoint("BOTTOM", self, "TOP", 0, 2);
+
 	DefaultTooltip:SetText(self.tooltipHeadline);
-	if self.IsOn then
-		DefaultTooltip:AddLine(self.tooltipLineClose, 1, 1, 1, true);
-	else
-		DefaultTooltip:AddLine(self.tooltipLineOpen, 1 ,1 ,1 ,true);
+
+	if self.tooltipLine1 then
+		DefaultTooltip:AddLine(self.tooltipLine1, 1, 1, 1, true);
 	end
 
 	if self.tooltipSpecial then
@@ -149,12 +153,17 @@ function Narci_ShowButtonTooltip(self)
 		DefaultTooltip:AddLine(self.tooltipSpecial, 0.25, 0.78, 0.92, true);
 	end
 
-	DefaultTooltip:SetAlpha(0);
-	NarciAPI_ShowDelayedTooltip("BOTTOM", self, "TOP", 0, 2);
+
+	DefaultTooltip:Show();
+	DefaultTooltip:FadeIn();
+
+	--ShowDelayedTooltip("BOTTOM", self, "TOP", 0, 2);
 end
 
 function Narci:HideButtonTooltip()
-	DefaultTooltip:Hide();
+	--ShowDelayedTooltip(false);
+	DefaultTooltip:HideTooltip();
+	ItemTooltip:HideTooltip();
 	--DefaultTooltip:SetFrameStrata("TOOLTIP");
 end
 
@@ -854,7 +863,7 @@ local function ExitFunc()
 	Narci.isActive = false;
 	Narci.isAFK = false;
 
-	DefaultTooltip:Hide();
+	DefaultTooltip:HideTooltip();
 	MsgAlertContainer:Hide();
 
 	UIErrorsFrame:Clear();
@@ -1506,17 +1515,6 @@ end
 
 
 ---------------End of derivation---------------
-local RunePlateTexture = {
-	[0] = "Interface/AddOns/Narcissus/Art/Runes/Bright/Black",		--Enchantable but unenchanted
-	[1] = "Interface/AddOns/Narcissus/Art/Runes/RunePlate-Black",
-	[2] = "Interface/AddOns/Narcissus/Art/Runes/RunePlate-Uncommon",
-	[3] = "Interface/AddOns/Narcissus/Art/Runes/RunePlate-Rare",
-	[4] = "Interface/AddOns/Narcissus/Art/Runes/RunePlate-Epic",
-	[5] = "Interface/AddOns/Narcissus/Art/Runes/RunePlate-Legendary",
-	[6] = "Interface/AddOns/Narcissus/Art/Runes/RunePlate-Artifact",
-	[7] = "Interface/AddOns/Narcissus/Art/Runes/RunePlate-Heirloom",
-}
-
 ---Get Transmog Appearance---
 --[[
 	==sourceInfo==
@@ -1571,7 +1569,7 @@ local function SetItemSocketingFramePosition(self)		--Let ItemSocketingFrame app
 		else
 			ItemSocketingFrame:SetPoint("TOPLEFT", self, "TOPRIGHT", -4, 0);
 		end
-		DefaultTooltip:Hide();
+		DefaultTooltip:HideTooltip();
 	end
 end
 
@@ -1588,21 +1586,6 @@ local IsItemEnchantable = {
 	[15] = true,
 };
 
-local RunicLetters = {
-	["crit"] = "ᚲ\nᚱ\nᛁ",	  --CRI
-	["haste"] = "ᚼ\nᛆ\nᛋ",	 --HAS
-	["mastery"] = "ᛘ\nᛋ\nᛐ", --MST
-	["versatility"] = "ᚡ\nᚽ\nᚱ",	 --VER
-	["STR"] = "ᛊ\nᛏ\nᚱ",	 --STR
-	["AGI"] = "ᛆ\nᚵ\nᛁ",	 --AGI
-	["INT"] = "ᛁ\nᚾ\nᛐ",	 --INT
-	["speed"] = "ᛋ\nᛕ\nᛑ",	 --SPD
-	["armor"] = "ᛆ\nᚱ\nᛘ",	 --ARM
-	["heal"] = "ᚺ\nᛁ\nᛚ", 	 --HIL
-	["leech"] = "ᛒ\nᛚ\nᛑ",	 --BLD
-	["spell"] = "ᛗ\nᚷ\nᚲ",	 --MGC
-}
-
 local function DisplayRuneSlot(equipmentSlot, slotID, itemQuality, itemLink)
 	--! RuneSlot.Background is disabled
 	if not equipmentSlot.RuneSlot then
@@ -1614,7 +1597,6 @@ local function DisplayRuneSlot(equipmentSlot, slotID, itemQuality, itemLink)
 
 	if IsItemEnchantable[slotID] then
 		equipmentSlot.RuneSlot:Show();
-		--equipmentSlot.RuneSlot.Background:SetTexture(RunePlateTexture[0]);
 	else
 		equipmentSlot.RuneSlot:Hide();
 		return;
@@ -1628,7 +1610,6 @@ local function DisplayRuneSlot(equipmentSlot, slotID, itemQuality, itemLink)
 			equipmentSlot.RuneSlot.spellID = EnchantInfo[enchantID][3]
 		end
 	else
-		--equipmentSlot.RuneSlot.Background:SetTexture(RunePlateTexture[0])	--if the item is enchantable but unenchanted, set its texture to black
 		equipmentSlot.RuneSlot.spellID = nil;
 		equipmentSlot.RuneSlot.RuneLetter:Hide();
 	end
@@ -1647,6 +1628,7 @@ function Narci_RuneButton_OnEnter(self)
 	end
 	DefaultTooltip:SetSpellByID(spellID);
 	DefaultTooltip:Show();
+	DefaultTooltip:FadeIn();
 end
 
 ---------------------------------------------------
@@ -1731,6 +1713,14 @@ local function GetTraitsIcon(itemLocation)
     return traitIcons, isRightSpec;
 end
 
+local function GetRuneForgeLegoIcon(itemLocation)
+	local componentInfo = C_LegendaryCrafting.GetRuneforgeLegendaryComponentInfo(itemLocation);
+	if componentInfo and componentInfo.powerID then
+		local powerInfo = C_LegendaryCrafting.GetRuneforgePowerInfo(componentInfo.powerID);
+		return powerInfo and powerInfo.iconFileID
+	end
+end
+
 
 local GetSlotVisualID = NarciAPI.GetSlotVisualID;
 local GetGemBorderTexture = NarciAPI.GetGemBorderTexture;
@@ -1755,13 +1745,35 @@ function NarciItemButtonSharedMixin:OnErrorMessage(...)
 	Narci_AlertFrame_Autohide:AddMessage(msg, true);
 end
 
+function NarciItemButtonSharedMixin:AnchorAlertFrame()
+	self:RegisterErrorEvent();
+	Narci_AlertFrame_Autohide:SetAnchor(self, -24, true);
+end
+
+function NarciItemButtonSharedMixin:PlayGamePadAnimation()
+	if self.gamepad then
+		self.Icon.ScaleUp:Play();
+		self.IconMask.ScaleUp:Play();
+		self.Border.ScaleUp:Play();
+		self.Border.BorderMask.ScaleUp:Play();
+	end
+end
+
 function NarciItemButtonSharedMixin:ResetAnimation()
-	self.Icon.scaleUp:Stop();
-	self.Border.scaleUp:Stop();
-	self.IconMask.scaleUp:Stop();
-	self.Icon:SetScale(1);
-	self.Border:SetScale(1);
-	self.IconMask:SetScale(1);
+	if self.gamepad then
+		self.Icon.ScaleUp:Stop();
+		self.Border.ScaleUp:Stop();
+		self.Border.BorderMask.ScaleUp:Stop();
+		self.IconMask.ScaleUp:Stop();
+		self.Icon:SetScale(1);
+		self.Border:SetScale(1);
+		self.IconMask:SetScale(1);
+		self.Border.BorderMask:SetScale(1);
+		if self.gamepadOverlay then
+			self.gamepadOverlay:Hide();
+			self.gamepadOverlay = nil;
+		end
+	end
 end
 
 function NarciItemButtonSharedMixin:SetBorderTexture(border, texKey)
@@ -1794,7 +1806,6 @@ function NarciEquipmentSlotMixin:Refresh(forceRefresh)
 	local borderTexKey;
 	local isAzeriteEmpoweredItem = false;		--3 Pieces	**likely to be changed in patch 8.2
 	local isAzeriteItem = false;				--Heart of Azeroth
-	local isRuneforgeLegendary;					--Shadowlands
 	local isDominationItem;
 	--local isCorruptedItem = false;
 	local bR, bG, bB;		--Item Name Color
@@ -1808,20 +1819,6 @@ function NarciEquipmentSlotMixin:Refresh(forceRefresh)
 			self.GradientBackground:Show();
 			local appliedSourceID, appliedVisualID, hasSecondaryAppearance = GetSlotVisualID(slotID);
 			if appliedVisualID > 0 then
-				--[[
-				local sourceInfo = {};
-				if appliedVisualID ~= self.appliedVisualID or (not (self.sourceInfo and self.sourceInfo.name)) then
-					self.appliedVisualID = appliedVisualID;
-					sourceInfo = C_TransmogCollection.GetSourceInfo(appliedSourceID);
-					self.sourceInfo = sourceInfo;
-					_, self.sourceID = C_TransmogCollection.GetItemInfo(sourceInfo.itemID, sourceInfo.itemModID);
-					if sourceInfo.sourceType == 1 then
-						self.drops = C_TransmogCollection.GetAppearanceSourceDrops(self.sourceID);
-					end
-				else
-					sourceInfo = self.sourceInfo;
-				end
-				--]]
 				local sourceInfo = C_TransmogCollection.GetSourceInfo(appliedSourceID);
 				itemName = sourceInfo and sourceInfo.name;
 				if not itemName or itemName == "" then
@@ -1935,6 +1932,8 @@ function NarciEquipmentSlotMixin:Refresh(forceRefresh)
 			self.Name:Show();
 			self.ItemLevel:Show();
 			self.GradientBackground:Show();
+			self.hyperlink = nil;
+			self.sourcePlainText = nil;
 			--[[
 			local current, maximum = GetInventoryItemDurability(slotID);
 			if current and maximum then
@@ -1944,14 +1943,6 @@ function NarciEquipmentSlotMixin:Refresh(forceRefresh)
 			itemLink = C_Item.GetItemLink(itemLocation);
 			
 			if validForTempEnchant[slotID] then
-				--[[
-				local buffText, durationText = GetTemporaryItemBuff(slotID);
-				if buffText and durationText then
-					buffText = "|cffa1cca4"..buffText.."|r";
-					durationText = "|cffa8a8a8"..durationText.."|r";
-					effectiveLvl = effectiveLvl.."  "..buffText.." "..durationText;
-				end
-				--]]
 				local hasTempEnchant = NarciTempEnchantIndicatorController:InitFromSlotButton(self);
 				if hasTempEnchant ~= self.hasTempEnchant then
 					self.hasTempEnchant = hasTempEnchant;
@@ -1995,7 +1986,6 @@ function NarciEquipmentSlotMixin:Refresh(forceRefresh)
 				end
 			end
 			
-			self.hyperlink = nil;
 			self.GemSlot.ItemLevel = effectiveLvl;
 			self.gemLink = gemLink;		--Later used in OnEnter func in NarciSocketing.lua
 			
@@ -2022,10 +2012,11 @@ function NarciEquipmentSlotMixin:Refresh(forceRefresh)
 			end
 
 			if slotID ~= 13 and slotID ~= 14 then
-				isRuneforgeLegendary = C_LegendaryCrafting.IsRuneforgeLegendary(itemLocation);
+				local isRuneforgeLegendary = C_LegendaryCrafting.IsRuneforgeLegendary(itemLocation);
 				if isRuneforgeLegendary then
 					itemVFX = "Runeforge";
 					borderTexKey = "Runeforge";
+					itemIcon = GetRuneForgeLegoIcon(itemLocation) or itemIcon;
 				end
 			end
 	
@@ -2088,15 +2079,6 @@ function NarciEquipmentSlotMixin:Refresh(forceRefresh)
 	bR = bR or 1;
 	bG = bG or 1;
 	bB = bB or 1;
-
-	--Test
-	--[[
-	if isRuneforgeLegendary then
-		itemName = "|cff8cb7c7Banshee's Lament|r";
-		itemName = "Old Warrior\'s Soul";
-		itemName = "|cffeb5b50Decanter of Endless Howling|r";
-	end
-	--]]
 
 	if isAzeriteEmpoweredItem then
 		borderTexKey = "Azerite";
@@ -2189,16 +2171,17 @@ function NarciEquipmentSlotMixin:Refresh(forceRefresh)
 		self.GemSlot.GemIcon:SetTexture(gemIcon);
 		self.GemSlot.GemIcon:Show();
 		self.GemSlot.sockedGemItemID = gemID;
-		self.GemSlot:Show();
 		if self:IsVisible() then
-			self.GemSlot.animIn:Play();
+			self.GemSlot:FadeIn();
+		else
+			self.GemSlot:ShowSlot();
 		end
 		self.GemSlot.isDomiationSocket = isDominationItem;
 	else
 		if self:IsVisible() then
-			self.GemSlot.animOut:Play();
+			self.GemSlot:FadeOut();
 		else
-			self.GemSlot:Hide();
+			self.GemSlot:HideSlot();
 		end
 		self.GemSlot.sockedGemItemID = nil;
 	end
@@ -2260,7 +2243,7 @@ function NarciEquipmentSlotMixin:UpdateGradientSize()
 		extraWidth = 0;
 	end
 	self.GradientBackground:SetHeight(self.Name:GetHeight() + self.ItemLevel:GetHeight() + 18);
-	self.GradientBackground:SetWidth(max(self.Name:GetWrappedWidth(), text2Width + extraWidth) + 48);
+	self.GradientBackground:SetWidth(max(self.Name:GetWrappedWidth(), text2Width + extraWidth, 48) + 48);
 end
 
 function NarciEquipmentSlotMixin:OnLoad()
@@ -2337,9 +2320,7 @@ function NarciEquipmentSlotMixin:OnEnter(motion, isGamepad)
 	self:RegisterEvent("MODIFIER_STATE_CHANGED");
 
 	if isGamepad then
-		self.Icon.scaleUp:Play();
-		self.Border.scaleUp:Play();
-		self.IconMask.scaleUp:Play();
+		self:PlayGamePadAnimation();
 	else
 		FadeFrame(self.Highlight, 0.15, 1);
 	end
@@ -2353,6 +2334,13 @@ function NarciEquipmentSlotMixin:OnEnter(motion, isGamepad)
 		return;
 	end
 
+	if MOG_MODE then
+		ItemTooltip:SetTransmogFromSlotButton(self, -2, 6);
+	else
+		ItemTooltip:SetFromSlotButton(self, -2, 6, isGamepad and 0.4);	--delay 0.4s
+	end
+
+	--[[
 	DefaultTooltip:SetOwner(self, "ANCHOR_NONE");
 
 	if self.isRight then
@@ -2367,21 +2355,19 @@ function NarciEquipmentSlotMixin:OnEnter(motion, isGamepad)
 		return;
 	end
 
-	local hasItem, hasCooldown, repairCost = DefaultTooltip:SetInventoryItem("player", self:GetID(), nil, true);
+	local hasItem, hasCooldown, repairCost = DefaultTooltip:SetPlayerInventoryItem(self:GetID());
 
 	if isGamepad then
 		DefaultTooltip:SetAlpha(0);
 		if self.isRight then
-			NarciAPI_ShowDelayedTooltip("TOPRIGHT", self, "TOPLEFT", DefaultTooltip.offsetX, DefaultTooltip.offsetY);
+			ShowDelayedTooltip("TOPRIGHT", self, "TOPLEFT", DefaultTooltip.offsetX, DefaultTooltip.offsetY);
 		else
-			NarciAPI_ShowDelayedTooltip("TOPLEFT", self, "TOPRIGHT", -DefaultTooltip.offsetX, DefaultTooltip.offsetY);
+			ShowDelayedTooltip("TOPLEFT", self, "TOPRIGHT", -DefaultTooltip.offsetX, DefaultTooltip.offsetY);
 		end
 	else
 		DefaultTooltip:Show();
-		if hasItem then
-			DefaultTooltip.HotkeyFrame:FadeIn();
-		end
 	end
+	--]]
 end
 
 function NarciEquipmentSlotMixin:OnLeave()
@@ -2389,14 +2375,12 @@ function NarciEquipmentSlotMixin:OnLeave()
 	self:UnregisterErrorEvent();
 	FadeFrame(self.Highlight, 0.25, 0);
 	Narci:HideButtonTooltip();
-
 	self:ResetAnimation();
 end
 
 function NarciEquipmentSlotMixin:OnHide()
 	self.Highlight:Hide();
 	self.Highlight:SetAlpha(0);
-
 	self:ResetAnimation();
 end
 
@@ -2431,7 +2415,7 @@ function NarciEquipmentSlotMixin:PostClick(button)
 				Narci_EquipmentOption:SetFromSlotButton(self, true)
 			end
 		elseif button == "RightButton" then
-			Narci_AlertFrame_Autohide:SetAnchor(self, -24, true);
+			self:AnchorAlertFrame();
 		end
 	end
 end
@@ -2528,7 +2512,8 @@ function Narci_ShowStatTooltipDelayed(self)
 	end
 	SetStatTooltipText(self);
 	DefaultTooltip:SetAlpha(0);
-	NarciAPI_ShowDelayedTooltip("BOTTOM", self, "TOP", 0, -4);
+	ShowDelayedTooltip("BOTTOM", self, "TOP", 0, -4);
+	print("Narci_ShowStatTooltipDelayed")
 end
 
 
@@ -2734,8 +2719,7 @@ function NarciEquipmentFlyoutButtonMixin:OnClick(button, down, isGamepad)
 	if button == "LeftButton" then
 		local action = EquipmentManager_EquipItemByLocation(self.location, self.slotID)
 		if action then
-			self:RegisterErrorEvent();
-			Narci_AlertFrame_Autohide:SetAnchor(self, -24, true);
+			self:AnchorAlertFrame();
 			EquipmentManager_RunAction(action)
 		end
 		self:Disable();
@@ -2752,12 +2736,11 @@ function NarciEquipmentFlyoutButtonMixin:OnLeave()
 end
 
 function NarciEquipmentFlyoutButtonMixin:OnEnter(motion, isGamepad)
-	FadeFrame(self.Highlight, 0.15, 1);
 	Narci_Comparison_SetComparison(self.itemLocation, self);
 	if isGamepad then
-		self.Icon.scaleUp:Play();
-		self.Border.scaleUp:Play();
-		self.IconMask.scaleUp:Play();
+		self:PlayGamePadAnimation();
+	else
+		FadeFrame(self.Highlight, 0.15, 1);
 	end
 end
 
@@ -2789,11 +2772,12 @@ function NarciEquipmentFlyoutButtonMixin:SetUp(maxItemLevel)
 		itemQuality = "NZoth";
 	elseif C_LegendaryCrafting.IsRuneforgeLegendary(itemLocation) then
 		itemQuality = "Runeforge";
+		itemIcon = GetRuneForgeLegoIcon(itemLocation) or itemIcon;
 	end
 
 	itemQuality = GetBorderArtByItemID(itemID) or itemQuality;
 
-	if maxItemLevel and itemLevel < maxItemLevel then
+	if maxItemLevel and itemLevel < maxItemLevel and itemQuality ~= "Runeforge" then
 		itemQuality = 0;
 		self.Icon:SetDesaturated(true);
 	else
@@ -2878,9 +2862,9 @@ function NarciEquipmentFlyoutFrameMixin:OnEvent(event, ...)	--Hide Flyout if Lef
 	if ( event == "MODIFIER_STATE_CHANGED" ) then
 		local key, state = ...;
 		if ( key == "LALT" ) then
-			local flyout = EquipmentFlyoutFrame
+			local flyout = EquipmentFlyoutFrame;
 			if state == 0 and flyout:IsShown() then
-				flyout:Hide()
+				flyout:Hide();
 			end
 		end
 	elseif (event == "GLOBAL_MOUSE_DOWN") then
@@ -2929,7 +2913,8 @@ function NarciEquipmentFlyoutFrameMixin:SetItemSlot(slotButton, showArrow)
 	Narci_FlyoutBlack:In();
 	slotButton:SetFrameLevel(Narci_FlyoutBlack:GetFrameLevel() + 1)
 	self:SetFrameLevel(20);
-	Narci:HideButtonTooltip();
+
+	NarciEquipmentTooltip:HideTooltip();
 	ShowLessItemInfo(slotButton, true)
 
 	--Reposition Comparison Tooltip if it reaches the top of the screen--
@@ -2946,17 +2931,17 @@ end
 
 function NarciEquipmentFlyoutFrameMixin:CreateItemButton()
 	local perRow = 5;	--EQUIPMENTFLYOUT_ITEMS_PER_ROW
-	local buttons = self.buttons;
-	local numButtons = #buttons;
+	local numButtons = #self.buttons;
 
 	local button = CreateFrame("Button", nil, self.ButtonFrame, "NarciEquipmentFlyoutButtonTemplate");
 	button:SetFrameStrata("DIALOG");
 	local row = floor(numButtons/perRow);
 	local col = numButtons - row * perRow;
 	button:SetPoint("TOPLEFT", self, "TOPLEFT", 70*col, -74*row);
-	tinsert(buttons, button);
+	self.buttons[numButtons + 1] = button;
 	button.FlyUp.Move:SetStartDelay(numButtons/25);
 	button.FlyUp.Fade:SetStartDelay(numButtons/25);
+	button.isFlyout = true;
 	return button
 end
 
@@ -3707,8 +3692,6 @@ function Narci_Open()
 		Toolbar:FlyIn();
 		Narci_XmogButton:Enable();
 
-		DefaultTooltip:SetScale(UIParent:GetEffectiveScale() or 1);
-
 		After(0, function()
 			CameraMover:Enter();
 			RadarChart:SetValue(0,0,0,0,1);
@@ -3753,11 +3736,7 @@ function Narci_Open()
 		ExitFunc();
 		MusicIO:Out();
 		Narci_LetterboxAnimation("OUT");
-		if Narci_TitleManager_Switch.IsOn then
-			Narci_TitleManager_Switch:Click();
-		end
 		EquipmentFlyoutFrame:Hide();
-		Narci_TitleManager_TitleTooltip:Hide();		--TitleManager
 		Narci_ModelSettings:Hide();
 
 		Toolbar:FlyOut();
@@ -3796,8 +3775,6 @@ function Narci_OpenGroupPhoto()
 		EL:Show();
 		
 		CameraMover:Pitch();
-
-		DefaultTooltip:SetScale(UIParent:GetEffectiveScale() or 1);
 
 		After(0, function()
 			SlotController:LazyRefresh();
@@ -5238,8 +5215,11 @@ SlashCmdList["NARCI"] = function(msg)
 		print("Minimap button has been re-enabled.");
 	elseif msg == "itemlist" then
 		DressUpFrame_Show(DressUpFrame);
+		if NarciDressingRoomOverlay then
+			NarciDressingRoomOverlay:ShowItemList()
+		end
 	elseif msg == "parser" then
-		FadeFrame(Narci_ItemParser, 0.25, 1);
+		NDT_ItemParser:ShowFrame();
 	elseif msg == "resetposition" then
 		MiniButton:ResetPosition();
 	else
@@ -5247,7 +5227,7 @@ SlashCmdList["NARCI"] = function(msg)
 		print(color.."Show Minimap Button:|r /narci minimap");
 		print(color.."Reset Minimap Button Position:|r /narci resetposition");
 		print(color.."Copy Item List:|r /narci itemlist");
-		print(color.."Corruption Item Parser:|r /narci parser");
+		print(color.."DevTool Item Parser:|r /narci parser");
 	end
 end
 
@@ -5709,22 +5689,16 @@ EL:SetScript("OnEvent",function(self, event, ...)
 		UpdateXmogName();
 		SetCVar("CameraKeepCharacterCentered", 0);
 		--CameraMover:SetBlend(NarcissusDB.CameraTransition);	--Load in Preference.lua
-		DefaultTooltip = NarciGameTooltip;	--Created in NarciAPI.lua
+		DefaultTooltip = NarciGameTooltip;	--Created in Module\GameTooltip.lua
+		if not ItemTooltip then
+			ItemTooltip = DefaultTooltip;
+		end
 		DefaultTooltip:SetParent(Narci_Character);
 		DefaultTooltip:SetFrameStrata("TOOLTIP");
-		DefaultTooltip.offsetX = 6;
-		DefaultTooltip.offsetY = -18;
-		DefaultTooltip:SetIgnoreParentScale(true);
+		DefaultTooltip.offsetX = 4;
+		DefaultTooltip.offsetY = -16;
 		DefaultTooltip:SetIgnoreParentAlpha(true);
-		local HotkeyFrame = CreateFrame("Frame", nil, Narci_Attribute, "NarciHotkeyNotificationTemplate");
-		HotkeyFrame:SetKey(NARCI_MODIFIER_ALT, "LeftButton", L["Swap items"]);
-		HotkeyFrame:SetPoint("BOTTOM", DefaultTooltip, "TOP", -2, 8);
-		HotkeyFrame:SetFrameStrata("TOOLTIP");
-		HotkeyFrame:SetIgnoreParentScale(true);
-		DefaultTooltip.HotkeyFrame = HotkeyFrame;
-		DefaultTooltip:HookScript("OnHide", function()
-			HotkeyFrame:FadeOut();
-		end)
+
 		MiniButton:SetBackground();
 		
 		if IsAddOnLoaded("DynamicCam") then
@@ -6005,26 +5979,6 @@ function Narci_SetActiveBorderTexture()
 	if IsAddOnLoaded("AzeriteUI") then
 		MapShapeUtil.cornerRadius = 18;
 		minimapBackgroundSize = 48;
-		--Skin Tooltip
-		--Background gets reset once gametooltip is hidden. Ask Goldpaw some day.
-		
-		local backdropInfo = {
-			bgFile = "Interface\\AddOns\\AddOns\\Narcissus\\Art\\Masks\\Full",
-			edgeFile = "Interface\\AddOns\\AzeriteUI\\media\\tooltip_border_hex",
-			tile = true,
-			tileEdge = true,
-			tileSize = 24,
-			edgeSize = 24,
-			insets = { left = 8, right = 8, top = 8, bottom = 8 },
-		};
-		
-		DefaultTooltip.backdropInfo = backdropInfo;
-		DefaultTooltip.offsetX = 2;
-		DefaultTooltip.offsetY = -12;
-		DefaultTooltip:HookScript("OnShow", function(self)
-			self:SetPadding(8, 8, 8, 8);
-		end)
-		
 	elseif IsAddOnLoaded("DiabolicUI") then
 		MapShapeUtil.cornerRadius = 12;
 	elseif IsAddOnLoaded("GoldieSix") then
@@ -6045,10 +5999,14 @@ function Narci_GuideLineFrame_OnSizing(self, offset)
 	local W;
 	local W0, H = WorldFrame:GetSize();
 	if (W0 and H) and H ~= 0 then
+		local ratio = floor(W0 / H * 100 + 0.5)/100 ;
+		if ratio == 1.78 then
+			return
+		end
 		self:ClearAllPoints();
 		self:SetPoint("TOP", UIParent, "TOP", 0, 0);
 		self:SetPoint("BOTTOM", UIParent, "BOTTOM", 0, 0);
-		local offset = offset or 0;
+		offset = offset or 0;
 		W = math.min(H / 9 * 16, W0);
 		W = floor(W + 0.5);
 		--print("Original: "..W0.." Calculated: "..W);
@@ -6234,6 +6192,22 @@ Narci.GetEquipmentSlotByID = function(slotID) return slotTable[slotID] end;
 Narci.RefreshSlot = function(slotID) SlotController:Refresh(slotID) return slotTable[slotID] end;
 Narci.RefreshAllSlots = SlotController.RefreshAll;
 Narci.RefreshAllStats = StatsUpdator.Instant;
+
+
+function Narci:SetItemTooltipStyle(id)
+	if id == 2 then
+		ItemTooltip = NarciGameTooltip;
+	else
+		ItemTooltip = NarciEquipmentTooltip;
+	end
+	NarciEquipmentTooltip:SetParent(Narci_Character);
+end
+
+function Narci:CloseCharacterUI()
+	if IS_OPENED then
+		Narci_Open();
+	end
+end
 
 --[[
 	C_BarberShop.GetAvailableCustomizations();

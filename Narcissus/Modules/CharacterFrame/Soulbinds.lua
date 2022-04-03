@@ -659,9 +659,11 @@ function NarciSoulbindsCharacterButtonMixin:SetSelected(state)
     if state then
         self.Texture:SetTexCoord(0.5, 1, 0, 0.5);
         self.Highlight:SetTexCoord(0.5, 1, 0.5, 1);
+        self.isSelected = true;
     else
         self.Texture:SetTexCoord(0, 0.5, 0, 0.5);
         self.Highlight:SetTexCoord(0, 0.5, 0.5, 1);
+        self.isSelected = nil;
     end
 end
 
@@ -672,14 +674,20 @@ function NarciSoulbindsCharacterButtonMixin:OnClick()
     end
 end
 
-function NarciSoulbindsCharacterButtonMixin:OnEnter()
+function NarciSoulbindsCharacterButtonMixin:OnEnter(motion, isGamepad)
     local tooltip = NarciGameTooltip;
     tooltip:Hide();
     if self.soulbindName then
         tooltip:SetOwner(self, "ANCHOR_NONE");
         tooltip:SetPoint("LEFT", self, "RIGHT", 8, 0);
         tooltip:SetText(self.soulbindName, 1, 1, 1);
-        tooltip:Show();
+        if isGamepad then
+            tooltip:FadeIn();
+            MainFrame:DisplayInactiveNodes(true);
+        else
+            tooltip:Show();
+        end
+        MainFrame:AutoHideTooltip(isGamepad);
     end
 end
 
@@ -827,14 +835,14 @@ function NarciSoulbindsMixin:OnLoad()
     NodesContainer = self.ConduitNodesFrame;
     self.ConduitNodesFrame:SetHeight(frameHeight);
     self.ConduitNodesFrame:SetScript("OnEnter", function(frame)
-        FadeFrame(frame.InactiveNodesFrame, 0.15, 1);
+        self:DisplayInactiveNodes(true);
     end);
     self.ConduitNodesFrame:SetScript("OnLeave", function(frame)
         if not frame:IsMouseOver() then
-            FadeFrame(frame.InactiveNodesFrame, 0.5, 0);
+            self:DisplayInactiveNodes(false);
         end
     end);
-
+    self.buttons = {};
     -------------------------------------------
     --Collection ScrollFrame
     CollectionFrame = self.ConduitCollection;
@@ -877,6 +885,9 @@ function NarciSoulbindsMixin:OnLoad()
 end
 
 function NarciSoulbindsMixin:OnShow()
+    if self.soulbindID ~= C_Soulbinds.GetActiveSoulbindID() then
+        self.needsUpdate = true;
+    end
     if self.needsUpdate then
         self:SelectTree();
     end
@@ -888,6 +899,7 @@ function NarciSoulbindsMixin:OnHide()
         self:UnregisterEvent(dynamicEvents[i]);
     end
     --]]
+    self:AutoHideTooltip(false);
 end
 
 function NarciSoulbindsMixin:OnEvent(event, ...)
@@ -977,7 +989,7 @@ function NarciSoulbindsMixin:CreateChoiceButtons(soulbindIDs)
         if soulbindData and soulbindData.name then
             button.soulbindName = soulbindData.name;
         end
-        wipe(soulbindData);
+        soulbindData = nil;
 
         if i == 1 then
             button:SetSelected(true);
@@ -1257,6 +1269,31 @@ function NarciSoulbindsMixin:SelectTab(tabIndex)
     end
 end
 
+local function AutoHideTooltip_OnUpdate(self, elapsed)
+    self.countdown = self.countdown + elapsed;
+    if self.countdown > 1 then
+        self:AutoHideTooltip(false);
+        NarciGameTooltip:FadeOut();
+    end
+end
+
+function NarciSoulbindsMixin:AutoHideTooltip(state)
+    if state then
+        self.countdown = 0;
+        self:SetScript("OnUpdate", AutoHideTooltip_OnUpdate);
+    else
+        self.countdown = nil;
+        self:SetScript("OnUpdate", nil);
+    end
+end
+
+function NarciSoulbindsMixin:DisplayInactiveNodes(state)
+    if state then
+        FadeFrame(self.ConduitNodesFrame.InactiveNodesFrame, 0.15, 1);
+    else
+        FadeFrame(self.ConduitNodesFrame.InactiveNodesFrame, 0.5, 0);
+    end
+end
 
 --------------------------------------------------------------------------------------------
 NarciSoulbindsActivateButtonMixin = CreateFromMixins(NarciUIShimmerButtonMixin);
@@ -1356,11 +1393,13 @@ function NarciSoulbindsActivateButtonMixin:Toggle(visible)
         FadeFrame(self, 0.15, 1);
         self:PlayFlyAnimation(1);
         self.ButtonText:Show();
+        self.isVisible = visible;
     else
         FadeFrame(self, 0.15, 0);
         self:PlayFlyAnimation(-1);
         self.ButtonText:Hide();
         self:StopShimmer();
+        self.isVisible = nil;
     end
 end
 

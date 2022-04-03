@@ -1,0 +1,13 @@
+<Ui xsi:schemaLocation="http://www.blizzard.com/wow/ui/..\FrameXML\UI.xsd">
+    <Script file="ActionGroupMixin.lua"/>
+
+    <Script file="CharacterFrame.lua"/>
+    <Script file="EquipmentSlot.lua"/>
+    <Script file="TitleManager.lua"/>
+    <Script file="EquipmentOption.lua"/>
+    <Script file="EquipmentEnhancementList.lua"/>
+    <Script file="EquipmentFlyout.lua"/>
+    <Script file="EquipmentSet.lua"/>
+    <Script file="Soulbind.lua"/>
+    <Script file="MythicPlus.lua"/>
+</Ui>

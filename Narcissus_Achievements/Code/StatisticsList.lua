@@ -6,6 +6,8 @@ local type = type;
 local list = {};    --Data on the bottom
 
 
+local STAT_CATERGORY_ID = -2;
+
 local isBossCard = {};
 
 local isCustomCategory = {
@@ -28,7 +30,7 @@ local GetCategoryNumAchievements = GetCategoryNumAchievements;
 
 local function GetCustomCategoryNumAchievements(categoryID, includeAll)
     if categoryID then
-        if categoryID == -1 then
+        if categoryID == STAT_CATERGORY_ID then
             local numPinned = PinUtil:GetTotal();
             return numPinned, numPinned, 0
         else
@@ -47,7 +49,7 @@ local GetAchievementInfo = GetAchievementInfo;
 
 local function GetStatisticInfo(id, index)
     if index then
-        if id == -1 then
+        if id == STAT_CATERGORY_ID then
             return PinUtil:GetID(index);
         end
         if isCustomCategory[id] then

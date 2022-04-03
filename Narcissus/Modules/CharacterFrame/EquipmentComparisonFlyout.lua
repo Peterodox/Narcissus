@@ -27,6 +27,8 @@ local CR_ConvertRatio = {      --Combat Rating number/percent
     ["stamina"] = 20,              -- 1 stamina = 20 HP
 };
 
+Narci.ConvertRatio = CR_ConvertRatio;
+
 local GetItemQualityColor = NarciAPI.GetItemQualityColor;
 
 local function SetCombatRatingRatio()
@@ -90,7 +92,6 @@ local function SetCombatRatingRatio()
     --]]
 
     -----------------------
-    Narci.ConvertRatio = CR_ConvertRatio;
     --print("Combat Rating Ratio Refreshed")
 end
 
@@ -484,11 +485,6 @@ function Narci_Comparison_SetComparison(itemLocation, itemButton)
         frame.BonusButton2:Hide();
     end
 
-    if stats.EnchantSpellID then
-        GameTooltip:SetSpellByID(stats.EnchantSpellID);
-        GameTooltip:Show()
-    end
-
     if not hasGapAdjusted then
         Narci_Comparison_AdjustGap()
     end
@@ -661,7 +657,6 @@ function Narci_CreateAzeriteTraitTooltip(self)
     end
 end
 
-
 function Narci:GetCombatRatings()
     local NA = "N/A";
     local crit = CR_ConvertRatio.crit;
@@ -687,6 +682,15 @@ function Narci:GetCombatRatings()
     return str;
 end
 
+local function ConvertRatingToPercentage(name, value)
+    if CR_ConvertRatio[name] then
+        return  string.format(" (%.2f%%)", math.floor( 100 * CR_ConvertRatio[name] * value )/100);
+    else
+        return ""
+    end
+end
+
+NarciAPI.ConvertRatingToPercentage = ConvertRatingToPercentage;
 
 
 --[[

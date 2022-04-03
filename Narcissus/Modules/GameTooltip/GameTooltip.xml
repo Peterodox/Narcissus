@@ -1,0 +1,220 @@
+<Ui xsi:schemaLocation="http://www.blizzard.com/wow/ui/..\FrameXML\UI.xsd">
+    <Script file="Delay.lua"/>
+    <Script file="EmbededGemFrame.lua"/>
+    <Script file="EmbededSpellFrame.lua"/>
+    <Script file="GameTooltip.lua"/>
+
+    <GameTooltip name="NarciGameTooltip" hidden="true" clampedToScreen="true" mixin="NarciGameTooltipMixin">
+        <KeyValues>
+            <KeyValue key="textLeft1Font" value="NarciFontCapped12" type="string"/>
+            <KeyValue key="textRight1Font" value="NarciFontCapped12" type="string"/>
+            <KeyValue key="textLeft2Font" value="NarciFontNormal10" type="string"/>
+            <KeyValue key="textRight2Font" value="NarciFontNormal10" type="string"/>
+        </KeyValues>
+        <Layers>
+            <Layer level="BACKGROUND">
+                <Texture parentKey="Background">
+                </Texture>
+            </Layer>
+            <Layer level="ARTWORK">
+                <FontString name="$parentTextLeft1" parentKey="TextLeft1" inherits="NarciFontCapped12" justifyH="LEFT"/>
+                <FontString name="$parentTextRight1" parentKey="TextRight1" inherits="NarciFontCapped12" justifyH="LEFT">
+                    <Anchors>
+                        <Anchor point="RIGHT" relativeKey="$parent.TextLeft1" relativePoint="LEFT" x="40" y="0"/>
+                    </Anchors>
+                </FontString>
+                <FontString name="$parentTextLeft2" parentKey="TextLeft2" inherits="NarciFontNormal10"  justifyH="LEFT"/>
+                <FontString name="$parentTextRight2" parentKey="TextRight2" inherits="NarciFontNormal10" justifyH="RIGHT">
+                    <Anchors>
+                        <Anchor point="RIGHT" relativeKey="$parent.TextLeft2" relativePoint="LEFT" x="40" y="0"/>
+                    </Anchors>
+                </FontString>
+                <Texture name="$parentTexture1">
+                    <Size x="4" y="4"/>
+                </Texture>
+                <Texture name="$parentTexture2">
+                    <Size x="4" y="4"/>
+                </Texture>
+                <Texture name="$parentTexture3">
+                    <Size x="4" y="4"/>
+                </Texture>
+                <Texture name="$parentTexture4">
+                    <Size x="4" y="4"/>
+                </Texture>
+            </Layer>
+        </Layers>
+        <Animations>
+            <AnimationGroup parentKey="AnimIn">
+                <Alpha fromAlpha="0" toAlpha="0" duration="0.1" order="1"/>
+                <Alpha fromAlpha="0" toAlpha="1" duration="0.2" order="2"/>
+            </AnimationGroup>
+        </Animations>
+        <Scripts>
+            <OnLoad method="OnLoad"/>
+            <OnShow method="OnShow"/>
+            <OnHide method="OnHide"/>
+            <OnSizeChanged method="OnSizeChanged"/>
+        </Scripts>
+    </GameTooltip>
+ 
+    <Frame name="NarciEquipmentTooltip" mixin="NarciEquipmentTooltipMixin" hidden="true" clampedToScreen="true">
+        <Size x="320" y="320"/>
+        <Anchors>
+            <Anchor point="CENTER" x="-200"/>
+        </Anchors>
+        <KeyValues>
+            <KeyValue key="textFont" value="NarciFontNormal10" type="string"/>
+        </KeyValues>
+        <Layers>
+            <Layer level="BACKGROUND">
+                <Texture parentKey="Background">
+                </Texture>
+            </Layer>
+        </Layers>
+        <Frames>
+            <Frame parentKey="HeaderFrame" useParentLevel="true">
+                <Size y="24"/>
+                <Anchors>
+                    <Anchor point="TOPLEFT" relativeKey="$parent" relativePoint="TOPLEFT"/>
+                    <Anchor point="TOPRIGHT" relativeKey="$parent" relativePoint="TOPRIGHT"/>
+                </Anchors>
+                <Layers>
+                    <Layer level="ARTWORK">
+                        <Texture parentKey="Background" file="Interface\AddOns\Narcissus\Art\GameTooltip\HeaderFrameBackground" alphaMode="ADD"/>
+                        <Texture parentKey="ItemIcon" hidden="true" alpha="0.8">
+                            <Color r="0.5" g="0.5" b="0.5"/>
+                            <TexCoords left="0.075" right="0.925" top="0.075" bottom="0.925"/>
+                            <Size x="48" y="48"/>
+                            <Anchors>
+                                <Anchor point="TOPRIGHT" relativeKey="$parent" relativePoint="TOPRIGHT" x="-4" y="-4"/>
+                            </Anchors>
+                        </Texture>
+                        <MaskTexture parentKey="ItemIconMask" file="Interface\AddOns\Narcissus\Art\GameTooltip\HeaderFrameIconMask" hWrapMode="CLAMPTOBLACKADDITIVE" vWrapMode="CLAMPTOBLACKADDITIVE" hidden="true">
+                            <Size x="48" y="48"/>
+                            <Anchors>
+                                <Anchor point="TOPLEFT" relativeKey="$parent.ItemIcon" relativePoint="TOPLEFT"/>
+                                <Anchor point="BOTTOMRIGHT" relativeKey="$parent.ItemIcon" relativePoint="BOTTOMRIGHT"/>
+                            </Anchors>
+                            <MaskedTextures>
+                                <MaskedTexture childKey="ItemIcon"/>
+                            </MaskedTextures>
+                        </MaskTexture>
+                    </Layer>
+                    <Layer level="OVERLAY">
+                        <FontString parentKey="ItemName" inherits="NarciFontCapped12" justifyH="LEFT" text="Item Name" spacing="2"/>
+                        <FontString parentKey="ItemLevel" inherits="NarciFontNumber24" justifyH="LEFT" text="200"/>
+                        <FontString parentKey="ItemType" inherits="NarciFontNormal10" justifyH="LEFT" text="Head"/>
+                        <FontString parentKey="LevelSubText" inherits="NarciFontNormal10" justifyH="LEFT" text="0/0"/>
+                    </Layer>
+                </Layers>
+            </Frame>
+            <Frame parentKey="AttributeFrame" useParentLevel="true" hidden="false">
+                <Size y="24"/>
+                <Anchors>
+                    <Anchor point="TOPLEFT" relativeKey="$parent.HeaderFrame" relativePoint="BOTTOMLEFT"/>
+                    <Anchor point="TOPRIGHT" relativeKey="$parent.HeaderFrame" relativePoint="BOTTOMRIGHT"/>
+                </Anchors>
+            </Frame>
+            <Frame parentKey="GemFrame" hidden="true" mixin="NarciEquipmentTooltipGemFrameMixin">
+                <Size x="320" y="24"/>
+                <Anchors>
+                    <Anchor point="TOPLEFT" relativeKey="$parent.HeaderFrame" relativePoint="BOTTOMLEFT"/>
+                    <Anchor point="TOPRIGHT" relativeKey="$parent.HeaderFrame" relativePoint="BOTTOMRIGHT"/>
+                </Anchors>
+            </Frame>
+            <Frame parentKey="SpellFrame" hidden="true" mixin="NarciEquipmentSpellFrameMixin">
+                <Size y="24"/>
+                <Anchors>
+                    <Anchor point="TOPLEFT" relativeKey="$parent.HeaderFrame" relativePoint="BOTTOMLEFT"/>
+                    <Anchor point="TOPRIGHT" relativeKey="$parent.HeaderFrame" relativePoint="BOTTOMRIGHT"/>
+                </Anchors>
+                <Layers>
+                    <Layer level="ARTWORK">
+                        <Texture parentKey="Icon">
+                            <TexCoords left="0.085" right="0.915" top="0.085" bottom="0.915"/>
+                            <Size x="24" y="24"/>
+                            <Anchors>
+                                <Anchor point="TOPLEFT" relativeKey="$parent" relativePoint="TOPLEFT" x="1" y="-1"/>
+                            </Anchors>
+                        </Texture>
+                        <FontString parentKey="SpellName" inherits="NarciFontNormal10" justifyH="LEFT">
+                            <Anchors>
+                                <Anchor point="TOPLEFT" relativeKey="$parent" relativePoint="TOPLEFT" x="32"/>
+                            </Anchors>
+                        </FontString>
+                        <FontString parentKey="SpellRange" inherits="NarciFontNormal10" justifyH="LEFT">
+                            <Color r="0.5" g="0.5" b="0.5"/>
+                            <Anchors>
+                                <Anchor point="TOPLEFT" relativeKey="$parent.SpellName" relativePoint="BOTTOMLEFT" x="0" y="-4"/>
+                            </Anchors>
+                        </FontString>
+                        <FontString parentKey="SpellCooldown" inherits="NarciFontNormal10" justifyH="RIGHT">
+                            <Anchors>
+                                <Anchor point="RIGHT" relativeKey="$parent" relativePoint="RIGHT" x="0" y="0"/>
+                                <Anchor point="TOP" relativeKey="$parent.SpellName" relativePoint="BOTTOM" y="-4"/>
+                            </Anchors>
+                        </FontString>
+                        <Texture file="Interface\AddOns\Narcissus\Art\GameTooltip\CooldownIcon" parentKey="CooldownIcon">
+                            <Size x="10" y="10"/>
+                            <Anchors>
+                                <Anchor point="RIGHT" relativeKey="$parent.SpellCooldown" relativePoint="LEFT" x="-4"/>
+                            </Anchors>
+                        </Texture>
+                        <FontString parentKey="SpellEffect" inherits="NarciFontNormal10" justifyH="LEFT" spacing="2">
+                            <Color r="1" g="0.82" b="0"/>
+                            <Anchors>
+                                <Anchor point="LEFT" relativeKey="$parent" relativePoint="LEFT"/>
+                                <Anchor point="TOP" relativeKey="$parent.SpellRange" relativePoint="BOTTOM" y="-4"/>
+                            </Anchors>
+                        </FontString>
+
+                        <FontString parentKey="InactiveAlert" inherits="NarciFontNormal10" justifyH="CENTER" hidden="true">
+                            <Color r="1" g="0.13" b="0.13"/>
+                            <Anchors>
+                                <Anchor point="TOP" relativeKey="$parent" relativePoint="TOP" y="-6"/>
+                            </Anchors>
+                        </FontString>
+                    </Layer>
+                    <Layer level="BACKGROUND">
+                        <Texture parentKey="RedBackground" file="Interface\AddOns\Narcissus\Art\GameTooltip\InactiveRedBackground" hidden="true">
+                            <Anchors>
+                                <Anchor point="TOPLEFT" relativeKey="$parent" relativePoint="TOPLEFT" x="-24"/>
+                                <Anchor point="BOTTOMRIGHT" relativeKey="$parent" relativePoint="BOTTOMRIGHT" x="24"/>
+                            </Anchors>
+                        </Texture>
+                    </Layer>
+                </Layers>
+            </Frame>
+            <Frame parentKey="FlavorTextFrame" hidden="true"/>
+            <DressUpModel parentKey="ItemModel" hidden="true" useParentLevel="true" ignoreParentAlpha="false">
+                <Size x="78" y="102"/>
+                <Anchors>
+                    <Anchor point="BOTTOMRIGHT" relativeKey="$parent.HeaderFrame" relativePoint="BOTTOMRIGHT" x="-24" y="1"/>
+                </Anchors>
+                <Layers>
+                    <Layer level="BACKGROUND">
+                        <Texture hidden="true">
+                            <Color a="0.5"/>
+                        </Texture>
+                    </Layer>
+                </Layers>
+                <Animations>
+                    <AnimationGroup parentKey="FadeIn">
+                        <Alpha fromAlpha="0" toAlpha="0" duration="1" order="1" parentKey="Hold"/>
+                        <Alpha fromAlpha="0" toAlpha="1" duration="0.25" order="2"/>
+                    </AnimationGroup>
+                </Animations>
+            </DressUpModel>
+        </Frames>
+        <Animations>
+            <AnimationGroup parentKey="AnimIn">
+                <Alpha fromAlpha="0" toAlpha="0" duration="0.1" order="1"/>
+                <Alpha fromAlpha="0" toAlpha="1" duration="0.2" order="2"/>
+            </AnimationGroup>
+        </Animations>
+        <Scripts>
+            <OnLoad method="OnLoad"/>
+            <OnShow method="OnShow"/>
+        </Scripts>
+    </Frame>
+</Ui>

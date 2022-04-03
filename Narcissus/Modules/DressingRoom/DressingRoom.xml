@@ -286,7 +286,7 @@
 						</Scripts>
 					</Button>
 
-					<Frame name="NarciDressingRoomSharePopup" parentKey="SharePopup" inherits="NarciFrameBorderTemplate" hidden="true" frameStrata="DIALOG" ignoreParentScale="true">
+					<Frame name="NarciDressingRoomSharedPopup" parentKey="SharedPopup" inherits="NarciFrameBorderTemplate" hidden="true" frameStrata="DIALOG" ignoreParentScale="true">
 						<Size x="256" y="251"/>
 						<KeyValues>
 							<KeyValue key="cornerRadius" value="8" type="number"/>

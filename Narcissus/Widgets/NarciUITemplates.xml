@@ -1060,58 +1060,6 @@
         </Scripts>
     </Button>
 
-	<Button name="NarciGemSlotTemplate" parentKey="GemSlot" hidden="true" virtual="true">
-		<Size x="30" y="30"/>
-		<HitRectInsets>
-			<AbsInset left="8" right="8" top="4" bottom="4"/>
-		</HitRectInsets>
-		<Layers>
-			<Layer level="BACKGROUND">
-				<Texture parentKey="GemBorderShadow" hidden="true" file="Interface\AddOns\Narcissus\Art\GemBorder\GemBorderMask">
-					<Size x="54" y="54"/>
-					<Anchors>
-						<Anchor point="CENTER" relativeKey="$parent" relativePoint="CENTER" x="0" y="0"/>
-					</Anchors>
-				</Texture>
-			</Layer>
-			<Layer level="BORDER" textureSubLevel="2">
-				<Texture parentKey="GemBorder" hidden="false">
-					<Size x="54" y="54"/>
-					<Anchors>
-						<Anchor point="CENTER" relativeKey="$parent" relativePoint="CENTER" x="0" y="0"/>
-					</Anchors>
-				</Texture>
-			</Layer>
-			<Layer level="BORDER" textureSubLevel="1">
-				<Texture parentKey="GemIcon" hidden="true" textureSubLevel="1">
-					<Size x="10" y="10"/>
-					<Anchors>
-						<Anchor point="CENTER" relativeKey="$parent.GemBorder" relativePoint="CENTER" x="0" y="0"/>
-					</Anchors>
-				</Texture>
-			</Layer>
-		</Layers>
-		<Animations>
-			<AnimationGroup parentKey="animIn">
-				<Alpha startDelay="0.1" fromAlpha="0" toAlpha="1" duration="0.2" order="1"/>
-				<Scripts>
-					<OnFinished>
-						self:GetParent():SetAlpha(1);
-					</OnFinished>
-				</Scripts>
-			</AnimationGroup>
-			<AnimationGroup parentKey="animOut">
-				<Alpha startDelay="0.1" fromAlpha="1" toAlpha="0" duration="0.2" order="1"/>
-				<Scripts>
-					<OnFinished>
-						self:GetParent():Hide();
-						self:GetParent():SetAlpha(0);
-					</OnFinished>
-				</Scripts>
-			</AnimationGroup>
-		</Animations>
-	</Button>
-
 	<Button name="Narci_AlertFrame" inherits="NarciFrameWithShadowTemplate" frameStrata="TOOLTIP" frameLevel="30" Alpha="0" clampedToScreen="true" registerForClicks="LeftButtonUp, RightButtonUp" virtual="true" hidden="true" mixin="NarciAlertFrameMixin">
 		<Size x="240" y="60"/>
 		<Backdrop edgeFile="Interface\AddOns\Narcissus\Art\Tooltip\Tooltip-Red" tile="true">
@@ -1947,56 +1895,28 @@
 		</Scripts>
 	</Frame>
 
-	<Frame name="NarciInteractableLineBorderTemplate" virtual="true" frameLevel="6">
+	<Frame name="NarciInteractableAreaIndicatorTemplate" virtual="true" frameLevel="6" mixin="NarciInteractableAreaIndicatorMixin">
 		<Layers>
 			<Layer level="BORDER">
-				<Line setAllPoints="true" thickness="1" parentKey="lt" hidden="true">
+				<Texture parentKey="Stroke" hidden="true">
+					<Color r="0.5" g="0.5" b="0.5"/>
+				</Texture>
+				<MaskTexture parentKey="Exclusion">
 					<Anchors>
-						<Anchor point="CENTER" relativeKey="$parent" relativePoint="CENTER" x="0" y="0"/>
+						<Anchor point="TOPLEFT"/>
+						<Anchor point="BOTTOMRIGHT"/>
 					</Anchors>
-					<Color r="0.5" g="0.5" b="0.5" a="1.0"/>
-					<StartAnchor relativeKey="$parent" relativePoint="TOPLEFT" x="0" y="0"/>
-					<EndAnchor relativeKey="$parent" relativePoint="TOPRIGHT" x="0" y="0"/>
-				</Line>
-				<Line setAllPoints="true" thickness="1" parentKey="ll" hidden="true">
-					<Anchors>
-						<Anchor point="CENTER" relativeKey="$parent" relativePoint="CENTER" x="0" y="0"/>
-					</Anchors>
-					<Color r="0.5" g="0.5" b="0.5" a="1.0"/>
-					<StartAnchor relativeKey="$parent" relativePoint="TOPLEFT" x="0" y="0"/>
-					<EndAnchor relativeKey="$parent" relativePoint="BOTTOMLEFT" x="0" y="0"/>
-				</Line>
-				<Line setAllPoints="true" thickness="1" parentKey="lr" hidden="true">
-					<Anchors>
-						<Anchor point="CENTER" relativeKey="$parent" relativePoint="CENTER" x="0" y="0"/>
-					</Anchors>
-					<Color r="0.5" g="0.5" b="0.5" a="1.0"/>
-					<StartAnchor relativeKey="$parent" relativePoint="TOPRIGHT" x="0" y="0"/>
-					<EndAnchor relativeKey="$parent" relativePoint="BOTTOMRIGHT" x="0" y="0"/>
-				</Line>
-				<Line setAllPoints="true" thickness="1" parentKey="lb" hidden="true">
-					<Anchors>
-						<Anchor point="CENTER" relativeKey="$parent" relativePoint="CENTER" x="0" y="0"/>
-					</Anchors>
-					<Color r="0.5" g="0.5" b="0.5" a="1.0"/>
-					<StartAnchor relativeKey="$parent" relativePoint="BOTTOMLEFT" x="0" y="0"/>
-					<EndAnchor relativeKey="$parent" relativePoint="BOTTOMRIGHT" x="0" y="0"/>
-				</Line>
+					<MaskedTextures>
+						<MaskedTexture childKey="Stroke"/>
+					</MaskedTextures>
+				</MaskTexture>
 			</Layer>
 		</Layers>
 		<Scripts>
-			<OnEnter>
-				self.lt:Show();
-				self.ll:Show();
-				self.lr:Show();
-				self.lb:Show();
-			</OnEnter>
-			<OnLeave>
-				self.lt:Hide();
-				self.ll:Hide();
-				self.lr:Hide();
-				self.lb:Hide();
-			</OnLeave>
+			<OnLoad method="OnLoad"/>
+			<OnEnter method="OnEnter"/>
+			<OnLeave method="OnLeave"/>
+			<OnShow method="OnShow"/>
 		</Scripts>
 	</Frame>
 	
@@ -2864,10 +2784,6 @@
 		<FontString justifyH="LEFT" justifyV="TOP" inherits="NarciFontMedium12" spacing="2">
 			<Color r="0.72" g="0.72" b="0.72"/>
 		</FontString>
-		<KeyValues>
-			<KeyValue key="cornerRadius" value="4" type="number"/>
-			<KeyValue key="isSubFrame" value="true" type="bool"/>
-		</KeyValues>
 		<Scripts>
 			<OnEditFocusGained method="OnEditFocusGained"/>
 			<OnEditFocusLost method="OnEditFocusLost"/>

@@ -102,8 +102,8 @@
 				</Texture>
 			</Layer>
 			<Layer level="ARTWORK">
-				<Texture parentKey="Highlight" setAllPoints="true" hidden="true" alphaMode="ADD">
-					<Color r="0.45" g="0.45" b="0.45" a="1"/>
+				<Texture parentKey="Highlight" setAllPoints="true" hidden="true">
+					<Color r="0.65" g="0.65" b="0.65" a="1"/>
 				</Texture>
 				<MaskTexture file="Interface\AddOns\Narcissus\Art\Widgets\ActorPanel\CenterMask" hWrapMode="CLAMPTOBLACKADDITIVE" vWrapMode="CLAMPTOBLACKADDITIVE">
 					<Size x="34" y="34"/>
@@ -223,7 +223,7 @@
 				<Texture parentKey="Highlight" setAllPoints="true" hidden="true" alphaMode="ADD">
 					<Color r="0.45" g="0.45" b="0.45" a="1"/>
 				</Texture>
-				<MaskTexture file="Interface\AddOns\Narcissus\Art\Widgets\ActorPanel\CenterMask" hWrapMode="CLAMPTOBLACKADDITIVE" vWrapMode="CLAMPTOBLACKADDITIVE" nounload="true">
+				<MaskTexture file="Interface\AddOns\Narcissus\Art\Widgets\ActorPanel\CenterMask" hWrapMode="CLAMPTOBLACKADDITIVE" vWrapMode="CLAMPTOBLACKADDITIVE">
 					<Size x="34" y="34"/>
 					<Anchors>
 						<Anchor point="CENTER" relativeKey="$parent" relativePoint="CENTER" x="0" y="0"/>
@@ -235,7 +235,7 @@
 			</Layer>
 
 			<Layer level="OVERLAY">
-				<Texture file="Interface\AddOns\Narcissus\Art\Widgets\ActorPanel\ActorIndexButton" parentKey="Border" nounload="true">
+				<Texture file="Interface\AddOns\Narcissus\Art\Widgets\ActorPanel\ActorIndexButton" parentKey="Border">
 					<Size x="34" y="34"/>
 					<TexCoords left="0.875" right="1" top="0" bottom="0.5"/>
 					<Anchors>
@@ -1634,7 +1634,7 @@
 								<Texture setAllPoints="true" hidden="true">
 									<Color r="0" g="1" b="0" a="0.1"/>
 								</Texture>		
-								<Texture file="Interface\AddOns\Narcissus\Art\Widgets\ActorPanel\Panel" parentKey="NameBackground" nounload="true">
+								<Texture file="Interface\AddOns\Narcissus\Art\Widgets\ActorPanel\Panel" parentKey="NameBackground">
 									<TexCoords left="0" right="0.92578125" top="0.33984375" bottom="0.453125"/>
 									<Size x="254" y="31"/>
 									<Anchors>
@@ -1647,7 +1647,7 @@
 							<Frame inherits="NarciArtFrameTemplate">
 								<Layers>
 									<Layer>
-										<Texture file="Interface\AddOns\Narcissus\Art\Widgets\ActorPanel\Panel" nounload="true" parentKey="Border">
+										<Texture file="Interface\AddOns\Narcissus\Art\Widgets\ActorPanel\Panel" parentKey="Border">
 											<TexCoords left="0" right="0.92578125" top="0.2265625" bottom="0.33984375"/>
 											<Anchors>
 												<Anchor point="TOPLEFT" relativeKey="$parent.$parent.NameBackground" relativePoint="TOPLEFT" x="0" y="0"/>
@@ -1722,7 +1722,7 @@
 										</Anchors>
 										<Layers>
 											<Layer level="ARTWORK">
-												<Texture file="Interface\AddOns\Narcissus\Art\Widgets\ActorPanel\Panel" parentKey="ButtonShadow" nounload="true">
+												<Texture file="Interface\AddOns\Narcissus\Art\Widgets\ActorPanel\Panel" parentKey="ButtonShadow">
 													<TexCoords left="0.923828125" right="1" top="0" bottom="0.11328125"/>
 													<Size x="26" y="31"/>
 													<Anchors>
@@ -1731,7 +1731,7 @@
 												</Texture>
 											</Layer>
 											<Layer level="OVERLAY">
-												<Texture file="Interface\AddOns\Narcissus\Art\Widgets\SpellVisualBrowser\Icons" desaturated="true" parentKey="Icon">
+												<Texture file="Interface\AddOns\Narcissus\Art\Widgets\SpellVisualBrowser\Icons" parentKey="Icon" desaturated="true">
 													<TexCoords left="0.75" right="1" top="0" bottom="0.25"/>
 													<Size x="18" y="18"/>
 													<Anchors>
@@ -1794,15 +1794,15 @@
 						</Frames>
 					</Frame>
 
-					<Frame parentKey="ExtraPanel" hidden="true">
+					<Frame parentKey="ExtraPanel" hidden="true" mixin='NarciPhotoModeExtraPanelMixin'>
 						<Size x="2" y="2"/>
 						<Anchors>
 							<Anchor point="LEFT" relativeKey="$parent.ExpandButton" relativePoint="LEFT" x="-1" y="0"/>
 						</Anchors>
 						<Layers>
 							<Layer level="BACKGROUND">
-								<Texture file="Interface\AddOns\Narcissus\Art\Widgets\ActorPanel\Panel" parentKey="IndexBackground" nounload="true" Alpha="0">
-									<TexCoords left="0" right="0.859375" top="0.11328125" bottom="0.2265625"/>
+								<Texture file="Interface\AddOns\Narcissus\Art\Animations\ActorPanel.tga" parentKey="SequenceTexture" nounload="false">
+									<TexCoords left="0" right="0.4296875" top="0" bottom="0.056640625"/>
 									<Size x="236" y="31"/>
 									<Anchors>
 										<Anchor point="LEFT" relativeKey="$parent" relativePoint="LEFT" x="0" y="0"/>
@@ -1829,11 +1829,11 @@
 							<Frame parentKey="ArtFrame" inherits="NarciArtFrameTemplate" frameLevel="30">
 								<Layers>
 									<Layer level="OVERLAY">
-										<Texture file="Interface\AddOns\Narcissus\Art\Widgets\ActorPanel\Panel" nounload="true">
+										<Texture file="Interface\AddOns\Narcissus\Art\Widgets\ActorPanel\Panel">
 											<TexCoords left="0" right="0.859375" top="0" bottom="0.11328125"/>
 											<Anchors>
-												<Anchor point="TOPLEFT" relativeKey="$parent.$parent.IndexBackground" relativePoint="TOPLEFT" x="0" y="0"/>
-												<Anchor point="BOTTOMRIGHT" relativeKey="$parent.$parent.IndexBackground" relativePoint="BOTTOMRIGHT" x="0" y="0"/>
+												<Anchor point="TOPLEFT" relativeKey="$parent.$parent.SequenceTexture" relativePoint="TOPLEFT" x="0" y="0"/>
+												<Anchor point="BOTTOMRIGHT" relativeKey="$parent.$parent.SequenceTexture" relativePoint="BOTTOMRIGHT" x="0" y="0"/>
 											</Anchors>
 										</Texture>
 										<FontString inherits="NarciIndicatorLetter" justifyH="LEFT" justifyV="MIDDLE" maxLines="1" parentKey="Label">
@@ -1868,12 +1868,12 @@
 								</Frames>
 							</Frame>
 
-							<Frame parentKey="UpdateFrame" hidden="true">
+							<Frame parentKey="UpdateFrame" hidden="true" mixin="NarciIndexRepositionFrameMixin">
 								<Scripts>
-									<OnLoad function="Narci_ModelIndexButton_RepositionFrame_OnLoad"/>
-									<OnShow function="Narci_ModelIndexButton_RepositionFrame_OnShow"/>
-									<OnHide function="Narci_ModelIndexButton_RepositionFrame_OnHide"/>
-									<OnUpdate function="Narci_ModelIndexButton_RepositionFrame_OnUpdate"/>
+									<OnLoad method="OnLoad"/>
+									<OnShow method="OnShow"/>
+									<OnHide method="OnHide"/>
+									<OnUpdate method="OnUpdate"/>
 								</Scripts>
 							</Frame>
 
@@ -1881,21 +1881,21 @@
 								<Size x="24" y="104"/>
 								<Layers>
 									<Layer level="BACKGROUND">
-										<Texture file="Interface\AddOns\Narcissus\Art\Widgets\ActorPanel\PhantomPopUp" nounload="true" parentKey="BackdropBottom">
+										<Texture file="Interface\AddOns\Narcissus\Art\Widgets\ActorPanel\PhantomPopUp" parentKey="BackdropBottom">
 											<Size x="274" y="34.25"/>
 											<TexCoords left="0" right="1" top="0.625" bottom="0.75"/>
 											<Anchors>
 												<Anchor point="CENTER" relativeKey="$parent" relativePoint="CENTER" y="-52"/>
 											</Anchors>
 										</Texture>
-										<Texture file="Interface\AddOns\Narcissus\Art\Widgets\ActorPanel\PhantomPopUp" nounload="true" parentKey="BackdropMiddle">
+										<Texture file="Interface\AddOns\Narcissus\Art\Widgets\ActorPanel\PhantomPopUp" parentKey="BackdropMiddle">
 											<Size x="274" y="88"/>
 											<TexCoords left="0" right="1" top="0.375" bottom="0.625"/>
 											<Anchors>
 												<Anchor point="BOTTOM" relativeKey="$parent.BackdropBottom" relativePoint="TOP"/>
 											</Anchors>
 										</Texture>
-										<Texture file="Interface\AddOns\Narcissus\Art\Widgets\ActorPanel\PhantomPopUp" nounload="true" parentKey="BackdropTop">
+										<Texture file="Interface\AddOns\Narcissus\Art\Widgets\ActorPanel\PhantomPopUp" parentKey="BackdropTop">
 											<Size x="274" y="34.25"/>
 											<TexCoords left="0" right="1" top="0.25" bottom="0.375"/>
 											<Anchors>
@@ -2035,23 +2035,6 @@
 						</Frames>
 						<Scripts>
 							<OnLoad function="Narci_ExtraPanel_OnLoad"/>
-						</Scripts>
-					</Frame>
-
-					<Frame parentKey="Animation" Alpha="0" frameLevel="12">
-						<Size x="236" y="31"/>
-						<Anchors>
-							<Anchor point="LEFT" relativeKey="$parent.ExtraPanel.IndexBackground" relativePoint="LEFT" x="0" y="0"/>
-						</Anchors>
-						<Layers>
-							<Layer level="BACKGROUND">
-								<Texture file="Interface\AddOns\Narcissus\Art\Animations\ActorPanel.tga" parentKey="Sequence" nounload="true">
-									<TexCoords left="0" right="0.4296875" top="0" bottom="0.056640625"/>
-								</Texture>
-							</Layer>
-						</Layers>
-						<Scripts>
-							<OnLoad function="Narci_ActorIndexPanel_OnLoad"/>
 						</Scripts>
 					</Frame>
 				</Frames>

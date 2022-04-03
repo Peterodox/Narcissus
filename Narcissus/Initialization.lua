@@ -57,7 +57,9 @@ local DefaultValue = {
     ["ConduitTooltip"] = false,                     --Show conduit effects of higher ranks
     ["PaperDollWidget"] = true,                     --Show Domination/Class Set indicator on the Blizzard character pane
     ["OnlyShowOwnedUpgradeItem"] = true,            --Filter for gems/enchant scrolls
-
+    ["ItemTooltipStyle"] = 1,
+    ["ShowItemID"] = false,
+    
     --# Internal Hotkey
     ["SearchRelativesHotkey"] = "TAB",              --The key you press to begin/cycle relative search
 

@@ -1,6 +1,6 @@
 ## Interface: 90200
 ## Plain Title: Narcissus
-## Version: 1.1.9
+## Version: 1.2.0
 
 ## Title: |cffA236EFN|cff9448F1a|cff865BF2r|cff786DF4c|cff6A80F6i|cff5D92F7s|cff4FA4F9s|cff41B7FAu|cff33C9FCs|r
 
@@ -22,6 +22,7 @@ NarciDB\TitleManagerDB.lua
 NarciDB\GearBonus.lua
 NarciDB\API.xml
 
+Modules\ModuleManager\ModuleManager.lua
 Modules\PaperDollWidget\Controller.xml
 
 Modules\CharacterFrame\Progenitor.xml
@@ -32,13 +33,13 @@ Constants\Constants.xml
 
 Bridge\Bridge.xml
 
+Modules\GameTooltip\GameTooltip.xml
 Modules\CharacterFrame\Domination.xml
-
 Modules\CharacterFrame\ItemLevelFrame.lua
 Modules\CharacterFrame\Enchant.lua
 Modules\CharacterFrame\TemporaryEnchant.xml
-Modules\EquipmentOption\EquipmentOption.xml
 Modules\CharacterFrame\ItemSocketing.xml
+Modules\EquipmentOption\EquipmentOption.xml
 Modules\CharacterFrame\ItemCooldown.xml
 Modules\CharacterFrame\Attributes.xml
 
@@ -77,7 +78,6 @@ Modules\Splash\Splash.xml
 
 Modules\Achievement\Core.xml
 Modules\Statistics\Core.lua
-Modules\ModuleManager\ModuleManager.lua
 
 # Modules\ParticleSystem\ParticleSystem.xml
 
@@ -86,8 +86,10 @@ Filters\Letterbox.xml
 
 Guide\Guide.xml
 
+# Modules\DevTool\DevTool.xml
 
 #Test
+# Modules\Inspector\Inspector.xml
 # Modules\LootTracker\Main.lua
 # Modules\AnimKit\AnimKit.xml
 # Modules\Map\Map.xml

@@ -19,6 +19,7 @@ local UnitStat = UnitStat;
 local GetCombatRating = GetCombatRating;
 local GetCombatRatingBonus = GetCombatRatingBonus;
 local BASE_MOVEMENT_SPEED = BASE_MOVEMENT_SPEED;
+local GetSpecialization = GetSpecialization;
 
 local function GetPrimaryStatsNum()
 	local _, strength = UnitStat("player", 1);
@@ -549,7 +550,7 @@ function UpdateFunc:Parry(object)
 	--object:Show();
 end
 
-function UpdateFunc:Block(object, unit)
+function UpdateFunc:Block(object)
 	local unit = "player";
 
 	local chance = GetBlockChance();
@@ -557,23 +558,23 @@ function UpdateFunc:Block(object, unit)
 
 	local spec = GetSpecialization();
 	if not spec then return; end
-	local role = GetSpecializationRole(spec);
 
-	if role == "TANK" and chance ~= 0 then
+	--local role = GetSpecializationRole(spec);
+	if chance ~= 0 and C_PaperDollInfo.OffhandHasShield() then		--role == "TANK"
 		object:SetLabelAndValue(STAT_BLOCK, chanceText);
 	else
-		object:SetLabelAndValue(STAT_BLOCK, "N/A", true);	
+		object:SetLabelAndValue(STAT_BLOCK, "N/A", true);
 	end
-	
+
 	object.tooltip = "|cffffffff".. BLOCK_CHANCE .." "..format("%.2F", chance).."%".."|r";
 
 	local shieldBlockArmor = GetShieldBlock();
 	local blockArmorReduction = C_PaperDollInfo.GetArmorEffectiveness(shieldBlockArmor, UnitEffectiveLevel(unit));
 	local blockArmorReductionAgainstTarget = C_PaperDollInfo.GetArmorEffectivenessAgainstTarget(shieldBlockArmor);
 
-	object.tooltip2 = CR_BLOCK_TOOLTIP:format(blockArmorReduction);
+	object.tooltip2 = format(CR_BLOCK_TOOLTIP, blockArmorReduction * 100);
 	if (blockArmorReductionAgainstTarget) then
-		object.tooltip3 = format(STAT_BLOCK_TARGET_TOOLTIP, blockArmorReductionAgainstTarget);
+		object.tooltip3 = format(STAT_BLOCK_TARGET_TOOLTIP, blockArmorReductionAgainstTarget * 100);
 	else
 		object.tooltip3 = nil;
 	end

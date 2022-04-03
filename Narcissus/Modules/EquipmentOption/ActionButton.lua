@@ -56,6 +56,7 @@ function NarciEquipmentEnchantActionButtonMixin:InitFromButton(button, slotID, i
         self:SetUsingItem(button.itemID, slotID);
         NarciRuneAnimationOverlay:SetRuneByEnchantID(button.enchantID);
     else
+        self:MarkActive(false);
         return
     end
     self:SetPoint("LEFT", button, "LEFT", 0, 0);
@@ -69,7 +70,7 @@ function NarciEquipmentEnchantActionButtonMixin:InitFromButton(button, slotID, i
     self.Backdrop.Shine:Play();
     self.Header.FlyIn:Play();
     self.NewItemName.FlyIn:Play();
-
+    self:MarkActive(true);
     FadeFrame(SelectionOverlay, 0.2, 1);
 end
 
@@ -81,12 +82,14 @@ function NarciEquipmentEnchantActionButtonMixin:Clear()
     self:StopAnimating();
     self:SetScript("OnUpdate", nil);
     self.t = 0;
+    self.macroText = nil;
     if not self.isReleased then
         self.isReleased = true;
         self:Hide();
         self:ClearAllPoints();
         self:SetParent(NarciSecureFrameContainer);
     end
+    self:MarkActive(false);
 end
 
 function NarciEquipmentEnchantActionButtonMixin:PostClick(button)
@@ -116,11 +119,16 @@ end
 
 function NarciEquipmentEnchantActionButtonMixin:SetUsingItem(itemID, slotID)
     local slotName = GetSlotNameByID(slotID);
-    local macroText = string.format("/use item:%s\r/click %s\r/click StaticPopup1Button1", itemID, slotName or "");
+    local macroText = string.format("/use item:%s\r/click %s\r/click StaticPopup1Button1\r/click %s", itemID, slotName or "", slotName or "");
     self:SetAttribute("type1", "macro");
     self:SetAttribute("type2", nil);
     self:SetAttribute("macrotext", macroText);
     self.stopCasting = nil;
+    self.macroText = macroText;
+end
+
+function NarciEquipmentEnchantActionButtonMixin:GetMacroText()
+    return self.macroText;
 end
 
 function NarciEquipmentEnchantActionButtonMixin:SetClickToCancel()
@@ -177,7 +185,7 @@ function NarciEquipmentEnchantActionButtonMixin:OnCastSucceeded()
             slot:Refresh();
         end);
     end
-    MainFrame:CloseUI();
+    MainFrame:CloseUI(0.5);
 end
 
 function NarciEquipmentEnchantActionButtonMixin:OnCastFailed(errorMsg)
@@ -203,6 +211,13 @@ function NarciEquipmentEnchantActionButtonMixin:OnEvent()
     self:Clear();
 end
 
+function NarciEquipmentEnchantActionButtonMixin:MarkActive(state)
+    if state then
+        self.isActive = state;
+    else
+        self.isActive = nil;
+    end
+end
 
 
 -------- Item Socketing --------
@@ -327,6 +342,8 @@ function NarciEquipmentGemActionButtonMixin:InitFromButton(button, slotID, inUse
     self.ResultText:Hide();
     self.EventFrame:Hide();
 
+    self:MarkActive(true);
+
     FadeFrame(SelectionOverlay, 0.2, 1);
 end
 
@@ -341,6 +358,15 @@ function NarciEquipmentGemActionButtonMixin:Clear()
     self.t = 0;
     self:Hide();
     self:ClearAllPoints();
+    self:MarkActive(false);
+end
+
+function NarciEquipmentGemActionButtonMixin:MarkActive(state)
+    if state then
+        self.isActive = state;
+    else
+        self.isActive = nil;
+    end
 end
 
 function NarciEquipmentGemActionButtonMixin:OnClick(button)
@@ -383,9 +409,9 @@ function NarciEquipmentGemActionButtonMixin:OnActionSucceed()
         self.ResultText.Blink:SetLooping("NONE");
         NarciGemSlotOverlay:StartAnimation();
         PlaySound(84378);
-        MainFrame:CloseUI();
+        MainFrame:CloseUI(0.5);
         local slot = Narci.GetEquipmentSlotByID(self.slotID);
-        C_Timer.After(0.75, function()
+        C_Timer.After(1, function()
             slot:Refresh();
         end);
     else

@@ -1,7 +1,6 @@
 NarciCompetitiveDisplayMixin = {};
 
 function NarciCompetitiveDisplayMixin:OnLoad()
-    self:SetHeight(24 * 14);
     self:ClearAllPoints();
     self:SetPoint("TOP", Narci_ConciseStatFrame.Primary, "TOP", 0, 0);
 

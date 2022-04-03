@@ -6,22 +6,20 @@ local SIMPLE_BALLON_MIN_SIZE = 40;
 local TEXTURE_PATH_PREFIX = "Interface\\AddOns\\Narcissus\\Art\\Modules\\PhotoMode\\SpeechBalloon\\";
 local backdropInfo = {
     white = {
-        edgeFile = TEXTURE_PATH_PREFIX.. "SpeechBalloon-White",
-        tile = true,
-        tileSize = 24,
-        edgeSize = 24,
+        nineSliceName = "chatBubbleWhite",
         tailSize = 40,
-        tailFile = TEXTURE_PATH_PREFIX.. "Tail-White",
+        tailFile = "Tail-White",
     },
 
     black = {
-        edgeFile = TEXTURE_PATH_PREFIX.. "SpeechBalloon-Black",
-        tile = true,
-        tileSize = 24,
-        edgeSize = 24,
-        tailSize = 40,
-        tailFile = TEXTURE_PATH_PREFIX.. "Tail-Black",
+        nineSliceName = "chatBubbleBlack",
+        tailSize = 48,
+        tailFile = "Tail-Black",
     },
+};
+
+local STROKE_SIZE = {
+    2, 3, 4, 6;
 };
 
 --------------------------------------------------------------
@@ -31,17 +29,16 @@ local floor = math.floor;
 local sqrt = math.sqrt;
 local abs = math.abs;
 local sin = math.sin;
-local cos = math.cos;
 local atan2 = math.atan2;
 local pi = math.pi;
 local pi90 = pi/2;
 
 local upper = string.upper;
 local strsplit = strsplit;
-local strjoin = string.join;
 
 local L = Narci.L;
-local UIFrameFadeIn = UIFrameFadeIn;
+local NarciAPI = NarciAPI;
+local FadeFrame = NarciFadeUI.Fade;
 local IsMouseButtonDown = IsMouseButtonDown;
 local After = C_Timer.After;
 
@@ -120,10 +117,25 @@ local function SmartFontType(fontstring, text)
 		fontstring:SetFont(ActorNameFont[Language][1] , ActorNameFont[Language][2]);
 	end
 end
--------------------------------------------------------------------
-local Container, EditButton, PrimaryEditBox, Tooltip, Toolbar, ModelDropDownMenu;
 
 -------------------------------------------------------------------
+local Container, EditButton, PrimaryEditBox, Tooltip, Toolbar, ModelDropDownMenu, ColorDropDown, FontSizeDropDown;
+
+local function HideEditor()
+    Container:HideAllControlNodes();
+    Toolbar:Hide();
+    EditButton:Hide();
+    EditButton:ResetState();
+    PrimaryEditBox:Hide();
+    PrimaryEditBox:ConfirmChanges();
+end
+
+local function IsWidgetFocused(frame)
+    return frame and frame:IsFocused()
+end
+
+-------------------------------------------------------------------
+
 local function CreateUpdater()
     local frame = CreateFrame("Frame");
     frame:Hide();
@@ -164,8 +176,93 @@ simple_updateTailAttach:SetScript("OnUpdate", function(self, elapsed)
     self.parent:SetTailAttachOffset(x);
 end);
 
-------------------------------------------------------------------------------------------
-NarciSimpleSpeechBalloonMixin = CreateFromMixins(ExpansionTransitionBackdropTemplateMixin);
+-------------------------------------------------------------------
+
+local SharedSpeechBallonMixin = {};
+
+
+function SharedSpeechBallonMixin:OnDragStart()
+    self:StartMoving();
+end
+
+function SharedSpeechBallonMixin:OnDragStop()
+    self:StopMovingOrSizing();
+
+    --convert anchor to CENTER;
+    local x, y = self:GetCenter();
+    self:ClearAllPoints();
+    self:SetPoint("CENTER", UIParent, "BOTTOMLEFT", x, y);
+end
+
+function SharedSpeechBallonMixin:OnEnter()
+    if not IsMouseButtonDown() then
+        if EditButton.parentObject == self then
+            EditButton:FadeIn(0.25);
+        end
+    end
+end
+
+function SharedSpeechBallonMixin:OnLeave()
+    if not self:IsMouseOver() then
+        EditButton:FadeOut(0.25);
+    end
+end
+
+function SharedSpeechBallonMixin:SetBold(state)
+    self.isBold = state;
+    self:UpdateText();
+end
+
+function SharedSpeechBallonMixin:SetItalic(state)
+    self.isItalic = state;
+    self:UpdateText();
+end
+
+function SharedSpeechBallonMixin:SetAllCaps(state)
+    self.isAllCaps = state;
+    self:UpdateText();
+end
+
+function SharedSpeechBallonMixin:SetNodesTransparency(value)
+    value = value or 1;
+    local visible = (value ~= 0)
+    local node;
+    for i = 1, #self.Nodes do
+        node = self.Nodes[i];
+        node:SetAlpha(value);
+        node:SetShown(visible);
+    end
+end
+
+function SharedSpeechBallonMixin:OnClick()
+    if self.Nodes[1]:IsShown() then
+        HideEditor();
+    else
+        Toolbar:SetParentObject(self);
+        Container:HideAllControlNodes(self);
+        EditButton:SetParentObject(self);
+        if not IsMouseButtonDown() then
+            EditButton:FadeIn(0.25);
+        end
+    end
+end
+
+function SharedSpeechBallonMixin:IsFocused()
+    if self:IsMouseOver(16, -16, -16, 16) then
+        return true
+    else
+        for i = 1, #self.Nodes do
+            if self.Nodes[i]:IsMouseOver() then
+                return true
+            end
+        end
+    end
+    return false
+end
+
+-------------------------------------------------------------------
+
+NarciSimpleSpeechBalloonMixin = CreateFromMixins(SharedSpeechBallonMixin);
 
 function NarciSimpleSpeechBalloonMixin:OnLoad()
     self:RegisterForDrag("LeftButton");
@@ -212,32 +309,7 @@ function NarciSimpleSpeechBalloonMixin:OnLoad()
     end
 end
 
-function NarciSimpleSpeechBalloonMixin:OnDragStart()
-    self:StartMoving();
-end
 
-function NarciSimpleSpeechBalloonMixin:OnDragStop()
-    self:StopMovingOrSizing();
-
-    --convert anchor to CENTER;
-    local x, y = self:GetCenter();
-    self:ClearAllPoints();
-    self:SetPoint("CENTER", UIParent, "BOTTOMLEFT", x, y);
-end
-
-function NarciSimpleSpeechBalloonMixin:OnEnter()
-    if not IsMouseButtonDown() then
-        if EditButton.parentObject == self then
-            EditButton:FadeIn(0.25);
-        end
-    end
-end
-
-function NarciSimpleSpeechBalloonMixin:OnLeave()
-    if not self:IsMouseOver() then
-        EditButton:FadeOut(0.25);
-    end
-end
 
 function NarciSimpleSpeechBalloonMixin:AutoSizing()
     local textHeight = round( self.ShownText:GetStringHeight() );
@@ -318,24 +390,24 @@ function NarciSimpleSpeechBalloonMixin:SelectTheme(themeID)
     self.backgroundColor = THEME_PRESETS[themeID];
 
     local info;
+
     if themeID == 1 then
         info = backdropInfo.white;
-        self.Background:SetColorTexture(1, 1, 1, 1);
         self.ShownText:SetTextColor(0, 0, 0);
         self.ShownText:SetShadowColor(0, 0, 0, 0);
         self.ShownText:SetShadowOffset(0, 0);
     else
         info = backdropInfo.black;
-        self.Background:SetColorTexture(0.05, 0.05, 0.05, 0.8);
-        --self.ShownText:SetTextColor(1, 1, 1);
         self.ShownText:SetTextColor(1, 0.91, 0.647);
         self.ShownText:SetShadowColor(0, 0, 0, 1);
         self.ShownText:SetShadowOffset(1, -1);
     end
-    self:SetBackdrop(info);
-    self.Tail:SetTexture(info.tailFile, nil, nil, "TRILINEAR");
+
     local tailSize = info.tailSize;
     self.Tail:SetSize(tailSize, tailSize);
+    self.Tail:SetTexture(TEXTURE_PATH_PREFIX.. info.tailFile, nil, nil, "TRILINEAR");
+
+    NarciAPI.NineSliceUtil.SetUpBackdrop(self, info.nineSliceName);
 end
 
 function NarciSimpleSpeechBalloonMixin:UpdateText()
@@ -357,30 +429,13 @@ function NarciSimpleSpeechBalloonMixin:UpdateText()
     self.ShownText:SetFont(font, height);
 end
 
-function NarciSimpleSpeechBalloonMixin:SetAllCaps(state)
-    self.isAllCaps = state;
-    self:UpdateText();
-end
-
-function NarciSimpleSpeechBalloonMixin:SetItalic(state)
-    self.isItalic = state;
-    self:UpdateText();
-end
-
-function NarciSimpleSpeechBalloonMixin:SetBold(state)
-    self.isBold = state;
-    self:UpdateText();
-end
-
 function NarciSimpleSpeechBalloonMixin:SetFontColor(r, g, b)
     self.ShownText:SetTextColor(r, g, b);
 end
 
 function NarciSimpleSpeechBalloonMixin:OnClick()
-    if self.nodes[1]:IsShown() then
-        Container:HideAllControlNodes();
-        Toolbar:Hide();
-        EditButton:Hide();
+    if self.Nodes[1]:IsShown() then
+        HideEditor();
     else
         Toolbar:SetParentObject(self);
         Container:HideAllControlNodes(self);
@@ -391,16 +446,6 @@ function NarciSimpleSpeechBalloonMixin:OnClick()
     end
 end
 
-function NarciSimpleSpeechBalloonMixin:SetNodesTransparency(value)
-    value = value or 1;
-    local visible = (value ~= 0)
-    local node;
-    for i = 1, #self.nodes do
-        node = self.nodes[i];
-        node:SetAlpha(value);
-        node:SetShown(visible);
-    end
-end
 
 ---------------------------------------------------------------------------------------------------------
 local LetteringSystem = {};
@@ -687,7 +732,8 @@ local function ColorButton_OnClick(self)
     self.parent:SetBackgroundColor(237/255, 28/255, 36/255);
 end
 
-NarciAdjustableSpeechBalloonMixin = {};
+
+NarciAdjustableSpeechBalloonMixin = CreateFromMixins(SharedSpeechBallonMixin);
 
 function NarciAdjustableSpeechBalloonMixin:OnLoad()
     self.rawText = "";
@@ -697,8 +743,6 @@ function NarciAdjustableSpeechBalloonMixin:OnLoad()
     self.borders = {self.BorderMaskTopLeft, self.BorderMaskTopRight, self.BorderMaskBottomLeft, self.BorderMaskBottomRight};
     self:RegisterForDrag("LeftButton");
 
-
-    local cornerRadius = round(self.CornerTopLeft:GetWidth());
     self.CornerNode.isBoundaryButton = true;
     self.CornerNode.transformFunc = function(dx, dy)
         updateCorner.uiScale = UIParent:GetEffectiveScale();
@@ -769,9 +813,9 @@ function NarciAdjustableSpeechBalloonMixin:OnLoad()
 
     self.ColorButton.parent = self;
     self.ColorButton:SetScript("OnClick", ColorButton_OnClick);
-    
+
     self:SetNodesTransparency(0);
-    self:SetBorderThickness(2);
+    self:SetBorderThickness(3);
     self:SetCornerRadius(6);
     self:SetBoundaryWidth(180);
     self:SetBoundaryHeight(90);
@@ -785,8 +829,9 @@ function NarciAdjustableSpeechBalloonMixin:OnLoad()
 end
 
 function NarciAdjustableSpeechBalloonMixin:SetBorderThickness(value)
-    self.thicknessFactor = value;
-    value = value * 0.8;        --Pixel Scale
+    self.borderPixelSize = value;
+    local pixel = NarciAPI.GetPixelForWidget(self, value);
+    value = pixel;        --Pixel Scale
     self.thickness = value;
     local cornerRadius = self.CornerTopRight:GetWidth();
     self.BorderLeft:SetPoint("TOPLEFT", self, "TOPLEFT", -value, value);
@@ -1046,94 +1091,22 @@ function NarciAdjustableSpeechBalloonMixin:SetFontColor(r, g, b)
     LetteringSystem:UpdateFont(self);
 end
 
-function NarciAdjustableSpeechBalloonMixin:SetBold(state)
-    self.isBold = state;
-    self:UpdateText();
-end
-
-function NarciAdjustableSpeechBalloonMixin:SetItalic(state)
-    self.isItalic = state;
-    self:UpdateText();
-end
-
-function NarciAdjustableSpeechBalloonMixin:SetAllCaps(state)
-    self.isAllCaps = state;
-    self:UpdateText();
-end
 
 function NarciAdjustableSpeechBalloonMixin:SetTextWrapping(state)
     self.textWrapping = state;
     self:UpdateText();
 end
 
-function NarciAdjustableSpeechBalloonMixin:SetNodesTransparency(value)
-    value = value or 1;
-    local visible = (value ~= 0)
-    local node;
-    for i = 1, #self.nodes do
-        node = self.nodes[i];
-        node:SetAlpha(value);
-        node:SetShown(visible);
-    end
-end
-
-function NarciAdjustableSpeechBalloonMixin:OnDragStart()
-    self:StartMoving();
-end
-
-function NarciAdjustableSpeechBalloonMixin:OnDragStop()
-    self:StopMovingOrSizing();
-
-    --convert anchor to CENTER;
-    local x, y = self:GetCenter();
-    self:ClearAllPoints();
-    self:SetPoint("CENTER", UIParent, "BOTTOMLEFT", x, y);
-end
-
-function NarciAdjustableSpeechBalloonMixin:OnEnter()
-    if not IsMouseButtonDown() then
-        if EditButton.parentObject == self then
-            EditButton:FadeIn(0.25);
-        end
-    end
-end
-
-function NarciAdjustableSpeechBalloonMixin:OnLeave()
-    if not self:IsMouseOver() then
-        EditButton:FadeOut(0.25);
-    end
-end
-
-function NarciAdjustableSpeechBalloonMixin:OnClick()
-    if self.nodes[1]:IsShown() then
-        Container:HideAllControlNodes();
-        Toolbar:Hide();
-        EditButton:Hide();
-    else
-        Toolbar:SetParentObject(self);
-        Container:HideAllControlNodes(self);
-        EditButton:SetParentObject(self);
-        if not IsMouseButtonDown() then
-            EditButton:FadeIn(0.25);
-        end
-    end
-end
-
 function NarciAdjustableSpeechBalloonMixin:OnDoubleClick()
     --EditButton:Click();
 end
+
 
 -----------------------------------------------------------------
 NarciSpeechBalloonControlNodeMixin = {};
 
 function NarciSpeechBalloonControlNodeMixin:OnLoad()
     self.Texture:SetTexture(TEXTURE_PATH_PREFIX.. "ControlNode", nil, nil, "TRILINEAR");
-
-    local parent = self:GetParent();
-    if not parent.nodes then
-        parent.nodes = {};
-    end
-    tinsert(parent.nodes, self);
 end
 
 function NarciSpeechBalloonControlNodeMixin:OnClick()
@@ -1258,7 +1231,7 @@ function NarciSpeechBalloonToolbarButtonMixin:OnEvent(event)
             end
         end
         if not isInbound then
-            --self:UnregisterEvent("GLOBAL_MOUSE_DOWN");
+            self:UnregisterEvent(event);
             if self.closeFunc then
                 self.closeFunc(self);
             end
@@ -1290,9 +1263,6 @@ function NarciSpeechBalloonToolbarLongButtonMixin:OnLeave()
     end
 end
 ----------------------------------------------------------
-local THICKNESS_ORDER = {
-    1, 2, 4, 6;
-};
 
 local function ToggleBorderThicknessOptions(self, visible)
     if visible ~= nil then
@@ -1303,7 +1273,7 @@ local function ToggleBorderThicknessOptions(self, visible)
     if not self.options then
         self.options = {};
         local widget;
-        for i = 1, 4 do
+        for i = 1, #STROKE_SIZE do
             widget = CreateFrame("Button", nil, self, "NarciSpeechBalloonLineThicknessButtonTemplate");
             widget:SetFrameLevel(15);
             tinsert(self.options, widget);
@@ -1312,7 +1282,7 @@ local function ToggleBorderThicknessOptions(self, visible)
             else
                 widget:SetPoint("TOP", self.options[i - 1], "BOTTOM", 0, 1.5);
             end
-            widget:SetValue(i);
+            widget:SetValue(STROKE_SIZE[i]);
         end
     end
 
@@ -1373,177 +1343,120 @@ for i = 2, #COLOR_PRESETS do
     COLOR_PRESETS[i] = {r/255, g/255, b/255};
 end
 
-local ToggleThemeOptions;
-local function ThemeButton_OnClick(self)
-    local parentButton = self:GetParent();
-    local parentObject = parentButton:GetParent():GetParent().parentObject;
 
-    ToggleThemeOptions(parentButton, false);
-    if parentObject then
-        local themeID = self.themeID;
-        parentObject:SelectTheme(themeID);
-        parentButton:SetBackgroundColor(unpack(self.value));
-        local textColorButton = self:GetParent():GetParent():GetParent().Bar2.buttons[4];
-        if themeID == 1 then
-            textColorButton:SetBackgroundColor(0, 0, 0);
-        else
-            textColorButton:SetBackgroundColor(1, 0.91, 0.647);
+local function ToggleColorDropDown(colorSwitch, state, modeIndex)
+    if not ColorDropDown then
+        ColorDropDown = CreateFrame("Frame", nil, Toolbar);
+        ColorDropDown:Hide();
+        ColorDropDown:SetSize(16, 16);
+        ColorDropDown.buttons = {};
+
+        --[[Area Text]]--
+        --[[
+        local backdrop = ColorDropDown:CreateTexture(nil, "BACKGROUND");
+        backdrop:SetPoint("TOPLEFT", ColorDropDown, "TOPLEFT", 0, 0);
+        backdrop:SetPoint("BOTTOMRIGHT", ColorDropDown, "BOTTOMRIGHT", 0, 0);
+        backdrop:SetColorTexture(1, 0, 0, 0.5);
+        --]]
+
+        function ColorDropDown:SetMode(mode)
+            if mode ~= self.mode then
+                ColorDropDown.mode = mode;
+                self:UpdateButtons(mode);
+            end
         end
+
+        function ColorDropDown:GetMode()
+            return self.mode
+        end
+
+        function ColorDropDown:UpdateButtons(mode)
+            local colors;
+            if mode == 1 then
+                colors = THEME_PRESETS;
+            else
+                colors = COLOR_PRESETS;
+            end
+            if colors == self.colors then
+                return
+            else
+                self.colors = colors;
+            end
+            if colors then
+                local col = 1;
+                local row = 1;
+                for i = 1, #colors do
+                    if not self.buttons[i] then
+                        self.buttons[i] = CreateFrame("Button", nil, self, "NarciSpeechBalloonColorButtonTemplate");
+                        self.buttons[i]:SetPoint("TOPLEFT", self, "TOPLEFT", (col - 1) * 20, (1 - row) * 20);
+                        self.buttons[i].id = i;
+                    end
+                    col = col + 1;
+                    if col > 7 then
+                        col = 1;
+                        row = row + 1;
+                    end
+                    self.buttons[i]:SetColor( colors[i] );
+                    self.buttons[i]:Show();
+                end
+                if row == 1 then
+                    self:SetSize(20 * col, 20);
+                else
+                    self:SetSize(20 * 7, 20 * row);
+                end
+                for i = #colors + 1, #self.buttons do
+                    self.buttons[i]:Hide();
+                end
+            end
+        end
+
+        function ColorDropDown:IsFocused()
+            return self:IsShown() and ( self:IsMouseOver(4, -4, -4, 4) or (self.parentButton and self.parentButton:IsMouseOver() ));
+        end
+
+        ColorDropDown:SetScript("OnEvent", function(self, event)
+            if not self:IsFocused() then
+                self:Hide();
+            end
+        end);
+
+        ColorDropDown:SetScript("OnShow", function(self)
+            self:RegisterEvent("GLOBAL_MOUSE_DOWN");
+        end);
+
+        ColorDropDown:SetScript("OnHide", function(self)
+            self:UnregisterEvent("GLOBAL_MOUSE_DOWN");
+        end);
+    end
+
+    ColorDropDown:ClearAllPoints();
+    if state == nil then
+        state = not ColorDropDown:IsShown()
+    end
+    if state then
+        ColorDropDown.parentButton = colorSwitch;
+        ColorDropDown:SetPoint("TOPLEFT", colorSwitch, "BOTTOMLEFT", 0, -8);
+        ColorDropDown:SetMode(modeIndex);
+        ColorDropDown:Show();
+    else
+        ColorDropDown:Hide();
     end
 end
 
-function ToggleThemeOptions(self, visible)
-    if visible ~= nil then
-        self.isOn = visible;
-    else
-        self.isOn = not self.isOn;
-    end
-    if not self.options then
-        self.options = {};
-        local widget;
-        for i = 1, #THEME_PRESETS do
-            widget = CreateFrame("Button", nil, self, "NarciSpeechBalloonColorButtonTemplate");
-            tinsert(self.options, widget);
-            if i == 1 then
-                widget:SetPoint("TOP", self, "BOTTOM", 0, -8);
-            else
-                widget:SetPoint("LEFT", self.options[i - 1], "RIGHT", 4, 0);
-            end
-
-            widget:SetColor( THEME_PRESETS[i] );
-            widget.themeID = i;
-            widget:SetScript("OnClick", ThemeButton_OnClick);
-        end
-    end
-    if self.isOn then
-        local widget;
-        for i = 1, #self.options do
-            widget = self.options[i];
-            widget:Show();
-        end
-        self:RegisterEvent("GLOBAL_MOUSE_DOWN");
-    else
-        for i = 1, #self.options do
-            self.options[i]:Hide();
-        end
-        self:UnregisterEvent("GLOBAL_MOUSE_DOWN");
-    end
+local function ToggleThemeOptions(self, visible)
+    ToggleColorDropDown(self, visible, 1);
 end
 
 local function ToggleBackgroundColorOptions(self, visible)
-    if visible ~= nil then
-        self.isOn = visible;
-    else
-        self.isOn = not self.isOn;
-    end
-    if not self.options then
-        self.options = {};
-        local widget;
-        for i = 1, #COLOR_PRESETS do
-            widget = CreateFrame("Button", nil, self, "NarciSpeechBalloonColorButtonTemplate");
-            tinsert(self.options, widget);
-            if i == 1 then
-                widget:SetPoint("TOP", self, "BOTTOM", 0, -8);
-            elseif i % 7 == 1 then
-                widget:SetPoint("TOP", self.options[i - 7], "BOTTOM", 0, -4);
-            else
-                widget:SetPoint("LEFT", self.options[i - 1], "RIGHT", 4, 0);
-            end
-
-            widget:SetColor( COLOR_PRESETS[i] );
-        end
-    end
-    if self.isOn then
-        local widget;
-        local thickness = self.value;
-        for i = 1, #self.options do
-            widget = self.options[i];
-            widget:Show();
-        end
-        self:RegisterEvent("GLOBAL_MOUSE_DOWN");
-    else
-        for i = 1, #self.options do
-            self.options[i]:Hide();
-        end
-        self:UnregisterEvent("GLOBAL_MOUSE_DOWN");
-    end
+    ToggleColorDropDown(self, visible, 2);
 end
 
 local function ToggleBorderColorOptions(self, visible)
-    if visible ~= nil then
-        self.isOn = visible;
-    else
-        self.isOn = not self.isOn;
-    end
-    if not self.options then
-        self.options = {};
-        local widget;
-        for i = 1, #COLOR_PRESETS do
-            widget = CreateFrame("Button", nil, self, "NarciSpeechBalloonColorButtonTemplate");
-            widget.isBorderColor = true;
-            tinsert(self.options, widget);
-            if i == 1 then
-                widget:SetPoint("TOP", self, "BOTTOM", 0, -8);
-            elseif i % 7 == 1 then
-                widget:SetPoint("TOP", self.options[i - 7], "BOTTOM", 0, -4);
-            else
-                widget:SetPoint("LEFT", self.options[i - 1], "RIGHT", 4, 0);
-            end
-            widget:SetColor( COLOR_PRESETS[i] );
-        end
-    end
-    if self.isOn then
-        local widget;
-        for i = 1, #self.options do
-            widget = self.options[i];
-            widget:Show();
-        end
-        self:RegisterEvent("GLOBAL_MOUSE_DOWN");
-    else
-        for i = 1, #self.options do
-            self.options[i]:Hide();
-        end
-        self:UnregisterEvent("GLOBAL_MOUSE_DOWN");
-    end
+    ToggleColorDropDown(self, visible, 3);
 end
 
 local function ToggleFontColorOptions(self, visible)
-    if visible ~= nil then
-        self.isOn = visible;
-    else
-        self.isOn = not self.isOn;
-    end
-    if not self.options then
-        self.options = {};
-        local widget;
-        for i = 1, #COLOR_PRESETS do
-            widget = CreateFrame("Button", nil, self, "NarciSpeechBalloonColorButtonTemplate");
-            widget.isFontColor = true;
-            tinsert(self.options, widget);
-            if i == 1 then
-                widget:SetPoint("TOP", self, "BOTTOM", 0, -8);
-            elseif i % 7 == 1 then
-                widget:SetPoint("TOP", self.options[i - 7], "BOTTOM", 0, -4);
-            else
-                widget:SetPoint("LEFT", self.options[i - 1], "RIGHT", 4, 0);
-            end
-            widget:SetColor( COLOR_PRESETS[i] );
-        end
-    end
-    if self.isOn then
-        local widget;
-        local thickness = self.value;
-        for i = 1, #self.options do
-            widget = self.options[i];
-            widget:Show();
-        end
-        self:RegisterEvent("GLOBAL_MOUSE_DOWN");
-    else
-        for i = 1, #self.options do
-            self.options[i]:Hide();
-        end
-        self:UnregisterEvent("GLOBAL_MOUSE_DOWN");
-    end
+    ToggleColorDropDown(self, visible, 4);
 end
 
 local FONT_SIZES = {
@@ -1560,12 +1473,12 @@ local FONT_SIZES = {
 local ToggleFontSizeOptions;
 
 local function FontSizeOption_OnClick(self)
+    local switch = self:GetParent():GetParent();
     local value = self.value;
-    self:GetParent().value = value;
-    self:GetParent().Label:SetText(value.." x");
-    local parentButton = self:GetParent();
-    ToggleFontSizeOptions(parentButton, false);
-    local parentObject = parentButton:GetParent():GetParent().parentObject;
+    switch.value = value;
+    switch.Label:SetText(value.." x");
+    ToggleFontSizeOptions(switch, false);
+    local parentObject = Toolbar.parentObject;
     if parentObject then
         parentObject.fontHeight = value;
         parentObject:UpdateText();
@@ -1578,16 +1491,20 @@ function ToggleFontSizeOptions(self, visible)
     else
         self.isOn = not self.isOn;
     end
-    if not self.options then
+    if not FontSizeDropDown then
         self.options = {};
+        FontSizeDropDown = CreateFrame("Frame", nil, self);
+        FontSizeDropDown:SetPoint("TOP", self, "BOTTOM", 0, -8);
+        local numButtons = #FONT_SIZES;
+        FontSizeDropDown:SetSize(48, 16 * numButtons);
         local widget;
         local value;
-        for i = 1, #FONT_SIZES do
-            widget = CreateFrame("Button", nil, self, "NarciSpeechBalloonLongButtonTemplate");
+        for i = 1, numButtons do
+            widget = CreateFrame("Button", nil, FontSizeDropDown, "NarciSpeechBalloonLongButtonTemplate");
             widget:SetFrameLevel(15);
-            tinsert(self.options, widget);
+            self.options[i] = widget;
             if i == 1 then
-                widget:SetPoint("TOP", self, "BOTTOM", 0, -8);
+                widget:SetPoint("TOP", FontSizeDropDown, "TOP", 0, 0);
             else
                 widget:SetPoint("TOP", self.options[i - 1], "BOTTOM", 0, 1.5);
             end
@@ -1595,6 +1512,10 @@ function ToggleFontSizeOptions(self, visible)
             value = FONT_SIZES[i];
             widget.Label:SetText(value.." x");
             widget.value = value;
+        end
+
+        function FontSizeDropDown:IsFocused(f)
+            return f:IsShown() and f:IsMouseOver()
         end
     end
 
@@ -1604,7 +1525,6 @@ function ToggleFontSizeOptions(self, visible)
         local selectedValue = self.value;
         for i = 1, #self.options do
             widget = self.options[i];
-            widget:Show();
             if widget.value == selectedValue then
                 widget.isActive = true;
                 widget:SetBackgroundColor(0.92, 0.92, 0.92);
@@ -1613,12 +1533,11 @@ function ToggleFontSizeOptions(self, visible)
                 widget:SetBackgroundColor(0.72, 0.72, 0.72);
             end
         end
+        FontSizeDropDown:Show();
         self:RegisterEvent("GLOBAL_MOUSE_DOWN");
     else
         self.isActive = false;
-        for i = 1, #self.options do
-            self.options[i]:Hide();
-        end
+        FontSizeDropDown:Hide();
         self:UnregisterEvent("GLOBAL_MOUSE_DOWN");
         if not self:IsMouseOver() then
             self:SetBackgroundColor(0.72, 0.72, 0.72);
@@ -1629,15 +1548,17 @@ end
 ---------------------------------------------------------------------------------------------------------
 NarciSpeechBalloonLineThicknessButtonMixin = CreateFromMixins(NarciSpeechBalloonToolbarButtonMixin);
 
-function NarciSpeechBalloonLineThicknessButtonMixin:SetValue(thickness)
-    if thickness < 1 then
-        thickness = 1;
-    elseif thickness > 4 then
-        thickness = 4;
+function NarciSpeechBalloonLineThicknessButtonMixin:SetValue(pixelSize)
+    local i;
+    pixelSize = round(pixelSize);
+    if pixelSize < 5 then
+        i = pixelSize - 1;
+    else
+        i = 4;
     end
-    self.value = thickness;
-    self.Icon:SetTexCoord( (thickness - 1)*0.25, thickness*0.25, 0, 1);
-    self.Label:SetText(THICKNESS_ORDER[thickness].." x");
+    self.value = pixelSize;
+    self.Icon:SetTexCoord( (i - 1)*0.25, i*0.25, 0, 1);
+    self.Label:SetText(pixelSize.." x");
 end
 
 function NarciSpeechBalloonLineThicknessButtonMixin:OnClick()
@@ -1648,7 +1569,7 @@ function NarciSpeechBalloonLineThicknessButtonMixin:OnClick()
     ToggleBorderThicknessOptions(parentButton, false);
     if parentObject then
         parentObject:SetBorderThickness(thickness);
-        parentButton:SetValue(thickness);
+        parentButton:SetValue(self.value);
         parentButton:OnLeave();
     end
 end
@@ -1693,31 +1614,43 @@ function NarciSpeechBalloonToolbarColorButtonMixin:SetColor(colors)
 end
 
 function NarciSpeechBalloonToolbarColorButtonMixin:OnClick()
-    local parentButton = self:GetParent();
-    local parentObject = parentButton:GetParent():GetParent().parentObject;
+    local parentButton = ColorDropDown.parentButton;
+    local parentObject = Toolbar.parentObject;
 
-    if self.isBorderColor then
-        ToggleBorderColorOptions(parentButton, false);
-        if parentObject then
-            local colors = self.value;
-            parentObject:SetBorderColor(unpack(colors));
-            parentButton:SetBackgroundColor(unpack(colors));
-        end
-    elseif self.isFontColor then
-        ToggleFontColorOptions(parentButton, false);
-        if parentObject then
-            local colors = self.value;
-            parentObject:SetFontColor(unpack(colors));
-            parentButton:SetBackgroundColor(unpack(colors));
-        end
-    else
-        ToggleBackgroundColorOptions(parentButton, false);
+    local mode = ColorDropDown:GetMode();
+
+    if mode == 2 then
         if parentObject then
             local colors = self.value;
             parentObject:SetBackgroundColor(unpack(colors));
             parentButton:SetBackgroundColor(unpack(colors));
         end
+    elseif mode == 3 then
+        if parentObject then
+            local colors = self.value;
+            parentObject:SetBorderColor(unpack(colors));
+            parentButton:SetBackgroundColor(unpack(colors));
+        end
+    elseif mode == 4 then
+        if parentObject then
+            local colors = self.value;
+            parentObject:SetFontColor(unpack(colors));
+            parentButton:SetBackgroundColor(unpack(colors));
+        end
+    elseif mode == 1 then
+        if parentObject then
+            parentObject:SelectTheme(self.id);
+            parentButton:SetBackgroundColor(unpack(self.value));
+            local textColorButton = Toolbar.Bar2.buttons[4];
+            if self.id == 1 then
+                textColorButton:SetBackgroundColor(0, 0, 0);
+            else
+                textColorButton:SetBackgroundColor(1, 0.91, 0.647);
+            end
+        end
     end
+
+    ColorDropDown:Hide();
 end
 
 NarciSpeechBalloonTextWrappingButtonMixin = {};
@@ -1770,18 +1703,18 @@ end
 NarciTextOverlayEditButtonMixin = {};
 
 function NarciTextOverlayEditButtonMixin:OnLoad()
+    EditButton = self;
     local filter = "TRILINEAR";
     self.Texture:SetTexture(TEXTURE_PATH_PREFIX.. "EditButton", nil, nil, filter);
     self.Highlight:SetTexture(TEXTURE_PATH_PREFIX.. "EditButton", nil, nil, filter);
     self.Icon:SetTexture(TEXTURE_PATH_PREFIX.. "EditButton");
     self:SetAlpha(0);
-    local animFade = NarciAPI_CreateFadingFrame(self);
     self:SetColor(1);
+    NarciAPI_CreateFadingFrame(self);
 end
 
 function NarciTextOverlayEditButtonMixin:OnEnter()
-    --self.Highlight:Show();
-    UIFrameFadeIn(self.Highlight, 0.15, self.Highlight:GetAlpha(), 0.66);
+    FadeFrame(self.Highlight, 0.15, 0.66);
     if not IsMouseButtonDown() then
         self:FadeIn(0.25);
     end
@@ -1796,8 +1729,7 @@ function NarciTextOverlayEditButtonMixin:SmartFadeOut()
 end
 
 function NarciTextOverlayEditButtonMixin:OnLeave()
-    --self.Highlight:Hide();
-    UIFrameFadeIn(self.Highlight, 0.2, self.Highlight:GetAlpha(), 0);
+    FadeFrame(self.Highlight, 0.2, 0);
     self:SmartFadeOut();
 end
 
@@ -1842,7 +1774,6 @@ function NarciTextOverlayEditButtonMixin:OnClick()
         self:SetColor(2);
         Icon:SetTexCoord(0.5, 1, 0.5, 1);
         Icon.rotateClockwise:Play();
-        
         if self.parentObject then
             PrimaryEditBox:SetParentObject(self.parentObject);
         end
@@ -1860,8 +1791,22 @@ function NarciTextOverlayEditButtonMixin:OnDoubleClick()
 
 end
 
+function NarciTextOverlayEditButtonMixin:ResetState()
+    self:StopAnimating();
+    self.Icon:SetTexCoord(0, 0.5, 0.5, 1);
+    self:SetColor(1);
+    self.isOn = nil;
+end
+
+
 ---------------------------------------------------------------------------------------
 NarciSpeechBalloonEditBoxMixin = {};
+
+function NarciSpeechBalloonEditBoxMixin:OnLoad()
+    PrimaryEditBox = self;
+    self:Disable();
+    self:SetEnabled(false);
+end
 
 function NarciSpeechBalloonEditBoxMixin:SetParentObject(object)
     self.parentObject = object;
@@ -1882,25 +1827,25 @@ function NarciSpeechBalloonEditBoxMixin:SetParentObject(object)
     object:SetNodesTransparency(0.5);
 end
 
-function NarciSpeechBalloonEditBoxMixin:OnLoad()
-    self:Disable();
-    self:SetEnabled(false);
-end
-
 function NarciSpeechBalloonEditBoxMixin:OnDisable()
     self.Highlight:Hide();
     self:EnableMouse(false);
     self:HighlightText(0, 0);
     self:Hide();
-    local parentObject = self.parentObject;
-    if parentObject then
-        parentObject:SetNodesTransparency(1);
+    if self.parentObject then
+        self.parentObject:SetNodesTransparency(1);
+        self:ConfirmChanges();
+    end
+end
 
+function NarciSpeechBalloonEditBoxMixin:ConfirmChanges()
+    if self.parentObject then
         local text = self:GetText() or "";
-        parentObject.rawText = text;
-        parentObject:UpdateText();
-        parentObject.ShownText:Show();
-        LetteringSystem:ShowText(parentObject, true);
+        self.parentObject.rawText = text;
+        self.parentObject:UpdateText();
+        self.parentObject.ShownText:Show();
+        LetteringSystem:ShowText(self.parentObject, true);
+        self.parentObject = nil;
     end
 end
 
@@ -1910,6 +1855,10 @@ function NarciSpeechBalloonEditBoxMixin:OnEnable()
     self:EnableMouse(true);
     self:SetFocus();
     self:SetCursorPosition(999);
+end
+
+function NarciSpeechBalloonEditBoxMixin:OnEditFocusLost()
+
 end
 
 function NarciSpeechBalloonEditBoxMixin:OnEscapePressed()
@@ -1949,7 +1898,7 @@ function NarciTextOverlayTooltipMixin:OnLoad()
     end);
 
     self:SetAlpha(0);
-    local animFade = NarciAPI_CreateFadingFrame(self);
+    NarciAPI_CreateFadingFrame(self);
 end
 
 function NarciTextOverlayTooltipMixin:OnShow()
@@ -2023,11 +1972,8 @@ end
 NarciSpeechBalloonToolbarMixin = {};
 
 function NarciSpeechBalloonToolbarMixin:OnLoad()
-    self:SetAlpha(0);
-
     local timer = NarciAPI_CreateAnimationFrame(1);
-    local animFade = NarciAPI_CreateFadingFrame(self);
-    
+
     timer:SetScript("OnUpdate", function(frame, elapsed)
         frame.total = frame.total + elapsed;
         if frame.total >= frame.duration then
@@ -2037,6 +1983,24 @@ function NarciSpeechBalloonToolbarMixin:OnLoad()
             end
         end
     end);
+end
+
+local function ToolbarFade_OnUpdate(self, elapsed)
+    self.t = self.t + elapsed;
+end
+
+local function Toolbar_OnEvent(self, event, ...)
+    if not ( self:IsMouseOver(10, -10, -10, 10) or IsWidgetFocused(self.parentObject) or IsWidgetFocused(ColorDropDown) or IsWidgetFocused(FontSizeDropDown) ) then
+        HideEditor();
+    end
+end
+
+function NarciSpeechBalloonToolbarMixin:FadeIn(duration)
+    self:Show();
+end
+
+function NarciSpeechBalloonToolbarMixin:FadeOut(duration)
+    self:Hide();
 end
 
 function NarciSpeechBalloonToolbarMixin:SetParentObject(object)
@@ -2064,7 +2028,7 @@ function NarciSpeechBalloonToolbarMixin:SetParentObject(object)
         self.Bar2:SetWidth(164);
         buttons[1]:SetBackgroundColor( unpack(object.backgroundColor) );
         buttons[2]:SetBackgroundColor( unpack(object.borderColor) );
-        buttons[3]:SetValue( object.thicknessFactor );
+        buttons[3]:SetValue( object.borderPixelSize );
         buttons[9]:UpdateSelection( object.textWrapping );
         buttons[9]:Show();
     end
@@ -2077,6 +2041,15 @@ function NarciSpeechBalloonToolbarMixin:SetParentObject(object)
     buttons[8].value = value;
 end
 
+function NarciSpeechBalloonToolbarMixin:OnShow()
+    self:RegisterEvent("GLOBAL_MOUSE_DOWN");
+    self:SetScript("OnEvent", Toolbar_OnEvent);
+end
+
+function NarciSpeechBalloonToolbarMixin:OnHide()
+    self:UnregisterEvent("GLOBAL_MOUSE_DOWN");
+    self:SetScript("OnEvent", nil);
+end
 
 local BACKGROUND_SETTINGS = {
     [1] = {
@@ -2084,7 +2057,6 @@ local BACKGROUND_SETTINGS = {
         expandable = true,
         --template = "NarciSpeechBalloonColorButtonTemplate",
         func = function(self) ToggleBackgroundColorOptions(self) end,
-        closeFunc = function(self)  ToggleBackgroundColorOptions(self, false) end,
         defaultValue = {1, 1, 1};
     },
 
@@ -2094,7 +2066,6 @@ local BACKGROUND_SETTINGS = {
         expandable = true,
         --template = "NarciSpeechBalloonColorButtonTemplate",
         func = function(self) ToggleBorderColorOptions(self) end,
-        closeFunc = function(self) ToggleBorderColorOptions(self, false) end,
         defaultValue = {0.1, 0.1, 0.1};
     },
 
@@ -2173,7 +2144,6 @@ local TEXT_SETTINGS = {
         gap = 8,
         expandable = true,
         func = function(self) ToggleFontColorOptions(self) end,
-        closeFunc = function(self) ToggleFontColorOptions(self, false) end,
         defaultValue = {0.1, 0.1, 0.1};
     },
 
@@ -2208,11 +2178,10 @@ local SIMPLE_BALLOON_SETTINGS = {
         name = "Theme",
         expandable = true,
         func = function(self) ToggleThemeOptions(self) end,
-        closeFunc = function(self) ToggleThemeOptions(self, false) end,
     },
 };
 
-local function CreateToolbar(toolbarData)
+local function CreateSubBar(toolbarData)
     --Toolbar
     local parent = nil;
     local Bar = CreateFrame("Frame", nil, parent, "NarciSpeechBalloonToolbarTemplate");
@@ -2288,10 +2257,10 @@ local function CreateBallonToolbar()
     local GAP = 4;
     Toolbar:SetPoint("CENTER", UIParent, "CENTER", 0, 0);
     
-    local Bar0 = CreateToolbar(SIMPLE_BALLOON_SETTINGS);
-    local Bar1 = CreateToolbar(BACKGROUND_SETTINGS);
-    local Bar2 = CreateToolbar(TEXT_SETTINGS);
-    local Bar3 = CreateToolbar(REMOVE_SETTINGS);
+    local Bar0 = CreateSubBar(SIMPLE_BALLOON_SETTINGS);
+    local Bar1 = CreateSubBar(BACKGROUND_SETTINGS);
+    local Bar2 = CreateSubBar(TEXT_SETTINGS);
+    local Bar3 = CreateSubBar(REMOVE_SETTINGS);
     Toolbar.Bar0 = Bar0;
     Toolbar.Bar1 = Bar1;
     Toolbar.Bar2 = Bar2;
@@ -2380,7 +2349,7 @@ local function CreateModelDropDown()
         ModelDropDownMenu.parentObject:SetUnit("player");
         menu:Hide();
     end)
-    
+
     targetButton:SetScript("OnClick", function()
         ModelDropDownMenu.parentObject:SetUnit("target");
         menu:Hide();
@@ -2477,11 +2446,11 @@ end
 
 local function SetUpOverlayFrame()
     local frame = Narci_TextOverlay;
-    frame:SetParent(Narci_ModelSettings.ActorPanel.NameFrame.HiddenFrames);
     frame:SetFrameLevel(60);
-    
+
     local VisibilityButton = frame.VisibilityButton;
     VisibilityButton.Icon:SetTexture(TEXTURE_PATH_PREFIX.."Icons", nil, nil, "TRILINEAR");
+    VisibilityButton.Icon:SetTexCoord(0, 0.125, 0, 0.5);
     VisibilityButton.tooltip = L["Visibility"];
 
     VisibilityButton:SetScript("OnClick", function(self)
@@ -2495,8 +2464,7 @@ local function SetUpOverlayFrame()
     end)
 
     VisibilityButton:SetScript("OnShow", function(self)
-        local visible = Container:IsShown();
-        if visible then
+        if Container:IsShown() then
             self.Icon:SetTexCoord(0.125, 0.25, 0, 0.5);
         else
             self.Icon:SetTexCoord(0, 0.125, 0, 0.5);
@@ -2525,21 +2493,44 @@ local function SetUpOverlayFrame()
     end)
     --
     frame.Tooltip:SetGradientExtraWidth(10);
+
+    --Create Type Button
+    local button;
+    local numButtons = 5;
+    for i = numButtons, 1, -1 do
+        button = CreateFrame("Button", nil, frame, "NarciNewTextOverlayButtonTemplate");
+        button:SetPoint("RIGHT", frame, "RIGHT", -5 + (i - numButtons) * 24, 0);
+        button:SetID(i);
+        button:OnLoad();
+    end
 end
 
-local Initialize = CreateFrame("Frame");
-Initialize:RegisterEvent("PLAYER_ENTERING_WORLD");
-Initialize:SetScript("OnEvent", function(self, event)
-    self:UnregisterEvent("PLAYER_ENTERING_WORLD");
-    local Container = NarciTextOverlayContainer;
-    EditButton = Container.EditButton;
-    PrimaryEditBox = Container.PrimaryEditBox;
+local function Init()
     Tooltip = Container.Tooltip;
     Toolbar = Container.Toolbar;
-    CreateBallonToolbar();
     SetUpOverlayFrame();
+    CreateBallonToolbar();
     CreateModelDropDown();
-end);
+end
+
+
+NarciTextOverlayFrameMixin = {};
+
+function NarciTextOverlayFrameMixin:OnLoad()
+    Narci_ModelSettings:AddSubFrame(self, "TextOverlayMenu");
+end
+
+function NarciTextOverlayFrameMixin:OnShow()
+    if Init then
+        Init();
+        Init = nil;
+    end
+    self:SetScript("OnShow", nil);
+end
+
+function NarciTextOverlayFrameMixin:IsFocused()
+    return self:IsShown() and self:IsMouseOver();
+end
 
 
 ----------------------------------------------------------------------------------
@@ -2603,13 +2594,13 @@ function NarciCustomTalkingHeadMixin:OnLoad()
     self.Text:SetFontObjectsToTry(SystemFont_Shadow_Large, SystemFont_Shadow_Med2, SystemFont_Shadow_Med1);
     self.Text:SetText("");
 
-    local area1 = CreateFrame("Button", nil, self, "NarciInteractableLineBorderTemplate");
+    local area1 = CreateFrame("Button", nil, self, "NarciInteractableAreaIndicatorTemplate");
     InitializeInteractableLineBorder(area1, self.Name);
     area1:SetPoint("TOPLEFT", self.Name, "TOPLEFT", 0, 0);
     area1:SetPoint("RIGHT", self, "TOPRIGHT", -42, 0);
     area1:SetHeight(24);
 
-    local area2 = CreateFrame("Button", nil, self, "NarciInteractableLineBorderTemplate");
+    local area2 = CreateFrame("Button", nil, self, "NarciInteractableAreaIndicatorTemplate");
     InitializeInteractableLineBorder(area2, self.Text);
     area2:SetPoint("TOPLEFT", self.Text, "TOPLEFT", 0, 0);
     area2:SetPoint("BOTTOMRIGHT", self, "BOTTOMRIGHT", -42, 12);
@@ -2621,23 +2612,22 @@ function NarciCustomTalkingHeadMixin:OnLoad()
         self:OnModelLoaded();
     end)
 
-    local InteractableArea = self.InteractableArea;
-    local Label = InteractableArea.Label;
-    InteractableArea:RegisterForDrag("LeftButton");
-    InteractableArea:SetScript("OnClick", function()
+    local button = self.ModelOptionButton;
+    button:RegisterForDrag("LeftButton");
+    button:SetScript("OnClick", function()
         ModelDropDownMenu:SetParentObject(self);
     end)
-    InteractableArea:SetScript("OnDragStart", function()
+    button:SetScript("OnDragStart", function()
         self:OnDragStart();
     end)
-    InteractableArea:SetScript("OnDragStop", function()
+    button:SetScript("OnDragStop", function()
         self:OnDragStop();
     end)
-    InteractableArea:SetScript("OnEnter", function(frame)
-        UIFrameFadeIn(frame, 0.15, frame:GetAlpha(), 1);
+    button:SetScript("OnEnter", function(frame)
+        frame:SetAlpha(1);
     end)
-    InteractableArea:SetScript("OnLeave", function(frame)
-        UIFrameFadeIn(frame, 0.15, frame:GetAlpha(), 0);
+    button:SetScript("OnLeave", function(frame)
+        frame:SetAlpha(0);
     end)
 end
 
@@ -2738,59 +2728,8 @@ function NarciTextOverlayGenericEditBoxMixin:OnEditFocusLost()
     end
 end
 
-NarciTextOverlayGenericEditBoxConfirmButtonMixin = {};
-
-function NarciTextOverlayGenericEditBoxConfirmButtonMixin:OnLoad()
-    local filter = "TRILINEAR";
-    self.Texture:SetTexture(TEXTURE_PATH_PREFIX.. "EditButton", nil, nil, filter);
-    self.Highlight:SetTexture(TEXTURE_PATH_PREFIX.. "EditButton", nil, nil, filter);
-    self.Icon:SetTexture(TEXTURE_PATH_PREFIX.. "EditButton");
-    self:SetColor(2);
-end
-
-function NarciTextOverlayGenericEditBoxConfirmButtonMixin:OnEnter()
-    UIFrameFadeIn(self.Highlight, 0.15, self.Highlight:GetAlpha(), 0.66);
-end
-
-function NarciTextOverlayGenericEditBoxConfirmButtonMixin:OnLeave()
-    UIFrameFadeIn(self.Highlight, 0.2, self.Highlight:GetAlpha(), 0);
-end
-
-function NarciTextOverlayGenericEditBoxConfirmButtonMixin:OnHide()
-    self.parentObject = nil;
-end
-
-function NarciTextOverlayGenericEditBoxConfirmButtonMixin:OnMouseDown()
-    self.animPushed:Stop();
-    self.animPushed.hold:SetDuration(20);
-    self.animPushed:Play();
-end
-
-function NarciTextOverlayGenericEditBoxConfirmButtonMixin:OnMouseUp()
-    self.animPushed.hold:SetDuration(0);
-end
-
-function NarciTextOverlayGenericEditBoxConfirmButtonMixin:SetColor(index)
-    if index == 2 then
-        self.Texture:SetVertexColor(0.37, 0.74, 0.42);
-    else
-        self.Texture:SetVertexColor(0.25, 0.78, 0.92);
-    end
-end
-
 
 ----Overlay Container----
-local function outSine(t, b, e, d)
-	return (e - b) * sin(t / d * (pi / 2)) + b
-end
-
-local function SetBlackBarHeight(barHeight)
-    WorldFrame:SetPoint("TOPLEFT", nil, "TOPLEFT", 0, -barHeight);
-    WorldFrame:SetPoint("BOTTOMRIGHT", nil, "BOTTOMRIGHT", 0, barHeight);
-    Container.BlackBarTop:SetHeight(barHeight);
-    Container.BlackBarBottom:SetHeight(barHeight);
-end
-
 NarciTextOverlayContainerMixin = {};
 
 function NarciTextOverlayContainerMixin:OnLoad()
@@ -2801,7 +2740,7 @@ function NarciTextOverlayContainerMixin:OnLoad()
 
     --Only one subtile
     self.SubtitleFrame.Subtitle:SetFontObjectsToTry(GameFontHighlightLarge, GameFontHighlightMedium, GameFontHighlight, GameFontHighlightSmall);
-    local area1 = CreateFrame("Button", nil, self.SubtitleFrame, "NarciInteractableLineBorderTemplate");
+    local area1 = CreateFrame("Button", nil, self.SubtitleFrame, "NarciInteractableAreaIndicatorTemplate");
     InitializeInteractableLineBorder(area1, self.SubtitleFrame.Subtitle);
     area1:SetPoint("TOPLEFT", self.SubtitleFrame.BlackBarBottom, "TOPLEFT", 100, -8);
     area1:SetPoint("BOTTOMRIGHT", self, "BOTTOMRIGHT", -100, 8);
@@ -2809,7 +2748,7 @@ function NarciTextOverlayContainerMixin:OnLoad()
 
     local MovieSubtitle = self.MovieSubtitleFrame.MovieSubtitle;
     MovieSubtitle:SetText("Subtitle");
-    local area2 = CreateFrame("Button", nil, self.MovieSubtitleFrame, "NarciInteractableLineBorderTemplate");
+    local area2 = CreateFrame("Button", nil, self.MovieSubtitleFrame, "NarciInteractableAreaIndicatorTemplate");
     InitializeInteractableLineBorder(area2, MovieSubtitle);
     area2:SetPoint("TOPLEFT", MovieSubtitle, "TOPLEFT", 0, 0);
     area2:SetPoint("BOTTOMRIGHT", MovieSubtitle, "BOTTOMRIGHT", 0, 0);
@@ -3012,6 +2951,11 @@ end
 function NarciNewTextOverlayButtonMixin:OnDoubleClick()
 
 end
+
+function NarciNewTextOverlayButtonMixin:OnHide()
+    self.Icon:SetVertexColor(1, 1, 1);
+end
+
 --[[
 /run NarciAdjustableSpeechBalloonTemplate:SetTail();
 /run LetteringSystem:SetText(NarciAdjustableSpeechBalloonTemplate);

@@ -47,9 +47,9 @@
         </Scripts>
     </Button>
 
-    <Button name="NarciMythicPlusCompactRatingCardTemplate" mixin="NarciMythicPlusRatingCardMixin" virtual="true">
+    <Button name="NarciMythicPlusCompactRatingCardTemplate" mixin="NarciMythicPlusRatingCardMixin" virtual="true" clipChildren="true">
 		<Size>
-			<AbsDimension x="160" y="72"/>
+			<AbsDimension x="160" y="48"/>
 		</Size>
         <Layers>
             <Layer level="BACKGROUND">
@@ -67,7 +67,7 @@
                     <TexCoords left="0" right="1" top="0" bottom="0.9"/>
                     <Size x="160" y="72"/>
                     <Anchors>
-                        <Anchor point="TOPRIGHT" relativeKey="$parent" relativePoint="TOPRIGHT"/>
+                        <Anchor point="CENTER" relativeKey="$parent" relativePoint="CENTER"/>
                     </Anchors>
                 </Texture>
                 <MaskTexture parentKey="MapMask" hWrapMode="CLAMPTOBLACKADDITIVE" vWrapMode="CLAMPTOBLACKADDITIVE" file="Interface\AddOns\Narcissus\Art\Modules\Competitive\MythicPlus\MapMask">
@@ -96,27 +96,27 @@
                 <FontString parentKey="Level1" inherits="NarciFontNumber24Outline" justifyH="CENTER" justifyV="TOP" text="15" hidden="true" Alpha="0.8">
                     <Size x="0" y="0"/>
                     <Anchors>
-                        <Anchor point="TOP" relativeKey="$parent" relativePoint="TOPLEFT" x="88" y="-31.0"/>
+                        <Anchor point="TOP" relativeKey="$parent" relativePoint="TOPLEFT" x="88" y="-26.0"/>
                     </Anchors>
                 </FontString>
 				<FontString parentKey="Duration1" inherits="NarciFontNumber12Outline" justifyH="CENTER" justifyV="BOTTOM" text="12:08" hidden="true">
 					<Size x="0" y="0"/>
 					<Color r="0.92" g="0.92" b="0.92"/>
 					<Anchors>
-						<Anchor point="BOTTOM" relativeKey="$parent" relativePoint="BOTTOMLEFT" x="88" y="7.0"/>
+						<Anchor point="BOTTOM" relativeKey="$parent" relativePoint="BOTTOMLEFT" x="88" y="4.0"/>
 					</Anchors>
 				</FontString>
                 <FontString parentKey="Level2" inherits="NarciFontNumber24Outline" justifyH="CENTER" justifyV="TOP" text="15" hidden="true" Alpha="0.8">
                     <Size x="0" y="0"/>
                     <Anchors>
-                        <Anchor point="TOP" relativeKey="$parent" relativePoint="TOPLEFT" x="128" y="-31.0"/>
+                        <Anchor point="TOP" relativeKey="$parent" relativePoint="TOPLEFT" x="128" y="-26.0"/>
                     </Anchors>
                 </FontString>
 				<FontString parentKey="Duration2" inherits="NarciFontNumber12Outline" justifyH="CENTER" justifyV="BOTTOM" text="12:08" hidden="true">
 					<Size x="0" y="0"/>
 					<Color r="0.92" g="0.92" b="0.92"/>
 					<Anchors>
-						<Anchor point="BOTTOM" relativeKey="$parent" relativePoint="BOTTOMLEFT" x="128" y="7.0"/>
+						<Anchor point="BOTTOM" relativeKey="$parent" relativePoint="BOTTOMLEFT" x="128" y="4.0"/>
 					</Anchors>
 				</FontString>
 				<FontString parentKey="NoRecordLabel" inherits="NarciFontMedium12" justifyH="CENTER" justifyV="MIDDLE" text="No record" hidden="true">
@@ -143,8 +143,8 @@
                 </Texture>
             </Layer>
             <Layer level="OVERLAY" textureSubLevel="2">
-				<FontString parentKey="MapName" inherits="NarciFontMedium12" justifyH="CENTER" justifyV="TOP" text="">
-					<Size x="0" y="0"/>
+				<FontString parentKey="MapName" inherits="NarciFontMedium12" justifyH="CENTER" justifyV="TOP" text="" maxLines="1">
+					<Size x="142" y="0"/>
 					<Color r="0.8" g="0.8" b="0.8"/>
 					<Anchors>
 						<Anchor point="TOP" relativeKey="$parent" relativePoint="TOP" x="0" y="-8"/>
@@ -767,7 +767,7 @@
             <Frame parentKey="LoadingOverlay" frameStrata="FULLSCREEN">
                 <Anchors>
                     <Anchor point="TOPLEFT"/>
-                    <Anchor point="BOTTOMRIGHT"/>
+                    <Anchor point="BOTTOMRIGHT" y="-1"/>
                 </Anchors>
                 <Layers>
                     <Layer level="OVERLAY">

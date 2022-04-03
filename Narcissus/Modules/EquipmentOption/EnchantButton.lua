@@ -252,24 +252,24 @@ function NarciEquipmentEnchantButtonMixin:OnLoad()
     self:SetEnabledVisual();
 end
 
-function NarciEquipmentEnchantButtonMixin:OnEnter()
-    --FadeFrame(self.BorderLeft, 0.5, 0.5);
-    --FadeFrame(self.BorderRight, 0.5, 0.5);
+function NarciEquipmentEnchantButtonMixin:OnEnter(button, motion, isGamepad)
+    if not self:IsVisible() then
+        return false;
+    end
     ButtonHighlight:SetParentButton(self);
-    --self.Highlight.Anim:Play();
-    --self:SetAlpha(1);
     if self:IsEnabled() then
         self.Icon:SetVertexColor(1, 1, 1);
     else
         self.Icon:SetVertexColor(0.72, 0.72, 0.72);
     end
-    if not ScrollFrame:IsScrolling() then
+    if not ScrollFrame:IsScrolling() and not isGamepad then
         if not IsMouseButtonDown() then
             if not ScrollFrame:ScrollToWidget(self) then
                 Tooltip:AnchorToButton(self);
             end
         end
     end
+    return true
 end
 
 function NarciEquipmentEnchantButtonMixin:OnLeave()
@@ -661,6 +661,7 @@ function NarciEquipmentEnchantButtonMixin:WipeData()
     self.isUsed = nil;
     self.showFailureReason = nil;
 end
+
 
 NarciItemListButtonHighlightMixin = {};
 

@@ -372,7 +372,7 @@ function NarciAnimationBrowserMixin:Toggle()
                 DataProvider.maxAnimID = NarciConstants.Animation.MaxAnimationID;
             end
         end
-        
+
         if self.forcedUpdate then
             self.forcedUpdate = nil;
             self:BuildListForModel(true);

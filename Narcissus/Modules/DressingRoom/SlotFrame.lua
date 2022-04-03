@@ -1088,7 +1088,7 @@ local function PrintItemList()
         end
     end
 
-    local popup = NarciDressingRoomSharePopup;
+    local popup = NarciDressingRoomSharedPopup;
     popup.GearTextContainer:SetText(itemText);
 
     popup.ExternalLink:SetText( NarciAPI.EncodeItemlist(formatedItemList) );

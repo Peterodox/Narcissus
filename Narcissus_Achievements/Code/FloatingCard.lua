@@ -197,7 +197,7 @@ end
 
 function FloatingCard:OnEvent(event, ...)
     if event == "GLOBAL_MOUSE_UP" then
-        self:UnregisterEvent("GLOBAL_MOUSE_UP");
+        self:UnregisterEvent(event);
         self:PostCreate();
     end
 end

@@ -765,18 +765,9 @@
 	<Button name="NarciRuneSlotLeftTemplate" inherits="NarciRuneSlotTemplate" virtual="true">
 		<Size x="30" y="30"/>
 		<HitRectInsets>
-			<AbsInset left="6" right="8" top="-2" bottom="-2"/>
+			<AbsInset left="6" right="8" top="-4" bottom="-4"/>
 		</HitRectInsets>
 		<Layers>
-			<Layer level="OVERLAY" textureSubLevel="3">
-				<!--Texture parentKey="Background" hidden="false" file="Interface\AddOns\Narcissus\Art\Runes\RunePlate-Epic">
-					<TexCoords left="0" right="1" top="0" bottom="1"/>
-					<Anchors>
-						<Anchor point="TOPLEFT" x="0" y="0"/>
-						<Anchor point="BOTTOMRIGHT" x="0" y="0"/>
-					</Anchors>
-				</Texture-->
-			</Layer>
 			<Layer level="OVERLAY" textureSubLevel="4">
 				<FontString inherits="NarciRuneFont" parentKey="RuneLetter" Alpha="1" hidden="true" justifyH="CENTER">
 					<Anchors>
@@ -790,33 +781,15 @@
 					</Shadow>
 				</FontString>	
 			</Layer>
-			<Layer level="OVERLAY" textureSubLevel="5">
-				<!--Texture parentKey="AlphaChannelRune" hidden="true" file="Interface\AddOns\Narcissus\Art\Masks\Rune-Mask" Alpha="1">
-					<TexCoords left="1" right="0" top="0" bottom="1"/>
-					<Anchors>
-						<Anchor point="TOPLEFT" x="0" y="0"/>
-						<Anchor point="BOTTOMRIGHT" x="0" y="0"/>
-					</Anchors>
-				</Texture-->
-			</Layer>
 		</Layers>
 	</Button>
 
 	<Button name="NarciRuneSlotRightTemplate" inherits="NarciRuneSlotTemplate" virtual="true">
 		<Size x="30" y="30"/>
 		<HitRectInsets>
-			<AbsInset left="8" right="6" top="-2" bottom="-2"/>
+			<AbsInset left="8" right="6" top="-4" bottom="-4"/>
 		</HitRectInsets>
 		<Layers>
-			<Layer level="OVERLAY" textureSubLevel="3">
-				<!--Texture parentKey="Background" hidden="false" file="Interface\AddOns\Narcissus\Art\Runes\RunePlate-Epic">
-					<TexCoords left="1" right="0" top="0" bottom="1"/>
-					<Anchors>
-						<Anchor point="TOPLEFT" x="0" y="0"/>
-						<Anchor point="BOTTOMRIGHT" x="0" y="0"/>
-					</Anchors>
-				</Texture-->
-			</Layer>
 			<Layer level="OVERLAY" textureSubLevel="4">
 				<FontString inherits="NarciRuneFont" parentKey="RuneLetter" Alpha="1" hidden="true" justifyH="CENTER"> <!--&#x000A;ᛏ-->
 					<Anchors>
@@ -829,15 +802,6 @@
 						<Color a="1" r="0.8" g="0.8" b="0.8"/>
 					</Shadow>
 				</FontString>
-			</Layer>
-			<Layer level="OVERLAY" textureSubLevel="5">
-				<!--Texture parentKey="AlphaChannelRune" hidden="true" file="Interface\AddOns\Narcissus\Art\Masks\Rune-Mask" Alpha="1">
-					<TexCoords left="1" right="0" top="0" bottom="1"/>
-					<Anchors>
-						<Anchor point="TOPLEFT" x="0" y="0"/>
-						<Anchor point="BOTTOMRIGHT" x="0" y="0"/>
-					</Anchors>
-				</Texture-->
 			</Layer>
 		</Layers>
 	</Button>
@@ -877,14 +841,6 @@
 								</OnFinished>
 							</Scripts>
 						</AnimationGroup>
-						<AnimationGroup parentKey="scaleUp">
-							<Scale scaleX="1.150" scaleY="1.150" duration="0.12" order="1" smoothing="OUT"/>
-							<Scripts>
-								<OnFinished>
-									self:GetParent():SetScale(1.150);
-								</OnFinished>
-							</Scripts>
-						</AnimationGroup>
 					</Animations>
 				</Texture>
 			</Layer>
@@ -902,16 +858,6 @@
 					<Anchors>
 						<Anchor point="CENTER"/>
 					</Anchors>
-					<Animations>
-						<AnimationGroup parentKey="scaleUp">
-							<Scale scaleX="1.150" scaleY="1.150" duration="0.12" order="1" smoothing="OUT"/>
-							<Scripts>
-								<OnFinished>
-									self:GetParent():SetScale(1.150);
-								</OnFinished>
-							</Scripts>
-						</AnimationGroup>
-					</Animations>
 				</Texture>
 			</Layer>
 			<Layer level="OVERLAY">
@@ -926,16 +872,6 @@
 						<MaskedTexture childKey="Icon"/>
 						<MaskedTexture childKey="IconOverlay"/>
 					</MaskedTextures>
-					<Animations>
-						<AnimationGroup parentKey="scaleUp">
-							<Scale scaleX="1.150" scaleY="1.150" duration="0.12" order="1" smoothing="OUT"/>
-							<Scripts>
-								<OnFinished>
-									self:GetParent():SetScale(1.150);
-								</OnFinished>
-							</Scripts>
-						</AnimationGroup>
-					</Animations>
 				</MaskTexture>
 
 			</Layer>
@@ -1017,7 +953,7 @@
 		</Attributes>
 	</Button>
 
-	<Button name="NarciEquipmentFlyoutButtonTemplate" inherits="NarciSlotButtonTemplate" frameStrata="DIALOG" toplevel="true" virtual="true" mixin="NarciEquipmentFlyoutButtonMixin">
+	<Button name="NarciEquipmentFlyoutButtonTemplate" inherits="NarciSlotButtonTemplate" frameStrata="DIALOG" virtual="true" mixin="NarciEquipmentFlyoutButtonMixin">
         <Scripts>
             <OnLoad>
 			</OnLoad>
@@ -1059,14 +995,6 @@
 			<OnEvent method="OnEvent"/>
         </Scripts>
     </Button>
-
-	<Button name="NarciClickableGemSlotTemplate" inherits="NarciGemSlotTemplate" virtual="true" mixin="NarciGemSlotMixin" useParentLevel="true">
-		<Scripts>
-			<OnEnter method="OnEnter"/>
-			<OnLeave method="OnLeave"/>
-			<OnClick method="OnClick"/>
-		</Scripts>
-	</Button>
 
 	<Button name="NarciSlotButtonLeftTemplate" inherits="NarciEquipmentSlotButtonTemplate" virtual="true"> 
 		<Layers>
@@ -2474,7 +2402,7 @@
 						<Scripts>
 							<OnLoad>
 								self.tooltipHeadline = "Name Your Set -PH"
-								self.tooltipLineOpen = "Left-click to modify this text."
+								self.tooltipLine1 = "Left-click to modify this text."
 							</OnLoad>
 							<OnEnter>
 								if self:GetParent():GetAlpha() ~= 1 then
@@ -3172,7 +3100,7 @@
 						<Scripts>
 							<OnLoad>
 								self.tooltipFormat = Narci.L["Equipped Item Level Format"];
-								self.tooltipLineOpen = STAT_AVERAGE_ITEM_LEVEL_TOOLTIP;
+								self.tooltipLine1 = STAT_AVERAGE_ITEM_LEVEL_TOOLTIP;
 							</OnLoad>
 							<!--OnEnter>
 								self.tooltipHeadline = format(self.tooltipFormat, self.Level:GetText());
@@ -4226,7 +4154,7 @@
 		</Scripts>
 	</Frame-->
 
-	<GameTooltip name="NarciCacheTooltip" inherits="GameTooltipTemplate" parent="UIParent" enableMouse="false" toplevel="false" movable="false" frameStrata="LOW" scale="0.001" hidden="true" Alpha="0">
+	<GameTooltip name="NarciCacheTooltip" inherits="GameTooltipTemplate" parent="UIParent" enableMouse="false" movable="false" frameStrata="LOW" scale="0.001" hidden="true" Alpha="0">
 		<Size>
 			<AbsDimension x="10" y="10"/>
 		</Size>

@@ -215,3 +215,30 @@ function NarciGemSlotMixin:OnClick()
     end
     Narci:HideButtonTooltip();
 end
+
+function NarciGemSlotMixin:FadeIn()
+    self:StopAnimating();
+    self.animIn:Play();
+    self:Show();
+end
+
+function NarciGemSlotMixin:FadeOut()
+    self:StopAnimating();
+    if self:IsVisible() then
+        self.animOut:Play();
+    else
+        self:Hide();
+    end
+end
+
+function NarciGemSlotMixin:ShowSlot()
+    self:StopAnimating();
+    self:Show();
+    self:SetAlpha(1);
+end
+
+function NarciGemSlotMixin:HideSlot()
+    self:StopAnimating();
+    self:Hide();
+    self:SetAlpha(0);
+end

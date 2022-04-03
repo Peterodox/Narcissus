@@ -10,7 +10,7 @@ local L = Narci.L;
 
 local DataProvider = GemDataProvider;
 
-local MainFrame, FilterButton, Tooltip;
+local MainFrame, FilterButton, Tooltip, ItemButtonHighlight;
 
 local BUTTON_HEIGHT = 48;
 local MAX_VISIBLE_BUTTONS = 4;
@@ -26,8 +26,6 @@ end
 local GetSpellDescription = GetSpellDescription;
 local GetItemSpell = GetItemSpell;
 
-local gsub = string.gsub;
-
 local tinsert = table.insert;
 local tremove = table.remove;
 
@@ -40,9 +38,6 @@ local GetItemTempEnchantRequirement = NarciAPI.GetItemTempEnchantRequirement;
 local DoesItemHaveCrystallicSocket = NarciAPI.DoesItemHaveCrystallicSocket;
 local GetSocketTypes = GetSocketTypes;
 
-local sin = math.sin;
-local cos = math.cos;
-local pi = math.pi;
 local pow = math.pow;
 local floor = math.floor;
 
@@ -52,13 +47,6 @@ local validSlotForTempEnchants = {
     [17] = true,
 };
 
-local function inOutSine(t, b, e, d)
-	return (b - e) / 2 * (cos(pi * t / d) - 1) + b
-end
-
-local function outSine(t, b, e, d)
-	return (e - b) * sin(t / d * (pi / 2)) + b
-end
 
 local function outQuart(t, b, e, d)
     t = t / d - 1;
@@ -135,6 +123,7 @@ function ViewUpdator:UpdateVisibleArea(offsetY, forcedUpdate)
         for i = 1, self.numButtons do
             self.buttons[i]:SetPoint("TOPLEFT", 0, -(self.b + i - 1) * BUTTON_HEIGHT);
             SetButtonData(self.buttons[i], DataProvider:GetDataByIndex(i + self.b));
+            self.buttons[i].i = i;
         end
     else
         local b = floor( offsetY / BUTTON_HEIGHT + 0.5) - 1;
@@ -149,6 +138,7 @@ function ViewUpdator:UpdateVisibleArea(offsetY, forcedUpdate)
             end
             for i = 1, self.numButtons do
                 buttons[i]:SetPoint("TOPLEFT", 0, -(b + i - 1) * BUTTON_HEIGHT);
+                buttons[i].i = i;
                 SetButtonData(buttons[i], DataProvider:GetDataByIndex(i + b));
             end
             self.b = b;
@@ -170,6 +160,9 @@ function ViewUpdator:FindFocusedButton()
     end
 end
 
+function ViewUpdator:GetTopButtonIndex()
+    return self.b
+end
 
 local DelayedUpdate = {};
 
@@ -252,6 +245,8 @@ function NarciEquipmentListFilterButtonMixin:OnClick()
     NarcissusDB.OnlyShowOwnedUpgradeItem = not NarcissusDB.OnlyShowOwnedUpgradeItem;
     self:UpdateState();
     MainFrame:UpdateCurrentList();
+    ItemButtonHighlight:Hide();
+    Tooltip:Hide();
 end
 
 function NarciEquipmentListFilterButtonMixin:UpdateState()
@@ -277,6 +272,7 @@ NarciEquipmentOptionMixin = CreateFromMixins(NarciAnimatedSizingFrameMixin);
 
 function NarciEquipmentOptionMixin:OnLoad()
     MainFrame = self;
+    ItemButtonHighlight = self.ItemList.ScrollChild.HighlightFrame;
 
     self.maxHeight = BUTTON_HEIGHT * (MAX_VISIBLE_BUTTONS + 0.5);
     self:SetBackdropColor(0, 0, 0);
@@ -316,12 +312,26 @@ function NarciEquipmentOptionMixin:OnHide()
 end
 
 function NarciEquipmentOptionMixin:IsMouseOverWidgets()
-    return ( self:IsMouseOver(12, -12, -12, 12) or FilterButton:IsMouseOver(12, -12, -12, 12) or (self.slotButton and self.slotButton:IsMouseOver()) )
+    return ( self:IsMouseOver(12, -12, -12, 12) or FilterButton:IsMouseOver(12, -12, -12, 12) or (self.slotButton and self.slotButton:IsMouseOver(0, 0, -24, 24)) )
 end
 
-function NarciEquipmentOptionMixin:CloseUI()
-    self:Hide();
-    Narci_FlyoutBlack:Out();
+local function CloseDelay_OnUpdate(self, elapsed)
+    self.countdown = self.countdown + elapsed;
+    if self.countdown > 0 then
+        self:CloseUI();
+    end
+end
+
+function NarciEquipmentOptionMixin:CloseUI(delay)
+    if delay then
+        self.countdown = -0.5;
+        self:SetScript("OnUpdate", CloseDelay_OnUpdate);
+    else
+        self:SetScript("OnUpdate", nil);
+        self.countdown = nil;
+        self:Hide();
+        Narci_FlyoutBlack:Out();
+    end
 end
 
 function NarciEquipmentOptionMixin:OnEvent(event, ...)
@@ -498,6 +508,8 @@ function NarciEquipmentOptionMixin:SetGemListForBlizzardUI(id1, id2)
         itemLink = GetInventoryItemLink("player", id1);
     end
 
+    if not itemLink then return end;
+
     local itemID, _, _, invType = GetItemInfoInstant(itemLink);
     local typeName = GetSocketTypes(1);
     local socketType = GetSocketTypeID(typeName);
@@ -647,6 +659,10 @@ function NarciEquipmentOptionMixin:ShowMenu()
         self.meunButtons[4]:Hide();
     end
     self:AnimateSize(240, numButtons*BUTTON_HEIGHT, 0.25);
+end
+
+function NarciEquipmentOptionMixin:GetNumActiveButtons()
+    return (self.meunButtons[4]:IsShown() and 4) or 3
 end
 
 function NarciEquipmentOptionMixin:ShowEquipment()
@@ -1047,3 +1063,38 @@ hooksecurefunc("SocketContainerItem", function(bag, slot)
         MainFrame:SetGemListForBlizzardUI(bag, slot);
     end
 end)
+
+
+
+----For GamePad----
+NarciEquipmentOptionItemListMixin = {};
+
+function NarciEquipmentOptionItemListMixin:OnShow()
+
+end
+
+function NarciEquipmentOptionItemListMixin:OnHide()
+
+end
+
+function NarciEquipmentOptionItemListMixin:GetNumItems()
+    return #ViewUpdator.buttons, ViewUpdator.b
+end
+
+function NarciEquipmentOptionItemListMixin:GetItemButtons()
+    return ViewUpdator.buttons
+end
+
+function NarciEquipmentOptionItemListMixin:ScrollByOneButton(delta)
+    if delta > 0 then
+        self:ScrollByValue(-BUTTON_HEIGHT);
+    elseif delta < 0 then
+        self:ScrollByValue(BUTTON_HEIGHT);
+    end
+end
+
+function NarciEquipmentOptionItemListMixin:ClearActionButtons()
+    self.SelectionOverlay:Hide();
+    NarciEquipmentEnchantActionButton:Clear();
+    self.GemActionButton:Clear();
+end

@@ -1,6 +1,29 @@
 <Ui xsi:schemaLocation="http://www.blizzard.com/wow/ui/..\FrameXML\UI.xsd">
     <Script file="Controller.lua"/>
-    
+
+    <Frame name="NarciPaperDollItemHighlightTemplate" hidden="true" virtual="true" mixin="NarciPaperDollItemHighlightMixin">
+        <Layers>
+            <Layer level="BACKGROUND">
+                <Texture file="Interface\AddOns\Narcissus\Art\IconHighlight\PaperDollItemHighlight" parentKey="BorderHighlight" alphaMode="ADD">
+                    <Size x="37" y="37"/>
+                    <Anchors>
+                        <Anchor point="CENTER"/>
+                    </Anchors>
+                    <Animations>
+                        <AnimationGroup parentKey="Shine">
+                            <Alpha smoothing="OUT" fromAlpha="0" toAlpha="1" duration="0.2" order="1"/>
+                            <Scale smoothing="OUT" duration="0.2" fromScaleX="1.25" fromScaleY="1.25" toScaleX="1" toScaleY="1" order="1"/>
+                        </AnimationGroup>
+                    </Animations>
+                </Texture>
+            </Layer>
+        </Layers>
+        <Scripts>
+            <OnLoad method="OnLoad"/>
+            <OnHide method="OnHide"/>
+        </Scripts>
+    </Frame>
+
     <Frame name="NarciPaperDollWidgetController" mixin="NarciPaperDollWidgetControllerMixin">
         <Frames>
             <Frame parentKey="WidgetContainer" hidden="true">
@@ -8,6 +31,7 @@
             </Frame>
         </Frames>
         <Scripts>
+            <OnLoad method="OnLoad"/>
             <OnEvent method="OnEvent"/>
         </Scripts>
     </Frame>

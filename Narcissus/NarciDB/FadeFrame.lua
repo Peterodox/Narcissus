@@ -78,6 +78,10 @@ function f:Add(frame, fullDuration, fromAlpha, toAlpha, alterShownState, useCons
         end
     end
     if duration <= 0 then
+        frame:SetAlpha(toAlpha);
+        if toAlpha == 0 then
+            frame:Hide();
+        end
         return;
     end
     fadeInfo[frame] = {
@@ -124,6 +128,7 @@ function f:Snap()
 end
 
 function f:Print()
+    --/run NarciFadeUI:Print()
     local i = 1;
     local frame, name;
     local numFrames = 0;

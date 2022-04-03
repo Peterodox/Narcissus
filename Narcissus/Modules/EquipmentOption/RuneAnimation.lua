@@ -26,7 +26,7 @@ function NarciRuneAnimationMixin:OnShow()
 end
 
 function NarciRuneAnimationMixin:OnHide()
-
+    self:Hide();
 end
 
 function NarciRuneAnimationMixin:SetRuneTexture(i, letter)

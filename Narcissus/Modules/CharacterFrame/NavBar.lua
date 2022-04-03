@@ -191,6 +191,7 @@ function NavButtonController:SetButtonVisibilityByIndex(buttonIndex, state)
     end
 end
 
+
 NarciNavBarTabButtonMixin = {};
 
 function NarciNavBarTabButtonMixin:OnEnter()
@@ -206,9 +207,7 @@ function NarciNavBarTabButtonMixin:OnLeave()
 end
 
 function NarciNavBarTabButtonMixin:OnClick()
-    if not self.isSelected then
-        self.tabFrame:SelectTab(self.tabIndex);
-    end
+    self.tabFrame:SelectTab(self.tabIndex);
 end
 
 function NarciNavBarTabButtonMixin:OnMouseDown()
@@ -682,4 +681,17 @@ function NarciNavBarMixin:PlayTimer(state)
     else
         ProgressTimer:Pause();
     end
+end
+
+--For GamePad
+function NarciNavBarMixin:GetTabButtons()
+    local visibleTabs = {};
+    local numButtons = 0;
+    for i = 1, #NavButtonController.navButtons do
+        if NavButtonController.navButtons[i]:IsShown() then
+            numButtons = numButtons + 1;
+            visibleTabs[numButtons] = NavButtonController.navButtons[i];
+        end
+    end
+    return visibleTabs, numButtons;
 end

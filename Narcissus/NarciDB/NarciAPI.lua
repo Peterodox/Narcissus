@@ -1,20 +1,19 @@
 local _;
-local _G = _G;
 local C_Item = C_Item;
 local After = C_Timer.After;
 local GetItemInfo = GetItemInfo;
+local GetItemInfoInstant = GetItemInfoInstant;
 local UIFrameFadeIn = UIFrameFadeIn;
 local UIFrameFadeOut = UIFrameFadeOut;
+local FadeFrame = NarciFadeUI.Fade;
 local PlaySound = PlaySound;
 local unpack = unpack;
 local _, _, _, tocversion = GetBuildInfo();
 
-local strtrim = strtrim;
 local match = string.match;
 local gsub = string.gsub;
-local sub = string.sub;
+local strsub = string.sub;
 local strsplit = strsplit;
-local find = string.find;
 
 local min = math.min;
 local max = math.max;
@@ -24,8 +23,9 @@ local floor = math.floor;
 local TEXT_LOCALE = GetLocale();
 
 local Narci = Narci;
+local NarciAPI = NarciAPI;
 
-local NarciGameTooltip = CreateFrame("GameTooltip", "NarciGameTooltip", UIParent, "GameTooltipTemplate");
+--local NarciGameTooltip = CreateFrame("GameTooltip", "NarciGameTooltip", UIParent, "GameTooltipTemplate");
 local SecureContainer = CreateFrame("Frame", "NarciSecureFrameContainer");
 SecureContainer:Hide();
 ------------------------
@@ -366,9 +366,9 @@ end
 
 ----------------------------------------------------------------------
 local function NarciAPI_ConvertHexColorToRGB(hexColor, includeHex)
-    local r = tonumber(sub(hexColor, 1, 2), 16) / 255;
-    local g = tonumber(sub(hexColor, 3, 4), 16) / 255;
-    local b = tonumber(sub(hexColor, 5, 6), 16) / 255;
+    local r = tonumber(strsub(hexColor, 1, 2), 16) / 255;
+    local g = tonumber(strsub(hexColor, 3, 4), 16) / 255;
+    local b = tonumber(strsub(hexColor, 5, 6), 16) / 255;
     if includeHex then
         return {r, g, b, hexColor};
     else
@@ -539,7 +539,6 @@ local specialGemBoder = {
     [189735] = 12,
 };
 
---itemID, itemType, itemSubType, itemEquipLoc, icon, itemClassID, itemSubClassID = GetItemInfoInstant(itemID or "itemString" or "itemName" or "itemLink")
 local function GetGemBorderTexture(itemSubClassID, itemID)
     local index = (itemID and specialGemBoder[itemID]) or itemSubClassID or 0;
     return gemBorderTexture.filePrefix..gemBorderTexture[index], index
@@ -686,14 +685,13 @@ function NarciAPI_GetItemStats(itemLocation)
     local gemIndex = 1;         --BFA 1 gem for each item.
     local gemName, gemLink = GetItemGem(itemLink, gemIndex);
     if gemLink then
-        local GemID = GetItemInfoInstant(gemLink)
-        --local _, _, _, _, _, _, _, _, _, GemIcon, _, _, itemSubClassID = GetItemInfo(gemLink)
-        local _, _, _, _, GemIcon, _, itemSubClassID = GetItemInfoInstant(gemLink); 
+        local gemID = GetItemInfoInstant(gemLink);
+        local _, _, _, _, GemIcon, _, itemSubClassID = GetItemInfoInstant(gemLink);
         statsTable.GemIcon = GemIcon
         statsTable.gems = 1;
 
-        if GemInfo[GemID] then
-            local info = GemInfo[GemID]
+        if GemInfo[gemID] then
+            local info = GemInfo[gemID]
             statsTable.GemPos = GemInfo[1];
             if info[1] == "crit" then
                 statsTable.crit = statsTable.crit + info[2];
@@ -755,383 +753,6 @@ end
 
 NarciAPI.GetItemBagPosition = GetItemBagPosition;
 
---------------------
-----Tooltip Scan----
---------------------
-
-local TP = CreateFrame("GameTooltip", "NarciVirtualTooltip", nil, "GameTooltipTemplate");
-TP:SetScript("OnLoad", GameTooltip_OnLoad);
-TP:SetOwner(UIParent, 'ANCHOR_NONE');
-
-local function IsItemSocketable(itemLink, socketID)
-    if not itemLink then return; end
-
-    local gemName, gemLink = GetItemGem(itemLink, socketID or 1)
-    if gemLink then
-        return gemName or "...", gemLink;
-    end
-
-    local tex, texID;
-    for i = 1, 3 do
-        tex = _G["NarciVirtualTooltipTexture"..i];
-        if tex then
-            tex = tex:SetTexture(nil);
-        end
-    end
-
-    TP:SetHyperlink(itemLink);
-
-    for i = 1, 3 do     --max 10
-        tex = _G["NarciVirtualTooltipTexture"..i]
-        texID = tex and tex:GetTexture();
-        --print(texID)
-        if texID == 458977 then     --458977: Regular empty socket texture  --Doesn't include domination socket
-            return "Empty", nil;
-        end
-    end
-    --[[
-    for i = begin, num do
-        local str = _G["NarciVirtualTooltip".."TextLeft"..i]
-        if str and str:GetText() == SocketAction then
-            print("Has Socket")
-            return;
-        end
-    end
-    --]]
-    return nil, nil;
-end
-NarciAPI.IsItemSocketable = IsItemSocketable;
-
-
-local function GetItemRank(itemLink, statName)
-    --Items that can get upgraded
-    if not itemLink then return; end
-    
-    TP:SetHyperlink(itemLink);
-    local fontstring = _G["NarciVirtualTooltip".."TextLeft"..2];
-    fontstring = fontstring:GetText() or "";
-    fontstring = strtrim(fontstring, "|r");
-    local rank = match(fontstring, "%d+", -2) or "";
-
-    if statName then
-        local stats = GetItemStats(itemLink) or {};
-        return "|cff00ccff"..rank.."|r", stats[statName] or 0
-    else
-        return "|cff00ccff"..rank.."|r"
-    end
-end
-
-NarciAPI.GetItemRank = GetItemRank;
-
-
-local function RemoveColorString(str)
-    if str then
-        return gsub(str, "|[cC][fF][fF]%w%w%w%w%w%w(.*)|[rR]", "%1")
-    end
-end
-
-NarciAPI.RemoveColorString = RemoveColorString;
-
-
-local function GetItemTooltipTextByLine(item, line, keepColor)
-    --It's possible that item description hasn't been cached yet
-    --See TooltipParser.lua for more advanced functionalities
-    if type(item) == "number" then
-        TP:SetItemByID(item);
-    else
-        TP:SetHyperlink(item);
-    end
-    local object = _G["NarciVirtualTooltipTextLeft"..line];
-    if object then
-        if keepColor then
-            return object:GetText();
-        else
-            return RemoveColorString(object:GetText());
-        end
-    end
-end
-
-NarciAPI.GetItemTooltipTextByLine = GetItemTooltipTextByLine;
-
-
-local ITEM_ENCHANT_FORMAT = gsub(ENCHANTED_TOOLTIP_LINE, "%%s", "(.+)");
-local function GetItemEnchantText(itemLink, colorized)
-    if not itemLink then return; end
-
-    TP:SetHyperlink(itemLink);
-    local numLines = TP:NumLines();
-    local str;
-    local enchantText;
-    local enchantFormat = ITEM_ENCHANT_FORMAT;
-    for i = 5, numLines do
-        str = _G["NarciVirtualTooltip".."TextLeft"..i];
-        if str then
-            str = str:GetText();
-            enchantText = match(str, enchantFormat);
-            if enchantText then
-                enchantText = strtrim(enchantText);
-                if enchantText ~= "" then
-                    --print(enchantText)
-                    if colorized then
-                        enchantText = "|cff5fbd6b"..enchantText.."|r";
-                    end
-                    return enchantText
-                end
-            end
-        else
-            return
-        end
-    end
-end
-
-local function GetEnchantTextByEnchantID(enchantID)
-    if enchantID then
-        local itemLink = "item:2092:"..enchantID;
-        return GetItemEnchantText(itemLink, false);
-    end
-end
-
-NarciAPI.GetItemEnchantText = GetItemEnchantText;
-NarciAPI.GetEnchantTextByEnchantID = GetEnchantTextByEnchantID;
-
-
-local TEMP_ENCHANT_FORMAT = "([^+].+) %((%d+%D+)%)";
-local FORMAT_COLON = ":";
-if TEXT_LOCALE == "zhCN" then
-    FORMAT_COLON = "：";
-    TEMP_ENCHANT_FORMAT = "([^+].+)（(%d+%D+)%）";
-elseif TEXT_LOCALE == "zhTW" then
-    FORMAT_COLON = "：";
-    TEMP_ENCHANT_FORMAT = "([^+].+)%((%d+%D+)%)";
-end
-
-local function GetTemporaryItemBuff(location1, location2)
-    if not location1 then return; end
-    if location2 then
-        TP:SetBagItem(location1, location2);
-    else
-        TP:SetInventoryItem("player", location1, nil, true);
-    end
-    local numLines = TP:NumLines();
-    local str;
-    local r, g, b;
-    local buffText, durationText;
-    for i = 5, numLines do
-        str = _G["NarciVirtualTooltip".."TextLeft"..i];
-        if str then
-            str = str:GetText();
-            if not match(str, FORMAT_COLON) then
-                buffText, durationText = match(str, TEMP_ENCHANT_FORMAT);
-                if buffText and durationText then
-                    break
-                end
-            end
-        end
-    end
-
-    --durationText: hours, hour, min, sec
-    --/dump string.match("Reinforced (15 sec)", ".+ %((%d+) sec%)")
-    return buffText, durationText
-end
-
-NarciAPI.GetTemporaryItemBuff = GetTemporaryItemBuff;
-
------String API------
---[[
-function NarciAPI_DeformatString(str, patterns)
-    if not str then return end
-
-    local patternType = type(patterns);
-    if patternType == "string" then
-        patterns = gsub(patterns, "%(", "%%%(");
-        patterns = gsub(patterns, "%)", "%%%)");
-        patterns = gsub(patterns, "%%d", "%%d+");
-        patterns = gsub(patterns, "%%s", "(.+)");
-        return match(str, patterns)
-    elseif patternType == "table" then
-        local pattern;
-        local result = {};
-        --print(str)
-        for i = 1, #patterns do
-            pattern = patterns[i];
-            pattern = gsub(pattern, "%(", "%%%(");
-            pattern = gsub(pattern, "%)", "%%%)");
-            pattern = gsub(pattern, "%%d", "%%d+");
-            pattern = gsub(pattern, "%%s", "(.+)");
-            result = { match(str, pattern) };
-            --print(pattern)
-            if #result ~= 0 then
-                return unpack(result);
-            end
-        end
-        return str;
-    end
-end
---]]
-
-local greyFont = "|cff959595";
-local leftBrace = "%(";
-local rightBrace = "%)";
-if (TEXT_LOCALE == "zhCN") or (TEXT_LOCALE == "zhTW") then
-    leftBrace = "（";
-    rightBrace = "）";
-end
-
-
-local SOURCE_KNOWN = TRANSMOGRIFY_TOOLTIP_APPEARANCE_KNOWN;
-local APPEARANCE_KNOWN = TRANSMOGRIFY_TOOLTIP_ITEM_UNKNOWN_APPEARANCE_KNOWN;
-local APPEARANCE_UNKNOWN = TRANSMOGRIFY_TOOLTIP_APPEARANCE_UNKNOWN;
-
-local function NarciAPI_IsAppearanceKnown(itemLink)
-    --Need to correspond with C_TransmogCollection.PlayerHasTransmog
-    if not itemLink then    return; end
-    TP:SetHyperlink(itemLink);
-    local str;
-    local num = TP:NumLines();
-    for i = num, num - 2, -1 do
-        str = nil;
-        str = _G["NarciVirtualTooltip".."TextLeft"..i]
-        if not str then
-            return false;
-        else
-            str = str:GetText();
-        end
-        if str == SOURCE_KNOWN or str == APPEARANCE_KNOWN then
-            return true;
-        elseif str == APPEARANCE_UNKNOWN then
-            return false;
-        end
-    end
-    return false;
-end
-
-NarciAPI.IsAppearanceKnown = NarciAPI_IsAppearanceKnown;
-
-local function trimComma(text)
-    return strtrim(text, ":：");
-end
-
-local function formatString(text, removedText)
-    text = strtrim(text, removedText);
-    text = trimComma(text);
-    text = strtrim(text);                               --remove space
-    text = gsub(text, leftBrace, "\n\n"..greyFont)
-    text = gsub(text, rightBrace, "|r")
-    return text;
-end
-
-local onUse = ITEM_SPELL_TRIGGER_ONUSE;
-local onEquip = ITEM_SPELL_TRIGGER_ONEQUIP;
-local onProc = ITEM_SPELL_TRIGGER_ONPROC;
-local setBonus = Narci.L["Item Bonus"];
-local _onUse = trimComma(onUse);
-local _onEquip = trimComma(onEquip);
-local _onProc = trimComma(onProc);
-local _setBonus = trimComma(setBonus);
-local minLevel = SOCKETING_ITEM_MIN_LEVEL_I;
-
-local function GetItemExtraEffect(itemLink, checkBonus)
-    if not itemLink then return; end
-
-    TP:SetHyperlink(itemLink);
-    local num = TP:NumLines();
-    local begin = max(num - 6, 0);
-    local output = "";
-    local category, str;
-
-    for i = begin, num, 1 do
-        str = nil;
-        str = _G["NarciVirtualTooltip".."TextLeft"..i];
-        if not str then
-            break;
-        else
-            str = str:GetText();
-        end
-
-        if find(str, onUse) then
-            str = formatString(str, _onUse);
-            if not category then    category = _onUse; end
-            --return _onUse, str;
-            output = output..str.."\n\n"
-        elseif find(str, onEquip) then
-            str = formatString(str, _onEquip);
-            if not category then    category = _onEquip; end
-            --return _onEquip, str;
-            output = output..str.."\n\n"
-        elseif find(str, onProc) then
-            str = formatString(str, _onProc);
-            if not category then    category = _onProc; end
-            --return _onProc, str;
-            output = output..str.."\n\n"
-        elseif checkBonus then
-            if find(str, setBonus) then
-                str = formatString(str, _setBonus);
-                if not category then    category = _setBonus; end
-                output = output..str.."\n\n"
-                break
-            end
-        end
-    end
-    return category, output;
-end
-
-NarciAPI.GetItemExtraEffect = GetItemExtraEffect;
-
-local SpecialGemData = {
-    --1 Movement Speed
-    --2 Health Regen
-    
-    [173125] = 2,       --Revitalizing Jewel Doublet
-    [173126] = 1,       --Straddling Jewel Doublet
-};
-
-local function NarciAPI_GetGemBonus(itemID)
-    --itemID: Gem's Item ID or hyperlink
-    if not itemID then return; end
-    if type(itemID) == "number" then
-        TP:SetItemByID(itemID);
-    else
-        TP:SetHyperlink(itemID);
-    end
-    local num = TP:NumLines();
-    local bonusText;
-    local str;
-    local level = 0;
-    
-    local bonusID = SpecialGemData[itemID];
-    if bonusID then
-        if bonusID == 1 then
-            bonusText = STAT_MOVEMENT_SPEED;
-        elseif bonusID == 2 then
-            bonusText = ITEM_MOD_HEALTH_REGENERATION_SHORT;
-        end
-    end
-
-    for i = 1, num do
-        str = _G["NarciVirtualTooltip".."TextLeft"..i]
-        if not str then
-            return;
-        else
-            str = str:GetText();
-            if not str then
-                return;
-            end
-        end
-        
-        if not bonusText and string.sub(str, 1, 1) == "+" then
-            bonusText = str;
-        end
-
-        if find(str, minLevel) then
-            level = formatString(str, minLevel);
-        end
-
-        if level and bonusText then return bonusText, tonumber(level); end
-    end
-    return bonusText, tonumber(level);
-end
-
-NarciAPI.GetGemBonus = NarciAPI_GetGemBonus;
 
 --------------------
 ---Formating API----
@@ -1208,23 +829,25 @@ function NarciUIMixin:SetColor(r, g, b)
     end
 end
 
-local screenWidth, screenHeight = GetPhysicalScreenSize();
-local UIParentWidth, UIParentHeight = UIParent:GetSize();
+local SCREEN_WIDTH, SCREEN_HEIGHT = GetPhysicalScreenSize();
 
-local function GetPixelForWidget(widget)
+local function GetPixelForWidget(widget, pixelSize)
     local scale = widget:GetEffectiveScale();
-    return (768/screenHeight)/scale
+    if pixelSize then
+        return pixelSize * (768/SCREEN_HEIGHT)/scale
+    else
+        return (768/SCREEN_HEIGHT)/scale
+    end
 end
+
+NarciAPI.GetPixelForWidget = GetPixelForWidget;
 
 function NarciAPI_OptimizeBorderThickness(self)
     if not self.HasOptimized then
         local point, relativeTo, relativePoint, xOfs, yOfs = self:GetPoint()
 
         local uiScale = self:GetEffectiveScale(); 
-        --local scale = match(GetCVar( "gxWindowedResolution" ), "%d+x(%d+)" );
-        --local rate = 768/scale/uiScale;
-        --local _, screenHeight = GetPhysicalScreenSize();
-        local rate = (768/screenHeight)/uiScale;
+        local rate = (768/SCREEN_HEIGHT)/uiScale;
         local borderWeight = 2.0;
         local weight = borderWeight * rate;
         local weight2 = weight * math.sqrt(2);
@@ -1306,12 +929,12 @@ function NarciGenericKeyBindingButtonMixin:ExitKeyBinding(success)
     if success then
         self.Highlight:SetColorTexture(0.4862, 0.7725, 0.4627);
         self.Description:SetText("|cff7cc576".. KEY_BOUND);
-        UIFrameFadeIn(self.Highlight, 0.2, 0, 1);
-        UIFrameFadeIn(self.Description, 0.2, 0, 1);
+        FadeFrame(self.Highlight, 0.2, 1);
+        FadeFrame(self.Description, 0.2, 1);
         self.Timer:Stop();
         self.Timer:SetScript("OnFinished", function()
-            UIFrameFadeOut(self.Highlight, 0.5, 1, 0);
-            UIFrameFadeOut(self.Description, 0.5, 1, 0);
+            FadeFrame(self.Highlight, 0.5, 0);
+            FadeFrame(self.Description, 0.5, 0);
         end);
         self.Timer:Play();
     end
@@ -1333,12 +956,12 @@ function NarciGenericKeyBindingButtonMixin:ReleaseBindingKey()
         NarcissusDB[self.actionName] = self.defaultKey;
         self.Highlight:SetColorTexture(0.9333, 0.1961, 0.1412);
         self.Description:SetText(NARCI_COLOR_RED_MILD.."Hotkey reset");
-        UIFrameFadeIn(self.Description, 0.2, 0, 1);
-        UIFrameFadeIn(self.Highlight, 0.2, 0, 1);
+        FadeFrame(self.Description, 0.2, 1);
+        FadeFrame(self.Highlight, 0.2, 1);
         self.Timer:Stop();
         self.Timer:SetScript("OnFinished", function()
-            UIFrameFadeOut(self.Highlight, 0.5, 1, 0);
-            UIFrameFadeOut(self.Description, 0.5, 1, 0);
+            FadeFrame(self.Highlight, 0.5, 0);
+            FadeFrame(self.Description, 0.5, 0);
         end);
         self.Timer:Play();
     end
@@ -1463,9 +1086,7 @@ function NarciAPI_SmoothScroll_Initialization(scrollFrame, updatedList, updateFu
     
     --local scale = match(GetCVar( "gxWindowedResolution" ), "%d+x(%d+)" );
     local uiScale = scrollFrame:GetEffectiveScale();
-    --local pixel = 768/scale/uiScale;
-    --local _, screenHeight = GetPhysicalScreenSize();
-    local pixel = (768/screenHeight)/uiScale;
+    local pixel = (768/SCREEN_HEIGHT)/uiScale;
     
     local scrollBar = scrollFrame.scrollBar;
     scrollBar:SetValue(0);
@@ -1516,46 +1137,7 @@ function NarciAPI_ApplySmoothScrollToBlizzardUI(scrollFrame, deltaRatio, speedRa
     NarciAPI_SmoothScroll_Initialization(scrollFrame, nil, nil, deltaRatio, speedRatio, nil, positionFunc);
 end
 
---Linear Scroll For Gamepad Control
-local LinearScrollUpdater = CreateFrame("Frame", "Narci_LinearScrollUpdater");
-LinearScrollUpdater:Hide();
-LinearScrollUpdater.value = 0;
-LinearScrollUpdater.distancePerSecond = 0;
-LinearScrollUpdater.multiplier = 1;
-LinearScrollUpdater:SetScript("OnUpdate", function(self, elapsed)
-    local newValue = self.value + self.distancePerSecond * self.multiplier * elapsed;
-    self.slider:SetValue(newValue);
-    self.value = newValue;
-    if newValue >= self.maxValue or newValue <= 0 then
-        self:Hide();
-    end
-    if self.accelerate then
-        self.multiplier = self.multiplier + elapsed;
-        if self.multiplier > 3 then
-            self.multiplier = 3;
-        end
-    end
-end);
 
-function LinearScrollUpdater:Start(scrollFrame, distancePerSecond, accelerate)
-    self:Hide();
-    local scrollBar = scrollFrame.scrollBar;
-    if not scrollBar then
-        return
-    end
-    self.slider = scrollBar;
-    self.multiplier = 1;
-    self.accelerate = accelerate;
-    self.value = scrollBar:GetValue();
-    self.distancePerSecond = distancePerSecond;
-    self.minValue, self.maxValue = scrollBar:GetMinMaxValues();
-    self:Show();
-    return not(self.value == self.maxValue or self.value == self.minValue)
-end
-
-function LinearScrollUpdater:Stop()
-    self:Hide();
-end
 
 -----Create A List of Button----
 --[[
@@ -1603,7 +1185,7 @@ end
 
 -----Language Adaptor-----
 local function LanguageDetector(str)
-	local len = strlen(str)
+	local len = string.len(str)
 	local i = 1
 	while i <= len do
 		local c = string.byte(str, i)
@@ -1627,7 +1209,6 @@ local function LanguageDetector(str)
 		elseif (c >= 240 and c <= 244) then
 			shift = 4	--Unknown invalid
 		end
-		--local char = sub(str, i, i+shift-1)
 		i = i + shift
 	end
 	return "RM"
@@ -1758,9 +1339,6 @@ _, NARCI_HASTE_TOOLTIP_FORMAT = SplitTooltipByLineBreak(STAT_HASTE_BASE_TOOLTIP)
 NARCI_VERSATILITY_TOOLTIP_FORMAT_1, NARCI_VERSATILITY_TOOLTIP_FORMAT_2 = SplitTooltipByLineBreak(CR_VERSATILITY_TOOLTIP);
 
 -----Delayed Tooltip-----
-local timeDelay = 0.6;
-
-local GetCursorPosition = GetCursorPosition;
 local DelayedTP = CreateFrame("Frame");
 DelayedTP:Hide();
 
@@ -1777,22 +1355,28 @@ end)
 DelayedTP:SetScript("OnUpdate", function(self, elapsed)
     self.t = self.t + elapsed;
     --self.ScanTime = self.ScanTime + elapsed;
-    if self.t >= timeDelay then
+    if self.t >= 0.6 then
         if self.focus and self.focus == GetMouseFocus() then
             NarciGameTooltip:ClearAllPoints();
             NarciGameTooltip:SetPoint(self.point, self.relativeTo, self.relativePoint, self.ofsx, self.ofsy);
-            UIFrameFadeIn(NarciGameTooltip, 0.12, 0, 1);
+            FadeFrame(NarciGameTooltip, 0.15, 1, 0);
+            self.focus = nil;
         end
         self:Hide();
     end
 end)
 
-function NarciAPI_ShowDelayedTooltip(point, relativeTo, relativePoint, ofsx, ofsy)     
-    local TP = DelayedTP;
-    TP.focus = GetMouseFocus();
-    TP.point, TP.relativeTo, TP.relativePoint, TP.ofsx, TP.ofsy = point, relativeTo, relativePoint, ofsx, ofsy;
-    TP:Hide();
-    TP:Show();
+function NarciAPI_ShowDelayedTooltip(point, relativeTo, relativePoint, ofsx, ofsy)
+    local tp = DelayedTP;
+    tp:Hide();
+    if point then
+        tp.focus = GetMouseFocus();
+        tp.point, tp.relativeTo, tp.relativePoint, tp.ofsx, tp.ofsy = point, relativeTo, relativePoint, ofsx, ofsy;
+        tp:Show();
+    else
+        tp.focus = nil;
+        FadeFrame(NarciGameTooltip, 0, 0);
+    end
 end
 
 -----Run Delayed Function-----
@@ -1891,7 +1475,7 @@ end
 function NarciAlertFrameMixin:AddMessage(msg, UseErrorAnimation)
     self.Text:SetText(msg);
     self:SetHeight(self.Background:GetHeight());
-    UIFrameFadeIn(self, 0.2, self:GetAlpha(), 1);
+    FadeFrame(self, 0.2, 1);
     local anchorFrame = self.anchor;
     if anchorFrame then
         if anchorFrame.animError and UseErrorAnimation then
@@ -2073,7 +1657,7 @@ Narci.AnimSequenceInfo =
 		["Column"] = 4,
 		["Row"] = 7,
     },
-    
+
 	["ActorPanel"] = {
 		["TotalFrames"] = 26,
 		["cX"] = 0.4296875,
@@ -2086,16 +1670,16 @@ Narci.AnimSequenceInfo =
 function NarciAPI_PlayAnimationSequence(index, SequenceInfo, Texture)
 	local Frames = SequenceInfo["TotalFrames"];
 	local cX, cY = SequenceInfo["cX"], SequenceInfo["cY"];
-	local Column, Row = SequenceInfo["Column"], SequenceInfo["Row"]
+	local col, row = SequenceInfo["Column"], SequenceInfo["Row"]
 
 	if index > Frames or index < 1 then
 		return false;
 	end
 
-	local n = math.modf((index -1)/ Row) + 1;
-	local m = index % Row
+	local n = math.modf((index -1)/ row) + 1;
+	local m = index % row
 	if m == 0 then
-		m = Row;
+		m = row;
 	end
 
 	local left, right = (n-1)*cX, n*cX;
@@ -2528,17 +2112,16 @@ local function ReAnchorFrame(frame)
 end
 
 local function ParserButton_ShowTooltip(self)
-    if self.itemLink and not CursorHasItem() then
-        local frame =self:GetParent();
-        local TP = frame.tooltip;
+    if self.itemLink then
+        local frame = self:GetParent();
+        local tp = frame.tooltip;
         --GameTooltip_SetBackdropStyle(TP, GAME_TOOLTIP_BACKDROP_STYLE_CORRUPTED_ITEM);
-        TP:SetBackdrop(nil);
-        TP:SetOwner(self, "ANCHOR_NONE");
-        TP:SetPoint("TOP", frame.ItemString, "BOTTOM", 0, -14);
-        TP:SetHyperlink(self.itemLink);
-        TP:SetMinimumWidth(254 / 0.8);
-        TP:Show();
-        frame:SetHeight( max (floor(TP:GetHeight() - 260), 0) + 400);
+        tp:SetOwner(self, "ANCHOR_NONE");
+        tp:SetPoint("TOP", frame.ItemString, "BOTTOM", 0, -14);
+        tp:SetHyperlink(self.itemLink);
+        tp:SetMinimumWidth(254 / 0.8);
+        tp:Show();
+        frame:SetHeight( max (floor(tp:GetHeight() - 260), 0) + 400);
         ReAnchorFrame(frame);
     end
 end
@@ -2547,75 +2130,26 @@ local function ParserButton_GetCursor(self)
     local infoType, itemID, itemLink = GetCursorInfo();
     self.Highlight:Hide()
 
-    if not (infoType and infoType == "item") then
-        return
-    elseif not IsCorruptedItem(itemLink) then
-        local frame = self:GetParent();
-        frame.ItemName:SetText("Not a Corrupted Item");
-        local itemString = match(itemLink, "item:([%-?%d:]+)");
-        frame.ItemString:SetText(itemString);
+    if not (infoType and infoType == "item") then return end
 
-        After(2, function()
-            frame.ItemName:SetText("Drop a Corrupted Item Here");
-        end);
-        ClearCursor();
-        return
-    end
-    ClearCursor();
     self.itemLink = itemLink;
 
     local itemName, _, itemQuality, itemLevel, _, _, _, _, itemEquipLoc, itemIcon = GetItemInfo(itemLink);
     local itemString = match(itemLink, "item:([%-?%d:]+)");
-    local supposedEffect, corruptionID = NarciAPI_GetCorruptedItemAffix(itemLink);
-    local hasGem = IsItemSocketable(itemLink);
     local enchantID = GetItemEnchantID(itemLink);
-    local corruption = GetItemStats(itemLink)["ITEM_MOD_CORRUPTION"] or 0;
-    local _, extraEffect = NarciAPI_GetItemExtraEffect(itemLink);
-    local r, g, b = GetItemQualityColor(itemQuality);
-    local HEX_PURPLE = "|c"..CORRUPTION_COLOR:GenerateHexColor();
-
-    if extraEffect then
-        extraEffect = HEX_PURPLE.. extraEffect
-    end
-
-    if supposedEffect then
-        supposedEffect = supposedEffect.."  ".."|cff946dd1"..corruption.."|r";
-    else
-        supposedEffect = "|cff946dd1"..corruption.."|r";
-    end
-
-    if hasGem then
-        supposedEffect = supposedEffect.."  ".."|cff40C7ebSocket|r"
-    end
-
-    local enchantName;
-    local colorizedString = itemString;
-    if enchantID and enchantID ~= 0 then
-        local GREEN = "|cff1eff00";
-        local info = EnchantInfo[enchantID];
-        if info then
-            enchantName = string.gsub(info[1], "%a", string.upper, 1).." "..info[2];
-            supposedEffect = supposedEffect.."  "..GREEN..enchantName.."|r";
-        end
-        colorizedString = string.gsub(itemString, enchantID, GREEN..enchantID.."|r", 1);
-    end
-
-    if corruptionID then
-        colorizedString = string.gsub(colorizedString, corruptionID, HEX_PURPLE..corruptionID.."|r", 1);
-    end
+    local r, g, b = GetCustomQualityColor(itemQuality);
 
     --Show info
     self.ItemIcon:SetTexture(itemIcon);
     local frame = self:GetParent();
-    frame.ItemName:SetText(supposedEffect);
+    frame.ItemName:SetText(itemName);
     frame.ItemName:SetTextColor(r, g, b);
-    frame.ItemString:SetText(colorizedString);
-    frame.SupposedEffect:SetText(supposedEffect);
-    frame.ActualEffect:SetText(extraEffect);
+    frame.ItemString:SetText(itemString);
 
     frame.Pointer:Hide();
+    ParserButton_ShowTooltip(self);
 
-    ParserButton_ShowTooltip(self)
+    ClearCursor();
 end
 
 
@@ -2635,14 +2169,14 @@ function Narci_ItemParser_OnLoad(self)
 
     self.ClientInfo:SetText(locale.."  "..version.."."..build.."  "..NARCI_VERSION_INFO);
 
-    local TP = CreateFrame("GameTooltip", "Narci_ItemParserTooltip", self, "GameTooltipTemplate");
-    TP:Hide();
-    self.tooltip = TP;
+    local tooltip = CreateFrame("GameTooltip", "Narci_ItemParserTooltip", self, "GameTooltipTemplate");
+    tooltip:Hide();
+    self.tooltip = tooltip;
 
     local scale = 0.8;
     local tooltipScale = 0.8;
     self:SetScale(0.8);
-    TP:SetScale(tooltipScale);
+    tooltip:SetScale(tooltipScale);
 end
 
 
@@ -2936,14 +2470,13 @@ end
 
 
 -------------------------------------------
-local FadeFrame = NarciAPI_FadeFrame;
 local DelayedFadeIn = NarciAPI_CreateAnimationFrame(1);
 DelayedFadeIn:SetScript("OnUpdate", function(self, elapsed)
     self.total = self.total + elapsed;
     if self.total >= self.duration then
         self:Hide();
         if self.anchor == GetMouseFocus() then
-            FadeFrame(self.object, 0.25, "IN");
+            FadeFrame(self.object, 0.25, 1);
         end
     end
 end);
@@ -2955,6 +2488,7 @@ function NarciHotkeyNotificationMixin:SetKey(hotkey, mouseButton, description, a
     self.alwaysShown = alwaysShown;
     self.enableListener = enableListener;
     self.Label:SetText(description);
+
     if description then
         self.GradientM:Show();
         self.GradientR:Show();
@@ -2962,12 +2496,14 @@ function NarciHotkeyNotificationMixin:SetKey(hotkey, mouseButton, description, a
         self.GradientM:Hide();
         self.GradientR:Hide();
     end
-    local width = self.Label:GetWidth();
+
     if alwaysShown then
         self:SetAlpha(1);
     else
         self:SetAlpha(0);
     end
+
+    local width = self.Label:GetWidth();
 
     if hotkey then
         self.KeyIcon:SetTexture("Interface/AddOns/Narcissus/Art/Keyboard/Key", nil, nil, "TRILINEAR");
@@ -3028,17 +2564,17 @@ end
 
 function NarciHotkeyNotificationMixin:FadeIn()
     DelayedFadeIn:Hide();
-    FadeFrame(self, 0.25, "IN");
+    FadeFrame(self, 0.25, 1);
 end
 
 function NarciHotkeyNotificationMixin:FadeOut()
     DelayedFadeIn:Hide();
-    FadeFrame(self, 0.25, "OUT");
+    FadeFrame(self, 0.25, 0);
 end
 
 function NarciHotkeyNotificationMixin:JustHide()
     DelayedFadeIn:Hide();
-    FadeFrame(self, 0, "OUT");
+    FadeFrame(self, 0, 0);
 end
 
 function NarciHotkeyNotificationMixin:OnShow()
@@ -3064,6 +2600,7 @@ function NarciHotkeyNotificationMixin:OnEvent(event, key)
         self:UnregisterEvent("GLOBAL_MOUSE_UP");
         self:FadeOut();
     end
+    print(event);
 end
 
 function NarciHotkeyNotificationMixin:SetHighlight(state)
@@ -3525,94 +3062,6 @@ function NarciLanguageUtil:GetWowheadLink(specificLanguage)
     return ( "https://".. prefix .. ".wowhead.com/");
 end
 
------------------------------------------------------------
-NarciChainAnimationMixin = {};
-
-function NarciChainAnimationMixin:Initialize(size, isLinked)
-    local offset = 4;
-    local unchainedOffset = 8;
-    local side = 24;
-    local tex = "Interface\\AddOns\\Narcissus\\Art\\Widgets\\LightSetup\\Chain";
-
-    self:SetScale(size / side);
-    self.isLinked = isLinked;
-
-    self.chains = {
-        self.UpTop, self.DownTop, self.UpBottom, self.DownBottom,
-    }
-    self.unchains = {
-        self.ChainShardUp, self.ChainShardDown, self.UpBroken, self.DownBroken
-    }
-
-    for i = 1, #self.chains do
-        self.chains[i]:SetTexture(tex, nil, nil, "TRILINEAR");
-        self.chains[i]:SetSize(side, side);
-        if i % 2 == 1 then
-            self.chains[i]:SetPoint("CENTER", self, "CENTER", offset, offset);
-        else
-            self.chains[i]:SetPoint("CENTER", self, "CENTER", -offset, -offset);
-        end
-    end
-    
-    self.UpBroken:SetSize(side, side);
-    self.UpBroken:SetTexture(tex, nil, nil, "TRILINEAR");
-    self.UpBroken:SetPoint("CENTER", self, "CENTER", unchainedOffset, unchainedOffset);
-    self.DownBroken:SetSize(side, side);
-    self.DownBroken:SetTexture(tex, nil, nil, "TRILINEAR");
-    self.DownBroken:SetPoint("CENTER", self, "CENTER", -unchainedOffset, -unchainedOffset);
-
-    local tex2 = "Interface\\AddOns\\Narcissus\\Art\\Widgets\\LightSetup\\ChainShard";
-    self.ChainShardUp:SetSize(side/2, side/2);
-    self.ChainShardUp:SetTexture(tex2, nil, nil, "TRILINEAR");
-    self.ChainShardDown:SetSize(side/2, side/2);
-    self.ChainShardDown:SetTexture(tex2, nil, nil, "TRILINEAR");
-
-    local tex3 = "Interface\\AddOns\\Narcissus\\Art\\Widgets\\LightSetup\\ChainWave";
-    self.WaveExpand:SetSize(side/2, side/2);
-    self.WaveExpand:SetTexture(tex3, nil, nil, "TRILINEAR");
-
-    for i = 1, #self.chains do
-        self.chains[i]:SetShown(isLinked);
-    end
-    for i = 1, #self.unchains do
-        self.unchains[i]:SetShown(not isLinked);
-    end
-end
-
-function NarciChainAnimationMixin:Switch()
-    self:StopAnimating();
-    local isLinked = not self.isLinked;
-    self.isLinked = isLinked;
-    if isLinked then
-        for i = 1, #self.unchains do
-            self.unchains[i]:Hide();
-        end
-        for i = 1, #self.chains do
-            self.chains[i]:Show();
-            self.chains[i].Link:Play();
-        end
-    else
-        for i = 1, #self.unchains do
-            self.unchains[i]:Show();
-            self.unchains[i].Unlink:Play();
-        end
-        for i = 1, #self.chains do
-            self.chains[i]:Hide();
-        end
-        self.WaveExpand.Unlink:Play();
-    end
-
-    if not self.isPlayingSound then
-        self.isPlayingSound = true;
-        After(0.5, function() self.isPlayingSound = nil end);
-        if isLinked then
-            PlaySound(1188, "SFX", false);
-        else
-            PlaySound(112052, "SFX", false);
-        end
-    end
-end
-
 
 local function GetAllSelectedTalentIDsAndIcons(ignorePlayerLevel)
     local talentInfo = {}
@@ -3732,6 +3181,11 @@ end
 
 NarciAPI.GetOutfitSlashCommand = GetOutfitSlashCommand;
 
+
+NarciAPI.GetScreenPixelSize = function()
+    return 768 / SCREEN_HEIGHT
+end
+
 --[[
 function TestFX(modelFileID, zoomDistance, view)
     NarciAPI_SetupModelScene(TestScene, modelFileID, zoomDistance, view);
@@ -3775,54 +3229,4 @@ function DebugUtil:CalculateAverage(number)
         self:RestartTimer();
     end
 end
-
-
-local function TestItemLinkAffix(from, to)
-    local TP = TP;
-    local max = max;
-    local total = 0;
-    local s = from  --6500;
-    local e = to    --6600;
-    local output;
-    local itemLink;
-    local function GetExtraInfo()
-        itemLink = "\124cffa335ee\124Hitem:174954::::::::120::::2:1477:".. s ..":\124h[]\124h\124r";
-        TP:SetHyperlink(itemLink);
-        local num = TP:NumLines();
-        local begin = max(num - 3, 0);
-        local str;
-    
-        for i = begin, num, 1 do
-            str = nil;
-            str = _G["NarciVirtualTooltip".."TextLeft"..i]
-            if not str then
-                break;
-            else
-                str = str:GetText();
-            end
-            
-            if find(str, onEquip) then
-                print("|cFFFFD100"..s.."|r "..str);
-                break
-            end
-        end
-
-        s = s + 1;
-        total = total + 1;
-        if s < e and total < 1000 then
-            After(0, GetExtraInfo);
-        else
-            print("Search Complete")
-        end
-    end
-
-    print("Search from "..s.." to "..e);
-    for i = s, e do
-        --Cache
-        itemLink = "\124cffa335ee\124Hitem:174954::::::::120::::2:1477:".. i ..":\124h[]\124h\124r";
-        TP:SetHyperlink(itemLink);
-    end
-    After(1, GetExtraInfo);
-end
-
 --]]

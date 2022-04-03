@@ -1,7 +1,7 @@
 local L = Narci.L;
 --NARCI_NEW_ENTRY_PREFIX..
 local TabNames = { 
-    L["Interface"], L["Shortcuts"], L["Themes"], L["Effects"], L["Camera"], L["Transmog"],
+    L["Interface"], L["Shortcuts"], NARCI_NEW_ENTRY_PREFIX..L["Item Tooltip"], L["Themes"], L["Effects"], L["Camera"], L["Transmog"],
     L["Photo Mode"], L["NPC"], NARCI_NEW_ENTRY_PREFIX..EXPANSION_NAME8, L["Extensions"],
 };  --Credits and About will be inserted later
 
@@ -509,9 +509,9 @@ local function LetterboxEffectSwitch_SetState(self, state)
         if self:IsVisible() then
             Narci_LetterboxAnimation("OUT");
         end
+        self.Description:Hide();
     end
     SetLetterboxEffectAlert();
-    self.Description:SetShown(state);
 end
 
 local function LetterboxRatioSlider_OnValueChanged(self, value)
@@ -677,6 +677,7 @@ local function InteractiveAreaSlider_OnLoad(self)
     Narci_ModelInteractiveArea:Hide();
 end
 
+
 --Soulbinds & Conduits
 local function ConduitTooltipSwitch_SetState(self, state)
     NarciAPI.EnableConduitTooltip(state);
@@ -687,6 +688,34 @@ local function PaperDollWidget_SetState(self, state)
 end
 
 
+--Equipment UI Tooltip Style
+local function ItemTooltipStyleStyleChanged(self, value)
+    Narci:SetItemTooltipStyle(value);
+end
+local function ItemTooltipStyleButton_OnEnter(self)
+    NarciEquipmentTooltip:HideTooltip();
+    NarciGameTooltip:Hide();
+    local link = "|Hitem:71086:6226:173127::::::60:577:::3:6660:7575:7696|r";   --77949
+    if self.optionValue == 1 then
+        --NarciEquipmentTooltip:SetFromSlotButton(self:GetParent().VirtualItemButton);
+        NarciEquipmentTooltip:SetItemLinkAndAnchor(link, self:GetParent().VirtualItemButton)
+    elseif self.optionValue == 2 then
+        --NarciGameTooltip:SetFromSlotButton(self:GetParent().VirtualItemButton);
+        NarciGameTooltip:SetItemLinkAndAnchor(link, self:GetParent().VirtualItemButton);
+    end
+end
+
+local function ItemTooltipStyleButton_OnLeave(self)
+    NarciEquipmentTooltip:HideTooltip();
+    NarciGameTooltip:Hide();
+end
+
+local function ItemTooltipAdditionalInfo_SetState(self, state)
+    Narci:ShowAdditionalInfoOnTooltip(state);
+end
+
+
+--Minimap Button Style
 local MinimapTextureData = {
     [1] = {"Minimap\\LOGO-Cyan", "Narcissus"},
     [2] = {"Minimap\\LOGO-Thick", "AzeriteUI"},
@@ -767,7 +796,7 @@ end
 
 local Structure = {
     {Category = "Interface", localizedName = L["Interface"], layout = {
-        { name = "uiScale", type = "header", localizedName = UI_SCALE, },
+        { name = "UIScale", type = "header", localizedName = UI_SCALE, },
         { name = "GlobalScale", type = "slider", localizedName = ALL, minValue = 0.7, maxValue = 1, valueStep = 0.1, valueFunc = GlobalScaleSlider_OnValueChanged},
         { name = "ItemNames", type = "header", localizedName = ITEM_NAMES, },
         { name = "FontHeightItemName", type = "slider", localizedName = FONT_SIZE, minValue = 10, maxValue = 12, valueStep = 1, valueFunc = SetItemNameTextSize},
@@ -788,6 +817,14 @@ local Structure = {
         { name = "EnableDoubleTap", type = "checkbox", localizedName = L["Double Tap"], description = L["Double Tap Description"], onShowFunc = DoubleTapSwitch_OnShow},
         { name = "HotkeyButton", type = "keybinding", localizedName = KEY_BINDING, onClickFunc = PrimaryKeybindingButton_OnClick, onShowFunc = PrimaryKeybindingButton_OnShow, action = BIND_ACTION},
         { name = "UseEscapeButton", type = "checkbox", localizedName = L["Use Escape Button"], description = L["Use Escape Button Description1"], valueFunc = SetUseEcapeButtonForExit},
+    }},
+
+    {Category = "ItemTooltip", localizedName = L["Item Tooltip"], layout = {
+        { name = "Style", type = "header", localizedName = L["Style"], },
+        { name = "ItemTooltipStyle", type = "radio", localizedName = L["Tooltip Style 1"], valueFunc = ItemTooltipStyleStyleChanged, optionValue = 1, groupIndex = 1, onEnterFunc = ItemTooltipStyleButton_OnEnter, onLeaveFunc = ItemTooltipStyleButton_OnLeave},
+        { name = "ItemTooltipStyle", type = "radio", localizedName = L["Tooltip Style 2"], valueFunc = ItemTooltipStyleStyleChanged, optionValue = 2, groupIndex = 1, onEnterFunc = ItemTooltipStyleButton_OnEnter, onLeaveFunc = ItemTooltipStyleButton_OnLeave},
+        { name = "AdditionalInfo", type = "header", localizedName = L["Addtional Info"], },
+        { name = "ShowItemID", type = "checkbox", localizedName = L["Item ID"], valueFunc = ItemTooltipAdditionalInfo_SetState},
     }},
 
     {Category = "Themes", localizedName = L["Themes"], layout = {
@@ -915,7 +952,7 @@ local function CreateSettingFrame(tabContainer)
             elseif type == "radio" then
                 widget = CreateFrame("Button", globalName, tab, "NarciPreferenceRadioButtonTemplate");
                 widget:SetPoint("TOPLEFT", tab, "TOPLEFT", PADDING_CHECKBOX, -tabHeight);
-                local extraHeight = widget:SetUp(data.localizedName, data.description, data.name, data.optionValue, data.valueFunc, data.groupIndex);
+                local extraHeight = widget:SetUp(data.localizedName, data.description, data.name, data.optionValue, data.valueFunc, data.groupIndex, data.onEnterFunc, data.onLeaveFunc);
                 tabHeight = tabHeight + extraHeight + 24;
 
             elseif type == "keybinding" then
@@ -937,7 +974,6 @@ local function CreateSettingFrame(tabContainer)
         end
     end
 
-    wipe(Structure);
     Structure = nil;
 end
 
@@ -986,7 +1022,7 @@ end
 
 NarciPreferenceCheckBoxMixin = {};
 
-function NarciPreferenceCheckBoxMixin:SetUp(labelText, description, dbKey, valueFunc)
+function NarciPreferenceCheckBoxMixin:SetUp(labelText, description, dbKey, valueFunc, onEnterFunc, onLeaveFunc)
     self.Label:SetText(labelText);
     self.valueFunc = valueFunc;
     self.dbKey = dbKey;
@@ -1005,7 +1041,12 @@ function NarciPreferenceCheckBoxMixin:SetUp(labelText, description, dbKey, value
     if valueFunc then
         valueFunc(self, state);
     end
-
+    if onEnterFunc then
+        self:SetScript("OnEnter", onEnterFunc);
+    end
+    if onLeaveFunc then
+        self:SetScript("OnLeave", onLeaveFunc);
+    end
     return extraHeight
 end
 
@@ -1020,7 +1061,7 @@ end
 
 NarciPreferenceRadioButtonMixin = {};
 
-function NarciPreferenceRadioButtonMixin:SetUp(labelText, description, dbKey, optionValue, valueFunc, groupIndex)
+function NarciPreferenceRadioButtonMixin:SetUp(labelText, description, dbKey, optionValue, valueFunc, groupIndex, onEnterFunc, onLeaveFunc)
     self.Label:SetText(labelText);
     self.valueFunc = valueFunc;
     self.dbKey = dbKey;
@@ -1040,19 +1081,28 @@ function NarciPreferenceRadioButtonMixin:SetUp(labelText, description, dbKey, op
         end
         tinsert(parent.buttonGroups[groupIndex], self);
     end
+
     local extraHeight = textHeight - 14;
     if description then
         self.Description = self:CreateFontString(nil, "OVERLAY", "NarciPreferenceDescriptionTemplate");
         self.Description:SetText(description);
         extraHeight = extraHeight + self.Description:GetHeight();
-        
     end
+
     if valueFunc then
         if optionValue == Settings[dbKey] then
             self:Click();
         end
     end
-    
+
+    if onEnterFunc then
+        self:SetScript("OnEnter", onEnterFunc);
+    end
+
+    if onLeaveFunc then
+        self:SetScript("OnLeave", onLeaveFunc);
+    end
+
     return extraHeight
 end
 
@@ -1440,13 +1490,9 @@ function Narci_Preference_ScrollFrame_OnLoad(self)
     TabHeight = self:GetHeight();
     TotalHeight = floor(TotalTab * TabHeight + 0.5);
     MaxScroll = floor((TotalTab - 1) * TabHeight + 0.5);
-    self.scrollBar:SetMinMaxValues(0, MaxScroll)
-    self.scrollBar:SetValueStep(0.001);
-    self.buttonHeight = TotalHeight + 2;
-    self.scrollBar.buttonHeight = TotalHeight;
-    self.range = MaxScroll;
 
-    NarciAPI_SmoothScroll_Initialization(self, nil, nil, 1/(TotalTab), 0.2);
+    --NarciAPI_SmoothScroll_Initialization(self, nil, nil, 1, 0.2);
+    NarciAPI_ApplySmoothScrollToScrollFrame(self, 1, 0.2, nil, TabHeight, MaxScroll);
     self.scrollBar:SetScript("OnValueChanged", ScrollBar_OnValueChanged);
 end
 

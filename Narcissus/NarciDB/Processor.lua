@@ -4,12 +4,12 @@ local processors = {};
 local function CreateProcessor(name, cycle)
    local p = CreateFrame("frame", name, nil);
     tinsert(processors, p);
-    
+
     p:Hide();
     p.queue = {};
 
     if not cycle or type(cycle) ~= "number" then
-        cycle = 0.25;    --1 update every 0.2 seconds 
+        cycle = 0.25;    --1 update every 0.2 seconds
     end
     p.cycle = cycle;
 
@@ -28,7 +28,7 @@ local function CreateProcessor(name, cycle)
         end
         self:Show();
     end
-    
+
     function p:Process()
         local isComplete = true;
         for i = 1, #self.queue do
@@ -47,13 +47,13 @@ local function CreateProcessor(name, cycle)
         end
         return isComplete;
     end
-    
+
     function p:Stop()
         self:Hide();
         self.t = 0;
         wipe(self.queue);
     end
-    
+
     p:SetScript("OnUpdate", function(self, elapsed)
         self.t = self.t + elapsed;
         if self.t >= self.cycle then
@@ -64,7 +64,7 @@ local function CreateProcessor(name, cycle)
             end
         end
     end)
-    
+
     return p
 end
 

@@ -1,0 +1,143 @@
+<Ui xsi:schemaLocation="http://www.blizzard.com/wow/ui/..\FrameXML\UI.xsd">
+    <Script file="ItemParser.lua"/>
+
+    <Frame name="NarciDevToolNumberContainerTemplate" mixin="NarciDevToolNumberContainerMixin" virtual="true">
+        <Size x="32" y="16"/>
+        <Layers>
+            <Layer level="BACKGROUND">
+                <Texture parentKey="Background">
+                    <Color r="0" g="0" b="0"/>
+                </Texture>
+            </Layer>
+            <Layer level="OVERLAY">
+                <FontString parentKey="ValueText" inherits="NarciFontUniversal9" justifyH="CENTER" maxLines="1">
+                    <Anchors>
+                        <Anchor point="CENTER" relativeKey="$parent" relativePoint="CENTER" y="0"/>
+                    </Anchors>
+                </FontString>
+            </Layer>
+        </Layers>
+        <Scripts>
+            <OnEnter method="OnEnter"/>
+            <OnLeave method="OnLeave"/>
+            <OnMouseDown method="OnMouseDown"/>
+        </Scripts>
+    </Frame>
+
+    <Frame name="NarciDevToolItemParserItemCardTemplate" mixin="NarciDevToolItemParserItemCardMixin" virtual="true">
+        <Size x="32" y="32"/>
+        <Layers>
+            <Layer level="OVERLAY">
+                <FontString parentKey="ItemName" inherits="NarciFontUniversal9" justifyH="LEFT" maxLines="2" justifyV="MIDDLE" text="Drop an item here" spacing="2">
+                    <Size x="120" y="24"/>
+                    <Color r="0.5" g="0.5" b="0.5"/>
+                    <Anchors>
+                        <Anchor point="LEFT" relativeKey="$parent" relativePoint="LEFT" x="32"/>
+                    </Anchors>
+                </FontString>
+
+                <FontString parentKey="ItemString" inherits="NarciFontUniversal9" justifyH="LEFT" maxLines="1" justifyV="MIDDLE">
+                    <Size x="0" y="24"/>
+                    <Color r="0.5" g="0.5" b="0.5"/>
+                    <Anchors>
+                        <Anchor point="TOPLEFT" relativeKey="$parent" relativePoint="BOTTOMLEFT" x="32" y="-4"/>
+                    </Anchors>
+                </FontString>
+            </Layer>
+        </Layers>
+        <Frames>
+            <Button parentKey="Receptor">
+                <Size x="24" y="24"/>
+                <Anchors>
+                    <Anchor point="LEFT" relativeKey="$parent" relativePoint="LEFT" x="4"/>
+                </Anchors>
+                <Layers>
+                    <Layer level="OVERLAY">
+                        <Texture parentKey="Border">
+                            <Color r="0.5" g="0.5" b="0.5"/>
+                        </Texture>
+                        <MaskTexture parentKey="Exclusion" file="Interface\AddOns\Narcissus\Art\Masks\Exclusion" hWrapMode="CLAMPTOWHITE" vWrapMode="CLAMPTOWHITE">
+                            <Size x="22" y="22"/>
+                            <Anchors>
+                                <Anchor point="CENTER"/>
+                            </Anchors>
+                            <MaskedTextures>
+                                <MaskedTexture childKey="Border"/>
+                            </MaskedTextures>
+                        </MaskTexture>
+                    </Layer>
+                    <Layer level="ARTWORK">
+                        <Texture parentKey="ItemIcon">
+                            <TexCoords left="0.08" right="0.92" top="0.08" bottom="0.92"/>
+                        </Texture>
+                    </Layer>
+                </Layers>
+            </Button>
+        </Frames>
+        <Scripts>
+            <OnLoad method="OnLoad"/>
+        </Scripts>
+    </Frame>
+
+    <Frame name="NDT_ItemParser" mixin="NarciDevToolItemParserMixin" frameStrata="HIGH" hidden="true" movable="true" clampedToScreen="true" enableMouse="true">
+        <Size x="546" y="410"/>
+        <Anchors>
+            <Anchor point="CENTER" relativeTo="UIParent" relativePoint="CENTER"/>
+        </Anchors>
+        <Layers>
+            <Layer level="BACKGROUND">
+                <Texture>
+                    <Color r="0.1" g="0.1" b="0.1" a="0.95"/>
+                </Texture>
+            </Layer>
+            <Layer level="OVERLAY">
+                <FontString parentKey="ClientInfo" inherits="NarciFontUniversal9" justifyH="CENTER" justifyV="BOTTOM">
+                    <Color r="0.33" g="0.33" b="0.33"/>
+                    <Anchors>
+                        <Anchor point="BOTTOM" relativeKey="$parent" relativePoint="BOTTOM" y="8"/>
+                    </Anchors>
+                </FontString>
+                <FontString parentKey="BoxLabel" inherits="NarciFontUniversal9" justifyH="TOP" justifyV="BOTTOM" hidden="true">
+                    <Color r="0.5" g="0.5" b="0.5"/>
+                </FontString>
+            </Layer>
+        </Layers>
+        <Frames>
+            <Button inherits="NarciCloseButtonTemplate">
+                <Anchors>
+                    <Anchor point="TOPRIGHT" relativeKey="$parent" relativePoint="TOPRIGHT" x="-6" y="-6"/>
+                </Anchors>
+            </Button>
+            <EditBox parentKey="EditBox" autoFocus="false" numeric="true" letters="6" mixin="NarciDevToolItemParserEditBoxMixin" hidden="true">
+                <Size x="32" y="16"/>
+                <Layers>
+                    <Layer level="BACKGROUND">
+                        <Texture parentKey="Background">
+                            <Color r="1" g="1" b="1"/>
+                        </Texture>
+                    </Layer>
+                </Layers>
+                <TextInsets>
+                    <AbsInset left="2" right="2" top="2" bottom="2"/>
+                </TextInsets>
+                <FontString justifyH="LEFT" justifyV="MIDDLE" inherits="NarciFontUniversal9">
+                    <Color r="1" g="1" b="1"/>
+                </FontString>
+                <Scripts>
+                    <OnLoad method="OnLoad"/>
+                    <OnEditFocusGained method="OnEditFocusGained"/>
+                    <OnEditFocusLost method="OnEditFocusLost"/>
+                    <OnEscapePressed method="QuitEdit"/>
+                    <OnEnterPressed method="ConfirmEdit"/>
+                    <OnTextChanged method="OnTextChanged"/>
+                    <OnHide method="OnHide"/>
+                </Scripts>
+            </EditBox>
+        </Frames>
+        <Scripts>
+            <OnShow method="OnShow"/>
+            <OnDragStart method="OnDragStart"/>
+            <OnDragStop method="OnDragStop"/>
+        </Scripts>
+    </Frame>
+</Ui>

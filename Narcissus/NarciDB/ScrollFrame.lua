@@ -191,16 +191,16 @@ function ScrollFrameMixin:ScrollByValue(value)
     end
 end
 
-function ScrollFrameMixin:ScrollToWidget(widget)
+function ScrollFrameMixin:ScrollToWidget(widget, scrollToInvisible)
     local top = self:GetTop();
     local bottom = self:GetBottom();
     local wTop = widget:GetTop();
     local wBottom = widget:GetBottom();
-    if (wTop > top) and (wBottom < top - 4) then
+    if scrollToInvisible or ( (wTop > top) and (wBottom < top - 4) ) then
         self:ScrollByValue(top - wTop);
         return true
     else
-        if (wBottom < bottom) and (wTop > bottom + 4) then
+        if scrollToInvisible or ( (wBottom < bottom) and (wTop > bottom + 4) ) then
             self:ScrollByValue(bottom - wBottom);
             return true
         end

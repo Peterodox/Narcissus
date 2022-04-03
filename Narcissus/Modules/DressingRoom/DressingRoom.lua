@@ -174,7 +174,7 @@ local function DressingRoomOverlayFrame_OnLoad(self)
 
     self.mode = "visual";
 
-    local GearTextScrollFrame = self.OptionFrame.SharePopup.GearTextContainer.ScrollFrame;
+    local GearTextScrollFrame = self.OptionFrame.SharedPopup.GearTextContainer.ScrollFrame;
     local totalHeight = 240;
     local maxScroll = totalHeight;
     GearTextScrollFrame.buttonHeight = 14;
@@ -324,7 +324,7 @@ local function NarciBridge_MogIt_SaveButton_OnClick(self)
 end
 
 local function ShareButton_OnClick(self)
-    local Popup = NarciDressingRoomSharePopup;
+    local Popup = NarciDressingRoomSharedPopup;
     if not Popup:IsShown() then
         Popup:Show();
         PrintItemList();
@@ -792,7 +792,7 @@ function NarciDressingRoomOverlayMixin:OnSizeChanged(width, height)
     --print(width.." x "..height);
     local uiScale = UIParent:GetEffectiveScale();
     local frameScale = math.max(uiScale, 0.75);
-    self.OptionFrame.SharePopup:SetScale(frameScale);
+    self.OptionFrame.SharedPopup:SetScale(frameScale);
 
     if slotFrameEnabled then
         self.OptionFrame.GroupController:SetLabelScale(frameScale);
@@ -813,6 +813,9 @@ function NarciDressingRoomOverlayMixin:OnSizeChanged(width, height)
     end
 end
 
+function NarciDressingRoomOverlayMixin:ShowItemList()
+    self.OptionFrame.SharedPopup:Show();
+end
 
 --[[
 hooksecurefunc("PanelTemplates_TabResize", function(tab, padding, absoluteSize, minWidth, maxWidth, absoluteTextSize)

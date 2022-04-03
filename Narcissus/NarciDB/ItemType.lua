@@ -5,26 +5,26 @@ local GetItemInfoInstant = GetItemInfoInstant;
 local FORMAT_REQUIRES = ITEM_REQ_SPECIALIZATION;
 
 local slotData = {
-    --[slotID] = {InventorySlotName, Localized Name, invType, textureID}    --GetInventorySlotInfo("SlotName")
-    [1] = {"HeadSlot", HEADSLOT, "INVTYPE_HEAD"},
-    [2] = {"NeckSlot", NECKSLOT, "INVSLOT_NECK"},
-    [3] = {"ShoulderSlot", SHOULDERSLOT, "INVTYPE_SHOULDER"},
-    [4] = {"ShirtSlot", SHIRTSLOT, "INVTYPE_BODY"},
-    [5] = {"ChestSlot", CHESTSLOT, "INVTYPE_CHEST"},
-    [6] = {"WaistSlot", WAISTSLOT, "INVTYPE_WAIST"},
-    [7] = {"LegsSlot", LEGSSLOT, "INVTYPE_LEGS"},
-    [8] = {"FeetSlot", FEETSLOT, "INVTYPE_FEET"},
-    [9] = {"WristSlot", WRISTSLOT, "INVTYPE_WRIST"},
-    [10]= {"HandsSlot", HANDSSLOT, "INVTYPE_HAND"},
-    [11]= {"Finger0Slot", FINGER0SLOT_UNIQUE, "INVSLOT_FINGER1"},
-    [12]= {"Finger1Slot", FINGER1SLOT_UNIQUE, "INVSLOT_FINGER2"},
-    [13]= {"Trinket0Slot", TRINKET0SLOT_UNIQUE, "INVSLOT_TRINKET1"},
-    [14]= {"Trinket1Slot", TRINKET1SLOT_UNIQUE, "INVSLOT_TRINKET2"},
-    [15]= {"BackSlot", BACKSLOT, "INVTYPE_CLOAK"},
-    [16]= {"MainHandSlot", MAINHANDSLOT, "INVTYPE_WEAPONMAINHAND"},
-    [17]= {"SecondaryHandSlot", SECONDARYHANDSLOT, "INVTYPE_WEAPONOFFHAND"},
-    [18]= {"AmmoSlot", RANGEDSLOT, "INVSLOT_RANGED"},
-    [19]= {"TabardSlot", TABARDSLOT, "INVTYPE_TABARD"},
+    --[slotID] = {InventorySlotName, Localized Name, invType, texture, validForTransmog}    --GetInventorySlotInfo("SlotName")
+    [1] = {"HeadSlot", HEADSLOT, "INVTYPE_HEAD", 0, true},
+    [2] = {"NeckSlot", NECKSLOT, "INVSLOT_NECK", 0},
+    [3] = {"ShoulderSlot", SHOULDERSLOT, "INVTYPE_SHOULDER", 0, true},
+    [4] = {"ShirtSlot", SHIRTSLOT, "INVTYPE_BODY", 0, true},
+    [5] = {"ChestSlot", CHESTSLOT, "INVTYPE_CHEST", 0, true},
+    [6] = {"WaistSlot", WAISTSLOT, "INVTYPE_WAIST", 0, true},
+    [7] = {"LegsSlot", LEGSSLOT, "INVTYPE_LEGS", 0, true},
+    [8] = {"FeetSlot", FEETSLOT, "INVTYPE_FEET", 0, true},
+    [9] = {"WristSlot", WRISTSLOT, "INVTYPE_WRIST", 0, true},
+    [10]= {"HandsSlot", HANDSSLOT, "INVTYPE_HAND", 0, true},
+    [11]= {"Finger0Slot", FINGER0SLOT_UNIQUE, "INVSLOT_FINGER1", 0},
+    [12]= {"Finger1Slot", FINGER1SLOT_UNIQUE, "INVSLOT_FINGER2", 0},
+    [13]= {"Trinket0Slot", TRINKET0SLOT_UNIQUE, "INVSLOT_TRINKET1", 0},
+    [14]= {"Trinket1Slot", TRINKET1SLOT_UNIQUE, "INVSLOT_TRINKET2", 0},
+    [15]= {"BackSlot", BACKSLOT, "INVTYPE_CLOAK", 0, true},
+    [16]= {"MainHandSlot", MAINHANDSLOT, "INVTYPE_WEAPONMAINHAND", 0, true},
+    [17]= {"SecondaryHandSlot", SECONDARYHANDSLOT, "INVTYPE_WEAPONOFFHAND", 0, true},
+    [18]= {"AmmoSlot", RANGEDSLOT, "INVSLOT_RANGED", 0},
+    [19]= {"TabardSlot", TABARDSLOT, "INVTYPE_TABARD", 0, true},
 }
 
 local invTypeSlotID = {
@@ -233,7 +233,11 @@ local function GetItemTempEnchantRequirement(typeID)
     end
 end
 
+local function IsSlotValidForTransmog(slotID)
+    return slotID and slotData[slotID][5]
+end
 
 NarciAPI.GetItemTempEnchantType = GetItemTempEnchantType;
 NarciAPI.GetItemTempEnchantRequirement = GetItemTempEnchantRequirement;
 NarciAPI.IsWeaponValidForEnchant = IsWeaponValidForEnchant;
+NarciAPI.IsSlotValidForTransmog = IsSlotValidForTransmog;

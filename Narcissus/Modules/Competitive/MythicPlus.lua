@@ -15,6 +15,7 @@ local UpdateTabButtonVisual = addon.UpdateTabButtonVisual;
 
 local MAP_FILE_PREFIX = "Interface\\AddOns\\Narcissus\\Art\\Modules\\Competitive\\MythicPlus\\Maps\\";
 local BLUR_FILE_PREFIX = "Interface\\AddOns\\Narcissus\\Art\\Modules\\Competitive\\MythicPlus\\BlurredMaps\\";
+local CARD_FULL_HEIGHT = 315;   --13 * 24
 
 local AFFIX_TYRANNICAL;     --9
 local AFFIX_FORTIFIED;      --10
@@ -22,14 +23,16 @@ local AFFIX_FORTIFIED;      --10
 local MainFrame, OwnedKeystoneFrame;
 
 local mapUIInfo = {
-    [375] = {name = 'mists-of-tirna-scithe', color = '2f1d1b', barColor='6273f4'};
-    [376] = {name = 'the-necrotic-wake', color = '30583f', barColor = '63c29a'};
-    [377] = {name = 'de-other-side', color = '3b224c', barColor = '8240e8'};
-    [378] = {name = 'halls-of-atonement', color = '2b172d', barColor = 'd80075'};
-    [379] = {name = 'plaguefall', color = '3c4d32', barColor = '6fd54f'};
-    [380] = {name = 'sanguine-depths', color = '421d1b', barColor = 'f73b39'};
-    [381] = {name = 'spires-of-ascension', color = '345572', barColor = '85c5ff'};
-    [382] = {name = 'theater-of-pain', color = '1d4938', barColor = '83c855'};
+    [375] = {name = 'mists-of-tirna-scithe', barColor='6273f4'};
+    [376] = {name = 'the-necrotic-wake', barColor = '63c29a'};
+    [377] = {name = 'de-other-side', barColor = '8240e8'};
+    [378] = {name = 'halls-of-atonement', barColor = 'd80075'};
+    [379] = {name = 'plaguefall', barColor = '6fd54f'};
+    [380] = {name = 'sanguine-depths', barColor = 'f73b39'};
+    [381] = {name = 'spires-of-ascension', barColor = '85c5ff'};
+    [382] = {name = 'theater-of-pain', barColor = '83c855'};
+    [391] = {name = 'tazavesh-the-veiled-market', barColor = '5f8afa'};
+    [392] = {name = 'tazavesh-the-veiled-market', barColor = '5f8afa'};
 };
 
 local function FormatDuration(seconds)
@@ -109,11 +112,15 @@ function DataProvider:GetSeasonBestForMap(mapID)
     end
 end
 
+local function RemoveTextBeforeColon(text)
+    return string.gsub(text, "^.+[:：]%s*", "");
+end
+
 function DataProvider:CacheMapUIInfo(mapID)
     local name, id, timeLimit, texture = C_ChallengeMode.GetMapUIInfo(mapID);
     if name then
         if not self.mapNames[mapID] then
-            self.mapNames[mapID] = name;
+            self.mapNames[mapID] = RemoveTextBeforeColon(name);
         end
     end
     if timeLimit then
@@ -260,8 +267,13 @@ NarciMythicPlusRatingCardMixin = {};
 function NarciMythicPlusRatingCardMixin:LoadMap(mapID)
     if mapID ~= self.mapID and mapUIInfo[mapID] then
         self.MapTexture:SetTexture( MAP_FILE_PREFIX.. (mapUIInfo[mapID].name) );
-        local r, g, b = unpack(ConvertHexColorToRGB(mapUIInfo[mapID].color));
-        self.Background:SetColorTexture(r, g, b);
+    end
+end
+
+function NarciMythicPlusRatingCardMixin:SetMapName(name)
+    self.MapName:SetText(name);
+    if self.MapName:IsTruncated() then
+        self.MapName:SetFontObject("NarciFontNormal9");
     end
 end
 
@@ -270,7 +282,7 @@ function NarciMythicPlusRatingCardMixin:SetUpByMapID(mapID)
     local affixScores, overallScore = C_MythicPlus.GetSeasonBestAffixScoreInfoForMap(mapID);
     local objects = {self.Level1, self.Duration1, self.Level2, self.Duration2};
     local mapName = DataProvider:GetMapName(mapID);
-    self.MapName:SetText(mapName);
+    self:SetMapName(mapName);
 
     if (overallScore and overallScore > 0) and (affixScores and #affixScores > 0) then
         local name, duration, overTime, level, score;
@@ -431,11 +443,14 @@ function NarciMythicPlusDisplayMixin:OnLoad()
     self:RegisterEvent("CHALLENGE_MODE_COMPLETED");
     self.requireUpdate = true;
     self.requireNewHistory = true;
-    local height = 24 * 14;
+    self.MapDetail.Header:SetVertexColor(0.5, 0.5, 0.5);
+
+    local height = CARD_FULL_HEIGHT + 24;
     self:SetHeight(height);
     self.MapDetail:SetHeight(height);
+    self:GetParent():SetHeight(height);
 
-    self.MapDetail.Header:SetVertexColor(0.5, 0.5, 0.5);
+    self.Cards = {};
 end
 
 function NarciMythicPlusDisplayMixin:OnEvent(event)
@@ -483,23 +498,23 @@ function NarciMythicPlusDisplayMixin:Init()
 
     if not self.maps then
         --self.maps = C_ChallengeMode.GetMapTable();
-        self.maps = {376, 381, 379, 382, 375, 377, 378, 380};
+        self.maps = {376, 381, 379, 382, 375, 377, 378, 380, 391, 392};
     end
-    if not self.Cards then
-        self.Cards = {};
-    end
+
     self.Map2Cards = {};
 
     local numMaps = #self.maps;
     local card;
     local row, col = 0, 0;
     local container = self.CardContainer;
+    local cardHeight = CARD_FULL_HEIGHT/5;  --72
     for i = 1, numMaps do
         card = self.Cards[i];
         if not card then
             card = CreateFrame("Button", nil, container, "NarciMythicPlusCompactRatingCardTemplate");
             self.Cards[i] = card;
-            card:SetPoint("TOPLEFT", container, "TOPLEFT", col * 160, -row * 72 + OFFSET_Y);
+            card:SetPoint("TOPLEFT", container, "TOPLEFT", col * 160, -row * cardHeight + OFFSET_Y);
+            card:SetHeight(cardHeight)
             col = col + 1;
             if col >= 2 then
                 row = row + 1;
@@ -532,18 +547,18 @@ function NarciMythicPlusDisplayMixin:Init()
     };
     self.TabButtons = {};
     for i = 1, #tabNames do
-      local button = CreateFrame("Button", nil, self, "NarciNavBarTabButtonTemplate");
-      self.TabButtons[i] = button;
-      if i == 1 then
-         button:SetPoint("TOPLEFT", self, "TOPLEFT", 0, 0);
-         button:SetSelect(true);
-      else
+        local button = CreateFrame("Button", nil, self, "NarciNavBarTabButtonTemplate");
+        self.TabButtons[i] = button;
+        if i == 1 then
+            button:SetPoint("TOPLEFT", self, "TOPLEFT", 0, 0);
+            button:SetSelect(true);
+        else
         button:SetPoint("LEFT", self.TabButtons[i - 1], "RIGHT", 0, 0);
-      end
-      button.maxWidth = 100;
-      button.Highlight:SetVertexColor(0.5, 0.5, 0.5);
-      button:SetUp(tabNames[i], i);
-      button.tabFrame = self;
+        end
+        button.maxWidth = 100;
+        button.Highlight:SetVertexColor(0.5, 0.5, 0.5);
+        button:SetUp(tabNames[i], i);
+        button.tabFrame = self;
     end
 
     local grey80 =  "|TInterface\\AddOns\\Narcissus\\Art\\Modules\\Competitive\\MythicPlus\\BarBlock32:10:10:-4:0:32:32:0:32:0:32:204:204:204|t";
@@ -678,7 +693,7 @@ function NarciMythicPlusDisplayMixin:SetUnit(unit)
                 if card then
                     card:SetRecord(mapScore, level, duration, overTime);
                     mapName = DataProvider:GetMapName(mapID);
-                    card.MapName:SetText(mapName);
+                    card:SetMapName(mapName);
                 end
             end
         end
@@ -689,7 +704,7 @@ function NarciMythicPlusDisplayMixin:SetUnit(unit)
                 if card then
                     card:SetEmpty();
                     mapName = DataProvider:GetMapName(mapID);
-                    card.MapName:SetText(mapName);
+                    card:SetMapName(mapName);
                 end
             end
         end
@@ -728,10 +743,13 @@ function NarciMythicPlusDisplayMixin:ToggleHistory(state)
         if numRuns > 0 then
             if not f.bars then
                 f.bars = {};
+                local frameHeight = f:GetHeight() - 36;
+                local numMaps = #self.maps;
+                local offsetY = frameHeight / numMaps;
                 local bar;
                 for i = 1, #self.maps do
                     bar = CreateFrame("Frame", nil, f, "NarciMythicPlusHistogrameTemplate");
-                    bar:SetPoint("TOP", f, "TOP", 0, 12 - i * 32);
+                    bar:SetPoint("TOP", f, "TOP", 0, -12 + (1 - i) * offsetY);
                     f.bars[i] = bar;
                 end
             end
@@ -1042,6 +1060,8 @@ function NarciMythicPlusHistogrameMixin:SetData(mapID, intimeRun, overtimeRun, n
             self.Bar2:Hide();
             self.Bar2:SetWidth(0.1);
         end
+        self.Text1:SetText(intimeRun);
+        self.Text2:SetText((overtimeRun > 0 and overtimeRun) or "");
     else
         local bar1Width = math.floor(maxWidth * overtimeRun/sum + 0.5);
         self.Bar1:SetWidth(bar1Width);
@@ -1050,10 +1070,9 @@ function NarciMythicPlusHistogrameMixin:SetData(mapID, intimeRun, overtimeRun, n
         self.Bar1:SetTexCoord(0, bar1Width/maxWidth, 0, 1);
         self.Bar2:Hide();
         self.Bar2:SetWidth(0.1);
+        self.Text1:SetText(overtimeRun);
+        self.Text2:SetText("");
     end
-
-    self.Text1:SetText((intimeRun > 0 and intimeRun) or "");
-    self.Text2:SetText((overtimeRun > 0 and overtimeRun) or "");
 end
 
 function NarciMythicPlusHistogrameMixin:OnEnter()

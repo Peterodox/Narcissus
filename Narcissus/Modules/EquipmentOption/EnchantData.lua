@@ -60,7 +60,7 @@ local enchantData = {
     [11] = {     --Finger
         {309616, 172361, 6164},    --Tenet of Critical Strike
         {309617, 172362, 6166},    --Tenet of Haste
-        {309618, 177661, 6168},    --Tenet of Mastery
+        {309618, 172363, 6168},    --Tenet of Mastery
         {309619, 172364, 6170},    --Tenet of Versatility
 
         {309612, 172357, 6163},    --Bargain of Critical Strike

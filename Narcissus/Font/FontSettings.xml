@@ -1306,7 +1306,9 @@
 	</FontFamily>
 
 	<Font name="NarciFontUniversal12" font="Interface\AddOns\Narcissus\Font\NotoSansCJKsc-Regular.otf" height="12" virtual="true"/>
+	<Font name="NarciFontUniversal10" font="Interface\AddOns\Narcissus\Font\NotoSansCJKsc-Regular.otf" height="10" virtual="true"/>
 	<Font name="NarciFontUniversal9" font="Interface\AddOns\Narcissus\Font\NotoSansCJKsc-Regular.otf" height="9" virtual="true"/>
+	<Font name="NarciFontUniversal8" font="Interface\AddOns\Narcissus\Font\NotoSansCJKsc-Regular.otf" height="8" virtual="true" spacing="2"/>
 	<Font name="NarciFontUniversal6" font="Interface\AddOns\Narcissus\Font\NotoSansCJKsc-Regular.otf" height="6" virtual="true"/>
 	<Font name="NarciFontUniversal12Outline" font="Interface\AddOns\Narcissus\Font\NotoSansCJKsc-Regular.otf" height="12" virtual="true" outline="THICK"/>
 </Ui>

@@ -3,6 +3,7 @@ local After = C_Timer.After;
 local pi = math.pi;
 local sqrt = math.sqrt;
 local GetCursorPosition = GetCursorPosition;
+local NarciAPI = NarciAPI;
 
 local function EmptyFunc()
 end
@@ -1362,6 +1363,135 @@ end
 
 
 --------------------------------------------------------------------------------------------------
+NarciChainAnimationMixin = {};
+
+function NarciChainAnimationMixin:Initialize(size, isLinked)
+    local offset = 4;
+    local unchainedOffset = 8;
+    local side = 24;
+    local tex = "Interface\\AddOns\\Narcissus\\Art\\Widgets\\LightSetup\\Chain";
+
+    self:SetScale(size / side);
+    self.isLinked = isLinked;
+
+    self.chains = {
+        self.UpTop, self.DownTop, self.UpBottom, self.DownBottom,
+    };
+    self.unchains = {
+        self.ChainShardUp, self.ChainShardDown, self.UpBroken, self.DownBroken
+    };
+
+    for i = 1, #self.chains do
+        self.chains[i]:SetTexture(tex, nil, nil, "TRILINEAR");
+        self.chains[i]:SetSize(side, side);
+        if i % 2 == 1 then
+            self.chains[i]:SetPoint("CENTER", self, "CENTER", offset, offset);
+        else
+            self.chains[i]:SetPoint("CENTER", self, "CENTER", -offset, -offset);
+        end
+    end
+
+    self.UpBroken:SetSize(side, side);
+    self.UpBroken:SetTexture(tex, nil, nil, "TRILINEAR");
+    self.UpBroken:SetPoint("CENTER", self, "CENTER", unchainedOffset, unchainedOffset);
+    self.DownBroken:SetSize(side, side);
+    self.DownBroken:SetTexture(tex, nil, nil, "TRILINEAR");
+    self.DownBroken:SetPoint("CENTER", self, "CENTER", -unchainedOffset, -unchainedOffset);
+
+    local tex2 = "Interface\\AddOns\\Narcissus\\Art\\Widgets\\LightSetup\\ChainShard";
+    self.ChainShardUp:SetSize(side/2, side/2);
+    self.ChainShardUp:SetTexture(tex2, nil, nil, "TRILINEAR");
+    self.ChainShardDown:SetSize(side/2, side/2);
+    self.ChainShardDown:SetTexture(tex2, nil, nil, "TRILINEAR");
+
+    local tex3 = "Interface\\AddOns\\Narcissus\\Art\\Widgets\\LightSetup\\ChainWave";
+    self.WaveExpand:SetSize(side/2, side/2);
+    self.WaveExpand:SetTexture(tex3, nil, nil, "TRILINEAR");
+
+    for i = 1, #self.chains do
+        self.chains[i]:SetShown(isLinked);
+    end
+    for i = 1, #self.unchains do
+        self.unchains[i]:SetShown(not isLinked);
+    end
+end
+
+function NarciChainAnimationMixin:Switch()
+    self:StopAnimating();
+    local isLinked = not self.isLinked;
+    self.isLinked = isLinked;
+    if isLinked then
+        for i = 1, #self.unchains do
+            self.unchains[i]:Hide();
+        end
+        for i = 1, #self.chains do
+            self.chains[i]:Show();
+            self.chains[i].Link:Play();
+        end
+    else
+        for i = 1, #self.unchains do
+            self.unchains[i]:Show();
+            self.unchains[i].Unlink:Play();
+        end
+        for i = 1, #self.chains do
+            self.chains[i]:Hide();
+        end
+        self.WaveExpand.Unlink:Play();
+    end
+    --[[
+    if not self.isPlayingSound then
+        self.isPlayingSound = true;
+        After(0.5, function() self.isPlayingSound = nil end);
+        if isLinked then
+            PlaySound(1188, "SFX", false);
+        else
+            PlaySound(112052, "SFX", false);
+        end
+    end
+    --]]
+end
 
 
+---------------------------------------------------------------------
+--Create a rectangle with stroke to indicate the area is interactable
+NarciInteractableAreaIndicatorMixin = {};
+
+function NarciInteractableAreaIndicatorMixin:OnLoad()
+    self.Exclusion:SetTexture("Interface\\AddOns\\Narcissus\\Art\\Masks\\Exclusion", "CLAMPTOWHITE", "CLAMPTOWHITE", "NEAREST");
+    self:UpdateStroke();
+end
+
+function NarciInteractableAreaIndicatorMixin:SetStrokeSize(pixel)
+    self.pixel = pixel;
+    self:UpdateStroke();
+end
+
+function NarciInteractableAreaIndicatorMixin:SetStrokeColor(r, g, b)
+    self.Stroke:SetColorTexture(r, g, b);
+end
+
+function NarciInteractableAreaIndicatorMixin:OnShow()
+    local scale = self:GetEffectiveScale();
+    if scale ~= self.scale then
+        self:UpdateStroke();
+    end
+end
+
+function NarciInteractableAreaIndicatorMixin:UpdateStroke()
+    local pixelSize = NarciAPI.GetPixelForWidget(self, self.pixel or 2);
+    self.Exclusion:SetPoint("TOPLEFT", self, "TOPLEFT", pixelSize, -pixelSize);
+    self.Exclusion:SetPoint("BOTTOMRIGHT", self, "BOTTOMRIGHT", -pixelSize, pixelSize);
+end
+
+function NarciInteractableAreaIndicatorMixin:OnEnter()
+    self.Stroke:Show();
+end
+
+function NarciInteractableAreaIndicatorMixin:OnLeave()
+    self.Stroke:Hide();
+end
+
+
+
+---------------------------------------------------------------------
 TEMPS = nil;

@@ -3,6 +3,10 @@ local GetSpellDescription = GetSpellDescription;
 local FadeFrame = NarciFadeUI.Fade;
 local strtrim = strtrim;
 
+local PIXEL = NarciAPI.GetScreenPixelSize();
+
+local PDWC = NarciPaperDollWidgetController;
+
 local PaperDollIndicator, SplashFrame;
 
 local classSetItems = {
@@ -19,7 +23,7 @@ local classSetItems = {
     188889, 188890, 188884, 188888, 188887,     --Warlock   188883, 188885, 188886, 188891,
     188942, 188941, 188940, 188938, 188937,     --Warrior   188939, 188945, 188944, 188943,
 
-    --187378, 186475, 185905, 186739, 186738, 190352     --Test
+    --187378, 186475, 185905, 186739, 186738, 172254     --Test
 };
 
 local candidateSlots = {
@@ -47,8 +51,8 @@ local clssSetSpells = {
 
     [3] = {    --Hunter
         {364492, 363665},   --BM
-        {364490, 363667},   --Survival
         {364491, 363666},   --Marksmanship
+        {364490, 363667},   --Survival
     },
 
     [4] = {    --Rogue
@@ -120,23 +124,27 @@ local function IsItemProgenitorSet(itemID)
 end
 
 local NUM_OWNED = 0;
+local OWNED_SLOTS;
 
 local function GetEquippedSet(recount)
+    local slots;
     if recount then
         local itemID;
         local numValid = 0;
+        OWNED_SLOTS = {};
         for slotID in pairs(candidateSlots) do
             itemID = GetInventoryItemID("player", slotID);
             if IsItemProgenitorSet(itemID) then
                 numValid = numValid + 1;
-                if numValid >= 4 then
+                OWNED_SLOTS[numValid] = slotID;
+                if numValid >= 5 then
                     break
                 end
             end
         end
         NUM_OWNED = numValid;
     end
-    return NUM_OWNED
+    return NUM_OWNED, OWNED_SLOTS
 end
 
 NarciAPI.IsItemProgenitorSet = IsItemProgenitorSet;
@@ -255,7 +263,7 @@ function NarciProgenitorTooltipMixin:Init()
     self.Effect2:SetPoint("TOPLEFT", self.Effect1, "BOTTOMLEFT", 0, -0.5 * padding);
     self.Effect2:SetWidth(textWidth);
     self.Divider:ClearAllPoints();
-    self.Divider:SetPoint("TOPRIGHT", self.Effect2, "BOTTOMRIGHT", 0, -0.75 * padding);
+    self.Divider:SetPoint("RIGHT", self.Effect2, "BOTTOMRIGHT", 0, -0.55 * padding);
     self.Divider:SetWidth(width - 2 * padding);
 
     --Create Spec Icons
@@ -268,18 +276,18 @@ function NarciProgenitorTooltipMixin:Init()
     for i = 1, numSpecs do
         self.SpecIcons[i] = self:CreateTexture(nil, "OVERLAY");
         self.SpecIcons[i]:SetSize(iconSize, iconSize);
-        self.SpecIcons[i]:SetPoint("CENTER", self.Divider, "BOTTOMLEFT", offsetX + (i - 1) * (iconSize + gap), -iconSize - iconSize * 0.5);
+        self.SpecIcons[i]:SetPoint("CENTER", self.Divider, "LEFT", offsetX + (i - 1) * (iconSize + gap), -1.35 * iconSize);
         _, _, _, icon = GetSpecializationInfo(i);
         self.SpecIcons[i]:SetTexture(icon or 134400);
         self.SpecIcons[i]:SetTexCoord(0.075, 0.925, 0.075, 0.925);
     end
 
     self.CycleNote:ClearAllPoints();
-    self.CycleNote:SetPoint("TOP", self.Divider, "BOTTOM", 0, -2*iconSize - 0.5 * padding);
+    self.CycleNote:SetPoint("TOP", self.Divider, "CENTER", 0, -2*iconSize - 0.5 * padding + 2);
     self.CycleNote:SetWidth(textWidth);
     self.CycleNote:SetText(Narci.L["Cycle Spec"]);
 
-    self.fixedHeight = (2 + 0.5 + 0.75 + 0.5) * padding + 2 * iconSize + 10;
+    self.fixedHeight = (2 + 0.5 + 0.75 + 0.5) * padding + 2 * iconSize + 2;
 
     NarciAPI.NineSliceUtil.SetUpBorder(self, "shadowLargeR0");
 
@@ -294,6 +302,7 @@ function NarciProgenitorTooltipMixin:DisplayBonus(specIndex)
     specIndex = specIndex or GetSpecialization();
     self.specIndex = specIndex;
     self.Selection:Hide();
+    self.Selection:ClearAllPoints();
 
     for i = 1, #self.SpecIcons do
         if i == specIndex then
@@ -351,7 +360,7 @@ function NarciProgenitorTooltipMixin:DisplayBonus(specIndex)
 end
 
 function NarciProgenitorTooltipMixin:UpdateSize()
-    self:SetHeight( (self.Effect1:GetHeight() or 12) + (self.Effect2:GetHeight() or 12) + self.fixedHeight);
+    self:SetHeight((self.Effect1:GetHeight() or 12) + (self.Effect2:GetHeight() or 12) + self.fixedHeight);
 end
 
 function NarciProgenitorTooltipMixin:CycleSpec(delta)
@@ -369,18 +378,33 @@ function NarciProgenitorTooltipMixin:CycleSpec(delta)
     self:DisplayBonus(self.specIndex);
 end
 
+function NarciProgenitorTooltipMixin:UpdatePixel(scale)
+    local px = PIXEL / scale;
+    self.Divider:SetHeight(16 * px);
+    local a = 64 * px;
+    self.Decor1:SetSize(a, a);
+    self.Decor3:SetSize(a, a);
+    self.Decor7:SetSize(a, a);
+    self.Decor9:SetSize(a, a);
+
+    self.Selection:SetSize(24 + 8*px, 24 + 8*px);
+    self.Exclusion:SetSize(24 + 4*px, 24 + 4*px);
+end
+
 function NarciProgenitorTooltipMixin:FadeIn(isNarcissusUI)
     if isNarcissusUI then
         self.Background:SetAlpha(1);
-        self:SetScale(1);
     else
-        self.Background:SetAlpha(0.9);
-        local scale = self:GetParent():GetEffectiveScale();
-        if scale < 0.7 then
-            self:SetScale(0.7/scale);
-        else
-            self:SetScale(1);
-        end
+        self.Background:SetAlpha(0.95);
+    end
+    local scale = self:GetParent():GetEffectiveScale();
+    if scale < 0.7 then
+        scale = 0.7;
+    end
+    if scale ~= self.scale then
+        self.scale = scale;
+        self:SetScale(scale);
+        self:UpdatePixel(scale);
     end
     self:OnShow();
     FadeFrame(self, 0.2, 1);
@@ -413,7 +437,7 @@ function NarciProgenitorSetIndicatorMixin:OnLoad()
     PaperDollIndicator = self;
 
     self.numOwned = 0;
-    NarciPaperDollWidgetController:AddWidget(self, 2);
+    PDWC:AddWidget(self, 2);
 end
 
 function NarciProgenitorSetIndicatorMixin:ResetAnchor()
@@ -444,19 +468,22 @@ function NarciProgenitorSetIndicatorMixin:OnLeave()
     self.t = nil;
     local f = NarciProgenitorTooltip;
     f:Hide();
+    PDWC:ClearHighlights();
 end
 
 function NarciProgenitorSetIndicatorMixin:ShowTooltip()
     local f = NarciProgenitorTooltip;
     f:ClearAllPoints();
     f:SetParent(self);
-    f:SetFrameStrata("LOW");
+    f:SetFrameStrata("HIGH");
+    f:SetFrameLevel(self:GetFrameLevel() - 1);
     if self.Splash:IsShown() then
         f:SetPoint("TOPLEFT", self.Splash, "BOTTOMLEFT", 0, -8);
     else
         f:SetPoint("TOPLEFT", self, "CENTER", 0, 0);
     end
     f:FadeIn();
+    PDWC:HighlightSlots(OWNED_SLOTS);
 end
 
 function NarciProgenitorSetIndicatorMixin:OnMouseDown(button)
@@ -601,13 +628,13 @@ function NarciClassSetIndicatorSplash:Init()
 
     local function ChooseButton_OnClick(f)
         if f.CountDown then
-            NarciPaperDollWidgetController:SetEnabled(true);
+            PDWC:SetEnabled(true);
             if not NarcissusDB.ProgenitorTheme then
                 NarcissusDB.ProgenitorTheme = 1;
             end
             self:ShowStep(2);
         else
-            NarciPaperDollWidgetController:SetEnabled(false);
+            PDWC:SetEnabled(false);
         end
     end
 

@@ -7,7 +7,7 @@ local S = Narci.L.S;
 NARCI_GRADIENT = "|cffA236EFN|r|cff9448F1a|r|cff865BF2r|r|cff786DF4c|r|cff6A80F6i|r|cff5D92F7s|r|cff4FA4F9s|r|cff41B7FAu|r|cff33C9FCs|r"
 MYMOG_GRADIENT = "|cffA236EFM|cff9448F1y |cff865BF2T|cff786DF4r|cff6A80F6a|cff5D92F7n|cff4FA4F9s|cff41B7FAm|cff33C9FCo|cff32c9fbg|r"
 
-NARCI_VERSION_INFO = "1.1.9";
+NARCI_VERSION_INFO = "1.2.0";
 NARCI_DEVELOPER_INFO = "Developed by Peterodox";
 
 NARCI_NEW_ENTRY_PREFIX = "|cff40C7EB";
@@ -234,6 +234,13 @@ L["Interface Options Tab Description"] = "You can also access the this panel by 
 L["Soulbinds"] = COVENANT_PREVIEW_SOULBINDS;
 L["Conduit Tooltip"] = "Conduit Effects of Higher Ranks";
 L["Paperdoll Widget"] = "Paper Doll Widget";
+L["Item Tooltip"] = "Item Tooltip";
+L["Style"] = "Style";
+L["Tooltip Style 1"] = "Next Generation";
+L["Tooltip Style 2"] = "The Original";
+L["Addtional Info"] = "Additional Info";
+L["Item ID"] = "Item ID";
+
 
 --Model Control--
 NARCI_STAND_IDLY = "Stand Idly";
@@ -466,7 +473,7 @@ L["Guide Minimap Button Line1"] = "Narcissus minimap button can now be handled b
 L["Guide NPC Entrance Line1"] = "You can add any NPC into your scene."
 L["Guide NPC Browser Line1"] = "Notable NPCs are listed in the catalog below.\nYou can also search for ANY creatures by name or ID.\nNotice that the first time you use the search function this login, it could take a few seconds to build the search table and your screen might freeze as well.\nYou may untoggle the \"Load on Demand\" option in the Preference Pane so that the database will be constructed right after you log in.";
 
-    
+
 --Splash--
 NARCI_SPLASH_WHATS_NEW_FORMAT = "What's New in Narcissus %s";
 L["See Ads"] = "See ads from our authentic sponsor";    --Not real ads!
@@ -489,7 +496,7 @@ L["Splash Content7 Description"] = "-The hexagon item border gets a new look. Ce
 
 --Project Details--
 NARCI_ALL_PROJECTS = "All Projects";
-NARCI_PROJECT_DETAILS = "|cFFFFD100Developer: Peterodox\nRelease Date: March 13, 2022|r\n\nThank you for trying this add-on! If you have any issues, suggestions, ideas, please leave a comment on the curseforge page or contact me on...";
+NARCI_PROJECT_DETAILS = "|cFFFFD100Developer: Peterodox\nRelease Date: April 4, 2022|r\n\nThank you for trying this add-on! If you have any issues, suggestions, ideas, please leave a comment on the curseforge page or contact me on...";
 NARCI_PROJECT_AAA_TITLE = "|cff008affA|cff0d8ef2z|cff1a92e5e|cff2696d9r|cff339acco|cff409ebft|cff4da1b2h |cff59a5a6A|cff66a999d|cff73ad8cv|cff7fb180e|cff8cb573n|cff99b966t|cffa6bd59u|cffb2c14dr|cffbfc440e |cffccc833A|cffd9cc26l|cffe5d01ab|cfff2d40du|cffffd800m|r";
 NARCI_PROJECT_AAA_SUMMARY = "Explore places of interest and collect lores and photos from all across Azeroth.|cff636363";
 NARCI_PROJECT_NARCISSUS_SUMMARY = "An immersive character pane and your ultimate screenshot tool.";

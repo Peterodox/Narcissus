@@ -3616,6 +3616,9 @@ function NarciNPCBrowserMixin:Close()
     ACTOR_CREATED = false;
 end
 
+function NarciNPCBrowserMixin:IsFocused()
+    return self:IsShown() and self:IsMouseOver()
+end
 
 
 

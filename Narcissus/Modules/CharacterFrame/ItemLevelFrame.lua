@@ -41,7 +41,7 @@ local function Progenitor_OnLeave(self)
 end
 
 local function GenericItemLevel_OnEnter(self)
-	Narci_ShowStatTooltipDelayed(self);
+	Narci_ShowButtonTooltip(self);
 end
 
 local function Domination_OnEnter(self)
@@ -152,7 +152,7 @@ function NarciItemLevelFrameMixin:UpdateItemLevel(playerLevel)
 	end
 	self.CenterButton.Fluid:SetHeight(height);
 	self.CenterButton.Level:SetText(avgItemLevelBase);
-	self.CenterButton.tooltip = STAT_AVERAGE_ITEM_LEVEL .." "..avgItemLevel;
+	self.CenterButton.tooltipHeadline = STAT_AVERAGE_ITEM_LEVEL .." "..avgItemLevel;
 end
 
 function NarciItemLevelFrameMixin:UpdateRenownLevel(newLevel)
@@ -169,9 +169,9 @@ function NarciItemLevelFrameMixin:UpdateRenownLevel(newLevel)
 	frame.Number:SetText(renownLevel);
 
 	if renownLevel == 0 then
-		frame.tooltipLineOpen = "You will be able to join a Covenant and progress Renown level once you reach 60.";
+		frame.tooltipLine1 = "You will be able to join a Covenant and progress Renown level once you reach 60.";
 	else
-		frame.tooltipLineOpen = COVENANT_RENOWN_TUTORIAL_PROGRESS;
+		frame.tooltipLine1 = COVENANT_RENOWN_TUTORIAL_PROGRESS;
 	end
 end
 
@@ -364,18 +364,31 @@ end
 NarciItemLevelCenterButtonMixin = {};
 
 function NarciItemLevelCenterButtonMixin:OnLoad()
-	self.tooltip2 = HIGHLIGHT_FONT_COLOR_CODE .. STAT_AVERAGE_ITEM_LEVEL_TOOLTIP .. FONT_COLOR_CODE_CLOSE;
+	self.tooltipLine1 = HIGHLIGHT_FONT_COLOR_CODE .. STAT_AVERAGE_ITEM_LEVEL_TOOLTIP .. FONT_COLOR_CODE_CLOSE;
 	--self.tooltip3 = L["Toggle Equipment Set Manager"];
 
 	self:SetScript("OnLoad", nil);
 	self.OnLoad = nil;
 end
 
+local function OnEnterDelay_OnUpdate(self, elapsed)
+	self.delay = self.delay + elapsed;
+	if self.delay > 0 then
+		if self.onEnterFunc then
+			self.onEnterFunc(self);
+		end
+		self:StopDelay();
+	end
+end
+
 function NarciItemLevelCenterButtonMixin:OnEnter()
 	FadeFrame(self.Highlight, 0.2, 1);
 
 	if self.onEnterFunc then
-		self.onEnterFunc(self);
+		self.delay = -0.15;
+		self:SetScript("OnUpdate", OnEnterDelay_OnUpdate);
+	else
+		self:StopDelay();
 	end
 end
 
@@ -393,16 +406,18 @@ function NarciItemLevelCenterButtonMixin:OnLeave()
 	if self.onLeaveFunc then
 		self.onLeaveFunc(self);
 	end
+	self:StopDelay();
 end
 
 function NarciItemLevelCenterButtonMixin:OnClick()
-	Narci_NavBar:ToggleView(2);
+
 end
 
 function NarciItemLevelCenterButtonMixin:OnHide()
 	if self.onHideFunc then
 		self.onHideFunc(self);
 	end
+	self:StopDelay();
 end
 
 function NarciItemLevelCenterButtonMixin:ShowItemLevel()
@@ -415,4 +430,11 @@ function NarciItemLevelCenterButtonMixin:ShowMaxLevel(state)
 	self.Surface:SetShown(state);
 	self.Fluid:SetShown(state);
 	self.Background:SetShown(state);
+end
+
+function NarciItemLevelCenterButtonMixin:StopDelay()
+	if self.delay then
+		self:SetScript("OnUpdate", nil);
+		self.delay = nil;
+	end
 end

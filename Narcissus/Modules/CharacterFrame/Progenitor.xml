@@ -35,7 +35,7 @@
         </Scripts>
     </Frame>
 
-    <Frame name="NarciProgenitorTooltip" mixin="NarciProgenitorTooltipMixin" frameStrata="TOOLTIP" hidden="true" alpha="0">
+    <Frame name="NarciProgenitorTooltip" mixin="NarciProgenitorTooltipMixin" frameStrata="TOOLTIP" hidden="true" alpha="0" ignoreParentScale="true">
         <Size x="288" y="288"/>
         <Layers>
             <Layer level="BACKGROUND">
@@ -73,9 +73,9 @@
                     </Anchors>
                 </Texture>
 
-                <Texture parentKey="Divider">
+                <Texture parentKey="Divider" file="Interface\AddOns\Narcissus\Art\Widgets\Progenitor\TooltipDivider">
                     <Size x="280" y="1"/>
-                    <Color r="0.24" g="0.204" b="0.169"/>
+                    <!--Color r="0.24" g="0.204" b="0.169"/-->
                     <Anchors>
                         <Anchor point="TOP" relativeKey="$parent.Effect2" relativePoint="BOTTOM" x="-5" y="-20"/>
                     </Anchors>
@@ -85,7 +85,7 @@
                     <Color r="0.5" g="0.5" b="0.5"/>
                     <Size x="320" y="0"/>
                     <Anchors>
-                        <Anchor point="TOP" relativeKey="$parent.Divider" relativePoint="BOTTOM" x="0" y="-10"/>
+                        <Anchor point="TOP" relativeKey="$parent.Divider" relativePoint="CENTER" x="0" y="-10"/>
                     </Anchors>
                 </FontString>
 
@@ -106,6 +106,61 @@
                     </MaskedTextures>
                 </MaskTexture>
             </Layer>
+
+            <Layer level="BORDER">
+                <Texture parentKey="Decor1" file="Interface\AddOns\Narcissus\Art\Widgets\Progenitor\TooltipDecor">
+                    <TexCoords left="0" right="0.5" top="1" bottom="0.5"/>
+                    <Anchors>
+                        <Anchor point="TOPLEFT" relativeKey="$parent" relativePoint="TOPLEFT"/>
+                    </Anchors>
+                </Texture>
+                <Texture parentKey="Decor3" file="Interface\AddOns\Narcissus\Art\Widgets\Progenitor\TooltipDecor">
+                    <TexCoords left="0.5" right="0" top="1" bottom="0.5"/>
+                    <Anchors>
+                        <Anchor point="TOPRIGHT" relativeKey="$parent" relativePoint="TOPRIGHT"/>
+                    </Anchors>
+                </Texture>
+                <Texture parentKey="Decor7" file="Interface\AddOns\Narcissus\Art\Widgets\Progenitor\TooltipDecor">
+                    <TexCoords left="0" right="0.5" top="0.5" bottom="1"/>
+                    <Anchors>
+                        <Anchor point="BOTTOMLEFT" relativeKey="$parent" relativePoint="BOTTOMLEFT"/>
+                    </Anchors>
+                </Texture>
+                <Texture parentKey="Decor9" file="Interface\AddOns\Narcissus\Art\Widgets\Progenitor\TooltipDecor">
+                    <TexCoords left="0.5" right="0" top="0.5" bottom="1"/>
+                    <Anchors>
+                        <Anchor point="BOTTOMRIGHT" relativeKey="$parent" relativePoint="BOTTOMRIGHT"/>
+                    </Anchors>
+                </Texture>
+                <Texture parentKey="Decor2" file="Interface\AddOns\Narcissus\Art\Widgets\Progenitor\TooltipDecor">
+                    <TexCoords left="0.5" right="1" top="1" bottom="0.5"/>
+                    <Anchors>
+                        <Anchor point="TOPLEFT" relativeKey="$parent.Decor1" relativePoint="TOPRIGHT"/>
+                        <Anchor point="BOTTOMRIGHT" relativeKey="$parent.Decor3" relativePoint="BOTTOMLEFT"/>
+                    </Anchors>
+                </Texture>
+                <Texture parentKey="Decor4" file="Interface\AddOns\Narcissus\Art\Widgets\Progenitor\TooltipDecor">
+                    <TexCoords left="0" right="0.5" top="0" bottom="0.5"/>
+                    <Anchors>
+                        <Anchor point="TOPLEFT" relativeKey="$parent.Decor1" relativePoint="BOTTOMLEFT"/>
+                        <Anchor point="BOTTOMRIGHT" relativeKey="$parent.Decor7" relativePoint="TOPRIGHT"/>
+                    </Anchors>
+                </Texture>
+                <Texture parentKey="Decor6" file="Interface\AddOns\Narcissus\Art\Widgets\Progenitor\TooltipDecor">
+                    <TexCoords left="0.5" right="0" top="0" bottom="0.5"/>
+                    <Anchors>
+                        <Anchor point="TOPLEFT" relativeKey="$parent.Decor3" relativePoint="BOTTOMLEFT"/>
+                        <Anchor point="BOTTOMRIGHT" relativeKey="$parent.Decor9" relativePoint="TOPRIGHT"/>
+                    </Anchors>
+                </Texture>
+                <Texture parentKey="Decor8" file="Interface\AddOns\Narcissus\Art\Widgets\Progenitor\TooltipDecor">
+                    <TexCoords left="0.5" right="1" top="0.5" bottom="1"/>
+                    <Anchors>
+                        <Anchor point="TOPLEFT" relativeKey="$parent.Decor7" relativePoint="TOPRIGHT"/>
+                        <Anchor point="BOTTOMRIGHT" relativeKey="$parent.Decor9" relativePoint="BOTTOMLEFT"/>
+                    </Anchors>
+                </Texture>
+            </Layer>
         </Layers>
         <Scripts>
             <OnEvent method="OnEvent"/>
@@ -114,7 +169,7 @@
     </Frame>
 
 
-    <Frame name="NarciCharacterFrameClassSetIndicator" mixin="NarciProgenitorSetIndicatorMixin" frameStrata="HIGH" hidden="true">
+    <Frame name="NarciCharacterFrameClassSetIndicator" mixin="NarciProgenitorSetIndicatorMixin" frameStrata="HIGH" hidden="true" frameLevel="10">
         <Size x="48" y="48"/>
         <Layers>
             <!--Layer level="BACKGROUND" textureSubLevel="-1">
@@ -143,7 +198,7 @@
                         <Anchor point="CENTER" relativeKey="$parent" relativePoint="TOPLEFT"/>
                     </Anchors>
                     <Animations>
-                        <AnimationGroup parentKey="Shine" smoothing="OUT">
+                        <AnimationGroup parentKey="Shine">
                             <Translation offsetX="52" offsetY="-52" duration="0.35" order="1"/>
                             <Scripts>
                                 <OnFinished>

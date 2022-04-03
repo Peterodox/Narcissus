@@ -703,6 +703,10 @@ function NarciPetStableMixin:OnHide()
     self:Hide();
 end
 
+function NarciPetStableMixin:IsFocused()
+    return self:IsShown() and self:IsMouseOver()
+end
+
 
 NarciPetSlotButtonMixin = {};
 

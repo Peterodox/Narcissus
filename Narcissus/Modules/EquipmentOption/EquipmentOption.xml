@@ -196,7 +196,7 @@
                     <Anchor point="BOTTOMRIGHT"/>
                 </Anchors>
             </Frame>
-            <ScrollFrame parentKey="ItemList" hidden="true">
+            <ScrollFrame parentKey="ItemList" hidden="true" mixin="NarciEquipmentOptionItemListMixin">
                 <Anchors>
                     <Anchor point="TOPLEFT"/>
                     <Anchor point="BOTTOMRIGHT"/>
@@ -259,7 +259,7 @@
                     </Frame>
                 </ScrollChild>
                 <Frames>
-                    <Slider valueStep="0.01" parentKey="ScrollBar" inherits="NarciVerticalLineSliderTemplate" frameLevel="5">
+                    <Slider parentKey="ScrollBar" inherits="NarciVerticalLineSliderTemplate" frameLevel="5" valueStep="0.01">
                         <Size x="12"/>
                         <Anchors>
                             <Anchor point="TOPRIGHT" relativePoint="TOPRIGHT" x="0" y="-8"/>
@@ -536,6 +536,10 @@
                         </FontString>
                     </Layer>
                 </Layers>
+                <Scripts>
+                    <OnShow method="OnShow"/>
+                    <OnHide method="OnHide"/>
+                </Scripts>
             </ScrollFrame>
         </Frames>
         <Scripts>

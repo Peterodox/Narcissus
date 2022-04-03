@@ -72,7 +72,7 @@
         </Anchors>
     </FontString>
 
-    <Frame name="Narci_Preference_TabTemplate" virtual="true">
+    <Frame name="NarciPreferenceTabTemplate" virtual="true">
         <!--Layers>
             <Layer level="BACKGROUND">
                 <Texture>
@@ -165,7 +165,7 @@
         <Scripts>
             <OnLoad>
                 self.tooltipHeadline = Narci.L["Preferences"];
-                self.tooltipLineOpen = Narci.L["Preferences Tooltip"];
+                self.tooltipLine1 = Narci.L["Preferences Tooltip"];
             </OnLoad>
             <OnEnter>
                 Narci_ShowButtonTooltip(self);
@@ -303,14 +303,14 @@
                             </Layer>
                         </Layers>
                         <Frames>
-                            <Frame inherits="Narci_Preference_TabTemplate" parentKey="Tab1">
+                            <Frame inherits="NarciPreferenceTabTemplate" parentKey="Tab1">
                                 <Anchors>
                                     <Anchor point="TOPLEFT" relativeKey="$parent" relativePoint="TOPLEFT"/>
                                     <Anchor point="TOPRIGHT" relativeKey="$parent" relativePoint="TOPRIGHT"/>
                                 </Anchors>
                             </Frame>
 
-                            <Frame inherits="Narci_Preference_TabTemplate" parentKey="Tab2">
+                            <Frame inherits="NarciPreferenceTabTemplate" parentKey="Tab2">
                                 <Anchors>
                                     <Anchor point="TOPLEFT" relativeKey="$parent.Tab1" relativePoint="BOTTOMLEFT"/>
                                     <Anchor point="TOPRIGHT" relativeKey="$parent.Tab1" relativePoint="BOTTOMRIGHT"/>
@@ -358,10 +358,28 @@
                                 </Frames>
                             </Frame>
 
-                            <Frame inherits="Narci_Preference_TabTemplate" parentKey="Tab3" name="NarciPref_Themes">
+                            <Frame inherits="NarciPreferenceTabTemplate" parentKey="Tab3">    <!--Item Tooltip-->
                                 <Anchors>
                                     <Anchor point="TOPLEFT" relativeKey="$parent.Tab2" relativePoint="BOTTOMLEFT"/>
                                     <Anchor point="TOPRIGHT" relativeKey="$parent.Tab2" relativePoint="BOTTOMRIGHT"/>
+                                </Anchors>
+                                <Frames>
+                                    <Frame parentKey="VirtualItemButton" scale="0.8">
+                                        <Size x="24" y="24"/>
+                                        <Anchors>
+                                            <Anchor point="TOPLEFT" relativeKey="$parent" relativePoint="TOPLEFT" x="180" y="-40"/>
+                                        </Anchors>
+                                        <KeyValues>
+                                            <KeyValue key="slotID" value="16" type="number"/>
+                                        </KeyValues>
+                                    </Frame>
+                                </Frames>
+                            </Frame>
+
+                            <Frame inherits="NarciPreferenceTabTemplate" parentKey="Tab4">
+                                <Anchors>
+                                    <Anchor point="TOPLEFT" relativeKey="$parent.Tab3" relativePoint="BOTTOMLEFT"/>
+                                    <Anchor point="TOPRIGHT" relativeKey="$parent.Tab3" relativePoint="BOTTOMRIGHT"/>
                                 </Anchors>
                                 <Layers>
                                     <Layer>
@@ -427,17 +445,17 @@
                                 </Frames>
                             </Frame>
 
-                            <Frame inherits="Narci_Preference_TabTemplate" parentKey="Tab4">
-                                <Anchors>
-                                    <Anchor point="TOPLEFT" relativeKey="$parent.Tab3" relativePoint="BOTTOMLEFT"/>
-                                    <Anchor point="TOPRIGHT" relativeKey="$parent.Tab3" relativePoint="BOTTOMRIGHT"/>
-                                </Anchors>
-                            </Frame>
-
-                            <Frame inherits="Narci_Preference_TabTemplate" parentKey="Tab5">
+                            <Frame inherits="NarciPreferenceTabTemplate" parentKey="Tab5">
                                 <Anchors>
                                     <Anchor point="TOPLEFT" relativeKey="$parent.Tab4" relativePoint="BOTTOMLEFT"/>
                                     <Anchor point="TOPRIGHT" relativeKey="$parent.Tab4" relativePoint="BOTTOMRIGHT"/>
+                                </Anchors>
+                            </Frame>
+
+                            <Frame inherits="NarciPreferenceTabTemplate" parentKey="Tab6">
+                                <Anchors>
+                                    <Anchor point="TOPLEFT" relativeKey="$parent.Tab5" relativePoint="BOTTOMLEFT"/>
+                                    <Anchor point="TOPRIGHT" relativeKey="$parent.Tab5" relativePoint="BOTTOMRIGHT"/>
                                 </Anchors>
                                 <Layers>
                                     <Layer>
@@ -452,10 +470,10 @@
                                 </Layers>
                             </Frame>
 
-                            <Frame inherits="Narci_Preference_TabTemplate" parentKey="Tab6"> <!--Photo Mode-->
+                            <Frame inherits="NarciPreferenceTabTemplate" parentKey="Tab7"> <!--Photo Mode-->
                                 <Anchors>
-                                    <Anchor point="TOPLEFT" relativeKey="$parent.Tab5" relativePoint="BOTTOMLEFT"/>
-                                    <Anchor point="TOPRIGHT" relativeKey="$parent.Tab5" relativePoint="BOTTOMRIGHT"/>
+                                    <Anchor point="TOPLEFT" relativeKey="$parent.Tab6" relativePoint="BOTTOMLEFT"/>
+                                    <Anchor point="TOPRIGHT" relativeKey="$parent.Tab6" relativePoint="BOTTOMRIGHT"/>
                                 </Anchors>
                                 <Layers>
                                     <Layer>
@@ -470,17 +488,17 @@
                                 </Layers>
                             </Frame>
 
-                            <Frame inherits="Narci_Preference_TabTemplate" parentKey="Tab7"> <!--Database-->
-                                <Anchors>
-                                    <Anchor point="TOPLEFT" relativeKey="$parent.Tab6" relativePoint="BOTTOMLEFT"/>
-                                    <Anchor point="TOPRIGHT" relativeKey="$parent.Tab6" relativePoint="BOTTOMRIGHT"/>
-                                </Anchors>
-                            </Frame>
-
-                            <Frame inherits="Narci_Preference_TabTemplate" parentKey="CreatureTab">
+                            <Frame inherits="NarciPreferenceTabTemplate" parentKey="Tab8"> <!--Database-->
                                 <Anchors>
                                     <Anchor point="TOPLEFT" relativeKey="$parent.Tab7" relativePoint="BOTTOMLEFT"/>
                                     <Anchor point="TOPRIGHT" relativeKey="$parent.Tab7" relativePoint="BOTTOMRIGHT"/>
+                                </Anchors>
+                            </Frame>
+
+                            <Frame inherits="NarciPreferenceTabTemplate" parentKey="CreatureTab">
+                                <Anchors>
+                                    <Anchor point="TOPLEFT" relativeKey="$parent.Tab8" relativePoint="BOTTOMLEFT"/>
+                                    <Anchor point="TOPRIGHT" relativeKey="$parent.Tab8" relativePoint="BOTTOMRIGHT"/>
                                 </Anchors>
                                 <Layers>
                                     <Layer>
@@ -679,7 +697,7 @@
                                 </Layers>
                             </Frame>
 
-                            <Frame inherits="Narci_Preference_TabTemplate" parentKey="Tab8"> <!--Soulbinds-->
+                            <Frame inherits="NarciPreferenceTabTemplate" parentKey="Tab9"> <!--Soulbinds-->
                                 <Anchors>
                                     <Anchor point="TOPLEFT" relativeKey="$parent.CreatureTab" relativePoint="BOTTOMLEFT"/>
                                     <Anchor point="TOPRIGHT" relativeKey="$parent.CreatureTab" relativePoint="BOTTOMRIGHT"/>
@@ -703,10 +721,10 @@
                                 </Layers>
                             </Frame>
 
-                            <Frame inherits="Narci_Preference_TabTemplate" parentKey="ExtensionTab">
+                            <Frame inherits="NarciPreferenceTabTemplate" parentKey="ExtensionTab">
                                 <Anchors>
-                                    <Anchor point="TOPLEFT" relativeKey="$parent.Tab8" relativePoint="BOTTOMLEFT"/>
-                                    <Anchor point="TOPRIGHT" relativeKey="$parent.Tab8" relativePoint="BOTTOMRIGHT"/>
+                                    <Anchor point="TOPLEFT" relativeKey="$parent.Tab9" relativePoint="BOTTOMLEFT"/>
+                                    <Anchor point="TOPRIGHT" relativeKey="$parent.Tab9" relativePoint="BOTTOMRIGHT"/>
                                 </Anchors>
                                 <Layers>
                                     <Layer>
@@ -792,7 +810,7 @@
                                 </Frames>
                             </Frame>
 
-                            <Frame inherits="Narci_Preference_TabTemplate" parentKey="UltraWideSettings">
+                            <Frame inherits="NarciPreferenceTabTemplate" parentKey="UltraWideSettings">
                                 <Anchors>
                                     <Anchor point="TOPLEFT" relativeKey="$parent.ExtensionTab" relativePoint="BOTTOMLEFT"/>
                                     <Anchor point="TOPRIGHT" relativeKey="$parent.ExtensionTab" relativePoint="BOTTOMRIGHT"/>
@@ -827,7 +845,7 @@
                                 </Frames>
                             </Frame>
 
-                            <Frame inherits="Narci_Preference_TabTemplate" parentKey="CreditTab" name="Narci_CreditList">    <!--Credits-->
+                            <Frame inherits="NarciPreferenceTabTemplate" parentKey="CreditTab" name="Narci_CreditList">    <!--Credits-->
                                 <Anchors>
                                     <Anchor point="TOPLEFT" relativeKey="$parent.UltraWideSettings" relativePoint="BOTTOMLEFT"/>
                                     <Anchor point="TOPRIGHT" relativeKey="$parent.UltraWideSettings" relativePoint="BOTTOMRIGHT"/>
@@ -889,7 +907,7 @@
                                 </Scripts>
                             </Frame>
                             
-                            <Frame inherits="Narci_Preference_TabTemplate" parentKey="Tab10">
+                            <Frame inherits="NarciPreferenceTabTemplate" parentKey="Tab10">
                                 <Anchors>
                                     <Anchor point="TOPLEFT" relativeKey="$parent.CreditTab" relativePoint="BOTTOMLEFT"/>
                                     <Anchor point="TOPRIGHT" relativeKey="$parent.CreditTab" relativePoint="BOTTOMRIGHT"/>
@@ -1045,9 +1063,6 @@
                             <Color r="0.1" g="0.1" b="0.1" a="1"/>
                         </ThumbTexture>
                         <Scripts>
-                            <OnShow>
-                                self:SetValueStep(0.01)
-                            </OnShow>
                         </Scripts>
                     </Slider>
                 </Frames>

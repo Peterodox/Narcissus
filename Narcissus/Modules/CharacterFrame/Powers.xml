@@ -435,20 +435,6 @@
                     </MaskedTextures>
                 </MaskTexture>
             </Layer>
-            <Layer level="OVERLAY">
-                <Texture parentKey="ActivateFXDiamond" alpha="0" alphaMode="ADD" atlas="Soulbinds_Tree_ActivateFX_Diamond" useAtlasSize="true">
-                    <Anchors>
-                        <Anchor point="CENTER" relativeKey="$parent.Stone" relativePoint="CENTER" x="0" y="0"/>
-                    </Anchors>
-                    <Animations>
-                        <AnimationGroup parentKey="ActivateAnim" inherits="VisibleWhilePlayingAnimGroupTemplate" setToFinalAlpha="true">
-                            <Alpha childKey="ActivateFXDiamond" smoothing="OUT" order="1" startDelay="0" duration="1.4" fromAlpha="1" toAlpha="0"/>
-                            <Scale childKey="ActivateFXDiamond" smoothing="OUT" order="1" duration="0.3" fromScaleX="1.5" fromScaleY="1.5" toScaleX="1" toScaleY="1"/>
-                            <Scale childKey="ActivateFXDiamond" smoothing="OUT" order="1" startDelay="0.3" duration="1.1" fromScaleX="1" fromScaleY="1" toScaleX="0.9" toScaleY="0.9"/>
-                        </AnimationGroup>
-                    </Animations>
-                </Texture>
-            </Layer>
         </Layers>
         <Frames>
             <Button parentKey="ActivateButton" mixin="NarciSoulbindsActivateButtonMixin" motionScriptsWhileDisabled="true" useParentLevel="true">

@@ -2314,27 +2314,27 @@
 								</Scripts>
 							</Frame>
 
-							<Button parentKey="IconArea" inherits="NarciInteractableLineBorderTemplate">
+							<Button parentKey="IconArea" inherits="NarciInteractableAreaIndicatorTemplate">
 								<Size x="48" y="48"/>
 							</Button>
 
-							<Button parentKey="PointsArea" inherits="NarciInteractableLineBorderTemplate">
+							<Button parentKey="PointsArea" inherits="NarciInteractableAreaIndicatorTemplate">
 								<Size x="36" y="36"/>			
 							</Button>
 
-							<Button parentKey="NameArea" inherits="NarciInteractableLineBorderTemplate">
+							<Button parentKey="NameArea" inherits="NarciInteractableAreaIndicatorTemplate">
 								<Size x="300" y="24"/>		
 							</Button>
 
-							<Button parentKey="DescriptionArea" inherits="NarciInteractableLineBorderTemplate">
+							<Button parentKey="DescriptionArea" inherits="NarciInteractableAreaIndicatorTemplate">
 								<Size x="390" y="24"/>			
 							</Button>
 
-							<Button parentKey="RewardArea" inherits="NarciInteractableLineBorderTemplate">
+							<Button parentKey="RewardArea" inherits="NarciInteractableAreaIndicatorTemplate">
 								<Size x="480" y="12"/>
 							</Button>
 
-							<Button parentKey="DateArea" inherits="NarciInteractableLineBorderTemplate">
+							<Button parentKey="DateArea" inherits="NarciInteractableAreaIndicatorTemplate">
 								<Size x="80" y="14"/>			
 							</Button>
 						</Frames>
