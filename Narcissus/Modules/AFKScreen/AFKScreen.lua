@@ -12,8 +12,9 @@ AFK:SetScript("OnEvent",function(self,event,...)
     end
     --]]
     local name = ...
-    if name == AFK_MSG and not(C_PvP.IsActiveBattlefield() or CinematicFrame:IsShown() or MovieFrame:IsShown()) then
+    if name == AFK_MSG and not(C_PvP.IsActiveBattlefield() or CinematicFrame:IsShown() or MovieFrame:IsShown() or InCombatLockdown()) then
         if not Narci.isActive then
+            securecall("CloseAllWindows")
             Narci_MinimapButton:Click();
             Narci.isAFK = true;
             C_Timer.After(2, function()
@@ -21,11 +22,14 @@ AFK:SetScript("OnEvent",function(self,event,...)
                     Narci_Character.AutoStand:Play();
                 end
             end)
+
+            --[[
             C_Timer.After(0.6, function()
                 if IsResting() then
-                    --DoEmote("Read", "none");
+                    DoEmote("Read", "none");
                 end
             end)
+            --]]
         end
     end
 end)

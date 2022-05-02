@@ -1,6 +1,6 @@
 ## Interface: 90200
 ## Plain Title: Narcissus
-## Version: 1.2.0
+## Version: 1.2.3
 
 ## Title: |cffA236EFN|cff9448F1a|cff865BF2r|cff786DF4c|cff6A80F6i|cff5D92F7s|cff4FA4F9s|cff41B7FAu|cff33C9FCs|r
 
@@ -9,7 +9,7 @@
 ## Notes-zhTW: 為展示和分享而生的沈浸式角色界面|n|cff959595命令: /Narci|r
 
 ## Author: Peterodox
-## SavedVariables: NarcissusDB, NarciCreatureOptions, NarciAchievementOptions, NarciStatisticsDB, NarciTurntableOptions
+## SavedVariables: NarcissusDB, NarciCreatureOptions, NarciAchievementOptions, NarciStatisticsDB, NarciTurntableOptions, NarciCharacterProfiles,
 ## SavedVariablesPerCharacter: NarcissusDB_PC, NarciStatisticsDB_PC
 
 
@@ -57,6 +57,7 @@ Modules\Competitive\UI.xml
 
 Modules\CharacterFrame\NavBar.xml
 
+Modules\PhotoMode\SharedUI.xml
 Modules\PhotoMode\Widgets.xml
 Modules\PhotoMode\PhotoMode.xml
 Modules\PhotoMode\SpellVisualBrowser.xml
@@ -67,6 +68,7 @@ Modules\PhotoMode\PetStable.xml
 Modules\PhotoMode\ExitConfirmationDialog.xml
 Modules\PhotoMode\SpeechBalloon.xml
 Modules\PhotoMode\Sticker.xml
+Modules\PhotoMode\OutfitSelect.xml
 
 Modules\DressingRoom\DressingRoom.xml
 Modules\Showcase\Showcase.xml

@@ -91,7 +91,8 @@ function NarciDressingRoomOptionButtonMixin:OnLoad()
     self.Background:SetTexture("Interface\\AddOns\\Narcissus\\Art\\Modules\\DressingRoom\\OptionButton", nil, nil, "TRILINEAR");
 
     self:SetFrameStrata("HIGH");
-    self:SetFixedFrameStrata(true);
+    --self:SetFixedFrameStrata(true);
+
     self.Icon:SetVertexColor(0.6, 0.6 ,0.6);
     self.Label:SetAlpha(0);
 

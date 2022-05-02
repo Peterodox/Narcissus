@@ -671,6 +671,7 @@ function DataProvider:IsCharacterDataUnique(customizationData)
     local isUnique = true;
     local tempTable = {};
     local numLooks = #SavedLooks;
+    local data;
     for i = 1, numLooks do
         wipe(tempTable);
         data = SavedLooks[i].data;
@@ -971,7 +972,7 @@ function DataProvider:GetButton()
     else
         print("Error: Unknown Gender");
         return
-    end 
+    end
 end
 
 
@@ -986,26 +987,24 @@ local function RandomizeApperance()
     BarberShopFrame:UpdateCharCustomizationFrame()
 end
 
+local function SetFontStringShadow(fontString)
+    fontString:SetShadowColor(0, 0, 0);
+    fontString:SetShadowOffset(1, -1);
+end
 
 -------------------------------------------------------------
 NarciBarberShopSavedLooksMixin = {};
 
-local function PortraitModel_OnModelLoaded(self)
-    self:SetCamera(0);
-    self:SetPaused(true);
-end
 
 function NarciBarberShopSavedLooksMixin:OnLoad()
     self.Portrait:SetVertexColor(0.5, 0.5, 0.5);
     self.Portrait:SetDesaturation(0.6);
+    SetFontStringShadow(self.Description);
 
     local Model = self.Model;
     Model:SetUnit("player");
     Model:SetKeepModelOnHide(true);
     Model:SetFacing(pi/24);
-    --Model:SetLight(true, false, -0.707, 0, -0.707, 1, 1, 1, 1, 0.5, 1, 1, 1);
-    --Model:SetLight(true, false, -0.5124, -0.4872, -0.7071, 1, 1, 1, 1, 0.5, 1, 1, 1);
-    --Model:SetLight(true, false, - 0.44699833180028 ,  0.72403680806459 , -0.52532198881773, 0.8, 1, 1, 1, 1, 0.8, 0.8, 0.8)
     Model:SetLight(true, false, cos(pi/4)*sin(-pi/4) ,  cos(pi/4)*cos(-pi/4) , -cos(pi/4), 1, 0.5, 0.5, 0.5, 1, 0.9, 0.9, 0.9);
     Model:SetCamera(0);
     self:SetPortraitZoom(1);
@@ -1019,9 +1018,9 @@ function NarciBarberShopSavedLooksMixin:OnLoad()
         self:SetPortraitZoom(1);
     end);
     Model:SetViewTranslation(0, 0);
-    
 
     --Animation Frame
+    --[[
     local animZoom = NarciAPI_CreateAnimationFrame(0.35);
     animZoom:SetScript("OnUpdate", function(frame, elapsed)
         frame.total = frame.total + elapsed;
@@ -1045,6 +1044,7 @@ function NarciBarberShopSavedLooksMixin:OnLoad()
             animZoom:Show();
         end
     end
+    --]]
 
     self:OnLeave();
 end
@@ -1101,6 +1101,9 @@ function NarciBarberShopSavedLooksMixin:OnLeave()
     self.Description:SetAlpha(0.66);
     UIFrameFadeIn(self.RingHighlight, 0.25, self.RingHighlight:GetAlpha(), 0);
     MainFrame:OnLeave();
+
+    EditButton:Hide();
+    DeleteButton:Hide();
 end
 
 function NarciBarberShopSavedLooksMixin:OnClick()
@@ -1358,7 +1361,7 @@ end
 function NarciBarberShopPlusButtonMixin:OnClick()
     --Save new Looks
 
-    local data = DataProvider:SaveNewLooks(self);
+    local data = DataProvider:SaveNewLooks();
     if data then
         local button, buttonPool = DataProvider:GetButton();
         if button then
@@ -1379,9 +1382,10 @@ NarciBarberShopEditButtonMixin = {};
 function NarciBarberShopEditButtonMixin:OnLoad()
     EditButton = self;
     self.Icon:SetTexCoord(0.25, 0.5, 0, 1);
-    self.Icon:SetVertexColor(0.66, 0.66, 0.66);
-    self.Ring:SetVertexColor(0.66, 0.66, 0.66);
+    self.Icon:SetVertexColor(0.8, 0.8, 0.8);
+    self.Ring:SetVertexColor(0.8, 0.8, 0.8);
     self.Tooltip:SetText(L["Edit Name"]);
+    SetFontStringShadow(self.Tooltip);
 end
 
 function NarciBarberShopEditButtonMixin:SetParentObject(object)
@@ -1412,6 +1416,7 @@ end
 
 function NarciBarberShopEditButtonMixin:OnHide()
     self:Hide();
+    self:OnMouseUp();
 end
 
 function NarciBarberShopEditButtonMixin:OnMouseDown()
@@ -1434,6 +1439,9 @@ function NarciBarberShopDeleteButtonMixin:OnLoad()
     self.SemiCircleLeft:SetVertexColor(0.85, 0, 0);
     self.Tooltip:SetText(L["Delete Look"]);
     self.Tooltip:SetTextColor(1, 0.31, 0.31);
+    SetFontStringShadow(self.Tooltip);
+
+    self.Ring:SetDrawLayer("BORDER");
 end
 
 function NarciBarberShopDeleteButtonMixin:SetParentObject(object)
@@ -1449,7 +1457,6 @@ end
 function NarciBarberShopDeleteButtonMixin:OnLongClick()
     local ButtonPool, removedButton = DataProvider:DeleteLooks(self:GetParent().dataSource);
     if ButtonPool then
-        --self:GetParent():Hide();
         DataProvider:IsCharacterDataUnique();
         animScrollButtons:RemoveOldButton(ButtonPool, removedButton);
     end
@@ -1458,25 +1465,29 @@ end
 function NarciBarberShopDeleteButtonMixin:OnEnter()
     self:GetParent():OnEnter();
     self.Tooltip:Show();
+    self.Ring:Show();
 end
 
 function NarciBarberShopDeleteButtonMixin:OnLeave()
     MainFrame:OnLeave();
     self:GetParent():OnLeave();
     self.Tooltip:Hide();
+    self.Ring:Hide();
 end
 
 function NarciBarberShopDeleteButtonMixin:OnHide()
     self:Hide();
+    self:OnMouseUp();
 end
 
 function NarciBarberShopDeleteButtonMixin:OnMouseDown()
-    self.Icon:SetSize(16, 16);
+    self.Icon:SetSize(14, 14);
     self:LockHighlight();
     self.SemiCircleLeft:Show();
     self.SemiCircleRight:Show();
     self.SemiCircleLeft.rotation:Play();
     self.SemiCircleRight.rotation:Play();
+    self.Ring:SetVertexColor(0.25, 0, 0);
 end
 
 function NarciBarberShopDeleteButtonMixin:OnMouseUp()
@@ -1485,6 +1496,7 @@ function NarciBarberShopDeleteButtonMixin:OnMouseUp()
     self.SemiCircleRight:Hide();
     self.SemiCircleLeft:Hide();
     self:StopAnimating();
+    self.Ring:SetVertexColor(0.85, 0, 0);
 end
 
 

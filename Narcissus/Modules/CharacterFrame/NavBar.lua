@@ -612,6 +612,11 @@ function NarciNavBarMixin:ProcessUpdate()
     end
 end
 
+function NarciNavBarMixin:OnHide()
+    --reset tab to "Primary"
+    self:SelectTab(1);
+end
+
 function NarciNavBarMixin:RequestUpdate(type)
     if type == "soulbinds" or type == "all" then
         if self:IsVisible() and self.tabIndex == 1 then

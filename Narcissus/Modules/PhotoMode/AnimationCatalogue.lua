@@ -1510,8 +1510,9 @@ local officialAnimationName = {
 	"FlyMountSummon",	-- [1497]
 	"EmoteSelfie",	--[1498]
 	"FlyEmoteSelfie", --[1499]
+
 	[0] = "Stand",
-}
+};
 
 local NUM_ANIMATIONS = #officialAnimationName;
 

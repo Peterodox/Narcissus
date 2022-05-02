@@ -1334,7 +1334,7 @@ function NarciLineBorderMixin:SetWeight(weight)
 end
 
 function NarciLineBorderMixin:SetColor(r, g, b)
-    self.Stroke:SetColorTexture(r, g, b);
+    self.Stroke:SetColorTexture(r, g, b);   --default color is 0.25
 end
 
 function NarciLineBorderMixin:OnLoad()
@@ -1494,4 +1494,290 @@ end
 
 
 ---------------------------------------------------------------------
+--Keybinding
+--internalAction: hotkeys used within Narcissus
+--externalAction: hotkeys used to open Narcissus panels
+local KeyBindingButtonOverlay;
+
+local function ReleaseOverlay()
+    if KeyBindingButtonOverlay then
+        KeyBindingButtonOverlay:Hide();
+        KeyBindingButtonOverlay:StopAnimating();
+    end
+end
+
+local function AnchorOverlayToBindingButton(button, colorType, descriptionText)
+    --colorType 1 red   2 yellow    3 green
+    local f = KeyBindingButtonOverlay;
+    if not f then
+        KeyBindingButtonOverlay = CreateFrame("Frame", "Test", button, "NarciLineBorderTemplate");
+        f = KeyBindingButtonOverlay;
+        f.Description = f:CreateFontString(nil, "OVERLAY", "NarciNonInteractiveFont");
+        f.Description:SetPoint("TOPLEFT", f, "BOTTOMLEFT", 0, -6);
+        f:SetScript("OnHide", ReleaseOverlay);
+
+        f.ConfirmButton = CreateFrame("Button", nil, f, "NarciConfirmButtonTemplate");
+        f.ConfirmButton:SetPoint("LEFT", f, "RIGHT", 6, 0);
+
+        local ag = f:CreateAnimationGroup();
+        f.FadeOut = ag;
+        ag:SetScript("OnFinished", function()
+            f:Hide();
+        end);
+        local a1 = ag:CreateAnimation("Alpha");
+        a1:SetDuration(0.5);
+        a1:SetFromAlpha(1);
+        a1:SetToAlpha(0);
+        a1:SetOrder(1);
+        a1:SetStartDelay(1.5);
+    end
+
+    f:Hide();
+    f:ClearAllPoints();
+    f:SetPoint("TOPLEFT", button, "TOPLEFT", 0, 0);
+    f:SetPoint("BOTTOMRIGHT", button, "BOTTOMRIGHT", 0, 0);
+    f:SetParent(button);
+    f.ConfirmButton.parentObject = button;
+
+    f.Description:SetText(descriptionText);
+    if descriptionText then
+        f.Description:Show();
+    else
+        f.Description:Hide();
+    end
+    if colorType == 1 then
+        f:SetColor(0.9333, 0.1961, 0.1412);
+        f.Description:SetTextColor(0.9333, 0.1961, 0.1412);
+        f.FadeOut:Play();
+        f.ConfirmButton:Hide();
+    elseif colorType == 2 then
+        f:SetColor(0.9882, 0.9294, 0);
+        f.Description:SetTextColor(0.9882, 0.9294, 0);
+        f.ConfirmButton:Show();
+    elseif colorType == 3 then
+        f:SetColor(0.4862, 0.7725, 0.4627)
+        f.Description:SetTextColor(0.4862, 0.7725, 0.4627);
+        f.FadeOut:Play();
+        f.ConfirmButton:Hide();
+    end
+
+    f:SetAlpha(1);
+    f:Show();
+end
+
+local function GetInternalBindingKey(self)
+    if self.actionName then
+        return NarcissusDB[self.actionName] or NOT_BOUND
+    else
+        return "No Action"
+    end
+end
+
+local function GetExternalBindingKey(self)
+    if self.actionName then
+        return GetBindingKey(self.actionName) or NOT_BOUND
+    else
+        return "No Action"
+    end
+end
+
+local function ClearBindingKey(actionName)
+    local key1, key2 = GetBindingKey(actionName);
+    if key1 then
+        SetBinding(key1, nil, 1);
+    end
+    if key2 then
+        SetBinding(key2, nil, 1);
+    end
+    SaveBindings(1);
+end
+
+
+NarciGenericKeyBindingButtonMixin = {};
+
+local function IsExitKey(key)
+    return key == "ESCAPE" or key == "SPACE" or key == "ENTER" or key == "BACKSPACE"
+end
+
+local function InternalAction_OnKeydown(self, key)
+    if IsExitKey(key) then
+        self:ExitKeyBinding();
+        return
+    end
+
+    if self.actionName then
+        self:ExitKeyBinding(true);
+        NarcissusDB[self.actionName] = key;
+    end
+end
+
+local function ExternalAction_OnKeydown(self, key)
+    if IsExitKey(key) then
+        self:ExitKeyBinding();
+        return
+    end
+
+    local KeyText = CreateKeyChordStringUsingMetaKeyState(key);
+
+    self.ButtonText:SetText(KeyText);
+    self.key = KeyText;
+    if not IsKeyPressIgnoredForBinding(key) then
+        self:VerifyKey();
+    end
+end
+
+local function ExternalAction_OnKeyUp(self, key)
+    self:VerifyKey();
+end
+
+local function KeyBingdingButton_OnEvent(self, event)
+    if not (self:IsMouseOver() or ( KeyBindingButtonOverlay and KeyBindingButtonOverlay.ConfirmButton:IsMouseOver() )) then
+        self:ExitKeyBinding();
+    end
+end
+
+
+function NarciGenericKeyBindingButtonMixin:OnEnter()
+    self.Border:SetColor(0.8, 0.8, 0.8);
+end
+
+function NarciGenericKeyBindingButtonMixin:OnLeave()
+    if not self.isOn then
+        self.Border:SetColor(0.25, 0.25, 0.25);
+    end
+end
+
+function NarciGenericKeyBindingButtonMixin:OnLoad()
+    if self.internalActionName then
+        self:SetBindingActionInternal(self.internalActionName);
+        self.internalActionName = nil;
+    elseif self.externalActionName then
+        self:SetBindingActionExternal(self.externalActionName);
+        self.externalActionName = nil;
+    end
+end
+
+function NarciGenericKeyBindingButtonMixin:SetBindingActionInternal(actionName)
+    self.actionName = actionName;
+    self.onKeyDownFunc = InternalAction_OnKeydown;
+    self.onKeyUpFunc = EmptyFunc;
+    self.getBindingFunc = GetInternalBindingKey;
+end
+
+function NarciGenericKeyBindingButtonMixin:SetBindingActionExternal(actionName)
+    self.actionName = actionName;
+    self.onKeyDownFunc = ExternalAction_OnKeydown;
+    self.onKeyUpFunc = ExternalAction_OnKeyUp;
+    self.getBindingFunc = GetExternalBindingKey;
+end
+
+function NarciGenericKeyBindingButtonMixin:ResetVisualAndScript()
+    self.isOn = nil;
+    if not self:IsVisible() or not self:IsMouseOver() then
+        self.Border:SetColor(0.25, 0.25, 0.25);
+    end
+    self.ButtonText:SetTextColor(1, 1, 1);
+    self.ButtonText:SetShadowColor(0, 0, 0);
+    self.ButtonText:SetShadowOffset(0.6, -0.6);
+    self.Background:SetColorTexture(0, 0, 0);
+    self:SetPropagateKeyboardInput(true)
+    self:SetScript("OnKeyDown", nil);
+    self:SetScript("OnUpdate", nil);
+    self:UnregisterEvent("GLOBAL_MOUSE_DOWN");
+end
+
+function NarciGenericKeyBindingButtonMixin:ExitKeyBinding(success)
+    self.key = nil;
+    After(0, function()
+        self:ResetVisualAndScript();
+        self:GetBindingKey();
+    end)
+    if success then
+        AnchorOverlayToBindingButton(self, 3, KEY_BOUND);
+    else
+        ReleaseOverlay();
+    end
+end
+
+function NarciGenericKeyBindingButtonMixin:VerifyKey(override)
+    local key = self.key;
+    if not key then
+        return;
+    end
+    if key == "SHIFT" or key=="ALT" or key=="CTRL" then
+        self.key = nil;
+        self:ExitKeyBinding();
+        AnchorOverlayToBindingButton(self, 1, NARCI_INVALID_KEY);
+        return false
+    else
+        local action = GetBindingAction(key);
+        if (action and action ~= "" and action ~= self.actionName) and not override then
+            AnchorOverlayToBindingButton(self, 2, NARCI_OVERRIDE.." "..GetBindingName(action).." ?");
+            return true
+        else
+            ClearBindingKey(self.actionName);
+            if SetBinding(key, self.actionName, 1) then
+                SaveBindings(1);    --account wide
+                self:ExitKeyBinding(true);
+            else
+                self:ExitKeyBinding();
+                AnchorOverlayToBindingButton(self, 1, ERROR_CAPS);
+            end
+            return false;
+        end
+    end
+end
+
+function NarciGenericKeyBindingButtonMixin:GetBindingKey()
+    self.ButtonText:SetText( self.getBindingFunc(self) );
+end
+
+function NarciGenericKeyBindingButtonMixin:UnbindKey()
+    self:ResetVisualAndScript();
+    if self.defaultKey then
+        self.ButtonText:SetText(self.defaultKey or NOT_BOUND);
+        NarcissusDB[self.actionName] = self.defaultKey;
+    elseif self.actionName then
+        ClearBindingKey(self.actionName);
+
+    end
+end
+
+function NarciGenericKeyBindingButtonMixin:OnClick(button)
+    ReleaseOverlay();
+    self.isOn = not self.isOn;
+
+    if button == "LeftButton" then
+        if self.isOn then
+            self.ButtonText:SetTextColor(0, 0, 0);
+            self.ButtonText:SetShadowColor(1, 1, 1);
+            self.ButtonText:SetShadowOffset(0.6, -0.6);
+            self.Background:SetColorTexture(0.8, 0.8, 0.8);
+            self:SetScript("OnKeyDown", self.onKeyDownFunc);
+            self:SetScript("OnKeyUp", self.onKeyUpFunc);
+            self:SetScript("OnEvent", KeyBingdingButton_OnEvent);
+            self:RegisterEvent("GLOBAL_MOUSE_DOWN");
+            self:SetPropagateKeyboardInput(false);
+        else
+            self:ExitKeyBinding();
+        end
+    else
+        self:UnbindKey();
+        self:ExitKeyBinding();
+    end
+end
+
+function NarciGenericKeyBindingButtonMixin:OnHide()
+    if self.isOn then
+        self:ResetVisualAndScript();
+    end
+end
+
+function NarciGenericKeyBindingButtonMixin:OnShow()
+    self:GetBindingKey();
+end
+
+
+
+
 TEMPS = nil;

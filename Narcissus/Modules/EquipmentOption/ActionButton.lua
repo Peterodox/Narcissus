@@ -1,3 +1,5 @@
+local _, addon = ...
+
 local L = Narci.L;
 
 local InCombatLockdown = InCombatLockdown;
@@ -17,7 +19,7 @@ local function FormatReplacementString(effectText, isNew)
             end
         else
             if string.sub(effectText, 0, 1) == "+" then
-                string.gsub(effectText, "+", "-", 1);
+                effectText = string.gsub(effectText, "+", "-", 1);
             else
                 effectText = "- "..effectText;
             end
@@ -223,12 +225,14 @@ end
 -------- Item Socketing --------
 
 local function CloseSocketingFrame()
-    if ItemSocketingFrame and not ItemSocketingFrame:IsVisible() then
+    if ItemSocketingFrame and ItemSocketingFrame:IsShown() then
         CloseSocketInfo();
     end
 end
 
-local function PlaceGemInSlot(gemID, slotID)
+addon.CloseSocketingFrame = CloseSocketingFrame;
+
+local function PlaceGemInSlot(gemID, slotID, socketOrderID)
     ClearCursor();
     if not slotID or not gemID then return; end
     --PickupItem("item:"..gemID);   --Somehow doesn't work
@@ -237,7 +241,7 @@ local function PlaceGemInSlot(gemID, slotID)
 
     PickupContainerItem(bagID, slotIndex);
     SocketInventoryItem(slotID);
-    ClickSocketButton(1);
+    ClickSocketButton(socketOrderID);
     ClearCursor();
     AcceptSockets();
 end
@@ -304,7 +308,7 @@ end
 function NarciEquipmentGemActionButtonMixin:InitFromButton(button, slotID, inUseGemID)
     local hasItemName;
     if inUseGemID then
-        local inUseEnchant = NarciAPI.GetGemBonus(inUseGemID);               --Domination shard will be required to remove first
+        local inUseEnchant = GetGemBonus(inUseGemID);               --Domination shard will be required to remove first
         if not inUseEnchant then
             inUseEnchant = GetItemInfo(inUseGemID);     --Gem name
         end
@@ -378,7 +382,7 @@ function NarciEquipmentGemActionButtonMixin:OnClick(button)
         return
     end
     self:ShowEventFrame();
-    PlaceGemInSlot(self.itemID, self.slotID);
+    PlaceGemInSlot(self.itemID, self.slotID, MainFrame:GetSocketOrderID());
 end
 
 function NarciEquipmentGemActionButtonMixin:ShowEventFrame()

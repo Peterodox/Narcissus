@@ -74,7 +74,7 @@
     <Frame name="Narci_AnimationBrowser" parent="Narci_AnimationIDFrame" parentKey="Browser" frameLevel="46" mixin="NarciAnimationBrowserMixin" hidden="true" clipChildren="true">
         <Size x="158" y="150"/>
         <Anchors>
-            <Anchor point="BOTTOMLEFT" relativeKey="$parent" relativePoint="TOPLEFT" x="-8" y="-1"/>
+            <Anchor point="BOTTOMLEFT" relativeKey="$parent" relativePoint="TOPLEFT" x="-12" y="-1"/>
         </Anchors>
         <Layers>
             <Layer level="BACKGROUND">

@@ -165,15 +165,18 @@ local difficultyTypes = addon.difficultyTypes;
 local KILLS = " [Kk]ills";  --Remove the words "kills" leave the boss's name.
 local BRACKET_CONTENT = " %(.+%)";
 
-local locale = GetLocale()
-if locale == "zhCN" then
-    BRACKET_CONTENT = "（.+）";
-    KILLS = "消灭";
-elseif locale == "zhTW" then
-    BRACKET_CONTENT = "%(.+%)";
-    KILLS = "擊殺數";
+do
+    local locale = GetLocale()
+    if locale == "zhCN" then
+        BRACKET_CONTENT = "（.+）";
+        KILLS = "消灭";
+    elseif locale == "zhTW" then
+        BRACKET_CONTENT = "%(.+%)";
+        KILLS = "擊殺數";
+    elseif locale == "deDE" then
+        KILLS = "Siege über";
+    end
 end
-locale = nil;
 
 local function FormatZero(value)
     if value then

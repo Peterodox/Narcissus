@@ -1119,10 +1119,10 @@
 		</Shadow>
 	</Font>
 
-	<Font name="NarciPastelBrownFont" inherits="NarciIndicatorLetter" virtual="true">
+	<Font name="NarciPastelBrownFont" inherits="NarciIndicatorLetter" virtual="true" spacing="2">
 		<Color r="0.85098" g="0.80392" b="0.70588"/>
 	</Font>
-	<Font name="NarciNonInteractiveFont" inherits="NarciIndicatorLetter" virtual="true">
+	<Font name="NarciNonInteractiveFont" inherits="NarciIndicatorLetter" virtual="true" spacing="2">
 		<Color r="0.42" g="0.42" b="0.42"/>
 		<Shadow>
 			<Offset>
@@ -1131,10 +1131,10 @@
 			<Color a="1" r="0" g="0" b="0"/>
 		</Shadow>
 	</Font>
-	<Font name="NarciDisabledButtonFont" inherits="NarciIndicatorLetter" virtual="true">
+	<Font name="NarciDisabledButtonFont" inherits="NarciIndicatorLetter" virtual="true" spacing="2">
 		<Color r="0.65" g="0.65" b="0.65"/>
 	</Font>
-	<Font name="NarciPastelWhiteFont" inherits="NarciIndicatorLetter" virtual="true">
+	<Font name="NarciPastelWhiteFont" inherits="NarciIndicatorLetter" virtual="true" spacing="2">
 		<Color r="0.88" g="0.88" b="0.88"/>
 	</Font>
 

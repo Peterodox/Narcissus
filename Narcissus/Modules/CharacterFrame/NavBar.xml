@@ -231,6 +231,7 @@
         <Scripts>
             <OnLoad method="OnLoad"/>
             <OnShow method="ProcessUpdate"/>
+            <OnHide method="OnHide"/>
         </Scripts>
     </Frame>
 </Ui>

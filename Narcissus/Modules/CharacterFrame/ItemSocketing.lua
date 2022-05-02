@@ -189,12 +189,12 @@ function NarciGemSlotMixin:OnEnter()
 	tooltip:SetFrameStrata("TOOLTIP");
 
     tooltip:SetMouseMotionEnabled(false);
-	FadeFrame(tooltip, 0.15, 1);
+	FadeFrame(tooltip, 0.15, 1, 0);
 end
 
 
 function NarciGemSlotMixin:OnLeave()
-    FadeFrame(Narci_GearEnhancement_Tooltip, 0.25, 0);
+    Narci_GearEnhancement_Tooltip:Hide();
 end
 
 function NarciGemSlotMixin:LoadGemList()

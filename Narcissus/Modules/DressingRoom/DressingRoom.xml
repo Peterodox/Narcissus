@@ -160,7 +160,7 @@
 		</Animations>
 	</Texture>
 
-    <Button name="NarciDressingRoomOptionButtonTemplate" virtual="true" mixin="NarciDressingRoomOptionButtonMixin">
+    <Button name="NarciDressingRoomOptionButtonTemplate" virtual="true" mixin="NarciDressingRoomOptionButtonMixin" parentArray="RightButtons">
         <Size x="32" y="32"/>
 		<HitRectInsets>
 			<AbsInset left="0" right="0" top="0" bottom="0"/>
@@ -232,23 +232,6 @@
                         <MinColor a="1" r="1" g="1" b="1"/>
                         <MaxColor a="1" r="1" g="1" b="1"/>
                     </Gradient>
-				</Texture>
-
-				<Texture parentKey="TurntableBlack" setAllPoints="true" hidden="true">
-					<Anchors>
-						<Anchor point="TOPLEFT" relativeKey="$parent.$parent.ModelScene" relativePoint="TOPLEFT" x="0" y="0"/>
-						<Anchor point="BOTTOMRIGHT" relativeKey="$parent.$parent.ModelScene" relativePoint="BOTTOMRIGHT" x="0" y="0"/>
-					</Anchors>
-					<Color r="0" g="0" b="0" a="1"/>
-				</Texture>
-			</Layer>
-
-			<Layer level="OVERLAY">
-				<Texture parentKey="TurntableIndicator" file="Interface\AddOns\Narcissus\Art\Modules\DressingRoom\TurntableIndicator" alpha="0.5" ignoreParentScale="true">
-					<Size x="4" y="4"/>
-					<Anchors>
-						<Anchor point="CENTER" relativeKey="$parent.$parent.ModelScene" relativePoint="RIGHT" x="-48" y="0"/>
-					</Anchors>
 				</Texture>
 			</Layer>
 		</Layers>
@@ -612,6 +595,70 @@
 						</Texture>
 					</Layer>
 				</Layers>
+			</Frame>
+		</Frames>
+		<Scripts>
+			<OnLoad method="OnLoad"/>
+			<OnHide method="OnHide"/>
+		</Scripts>
+	</Frame>
+
+	<Frame name="NarciStaticPopupOutfitIconSelect" mixin="NarciStaticPopupOutfitIconSelectMixin" hidden="true" parent="UIParent">
+		<Size x="280" y="44"/>
+		<Frames>
+			<Button parentKey="Toggle" hidden="false">
+				<Size x="26" y="26"/>
+				<Anchors>
+					<Anchor point="CENTER" relativeKey="$parent" relativePoint="CENTER"/>
+				</Anchors>
+				<Layers>
+					<Layer level="ARTWORK">
+						<Texture parentKey="Icon">
+							<Size x="22" y="22"/>
+							<TexCoords left="0.075" right="0.925" top="0.075" bottom="0.925"/>
+							<Anchors>
+								<Anchor point="CENTER" relativeKey="$parent" relativePoint="CENTER"/>
+							</Anchors>
+						</Texture>
+					</Layer>
+					<Layer level="OVERLAY">
+						<Texture file="Interface\AddOns\Narcissus\Art\Modules\DressingRoom\OutfitIconSelectToggle">
+							<TexCoords left="0" right="0.5" top="0" bottom="1"/>
+							<Anchors>
+								<Anchor point="TOPLEFT"/>
+								<Anchor point="BOTTOMRIGHT"/>
+							</Anchors>
+						</Texture>
+					</Layer>
+				</Layers>
+				<HighlightTexture file="Interface\AddOns\Narcissus\Art\Modules\DressingRoom\OutfitIconSelectToggle">
+					<TexCoords left="0.5" right="1" top="0" bottom="1"/>
+				</HighlightTexture>
+			</Button>
+			<Frame parentKey="SelectionFrame" hidden="true" useParentLevel="true">
+				<Layers>
+					<Layer level="OVERLAY">
+						<FontString inherits="GameFontNormalSmall" justifyH="CENTER" justifyV="MIDDLE" parentKey="Label" text="MACRO_POPUP_CHOOSE_ICON">
+							<Color r="1" g="1" b="1" a="1"/>
+							<Size x="280"/>
+							<Anchors>
+								<Anchor point="TOP" relativeKey="$parent" relativePoint="TOP" x="0" y="0"/>
+							</Anchors>
+						</FontString>
+						<Texture parentKey="IconHighlight" file="Interface\AddOns\Narcissus\Art\Modules\DressingRoom\IconSelectionHighlight" hidden="true">
+							<Size x="24" y="24"/>
+							<TexCoords left="0" right="0.5" top="0" bottom="1"/>
+						</Texture>
+						<Texture parentKey="IconSelection" file="Interface\AddOns\Narcissus\Art\Modules\DressingRoom\IconSelectionHighlight" hidden="true">
+							<Size x="24" y="24"/>
+							<TexCoords left="0.5" right="1" top="0" bottom="1"/>
+						</Texture>
+					</Layer>
+				</Layers>
+				<Anchors>
+					<Anchor point="TOPELFT"/>
+					<Anchor point="BOTTOMRIGHT"/>
+				</Anchors>
 			</Frame>
 		</Frames>
 		<Scripts>

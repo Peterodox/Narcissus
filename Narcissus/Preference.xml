@@ -26,7 +26,7 @@
             </Layer>
         </Layers>
 		<Frames>
-			<Frame inherits="NarciLineBorderTemplate"/>
+			<Frame inherits="NarciLineBorderTemplate" parentKey="Border"/>
 		</Frames>
         <Scripts>
             <OnEnter>
@@ -544,9 +544,9 @@
                                             </Layer>
                                         </Layers>
                                         <Frames>
-                                            <Button parentKey="KeyBinding" inherits="NarciInternalKeyBindingButtonTemplate">
+                                            <Button parentKey="KeyBinding" inherits="NarciBindingButtonTemplate">
                                                 <KeyValues>
-                                                    <KeyValue key="actionName" value="SearchRelativesHotkey" type="string"/>
+                                                    <KeyValue key="internalActionName" value="SearchRelativesHotkey" type="string"/>
                                                     <KeyValue key="defaultKey" value="TAB" type="string"/>
                                                 </KeyValues>
                                                 <Anchors>
@@ -555,9 +555,8 @@
                                                 <Size x="64" y="16"/>
                                                 <Scripts>
                                                     <OnLoad>
+                                                        self:OnLoad();
                                                         self.Label:SetText(Narci.L["Hotkey"]);
-                                                        self.Description:ClearAllPoints();
-                                                        self.Description:SetPoint("BOTTOMLEFT", self, "TOPLEFT", 0, 6);
                                                     </OnLoad>
                                                 </Scripts>
                                             </Button>

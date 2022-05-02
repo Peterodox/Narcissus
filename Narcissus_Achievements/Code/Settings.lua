@@ -20,338 +20,254 @@ local AchievementDB;
 local SettingsFrame;
 
 local widgetObjects = {};
-local function ShowOrHideWidgetGroup(parentIndex, widgetIndex, visible)
-    if widgetObjects[parentIndex] and widgetObjects[parentIndex][widgetIndex] then
-        local widgetGroup = widgetObjects[parentIndex][widgetIndex];
-        for i = 1, #widgetGroup do
-            widgetGroup[i]:SetShown(visible);
+
+local function ShowChildren(self, state)
+    if self.children then
+        for i = 1, #self.children do
+            self.children[i]:SetShown(state);
         end
     end
 end
 
-local WidgetStructure = {
+local Structure = {
     [1] = {
-        name = "Narcissus Achievement",
-        widgets = {
-            [1] = {
-                name = L["Use Achievement Panel"],
-                type = "checkbox",
-                key = "UseAsDefault",
-                data = {
-                    default = false,
-                    func = function(self)
-                        local state = not AchievementDB.UseAsDefault;
-                        AchievementDB.UseAsDefault = state;
-                        self.Tick:SetShown(state);
-                        Narci.RedirectPrimaryAchievementFrame();     --defined in Narcissus\ModulesAchievement\Loader.lua
-                        if state then
-                            self.Description:SetText(L["Use Achievement Panel Description"]);
-                        else
-                            self.Description:SetText(NARCI_REQUIRE_RELOAD);
-                        end
-                    end,
+        name = L["Use Achievement Panel"],
+        type = "checkbox",
+        key = "UseAsDefault",
+        data = {
+            default = false,
+            onClickfunc = function(self)
+                local state = not AchievementDB.UseAsDefault;
+                AchievementDB.UseAsDefault = state;
+                self.Tick:SetShown(state);
+                Narci.UpdateAchievementSettings();     --defined in Narcissus\Modules\Achievement\Modules.lua
+                if state then
+                    self.Description:SetText(L["Use Achievement Panel Description"]);
+                else
+                    self.Description:SetText(NARCI_REQUIRE_RELOAD);
+                end
+                ShowChildren(self, state);
+            end,
 
-                    description = L["Use Achievement Panel Description"],
-                },
-            },
-
-            [2] = {
-                name = UI_SCALE,
-                type = "slider",
-                key = "Scale",
-                data = { minValue = 1, maxValue = 1.25, step = 0.05, default = 1, decimal = 0.01,
-                    func = function(value) Narci_AchievementFrame:SetScale(value); AchievementDB.Scale = value; end,
-                },
-            },
-
-            [3] = {
-                name = L["Themes"],
-                type = "radio",
-                key = "Theme",
-                data = {
-                    default = 1,
-                    [1] = {name = "Dark Wood", func = function(self) NarciAchievement_SelectTheme(1) self:UpdateVisual() end, groupIndx = 1, },
-                    [2] = {name = "Classic", func = function(self) NarciAchievement_SelectTheme(2) self:UpdateVisual() end, groupIndx = 1, },
-                    [3] = {name = "Flat", func = function(self) NarciAchievement_SelectTheme(3) self:UpdateVisual() end, groupIndx = 1, },
-                },
-            },
-
-            [4] = {
-                name = L["Hotkey"],
-                type = "keybind",
-                data = {
-                    
-                },
-            },
-
-            [5] = {
-                name = L["Show Unearned Mark"],
-                type = "checkbox",
-                key = "ShowRedMark",
-                data = {
-                    default = false,
-                    func = function(self)
-                        local state = not AchievementDB.ShowRedMark;
-                        AchievementDB.ShowRedMark = state;
-                        self.Tick:SetShown(state);
-                        Narci_AchievementFrame:ShowRedMark(state);
-                    end,
-
-                    description = L["Show Unearned Mark Description"],
-                },
-            },
+            description = L["Use Achievement Panel Description"],
         },
     },
-}
 
-local function ClearAllBinding()
-    local key1, key2 = GetBindingKey(BIND_ACTION);
-    if key1 then
-        SetBinding(key1, nil, 1)
-    end
-    if key2 then
-        SetBinding(key2, nil, 1)
-    end
-    SaveBindings(1);
-end
+    [2] = {
+        name = "Replace Toasts",
+        type = "checkbox",
+        isChild = true,
+        parentKey = "UseAsDefault",
+        key = "ReplaceToast",
+        data = {
+            default = true,
+            onClickfunc = function(self)
+                local state = not AchievementDB.ReplaceToast;
+                AchievementDB.ReplaceToast = state;
+                self.Tick:SetShown(state);
+                Narci.UpdateAchievementSettings();
+            end,
+            description = "Reskin the default achievement toasts.",
 
-local function ShouldConfirmKey(self)
-    local key = self.key;
-    if not key then
-        return;
-    end
-    if key == "SHIFT" or key=="ALT" or key=="CTRL" then
-        self.key = nil;
-        self.Value:SetText(NOT_BOUND);
-        self.Description:SetText(Color_Bad..NARCI_INVALID_KEY);
-        self.Highlight:SetColorTexture(Color_Bad_r, Color_Bad_g, Color_Bad_b);
-        return false;
-    else
-        self.key = key;
-        local action = GetBindingAction(key);
-        if action and action ~= "" and action ~= BIND_ACTION then
-            self.Description:SetText(Color_Alert..NARCI_OVERRIDE.." "..GetBindingName(action).." ?");
-            self.Highlight:SetColorTexture(Color_Alert_r, Color_Alert_g, Color_Alert_b);
-            return true;
-        else
-            ClearAllBinding();
-            if SetBinding(key, BIND_ACTION, 1) then
-                self.Description:SetText(Color_Good..KEY_BOUND);
-                self.Highlight:SetColorTexture(Color_Good_r, Color_Good_g, Color_Good_b);
-                self.ConfirmButton:Hide();
-                SaveBindings(1);    --account wide
-            else
-                self.Description:SetText(Color_Bad..ERROR_CAPS);
-                self.Highlight:SetColorTexture(Color_Bad_r, Color_Bad_g, Color_Bad_b);
+            onEnterfunc = function(self)
+                if not self.preview then
+                    self.preview = self:CreateTexture(nil, "OVERLAY", nil, 4);
+                    self.preview:SetSize(128, 32);
+                    self.preview:SetTexture("Interface\\AddOns\\Narcissus_Achievements\\Art\\Classic\\PlayerToastStylePreview");
+                    self.preview:SetPoint("BOTTOMLEFT", self, "TOPLEFT", 12, 2);
+
+                    --Create a delay fade-in anim
+                    local ag = self.preview:CreateAnimationGroup();
+                    local a1 = ag:CreateAnimation("ALPHA");
+                    a1:SetOrder(1);
+                    a1:SetFromAlpha(0);
+                    a1:SetToAlpha(0);
+                    a1:SetDuration(0.2);
+                    local a2 = ag:CreateAnimation("ALPHA");
+                    a2:SetOrder(2);
+                    a2:SetFromAlpha(0);
+                    a2:SetToAlpha(1);
+                    a2:SetDuration(0.25);
+                    self.previewFadeIn = ag;
+                end
+                self.preview:Show();
+                self.previewFadeIn:Play();
+            end,
+
+            onLeavefunc = function(self)
+                if self.preview then
+                    self.preview:Hide();
+                    self.previewFadeIn:Stop();
+                end
             end
-            return false;
-        end
-    end
-end
+        },
+    },
 
-local function ResetBindVisual(self)
-    self.Border:SetColorTexture(0, 0, 0);
-    self.Value:SetTextColor(1, 1, 1);
-    self.Value:SetShadowColor(0, 0, 0);
-    self.Value:SetShadowOffset(0.6, -0.6);
-    self:SetPropagateKeyboardInput(true)
-    self:SetScript("OnKeyDown", nil); 
-    self:SetScript("OnKeyUp", nil);
-    self.IsOn = false;
-end
+    [3] = {
+        name = UI_SCALE,
+        type = "slider",
+        key = "Scale",
+        data = { minValue = 1, maxValue = 1.25, step = 0.05, default = 1, decimal = 0.01,
+            func = function(value) Narci_AchievementFrame:SetScale(value); AchievementDB.Scale = value; end,
+        },
+    },
 
-local BindingAlertTimer;
-local function ExitKeyBinding(self)
-    C_Timer.After(0.05, function()
-        ResetBindVisual(self)
-    end)
-    local shouldConfirm = ShouldConfirmKey(self);
-    UIFrameFadeIn(self.Highlight, 0.2, 0, 1);
-    UIFrameFadeIn(self.Description, 0.2, 0, 1);
-    
-    if not shouldConfirm then
-        BindingAlertTimer = C_Timer.NewTimer(4, function()
-            UIFrameFadeOut(self.Highlight, 0.5, self.Highlight:GetAlpha(), 0);
-            UIFrameFadeOut(self.Description, 0.5, self.Description:GetAlpha(), 0);
-            self.Value:SetText(GetBindingKey(BIND_ACTION) or NOT_BOUND); 
-        end)
-    else
-        self.ConfirmButton:Show();
-        BindingAlertTimer = C_Timer.NewTimer(6, function()
-            UIFrameFadeOut(self.Highlight, 0.5, self.Highlight:GetAlpha(), 0);
-            UIFrameFadeOut(self.Description, 0.5, self.Description:GetAlpha(), 0);
-            self.Value:SetText(GetBindingKey(BIND_ACTION) or NOT_BOUND)
-            self.ConfirmButton:Hide();
-        end)       
-    end
-end
+    [4] = {
+        name = L["Themes"],
+        type = "radio",
+        key = "Theme",
+        data = {
+            default = 1,
+            [1] = {name = "Dark Wood", func = function(self) NarciAchievement_SelectTheme(1) self:UpdateVisual() end, groupIndx = 1, },
+            [2] = {name = "Classic", func = function(self) NarciAchievement_SelectTheme(2) self:UpdateVisual() end, groupIndx = 1, },
+            [3] = {name = "Flat", func = function(self) NarciAchievement_SelectTheme(3) self:UpdateVisual() end, groupIndx = 1, },
+        },
+    },
 
-local function KeybindingButton_OnKeydown(self, key)
-    if key == "ESCAPE" or key == "SPACE" or key == "ENTER"then
-        ExitKeyBinding(self);
-        return;
-    end
+    [5] = {
+        name = L["Hotkey"],
+        type = "keybind",
+        data = {
 
-    local KeyText;
-    if CreateKeyChordStringUsingMetaKeyState then   --Shadowlands
-        KeyText = CreateKeyChordStringUsingMetaKeyState(key);
-    else
-        KeyText = CreateKeyChordString(key);
-    end
+        },
+    },
 
-    self.Value:SetText(KeyText);
-    self.key = KeyText;
-    if not IsKeyPressIgnoredForBinding(key) then
-        ExitKeyBinding(self);
-    end
-end
+    [6] = {
+        name = L["Show Unearned Mark"],
+        type = "checkbox",
+        key = "ShowRedMark",
+        data = {
+            default = false,
+            onClickfunc = function(self)
+                local state = not AchievementDB.ShowRedMark;
+                AchievementDB.ShowRedMark = state;
+                self.Tick:SetShown(state);
+                Narci_AchievementFrame:ShowRedMark(state);
+            end,
 
-local function KeybindingButton_OnClick(self, button)
-    if BindingAlertTimer then
-        BindingAlertTimer:Cancel();
-    end
-    if button == "RightButton" then
-        ClearAllBinding();
-        self.Value:SetText(NOT_BOUND);
-        self.key = nil;
-        self.Description:SetText(Color_Alert.."Hotkey disabled");
-        self.Highlight:SetColorTexture(Color_Alert_r, Color_Alert_g, Color_Alert_b);
-        ResetBindVisual(self)
-        UIFrameFadeIn(self.Highlight, 0.2, 0, 1);
-        UIFrameFadeIn(self.Description, 0.2, 0, 1);
+            description = L["Show Unearned Mark Description"],
+        },
+    },
+};
 
-        BindingAlertTimer = C_Timer.NewTimer(2, function()
-            UIFrameFadeOut(self.Highlight, 0.5, self.Highlight:GetAlpha(), 0);
-            UIFrameFadeOut(self.Description, 0.5, self.Description:GetAlpha(), 0);
-        end)
-        return;
-    end
-    self.IsOn = not self.IsOn;
-    if self.IsOn then
-        self.Border:SetColorTexture(0.9, 0.9, 0.9);
-        self.Value:SetTextColor(0, 0, 0);
-        self.Value:SetShadowColor(1, 1, 1);
-        self.Value:SetShadowOffset(0.6, -0.6);
-        self:SetPropagateKeyboardInput(false);
-        self:SetScript("OnKeyDown", KeybindingButton_OnKeydown);
-        self:SetScript("OnKeyUp", function(self)
-            ExitKeyBinding(self)
-        end);
-    else
-        ExitKeyBinding(self)
-    end
-end
-
-local function KeybindingButton_OnShow(self)
-    self.Value:SetText(GetBindingKey(BIND_ACTION) or NOT_BOUND);
-    self.action = BIND_ACTION;
-end
-
-
-local function CreateWidget(parent, widgetData, offset, parentIndex, widgetIndex)
-    if parentIndex and widgetIndex then
-        if not widgetObjects[parentIndex] then
-            widgetObjects[parentIndex] = {};
-        end
-        if not widgetObjects[parentIndex][widgetIndex] then
-            widgetObjects[parentIndex][widgetIndex] = {};
-        end
-    end
-    local widgetGroup = widgetObjects[parentIndex][widgetIndex];
-
+local function CreateWidget(parent, widgetData, offset, widgetIndex)
     local type = widgetData.type;
     local data = widgetData.data;
-    local element;
+    local object;
     local height;
 
-    local PADDING_X = 1;
+    local PADDING_X = 16;
 
     if type == "slider" then
-        element = CreateFrame("Slider", nil, parent, "NarciLineSliderTemplate");
-        tinsert(widgetGroup, element);
+        object = CreateFrame("Slider", nil, parent, "NarciLineSliderTemplate");
+        widgetObjects[widgetIndex] = object;
         if data.minValue and data.maxValue then
-            element:SetWidth(120);
-            element:SetMinMaxValues(data.minValue, data.maxValue);
-            element:SetObeyStepOnDrag(true);
-            element:SetValueStep(data.step);
-            NarciAPI_SliderWithSteps_OnLoad(element);
-            element.func = data.func;
-            element.decimal = data.decimal;
+            object:SetWidth(120);
+            object:SetMinMaxValues(data.minValue, data.maxValue);
+            object:SetObeyStepOnDrag(true);
+            object:SetValueStep(data.step);
+            NarciAPI_SliderWithSteps_OnLoad(object);
+            object.func = data.func;
+            object.decimal = data.decimal;
 
             local defaultValue = AchievementDB[widgetData.key] or data.default;
-            element:SetValue(defaultValue);
-            element.Label:SetText(widgetData.name);
+            object:SetValue(defaultValue);
+            object.Label:SetText(widgetData.name);
         end
-        element:SetPoint("TOPLEFT", parent, "TOPLEFT", 60, offset - 8);
-        height = 46;
+        local padding = 24;
+        object:SetPoint("TOP", parent, "TOP", 0, offset - padding);
+        height = 2 * padding;
 
     elseif type == "radio" then
         local info;
-        local elements = {};
+        local choices = {};
         local numButtons = #data;
         local header = parent:CreateFontString(nil, "OVERLAY", "NarciPrefFontGrey9");
-        tinsert(widgetGroup, header);
         header:SetText(widgetData.name);
-        header:SetPoint("TOPLEFT", parent, "TOPLEFT", PADDING_X, offset);
+        local padding = 8;
+        header:SetPoint("TOPLEFT", parent, "TOPLEFT", PADDING_X, offset - padding);
         local defaultValue = AchievementDB[widgetData.key] or data.default;
+
+        widgetObjects[widgetIndex] = {
+            [1] = header,
+        };
 
         for i = 1, numButtons do
             info = data[i];
-            element = CreateFrame("Button", nil, parent, "NarciRadioButtonTemplate");
-            tinsert(widgetGroup, element);
-            tinsert(elements, element);
-            element:Initialize(info.groupIndx, info.name);
-            element:SetScript("OnClick", info.func);
+            object = CreateFrame("Button", nil, parent, "NarciRadioButtonTemplate");
+            choices[i] = object;
+            widgetObjects[widgetIndex][i + 1] = object;
+            object:Initialize(info.groupIndx, info.name);
+            object:SetScript("OnClick", info.func);
             if i == 1 then
-                element:SetPoint("TOPLEFT", parent, "TOPLEFT", PADDING_X, offset -20);
+                object:SetPoint("TOPLEFT", parent, "TOPLEFT", PADDING_X, offset -24);
             else
-                element:SetPoint("TOPLEFT", elements[i - 1], "BOTTOMLEFT", 0, -4);
+                object:SetPoint("TOPLEFT", choices[i - 1], "BOTTOMLEFT", 0, -4);
                 if i == numButtons then
-                    element:UpdateGroupHitBox();
+                    object:UpdateGroupHitBox();
                 end
             end
             if i == defaultValue then
-                element:Select();
+                object:Select();
             end
         end
-        
-        height = numButtons * 24 + (numButtons - 1) * 4 + 24;
+        height = header:GetTop() - object:GetBottom() + padding;
 
     elseif type == "checkbox" then
-        element = CreateFrame("Button", nil, parent, "NarciCheckBoxTemplate");
-        tinsert(widgetGroup, element);
-        element:SetScript("OnClick", data.func);
-        element:SetScript("OnShow", data.onShowFunc);
-        element.Label:SetText(widgetData.name);
-        element:SetPoint("TOPLEFT", parent, "TOPLEFT", PADDING_X, offset);
+        object = CreateFrame("Button", nil, parent, "NarciCheckBoxTemplate");
+        widgetObjects[widgetIndex] = object;
+        object:SetScript("OnClick", data.onClickfunc);
+        object:SetScript("OnEnter", data.onEnterfunc);
+        object:SetScript("OnLeave", data.onLeavefunc);
+        object:SetScript("OnShow", data.onShowFunc);
+        object.Label:SetText(widgetData.name);
+        local padding;
+        if widgetData.isChild then
+            padding = 8;
+            object:SetPoint("TOPLEFT", parent, "TOPLEFT", PADDING_X + 16, offset - padding);
+            object:SetShown(AchievementDB[widgetData.parentKey]);
+        else
+            padding = 24;
+            object:SetPoint("TOPLEFT", parent, "TOPLEFT", PADDING_X, offset - padding);
+        end
 
         local defaultValue = AchievementDB[widgetData.key];
-        element.Tick:SetShown(defaultValue);
-        element.IsOn = defaultValue;
-
-        height = 30;
+        object.Tick:SetShown(defaultValue);
+        object.IsOn = defaultValue;
 
         if data.description then
-            element.Description = element:CreateFontString(nil, "OVERLAY", "NarciPreferenceDescriptionTemplate");
-            element.Description:SetWidth(200);
-            element.Description:SetText(data.description);
-            height = height + element.Description:GetHeight() + 8;
+            object.Description = object:CreateFontString(nil, "ARTWORK", "NarciPreferenceDescriptionTemplate");
+            --object.Description:SetPoint("TOPLEFT", object.Label, "BOTTOMLEFT", 0, -4);    --Already defined in the template
+            object.Description:SetSize(0, 0);
+            object.Description:SetPoint("RIGHT", parent, "RIGHT", -24, 0);
+            object.Description:SetText(data.description);
+            height = object:GetTop() - object.Description:GetBottom();
+        else
+            height = object:GetTop() - object.Label:GetBottom();
         end
-        
+
+        height = height + padding
 
     elseif type == "keybind" then
-        element = CreateFrame("Button", nil, parent, "NarciBindingButtonTemplate");
-        tinsert(widgetGroup, element);
-        element:SetSize(78, 18);
-        element.Label:SetText(widgetData.name);
-        element:SetPoint("TOPLEFT", parent, "TOPLEFT", 80, offset);
-        height = 48;
-
-        element:SetScript("OnClick", KeybindingButton_OnClick);
-        element:SetScript("OnShow", KeybindingButton_OnShow);
+        local padding = 24;
+        object = CreateFrame("Button", nil, parent, "NarciBindingButtonTemplate");
+        widgetObjects[widgetIndex] = object;
+        object:SetSize(78, 18);
+        object.Label:SetText(widgetData.name);
+        object:SetPoint("TOP", parent, "TOP", 0, offset - padding);
+        height = padding + 18;
+        object:SetBindingActionExternal(BIND_ACTION);
     end
 
-    return -height
+    --debug --draw area
+    --[[
+    local background = object:CreateTexture(nil, "BACKGROUND");
+    background:SetPoint("TOPLEFT", object, "TOPLEFT", -4, 4);
+    background:SetPoint("BOTTOMRIGHT", object, "BOTTOMRIGHT", 4, -4);
+    background:SetColorTexture(1, 0, 0, 0.5);
+    --]]
+
+    return -height, object, widgetData.isChild
 end
 
 local function AnchorToUIParent()
@@ -377,40 +293,30 @@ local function SettingsFrame_OnHide(self)
     end
 end
 
-local function CreateSettings(frame)
-    local sectors = {};
-    local sector;
-    local widgets;
-    local startOffset = -24;
-    for i = 1, #WidgetStructure do
-        sector = CreateFrame("Frame", nil, frame);
-        tinsert(sectors, sector);
-        if i == 1 then
-            sector:SetPoint("TOPLEFT", frame, "TOPLEFT", 12, -12);
-            sector:SetPoint("TOPRIGHT", frame, "TOPRIGHT", -12, -12);
-        else
-            sector:SetPoint("TOPLEFT", sectors[i - 1], "BOTTOMLEFT", 0, -36);
-            sector:SetPoint("TOPRIGHT", sectors[i - 1], "BOTTOMRIGHT", 0, -36);
+local function AddChildWidget(parent, child)
+    if parent then
+        if not parent.children then
+            parent.children = {};
         end
-
-        local header = sector:CreateFontString(nil, "OVERLAY", "NarciPrefFontGrey9");
-        header:SetText(WidgetStructure[i].name);
-        header:SetJustifyH("LEFT");
-        header:SetJustifyV("TOP");
-        header:SetPoint("TOPLEFT", sector, "TOPLEFT", 0, 0);
-        header:SetPoint("TOPRIGHT", sector, "TOPRIGHT", 0, 0);
-
-        widgets = WidgetStructure[i].widgets;
-
-        for j = 1, #widgets do
-            startOffset = startOffset + CreateWidget(sector, widgets[j], startOffset, i, j);
-        end
-        sector:SetHeight(-startOffset);
+        tinsert(parent.children, child);
     end
-    frame:SetHeight(4 -startOffset);
+end
 
-    wipe(WidgetStructure);
-    WidgetStructure = nil;
+local function CreateSettings(frame)
+    local fromOffsetY = 0;
+    local offset = 0;
+    local isChild, object, parentObject;
+    for i = 1, #Structure do
+        offset, object, isChild = CreateWidget(frame, Structure[i], fromOffsetY, i);
+        fromOffsetY = offset + fromOffsetY;
+        if isChild then
+            AddChildWidget(parentObject, object);
+        else
+            parentObject = object;
+        end
+    end
+    frame:SetHeight(24 -fromOffsetY);
+    Structure = nil;
 end
 
 local function LoadSettings(self)

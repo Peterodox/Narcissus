@@ -11,18 +11,21 @@ local tooltip = NarciTooltip;
 local FadeFrame = NarciFadeUI.Fade;
 local FadeIn = NarciFadeUI.FadeIn;
 local After = C_Timer.After;
-local LanguageDetector = NarciAPI.LanguageDetector;
+local SmartSetActorName = NarciAPI.SmartSetActorName;
 local NarciAnimationInfo = NarciAnimationInfo;
 local NarciSpellVisualBrowser = NarciSpellVisualBrowser;
 local GetCursorPosition = GetCursorPosition;
 local IsAltKeyDown = IsAltKeyDown;
 local Screenshot = Screenshot;	--This is an API: screen capture
+local IsMouseButtonDown = IsMouseButtonDown;
+
 local _G = _G;
 local VIRTUAL_ACTOR = L["Virtual Actor"];
 local SettingFrame, BasicPanel;
 local FullSceenChromaKey, FullScreenAlphaChannel;
 local PrimaryPlayerModel, ActorPanel;	--PrimaryPlayerModel
 local AnimationIDEditBox;
+local OutfitToggle;
 -----------------------------------
 local defaultZ = -0.275;
 local defaultY = 0.4;
@@ -49,51 +52,6 @@ local function HighlightButton(button, bool)
 	end
 end
 
-local ActorNameFont = {
-	["CN"] = {"Interface\\AddOns\\Narcissus\\Font\\NotoSansCJKsc-Medium.otf", 8},
-	["RM"] = {"Interface\\AddOns\\Narcissus\\Font\\OpenSans-Semibold.ttf", 9},
-	["RU"] = {"Interface\\AddOns\\Narcissus\\Font\\NotoSans-Medium.ttf", 8},
-	["KR"] = {"Interface\\AddOns\\Narcissus\\Font\\NotoSansCJKsc-Medium.otf", 8},
-	["JP"] = {"Interface\\AddOns\\Narcissus\\Font\\NotoSansCJKsc-Medium.otf", 8},
-}
-
-local function SmartFontType(fontstring, text)
-	--Automatically apply different font based on given text languange. Change text color after this step.
-	if not fontstring then return; end;
-	fontstring:SetText(text);
-	local Language = LanguageDetector(text);
-	if Language and ActorNameFont[Language] then
-		fontstring:SetFont(ActorNameFont[Language][1] , ActorNameFont[Language][2]);
-	end
-end
-
-local function SetAlertFrame(anchor, msg, offsetY)
-	local frame = Narci_AlertFrame_Autohide;
-	local offsetY = offsetY or -12;
-	frame:Hide();
-	frame:ClearAllPoints();
-	frame.Text:SetText(msg);
-    frame:SetScale(Narci_Character:GetEffectiveScale())
-	frame:SetPoint("BOTTOM", anchor, "TOP", 0, offsetY)
-	frame:SetFrameLevel(50);
-	FadeFrame(frame, 0.2, 1);
-end
-
-local function SetTutorialFrame(self, msg)
-	local frame = Narci_AlertFrame_Static;
-	frame:SetScale(Narci_Character:GetScale())
-	frame.Text:SetText(msg);
-	frame:SetParent(self)
-	frame:SetPoint("BOTTOM", self, "TOP", 0, -4)
-	frame:SetHeight(frame.Background:GetHeight());
-	frame:SetFrameStrata("TOOLTIP");
-	frame:Hide();
-	FadeFrame(frame, 0.25, 1);
-
-	if NarcissusDB and NarcissusDB.Tutorials and NarcissusDB.Tutorials[self.keyValue] then
-		NarcissusDB.Tutorials[self.keyValue] = false;
-	end
-end
 
 local LINK_SCALE = false;
 local LINK_LIGHT = true;
@@ -223,7 +181,7 @@ local TranslateValue_Female = {
 				[2] = {-0.3, 1.29, -0.138}},	--2 Orc √
 
 	[35] = {[1] = {0.3, 0.73, 0.111},
-				[2] = {0, 0.95, 0.2375}},		--35 Vulpera √
+				[2] = {-0.6, 0.98, 0.25}},		--35 Vulpera √
 }
 
 TranslateValue_Female[36] = TranslateValue_Female[2];
@@ -276,7 +234,7 @@ local function outQuad(t, b, c, d)
 	return -c * t * (t - 2) + b
 end
 -----------------------------------
-local activeModelIndex = 1;
+local ACTIVE_MODEL_INDEX = 1;
 local ModelFrames = {};
 local playerInfo = {};
 
@@ -315,7 +273,7 @@ local function InitializePlayerInfo(index, unit)
 	SetGenderIcon(playerInfo[index].gender_Original);
 	local r, g, b = GetClassColor(className);
 	local fontstring = ActorPanel.ExtraPanel.buttons[index].Label;	--name tooltip
-	SmartFontType(fontstring, name);
+	SmartSetActorName(fontstring, name);
 	fontstring:SetTextColor(r, g, b);
 	
 	return race, gender;
@@ -337,7 +295,7 @@ local function UpdateActorName(index)
 		r, g, b = r + 0.05, g + 0.05, b + 0.05;
 	end
 
-	SmartFontType(str, playerInfo[index].name or "Unnamed");
+	SmartSetActorName(str, playerInfo[index].name or "Unnamed");
 	str:SetTextColor(r, g, b);
 end
 
@@ -348,7 +306,7 @@ end
 
 local function UpdateGroundShadowOption()
 	local button = Narci_GroundShadowToggle;
-	local model = ModelFrames[activeModelIndex];
+	local model = ModelFrames[ACTIVE_MODEL_INDEX];
 	local shadowFrame = model.GroundShadow;
 	local state = shadowFrame:IsShown();
 	HighlightButton(button, state);
@@ -448,7 +406,7 @@ LightControl.angleZ = pi/4;
 LightControl.angleXY = -3*pi/4;
 
 function LightControl:SetLightWidgetFromActiveModel()
-	local model = ModelFrames[activeModelIndex];
+	local model = ModelFrames[ACTIVE_MODEL_INDEX];
 	local _, _, dirX, dirY, dirZ, ambIntensity, ambR, ambG, ambB, dirIntensity, dirR, dirG, dirB = model:GetLight();
 	local hypotenuse = sqrt(dirX*dirX + dirY*dirY);
 
@@ -496,7 +454,7 @@ function LightControl:UpdateModel()
 	local rZ = -cos(phi);
 	--print(rX, rY, rZ);
 
-	local _, _, _, _, _, ambIntensity, ambR, ambG, ambB, dirIntensity, dirR, dirG, dirB = ModelFrames[activeModelIndex]:GetLight();
+	local _, _, _, _, _, ambIntensity, ambR, ambG, ambB, dirIntensity, dirR, dirG, dirB = ModelFrames[ACTIVE_MODEL_INDEX]:GetLight();
 
 	--Override Target
 	--[[
@@ -510,7 +468,7 @@ function LightControl:UpdateModel()
 			ModelFrames[i]:SetLight(true, false, rX, rY, rZ, ambIntensity, ambR, ambG, ambB, dirIntensity, dirR, dirG, dirB);
 		end
 	else
-		ModelFrames[activeModelIndex]:SetLight(true, false, rX, rY, rZ, ambIntensity, ambR, ambG, ambB, dirIntensity, dirR, dirG, dirB);
+		ModelFrames[ACTIVE_MODEL_INDEX]:SetLight(true, false, rX, rY, rZ, ambIntensity, ambR, ambG, ambB, dirIntensity, dirR, dirG, dirB);
 		--[[
 		local ModelScene = Narci_InteractiveSplash.ClipFrame.ModelScene;
 		ModelScene:SetLightDirection(rX, rY, rZ);
@@ -651,12 +609,12 @@ function WeaponUpdator:GetPlayerWeapons(model)
 			end
 		end
 
-		print(slotID..": "..appliedSourceID)
+		--print(slotID..": "..appliedSourceID)
 	end
 end
 
 function WeaponUpdator:GetTargetWeapons(unit)
-	local model = ModelFrames[activeModelIndex];
+	local model = ModelFrames[ACTIVE_MODEL_INDEX];
 	if false and UnitIsUnit(unit, "player") then
 		WeaponUpdator:GetPlayerWeapons(model);
 	else
@@ -680,11 +638,10 @@ function WeaponUpdator:SetListener(state, unit)
 					self.pauseUpdate = true;
 					self:ProcessInspect(inspecteeGUID);
 				end
-				--print(event)
 			end);
 		end
 		local guid = UnitGUID(unit);
-		self.queue[guid] = ModelFrames[activeModelIndex];
+		self.queue[guid] = ModelFrames[ACTIVE_MODEL_INDEX];
 		self.eventListener:RegisterEvent("INSPECT_READY");
 	else
 		if self.eventListener then
@@ -698,35 +655,51 @@ end
 function WeaponUpdator:ProcessInspect(inspecteeGUID)
 	local model = self.queue[inspecteeGUID];
 	if model then
-		local transmogInfo, mainHandEnchant, offHandEnchant = self.GetInspectTransmogInfo();
+		local transmogInfoList, mainHandEnchant, offHandEnchant = self.GetInspectTransmogInfo();
 		if not model.equippedWeapons then
 			model.equippedWeapons = {};
 		end
 
 		if model.SetItemTransmogInfo then
 			local hand = 0;
-			local itemTransmogInfoMixin;
+			local transmogInfo;
+			local mainHandInfo, offHandInfo;
 			for slotID = 16, 17 do
 				hand = hand + 1;
-				itemTransmogInfoMixin = transmogInfo[slotID];
-				if itemTransmogInfoMixin then
+				transmogInfo = transmogInfoList[slotID];
+				if transmogInfo then
+					--[[
 					local currentInfo = model:GetItemTransmogInfo(slotID);
-					if not itemTransmogInfoMixin:IsEqual(currentInfo) then
-						model:SetItemTransmogInfo(itemTransmogInfoMixin, slotID);
+					if not transmogInfo:IsEqual(currentInfo) then
+						model:SetItemTransmogInfo(transmogInfo, slotID, slotID ~= 16);
 					end
-					model.equippedWeapons[hand] = itemTransmogInfoMixin.appearanceID;
+					--]]
+					model.equippedWeapons[hand] = transmogInfo.appearanceID;
+
+					local currentInfo = model:GetItemTransmogInfo(slotID);
+					if not transmogInfo:IsEqual(currentInfo) then
+						model:TryOn(transmogInfo.appearanceID, (slotID == 16 and "MAINHANDSLOT") or "SECONDARYHANDSLOT", transmogInfo.illusionID);    --ME FIXED?
+						--NarciPhotoModeOutfitSelect:ModifyPlayerTransmogInfo(model:GetID(), slotID, transmogInfo);
+					end
+					if slotID == 16 then
+						mainHandInfo = transmogInfo;
+					else
+						offHandInfo = transmogInfo;
+					end
+					--print(slotID.. " " ..transmogInfo.appearanceID)
 				else
 					model.equippedWeapons[hand] = nil;
 				end
+				NarciPhotoModeOutfitSelect:ModifyPlayerTransmogInfo(model:GetID(), mainHandInfo, offHandInfo);
 			end
 		elseif model.TryOn then
-			if transmogInfo[16] then
-				model:TryOn(transmogInfo[16], "MAINHANDSLOT", mainHandEnchant);
-				model.equippedWeapons[1] = transmogInfo[16];
+			if transmogInfoList[16] then
+				model:TryOn(transmogInfoList[16], "MAINHANDSLOT", mainHandEnchant);
+				model.equippedWeapons[1] = transmogInfoList[16];
 			end
-			if transmogInfo[17] then
-				model:TryOn(transmogInfo[17], "SECONDARYHANDSLOT", offHandEnchant);
-				model.equippedWeapons[1] = transmogInfo[17];
+			if transmogInfoList[17] then
+				model:TryOn(transmogInfoList[17], "SECONDARYHANDSLOT", offHandEnchant);
+				model.equippedWeapons[1] = transmogInfoList[17];
 			end
 		end
 
@@ -788,7 +761,7 @@ local function PlayerModelAnimIn_Update_Style1(self, elapsed)
 		self.t = 0;
 		self:Hide();
 	end
-	
+
 	if self.t <=0.8 then
 		return;
 	elseif self.trigger then
@@ -939,6 +912,7 @@ local function HideAllModels()
 		npc = _G["NarciNPCModelFrame"..i];
 		if player then
 			player:Hide();
+			player.customTransmogList = nil;
 		end
 		if npc then
 			npc:Hide();
@@ -1020,10 +994,10 @@ local function Smooth_Zoom_Update(self, elapsed)
 			UpdateCameraPosition(ModelFrames[i]);
 		end
 	else
-		--ModelFrames[activeModelIndex]:SetCameraDistance(Value);
+		--ModelFrames[ACTIVE_MODEL_INDEX]:SetCameraDistance(Value);
 		--print(Value)
-		ModelFrames[activeModelIndex].cameraDistance = Value;
-		UpdateCameraPosition(ModelFrames[activeModelIndex]);
+		ModelFrames[ACTIVE_MODEL_INDEX].cameraDistance = Value;
+		UpdateCameraPosition(ModelFrames[ACTIVE_MODEL_INDEX]);
 	end
 
 	if self.t >= self.duration then
@@ -1033,7 +1007,7 @@ end
 
 
 Smooth_Zoom:SetScript("OnShow", function(self)
-	self.StartPoint = ModelFrames[activeModelIndex].cameraDistance;
+	self.StartPoint = ModelFrames[ACTIVE_MODEL_INDEX].cameraDistance;
 end);
 Smooth_Zoom:SetScript("OnUpdate", Smooth_Zoom_Update);
 Smooth_Zoom:SetScript("OnHide", function(self)
@@ -1439,11 +1413,11 @@ function Narci_AnimationOption_MainTabButton_OnClick(self)
 	AutoCloseTimer:Cancel()
 	self.isOn = not self.isOn;
 	if self.isOn then
-		self.Background:SetTexCoord(0, 0.376953125, 0.6328125, 0.52734375);
+		--self.Background:SetTexCoord(0, 0.376953125, 0.6328125, 0.52734375);
 		self.Arrow:SetTexCoord(0, 1, 0, 1);
 		self:GetParent().OtherTab:Show();
 	else
-		self.Background:SetTexCoord(0, 0.376953125, 0.2109375, 0.31640625);
+		--self.Background:SetTexCoord(0, 0.376953125, 0.2109375, 0.31640625);
 		self.Arrow:SetTexCoord(0, 1, 1, 0);
 		self:GetParent().OtherTab:Hide();
 	end
@@ -1484,7 +1458,7 @@ function Narci_AnimationOptionFrame_OnLoad(self)
 	end
 
 	self.OtherTab.tab2:SetID(otherIDs[1]);
-	self.OtherTab.tab2.Label:SetText(animationIDPresets[otherIDs[1]]["name"]);	
+	self.OtherTab.tab2.Label:SetText(animationIDPresets[otherIDs[1]]["name"]);
 	self.OtherTab.tab3:SetID(otherIDs[2]);
 	self.OtherTab.tab3.Label:SetText(animationIDPresets[otherIDs[2]]["name"]);
 
@@ -1492,6 +1466,8 @@ function Narci_AnimationOptionFrame_OnLoad(self)
 	for i=1, #buttons do
 		buttons[i].ID = (animationIDPresets[ID][i]);
 	end
+
+	NarciPhotoModeBar_OnLoad(self);
 end
 
 function Narci_AnimationOption_OtherTabButton_OnClick(self)
@@ -1514,7 +1490,7 @@ end
 
 function Narci_AnimationPresetButton_OnClick(self, button)
 	local id = self.ID;
-	local model = ModelFrames[activeModelIndex];
+	local model = ModelFrames[ACTIVE_MODEL_INDEX];
 	model:PlayAnimation(id);
 	if button == "RightButton" then
 		AnimationIDEditBox:SetAnimationID(id);
@@ -1890,7 +1866,7 @@ function NarciAnimationIDEditboxMixin:OnMouseWheel(delta)
 	if id > maxAnimationID then
 		id = maxAnimationID;
 	end
-	local model = ModelFrames[activeModelIndex];
+	local model = ModelFrames[ACTIVE_MODEL_INDEX];
 
 	if delta < 0 and id < maxAnimationID then
 		id = id + 1;
@@ -1932,7 +1908,7 @@ function NarciAnimationIDEditboxMixin:OnEnterPressed()
 		self:ClearFocus();
 	end
 
-	local model = ModelFrames[activeModelIndex];
+	local model = ModelFrames[ACTIVE_MODEL_INDEX];
 	local id = math.min(self:GetNumber(), maxAnimationID);
 	model.animationID = id;
 
@@ -1969,7 +1945,7 @@ end
 
 function NarciAnimationIDEditboxMixin:OnLeave()
 	if not self:HasFocus() then
-		UIFrameFadeOut(self.Highlight, 0.2, self.Highlight:GetAlpha(), 0);
+		FadeFrame(self.Highlight, 0.2, 0);
 	else
 		self.Timer:Play();
 	end
@@ -2044,7 +2020,7 @@ function NarciAnimationVariationSphereMixin:OnClick(button)
 	self:SetVisual(newVariationID);
 
 	---Update Model Animation
-	local model = ModelFrames[activeModelIndex];
+	local model = ModelFrames[ACTIVE_MODEL_INDEX];
 	local animationID = AnimationIDEditBox:GetNumber();
 	if model.isPaused then
 		model.variationID = newVariationID;
@@ -2148,7 +2124,7 @@ end
 
 function NarciModelControl_PlayAnimationButton_OnClick(self, button)
 	AnimationIDEditBox:ClearFocus();
-	local model = ModelFrames[activeModelIndex];
+	local model = ModelFrames[ACTIVE_MODEL_INDEX];
 	local id = AnimationIDEditBox:GetNumber();
 	model:PlayAnimation(id);
 	if button == "LeftButton" then
@@ -2161,7 +2137,7 @@ end
 
 function NarciModelControl_PauseAnimationButton_OnClick(self, button)
 	AnimationIDEditBox:ClearFocus();
-	local model = ModelFrames[activeModelIndex]
+	local model = ModelFrames[ACTIVE_MODEL_INDEX]
 	local id = AnimationIDEditBox:GetNumber();
 	model:Freeze(id, nil, model.freezedFrame or 0);
 	if button == "RightButton" then
@@ -2273,13 +2249,13 @@ end
 
 
 function LightControl:Initialize(newModel)
-	local model = ModelFrames[activeModelIndex];
+	local model = ModelFrames[ACTIVE_MODEL_INDEX];
 	local enabled, omni, dirX, dirY, dirZ, ambIntensity, ambR, ambG, ambB, dirIntensity, dirR, dirG, dirB = model:GetLight();
 	newModel:SetLight(true, false, dirX, dirY, dirZ, 1, ambR, ambG, ambB, 1, dirR, dirG, dirB);
 end
 
 function LightControl:UpdateLight()
-	local model = ModelFrames[activeModelIndex];
+	local model = ModelFrames[ACTIVE_MODEL_INDEX];
 	local r, g, b = HSV2RGB(xHUE, xSAT, xBRT);
 	local _;
 	if self.linkLight then
@@ -2309,7 +2285,7 @@ function LightControl:UpdateLight()
 end
 
 local function InitializeModelLight(newModel)
-	local model = ModelFrames[activeModelIndex];
+	local model = ModelFrames[ACTIVE_MODEL_INDEX];
 	local r, g, b = HSV2RGB(xHUE, xSAT, xBRT);
 	local _;
 	if LINK_LIGHT then
@@ -2328,7 +2304,7 @@ local function InitializeModelLight(newModel)
 end
 
 local function SetModelLightColor()
-	local model = ModelFrames[activeModelIndex];
+	local model = ModelFrames[ACTIVE_MODEL_INDEX];
 	local r, g, b = HSV2RGB(xHUE, xSAT, xBRT);
 	local _;
 	if LINK_LIGHT then
@@ -2488,6 +2464,7 @@ local function ResetIndexButton()
 		button.isOn = false;
 		button.Highlight:Hide();
 		button.order = i;
+		button:SetSelection(false);
 	end
 
 	buttons[2]:Show();
@@ -2497,7 +2474,7 @@ local function ResetIndexButton()
 end
 
 local function ExitGroupPhoto()
-	activeModelIndex = 1;
+	ACTIVE_MODEL_INDEX = 1;
 	local model = PrimaryPlayerModel;
 	Narci.ActiveModel = model;
 	--model:SetActive(true);
@@ -2534,14 +2511,14 @@ local function ShakeModel(model)
 end
 
 local function SetModelActive(index)
-	activeModelIndex = index or 1;
+	ACTIVE_MODEL_INDEX = index or 1;
 	for i = 1, #ModelFrames do
-		if i ~= activeModelIndex and ModelFrames[i] then
+		if i ~= ACTIVE_MODEL_INDEX and ModelFrames[i] then
 			ModelFrames[i]:SetActive(false);
 		end
 	end
 
-	local model = ModelFrames[activeModelIndex];
+	local model = ModelFrames[ACTIVE_MODEL_INDEX];
 	if not model then return; end;
 	Narci.ActiveModel = model;
 	model:SetActive(true);
@@ -2575,6 +2552,13 @@ local function SetModelActive(index)
 	end
 
 	LightControl:SetLightWidgetFromActiveModel();
+
+	if model:IsObjectType("DressUpModel") then
+		OutfitToggle:EnableButton();
+		NarciPhotoModeOutfitSelect:SelectPreviewModel(model.buttonIndex);
+	else
+		OutfitToggle:DisableButton();
+	end
 end
 
 function Narci_ModelIndexButton_OnClick(self, button)
@@ -2584,7 +2568,7 @@ function Narci_ModelIndexButton_OnClick(self, button)
 	local playBling = true;
 	local model = ModelFrames[ID];
 	local buttons = self:GetParent().buttons;
-	activeModelIndex = ID;
+	ACTIVE_MODEL_INDEX = ID;
 
 	if not self.hasModel then
 		if UnitExists(unit) then
@@ -2595,13 +2579,14 @@ function Narci_ModelIndexButton_OnClick(self, button)
 			else
 				model = _G["NarciNPCModelFrame"..ID];
 			end
-			
+		
 			if not model then
 				if isPlayer and not alternateMode then
 					model = CreateFrame("DressUpModel", "NarciPlayerModelFrame"..ID, Narci_ModelContainer, "Narci_CharacterModelFrame_Template");
 				else
 					model = CreateFrame("CinematicModel", "NarciNPCModelFrame"..ID, Narci_ModelContainer, "Narci_NPCModelFrame_Template");
 				end
+				model:SetID(ID);
 				NarciModelControl_AnimationSlider:ResetValueVisual();
 			end
 			model.buttonIndex = ID;
@@ -2624,13 +2609,13 @@ function Narci_ModelIndexButton_OnClick(self, button)
 
 			if isPlayer then
 				self:SetModelType("player");
+				NarciPhotoModeOutfitSelect:AddPlayerActor(unit, model);
 			else
 				self:SetModelType("npc");
 			end
 			--Fix Weapons
 			WeaponUpdator:GetTargetWeapons(unit);
 		else
-			--SetAlertFrame(self, NARCI_GROUP_PHOTO_NOTIFICATION, -8);
 			local PopUp = self:GetParent().PopUp;
 			PopUp.AddTarget.Text.animError:Play();
 			Narci:PlayVoice("ERROR");
@@ -2686,7 +2671,6 @@ function Narci_ModelIndexButton_OnClick(self, button)
 			model:EnableMouseWheel(state);
 			self.ID:SetShown(state);
 			self.Icon:SetShown(not state);
-
 		end
 	end
 
@@ -2728,7 +2712,7 @@ function NarciGenericModelMixin:OnLoad()
 	self:SetRotation(self.rotation);
 
 	local W = self:GetWidth()
-	self:SetHitRectInsets(2*W/3 + HIT_RECT_OFFSET, 0, 0, 0);
+	self:SetHitRectInsets(2*W/3 + HIT_RECT_OFFSET, 0, 0, 32.0);
 
 	--AddNewModelFrame(self);
 
@@ -2897,12 +2881,37 @@ function NarciGenericModelMixin:OnHide()
 	self.mouseDown = false;
 end
 
+local function RedressPlayerAfterLoading(model)
+	if model:IsObjectType("DressUpModel") and model.customTransmogList then
+		After(0, function()
+			model:Undress();
+			local mainHandInfo, offHandInfo;	--a workaround cuz there seems to be a delay before weapons being loaded
+			for slotID, transmogInfo in pairs(model.customTransmogList) do
+				if slotID == 16 then
+					mainHandInfo = transmogInfo;
+				elseif slotID == 17 then
+					offHandInfo = transmogInfo;
+				else
+					model:SetItemTransmogInfo(transmogInfo, slotID);
+				end
+				After(0.1, function()
+					model:UndressSlot(16);
+					model:UndressSlot(17);
+					model:SetItemTransmogInfo(mainHandInfo, 16);
+					model:SetItemTransmogInfo(offHandInfo, 17);
+				end);
+			end
+		end);
+	end
+end
+
 function NarciGenericModelMixin:OnModelLoaded()
 	InitializeModel(self);
 	self:UpdateVirtualModel();
 	self.isModelLoaded = true;
 	self.isAnimationCached = nil;
 	self.animationList = {};
+	RedressPlayerAfterLoading(self);
 end
 
 function NarciGenericModelMixin:OnAnimFinished()
@@ -2950,10 +2959,11 @@ function NarciGenericModelMixin:EquipWeapon(itemID, sourceID, hand)
 
 	--redirect hand
 	hand = RedirectInventorySlot(itemID, self.widgetType) or hand;
-
+	local slotID;
 	local itemTryOnResult;
 	if hand and hand == 2 then
 		--offhand
+		slotID = 17;
 		if self.SetItemTransmogInfo then
 			if sourceID and sourceID ~= 0 then
 				itemTryOnResult = self:EquipItemBySourceID(sourceID, 17);
@@ -2987,6 +2997,7 @@ function NarciGenericModelMixin:EquipWeapon(itemID, sourceID, hand)
 
 	else
 		--mainhand
+		slotID = 16;
 		if self.SetItemTransmogInfo then
 			if sourceID and sourceID ~= 0 then
 				itemTryOnResult = self:EquipItemBySourceID(sourceID, 16);
@@ -3009,8 +3020,11 @@ function NarciGenericModelMixin:EquipWeapon(itemID, sourceID, hand)
 			self:EquipItem(itemID);
 			self.equippedWeapons[1] = itemID;
 			itemTryOnResult = 0;
-
 		end
+	end
+
+	if self.customTransmogList and sourceID then
+		self.customTransmogList[slotID] = ItemUtil.CreateItemTransmogInfo(sourceID);
 	end
 
 	return (itemTryOnResult == 0), hand, self.widgetType	--ItemTryOnReason.Success ~ 0
@@ -3107,9 +3121,10 @@ function NarciMainModelMixin:OnLoad()
 	FullScreenAlphaChannel = Narci_FullScreenAlphaChannel;
 
 	local W = self:GetWidth();
-	self:SetHitRectInsets(2*W/3 + HIT_RECT_OFFSET, 0, 0, 0);
-	
+	self:SetHitRectInsets(2*W/3 + HIT_RECT_OFFSET, 0, 0, 32.0);
+
 	ModelFrames[1] = self;
+	PrimaryPlayerModel = self;
 	Narci.ActiveModel = self;
 
 	self.AppliedVisuals = {};
@@ -3137,6 +3152,7 @@ function NarciMainModelMixin:OnModelLoaded()
 	self.isModelLoaded = true;
 	self.isAnimationCached = nil;
 	self.animationList = {};
+	RedressPlayerAfterLoading(self);
 end
 
 ----------------------------------------------------------------------
@@ -3151,6 +3167,7 @@ local function CreateEmptyModelForNPCBrowser(actorIndex, isPet)
 	local model = _G["NarciNPCModelFrame"..ID];
 	if not model then
 		model = CreateFrame("CinematicModel", "NarciNPCModelFrame"..ID, Narci_ModelContainer, "Narci_NPCModelFrame_Template");
+		model:SetID(ID);
 	end
 	model:SetModel(124640);
 	model.isLoaded = false;
@@ -3214,8 +3231,8 @@ local function OverrideActorInfo(actorIndex, name, hasWeapon, portraitFile)
 	playerInfo[actorIndex].name = name;
 	--ActorPanel.ExtraPanel.buttons[actorIndex].Label:SetText(name);
 	--ActorPanel.ActorButton.ActorName:SetText(name);
-	SmartFontType(ActorPanel.ExtraPanel.buttons[actorIndex].Label, name);
-	SmartFontType(ActorPanel.ActorButton.ActorName, name);
+	SmartSetActorName(ActorPanel.ExtraPanel.buttons[actorIndex].Label, name);
+	SmartSetActorName(ActorPanel.ActorButton.ActorName, name);
 	
 
 	--Weapon
@@ -3258,16 +3275,20 @@ local function CreateAndSelectNewActor(actorIndex, unit, isVirtual)
 			else
 				model = CreateFrame("DressUpModel", "NarciPlayerModelFrame"..ID, Narci_ModelContainer, "Narci_CharacterModelFrame_Template");
 			end
+			model:SetID(ID);
 			NarciModelControl_AnimationSlider:ResetValueVisual();
 		end
 		model.isModelLoaded = false;
 		model:SetUnit(unit);
 		model.isPlayer = true;
+		NarciPhotoModeOutfitSelect:AddPlayerActor(unit, model);
+
 	elseif inputType == "number" then
 		--Create from displayID
 		model = _G["NarciNPCModelFrame"..ID];
 		if not model then
 			model = CreateFrame("CinematicModel", "NarciNPCModelFrame"..ID, Narci_ModelContainer, "Narci_NPCModelFrame_Template");
+			model:SetID(ID);
 		end
 		alternateMode = true;
 		model.isModelLoaded = false;
@@ -3436,8 +3457,8 @@ end
 -------------------------------------------------------
 function Narci_VirtualActorToggle_OnClick(self)
 	self.isOn = not self.isOn;
-	local IndexButton = ActorPanel.ExtraPanel.buttons[activeModelIndex];
-	local model = ModelFrames[activeModelIndex];
+	local IndexButton = ActorPanel.ExtraPanel.buttons[ACTIVE_MODEL_INDEX];
+	local model = ModelFrames[ACTIVE_MODEL_INDEX];
 	if self.isOn then
 		self.Icon:Show();
 		IndexButton:SetModelType("virtual");
@@ -3534,7 +3555,7 @@ local function RemoveActor(actorIndex)
 		ID = actorIndex;
 		model = _G["NarciNPCModelFrame"..ID];
 	else
-		ID = activeModelIndex;
+		ID = ACTIVE_MODEL_INDEX;
 		model = ModelFrames[ID];
 	end
 
@@ -3547,15 +3568,16 @@ local function RemoveActor(actorIndex)
 		model:ClearModel();
 		model.isVirtual = false;
 		model:Hide();
-		
-		wipe(model.AppliedVisuals);
+
 		model.creatureID = nil;
 		model.creatureName = nil;
 		model.equippedWeapons = nil;
 		model.isAnimationCached = nil;
 		model.animationList = {};
+		model.customTransmogList = nil;
 		model.GroundShadow:Hide();
 		model.freezedFrame = 0;
+		wipe(model.AppliedVisuals);
 	end
 
 	button:SetModelType("empty");
@@ -3590,14 +3612,14 @@ end
 local function CustomModelPosition(model, raceID, genderID)
 	model:MakeCurrentCameraCustom();
 	raceID = ReAssignRaceID(raceID, true);
-	
+
 	local data;
 	if genderID == 2 then
 		data = TranslateValue_Male[raceID][2];
 	else
 		data = TranslateValue_Female[raceID][2];
 	end
-	
+
 	model:SetPosition(0, data[2], data[3]);
 	model:SetPortraitZoom(data[1]);
 	model:MakeCurrentCameraCustom();
@@ -3650,8 +3672,8 @@ local function RestoreModelAfterRaceChange(model)
 end
 
 function Narci_GenderButton_OnClick(self)
-	local index = activeModelIndex;
-	local model = ModelFrames[activeModelIndex];
+	local index = ACTIVE_MODEL_INDEX;
+	local model = ModelFrames[ACTIVE_MODEL_INDEX];
 	local genderID = playerInfo[index].gender or 2;
 	local raceID = playerInfo[index].raceID;
 	local _, _, dirX, dirY, dirZ, _, ambR, ambG, ambB, _, dirR, dirG, dirB = model:GetLight();
@@ -3698,10 +3720,10 @@ end
 
 function Narci_RaceOptionButton_OnClick(self)
 	AutoCloseTimer2:Cancel();
-	local model = ModelFrames[activeModelIndex];
-	local genderID = playerInfo[activeModelIndex].gender;
+	local model = ModelFrames[ACTIVE_MODEL_INDEX];
+	local genderID = playerInfo[ACTIVE_MODEL_INDEX].gender;
 	local raceID = self:GetID() or 1;
-	playerInfo[activeModelIndex].raceID = raceID;
+	playerInfo[ACTIVE_MODEL_INDEX].raceID = raceID;
 	local _, _, dirX, dirY, dirZ, _, ambR, ambG, ambB, _, dirR, dirG, dirB = model:GetLight();
 	model:SetBarberShopAlternateForm();
 	if genderID == 2 then
@@ -3762,7 +3784,7 @@ local function HideGroundShadowControl()
 end
 
 function Narci_GroundShadowToggle_ResetButton_OnClick(self)
-	local frame = ModelFrames[activeModelIndex].GroundShadow;
+	local frame = ModelFrames[ACTIVE_MODEL_INDEX].GroundShadow;
 	frame:ClearAllPoints();
 	frame:SetPoint("BOTTOM", UIParent, "BOTTOM", 0 ,0);
 	frame:SetUserPlaced(false);
@@ -3778,7 +3800,7 @@ function Narci_GroundShadowToggle_OnHide(self)
 end
 
 function Narci_GroundShadowToggle_OnClick(self)
-	local frame = ModelFrames[activeModelIndex].GroundShadow;
+	local frame = ModelFrames[ACTIVE_MODEL_INDEX].GroundShadow;
 	local state = not frame:IsShown();
 	frame:SetShown(state);
 	self.isOn = state;
@@ -4004,6 +4026,7 @@ end
 
 function Narci_GroupPhotoToggle_OnClick(self)
 	ResetIndexButton();
+	--SetModelActive(1);
 
 	local ExtraPanel = ActorPanel.ExtraPanel;
 	ActorPanel.ActorButton.ActorName:SetWidth(120);
@@ -4175,7 +4198,7 @@ function NarciActorPanelPopUpMixin:OnEvent(event, ...)
 			local _, className = UnitClass("target");
 			local r, g, b = GetClassColor(className);
 			TargetText:SetTextColor(r, g, b);
-			SmartFontType(TargetText, name);
+			SmartSetActorName(TargetText, name);
 
 			local isTargetNPC = not UnitIsPlayer("target");
 			self.AddTarget.isTypeLocked = isTargetNPC;
@@ -4268,7 +4291,7 @@ function NarciModelIndexButtonMixin:OnEnter()
 				local _, className = UnitClass("target");
 				local r, g, b = GetClassColor(className);
 				TargetText:SetTextColor(r, g, b);
-				SmartFontType(TargetText, name);
+				SmartSetActorName(TargetText, name);
 			else
 				TargetText:SetTextColor(1, 0.3137, 0.3137);	--Pastel Red
 				TargetText:SetText(ERR_GENERIC_NO_TARGET);
@@ -4398,7 +4421,7 @@ end
 
 function NarciModelSettingsMixin:OnEnter()
 	if IsMouseButtonDown() then return end;
-	
+
 	HideGroundShadowControl();
 	Narci_PhotoModeToolbar:SetAlpha(0);
 	self:FadeIn(0.15);
@@ -4434,8 +4457,12 @@ function NarciModelSettingsMixin:OnHide()
 	Narci_BackgroundDarkness:SetAlpha(0);
 	NarciTextOverlayContainer:HideAllWidgets();
 	Narci_ColorPicker:Hide();
-
 	WeaponUpdator:SetListener(false);
+
+	NarciPhotoModeOutfitSelect:AddPlayerActor("player", PrimaryPlayerModel);
+	NarciPhotoModeOutfitSelect:SelectPreviewModel(1);
+	OutfitToggle:EnableButton();
+	PrimaryPlayerModel.customTransmogList = nil;
 end
 
 
@@ -4481,6 +4508,42 @@ function NarciModelSettingsMixin:AddSubFrame(frame, key)
 	end
 end
 
+
+
+NarciOutfitToggleMixin = {};
+
+function NarciOutfitToggleMixin:OnLoad()
+	OutfitToggle = self;
+	self.Label:SetText(L["Outfit"]);
+	NarciPhotoModeBar_OnLoad(self);
+end
+
+function NarciOutfitToggleMixin:OnClick()
+    NarciPhotoModeOutfitSelect:ToggleUI();
+end
+
+function NarciOutfitToggleMixin:OnEnter()
+    FadeFrame(self.Highlight, 0.2, 1);
+end
+
+function NarciOutfitToggleMixin:OnLeave()
+    FadeFrame(self.Highlight, 0.2, 0);
+end
+
+function NarciOutfitToggleMixin:DisableButton()
+    self:Disable();
+	self.Label:SetTextColor(0.42, 0.42, 0.42);
+	self.Arrow:SetVertexColor(0.5, 0.5, 0.5);
+    --self:SetAlpha(0.5);
+end
+
+function NarciOutfitToggleMixin:EnableButton()
+    self:Enable();
+	self.Label:SetTextColor(0.25, 0.78, 0.92);
+	self.Arrow:SetVertexColor(1, 1, 1);
+    --self:SetAlpha(1);
+end
+
 ----------------------------------------------------
 local function InitializeScripts()
 	local CaptureButton = Narci_Model_CaptureButton;
@@ -4510,7 +4573,6 @@ ScreenshotListener:SetScript("OnEvent",function(self,event,...)
 
 	elseif event == "PLAYER_ENTERING_WORLD" then
 		self:UnregisterEvent(event);
-		PrimaryPlayerModel = NarciPlayerModelFrame1;
 		ActorPanel = Narci_ActorPanel;
 		ModelIndexButton_ResetReposition();
 		InitializePlayerInfo(1);
@@ -4523,7 +4585,7 @@ ScreenshotListener:SetScript("OnEvent",function(self,event,...)
 
 		NarciModelControl_AnimationSlider.onValueChangedFunc = function(value)
 			local id = AnimationIDEditBox:GetNumber();
-			local model = ModelFrames[activeModelIndex];
+			local model = ModelFrames[ACTIVE_MODEL_INDEX];
 			model:Freeze(id, model.variationID or 0, value);
 		end
 	end
@@ -4555,18 +4617,18 @@ function Narci:ShrinkModelHitRect(offsetX)
 	for i = 1, NUM_MAX_ACTORS do
 		model = _G["NarciPlayerModelFrame"..i];
 		if model then
-			model:SetHitRectInsets(newWidth, 0 ,0 ,0);
+			model:SetHitRectInsets(newWidth, 0 ,0 , 32.0);
 		end
 		model = _G["NarciNPCModelFrame"..i];
 		if model then
-			model:SetHitRectInsets(newWidth, 0 ,0 ,0);
+			model:SetHitRectInsets(newWidth, 0 ,0 , 32.0);
 		end
 	end
 	Narci_ModelInteractiveArea:SetWidth(W0 - newWidth);
 end
 
 function Narci:GetActiveActor()
-	return ModelFrames[activeModelIndex]
+	return ModelFrames[ACTIVE_MODEL_INDEX]
 end
 
 
@@ -4637,4 +4699,6 @@ function SetModelID(fileID)
 	end);
 end
 
+
+/script local m=Narci.ActiveModel;local v=m.variationID;v=(v<15 and v+1)or(0);m.variationID=v;m:PlayAnimation(m.animationID);print(v);
 --]]

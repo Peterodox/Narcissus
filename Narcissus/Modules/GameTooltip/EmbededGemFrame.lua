@@ -21,7 +21,7 @@ end
 
 function NarciEquipmentTooltipGemFrameMixin:SetItemLink(link)
     self:Clear();
-    local socketInfo = NarciAPI.GetItemSocketInfo(link);
+    local socketInfo = NarciAPI.GetTooltipSocketInfo(link);
     local numGems;
     if socketInfo then
         numGems = #socketInfo;
@@ -87,11 +87,6 @@ function NarciEquipmentTooltipGemFrameMixin:SetGemEffect(n, texture, gemName, ge
         self.borders[n]:SetSize(22, 22);
         self.borders[n]:SetPoint("CENTER", self.icons[n], "CENTER", 0, 0);
         self.borders[n]:SetTexture("Interface\\AddOns\\Narcissus\\Art\\GameTooltip\\GemBorderSqaure");
-        --local mask = self:CreateMaskTexture(nil, "ARTWORK");
-        --mask:SetPoint("TOPLEFT", self.icons[n], "TOPLEFT", 1, -1);
-        --mask:SetPoint("BOTTOMRIGHT", self.icons[n], "BOTTOMRIGHT", -1, 1);
-        --mask:SetTexture("Interface\\AddOns\\Narcissus\\Art\\Masks\\Circle", "CLAMPTOBLACKADDITIVE", "CLAMPTOBLACKADDITIVE")
-        --self.icons[n]:AddMaskTexture(mask);
     end
     if n == 1 then
         self.texts[n]:SetPoint("TOPLEFT", self, "TOPLEFT", TEXT_OFFSET, -2);
@@ -101,6 +96,7 @@ function NarciEquipmentTooltipGemFrameMixin:SetGemEffect(n, texture, gemName, ge
 
     self.texts[n]:SetText(gemEffect);
     self.icons[n]:SetTexture(texture);
+    --print(gemEffect .." "..texture)
     if gemLink then
         --local itemID, itemType, itemSubType, itemEquipLoc, icon = GetItemInfoInstant(gemLink);
         self.texts[n]:SetTextColor(0.8863, 0.8863, 0.8863);

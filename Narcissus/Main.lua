@@ -35,9 +35,14 @@ local GetItemDominationGem = NarciAPI.GetItemDominationGem;
 local GetVerticalRunicLetters = NarciAPI.GetVerticalRunicLetters;
 local FadeFrame = NarciFadeUI.Fade;
 
+local inOutSine = addon.EasingFunctions.inOutSine
+local linear = addon.EasingFunctions.linear;
+local outSine = addon.EasingFunctions.outSine;
+
 --local GetCorruptedItemAffix = NarciAPI_GetCorruptedItemAffix;
 local Narci_AlertFrame_Autohide = Narci_AlertFrame_Autohide;
 local C_Item = C_Item;
+local GetItemInfo = GetItemInfo;
 local C_LegendaryCrafting = C_LegendaryCrafting;
 local C_TransmogCollection = C_TransmogCollection;
 local After = C_Timer.After;
@@ -165,47 +170,6 @@ function Narci:HideButtonTooltip()
 	DefaultTooltip:HideTooltip();
 	ItemTooltip:HideTooltip();
 	--DefaultTooltip:SetFrameStrata("TOOLTIP");
-end
-
---[[ LibEasing
---
--- Original Lua implementations
--- from 'EmmanuelOga'
--- https://github.com/EmmanuelOga/easing/
---
--- Adapted from
--- Tweener's easing functions (Penner's Easing Equations)
--- and http://code.google.com/p/tweener/ (jstweener javascript version)
---
-
-Disclaimer for Robert Penner's Easing Equations license:
-
-TERMS OF USE - EASING EQUATIONS
-
-Open source under the BSD License.
-
-Copyright © 2001 Robert Penner
-All rights reserved.
-
-Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
-
-    * Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
-    * Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
-    * Neither the name of the author nor the names of contributors may be used to endorse or promote products derived from this software without specific prior written permission.
-
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-]]
-
-local function linear(t, b, e, d)
-	return (e - b) * t / d + b
-end
-
-local function outSine(t, b, e, d)
-	return (e - b) * sin(t / d * (pi / 2)) + b
-end
-
-local function inOutSine(t, b, e, d)
-	return (b - e) / 2 * (cos(pi * t / d) - 1) + b
 end
 
 --------------------------------
@@ -1556,7 +1520,7 @@ end
 local GetInventoryItemCooldown = GetInventoryItemCooldown;
 
 local function SetItemSocketingFramePosition(self)		--Let ItemSocketingFrame appear on the side of the slot
-	if ItemSocketingFrame then																		
+	if ItemSocketingFrame then
 		if self.GemSlot:IsShown() then
 			ItemSocketingFrame:Show()
 		else
@@ -1793,7 +1757,190 @@ local validForTempEnchant = {
 	[5] = true,
 };
 
+local function GetFormattedSourceText(sourceInfo)
+	local sourceType = sourceInfo.sourceType;
+	local itemQuality = sourceInfo.quality or 1;
+	local _, _, _, hex = GetItemQualityColor(itemQuality);
+	local difficulty;
+	local bonusID;
+	local colorizedText, plainText, hyperlink;
+
+	if sourceType == 1 then	--TRANSMOG_SOURCE_BOSS_DROP = 1
+		local drops = C_TransmogCollection.GetAppearanceSourceDrops(sourceInfo.sourceID);
+		if drops and drops[1] then
+			colorizedText = drops[1].encounter.." ".."|cFFFFD100"..drops[1].instance.."|r|CFFf8e694";
+			plainText = drops[1].encounter.." "..drops[1].instance;
+			
+			if sourceInfo.itemModID == 0 then 
+				difficulty = PLAYER_DIFFICULTY1;
+				bonusID = 3561;
+				hyperlink = "|c"..hex.."|Hitem:"..sourceInfo.itemID.."::::::::120::::2:356".."1"..":1476:|h|r";
+			elseif sourceInfo.itemModID == 1 then 
+				difficulty = PLAYER_DIFFICULTY2;
+				bonusID = 3562;
+				hyperlink = "|c"..hex.."|Hitem:"..sourceInfo.itemID.."::::::::120::::2:356".."2"..":1476:|h|r";
+			elseif sourceInfo.itemModID == 3 then 
+				difficulty = PLAYER_DIFFICULTY6;
+				bonusID = 3563;
+				hyperlink = "|c"..hex.."|Hitem:"..sourceInfo.itemID.."::::::::120::::2:356".."3"..":1476:|h|r";
+			elseif sourceInfo.itemModID == 4 then
+				difficulty = PLAYER_DIFFICULTY3;
+				bonusID = 3564;
+				hyperlink = "|c"..hex.."|Hitem:"..sourceInfo.itemID.."::::::::120::::2:356".."4"..":1476:|h|r";
+			end
+
+			if difficulty then
+				colorizedText = colorizedText.." "..difficulty;
+				plainText = plainText.." "..difficulty;
+			end
+		else
+			local sourceText = _G["TRANSMOG_SOURCE_1"];	--Boss Drop
+			colorizedText = sourceText;
+			plainText = sourceText;
+		end
+	else
+		if sourceType == 2 then --quest
+			colorizedText = TRANSMOG_SOURCE_2;
+			if sourceInfo.itemModID == 3 then 
+				hyperlink= "|c"..hex.."|Hitem:"..sourceInfo.itemID.."::::::::120::::2:512".."6"..":1562:|h|r";
+				bonusID = 5126;
+			elseif sourceInfo.itemModID == 2 then 
+				hyperlink = "|c"..hex.."|Hitem:"..sourceInfo.itemID.."::::::::120::::2:512".."5"..":1562:|h|r";
+				bonusID = 5125;
+			elseif sourceInfo.itemModID == 1 then 
+				hyperlink = "|c"..hex.."|Hitem:"..sourceInfo.itemID.."::::::::120::::2:512".."4"..":1562:|h|r";
+				bonusID = 5124;
+			end
+		elseif sourceType == 3 then --vendor
+			colorizedText = TRANSMOG_SOURCE_3;
+		elseif sourceType == 4 then --world drop
+			colorizedText = TRANSMOG_SOURCE_4;
+		elseif sourceType == 5 then --achievement
+			colorizedText = TRANSMOG_SOURCE_5;
+		elseif sourceType == 6 then	--profession
+			colorizedText = TRANSMOG_SOURCE_6;
+		else
+			if itemQuality == 6 then
+				colorizedText = ITEM_QUALITY6_DESC;
+			elseif itemQuality == 5 then
+				colorizedText = ITEM_QUALITY5_DESC;
+			end
+		end
+		plainText = colorizedText;
+	end
+	if not hyperlink then
+		hyperlink = "|c"..hex.."|Hitem:"..sourceInfo.itemID..":|h|r";
+	end
+
+	return colorizedText, plainText, hyperlink;
+end
+
 NarciEquipmentSlotMixin = CreateFromMixins{NarciItemButtonSharedMixin};
+
+function NarciEquipmentSlotMixin:SetTransmogSourceID(appliedSourceID, secondarySourceID)
+	self.sourceID = appliedSourceID;
+
+	if appliedSourceID and appliedSourceID > 0 then
+		self.Icon:SetDesaturated(false);
+		self.Name:Show();
+		self.ItemLevel:Show();
+		self.GradientBackground:Show();
+	else
+		self.Icon:SetDesaturated(true);
+		self.Name:SetText(nil);
+		self.ItemLevel:SetText(nil);
+		self.GradientBackground:Hide();	
+		self:SetBorderTexture(self.Border, 0);
+		if self.slotID == 2 then
+			self:DisplayDirectionMark(false);
+		end
+		return
+	end
+
+	local itemName, itemIcon, itemQuality, subText;
+	local sourceInfo = C_TransmogCollection.GetSourceInfo(appliedSourceID);
+	itemName = sourceInfo and sourceInfo.name;
+
+	if not itemName or itemName == "" then
+		QueueFrame:Add(self, self.Refresh);
+		return
+	end
+
+	self.itemID = sourceInfo.itemID;
+	self.itemModID = sourceInfo.itemModID;
+	itemQuality = sourceInfo.quality or 1;
+	itemIcon = C_TransmogCollection.GetSourceIcon(appliedSourceID);
+
+	local bonusID;
+
+	subText, self.sourcePlainText, self.hyperlink = GetFormattedSourceText(sourceInfo);
+
+	if self.hyperlink then
+		_, self.hyperlink = GetItemInfo(self.hyperlink);																		--original hyperlink cannot be printed (workaround)
+	end
+
+	if itemQuality == 6 then
+		if self.slotID == 16 then
+			bonusID = (sourceInfo.itemModID or 0);	--Artifact use itemModID "7V0" + modID - 1
+		else
+			bonusID = 0;
+		end
+	end
+
+	self.bonusID = bonusID;
+
+	if not subText then
+		local _, sourceName = IsItemSourceSpecial(self.itemID);
+		subText = sourceName or " ";
+	end
+
+	local bR, bG, bB = GetItemQualityColor(itemQuality);
+	local borderTexKey = itemQuality;
+	self:SetBorderTexture(self.Border, borderTexKey);
+
+	if self:IsVisible() then
+		if itemIcon then
+			self.IconOverlay:SetTexture(itemIcon);
+			self.Icon.anim:Play();
+		end
+		self.ItemLevel.anim1:SetScript("OnFinished", function(f)
+			self.ItemLevel:SetText(subText);
+			self.ItemLevel.anim2:Play();
+			f:SetScript("OnFinished", nil);
+		end)
+		self.Name.anim1:SetScript("OnFinished", function(f)
+			self.Name:SetText(itemName);
+			self.Name:SetTextColor(bR, bG, bB);
+			self.Name.anim2:Play();
+			f:SetScript("OnFinished", nil);
+			After(0, function()
+				self:UpdateGradientSize();
+			end)
+		end)
+		self.ItemLevel.anim1:Play();
+		self.Name.anim1:Play();
+	else
+		self.ItemLevel:SetText(subText);
+		self.Name:SetText(itemName);
+		self.Name:SetTextColor(bR, bG, bB);
+		if itemIcon then
+			self.Icon:SetTexture(itemIcon);
+		end
+		self:UpdateGradientSize();
+	end
+
+	if self.slotID == 3 then
+		--shoulder
+		if secondarySourceID and secondarySourceID > 0 then
+			self:DisplayDirectionMark(true, itemQuality);
+			slotTable[2]:SetTransmogSourceID(secondarySourceID, secondarySourceID);
+		else
+			self:DisplayDirectionMark(false);
+		end
+	elseif self.slotID == 2 then
+		self:DisplayDirectionMark(appliedSourceID, itemQuality);
+	end
+end
 
 function NarciEquipmentSlotMixin:Refresh(forceRefresh)
 	local _;
@@ -1818,6 +1965,7 @@ function NarciEquipmentSlotMixin:Refresh(forceRefresh)
 			self.RuneSlot:Hide();
 			self.GradientBackground:Show();
 			local appliedSourceID, appliedVisualID, hasSecondaryAppearance = GetSlotVisualID(slotID);
+			self.sourceID = appliedSourceID;
 			if appliedVisualID > 0 then
 				local sourceInfo = C_TransmogCollection.GetSourceInfo(appliedSourceID);
 				itemName = sourceInfo and sourceInfo.name;
@@ -1827,74 +1975,13 @@ function NarciEquipmentSlotMixin:Refresh(forceRefresh)
 				end
 				self.itemID = sourceInfo.itemID;
 				itemQuality = sourceInfo.quality;
-				itemIcon = C_TransmogCollection.GetSourceIcon(appliedSourceID);
-				local _, _, _, hex = GetItemQualityColor(itemQuality);
-				_, self.hyperlink = GetItemInfo(sourceInfo.itemID);
 				self.itemModID = sourceInfo.itemModID;
+				itemIcon = C_TransmogCollection.GetSourceIcon(appliedSourceID);
 
-				local sourceType = sourceInfo.sourceType;
-				local difficulty;
 				local bonusID;
 
-				if sourceType == 1 then	--TRANSMOG_SOURCE_BOSS_DROP = 1
-					local drops = C_TransmogCollection.GetAppearanceSourceDrops(appliedSourceID);
-					if drops and drops[1] then
-						effectiveLvl = drops[1].encounter.." ".."|cFFFFD100"..drops[1].instance.."|r|CFFf8e694";
-						self.sourcePlainText = drops[1].encounter.." "..drops[1].instance;
-						
-						if sourceInfo.itemModID == 0 then 
-							difficulty = PLAYER_DIFFICULTY1;
-							bonusID = 3561;
-							self.hyperlink = "|c"..hex.."|Hitem:"..sourceInfo.itemID.."::::::::120::::2:356".."1"..":1476:|h|r";
-						elseif sourceInfo.itemModID == 1 then 
-							difficulty = PLAYER_DIFFICULTY2;
-							bonusID = 3562;
-							self.hyperlink = "|c"..hex.."|Hitem:"..sourceInfo.itemID.."::::::::120::::2:356".."2"..":1476:|h|r";
-						elseif sourceInfo.itemModID == 3 then 
-							difficulty = PLAYER_DIFFICULTY6;
-							bonusID = 3563;
-							self.hyperlink = "|c"..hex.."|Hitem:"..sourceInfo.itemID.."::::::::120::::2:356".."3"..":1476:|h|r";
-						elseif sourceInfo.itemModID == 4 then
-							difficulty = PLAYER_DIFFICULTY3;
-							bonusID = 3564;
-							self.hyperlink = "|c"..hex.."|Hitem:"..sourceInfo.itemID.."::::::::120::::2:356".."4"..":1476:|h|r";
-						end
+				effectiveLvl, self.sourcePlainText, self.hyperlink = GetFormattedSourceText(sourceInfo);
 
-						if difficulty then
-							effectiveLvl = effectiveLvl.." "..difficulty;
-							self.sourcePlainText = self.sourcePlainText.." "..difficulty;
-						end
-					end
-				else
-					if sourceType == 2 then --quest
-						effectiveLvl = TRANSMOG_SOURCE_2
-						if sourceInfo.itemModID == 3 then 
-							self.hyperlink = "|c"..hex.."|Hitem:"..sourceInfo.itemID.."::::::::120::::2:512".."6"..":1562:|h|r";
-							bonusID = 5126;
-						elseif sourceInfo.itemModID == 2 then 
-							self.hyperlink = "|c"..hex.."|Hitem:"..sourceInfo.itemID.."::::::::120::::2:512".."5"..":1562:|h|r";
-							bonusID = 5125;
-						elseif sourceInfo.itemModID == 1 then 
-							self.hyperlink = "|c"..hex.."|Hitem:"..sourceInfo.itemID.."::::::::120::::2:512".."4"..":1562:|h|r";
-							bonusID = 5124;
-						end
-					elseif sourceType == 3 then --vendor
-						effectiveLvl = TRANSMOG_SOURCE_3;
-					elseif sourceType == 4 then --world drop
-						effectiveLvl = TRANSMOG_SOURCE_4;
-					elseif sourceType == 5 then --achievement
-						effectiveLvl = TRANSMOG_SOURCE_5;
-					elseif sourceType == 6 then	--profession
-						effectiveLvl = TRANSMOG_SOURCE_6;
-					else
-						if itemQuality == 6 then
-							effectiveLvl = ITEM_QUALITY6_DESC;
-						elseif itemQuality == 5 then
-							effectiveLvl = ITEM_QUALITY5_DESC;
-						end
-					end
-					self.sourcePlainText = effectiveLvl;
-				end
 				if self.hyperlink then
 					_, self.hyperlink = GetItemInfo(self.hyperlink);																		--original hyperlink cannot be printed (workaround)
 				end
@@ -1932,6 +2019,7 @@ function NarciEquipmentSlotMixin:Refresh(forceRefresh)
 			self.Name:Show();
 			self.ItemLevel:Show();
 			self.GradientBackground:Show();
+			self.sourceID = nil;
 			self.hyperlink = nil;
 			self.sourcePlainText = nil;
 			--[[
@@ -2194,14 +2282,16 @@ function NarciEquipmentSlotMixin:Refresh(forceRefresh)
 			self.IconOverlay:SetTexture(itemIcon);
 			self.Icon.anim:Play();
 		end
-		self.ItemLevel.anim1:SetScript("OnFinished", function()
+		self.ItemLevel.anim1:SetScript("OnFinished", function(f)
 			self.ItemLevel:SetText(effectiveLvl);
 			self.ItemLevel.anim2:Play();
+			f:SetScript("OnFinished", nil);
 		end)
-		self.Name.anim1:SetScript("OnFinished", function()
+		self.Name.anim1:SetScript("OnFinished", function(f)
 			self.Name:SetText(itemName);
 			self.Name:SetTextColor(bR, bG, bB);
 			self.Name.anim2:Play();
+			f:SetScript("OnFinished", nil);
 			After(0, function()
 				self:UpdateGradientSize();
 			end)
@@ -2605,7 +2695,7 @@ SlotController.updateFrame:SetScript("OnUpdate", function(f, elapsed)
 	f.t = f.t + elapsed;
 	if f.t >= 0.05 then
 		f.t = 0;
-		if SlotController:Refresh( f.sequence[f.i], f.forceRefresh) then
+		if SlotController:Refresh(f.sequence[f.i], f.forceRefresh) then
 			f.i = f.i + 1;
 		else
 			f:Hide();
@@ -3143,6 +3233,7 @@ function NarciRadarChartMixin:UpdateColor()
 end
 
 local GetEffectiveCrit = Narci.GetEffectiveCrit;
+local GetCombatRating = GetCombatRating;
 
 function NarciRadarChartMixin:SetValue(c, h, m, v, manuallyInPutSum)
 	--c, h, m, v: Input manually or use combat ratings
@@ -5124,6 +5215,9 @@ end
 
 function NarciPhotoModeToolbarMixin:EnableMotion()
 	self.AutoHideContainer:Show();
+	if self.AutoHideContainer:IsMouseOver() then
+		self:SetAlpha(1);
+	end
 end
 
 function Narci_PhotoModeButton_OnClick(self, key)
@@ -5947,31 +6041,8 @@ end
 
 ----------------------------------------------------------------------
 function Narci_SetActiveBorderTexture()
-	local themeName = NarciAPI.GetBorderThemeName();
-	local MinimapButton = MiniButton;
 	local minimapBackgroundSize = 42;
-	local slotWidth, slotHeight, iconSize, slotShadow, runePlateVisible;
-	local borderSize;
-	if themeName == "Dark" then
-		slotWidth = 70;
-		slotHeight = 72;
-		iconSize = 50;
-		borderSize = 128;
-		runePlateVisible = false;
-	else
-		slotWidth = 64;
-		slotHeight = 68;
-		iconSize = 48;
-		borderSize = 64;
-		runePlateVisible = true;
-	end
 
-	for slotID, slotButton in pairs(slotTable) do
-		--slotButton.RuneSlot.Background:SetShown(runePlateVisible);
-		slotButton.Icon:SetSize(iconSize, iconSize);
-		slotButton:SetSize(slotWidth, slotHeight);
-		slotButton.Border:SetSize(borderSize, borderSize);
-	end
 	SlotController:LazyRefresh();
 
 	--Optimize this minimap button's radial offset
@@ -5992,7 +6063,7 @@ function Narci_SetActiveBorderTexture()
 		MapShapeUtil.cornerRadius = 10;
 	end
 
-	MinimapButton.Background:SetSize(minimapBackgroundSize, minimapBackgroundSize);	
+	MiniButton.Background:SetSize(minimapBackgroundSize, minimapBackgroundSize);
 end
 
 function Narci_GuideLineFrame_OnSizing(self, offset)

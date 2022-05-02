@@ -1,4 +1,5 @@
 local L = Narci.L;
+
 --NARCI_NEW_ENTRY_PREFIX..
 local TabNames = { 
     L["Interface"], L["Shortcuts"], NARCI_NEW_ENTRY_PREFIX..L["Item Tooltip"], L["Themes"], L["Effects"], L["Camera"], L["Transmog"],
@@ -6,21 +7,12 @@ local TabNames = {
 };  --Credits and About will be inserted later
 
 local FadeFrame = NarciFadeUI.Fade;
-local Color_Good = "|cff7cc576";     --124 197 118
-local Color_Good_r = 124/255;
-local Color_Good_g = 197/255;
-local Color_Good_b = 118/255;
-local Color_Bad = "|cffee3224";      --238 50 36
-local Color_Bad_r = 238/255;
-local Color_Bad_g = 50/255;
-local Color_Bad_b = 36/255;
-local Color_Alert = "|cfffced00";    --252 237 0
-local Color_Alert_r = 252/255;
-local Color_Alert_g = 237/255;
-local Color_Alert_b = 0;
+
+local COLOR_BAD = "|cffee3224";      --238 50 36
+
 local BIND_ACTION = "CLICK Narci_MinimapButton:LeftButton";
 _G["BINDING_NAME_"..BIND_ACTION] = "Open Narcissus Character Panel";
-local OptimizeBorderThickness = NarciAPI_OptimizeBorderThickness;
+
 local Narci_LetterboxAnimation = NarciAPI_LetterboxAnimation;
 local floor = math.floor;
 
@@ -263,146 +255,6 @@ local function DoubleTapSwitch_OnShow(self)
     self.Label:SetText(Text1);
 end
 
-
-local function ClearAllBinding()
-    local key1, key2 = GetBindingKey(BIND_ACTION);
-    if key1 then
-        SetBinding(key1, nil, 1)
-    end
-    if key2 then
-        SetBinding(key2, nil, 1)
-    end
-    SaveBindings(1);
-end
-
-local function ShouldConfirmKey(self)
-    local key = self.key;
-    if not key then
-        return;
-    end
-    if key == "SHIFT" or key=="ALT" or key=="CTRL" then
-        self.key = nil;
-        self.Value:SetText(NOT_BOUND);
-        self.Description:SetText(Color_Bad..NARCI_INVALID_KEY);
-        self.Highlight:SetColorTexture(Color_Bad_r, Color_Bad_g, Color_Bad_b);
-        return false;
-    else
-        self.key = key;
-        local action = GetBindingAction(key);
-        if action and action ~= "" and action ~= BIND_ACTION then
-            self.Description:SetText(Color_Alert..NARCI_OVERRIDE.." "..GetBindingName(action).." ?");
-            self.Highlight:SetColorTexture(Color_Alert_r, Color_Alert_g, Color_Alert_b);
-            return true;
-        else
-            ClearAllBinding();
-            if SetBinding(key, BIND_ACTION, 1) then
-                self.Description:SetText(Color_Good..KEY_BOUND);
-                self.Highlight:SetColorTexture(Color_Good_r, Color_Good_g, Color_Good_b);
-                self.ConfirmButton:Hide();
-                SaveBindings(1);    --account wide
-            else
-                self.Description:SetText(Color_Bad..ERROR_CAPS);
-                self.Highlight:SetColorTexture(Color_Bad_r, Color_Bad_g, Color_Bad_b);
-            end
-            return false;
-        end
-    end
-end
-
-local function ResetBindVisual(self)
-    self.Border:SetColorTexture(0, 0, 0);
-    self.Value:SetTextColor(1, 1, 1);
-    self.Value:SetShadowColor(0, 0, 0);
-    self.Value:SetShadowOffset(0.6, -0.6);
-    self:SetPropagateKeyboardInput(true)
-    self:SetScript("OnKeyDown", nil); 
-    self:SetScript("OnKeyUp", nil);
-    self.IsOn = false;
-end
-
-local BindingAlertTimer;
-local function ExitKeyBinding(self)
-    C_Timer.After(0.05, function()
-        ResetBindVisual(self)
-    end)
-    local shouldConfirm = ShouldConfirmKey(self);
-    UIFrameFadeIn(self.Highlight, 0.2, 0, 1);
-    UIFrameFadeIn(self.Description, 0.2, 0, 1);
-    
-    if not shouldConfirm then
-        BindingAlertTimer = C_Timer.NewTimer(4, function()
-            UIFrameFadeOut(self.Highlight, 0.5, self.Highlight:GetAlpha(), 0);
-            UIFrameFadeOut(self.Description, 0.5, self.Description:GetAlpha(), 0);
-            self.Value:SetText(GetBindingKey(BIND_ACTION) or NOT_BOUND); 
-        end)
-    else
-        self.ConfirmButton:Show();
-        BindingAlertTimer = C_Timer.NewTimer(6, function()
-            UIFrameFadeOut(self.Highlight, 0.5, self.Highlight:GetAlpha(), 0);
-            UIFrameFadeOut(self.Description, 0.5, self.Description:GetAlpha(), 0);
-            self.Value:SetText(GetBindingKey(BIND_ACTION) or NOT_BOUND)
-            self.ConfirmButton:Hide();
-        end)       
-    end
-end
-
-local function PrimaryKeybindingButton_OnKeydown(self, key)
-    if key == "ESCAPE" or key == "SPACE" or key == "ENTER"then
-        ExitKeyBinding(self);
-        return;
-    end
-    local KeyText;
-    if CreateKeyChordStringUsingMetaKeyState then   --Shadowlands
-        KeyText = CreateKeyChordStringUsingMetaKeyState(key);
-    else
-        KeyText = CreateKeyChordString(key);
-    end
-    self.Value:SetText(KeyText);
-    self.key = KeyText;
-    if not IsKeyPressIgnoredForBinding(key) then
-        ExitKeyBinding(self);
-    end
-end
-
-local function PrimaryKeybindingButton_OnClick(self, button)
-    if BindingAlertTimer then
-        BindingAlertTimer:Cancel();
-    end
-    if button == "RightButton" then
-        ClearAllBinding();
-        self.Value:SetText(NOT_BOUND);
-        self.key = nil;
-        self.Description:SetText(Color_Alert.."Hotkey disabled");
-        self.Highlight:SetColorTexture(Color_Alert_r, Color_Alert_g, Color_Alert_b);
-        ResetBindVisual(self)
-        UIFrameFadeIn(self.Highlight, 0.2, 0, 1);
-        UIFrameFadeIn(self.Description, 0.2, 0, 1);
-
-        BindingAlertTimer = C_Timer.NewTimer(2, function()
-            UIFrameFadeOut(self.Highlight, 0.5, self.Highlight:GetAlpha(), 0);
-            UIFrameFadeOut(self.Description, 0.5, self.Description:GetAlpha(), 0);    
-        end)
-        return;
-    end
-    self.IsOn = not self.IsOn;
-    if self.IsOn then
-        self.Border:SetColorTexture(0.9, 0.9, 0.9);
-        self.Value:SetTextColor(0, 0, 0);
-        self.Value:SetShadowColor(1, 1, 1);
-        self.Value:SetShadowOffset(0.6, -0.6);
-        self:SetPropagateKeyboardInput(false);
-        self:SetScript("OnKeyDown", PrimaryKeybindingButton_OnKeydown);
-        self:SetScript("OnKeyUp", function(self)
-            ExitKeyBinding(self)
-        end);
-    else
-        ExitKeyBinding(self)
-    end
-end
-
-local function PrimaryKeybindingButton_OnShow(self)
-    self.Value:SetText(GetBindingKey(BIND_ACTION) or NOT_BOUND);
-end
 
 local function SetUseEcapeButtonForExit(self, state)
     if state then
@@ -815,7 +667,7 @@ local Structure = {
         { name = "Space", type = "space", height = -16},
         { name = "HotkeyHeader", type = "header", localizedName = L["Hotkey"], },
         { name = "EnableDoubleTap", type = "checkbox", localizedName = L["Double Tap"], description = L["Double Tap Description"], onShowFunc = DoubleTapSwitch_OnShow},
-        { name = "HotkeyButton", type = "keybinding", localizedName = KEY_BINDING, onClickFunc = PrimaryKeybindingButton_OnClick, onShowFunc = PrimaryKeybindingButton_OnShow, action = BIND_ACTION},
+        { name = "HotkeyButton", type = "keybinding", localizedName = KEY_BINDING, externalAction = BIND_ACTION},
         { name = "UseEscapeButton", type = "checkbox", localizedName = L["Use Escape Button"], description = L["Use Escape Button Description1"], valueFunc = SetUseEcapeButtonForExit},
     }},
 
@@ -959,15 +811,14 @@ local function CreateSettingFrame(tabContainer)
                 widget = CreateFrame("Button", globalName, tab, "NarciBindingButtonTemplate");
                 tabHeight = tabHeight + 6;
                 widget:SetPoint("TOPLEFT", tab, "TOPLEFT", 168, -tabHeight);
-                widget:SetScript("OnClick", data.onClickFunc);
-                widget:SetScript("OnShow", data.onShowFunc);
                 widget.Label:SetText(data.localizedName);
-                if data.action then
-                    widget.action = data.action;
+                if data.externalAction then
+                    widget:SetBindingActionExternal(data.externalAction);
+                elseif data.internalAction then
+                    widget:SetBindingActionInternal(data.internalAction);
                 end
-                OptimizeBorderThickness(widget);
                 tabHeight = tabHeight + 36;
-                
+
             elseif type == "space" then
                 tabHeight = tabHeight + (data.height or 0);
             end
@@ -1366,7 +1217,7 @@ local function UpdateSelectedLanguage()
 
     if numEnabled == 0 then
         button.Description:SetText(button.singular);
-        enabledLanguages = Color_Bad.. "None";
+        enabledLanguages = COLOR_BAD.. "None";
     elseif numEnabled == 1 then
         button.Description:SetText(button.singular);
     else

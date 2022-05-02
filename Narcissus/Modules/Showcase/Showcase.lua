@@ -1,13 +1,12 @@
 local _, addon = ...
 
 local L = Narci.L;
-local TransmogDataProvider = addon.TransmogDataProvider;
+local TransmogDataProvider = addon.TransmogDataProvider;    --defined in Modules/DressingRoom/SlotFrame
 local GetModelOffsetZ = addon.GetModelOffsetZ;
 local UseCurrentClassBackground = addon.UseCurrentClassBackground;
 local UseCurrentRaceBackground = addon.UseCurrentRaceBackground;
 local UseModelBackgroundImage = addon.UseModelBackgroundImage;
 
---local GetSlotNameAndTexture = NarciAPI.GetSlotNameAndTexture;
 local FadeFrame = NarciFadeUI.Fade;
 local GetAnimationName = NarciAnimationInfo.GetOfficialName;
 
@@ -26,7 +25,6 @@ local PI2 = math.pi * 2;
 
 local ASPECT = 3/4;
 local FOV_VERTICAL = 0.6;
---local FOV_HORIZONTAL = 2*math.atan(math.tan(FOV_VERTICAL/2) * ASPECT);
 local FOV_DIAGONAL = FOV_VERTICAL * math.sqrt(1 + ASPECT^2);
 local TAN_FOV_V = math.tan(FOV_VERTICAL/2);
 local TAN_FOV_H;
@@ -42,6 +40,7 @@ local IMAGE_WIDTH = 800;
 local IMAGE_HEIGHT = 600;
 local MODEL_WIDTH_RATIO = 0.75; --width:height = 3:4
 
+local ACTOR_IS_MOUNT = false;
 local SHOW_ITEM_NAME = true;
 local NUM_DOUBLE_LINE_OBJECT = 0;
 local MAX_DOUBLE_LINE_OBJECT = 4;
@@ -56,7 +55,7 @@ local PA_SPACING = 12;
 
 local DEFAULT_CAM_DISTANCE = 4;
 local MIN_CAM_DISTANCE = 1;
-local MAX_CAM_DISTANCE = 6;
+local MAX_CAM_DISTANCE = 12;
 
 local LAST_IMAGE_SIZE_WITH_TEXT;
 local LAST_IMAGE_SIZE_NO_TEXT;
@@ -73,8 +72,9 @@ local min = math.min;
 local max = math.max;
 
 local DB;
-local MainFrame, ModelScene, ControlPanel, FadeOptionFrame, UtilityModel, Tooltip, DropDownPanel, TabSelection;
-local IDFrame, VariationButton, AnimationSlider;
+local MainFrame, ModelScene, ControlPanel, FadeOptionFrame, UtilityModel, Tooltip, DropDownPanel, TabSelection, SheatheButton, GroundShadow;
+local ActiveActor, PlayerActor, MountActor;
+local IDFrame, VariationButton, AnimationSlider, MountToggle;
 
 
 local function GetScreenAspectText(width, height)
@@ -324,7 +324,6 @@ function SourceCacher:AddToQueue(fontString, sourceID)
     table.insert(self.queue, {fontString, sourceID});
     self.t = 0;
     self:SetScript("OnUpdate", SourceCacher_OnUpdate);
-    --print("Queuing "..sourceID)
 end
 
 function SourceCacher:ProcessQueue()
@@ -453,6 +452,7 @@ end
 NarciShowcaseSheatheButtonMixin = {};
 
 function NarciShowcaseSheatheButtonMixin:OnLoad()
+    SheatheButton = self;
     self.labelText = WEAPON or "weapon";
     self.Icon:SetVertexColor(0.8, 0.8, 0.8);
     self:SetPropagateKeyboardInput(true);
@@ -472,7 +472,6 @@ end
 
 function NarciShowcaseSheatheButtonMixin:OnClick()
     ModelScene.actor:SheatheWeapon( not  ModelScene.actor:GetSheathed() );
-    self:UpdateIcon();
 end
 
 local function SheatheButton_OnKeyDown(self, key)
@@ -492,7 +491,6 @@ local function SheatheButton_OnKeyDown(self, key)
 end
 
 function NarciShowcaseSheatheButtonMixin:OnShow()
-    --self:UpdateIcon();
     local hotkey = GetBindingKey("TOGGLESHEATH");
     self.hotkey = hotkey;
     if hotkey then
@@ -553,7 +551,7 @@ function VariationButtonScripts.OnClick(self, button)
         end
     end
     SetUpSphereTexture(VARIATION_ID);
-    MainFrame.actor:TryAnimation(ANIMATION_ID);
+    ActiveActor:TryAnimation(ANIMATION_ID);
 end
 
 
@@ -588,7 +586,7 @@ local function TryNextID(direction)
     end
     IDFrame.EditBox:SetText(animationID, true);
     IDFrame.EditBox.AnimationName:Show();
-    MainFrame.actor:TryAnimation(animationID);
+    ActiveActor:TryAnimation(animationID);
     ANIMATION_ID = animationID;
 end
 
@@ -636,7 +634,7 @@ function EditBoxScripts.OnTextChanged(self, userInput)
     ANIMATION_ID = id;
     self.AnimationName:SetText(GetAnimationName(id))
     if userInput then
-        MainFrame.actor:TryAnimation(id);
+        ActiveActor:TryAnimation(id);
     end
 end
 
@@ -679,6 +677,14 @@ local function GetCameraPlaneIntersection(camX, camY, camZ, forwardX, forwardY, 
 	return camX + scalar*forwardX, camY + scalar*forwardY, camZ + scalar*forwardZ
 end
 
+local function PlaceMountAtGroundCenter()
+    --We don't want Mount to use its Z center for origin so we need to place it manually
+    local x, y, z = ModelScene:GetVisualGroundCenter();
+    local scale = MountActor:GetScale();
+    MountActor:SetPosition(0, 0, z/scale);
+    MountActor:UpdateMountShadow();
+end
+
 function NarciShowcaseModelSceneMixin:OnEnter()
     FadeFramecripts.OnEnter(FadeOptionFrame);
 end
@@ -696,7 +702,7 @@ function NarciShowcaseModelSceneMixin:OnMouseDown(button)
         self:ShowGuideLines(true);
         self.rightButtonDown = true;
     elseif button == "MiddleButton" then
-        self:ResetView();
+        self:ResetView(true);
     end
     self:StartUpdating();
 end
@@ -851,13 +857,19 @@ function NarciShowcaseModelSceneMixin:ShowGuideLines(state)
     end
 end
 
-function NarciShowcaseModelSceneMixin:ResetView()
-    self:SetCameraPosition(DEFAULT_CAM_DISTANCE, 0, 0);
-    self.actor:SetPosition(0, 0, self.actor.defaultY or 0);
-    self.actor:SetScale(1);
-    if self.actor:IsLoaded() then
-        self.actor:AdjustAlignment();
+function NarciShowcaseModelSceneMixin:ResetView(forceReset)
+    if not ACTOR_IS_MOUNT or forceReset then
+        self:SetCameraPosition(DEFAULT_CAM_DISTANCE, 0, 0);
+        self.actor:SetPosition(0, 0, self.actor.defaultY or 0);
+        self.actor:SetScale(1);
+        if self.actor:IsLoaded() then
+            self.actor:AdjustAlignment();
+            if ACTOR_IS_MOUNT then
+                PlaceMountAtGroundCenter();
+            end
+        end
     end
+    self.zooming = nil;
 end
 
 local function ModelScene_OnUpdate(self, elapsed)
@@ -867,8 +879,14 @@ local function ModelScene_OnUpdate(self, elapsed)
         hasAction = true;
         local deltaX, deltaY = GetCursorDelta();
         if deltaX ~= 0 then
-            local yaw = self.actor:GetYaw();
-            self.actor:SetYaw(yaw + deltaX * 0.026);
+            local yaw;
+            if ACTOR_IS_MOUNT then
+                yaw = MountActor:GetYaw();
+                MountActor:SetYaw(yaw + deltaX * 0.02); --0.026 when size is 800x600
+            else
+                yaw = self.actor:GetYaw();
+                self.actor:SetYaw(yaw + deltaX * 0.02);
+            end
         end
     end
 
@@ -878,7 +896,11 @@ local function ModelScene_OnUpdate(self, elapsed)
         local scale = self.actor.scale;
         local y = py - self.from3DY + self.fromActorY;
         local z = pz - self.from3DZ + self.fromActorZ;
-        self.actor:SetPosition(0, y/scale, z/scale);
+        if ACTOR_IS_MOUNT then
+            MountActor:SetPosition(0, y/scale, z/scale);
+        else
+            self.actor:SetPosition(0, y/scale, z/scale);
+        end
         local centerX = self:Project3DPointTo2D(0, y, z);
         self.GuideLineFrame.actorLine:SetPoint("BOTTOM", self, "BOTTOMLEFT", centerX, 0);
     end
@@ -891,17 +913,35 @@ local function ModelScene_OnUpdate(self, elapsed)
             self:SetCameraPosition(self.fromCamX, 0, 0)
         end
     end
-    
+
     if not hasAction then
         self:SetScript("OnUpdate", nil);
     end
 
     self.actor:UpdateGroundShadow();
+    if ACTOR_IS_MOUNT then
+        MountActor:UpdateMountShadow();
+    end
 end
 
 function NarciShowcaseModelSceneMixin:GetProjectedCursor3DPosition()
     local cursorX, cursorY = GetCursorPosition();
     local ratioH, ratioV = ConvertCursorToFrameCoord(cursorX, cursorY, self.frameCenterX, self.frameCenterY, self.frameHalfWidth, self.frameHalfHeight);
+    local camX, camY, camZ = self:GetCameraPosition();
+    local fx, fy, fz = self:GetCameraForward();
+    local rx, ry, rz = self:GetCameraRight();
+    local ux, uy, uz = self:GetCameraUp();
+    local forwardOffset = 1;
+    local rightOffset = -ratioH * TAN_FOV_H;
+    local upOffset = ratioV * TAN_FOV_V;
+    local rayFX, rayFY, rayFZ = forwardOffset*fx + rightOffset*rx + upOffset*ux, forwardOffset*fy + rightOffset*ry + upOffset*uy, forwardOffset*fz + rightOffset*rz + upOffset*uz;
+    local px, py, pz = GetCameraPlaneIntersection(camX, camY, camZ, rayFX, rayFY, rayFZ);
+    return px, py, pz
+end
+
+function NarciShowcaseModelSceneMixin:GetVisualGroundCenter()
+    local ratioH = 0;
+    local ratioV = -0.8;
     local camX, camY, camZ = self:GetCameraPosition();
     local fx, fy, fz = self:GetCameraForward();
     local rx, ry, rz = self:GetCameraRight();
@@ -1104,19 +1144,6 @@ function OutlineToggleScripts.OnClick(self)
 end
 
 
-local TopLevelToggleScripts = {};
-
-function TopLevelToggleScripts.OnEnter(self)
-    self.Icon:SetVertexColor(1, 1, 1);
-    local tooltipText = string.format("OBS Settings:\nVideo Resolution: %sx%s\nCrop Filter: X:%s, Y:%s", IMAGE_WIDTH, IMAGE_HEIGHT, w, h);
-    SetUpTooltipText(self, tooltipText, 8);
-end
-
-function TopLevelToggleScripts.OnLeave(self)
-    self.Icon:SetVertexColor(0.5, 0.5, 0.5);
-    SetUpTooltipText();
-end
-
 ---------------------Background Options---------------------
 
 local function BGNode_OnClick(self)
@@ -1126,7 +1153,7 @@ local function BGNode_OnClick(self)
         MainFrame.ModelScene.BackdropPreview:Hide();
         MainFrame.ModelScene.Vignetting:Show();
         MainFrame.TextFrame.Divider:Hide();
-        ModelScene.actor.GroundShadow:Show();
+        GroundShadow:Show();
         local typeID = DB.BackgroundImageType;
         if typeID and self.SubFrame.Nodes[typeID] then
             self.SubFrame.Nodes[typeID]:Click();
@@ -1139,7 +1166,7 @@ local function BGNode_OnClick(self)
         MainFrame.ModelScene.BackdropPreview:Hide();
         MainFrame.ModelScene.Vignetting:Show();
         MainFrame.TextFrame.Divider:Hide();
-        ModelScene.actor.GroundShadow:Show();
+        GroundShadow:Show();
     else
         --Color
         MainFrame.ModelScene.Backdrop:Show();
@@ -1168,11 +1195,11 @@ end
 
 local function ColorNode_OnClick(self)
     if self.id == 1 then
-        ModelScene.actor.GroundShadow:Show();
+        GroundShadow:Show();
         MainFrame.TextFrame.Divider:Show();
         ModelScene.Backdrop:SetColorTexture(0.1, 0.1, 0.1);
     else
-        ModelScene.actor.GroundShadow:Hide();
+        GroundShadow:Hide();
         MainFrame.TextFrame.Divider:Hide();
         if self.id == 2 then
             ModelScene.Backdrop:SetColorTexture(1, 0, 0);
@@ -1409,6 +1436,90 @@ local function CreateBackgroundOptions(tab)
     end
 end
 
+local function UpdateMountActor(resetModel)
+    local mountID;
+
+    if MountJournal and MountJournal:IsVisible() and MountJournal.selectedMountID then
+        mountID = MountJournal.selectedMountID;
+    elseif IsMounted() then
+        local UnitBuff = UnitBuff;
+        local GetMountFromSpell = C_MountJournal.GetMountFromSpell;
+        local i = 1;
+        local _, count, duration;
+        local spellID = 0;
+        while spellID do
+            _, _, count, _, duration, _, _, _, _, spellID = UnitBuff("player", i, "PLAYER");
+            if spellID then
+                if count == 0 and duration == 0 then
+                    mountID = GetMountFromSpell(spellID);
+                    if mountID then
+                        break
+                    else
+                        i = i + 1;
+                    end
+                else
+                    i = i + 1;
+                end
+            else
+                break
+            end
+        end
+    else
+        mountID = MainFrame.mountID;
+    end
+
+    if mountID == MainFrame.mountID and not resetModel then
+        return
+    end
+
+    if mountID and mountID ~= 0 then
+        local creatureDisplayID, _, _, isSelfMount, _, modelSceneID, animID, spellVisualKitID, disablePlayerMountPreview = C_MountJournal.GetMountInfoExtraByID(mountID);
+
+        if not MountActor then
+            MountActor = ModelScene:CreateActor(nil, "NarciAutoFittingActorTemplate");
+            MountActor.actorType = "mount";
+            MountActor:SetUseCenterForOrigin(false, false, false);
+            MountActor:SetPosition(0, 0, 0);
+            --MountActor:SetParticleOverrideScale(0);
+        end
+
+        if resetModel then
+            MountActor:ClearModel();
+        end
+
+        MountActor:Show();
+        MountActor:SetYaw(0);
+        MountActor:SetModelByCreatureDisplayID(creatureDisplayID);
+        MountActor.creatureName = C_MountJournal.GetMountInfoByID(mountID);
+
+        if (isSelfMount) then
+            MountActor:SetAnimationBlendOperation(1);   --LE_MODEL_BLEND_OPERATION_NONE
+            MountActor:SetAnimation(618);
+        else
+            MountActor:SetAnimationBlendOperation(2);    --LE_MODEL_BLEND_OPERATION_ANIM
+            MountActor:SetAnimation(0);
+        end
+
+        ANIMATION_ID = 0;
+        IDFrame.EditBox:SetText(0);
+
+        local calcMountScale = MountActor:CalculateMountScale(PlayerActor);
+        local inverseScale = 1 / calcMountScale;
+        PlayerActor:SetScale( inverseScale );
+        PlayerActor:SheatheWeapon(true);
+        PlayerActor:SetYaw(0);
+        PlayerActor:SetUseCenterForOrigin(false, false, false);
+        MountActor:AttachToMount(PlayerActor, animID, spellVisualKitID);    --fun fact: a new player model is generated and attached to the mount
+
+        ACTOR_IS_MOUNT = true;
+        ModelScene.actor = MountActor;
+        ActiveActor = MountActor;
+        MainFrame.mountID = mountID;
+    else
+
+    end
+end
+
 ------------------------------------------------------------
 
 
@@ -1449,6 +1560,8 @@ function NarciOutfitShowcaseMixin:Init()
     TabSelection = self.ControlPanel.NavBar.TabSelection;
     TabSelection.x = 0;
 
+    GroundShadow = self.ModelScene.GroundShadow;
+
     NarciAPI.NineSliceUtil.SetUpBackdrop(Tooltip, "rectR6");
     NarciAPI.NineSliceUtil.SetBackdropColor(Tooltip, 0.1, 0.1, 0.1);
     NarciAPI.NineSliceUtil.SetUpBorder(Tooltip, "shadowR6");
@@ -1463,12 +1576,11 @@ function NarciOutfitShowcaseMixin:Init()
 
     MixScripts(DropDownPanel, DropDownPanelScripts);
 
-    self.actor = ModelScene:CreateActor(nil, "NarciAutoFittingActorTemplate");
-    self.actor:SetUseCenterForOrigin(false, false, true);
-    self.actor:SetPosition(0, 0, 0);
-    self.actor.GroundShadow = self.ModelScene.GroundShadow;
-
-    ModelScene.actor = self.actor;
+    PlayerActor = ModelScene:CreateActor(nil, "NarciAutoFittingActorTemplate");
+    PlayerActor:SetUseCenterForOrigin(false, false, true);
+    PlayerActor:SetPosition(0, 0, 0);
+    ActiveActor = PlayerActor;
+    ModelScene.actor = PlayerActor;
     ModelScene:SetCameraPosition(DEFAULT_CAM_DISTANCE, 0, 0);
     ModelScene:SetCameraOrientationByYawPitchRoll(PI, 0, 0);
     ModelScene:SetCameraFieldOfView(FOV_DIAGONAL);
@@ -1660,34 +1772,44 @@ end
 function NarciOutfitShowcaseMixin:SyncModel()
     --retrieve the outfit data from dressing room
     --/run NarciOutfitShowcase:SyncModel()
-    local isSheathed = self.actor:GetSheathed();
-    self.actor:SetScale(1);
-    self.actor:SetModelByUnit("player");
-    self.actor.bowData = nil;
+    local isSheathed = PlayerActor:GetSheathed();
+    PlayerActor:SetScale(1);
+    PlayerActor:SetModelByUnit("player", isSheathed);
+    PlayerActor.bowData = nil;
 
-    local playerActor;
+    local sourceActor;
     if WardrobeTransmogFrame and WardrobeTransmogFrame:IsVisible() and WardrobeTransmogFrame.ModelScene then
-        playerActor = WardrobeTransmogFrame.ModelScene:GetPlayerActor();
+        sourceActor = WardrobeTransmogFrame.ModelScene:GetPlayerActor();
         self:UnregisterEvent("INSPECT_READY");
     elseif DressUpFrame:IsShown() then
-        playerActor = DressUpFrame.ModelScene:GetPlayerActor();
+        sourceActor = DressUpFrame.ModelScene:GetPlayerActor();
         self:UnregisterEvent("INSPECT_READY");
     else
-        playerActor = self.actor;
+        sourceActor = PlayerActor;
         self:RegisterEvent("INSPECT_READY");
         NotifyInspect("player");  --it seems they fixed the artifact issue
     end
-    local transmogInfoList = playerActor and playerActor:GetItemTransmogInfoList();
+    local transmogInfoList = sourceActor and sourceActor:GetItemTransmogInfoList();
     if transmogInfoList then
-        self.actor:Undress();
+        PlayerActor:Undress();
         for slotID, info in pairs(transmogInfoList) do
-            self.actor:SetItemTransmogInfo(info, slotID);
+            if slotID == 16 or slotID == 17 then
+                local transmogInfo = PlayerActor:GetItemTransmogInfo(slotID);
+                if not (transmogInfo and transmogInfo:IsEqual(info)) then
+                    PlayerActor:SetItemTransmogInfo(info, slotID);
+                end
+            else
+                PlayerActor:SetItemTransmogInfo(info, slotID);
+            end
         end
     else
         return
     end
-    self.actor:SetSheathed(isSheathed);
-    FadeOptionFrame.SheatheButton:UpdateIcon();
+    PlayerActor:SheatheWeapon(isSheathed);
+
+    if self.mountMode then
+        UpdateMountActor(true);
+    end
 
     self:UpdateItemText(transmogInfoList);
 end
@@ -1708,6 +1830,16 @@ function NarciOutfitShowcaseMixin:UpdateItemText(transmogInfoList)
             fontString:SetItemTextBySlotInfo(slotID, transmogInfoList[slotID]);
         end
     end
+
+    --[[
+    if self.mountMode and ACTOR_IS_MOUNT then
+        if MountActor.creatureName then
+            fontString = ItemTexts:Acquire();
+            fontString:SetItemText(MountActor.creatureName);
+        end
+    end
+    --]]
+
     self:UpdateAlignment();
 end
 
@@ -1772,7 +1904,7 @@ function NarciOutfitShowcaseMixin:OnDisplaySizeChanged(resetCamera)
     --Screen resolution / Main frame size changed
     self:UpdateSize(resetCamera);
     self:UpdateAlignment();
-    self.actor:UpdateGroundShadow();
+    PlayerActor:UpdateGroundShadow();
     self:RearangeControlPanel();
 end
 
@@ -1793,6 +1925,8 @@ function NarciOutfitShowcaseMixin:OnEvent(event, ...)
         end
     elseif event == "PLAYER_LOGOUT" then
         self:OnHide();
+    elseif event == "PLAYER_MOUNT_DISPLAY_CHANGED" then
+        UpdateMountActor();
     end
 end
 
@@ -1822,6 +1956,9 @@ function NarciOutfitShowcaseMixin:UpdateAlignment()
             lastObject = object;
         end
     end
+
+    if not firstObject then return end
+
     local textHeight = firstObject:GetTop() - lastObject:GetBottom();
     local frameWidth, frameHeight = self.TextFrame:GetSize();
     firstObject:ClearAllPoints();
@@ -1832,7 +1969,7 @@ end
 function NarciOutfitShowcaseMixin:SetModelFromTarget()
     local unit = "target";
     if UnitIsPlayer(unit) then
-        self.actor:SetModelByUnit(unit);
+        PlayerActor:SetModelByUnit(unit);
     end
 end
 
@@ -1842,13 +1979,13 @@ end
 
 local function Turntable_OnUpdate(self, elapsed)
     self.yaw = self.yaw + elapsed * PI2 * ROTATION_PERIOD;
-    MainFrame.actor:SetYaw(self.yaw);
+    ActiveActor:SetYaw(self.yaw);
 end
 
 function NarciOutfitShowcaseMixin:SpinActor(state)
     state = state and self:IsVisible();
     if state then
-        self.yaw = self.actor:GetYaw();
+        self.yaw = ActiveActor:GetYaw();
         self:SetScript("OnUpdate", Turntable_OnUpdate);
         FadeOptionFrame.SpinButton:FadeOut();
     else
@@ -1867,9 +2004,9 @@ function NarciOutfitShowcaseMixin:OnHide()
     end
     self:Hide();
     self:SpinActor(false);
-    self.actor:SetYaw(0);
+    PlayerActor:SetYaw(0);
     self:UnregisterEvent("PLAYER_LOGOUT");
-
+    self:UnregisterEvent("PLAYER_MOUNT_DISPLAY_CHANGED");
     if self.dressingRoomButton then
         self.dressingRoomButton.Icon:SetTexCoord(0.5, 0.75, 0.5, 0.75);
     end
@@ -1979,12 +2116,35 @@ function NarciOutfitShowcaseMixin:ShowItemText(state)
     DB.ShowItemName = state;
 end
 
-
 function NarciOutfitShowcaseMixin:ShowTab(id)
     self.ControlPanel.AnimationTab:SetShown(id == 1);
     self.ControlPanel.LayoutTab:SetShown(id == 2);
     self.ControlPanel.QualityTab:SetShown(id == 3);
     self.ControlPanel.BackgroundTab:SetShown(id == 4);
+end
+
+function NarciOutfitShowcaseMixin:SetMountMode(state)
+    self.mountMode = state;
+    if state then
+        self:RegisterEvent("PLAYER_MOUNT_DISPLAY_CHANGED");
+        UpdateMountActor();
+    else
+        self:UnregisterEvent("PLAYER_MOUNT_DISPLAY_CHANGED");
+        self.mountID = nil;
+        if ACTOR_IS_MOUNT then
+            ACTOR_IS_MOUNT = false;
+            PlayerActor:SetUseCenterForOrigin(false, false, true);
+            PlayerActor:ResetAnimation();
+            MountActor:Hide();
+            MountActor:ClearModel();
+            ModelScene.actor = PlayerActor;
+            ActiveActor = PlayerActor;
+        end
+        ANIMATION_ID = 0;
+        IDFrame.EditBox:SetText(0);
+    end
+    MainFrame:SyncModel();
+    MountToggle:UpdateIcon();
 end
 
 
@@ -2028,7 +2188,14 @@ end
 
 function NarciAutoFittingActorMixin:PauseAtFrame(millisecond)
     self.isPlaying = false;
-    self:SetAnimation(ANIMATION_ID, VARIATION_ID, 1, millisecond*0.001);
+    self.f = millisecond*0.001;
+    self:SetAnimation(ANIMATION_ID, VARIATION_ID, 1, self.f);
+    self:SetPaused(true);
+end
+
+function NarciAutoFittingActorMixin:ResetAnimation()
+    self.isPlaying = false;
+    self:SetAnimation(ANIMATION_ID, VARIATION_ID, 1, self.f or 0);
     self:SetPaused(true);
 end
 
@@ -2037,8 +2204,8 @@ function NarciAutoFittingActorMixin:UpdateGroundShadow()
     x, y, z = x*self.scale, y*self.scale, z*self.scale;
     local feetX, feetY = self.parentScene:Project3DPointTo2D(x, y, z + self.feetZ);
 
-    self.GroundShadow:ClearAllPoints();
-    self.GroundShadow:SetPoint("CENTER", self.parentScene, "BOTTOMLEFT", feetX, feetY);
+    GroundShadow:ClearAllPoints();
+    GroundShadow:SetPoint("CENTER", self.parentScene, "BOTTOMLEFT", feetX, feetY);
     local leftX = self.parentScene:Project3DPointTo2D(x, y + self.leftX, z + self.feetZ);
     local rightX = self.parentScene:Project3DPointTo2D(x, y + self.rightX, z + self.feetZ);
     if not (leftX and rightX) then
@@ -2048,7 +2215,26 @@ function NarciAutoFittingActorMixin:UpdateGroundShadow()
     if width < 0 then
         width = -width;
     end
-    self.GroundShadow:SetSize(width, 0.5*width);
+    GroundShadow:SetSize(width, 0.5*width);
+end
+
+function NarciAutoFittingActorMixin:UpdateMountShadow()
+    local x, y, z = self:GetPosition();
+    x, y, z = x*self.scale, y*self.scale, z*self.scale;
+    local feetX, feetY = self.parentScene:Project3DPointTo2D(x, y, z);
+
+    GroundShadow:ClearAllPoints();
+    GroundShadow:SetPoint("CENTER", self.parentScene, "BOTTOMLEFT", feetX, feetY);
+    local leftX = self.parentScene:Project3DPointTo2D(x, y - self.averageSpan, 0);
+    local rightX = self.parentScene:Project3DPointTo2D(x, y + self.averageSpan, 0);
+    if not (leftX and rightX) then
+        return
+    end
+    local width = leftX - rightX;
+    if width < 0 then
+        width = -width;
+    end
+    GroundShadow:SetSize(width, 0.5*width);
 end
 
 function NarciAutoFittingActorMixin:AdjustAlignment()
@@ -2060,6 +2246,11 @@ function NarciAutoFittingActorMixin:AdjustAlignment()
     local depth, width, height = d - a, e - b, f - c;
     --print(depth, width, height)
     self.width = width;
+
+    self.averageSpan = (depth + width) * 0.2;   --used to calculate shadow size
+    if self.averageSpan > 0.8 then
+        self.averageSpan = 0.8;
+    end
 
     d = depth*0.5;
     a = -d;
@@ -2136,6 +2327,11 @@ function NarciAutoFittingActorMixin:OnModelLoaded()
     self:SetPosition(0, 0, self.defaultY);
     self:AdjustAlignment();
     self:SetPaused(true);
+    AnimationSlider:Reset();
+
+    if self.actorType == "mount" then
+        PlaceMountAtGroundCenter();
+    end
 end
 
 
@@ -2149,6 +2345,7 @@ function NarciAutoFittingActorMixin:SheatheWeapon(state)
             self:UndressSlot(16);
         end
     end
+    SheatheButton:UpdateIcon();
 end
 
 --/run NarciOutfitShowcase:SetModelFromTarget()
@@ -2218,9 +2415,12 @@ function NarciShowcaseItemTextMixin:SetItemTextBySlotInfo(slotID, transmogInfo)
                 ModelScene.actor:UndressSlot(16);
                 ModelScene.actor:SetItemTransmogInfo(transmogInfo, 17);
             else
-                ModelScene.actor:SetItemTransmogInfo(transmogInfo, slotID);
+                local currentInfo = PlayerActor:GetItemTransmogInfo(slotID);
+                if not (currentInfo and currentInfo:IsEqual(transmogInfo)) then
+                    PlayerActor:SetItemTransmogInfo(transmogInfo, slotID);
+                end
             end
-            
+
             --Weapons
             sourceID = transmogInfo.illusionID;
             if sourceID > 0 and sourceID ~= 5360 then    --0 ~ Constants.Transmog.NoTransmogID / 5360 ~ Hide Weapon Enchant
@@ -2460,4 +2660,39 @@ end
 function NarciShowcaseNavButtonMixin:SetButtonText(text)
     self.ButtonText:SetText(text);
     self:SetWidth( math.max(self.ButtonText:GetWidth() + 8, 48) );
+end
+
+
+NarciShowcaseMountToggleMixin = {};
+
+function NarciShowcaseMountToggleMixin:OnLoad()
+    MountToggle = self;
+end
+
+function NarciShowcaseMountToggleMixin:OnEnter()
+    self.Icon:SetVertexColor(1, 1, 1);
+    local tooltipText = (MainFrame.mountMode and L["Hide Mount"] or L["Show Mount"]);
+    SetUpTooltipText(self, tooltipText, 8);
+end
+
+function NarciShowcaseMountToggleMixin:OnLeave()
+    if not self.isOn then
+        self.Icon:SetVertexColor(0.5, 0.5, 0.5);
+    end
+    SetUpTooltipText();
+end
+
+function NarciShowcaseMountToggleMixin:OnClick()
+    MainFrame:SetMountMode(not MainFrame.mountMode);
+    SetUpTooltipText();
+end
+
+function NarciShowcaseMountToggleMixin:UpdateIcon()
+    if MainFrame.mountMode then
+        self.Icon:SetTexCoord(0.5, 1, 0, 1);
+        self.isOn = true;
+    else
+        self.Icon:SetTexCoord(0, 0.5, 0, 1);
+        self.isOn = nil;
+    end
 end

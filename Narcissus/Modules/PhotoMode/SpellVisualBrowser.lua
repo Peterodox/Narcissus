@@ -78,7 +78,6 @@ end
 -------------------------------------------
 local AnimationContariner = CreateFrame("Frame");   --Root
 local pi = math.pi;
-local min = math.min;
 local max = math.max;
 local sin = math.sin;
 local cos = math.cos;

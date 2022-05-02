@@ -161,7 +161,7 @@
 		</Scripts>
 	</Frame>
 
-	<Frame name="NarciLineBorderTemplate" virtual="true" useParentLevel="true" parentKey="Border" mixin="NarciLineBorderMixin">
+	<Frame name="NarciLineBorderTemplate" virtual="true" mixin="NarciLineBorderMixin">
 		<Anchors>
 			<Anchor point="TOPLEFT" relativeKey="$parent" relativePoint="TOPLEFT"/>
 			<Anchor point="BOTTOMRIGHT" relativeKey="$parent" relativePoint="BOTTOMRIGHT"/>
@@ -472,7 +472,7 @@
             <Color r="0" g="0" b="0" a="0.0"/>
 		</ThumbTexture>
 		<Frames>
-			<Frame inherits="NarciLineBorderTemplate"/>
+			<Frame inherits="NarciLineBorderTemplate" parentKey="Border" useParentLevel="true"/>
 		</Frames>
 		<Layers>
 			<Layer level="BACKGROUND" textureSubLevel="1">
@@ -781,7 +781,7 @@
 
 	<Button name="NarciConfirmButtonTemplate" hidden="true" virtual="true">
 		<Size>
-			<AbsDimension x="16" y="16"/>
+			<AbsDimension x="14" y="14"/>
 		</Size>
 		<HitRectInsets>
 			<AbsInset left="-4" right="-4" top="-4" bottom="-4"/>
@@ -823,50 +823,29 @@
 				self.Background.bling:Play();
 			</OnLeave>
 			<OnClick>
-				local action = self:GetParent().action;
-				local key = self:GetParent().key;
+				local action = self.parentObject.actionName;
+				local key = self.parentObject.key;
 				if action and key then
 					if SetBinding(key, action, 1) then
-						local Color_Good_r = 124/255;
-						local Color_Good_g = 197/255;
-						local Color_Good_b = 118/255;
-						self:GetParent().Description:SetText("|cff7cc576"..KEY_BOUND)
-						self:GetParent().Highlight:SetColorTexture(Color_Good_r, Color_Good_g, Color_Good_b)
-						SaveBindings(1);    --account wide
-						self:Hide();
+						self.parentObject:VerifyKey(true);
 					end
 				end
 			</OnClick>
 		</Scripts>
 	</Button>
 
-	<Button name="NarciBindingButtonTemplate" virtual="true" registerForClicks="LeftButtonUp, RightButtonUp">
+	<Button name="NarciBindingButtonTemplate" virtual="true" registerForClicks="LeftButtonUp, RightButtonUp" mixin="NarciGenericKeyBindingButtonMixin">
 		<Size x="120" y="16"/>
 		<HitRectInsets>
 			<AbsInset left="-4" right="-4" top="-4" bottom="-4"/>
 		</HitRectInsets>
+		<PushedTextOffset>
+			<AbsDimension x="0" y="-0.8"/>
+		</PushedTextOffset>
 		<Layers>
 			<Layer level="BACKGROUND" textureSubLevel="1">
 				<Texture setAllPoints="true" parentKey="Background">
-					<Color r="0.3" g="0.3" b="0.3" a="1"/>
-				</Texture>
-			</Layer>
-			<Layer level="BACKGROUND" textureSubLevel="2">
-				<Texture setAllPoints="true" parentKey="Highlight" Alpha="0">
-					<Color r="1" g="1" b="1" a="1"/>
-				</Texture>
-			</Layer>
-			<Layer level="BACKGROUND" textureSubLevel="3">
-				<Texture setAllPoints="true" parentKey="Border">
-					<Color r="0" g="0" b="0" a="0.9"/>
-					<Gradient orientation="VERTICAL">
-						<MinColor a="1" r="0.8" g="0.8" b="0.8"/>
-						<MaxColor a="1" r="1" g="1" b="1"/>
-					</Gradient>
-					<Anchors>
-						<Anchor point="TOPLEFT" relativePoint="TOPLEFT" x="1" y="-1"/>
-						<Anchor point="BOTTOMRIGHT" relativePoint="BOTTOMRIGHT" x="-1" y="1"/>
-					</Anchors>
+					<Color r="0" g="0" b="0" a="1"/>
 				</Texture>
 			</Layer>
 			<Layer level="OVERLAY" textureSubLevel="4">
@@ -876,24 +855,9 @@
 						<Anchor point="RIGHT" relativeKey="$parent" relativePoint="LEFT" x="-8" y="0"/>
 					</Anchors>
 				</FontString>
-				<FontString inherits="NarciNonInteractiveFont" justifyH="LEFT" justifyV="TOP" parentKey="Description" ignoreParentScale="true" Alpha="0" spacing="2">
-					<Size x="170" y="0"/>
-					<Anchors>
-						<Anchor point="TOPLEFT" relativeKey="$parent" relativePoint="BOTTOMLEFT" x="0" y="-6"/>
-					</Anchors>
-				</FontString>
-			</Layer>
-			<Layer level="BACKGROUND" textureSubLevel="4">
-				<Texture setAllPoints="true" parentKey="DescriptionBackground">
-					<Color r="0" g="0" b="0" a="0"/>
-					<Anchors>
-						<Anchor point="TOPLEFT" relativeKey="$parent.Description" relativePoint="TOPLEFT" x="2" y="-2"/>
-						<Anchor point="BOTTOMRIGHT" relativeKey="$parent.Description" relativePoint="BOTTOMRIGHT" x="-2" y="2"/>
-					</Anchors>
-				</Texture>
 			</Layer>
 		</Layers>
-		<ButtonText inherits="NarciPrefFontWhiteMild" justifyH="CENTER" justifyV="MIDDLE" parentKey="Value" text="NOT_BOUND">
+		<ButtonText inherits="NarciPrefFontWhiteMild" justifyH="CENTER" justifyV="MIDDLE" parentKey="ButtonText" text="NOT_BOUND">
 			<Size x="0" y="0"/>
 			<Color r="1" g="1" b="1"/>
 			<Anchors>
@@ -901,6 +865,8 @@
 			</Anchors>
 		</ButtonText>
 		<Frames>
+			<Frame inherits="NarciLineBorderTemplate" parentKey="Border" useParentLevel="true"/>
+
 			<Button parentKey="ConfirmButton" inherits="NarciConfirmButtonTemplate">
 				<Size>
 					<AbsDimension x="14" y="14"/>
@@ -911,33 +877,11 @@
 			</Button>
 		</Frames>
 		<Scripts>
-			<OnLoad>
-				self.isOn = false;
-			</OnLoad>
-			<OnEnter>
-				self.Background:SetColorTexture(1, 1, 1);
-			</OnEnter>
-			<OnLeave>
-				self.Background:SetColorTexture(0.3, 0.3, 0.3);
-			</OnLeave>
-			<OnHide>
-				self.Description:SetAlpha(0);
-				self.DescriptionBackground:SetAlpha(0);
-				self.Background:SetColorTexture(0.3, 0.3, 0.3);
-				self.ConfirmButton:Hide();
-			</OnHide>
-		</Scripts>
-	</Button>
-
-	<Button name="NarciInternalKeyBindingButtonTemplate" inherits="NarciBindingButtonTemplate" mixin="NarciGenericKeyBindingButtonMixin" virtual="true">
-		<Animations>
-			<AnimationGroup parentKey="Timer">
-				<Scale duration="1.7" order="1"/>
-			</AnimationGroup>
-		</Animations>
-		<Scripts>
-			<OnShow method="GetBindingKey"/>
+			<OnLoad method="OnLoad"/>
+			<OnEnter method="OnEnter"/>
+			<OnLeave method="OnLeave"/>
 			<OnClick method="OnClick"/>
+			<OnShow method="OnShow"/>
 			<OnHide method="OnHide"/>
 		</Scripts>
 	</Button>
@@ -2773,7 +2717,7 @@
 	<EditBox name="NarciResponsiveEditBoxTemplate" autoFocus="false" inherits="NarciFrameBorderTemplate" mixin="NarciResponsiveClipboardMixin" virtual="true">
 		<KeyValues>
 			<KeyValue key="cornerRadius" value="4" type="number"/>
-			<KeyValue key="isSubFrame" value="true" type="bool"/>
+			<KeyValue key="isSubFrame" value="true" type="boolean"/>
 		</KeyValues>
 		<TextInsets>
 			<AbsInset left="16" right="16" top="16" bottom="16"/>
@@ -2799,7 +2743,7 @@
 	<Frame name="NarciScrollEditBoxTemplate" inherits="NarciFrameBorderTemplate" mixin="NarciScrollEditBoxMixin" virtual="true">
 		<KeyValues>
 			<KeyValue key="cornerRadius" value="4" type="number"/>
-			<KeyValue key="isSubFrame" value="true" type="bool"/>
+			<KeyValue key="isSubFrame" value="true" type="boolean"/>
 		</KeyValues>
 		<HitRectInsets>
 			<AbsInset left="8" right="8" top="8" bottom="8"/>
@@ -2858,7 +2802,7 @@
 		<KeyValues>
 			<KeyValue key="swipeRadius" value="36" type="number"/>
 			<KeyValue key="numPolygonSides" value="0" type="number"/>
-			<KeyValue key="keepOnHide" value="false" type="bool"/>
+			<KeyValue key="keepOnHide" value="false" type="boolean"/>
 		</KeyValues>
 		<Layers>
 			<Layer levle="OVERLAY">
@@ -2879,8 +2823,8 @@
 
 	<Frame name="NarciAutoCloseFrameTemplate" mixin="NarciAutoCloseFrameMixin" hidden="true" virtual="true">
 		<KeyValues>
-			<KeyValue key="autoClose" value="true" type="bool"/>
-			<!--KeyValue key="setParentObjectManually" value="true" type="bool"/-->
+			<KeyValue key="autoClose" value="true" type="boolean"/>
+			<!--KeyValue key="setParentObjectManually" value="true" type="boolean"/-->
 		</KeyValues>
 		<Animations>
 			<AnimationGroup parentKey="AutoCloseTimer">

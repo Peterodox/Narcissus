@@ -95,7 +95,7 @@ end
 
 function NarciAchievementNavigationButtonMixin:StartOnUpdate()
     self.level = 0;
-    self.t = 0;
+    self.t = 0.5;
     self.threshold = 1;
     self:SetScript("OnUpdate", NavButton_OnUpdate);
 end

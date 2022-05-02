@@ -1,0 +1,104 @@
+<Ui xsi:schemaLocation="http://www.blizzard.com/wow/ui/..\FrameXML\UI.xsd">
+	<Script file="SharedUI.lua"/>
+
+    <Button name="NarciPhotoModeButtonTemplate" virtual="true">
+        <Size x="18" y="18"/>
+        <KeyValues>
+            <KeyValue key="shape" value="round" type="string"/>
+            <KeyValue key="brightness" value="0.25" type="number"/>
+        </KeyValues>
+        <Layers>
+            <Layer level="Background">
+                <Texture parentKey="Background" file="Interface\AddOns\Narcissus\Art\Modules\PhotoMode\Shared\Button" hidden="true">
+                    <Size x="34" y="34"/>
+                    <TexCoords left="0" right="0.125" top="0.5" bottom="1"/>
+                    <Color r="0.17" g="0.17" b="0.17"/>
+                    <Anchors>
+                        <Anchor point="CENTER"/>
+                    </Anchors>
+                </Texture>
+            </Layer>
+            <Layer level="OVERLAY" textureSubLevel="4">
+                <Texture parentKey="Border" file="Interface\AddOns\Narcissus\Art\Modules\PhotoMode\Shared\Button">
+                    <Size x="34" y="34"/>
+                    <TexCoords left="0" right="0.125" top="0" bottom="0.5"/>
+                    <Anchors>
+                        <Anchor point="CENTER"/>
+                    </Anchors>
+                </Texture>
+            </Layer>
+        </Layers>
+        <Scripts>
+            <OnLoad function="NarciPhotoModeButton_OnLoad"/>
+        </Scripts>
+    </Button>
+
+    <Frame name="NarciPhotoModeBarTemplate" virtual="true">
+        <Size x="186" y="24"/>
+        <KeyValues>
+            <KeyValue key="roundedLeft" value="false" type="boolean"/>
+            <KeyValue key="roundedRight" value="true" type="boolean"/>
+        </KeyValues>
+        <Layers>
+            <Layer level="BACKGROUND">
+                <Texture parentKey="BackgroundLeft" file="Interface\AddOns\Narcissus\Art\Modules\PhotoMode\Shared\BarSlice">
+                    <Size x="34" y="34"/>
+                    <TexCoords left="0" right="0.25" top="0.25" bottom="0.5"/>
+                    <Anchors>
+                        <Anchor point="CENTER" relativeKey="$parent" relativePoint="LEFT" x="0"/>
+                    </Anchors>
+                </Texture>
+                <Texture parentKey="BackgroundRight" file="Interface\AddOns\Narcissus\Art\Modules\PhotoMode\Shared\BarSlice">
+                    <Size x="34" y="34"/>
+                    <TexCoords left="0.5" right="0.75" top="0.25" bottom="0.5"/>
+                    <Anchors>
+                        <Anchor point="CENTER" relativeKey="$parent" relativePoint="RIGHT" x="0"/>
+                    </Anchors>
+                </Texture>
+                <Texture parentKey="BackgroundCenter" file="Interface\AddOns\Narcissus\Art\Modules\PhotoMode\Shared\BarSlice">
+                    <TexCoords left="0.25" right="0.5" top="0.25" bottom="0.5"/>
+                    <Anchors>
+                        <Anchor point="TOPLEFT" relativeKey="$parent.BackgroundLeft" relativePoint="TOPRIGHT" x="0"/>
+                        <Anchor point="BOTTOMRIGHT" relativeKey="$parent.BackgroundRight" relativePoint="BOTTOMLEFT" x="0"/>
+                    </Anchors>
+                </Texture>
+            </Layer>
+        </Layers>
+        <Frames>
+            <Frame parentKey="Border" frameLevel="3">
+                <Size x="8" y="8"/>
+                <Anchors>
+                    <Anchor point="CENTER"/>
+                </Anchors>
+                <Layers>
+                    <Layer level="BACKGROUND">
+                        <Texture parentKey="Left" file="Interface\AddOns\Narcissus\Art\Modules\PhotoMode\Shared\BarSlice">
+                            <Size x="34" y="34"/>
+                            <TexCoords left="0" right="0.25" top="0" bottom="0.25"/>
+                            <Anchors>
+                                <Anchor point="CENTER" relativeKey="$parent.$parent.BackgroundLeft" relativePoint="CENTER" x="0"/>
+                            </Anchors>
+                        </Texture>
+                        <Texture parentKey="Right" file="Interface\AddOns\Narcissus\Art\Modules\PhotoMode\Shared\BarSlice">
+                            <Size x="34" y="34"/>
+                            <TexCoords left="0.5" right="0.75" top="0" bottom="0.25"/>
+                            <Anchors>
+                                <Anchor point="CENTER" relativeKey="$parent.$parent.BackgroundRight" relativePoint="CENTER" x="0"/>
+                            </Anchors>
+                        </Texture>
+                        <Texture parentKey="Center" file="Interface\AddOns\Narcissus\Art\Modules\PhotoMode\Shared\BarSlice">
+                            <TexCoords left="0.25" right="0.5" top="0" bottom="0.25"/>
+                            <Anchors>
+                                <Anchor point="TOPLEFT" relativeKey="$parent.Left" relativePoint="TOPRIGHT" x="0"/>
+                                <Anchor point="BOTTOMRIGHT" relativeKey="$parent.Right" relativePoint="BOTTOMLEFT" x="0"/>
+                            </Anchors>
+                        </Texture>
+                    </Layer>
+                </Layers>
+            </Frame>
+        </Frames>
+        <Scripts>
+            <OnLoad function="NarciPhotoModeBar_OnLoad"/>
+        </Scripts>
+    </Frame>
+</Ui>

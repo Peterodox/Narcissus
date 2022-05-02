@@ -9,22 +9,30 @@ local PDWC = NarciPaperDollWidgetController;
 
 local PaperDollIndicator, SplashFrame;
 
-local classSetItems = {
-    188868, 188867, 188866, 188864, 188863,     --DK        188870, 188873, 188865, 188869,
-    188892, 188894, 188896, 188893, 188898,     --DH        188900, 188897, 188899, 188895,
-    188847, 188853, 188851, 188848, 188849,     --Druid     188854, 188871, 188852, 188850,
-    188859, 188861, 188860, 188856, 188858,     --Hunter    188872, 188857, 188862, 188855,
-    188844, 188845, 188839, 188842, 188843,     --Mage      188838, 188840, 188846, 188841,
-    188916, 188911, 188910, 188914, 188912,     --Monk      188915, 188917, 188918, 188913,
-    188933, 188931, 188932, 188929, 188928,     --Paladin   188935, 188930, 188936, 188934,
-    188880, 188879, 188881, 188875, 188878,     --Priest    188882, 188877, 188876, 188874,
-    188901, 188902, 188903, 188905, 188907,     --Rogue     188909, 188908, 188906, 188904,
-    188923, 188925, 188924, 188920, 188922,     --Shaman    188927, 188926, 188921, 188919,
-    188889, 188890, 188884, 188888, 188887,     --Warlock   188883, 188885, 188886, 188891,
-    188942, 188941, 188940, 188938, 188937,     --Warrior   188939, 188945, 188944, 188943,
+local isProgenitorItem = {};
 
-    --187378, 186475, 185905, 186739, 186738, 172254     --Test
-};
+do
+    local classSetItems = {
+        188868, 188867, 188866, 188864, 188863,     --DK        188870, 188873, 188865, 188869,
+        188892, 188894, 188896, 188893, 188898,     --DH        188900, 188897, 188899, 188895,
+        188847, 188853, 188851, 188848, 188849,     --Druid     188854, 188871, 188852, 188850,
+        188859, 188861, 188860, 188856, 188858,     --Hunter    188872, 188857, 188862, 188855,
+        188844, 188845, 188839, 188842, 188843,     --Mage      188838, 188840, 188846, 188841,
+        188916, 188911, 188910, 188914, 188912,     --Monk      188915, 188917, 188918, 188913,
+        188933, 188931, 188932, 188929, 188928,     --Paladin   188935, 188930, 188936, 188934,
+        188880, 188879, 188881, 188875, 188878,     --Priest    188882, 188877, 188876, 188874,
+        188901, 188902, 188903, 188905, 188907,     --Rogue     188909, 188908, 188906, 188904,
+        188923, 188925, 188924, 188920, 188922,     --Shaman    188927, 188926, 188921, 188919,
+        188889, 188890, 188884, 188888, 188887,     --Warlock   188883, 188885, 188886, 188891,
+        188942, 188941, 188940, 188938, 188937,     --Warrior   188939, 188945, 188944, 188943,
+
+        --187378, 186475, 185905, 186739, 186738, 172254     --Test
+    };
+
+    for _, itemID in pairs(classSetItems) do
+        isProgenitorItem[itemID] = true;
+    end
+end
 
 local candidateSlots = {
     [1] = "Head",
@@ -110,14 +118,6 @@ local clssSetSpells = {
     },
 };
 
-local isProgenitorItem = {};
-
-for _, itemID in pairs(classSetItems) do
-    isProgenitorItem[itemID] = true;
-end
-
-classSetItems = nil;
-
 
 local function IsItemProgenitorSet(itemID)
     return (itemID and isProgenitorItem[itemID])
@@ -127,7 +127,6 @@ local NUM_OWNED = 0;
 local OWNED_SLOTS;
 
 local function GetEquippedSet(recount)
-    local slots;
     if recount then
         local itemID;
         local numValid = 0;
@@ -441,10 +440,9 @@ function NarciProgenitorSetIndicatorMixin:OnLoad()
 end
 
 function NarciProgenitorSetIndicatorMixin:ResetAnchor()
-    local parentFrame = self.parent;
     self:ClearAllPoints();
-    self:SetParent(parentFrame);
-    self:SetPoint("CENTER", parentFrame, "TOPRIGHT", -1, -119);
+    self:SetParent(self.parent);
+    self:SetPoint("CENTER", self.parent, "CENTER", 0, 0);
 end
 
 function NarciProgenitorSetIndicatorMixin:OnShow()

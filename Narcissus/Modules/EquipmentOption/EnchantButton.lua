@@ -84,12 +84,12 @@ local function GetNewGemID(state)
     end
 end
 
-local function PlaceGem(gemID)
+local function PlaceGem(gemID, socketOrderID)
     ClearCursor();
     local bagID, slotIndex = GetItemBagPosition(gemID);
     if not(bagID and slotIndex) then return; end
     PickupContainerItem(bagID, slotIndex);
-    ClickSocketButton(1);
+    ClickSocketButton(socketOrderID);
     ClearCursor();
 end
 
@@ -335,9 +335,9 @@ function NarciEquipmentEnchantButtonMixin:OnClick()
     else
         --Gem/Shard
         if MainFrame.isNarcissusUI then
-            GemActionButton:InitFromButton(self, MainFrame.slotID, InUseIDs.gemID);
+            GemActionButton:InitFromButton(self, MainFrame.slotID, InUseIDs.gemID, MainFrame:GetSocketOrderID());
         else
-            PlaceGem(self.itemID);
+            PlaceGem(self.itemID, MainFrame:GetSocketOrderID());
         end
     end
 end

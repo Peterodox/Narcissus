@@ -11,6 +11,7 @@ local NarciAPI = NarciAPI;
 local WrapNameWithClassColor = NarciAPI.WrapNameWithClassColor;
 local ConvertHexColorToRGB = NarciAPI.ConvertHexColorToRGB;
 local SmartSetName = NarciAPI.SmartSetName;
+local RemoveTextBeforeColon = NarciAPI.RemoveTextBeforeColon;
 local UpdateTabButtonVisual = addon.UpdateTabButtonVisual;
 
 local MAP_FILE_PREFIX = "Interface\\AddOns\\Narcissus\\Art\\Modules\\Competitive\\MythicPlus\\Maps\\";
@@ -112,9 +113,6 @@ function DataProvider:GetSeasonBestForMap(mapID)
     end
 end
 
-local function RemoveTextBeforeColon(text)
-    return string.gsub(text, "^.+[:：]%s*", "");
-end
 
 function DataProvider:CacheMapUIInfo(mapID)
     local name, id, timeLimit, texture = C_ChallengeMode.GetMapUIInfo(mapID);

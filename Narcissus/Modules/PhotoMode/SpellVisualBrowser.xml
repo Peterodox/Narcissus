@@ -1236,7 +1236,7 @@
 	<Button parentKey="SpellPanelToggle">
 		<Size x="58" y="30"/>
 		<Anchors>
-			<Anchor point="RIGHT" relativeTo="Narci_AnimationIDFrame" relativePoint="LEFT" x="0"/>
+			<Anchor point="RIGHT" relativeTo="Narci_AnimationIDFrame" relativePoint="LEFT" x="-6"/>
 		</Anchors>
 		<Layers>
 			<Layer level="BACKGROUND">
@@ -1249,7 +1249,7 @@
 					<Size x="58" y="30"/>
 					<TexCoords left="0" right="0.42578125" top="0" bottom="0.21875"/>
 					<Anchors>
-						<Anchor point="LEFT" relativeTo="Narci_VisualIDFrame" relativePoint="LEFT" x="-6"/>
+						<Anchor point="LEFT" relativeTo="Narci_VisualIDFrame" relativePoint="LEFT" x="-9"/>
 					</Anchors>
 				</Texture>
 			</Layer>
@@ -1267,7 +1267,7 @@
 				<Texture file="Interface\AddOns\Narcissus\Art\Widgets\SpellVisualBrowser\ExpandButton" parentKey="RightArrow">	<!--Arrow at the right end-->
 					<Size x="30" y="30"/>
 					<Anchors>
-						<Anchor point="LEFT" relativeTo="Narci_VisualIDFrame" relativePoint="RIGHT" x="-2"/>
+						<Anchor point="LEFT" relativeTo="Narci_VisualIDFrame" relativePoint="RIGHT" x="-3"/>
 					</Anchors>
 					<TexCoords left="0.7734375" right="1" top="0" bottom="0.21875"/>
 				</Texture>

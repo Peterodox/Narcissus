@@ -14,6 +14,13 @@ local TEXT_LOCALE = GetLocale();
 
 local GetItemInfoInstant = GetItemInfoInstant;
 local GetItemGem = GetItemGem;
+local GetItemStats = GetItemStats;
+
+local function IsArtifactRelic(item)
+    --an alternative to IsArtifactRelicItem()
+    local _, _, _, _, _, classID, subclassID = GetItemInfoInstant(item);
+    return classID == 3 and subclassID == 11
+end
 
 --[[
     GameTooltip Color Scheme
@@ -58,10 +65,7 @@ end
 
 local LEFT_BRACE = "%(";
 local RIGHT_BRACE = "%)";
-if (TEXT_LOCALE == "zhCN") or (TEXT_LOCALE == "zhTW") then
-    LEFT_BRACE = "（";
-    RIGHT_BRACE = "）";
-end
+
 
 local ON_USE = ITEM_SPELL_TRIGGER_ONUSE;
 local ON_EQUIP = ITEM_SPELL_TRIGGER_ONEQUIP;
@@ -77,13 +81,25 @@ local SOURCE_KNOWN = TRANSMOGRIFY_TOOLTIP_APPEARANCE_KNOWN;
 local APPEARANCE_KNOWN = TRANSMOGRIFY_TOOLTIP_ITEM_UNKNOWN_APPEARANCE_KNOWN;
 local APPEARANCE_UNKNOWN = TRANSMOGRIFY_TOOLTIP_APPEARANCE_UNKNOWN;
 
-local SET_BONUS = gsub(ITEM_SET_BONUS, "%%s", "");  --"Set: %s"     --SET_BONUS_GRAY
+local SET_BONUS = gsub(ITEM_SET_BONUS, "%%s", "");          --"Set: %s"     --SET_BONUS_GRAY
+local SOCKET_BONUS = gsub(ITEM_SOCKET_BONUS, "%%s", "");    --Socket Bonus: %s
 
 local PATTERN_COOLDOWN_TIME = "%((%d.+) Cooldown%)$";
 local PATTERN_UPGRADE_LEVEL = gsub(ITEM_UPGRADE_TOOLTIP_FORMAT, "%%d+", "(%%d+)");
-local PATTERN_ITEM_SET_NAME = Pattern_WrapNumber( Pattern_WrapSpace( Pattern_WrapBrace( ITEM_SET_NAME) ) );   --(.+) %((%d+)/(%d+)%)
+local PATTERN_ITEM_SET_NAME = "(.+) %((%d+)/(%d+)%)";   --Pattern_WrapNumber( Pattern_WrapSpace( Pattern_WrapBrace( ITEM_SET_NAME) ) );
 local PATTERN_CLASS_REQUIREMENT = Pattern_WrapSpace(ITEM_CLASSES_ALLOWED);
 
+do
+    if TEXT_LOCALE == "zhCN" then
+        LEFT_BRACE = "（";
+        RIGHT_BRACE = "）";
+        PATTERN_ITEM_SET_NAME = "(.+)（(%d+)/(%d+)）"  --"%s（%d/%d）";
+    elseif TEXT_LOCALE == "zhTW" then
+        PATTERN_ITEM_SET_NAME = "(.+)%((%d+)/(%d+)%)";   --%s(%d/%d)
+    elseif TEXT_LOCALE == "deDE" then
+        PATTERN_ITEM_SET_NAME = "(.+) %((%d+)/(%d+)%)";     --"%1$s (%2$d/%3$d)"??
+    end
+end
 
 local function RemoveColorString(str)
     if str then
@@ -155,7 +171,7 @@ local function GetPinnedLineText()
         local output;
         local text;
         for i = 1, #pinnedObjects do
-            text = pinnedObjects[i]:GetText();
+            text = pinnedObjects[i]:GetText() or "";
             text = strtrim(text);
             if text and text ~= "" then
                 if output then
@@ -225,7 +241,7 @@ local function GetCachedItemTooltipTextByLine(item, line, callbackFunc)
                     IS_LINE_HOOKED[_l] = true;
                     object.lineIndex = _l;
                 end
-                text = object:GetText();
+                text = object:GetText() or "";
                 text = strtrim(text);
                 if text and text ~= "" then
                     if output then
@@ -264,38 +280,6 @@ TP:SetOwner(UIParent, 'ANCHOR_NONE');
 local LEFT_FONT_STRINGS = {
     TP.TextLeft1, TP.TextLeft2
 };
-
-LFS = LEFT_FONT_STRINGS;
-
-local function IsItemSocketable(itemLink, socketID)
-    if not itemLink then return; end
-
-    local gemName, gemLink = GetItemGem(itemLink, socketID or 1)
-    if gemLink then
-        return gemName or "...", gemLink;
-    end
-
-    local tex, texID;
-    for i = 1, 3 do
-        tex = _G["NarciVirtualTooltipTexture"..i];
-        if tex then
-            tex = tex:SetTexture(nil);
-        end
-    end
-
-    TP:SetHyperlink(itemLink);
-
-    for i = 1, 3 do     --max 10
-        tex = _G["NarciVirtualTooltipTexture"..i]
-        texID = tex and tex:GetTexture();
-        --print(texID)
-        if texID == 458977 then     --458977: Regular empty socket texture  --Doesn't include domination socket
-            return "Empty", nil;
-        end
-    end
-    return nil, nil;
-end
-NarciAPI.IsItemSocketable = IsItemSocketable;
 
 
 local function GetItemRank(itemLink, statName)
@@ -483,7 +467,7 @@ end
 NarciAPI.GetItemFlavorText = GetItemFlavorText;
 
 
-local function GetItemSocketInfo(itemLink)
+local function GetTooltipSocketInfo(itemLink)
     if not itemLink then return; end
 
     local tex, texID;
@@ -522,7 +506,7 @@ local function GetItemSocketInfo(itemLink)
     return socketInfo
 end
 
-NarciAPI.GetItemSocketInfo = GetItemSocketInfo;
+NarciAPI.GetTooltipSocketInfo = GetTooltipSocketInfo;
 
 
 local function NarciAPI_IsAppearanceKnown(itemLink)
@@ -601,6 +585,8 @@ local SpecialGemData = {
     --2 Health Regen
     [173125] = 2,       --Revitalizing Jewel Doublet
     [173126] = 1,       --Straddling Jewel Doublet
+    [25893] = 3,        --Meta Chance to Increase Spell Cast Speed
+    [32410] = 4,        --Meta Chance to Increase Melee/Ranged Attack Speed
 };
 
 local function NarciAPI_GetGemBonus(item)
@@ -625,6 +611,10 @@ local function NarciAPI_GetGemBonus(item)
             bonusText = STAT_MOVEMENT_SPEED;
         elseif bonusID == 2 then
             bonusText = ITEM_MOD_HEALTH_REGENERATION_SHORT;
+        elseif bonusID == 3 then
+            bonusText = GetSpellInfo(32837);
+        elseif bonusID == 4 then
+            bonusText = STAT_ATTACK_SPEED;
         end
     end
 
@@ -820,7 +810,7 @@ local function GetCompleteItemData(itemLink)
                 end
 
 
-                if i > 4 and not anyMatch then
+                if i >= 4 and not anyMatch then
                     --effects
                     if find(text, ON_USE) then
                         effectText, cooldownText = TrimCooldownText( strtrim(text, NO_COMMA_ON_USE) );
@@ -831,7 +821,7 @@ local function GetCompleteItemData(itemLink)
                     elseif find(text, ON_PROC) then
                         effectText = text;
                         effectType = "proc";
-                    elseif find(text, ITEM_BONUS) then
+                    elseif find(text, ITEM_BONUS) or find(text, SOCKET_BONUS) then
                         effectText = text;
                         effectType = "set";
                     elseif matchWeapon then
@@ -1029,6 +1019,167 @@ NarciAPI.GetCompleteItemDataFromSlot = GetCompleteItemDataFromSlot;
 NarciAPI.GetCompleteItemDataByItemLink = GetCompleteItemDataByItemLink;
 NarciAPI.GetCompleteItemDataFromGameTooltip = GetCompleteItemDataFromGameTooltip;
 
+
+--[[
+EMPTY_SOCKET_BLUE = "Blue Socket"; 136256
+EMPTY_SOCKET_COGWHEEL = "Cogwheel Socket"; 407324
+EMPTY_SOCKET_CYPHER = "Crystallic Socket"; ???
+EMPTY_SOCKET_DOMINATION = "Domination Socket"; 4095404
+EMPTY_SOCKET_HYDRAULIC = "Sha-Touched"; 407325
+EMPTY_SOCKET_META = "Meta Socket"; 136257
+EMPTY_SOCKET_NO_COLOR = "Prismatic Socket"; 458977
+EMPTY_SOCKET_PRISMATIC = "Prismatic Socket"; 458977
+EMPTY_SOCKET_PUNCHCARDBLUE = "Blue Punchcard Socket"; 2958629
+EMPTY_SOCKET_PUNCHCARDRED = "Red Punchcard Socket"; 2958630
+EMPTY_SOCKET_PUNCHCARDYELLOW = "Yellow Punchcard Socket"; 2958631
+EMPTY_SOCKET_RED = "Red Socket"; 136258
+EMPTY_SOCKET_YELLOW = "Yellow Socket"; 136259
+EMPTY_SOCKET_CYPHER = "Crystallic Socket"
+
+RELIC_TOOLTIP_TYPE
+--]]
+
+local SocketTypes = {
+    --tooltip emtpy socket texture fileID
+    [136256] = "BLUE",
+    [136258] = "RED",
+    [136259] = "YELLOW",
+    [407324] = "COGWHEEL",
+    [4095404] = "DOMINATION",
+    [407325] = "HYDRAULIC",
+    [136257] = "CYPHER",    --was META
+    [458977] = "PRISMATIC",
+    [2958629] = "PUNCHCARDBLUE",
+    [2958630] = "PUNCHCARDRED",
+    [2958631] = "PUNCHCARDYELLOW",
+};
+
+do
+    local version, build, date, tocversion = GetBuildInfo()
+    if tocversion and tocversion < 90000 then
+        SocketTypes[136257] = "META";
+    end
+end
+
+local IsSupportedSocket = {};
+
+for _, name in pairs(SocketTypes) do
+    IsSupportedSocket[name] = true;
+end
+
+
+local function IsItemSocketable(itemLink, socketID)
+    if not itemLink then return; end
+
+    local gemName, gemLink = GetItemGem(itemLink, socketID or 1)
+    if gemLink then
+        if not IsArtifactRelic(gemLink) then
+            return gemName or "...", gemLink;
+        end
+        return
+    end
+
+    local tex, texID;
+    for i = 1, 3 do
+        tex = _G["NarciVirtualTooltipTexture"..i];
+        if tex then
+            tex = tex:SetTexture(nil);
+        end
+    end
+
+    TP:SetHyperlink(itemLink);
+
+    for i = 1, 3 do     --max 10
+        tex = _G["NarciVirtualTooltipTexture"..i]
+        texID = tex and tex:GetTexture();
+        --print(texID)
+        if SocketTypes[texID] then     --458977: Regular empty socket texture  --Doesn't include domination socket
+            return "Empty", nil;
+        end
+    end
+    return nil, nil;
+end
+NarciAPI.IsItemSocketable = IsItemSocketable;
+
+local function GetItemSocketInfo(itemLink)
+    --gemData = { {socketType, icon, gemLink(nillable) } }
+
+    if not itemLink then return end
+    ClearTooltipTexture();
+    TP:SetHyperlink(itemLink);
+
+    local tex, texID;
+    local gemName, gemLink;
+    local socektInfo;
+    local numSocket = 0;
+    for i = 1, 3 do
+        gemName, gemLink = GetItemGem(itemLink, i);
+        if gemLink then
+            if not socektInfo then
+                socektInfo = {};
+            end
+            texID = select(5, GetItemInfoInstant(gemLink));
+            numSocket = numSocket + 1;
+            socektInfo[numSocket] = {gemName, texID, gemLink};
+        else
+            tex = _G["NarciVirtualTooltipTexture"..i];
+            texID = tex and tex:GetTexture();
+            if SocketTypes[texID] then
+                if not socektInfo then
+                    socektInfo = {};
+                end
+                numSocket = numSocket + 1;
+                socektInfo[numSocket] = {SocketTypes[texID], texID, };
+            end
+        end
+    end
+
+    --socektInfo = { {SocketTypes[458977], 458977}, {SocketTypes[4095404], 4095404}, {SocketTypes[136257], 136257} };   --debug SL
+    --socektInfo = { {SocketTypes[136257], 136257}, {SocketTypes[136259], 136259}, {SocketTypes[136256], 136256} };   --debug TBC
+    return socektInfo
+end
+
+NarciAPI.GetItemSocketInfo = GetItemSocketInfo;
+
+
+local function DoesItemHaveSockets(itemLink)
+    --determine if item really have sockets instead of relics
+    --can't determine socket order so:
+    --If the item have two or more types of socket, use ItemSocketingFrame-GetSocketTypes to get socket order
+
+    if not itemLink then return end
+
+    local stats = GetItemStats(itemLink);
+    IS = stats;
+    if stats then
+        local numSocket = 0;
+        local subType, lastType;
+        local socketIsDiverse;
+
+        for name, count in pairs(stats) do
+            subType = match(name, "^EMPTY_SOCKET_(%a+)");
+            if IsSupportedSocket[subType] then
+                numSocket = numSocket + count;
+                if lastType then
+                    socketIsDiverse = socketIsDiverse or (subType ~= lastType);
+                else
+                    lastType = subType;
+                end
+            end
+        end
+
+        if numSocket > 0 then
+            return numSocket, socketIsDiverse, lastType
+        end
+    end
+end
+
+NarciAPI.DoesItemHaveSockets = DoesItemHaveSockets;
+
+GameTooltip:HookScript("OnTooltipSetItem", function(self)
+    local _, itemLink = self:GetItem();
+    DoesItemHaveSockets(itemLink);
+end);
 
 --[[
 itemName, itemLink, itemQuality, itemLevel, itemMinLevel, itemType, itemSubType, itemStackCount,

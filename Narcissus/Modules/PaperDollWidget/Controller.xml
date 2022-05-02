@@ -27,7 +27,14 @@
     <Frame name="NarciPaperDollWidgetController" mixin="NarciPaperDollWidgetControllerMixin">
         <Frames>
             <Frame parentKey="WidgetContainer" hidden="true">
-                <Size x="4" y="4"/>
+                <Size x="24" y="24"/>
+                <!--Layers>
+                    <Layer>
+                        <Texture>
+                            <Color r="1" g="0" b="0"/>
+                        </Texture>
+                    </Layer>
+                </Layers-->
             </Frame>
         </Frames>
         <Scripts>

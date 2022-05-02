@@ -543,7 +543,7 @@ end
 function NarciDominationIndicatorMixin:ResetAnchor()
     self:ClearAllPoints();
     self:SetParent(self.parent);
-    self:SetPoint("CENTER", self.parent, "TOPRIGHT", -1, -119);
+    self:SetPoint("CENTER", self.parent, "CENTER", 0, 0);
 end
 
 function NarciDominationIndicatorMixin:OnEnter()

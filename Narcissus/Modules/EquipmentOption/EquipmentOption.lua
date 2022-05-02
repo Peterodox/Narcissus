@@ -5,6 +5,7 @@ local GemDataProvider = addon.GemDataProvider;
 local TempDataProvider = addon.TempDataProvider;
 local GetAppliedEnhancement = addon.GetAppliedEnhancement;
 local GetNewGemID = addon.GetNewGemID;
+local PixelPerfectController = addon.PixelPerfectController;
 
 local L = Narci.L;
 
@@ -35,7 +36,6 @@ local IsItemDominationShard = NarciAPI.IsItemDominationShard;
 local RemoveColorString = NarciAPI.RemoveColorString;
 local GetCachedItemTooltipTextByLine = NarciAPI.GetCachedItemTooltipTextByLine;
 local GetItemTempEnchantRequirement = NarciAPI.GetItemTempEnchantRequirement;
-local DoesItemHaveCrystallicSocket = NarciAPI.DoesItemHaveCrystallicSocket;
 local GetSocketTypes = GetSocketTypes;
 
 local pow = math.pow;
@@ -222,14 +222,16 @@ end
 
 function NarciEquipmentListFilterButtonMixin:OnEnter()
     self.Label:SetTextColor(0.92, 0.92, 0.92);
-    self.Square:SetVertexColor(0.8, 0.8, 0.8);
     self.Check:SetVertexColor(1, 1, 1);
+    self.Square:SetStrokeColor(0.12, 0.12, 0.12);
+    self.Square:SetBorderColor(0.8, 0.8, 0.8);
 end
 
 function NarciEquipmentListFilterButtonMixin:OnLeave()
     self.Label:SetTextColor(0.5, 0.5, 0.5);
-    self.Square:SetVertexColor(0.5, 0.5, 0.5);
     self.Check:SetVertexColor(0.8, 0.8, 0.8);
+    self.Square:SetStrokeColor(0, 0, 0);
+    self.Square:SetBorderColor(0.5, 0.5, 0.5);
 end
 
 function NarciEquipmentListFilterButtonMixin:OnShow()
@@ -247,6 +249,7 @@ function NarciEquipmentListFilterButtonMixin:OnClick()
     MainFrame:UpdateCurrentList();
     ItemButtonHighlight:Hide();
     Tooltip:Hide();
+    MainFrame.ItemList:ClearActionButtons();
 end
 
 function NarciEquipmentListFilterButtonMixin:UpdateState()
@@ -280,6 +283,7 @@ function NarciEquipmentOptionMixin:OnLoad()
     self:SetFrameSize(240, 48 * 3);
     self:SetAnchor(nil, "LEFT");
     self:Init();
+    self.hitrectTop = 16;
 
     animFrame.object = self.ArtFrame.Stain;
     animFrame.objectAnchor = self.ArtFrame;
@@ -308,11 +312,20 @@ function NarciEquipmentOptionMixin:OnHide()
     self:UnregisterEvent("BAG_UPDATE");
     self:Hide();
     self:StopAnimating();
+    self.itemLink = nil;
     NarciGemSlotOverlay:HideIfIdle();
 end
 
-function NarciEquipmentOptionMixin:IsMouseOverWidgets()
-    return ( self:IsMouseOver(12, -12, -12, 12) or FilterButton:IsMouseOver(12, -12, -12, 12) or (self.slotButton and self.slotButton:IsMouseOver(0, 0, -24, 24)) )
+function NarciEquipmentOptionMixin:OnShow()
+    local scale = self:GetEffectiveScale();
+    if scale ~= self.scale then
+        self.scale = scale;
+        PixelPerfectController:SetScale(scale);
+    end
+end
+
+function NarciEquipmentOptionMixin:IsFocused()
+    return ( self:IsMouseOver(self.hitrectTop, -16, -16, 16) or FilterButton:IsMouseOver(12, -12, -12, 12) or (self.slotButton and self.slotButton:IsMouseOver(0, 0, -24, 24)) )
 end
 
 local function CloseDelay_OnUpdate(self, elapsed)
@@ -336,7 +349,7 @@ end
 
 function NarciEquipmentOptionMixin:OnEvent(event, ...)
     if event == "GLOBAL_MOUSE_DOWN" then
-        if not self:IsMouseOverWidgets() then
+        if not self:IsFocused() then
             self:CloseUI();
         end
     elseif event == "SOCKET_INFO_UPDATE" or event == "BAG_UPDATE" then
@@ -393,32 +406,9 @@ function NarciEquipmentOptionMixin:SetFromSlotButton(slotButton, returnHome)
     self.isNarcissusUI = true;
     local slotID = slotButton.slotID;
     self.slotID = slotID;
-    local initialAlpha;
-    if returnHome then
-        initialAlpha = 0;
-        self:ShowMenu();
-    end
-
     self.slotButton = slotButton;
-
-    --[[
-        --Need a better approach: this one opens SocketingFrame, ArtifactFrame... in the background
-    SocketInventoryItem(slotID);
-    local typeName = GetSocketTypes(1);
-    local socketType = GetSocketTypeID(typeName);
-    --]]
-    
-    local socketType;
-    if DoesItemHaveCrystallicSocket(slotButton.itemLink) then
-        socketType = 3;
-    elseif slotButton.isDominationItem then
-        socketType = 2;
-    else
-        socketType = 1;
-    end
-
-    self.socketType = socketType;
-    self.isDominationItem = socketType == 2;
+    self.itemLink = slotButton.itemLink;
+    self.hitrectTop = 16;
 
     local runeOverlay = NarciRuneAnimationOverlay;
     if slotButton.isRight then
@@ -432,9 +422,22 @@ function NarciEquipmentOptionMixin:SetFromSlotButton(slotButton, returnHome)
     end
     runeOverlay:SetParent(Narci_Character);
 
+    self:SetParent(slotButton);
+    self:SetFrameStrata("DIALOG");
+    self:SetIgnoreParentScale(false);
+    self:SetScale(1);
+    self:RegisterEventsForNarcissus(true);
+
+    local initialAlpha;
+    if returnHome then
+        initialAlpha = 0;
+        self:ShowMenu();
+    end
     FadeFrame(self, 0.15, 1, initialAlpha);
+
     Narci_EquipmentFlyoutFrame:Hide();
     Narci:HideButtonTooltip();
+
     local isWeaponValidForEnchant;
     self.inUseGemID, self.inUsedEnchantID, isWeaponValidForEnchant = GetAppliedEnhancement(slotID);
     GetNewGemID(false);
@@ -442,16 +445,10 @@ function NarciEquipmentOptionMixin:SetFromSlotButton(slotButton, returnHome)
     validForEnchant = validForEnchant and isWeaponValidForEnchant;
 
     TempDataProvider:SetSubset(slotID);
-    GemDataProvider:SetSubset(socketType);
 
     Narci_FlyoutBlack:In();
     Narci_FlyoutBlack:RaiseFrameLevel(slotButton);
 
-    self:SetParent(slotButton);
-    self:SetFrameStrata("DIALOG");
-    self:SetIgnoreParentScale(false);
-    self:SetScale(1);
-    self:RegisterEventsForNarcissus(true);
 
     if validForEnchant then
         self.meunButtons[2]:Enable();
@@ -459,10 +456,30 @@ function NarciEquipmentOptionMixin:SetFromSlotButton(slotButton, returnHome)
         self.meunButtons[2]:Disable();
     end
 
-    if PositionGemOverlay(slotButton) then
+    local numSocket, socketIsDiverse, lastType = NarciAPI.DoesItemHaveSockets(self.itemLink);
+    if numSocket and PositionGemOverlay(slotButton) then
         self.meunButtons[3]:Enable();
+        if socketIsDiverse then
+            GemDataProvider:SetSubset(1);
+            self.socketTypeID = 0;
+            self.isDominationItem = nil;
+        else
+            local socketTypeID;
+            if lastType == "CYPHER" then
+                socketTypeID = 3;
+            elseif lastType == "DOMINATION"then
+                socketTypeID = 2;
+            else
+                socketTypeID = 1;
+            end
+
+            self.socketTypeID = socketTypeID;
+            self.isDominationItem = socketTypeID == 2;
+            GemDataProvider:SetSubset(socketTypeID);
+        end
     else
         self.meunButtons[3]:Disable();
+        self.isDominationItem = nil;
     end
 
     --Calculate available gears
@@ -493,7 +510,7 @@ end
 
 function NarciEquipmentOptionMixin:SetGemListFromSlotButton(slotButton)
     self:SetFromSlotButton(slotButton, false);
-    self:ShowGemList();
+    self:ShowGemList(nil, true);
 end
 
 function NarciEquipmentOptionMixin:SetGemListForBlizzardUI(id1, id2)
@@ -507,6 +524,7 @@ function NarciEquipmentOptionMixin:SetGemListForBlizzardUI(id1, id2)
     else
         itemLink = GetInventoryItemLink("player", id1);
     end
+    self.itemLink = itemLink;
 
     if not itemLink then return end;
 
@@ -514,17 +532,9 @@ function NarciEquipmentOptionMixin:SetGemListForBlizzardUI(id1, id2)
     local typeName = GetSocketTypes(1);
     local socketType = GetSocketTypeID(typeName);
     socketType = (typeName and SocketTypeNameDatabase[typeName]) or 1;
-    --[[
-    if typeName == "Cypher" then    --DoesItemHaveCrystallicSocket(itemID)
-        socketType = 3;
-    elseif NarciAPI.DoesItemHaveDomationSocket(itemID) then
-        socketType = 2;
-    else
-        socketType = 1;
-    end
-    --]]
+
     self.isDominationItem = socketType == 2;
-    self.socketType = socketType;
+    self.socketTypeID = socketType;
 
     local slotID = NarciAPI.GetSlotIDByInvType(invType);
     self.slotID = slotID;
@@ -672,7 +682,7 @@ function NarciEquipmentOptionMixin:ShowEquipment()
     end
 end
 
-function NarciEquipmentOptionMixin:ShowItemList(listType, hideList)
+function NarciEquipmentOptionMixin:ShowItemList(listType, hideList, resetScroll)
     if self.CreateList then
         self:CreateList();
     end
@@ -683,38 +693,60 @@ function NarciEquipmentOptionMixin:ShowItemList(listType, hideList)
         self.listType = listType;
         self.ItemList:SetOffset(0);
     end
-    self:UpdateCurrentList();
+    self:UpdateCurrentList(resetScroll);
     if not hideList then
         if not self.ItemList.ScrollChild:IsShown() then
             FadeFrame(self.ItemList.ScrollChild, 0.2, 1, 0);
         end
     end
+    self.hitrectTop = 32;
 end
 
-function NarciEquipmentOptionMixin:ShowGemList()
+function NarciEquipmentOptionMixin:ShowGemList(specifiedTypeName, forceReset)
     DataProvider = GemDataProvider;
-    if self.socketType == 2 then
+
+    local socketType = self.ItemList.SocketSelect:SetupFromItemLink(self.itemLink);
+    if specifiedTypeName then
+        socketType = specifiedTypeName;
+    end
+
+    local newSockeTypeID = GemDataProvider:SetSubsetBySocketName(socketType);
+    local resetScroll = forceReset or newSockeTypeID ~= self.socketTypeID;
+    self.socketTypeID = newSockeTypeID;
+
+    if self.socketTypeID == 2 then
         SetButtonData = SetButtonShard;
-    elseif self.socketType == 3 then
+    elseif self.socketTypeID == 3 then
         SetButtonData = SetButtonCrystallic;
     else
         SetButtonData = SetButtonGem;
     end
+
     local showActionBlocker = self.isDominationItem and self.inUseGemID;
-    self:ShowItemList("gem", showActionBlocker);
+    self:ShowItemList("gem", showActionBlocker, resetScroll);
     self:ToggleActionBlocker(showActionBlocker);
+end
+
+function NarciEquipmentOptionMixin:GetSocketOrderID()
+    return self.socketOrderID;
+end
+
+function NarciEquipmentOptionMixin:SetSocketOrderID(id)
+    self.socketOrderID = id or 1;
 end
 
 function NarciEquipmentOptionMixin:ShowEnchantList()
     DataProvider = EnchantDataProvider;
     SetButtonData = SetButtonEnchant;
     self:ShowItemList("enchant");
+    self.ItemList.SocketSelect:Hide();
 end
 
 function NarciEquipmentOptionMixin:ShowTempEnchantList()
     DataProvider = TempDataProvider;
     SetButtonData = SetButtonTempEnchant;
     self:ShowItemList("temp");
+    self.ItemList.SocketSelect:Hide();
 end
 
 function NarciEquipmentOptionMixin:ToggleActionBlocker(state)
@@ -731,7 +763,7 @@ function NarciEquipmentOptionMixin:ToggleActionBlocker(state)
     end
 end
 
-function NarciEquipmentOptionMixin:UpdateCurrentList(resetOffset)
+function NarciEquipmentOptionMixin:UpdateCurrentList(resetScroll)
     local numItems = DataProvider:ApplyFilter(NarcissusDB.OnlyShowOwnedUpgradeItem);
     if numItems > 4 then
         self.ItemList:SetScrollRange(BUTTON_HEIGHT*(numItems - MAX_VISIBLE_BUTTONS - 0.5));
@@ -741,7 +773,7 @@ function NarciEquipmentOptionMixin:UpdateCurrentList(resetOffset)
         self:AnimateSize(240, BUTTON_HEIGHT * 4, 0.25);
     end
     self.ItemList.NoItemText:SetShown(numItems == 0);
-    if resetOffset then
+    if resetScroll then
         self.ItemList:SetOffset(0);
     end
     self.ItemList:Reset();
@@ -759,7 +791,7 @@ function NarciEquipmentOptionMixin:CreateList()
 end
 
 function NarciEquipmentOptionMixin:HasMouseFocus()
-    return (self:IsShown() and self:IsMouseOverWidgets());
+    return (self:IsShown() and self:IsFocused());
 end
 
 
@@ -914,7 +946,8 @@ function NarciEquipmentListTooltipMixin:OnDataReceived()
         self.ClipFrame.Description.FadeIn:Play();
         self.ClipFrame.Description:Show();
     else
-        self.ClipFrame.Description:SetAlpha(1);
+        self.ClipFrame.Description.FadeIn:Stop();
+        self.ClipFrame.Description:SetTextColor(0.529, 0.863, 0.6, 1);
     end
 end
 

@@ -8,6 +8,10 @@ local IsShiftKeyDown = IsShiftKeyDown;      --For acceleration
 local _, SCREEN_HEIGHT = GetPhysicalScreenSize();
 local PIXEL_RATIO = 768 / SCREEN_HEIGHT;
 
+local function Driver_OnHide(self)
+    self.isScrolling = nil;
+end
+
 local function Driver_OnUpdate(self, elapsed)
     local value = self.bar:GetValue();
     local step = max(abs(value - self.toValue)*(self.speed)*(elapsed*60), self.minOffset);
@@ -247,6 +251,8 @@ local function ApplySmoothScrollToScrollFrame(scrollFrame)
         d.toValue = 0;
         d:Hide();
         d:SetScript("OnUpdate", Driver_OnUpdate);
+        d:SetScript("OnHide", Driver_OnHide);
+
         d.minOffset = PIXEL_RATIO / 0.6667;
         d.bar = bar;
 

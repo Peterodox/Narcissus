@@ -30,7 +30,6 @@ local format = string.format;
 local tremove = table.remove;
 local tinsert = table.insert;
 
-local GetAchievementInfo = GetAchievementInfo;
 local GetAchievementNumCriteria = GetAchievementNumCriteria;
 local GetAchievementCriteriaInfo = GetAchievementCriteriaInfo;
 local GetRewardItemID = C_AchievementInfo.GetRewardItemID;
@@ -1424,6 +1423,7 @@ local function SelectCategory(categoryID)
         UpdateStatCardsBySlice(categoryID);
         ReleaseAchievementCard();
         SummaryFrame:Hide();
+        InspectionFrame.numAchievements = GetCategoryNumAchievements(categoryID, false);
     else
         AchievementContainer:Show();
         ScrollUtil.formatFunc = FormatAchievementCardByIndex;
@@ -1435,10 +1435,9 @@ local function SelectCategory(categoryID)
         else
             UpdateAchievementCardsBySlice(categoryID);
             SummaryFrame:Hide();
+            InspectionFrame.numAchievements = GetCategoryNumAchievements(categoryID, false);
         end
-
     end
-    InspectionFrame.numAchievements = GetCategoryNumAchievements(categoryID, false);
 end
 
 local function SubCategoryButton_OnClick(button)

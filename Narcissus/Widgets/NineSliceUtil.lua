@@ -24,6 +24,13 @@ local TextureData = {
         offsetRatio =  0.6667,
     },
 
+    shadowR12 = {
+        file = "Frames\\NineSliceShadowR6",
+        cornerSize = 16,
+        cornerCoord = 0.375,
+        offsetRatio =  0.6667,
+    },
+
     shadowR0 = {
         file = "Frames\\NineSliceShadowR0",
         cornerSize = 8,
@@ -53,7 +60,7 @@ local TextureData = {
 
     photoModePopup = {
         file = "Frames\\NineSlicePhotoModePopup",
-        cornerSize = 12,
+        cornerSize = 16,
         cornerCoord = 0.25,
     },
 

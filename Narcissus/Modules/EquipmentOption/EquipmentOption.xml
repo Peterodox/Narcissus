@@ -7,6 +7,7 @@
     <Script file="CastingBar.lua"/>
     <Script file="ActionButton.lua"/>
     <Script file="EnchantButton.lua"/>
+    <Script file="SocketSelect.lua"/>
 	<Script file="EquipmentOption.lua"/>
     <Script file="RedButtonFlash.lua"/>
 
@@ -148,6 +149,66 @@
         </Scripts>
     </Button>
 
+    <Button name="NarciEquipmentSharedSquareButtonTemplate" mixin="NarciEquipmentSharedSquareButtonMixin" virtual="true">
+        <Size x="24" y="24"/>
+        <Layers>
+            <Layer level="BORDER">
+				<Texture parentKey="Stroke">
+					<Color r="0" g="0" b="0"/>
+                    <Size x="24" y='24'/>
+					<Anchors>
+						<Anchor point="CENTER"/>
+					</Anchors>
+				</Texture>
+            </Layer>
+            <Layer level="OVERLAY">
+				<Texture parentKey="Border">
+					<Color r="0.5" g="0.5" b="0.5"/>
+                    <Size x="22" y="22"/>
+					<Anchors>
+						<Anchor point="CENTER"/>
+					</Anchors>
+				</Texture>
+				<MaskTexture parentKey="Exclusion">
+                    <Size x="20" y="20"/>
+					<Anchors>
+						<Anchor point="CENTER"/>
+					</Anchors>
+					<MaskedTextures>
+						<MaskedTexture childKey="Border"/>
+					</MaskedTextures>
+				</MaskTexture>
+            </Layer>
+        </Layers>
+        <Scripts>
+            <OnLoad method="OnLoad"/>
+        </Scripts>
+    </Button>
+
+    <Button name="NarciSocketSelectButtonTemplate" mixin="NarciSocketSelectButtonMixin" inherits="NarciEquipmentSharedSquareButtonTemplate" virtual="true">
+		<HitRectInsets>
+			<AbsInset left="-4" right="-4" top="-4" bottom="-4"/>
+		</HitRectInsets>
+        <Layers>
+            <Layer level="OVERLAY" textureSubLevel="2">
+                <Texture parentKey="Icon">
+                    <Anchors>
+                        <Anchor point="TOPLEFT" relativeKey="$parent.Exclusion" relativePoint="TOPLEFT"/>
+                        <Anchor point="BOTTOMRIGHT" relativeKey="$parent.Exclusion" relativePoint="BOTTOMRIGHT"/>
+                    </Anchors>
+                </Texture>
+            </Layer>
+        </Layers>
+        <Scripts>
+            <OnLoad method="OnLoad"/>
+            <OnEnter method="OnEnter"/>
+            <OnShow method="OnShow"/>
+            <OnLeave method="OnLeave"/>
+            <OnClick method="OnClick"/>
+        </Scripts>
+    </Button>
+    
+
     <Frame name="Narci_EquipmentOption" mixin="NarciEquipmentOptionMixin" frameStrata="DIALOG" hidden="true" inherits="NarciAnimatedSizingFrameTemplate" clampedToScreen="true">
         <Size x="48" y="48"/>
         <Anchors>
@@ -266,22 +327,64 @@
                             <Anchor point="BOTTOMRIGHT" relativePoint="BOTTOMRIGHT" x="0" y="8"/>
                         </Anchors>
                     </Slider>
+                    <Frame parentKey="SocketSelect" mixin="NarciSocketSelectMixin">
+                        <Size x="72" y="24"/>
+                        <Anchors>
+                            <Anchor point="BOTTOMLEFT" relativeKey="$parent" relativePoint="TOPLEFT" x="0" y="2"/>
+                        </Anchors>
+                        <Layers>
+                            <Layer level="OVERLAY">
+                                <FontString inherits="NarciFontNormal10White" justifyH="LEFT" justifyV="BOTTOM" parentKey="SocketName" alpha="0" maxLines="2" spacing="2">
+                                    <Size x="0" y="0"/>
+                                    <Color r="0.92" g="0.92" b="0.92"/>
+                                    <Anchors>
+                                        <Anchor point="BOTTOMLEFT" relativeKey="$parent" relativePoint="TOPLEFT" x="0" y="0"/>
+                                    </Anchors>
+                                    <Animations>
+                                        <AnimationGroup parentKey="FadeIn">
+                                            <Alpha fromAlpha="0" toAlpha="0" duration="0" order="1"/>
+                                            <Alpha fromAlpha="0" toAlpha="1" duration="0.15" startDelay="0.15" order="2"/>
+                                        </AnimationGroup>
+                                    </Animations>
+                                </FontString>
+                            </Layer>
+                            <Layer level="BACKGROUND">
+                                <Texture parentKey="Shadow" file="Interface\AddOns\Narcissus\Art\EquipmentOption\ToggleLabelShadow">
+                                    <Size x="96" y="36"/>
+                                    <TexCoords left="1" right="0" top="0" bottom="1"/>
+                                    <Anchors>
+                                        <Anchor point="BOTTOMLEFT" y="-2"/>
+                                    </Anchors>
+                                </Texture>
+                                <Texture parentKey="TextShadow" file="Interface\AddOns\Narcissus\Art\EquipmentOption\SocketSelectShadow" alpha="0">
+                                    <Size x="96" y="36"/>
+                                    <Anchors>
+                                        <Anchor point="TOPLEFT" relativeKey="$parent.SocketName" relativePoint="TOPLEFT" x="-18" y="12"/>
+                                        <Anchor point="BOTTOMRIGHT" relativeKey="$parent.SocketName" relativePoint="BOTTOMRIGHT" x="18" y="-12"/>
+                                    </Anchors>
+                                </Texture>
+                            </Layer>
+                        </Layers>
+                        <Scripts>
+                            <OnLoad method="OnLoad"/>
+                            <OnHide method="OnHide"/>
+                        </Scripts>
+                    </Frame>
+
                     <Button parentKey="FilterToggle" mixin="NarciEquipmentListFilterButtonMixin">
                         <Size x="64" y="24"/>
                         <Anchors>
                             <Anchor point="BOTTOMRIGHT" relativeKey="$parent" relativePoint="TOPRIGHT" x="0" y="2"/>
                         </Anchors>
+                        <Frames>
+                            <Frame inherits="NarciEquipmentSharedSquareButtonTemplate" parentKey="Square" useParentLevel="true">
+                                <Anchors>
+                                    <Anchor point="RIGHT"/>
+                                </Anchors>
+                            </Frame>
+                        </Frames>
                         <Layers>
-                            <Layer level="ARTWORK">
-                                <Texture parentKey="Square" file="Interface\AddOns\Narcissus\Art\EquipmentOption\Toggle">
-                                    <Size x="18" y="18"/>
-                                    <TexCoords left="0.125" right="0.875" top="0.125" bottom="0.875"/>
-                                    <Anchors>
-                                        <Anchor point="RIGHT"/>
-                                    </Anchors>
-                                </Texture>
-                            </Layer>
-                            <Layer level="OVERLAY">
+                            <Layer level="OVERLAY" textureSubLevel="1">
                                 <Texture parentKey="Check" file="Interface\AddOns\Narcissus\Art\EquipmentOption\ToggleCheck">
                                     <Size x="24" y="24"/>
                                     <Anchors>
@@ -544,6 +647,7 @@
         </Frames>
         <Scripts>
             <OnLoad method="OnLoad"/>
+            <OnShow method="OnShow"/>
             <OnHide method="OnHide"/>
             <OnEvent method="OnEvent"/>
             <OnMouseWheel>
@@ -992,7 +1096,7 @@
         </Scripts>
     </Frame>
 
-    <Frame name="NarciRedButtonFlash" hidden="true" mixin="NarciRedButtonFlashMixin">
+    <!--Frame name="NarciRedButtonFlash" hidden="true" mixin="NarciRedButtonFlashMixin">
         <Size x="24" y="24"/>
         <Layers>
             <Layer level="OVERLAY">
@@ -1030,5 +1134,5 @@
         <Scripts>
             <OnHide method="OnHide"/>
         </Scripts>
-    </Frame>
+    </Frame-->
 </Ui>

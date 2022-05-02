@@ -7,7 +7,7 @@ local S = Narci.L.S;
 NARCI_GRADIENT = "|cffA236EFN|r|cff9448F1a|r|cff865BF2r|r|cff786DF4c|r|cff6A80F6i|r|cff5D92F7s|r|cff4FA4F9s|r|cff41B7FAu|r|cff33C9FCs|r"
 MYMOG_GRADIENT = "|cffA236EFM|cff9448F1y |cff865BF2T|cff786DF4r|cff6A80F6a|cff5D92F7n|cff4FA4F9s|cff41B7FAm|cff33C9FCo|cff32c9fbg|r"
 
-NARCI_VERSION_INFO = "1.2.0";
+NARCI_VERSION_INFO = "1.2.3";
 NARCI_DEVELOPER_INFO = "Developed by Peterodox";
 
 NARCI_NEW_ENTRY_PREFIX = "|cff40C7EB";
@@ -421,7 +421,7 @@ L["Visibility"] = "Visibility";
 
 --Achievement Frame--
 L["Use Achievement Panel"] = "Use As Primary Achievement Panel";
-L["Use Achievement Panel Description"] = "Replace the default achievement toast. Enable tooltip enhancement. Click tracked achievements to open this panel.";
+L["Use Achievement Panel Description"] = "Click toasts or tracked achievements to open this panel.";
 L["Incomplete First"] = "Incomplete First";
 L["Earned First"] = "Earned First";
 L["Settings"] = "Settings";
@@ -496,7 +496,7 @@ L["Splash Content7 Description"] = "-The hexagon item border gets a new look. Ce
 
 --Project Details--
 NARCI_ALL_PROJECTS = "All Projects";
-NARCI_PROJECT_DETAILS = "|cFFFFD100Developer: Peterodox\nRelease Date: April 4, 2022|r\n\nThank you for trying this add-on! If you have any issues, suggestions, ideas, please leave a comment on the curseforge page or contact me on...";
+NARCI_PROJECT_DETAILS = "|cFFFFD100Developer: Peterodox\nRelease Date: May 2, 2022|r\n\nThank you for trying this add-on! If you have any issues, suggestions, ideas, please leave a comment on the curseforge page or contact me on...";
 NARCI_PROJECT_AAA_TITLE = "|cff008affA|cff0d8ef2z|cff1a92e5e|cff2696d9r|cff339acco|cff409ebft|cff4da1b2h |cff59a5a6A|cff66a999d|cff73ad8cv|cff7fb180e|cff8cb573n|cff99b966t|cffa6bd59u|cffb2c14dr|cffbfc440e |cffccc833A|cffd9cc26l|cffe5d01ab|cfff2d40du|cffffd800m|r";
 NARCI_PROJECT_AAA_SUMMARY = "Explore places of interest and collect lores and photos from all across Azeroth.|cff636363";
 NARCI_PROJECT_NARCISSUS_SUMMARY = "An immersive character pane and your ultimate screenshot tool.";
@@ -528,6 +528,7 @@ L["WeaponBrowser Guide Hotkey"] = "Specify which hand to hold the weapon:";
 L["WeaponBrowser Guide ModelType"] = "Some items are limited to certain type of model:";
 L["WeaponBrowser Guide DressUpModel"] = "This will be the default type if your target is a player unless you are holding <%s> while creating it.";
 L["WeaponBrowser Guide CinematicModel"] = "The model type will always be Cinematic if the creature is an NPC. You cannot sheathe weapons.";
+L["Outfit"] = "Outfit";
 
 --Pet Stables--
 L["PetStable Tooltip"] = "Choose a pet from your stable";
@@ -587,6 +588,8 @@ L["File"] = "File";     --File Name
 L["File Tooltip"] = "Put your own image under |cffccccccWorld of Warcraft\\retail\\Interface\\AddOns|r and insert the file name in this box.\nThe image must be a |cffcccccc512x512|r or |cffcccccc1024x1024|r |cffccccccJPG|r file";
 L["Raise Level"] = "Bring to front";
 L["Lower Level"] = "Send to back";
+L["Show Mount"] = "Show Mount";
+L["Hide Mount"] = "Hide Mount";
 L["Click To Continue"] = "click to continue";
 L["Showcase Splash 1"] = "Create turntable animations to showcase your transmog with Narcissus and screen recorder.";
 L["Showcase Splash 2"] = "Click the button below to copy items from the Dressing Room.";
@@ -597,3 +600,10 @@ L["Showcase Splash 4"] = "Record the screen with video recording software then c
 L["Cycle Spec"] = "Press Tab to cycle through specs";
 L["Paperdoll Splash 1"] = "Enable class set indicator?";
 L["Paperdoll Splash 2"] = "Choose a theme";
+
+--Outfit Select--
+L["Models"] = "Models";
+L["Origin Outfits"] = "Original outfits";
+L["Outfit Owner Format"] = "%s's outfits";
+L["SortMethod Recent"] = "Recent";
+L["SortMethod Name"] = "Name";

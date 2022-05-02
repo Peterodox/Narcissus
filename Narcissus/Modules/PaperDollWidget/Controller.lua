@@ -5,7 +5,7 @@
 
 --]]
 
-local WidgetContainer;
+local Controller, WidgetContainer;
 
 
 local function Delay_OnUpdate(self, elapsed)
@@ -20,6 +20,7 @@ end
 NarciPaperDollWidgetControllerMixin = {};
 
 function NarciPaperDollWidgetControllerMixin:OnLoad()
+    Controller = self;
     WidgetContainer = self.WidgetContainer;
 end
 
@@ -29,7 +30,7 @@ function NarciPaperDollWidgetControllerMixin:Init()
     parentFrame:HookScript("OnShow", function()
         if self.isEnabled then
             self:ListenEvents(true);
-            self.WidgetContainer:Show();
+            WidgetContainer:Show();
             self:Update();
         end
     end);
@@ -42,12 +43,12 @@ function NarciPaperDollWidgetControllerMixin:Init()
     if titleFrame then
         titleFrame:HookScript("OnShow", function()
             self:ListenEvents(false);
-            self.WidgetContainer:Hide();
+            WidgetContainer:Hide();
         end);
         titleFrame:HookScript("OnHide", function()
             if self.isEnabled and parentFrame:IsVisible() then
                 self:ListenEvents(true);
-                self.WidgetContainer:Show();
+                WidgetContainer:Show();
                 self:Update();
             end
         end);
@@ -57,26 +58,53 @@ function NarciPaperDollWidgetControllerMixin:Init()
     NarciPaperDollWidgetControllerMixin.Init = nil;
 end
 
+local function UpdatePosition_OnShow()
+    --adjustment for serveral addons/WA
+    if CharacterStatsPaneilvl then
+        --Chonky Character Sheet    wago.io/bRl2gJIgz
+        WidgetContainer:ClearAllPoints();
+        WidgetContainer:SetPoint("CENTER", CharacterStatsPaneilvl, "RIGHT", 12, 0);     --anchor changed after swapping items, IDK why
+    elseif IsAddOnLoaded("DejaCharacterStats") then
+        WidgetContainer:ClearAllPoints();
+        WidgetContainer:SetPoint("CENTER", PaperDollFrame, "TOPRIGHT", -1, -84);
+    elseif CharacterFrame and CharacterStatsPane and CharacterStatsPane.ItemLevelFrame then
+        --A universal approach to align to the ItemLevelFrame center    (DejaCharStats)
+        local anchor = CharacterStatsPane.ItemLevelFrame;
+        local _, anchorY = anchor:GetCenter();
+        if anchorY then
+            local y0 = CharacterFrame:GetTop();
+            WidgetContainer:ClearAllPoints();
+            WidgetContainer:SetPoint("CENTER", PaperDollFrame, "TOPRIGHT", -1, anchorY - y0);
+        end
+    end
+
+    Controller:ResetWidgetPosition();
+    WidgetContainer:SetScript("OnShow", nil);
+end
+
 function NarciPaperDollWidgetControllerMixin:Enable()
     if self.Init then
         self:Init();
     end
-    local p = PaperDollFrame;
-    self.WidgetContainer:ClearAllPoints();
-    self.WidgetContainer:SetParent(p);
-    self.WidgetContainer:SetPoint("TOPRIGHT", p, "TOPRIGHT", 0, 0);
-    self.WidgetContainer:Show();
-    self.WidgetContainer:SetFrameStrata("HIGH");
-    self.isEnabled = true;
 
+    local parent = PaperDollFrame;
+    WidgetContainer:ClearAllPoints();
+    WidgetContainer:SetParent(parent);
+    WidgetContainer:SetPoint("CENTER", parent, "TOPRIGHT", -1, -119);
+    WidgetContainer:Show();
+    WidgetContainer:SetFrameStrata("HIGH");
+    WidgetContainer:SetScript("OnShow", UpdatePosition_OnShow);
+
+    self.isEnabled = true;
     NarcissusDB.PaperDollWidget = true;
 end
 
+
 function NarciPaperDollWidgetControllerMixin:Disable()
     self:ListenEvents(false);
-    self.WidgetContainer:ClearAllPoints();
-    self.WidgetContainer:SetParent(self);
-    self.WidgetContainer:Hide();
+    WidgetContainer:ClearAllPoints();
+    WidgetContainer:SetParent(self);
+    WidgetContainer:Hide();
     self.isEnabled = false;
 
     NarcissusDB.PaperDollWidget = false;
@@ -95,8 +123,16 @@ function NarciPaperDollWidgetControllerMixin:AddWidget(newWidget, index)
         self.widgets = {};
     end
     self.widgets[index] = newWidget;
-    newWidget.parent = self.WidgetContainer;
+    newWidget.parent = WidgetContainer;
     newWidget:ResetAnchor();
+end
+
+function NarciPaperDollWidgetControllerMixin:ResetWidgetPosition()
+    if self.widgets then
+        for _, widget in pairs(self.widgets) do
+            widget:ResetAnchor();
+        end
+    end
 end
 
 function NarciPaperDollWidgetControllerMixin:ListenEvents(state)

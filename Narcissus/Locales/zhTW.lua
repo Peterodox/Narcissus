@@ -437,7 +437,7 @@ L["Splash Content8 Description"] = "按住Shift並拖動此按鈕可使其脫離
 
 --Project Details--
 NARCI_ALL_PROJECTS = "全部項目";
-NARCI_PROJECT_DETAILS = "|cFFFFD100模組作者: Peterodox\n更新日期: 2022.2.25|r\n\n感謝妳使用此模組！如果妳遇到任何問題，或者有任何想法或建議，請在CurseForge項目主頁上留言，或者在以下網站上聯系我。";
+NARCI_PROJECT_DETAILS = "|cFFFFD100模組作者: Peterodox\n更新日期: 2022.5.2|r\n\n感謝妳使用此模組！如果妳遇到任何問題，或者有任何想法或建議，請在CurseForge項目主頁上留言，或者在以下網站上聯系我。";
 NARCI_PROJECT_AAA_SUMMARY = "探索艾澤拉斯上的不同景點，並收集各種故事和照片。";
 NARCI_PROJECT_NARCISSUS_SUMMARY = "沈浸式角色面板；妳最好的截圖助手。"
 
@@ -519,8 +519,22 @@ L["File"] = "文件";     --File Name
 L["File Tooltip"] = "把你的圖像文件放在|cffccccccWorld of Warcraft\\retail\\Interface\\AddOns|r目錄下，然後將文件名填入此方框。\n圖像必須爲|cffcccccc512x512|r或|cffcccccc1024x1024|r的|cffccccccJPG|r文件";
 L["Raise Level"] = "置于頂層";
 L["Lower Level"] = "取消置頂";
+L["Show Mount"] = "顯示坐騎";
+L["Hide Mount"] = "隱藏坐騎";
 L["Click To Continue"] = "點擊以繼續";
 L["Showcase Splash 1"] = "使用Narcissus和錄屏軟件來制作轉台動畫以展示你的塑形。";
 L["Showcase Splash 2"] = "點擊下方按鈕來複制試衣間中的物品。";
 L["Showcase Splash 3"] = "點擊下方按鈕可讓你的角色旋轉起來。";
 L["Showcase Splash 4"] = "錄制屏幕然後將視頻轉換爲GIF動圖。";
+
+--Item Sets--
+L["Cycle Spec"] = "按Tab键切换专精";
+L["Paperdoll Splash 1"] = "使用套装指示器？";
+L["Paperdoll Splash 2"] = "选择主题色";
+
+--Outfit Select--
+L["Models"] = "模組";
+L["Origin Outfits"] = "原始造型";
+L["Outfit Owner Format"] = "%s的造型";
+L["SortMethod Recent"] = "近期登錄";
+L["SortMethod Name"] = "角色姓名";

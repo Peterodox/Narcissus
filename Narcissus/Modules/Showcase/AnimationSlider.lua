@@ -246,3 +246,8 @@ function NarciShowcaseAnimationSliderMixin:SetCeiling(value)
         self.CeilingNotch:Hide();
     end
 end
+
+function NarciShowcaseAnimationSliderMixin:Reset()
+    self.sliderWidth = self:GetWidth();
+    self:SetValue(0, true);
+end

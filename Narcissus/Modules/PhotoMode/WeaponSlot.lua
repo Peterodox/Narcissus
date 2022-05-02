@@ -1,3 +1,9 @@
+local TransmogDataProvider;
+do
+    local _, addon = ...
+    TransmogDataProvider = addon.TransmogDataProvider;
+end
+
 local Narci = Narci;
 
 local function GetItemIcon(itemID)
@@ -14,9 +20,18 @@ end
 local function HoldWeaponButton_OnClick(self)
 	local model = Narci:GetActiveActor();
 	self.isOn = not self.isOn;
-
 	if model.SetSheathed then
-		model:SetSheathed(not self.isOn);
+        local isSheathed = not model:GetSheathed();
+        self.isOn = not isSheathed;
+		model:SetSheathed(isSheathed);
+        if model.bowData then
+            if isSheathed then
+                model:SetItemTransmogInfo(model.bowData, 16);
+            else
+                model:SetItemTransmogInfo(model.bowData, 17); --swtich bow to the left hand
+                model:UndressSlot(16);
+            end
+        end
     elseif model.EquipItem then
 		if self.isOn then
             local weapons = model.equippedWeapons;
@@ -37,8 +52,11 @@ local function HoldWeaponButton_OnClick(self)
 		end
 		model.holdWeapon = self.isOn;
 	end
-
-    self.Highlight:SetShown(self.isOn);
+    if self.isOn then
+        self.Icon:SetTexCoord(0.5, 1, 0, 1);
+    else
+        self.Icon:SetTexCoord(0, 0.5, 0, 1);
+    end
 end
 
 local UnequipButtonScripts = {};
@@ -173,9 +191,34 @@ NarciPhotoModeWeaponFrameMixin = {};
 
 function NarciPhotoModeWeaponFrameMixin:OnLoad()
     self.SheathButton:SetScript("OnClick", HoldWeaponButton_OnClick);
-    self.Label:SetText(Narci.L["Draw Weapon"]);
+    self.SheathButton.Background:SetVertexColor(0.5, 0.5, 0.5);
+    self.SheathButton.Background:Hide();
+    self.SheathButton:SetScript("OnEnter", function(f)
+        f.Background:Show();
+        NarciTooltip:NewText(BINDING_NAME_TOGGLESHEATH, nil, nil, 1);
+    end);
+    self.SheathButton:SetScript("OnLeave", function(f)
+        f.Background:Hide();
+        NarciTooltip:FadeOut();
+    end);
+    self.SheathButton:SetScript("OnMouseDown", function(f)
+        if f:IsEnabled() then
+            f.Icon:SetSize(12, 12);
+        end
+    end);
+    self.SheathButton:SetScript("OnMouseUp", function(f)
+        f.Icon:SetSize(14, 14);
+    end);
+    self.SheathButton:SetScript("OnEnable", function(f)
+        f.Icon:SetVertexColor(1, 1, 1);
+    end);
+    self.SheathButton:SetScript("OnDisable", function(f)
+        f.Icon:SetVertexColor(0.5, 0.5, 0.5);
+    end);
+    --self.Label:SetText(Narci.L["Draw Weapon"]);
     self:SetScript("OnLoad", nil);
     self.OnLoad = nil;
+    NarciPhotoModeBar_OnLoad(self);
 end
 
 function NarciPhotoModeWeaponFrameMixin:SetItemInfo(id, slot, databaseName, overrideSheathStatus)
@@ -197,6 +240,7 @@ end
 function NarciPhotoModeWeaponFrameMixin:SetItemFromActor(actor)
     if actor then
         actor.isItemLoaded = true;
+        actor.bowData = nil;
         if actor.GetItemTransmogInfo then
             --New Method in 9.1.0   return ItemTransmogInfoMixin
             --DressUpModel / ModelSceneActor
@@ -212,6 +256,9 @@ function NarciPhotoModeWeaponFrameMixin:SetItemFromActor(actor)
                         name = sourceInfo.name;
                     else
                         itemID = 0;
+                    end
+                    if TransmogDataProvider:IsSourceBow(sourceID) then
+                        actor.bowData = transmogInfo;
                     end
                 else
                     itemID = 0;
@@ -275,8 +322,6 @@ function NarciPhotoModeWeaponFrameMixin:UpdateSheathButton(actor)
         if actor.SetSheathed and actor.GetSheathed then
             self.SheathButton:Enable();
             isHolding = not actor:GetSheathed();
-            self.SheathButton.isOn = isHolding;
-            self.SheathButton.Highlight:SetShown(isHolding);
         else
             if actor.equippedWeapons then
                 self.SheathButton:Enable();
@@ -285,14 +330,18 @@ function NarciPhotoModeWeaponFrameMixin:UpdateSheathButton(actor)
                 self.SheathButton:Disable();
                 isHolding = false;
             end
-            self.SheathButton.isOn = isHolding;
-            self.SheathButton.Highlight:SetShown(isHolding);
+        end
+        self.SheathButton.isOn = isHolding;
+        if isHolding then
+            self.SheathButton.Icon:SetTexCoord(0.5, 1, 0, 1);
+        else
+            self.SheathButton.Icon:SetTexCoord(0, 0.5, 0, 1);
         end
     end
 end
 
 function NarciPhotoModeWeaponFrameMixin:ToggleSheathButton()
     self.SheathButton:Enable();
-    self.SheathButton.Highlight:Show();
+    self.SheathButton.Icon:SetTexCoord(0.5, 1, 0, 1);
     self.SheathButton.isOn = true;
 end

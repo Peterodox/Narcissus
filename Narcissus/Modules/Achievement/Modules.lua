@@ -129,7 +129,7 @@ end
 --Redirect Blizzard Achievement to Narcissus Achievement Frame
 local Original_OnBlockHeaderClick = ACHIEVEMENT_TRACKER_MODULE.OnBlockHeaderClick;
 local Original_OpenAchievementFrameToAchievement = OpenAchievementFrameToAchievement;
-
+local Original_AchievementAlertFrame_OnClick = AchievementAlertFrame_OnClick;
 
 local function New_OnBlockHeaderClick(_, block, mouseButton)
     if ( IsModifiedClick("CHATLINK") and ChatEdit_GetActiveWindow() ) then
@@ -156,6 +156,7 @@ function RedirectFrame:RestoreFunctions()
     if self.hasOverwritten then
         self.hasOverwritten = false;
         OpenAchievementFrameToAchievement = Original_OpenAchievementFrameToAchievement;
+        AchievementAlertFrame_OnClick = Original_AchievementAlertFrame_OnClick;
         ACHIEVEMENT_TRACKER_MODULE.OnBlockHeaderClick = Original_OnBlockHeaderClick;
     end
 end
@@ -166,18 +167,21 @@ function RedirectFrame:OverrideFunctions()
         function OpenAchievementFrameToAchievement(achievementID)
             AttemptToOpenAchievement(achievementID);
         end
-
         ACHIEVEMENT_TRACKER_MODULE.OnBlockHeaderClick = New_OnBlockHeaderClick;
     end
 end
 
-
-local function RedirectPrimaryAchievementFrame()
+local function UpdateAchievementSettings()
     if NarciAchievementOptions.UseAsDefault then
         RedirectFrame:OverrideFunctions();
         HookAchievementTooltip()
         ENABLE_TOOLTIP = true;
-        NarciAchievementAlertSystem:Enable();
+        if NarciAchievementOptions.ReplaceToast then
+            NarciAchievementAlertSystem:Enable();
+        else
+            NarciAchievementAlertSystem:Disable();
+            AchievementAlertFrame_OnClick = NarciAchievementAlertFrame_OnClick;
+        end
     else
         RedirectFrame:RestoreFunctions();
         ENABLE_TOOLTIP = false;
@@ -185,4 +189,49 @@ local function RedirectPrimaryAchievementFrame()
     end
 end
 
-Narci.RedirectPrimaryAchievementFrame = RedirectPrimaryAchievementFrame;
+Narci.UpdateAchievementSettings = UpdateAchievementSettings;
+
+
+
+local MODULE_NAME = "Narcissus_Achievements";
+
+local Loader = CreateFrame("Frame");
+Loader:RegisterEvent("PLAYER_ENTERING_WORLD");
+
+Loader:SetScript("OnEvent", function(self, event, ...)
+    if event == "ADDON_LOADED" then
+        local name = ...
+        if name == MODULE_NAME then
+            self:UnregisterEvent(event);
+            self:OnAddOnLoaded();
+        end
+    elseif event == "PLAYER_ENTERING_WORLD" then
+        self:UnregisterEvent(event);
+        UpdateAchievementSettings();
+    end
+end)
+
+function Loader:LoadAchievementPanel()
+    Loader:RegisterEvent("ADDON_LOADED");
+    EnableAddOn(MODULE_NAME);    --Forced Enable
+    local loaded, reason = LoadAddOn(MODULE_NAME);
+end
+
+function Loader:OnAddOnLoaded()
+    local frame = Narci_AchievementFrame;
+    if frame then
+        frame:Init();
+        if self.pendingAchievementID then
+            C_Timer.After(0.5, function()
+                frame:LocateAchievement(self.pendingAchievementID, self.clickAgainToClose);
+                self.pendingAchievementID = nil;
+            end)
+        end
+    end
+end
+
+Narci.LoadAchievementPanel = function(achievementID, clickAgainToClose)
+    Loader.pendingAchievementID = achievementID;    --Load panel then go to this achievement
+    Loader.clickAgainToClose = clickAgainToClose;
+    Loader:LoadAchievementPanel();
+end

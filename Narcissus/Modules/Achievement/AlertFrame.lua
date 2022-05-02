@@ -1,10 +1,12 @@
+local _, addon = ...
+
 local function SetSmallFont(object)
     local path, height = GameFontBlackTiny:GetFont();
     object:SetFont(path, 9);
 end
 
 local function AchievementAlertFrame_SetUp(frame, achievementID, alreadyEarned)
-    local _, name, points, completed, month, day, year, description, flags, icon, rewardText, isGuildAch, wasEarnedByMe, earnedBy = GetAchievementInfo(achievementID);
+    local _, name, points, completed, month, day, year, description, flags, icon, rewardText, isGuild, wasEarnedByMe, earnedBy = GetAchievementInfo(achievementID);
     frame.id = achievementID;
 
     if ( points < 100 ) then
@@ -16,75 +18,100 @@ local function AchievementAlertFrame_SetUp(frame, achievementID, alreadyEarned)
 
     if ( points == 0 ) then
         frame.points:Hide();
-        frame.shield:SetTexture([[Interface\AchievementFrame\UI-Achievement-Shields-NoPoints]]);
+        frame.Shield:SetTexture([[Interface\AchievementFrame\UI-Achievement-Shields-NoPoints]]);
     else
         frame.points:Show();
-        frame.shield:SetTexture([[Interface\AchievementFrame\UI-Achievement-Shields]]);
+        frame.Shield:SetTexture([[Interface\AchievementFrame\UI-Achievement-Shields]]);
     end
-
-    frame.name:SetText(name);
-    frame.nameLong:SetText(name);
-    local isLongName = frame.name:IsTruncated();
-    frame.name:SetShown(not isLongName);
-    frame.nameLong:SetShown(isLongName);
 
     frame.icon:SetTexture(icon);
 
-    local offsetY;
-    
-    if isGuildAch then
+    frame.PlayerAchievementBackground:SetShown(not isGuild);
+    frame.GuildAchievementBackground:SetShown(isGuild);
+
+    if isGuild then
+        frame:SetWidth(312);
+        frame.Name:SetWidth(170);
+        frame.Name:SetText(name);
+        frame.NameLong:SetWidth(170);
+        frame.NameLong:SetText(name);
+        frame.NameLong:SetPoint("CENTER", frame.Name, "CENTER", 0, 0);
+        local isLongName = frame.Name:IsTruncated();
+        frame.Name:SetShown(not isLongName);
+        frame.NameLong:SetShown(isLongName);
+        frame.shine = frame.GuildAchievementBackground.Shine;
+        frame.glow = frame.GuildAchievementBackground.Glow;
         if not frame.guildDisplay then
             frame.guildDisplay = true;
             frame:SetHeight(98);
-            frame.background:SetTexture("Interface\\AddOns\\Narcissus\\Art\\Modules\\Achievement\\Classic\\AlertFrameGuildBackground");
-            frame.background:SetTexCoord(0, 1, 0.1875, 0.8125);
-            frame.mask:SetTexture("Interface\\AddOns\\Narcissus\\Art\\Modules\\Achievement\\Classic\\AlertFrameGuildMask");
-            frame.mask:SetHeight(156);
             frame.unlockedText:SetText( string.upper(GUILD_ACHIEVEMENT_UNLOCKED) );
             frame.points:SetVertexColor(0, 1, 0);
-            frame.shield:SetTexCoord(0, 0.5, 0.5, 1);
-            frame.shield:SetPoint("BOTTOMRIGHT", frame, "BOTTOMRIGHT", -16, 14);
+            frame.Shield:SetTexCoord(0, 0.5, 0.5, 1);
+            frame.Shield:SetPoint("BOTTOMRIGHT", frame, "BOTTOMRIGHT", -16, 14);
             frame.guildName:Show();
             frame.GuildBorder:Show();
             frame.GuildBanner:Show();
             frame.icon:SetSize(45, 45);
-            frame.glow:SetTexture("Interface\\AddOns\\Narcissus\\Art\\Modules\\Achievement\\Classic\\AlertFrameGuildGlow");
-            frame.shine:SetSize(98, 98);
-            frame.shine:SetTexture("Interface\\AddOns\\Narcissus\\Art\\Modules\\Achievement\\Classic\\AlertFrameGuildShine");
-            frame.shineMask:SetTexture("Interface\\AddOns\\Narcissus\\Art\\Modules\\Achievement\\Classic\\AlertFrameGuildShineMask");
-            offsetY = 3;
+            frame.decor:Hide();
         end
         frame.guildName:SetText( GetGuildInfo("player") );
         SetSmallGuildTabardTextures("player", nil, frame.GuildBanner, frame.GuildBorder);
-        frame.points:SetPoint("CENTER", frame.shield, "CENTER", -1, 3);
+        frame.points:SetPoint("CENTER", frame.Shield, "CENTER", -1, 3);
     else
+        frame.Name:SetWidth(0);
+        frame.Name:SetText(name);
+        frame.NameLong:SetText(name);
+        frame.Name:Show();
+        frame.NameLong:Hide();
+        frame.shine = frame.PlayerAchievementBackground.ShineMask;
+        frame.glow = frame.PlayerAchievementBackground.Glow;
+        frame.PlayerAchievementBackground.Ribbon:SetHeight(24);
+        frame.PlayerAchievementBackground.Ribbon:SetPoint("BOTTOM", 0, 21);
+        local frameWidth;
+        local textWidth = frame.Name:GetWidth();
+        local extra = textWidth - 170;
+        if extra > 0 then
+            if extra > 64 then
+                extra = 64;
+                frame.Name:Hide();
+                frame.NameLong:Show();
+                frame.NameLong:SetWidth(170 + extra);
+                frame.NameLong:SetPoint("CENTER", frame.Name, "CENTER", 0, -2);
+                frame.PlayerAchievementBackground.Ribbon:SetHeight(32);
+                frame.PlayerAchievementBackground.Ribbon:SetPoint("BOTTOM", 0, 16);
+            end
+            frameWidth = 312 + extra;
+        else
+            frameWidth = 312;
+        end
+        frame.PlayerAchievementBackground:SetWidth(frameWidth);
+        frame.PlayerAchievementBackground.ShineMask.animIn.Translation:SetOffset(frameWidth + 78, 0);
+        frame:SetWidth(frameWidth);
+
         if frame.guildDisplay then
             frame.guildDisplay = nil;
             frame:SetHeight(78);
-            frame.background:SetTexture("Interface\\AddOns\\Narcissus\\Art\\Modules\\Achievement\\Classic\\AlertFrameBackground");
-            frame.mask:SetTexture("Interface\\AddOns\\Narcissus\\Art\\Modules\\Achievement\\Classic\\AlertFrameMask");
-            frame.mask:SetHeight(78);
             --frame.unlockedText:SetText( string.upper(ACHIEVEMENT_UNLOCKED) );
             frame.points:SetVertexColor(1, 0.82, 0);
-            frame.shield:SetTexCoord(0, 0.5, 0, 0.45);
-            frame.shield:SetPoint("BOTTOMRIGHT", frame, "BOTTOMRIGHT", -14, 14);
+            frame.Shield:SetTexCoord(0, 0.5, 0, 0.45);
+            frame.Shield:SetPoint("BOTTOMRIGHT", frame, "BOTTOMRIGHT", -14, 14);
             frame.guildName:Hide();
             frame.GuildBorder:Hide();
             frame.GuildBanner:Hide();
             frame.icon:SetSize(52, 52);
-            frame.glow:SetTexture("Interface\\AddOns\\Narcissus\\Art\\Modules\\Achievement\\Classic\\AlertFrameGlow");
-            frame.shine:SetSize(78, 78);
-            frame.shine:SetTexture("Interface\\AddOns\\Narcissus\\Art\\Modules\\Achievement\\Classic\\AlertFrameShine");
-            frame.shineMask:SetTexture("Interface\\AddOns\\Narcissus\\Art\\Modules\\Achievement\\Classic\\AlertFrameShineMask");
-            offsetY = 0;
+            frame.decor:Show();
         end
+
+        local texY;
         if flags == 131072 then
-            frame.background:SetTexCoord(0, 1, 0.5, 1);
+            texY = 0.5;
         else
-            frame.background:SetTexCoord(0, 1, 0, 0.5);
+            texY = 0;
         end
+        frame.PlayerAchievementBackground.Ribbon:SetTexCoord(0, 1, texY, texY + 0.3125);
+
         frame.unlockedText:SetText( string.upper(ACHIEVEMENT_UNLOCKED) );
-        frame.points:SetPoint("CENTER", frame.shield, "CENTER", -1, 0);
+        frame.points:SetPoint("CENTER", frame.Shield, "CENTER", 0, 0);
     end
 
     SetSmallFont(frame.unlockedText);
@@ -101,21 +128,9 @@ end
 
 
 
+---- Alert System ----
 local EventListener = CreateFrame("Frame");
-
-EventListener:SetScript("OnEvent", function(self, event, ...)
-    if event == "ACHIEVEMENT_EARNED" then
-        NarciAchievementAlertSystem:AddAlert(...);
-    elseif event == "CRITERIA_EARNED" then
-        NarciCriteriaAlertSystem:AddAlert(...);
-    end
-end)
-
-
-------------------------------------------------------------------------------------------------------
---Public:
---/run NarciAchievementAlertSystem:AddAlert(13994, true)
-NarciCriteriaAlertSystem = AlertFrame:AddQueuedAlertFrameSubSystem("NarciCriteriaAlertFrameTemplate", CriteriaAlertFrame_SetUp, 2, 0);
+local NarciCriteriaAlertSystem = AlertFrame:AddQueuedAlertFrameSubSystem("NarciCriteriaAlertFrameTemplate", CriteriaAlertFrame_SetUp, 2, 0);
 NarciAchievementAlertSystem = AlertFrame:AddQueuedAlertFrameSubSystem("NarciAchievementAlertFrameTemplate", AchievementAlertFrame_SetUp, 2, 6);
 
 function NarciAchievementAlertSystem:Enable()
@@ -138,23 +153,33 @@ end
 
 
 function NarciAchievementAlertFrame_OnClick(self, button, down)
-    if( AlertFrame_OnClick(self, button, down) ) then
-        return;
-    end
-    local id = self.id;
-    if ( not id ) then
-        return;
+    if button == "RightButton" then
+        self:StopAnimating();
+        self:Hide();
+        return
     end
 
+    if not self.id then return end;
+
     if Narci_AchievementFrame then
-        Narci_AchievementFrame:LocateAchievement(id);
+        Narci_AchievementFrame:LocateAchievement(self.id);
     else
-        Narci.LoadAchievementPanel(id);
+        Narci.LoadAchievementPanel(self.id);
     end
 end
 
+EventListener:SetScript("OnEvent", function(self, event, ...)
+    if event == "ACHIEVEMENT_EARNED" then
+        NarciAchievementAlertSystem:AddAlert(...);
+    elseif event == "CRITERIA_EARNED" then
+        NarciCriteriaAlertSystem:AddAlert(...);
+    end
+end)
+
 ------------------------------------------------------------------------------------------------------
 --/run NarciAchievementAlertSystem:AddAlert(13699)
+--/run NarciAchievementAlertSystem:AddAlert(15407)
 --/run NarciAchievementAlertSystem:AddAlert(5159)
-
+--/run NarciAchievementAlertSystem:AddAlert(4958)
+--/run NarciAchievementAlertSystem:AddAlert(11572)
 ------------------------------------------------------------------------------------------------------

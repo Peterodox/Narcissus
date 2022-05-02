@@ -1,3 +1,5 @@
+local _, addon = ...
+
 local Narci = Narci;
 local NarciAnimationInfo = NarciAnimationInfo;
 local FadeFrame = NarciFadeUI.Fade;
@@ -8,12 +10,8 @@ local BrowserFrame, QuickFavoriteButton;
 
 local max = math.max;
 local floor = math.floor;
-local pow = math.pow;
 
-local function outQuart(t, b, e, d)
-    t = t / d - 1;
-    return (b - e) * (pow(t, 4) - 1) + b
-end
+local outQuart = addon.EasingFunctions.outQuart;
 
 local function FlyInText(button)
     local textWidth = button.Name:GetWidth();

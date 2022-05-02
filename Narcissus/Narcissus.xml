@@ -808,7 +808,7 @@
 
 	<Button name="NarciSlotButtonTemplate" registerForClicks="LeftButtonUp, RightButtonUp" virtual="true" frameLevel="6" inherits="SecureActionButtonTemplate" mixin="NarciItemButtonSharedMixin"> <!--inherits="SecureActionButtonTemplate"  inherits="SecureHandlerClickTemplate" -->
 		<Size>
-			<AbsDimension x="64" y="64"/>
+			<AbsDimension x="70" y="72"/>
 		</Size>
 		<HitRectInsets>
 			<AbsInset left="12" right="12" top="12" bottom="12"/>
@@ -854,7 +854,7 @@
 			</Layer>	
 			<Layer level="OVERLAY" textureSubLevel="2">
 				<Texture parentKey="Border" nounload="true">
-					<Size x="64" y="64"/>
+					<Size x="128" y="128"/>
 					<Anchors>
 						<Anchor point="CENTER"/>
 					</Anchors>

@@ -2,7 +2,6 @@
 	<Script file="Meta.lua"/>
     <Script file="AlertFrame.lua"/>
 	<Script file="Modules.lua"/>
-	<Script file="Loader.lua"/>
 
     <ContainedAlertFrame name="NarciAchievementAlertFrameTemplate" parent="UIParent" hidden="true" frameStrata="DIALOG" virtual="true" inherits="AlertFrameTemplate">
 		<Size x="312" y="78"/>
@@ -18,7 +17,7 @@
                 <Alpha startDelay="4.05" fromAlpha="1" toAlpha="0" duration="1.5" parentKey="animOut">
                 <Scripts>
                     <OnFinished>
-                    self:GetRegionParent():Hide();
+                    	self:GetRegionParent():Hide();
                     </OnFinished>
                 </Scripts>
                 </Alpha>
@@ -34,23 +33,7 @@
 				</Texture>
 			</Layer>
 			<Layer level="BACKGROUND" textureSubLevel="2">
-				<Texture parentKey="background" file="Interface\AddOns\Narcissus\Art\Modules\Achievement\AlertFrameBackground">
-					<TexCoords left="0" right="1" top="0" bottom="0.5"/>
-					<Anchors>
-						<Anchor point="TOPLEFT"/>
-						<Anchor point="BOTTOMRIGHT"/>
-					</Anchors>
-				</Texture>
-				<MaskTexture parentKey="mask" file="Interface\AddOns\Narcissus\Art\Modules\Achievement\AlertFrameMask" hWrapMode="CLAMPTOBLACKADDITIVE" vWrapMode="CLAMPTOBLACKADDITIVE">
-					<Size x="312" y="78"/>
-					<Anchors>
-						<Anchor point="CENTER"/>
-					</Anchors>
-					<MaskedTextures>
-						<MaskedTexture childKey="background"/>
-					</MaskedTextures>
-				</MaskTexture>
-				<FontString parentKey="name" inherits="GameFontHighlight" text="" justifyV="MIDDLE">
+				<FontString parentKey="Name" inherits="GameFontHighlight" text="" justifyV="MIDDLE">
 					<Anchors>
 						<Anchor point="BOTTOM" x="4" y="25"/>
 					</Anchors>
@@ -63,12 +46,12 @@
 						</Offset>
 					</Shadow>
 				</FontString>
-				<FontString parentKey="nameLong" inherits="GameFontHighlight" text="" justifyV="MIDDLE" hidden="true">
+				<FontString parentKey="NameLong" inherits="GameFontHighlight" text="" justifyV="MIDDLE" hidden="true" spacing="1" maxLines="2">
 					<Color r="1" g="1" b="1"/>
 					<Anchors>
-						<Anchor point="CENTER" relativeKey="$parent.name" relativePoint="CENTER"/>
+						<Anchor point="CENTER" relativeKey="$parent.Name" relativePoint="CENTER" y="-2"/>
 					</Anchors>
-					<Size x="170" y="24"/>
+					<Size x="170" y="0"/>
 					<Color r="1" g="1" b="1" a="1"/>
 					<Shadow>
 						<Color r="0" g="0" b="0" a="1"/>
@@ -87,7 +70,7 @@
 						</Offset>
 					</Shadow>
 					<Anchors>
-						<Anchor point="BOTTOM" relativeKey="$parent.name" relativePoint="TOP" x="0" y="6"/>
+						<Anchor point="BOTTOM" relativeKey="$parent.Name" relativePoint="TOP" x="0" y="6"/>
 					</Anchors>
 				</FontString>
 				<FontString parentKey="guildName" inherits="GameFontNormal" hidden="true">
@@ -104,7 +87,6 @@
 					</Shadow>
 				</FontString>
 			</Layer>
-
 			<Layer level="BACKGROUND" textureSubLevel="3">
 				<Texture parentKey="GuildBanner" file="Interface\AddOns\Narcissus\Art\Modules\Achievement\GuildBanner" hidden="true">
 					<Size x="64" y="64"/>
@@ -130,71 +112,242 @@
 					<TexCoords left="0.5" right="1" top="0" bottom="1"/>
 				</Texture>
 			</Layer>
-
 			<Layer level="ARTWORK">
-				<Texture parentKey="shield" file="Interface\AchievementFrame\UI-Achievement-Shields">
+				<Texture parentKey="Shield" file="Interface\AchievementFrame\UI-Achievement-Shields">
 					<Size x="52" y="48"/>
 					<Anchors>
 					    <Anchor point="BOTTOMRIGHT" relativeKey="$parent" relativePoint="BOTTOMRIGHT" x="-14" y="14"/>
 					</Anchors>
 					<TexCoords left="0" right=".5" top="0" bottom=".45"/>
 				</Texture>
+				<Texture parentKey="decor" file="Interface\AddOns\Narcissus\Art\Modules\Achievement\AlertFrameDecor">
+					<Size x="312" y="78"/>
+					<Anchors>
+						<Anchor point="CENTER"/>
+					</Anchors>
+				</Texture>
 			</Layer>
 			<Layer level="OVERLAY">
 				<FontString parentKey="points" inherits="GameFontNormal" justifyH="CENTER" justifyV="MIDDLE">
 					<Anchors>
-					    <Anchor point="CENTER" relativeKey="$parent.shield" x="-2" y="0"/>
+					    <Anchor point="CENTER" relativeKey="$parent.Shield" x="-1" y="0"/>
 					</Anchors>
 					<Size x="64" y="64"/>
 				</FontString>
 			</Layer>
-			<Layer level="OVERLAY" textureSubLevel="3">
-				<Texture file="Interface\AddOns\Narcissus\Art\Modules\Achievement\AlertFrameGlow" alphaMode="ADD" hidden="true" parentKey="glow">
-					<Size x="360" y="180"/>
-					<Anchors>
-						<Anchor point="CENTER" x="0" y="0"/>
-					</Anchors>
-					<Animations>
-						<AnimationGroup parentKey="animIn">
-							<Alpha fromAlpha="0" toAlpha="1" duration="0.2" order="1"/>
-							<Alpha fromAlpha="1" toAlpha="0" duration="0.5" order="2"/>
-							<Scripts>
-								<OnFinished>
-									self:GetParent():Hide();
-								</OnFinished>
-							</Scripts>
-						</AnimationGroup>
-					</Animations>
-				</Texture>
-				<Texture file="Interface\AddOns\Narcissus\Art\Modules\Achievement\AlertFrameShine" alphaMode="ADD" hidden="true" parentKey="shine">
-					<Size x="78" y="78"/>
-					<Anchors>
-						<Anchor point="BOTTOMLEFT" relativeKey="$parent" relativePoint="BOTTOMLEFT"  x="0" y="0"/>
-					</Anchors>
-					<Animations>
-						<AnimationGroup parentKey="animIn">
-							<Translation offsetX="-80" offsetY="0" duration="0" order="1"/>
-							<Translation offsetX="360" offsetY="0" duration="1.5" order="2" smoothing="IN_OUT"/>
-							<Alpha startDelay="0.9" fromAlpha="1" toAlpha="0" duration="0.5" order="2"/>
-							<Scripts>
-								<OnFinished>
-									self:GetParent():Hide();
-								</OnFinished>
-							</Scripts>
-						</AnimationGroup>
-					</Animations>
-				</Texture>
-				<MaskTexture parentKey="shineMask" file="Interface\AddOns\Narcissus\Art\Modules\Achievement\AlertFrameShineMask" hWrapMode="CLAMPTOBLACKADDITIVE" vWrapMode="CLAMPTOBLACKADDITIVE">
-					<Anchors>
-						<Anchor point="TOPLEFT" relativeKey="$parent.mask" relativePoint="TOPLEFT"/>
-						<Anchor point="BOTTOMRIGHT" relativeKey="$parent.mask" relativePoint="BOTTOMRIGHT"/>
-					</Anchors>
-					<MaskedTextures>
-						<MaskedTexture childKey="shine"/>
-					</MaskedTextures>
-				</MaskTexture>
-			</Layer>
 		</Layers>
+		<Frames>
+			<Frame parentKey="PlayerAchievementBackground" useParentLevel="true">
+				<Size x="312" y="78"/>
+				<Anchors>
+					<Anchor point="CENTER"/>
+				</Anchors>
+				<Layers>
+					<Layer level="BORDER">
+						<Texture parentKey="FrameLeft" file="Interface\AddOns\Narcissus\Art\Modules\Achievement\PlayerToastBorder">
+							<Size x="117" y="78"/>
+							<TexCoords left="0" right="0.375" top="0" bottom="1"/>
+							<Anchors>
+								<Anchor point="LEFT"/>
+							</Anchors>
+						</Texture>
+						<Texture parentKey="FrameRight" file="Interface\AddOns\Narcissus\Art\Modules\Achievement\PlayerToastBorder">
+							<Size x="58.5" y="78"/>
+							<TexCoords left="0.8125" right="1" top="0" bottom="1"/>
+							<Anchors>
+								<Anchor point="RIGHT"/>
+							</Anchors>
+						</Texture>
+						<Texture parentKey="FrameCenter" file="Interface\AddOns\Narcissus\Art\Modules\Achievement\PlayerToastBorder">
+							<Size x="136.5" y="78"/>
+							<TexCoords left="0.375" right="0.8125" top="0" bottom="1"/>
+							<Anchors>
+								<Anchor point="TOPLEFT" relativeKey="$parent.FrameLeft" relativePoint="TOPRIGHT" x="-0.0"/>
+								<Anchor point="BOTTOMRIGHT" relativeKey="$parent.FrameRight" relativePoint="BOTTOMLEFT" x="0.0"/>
+							</Anchors>
+						</Texture>
+					</Layer>
+					<Layer level="BACKGROUND" textureSubLevel="1">
+						<Texture parentKey="Background" file="Interface\AddOns\Narcissus\Art\Modules\Achievement\PlayerToastBackground">
+							<Size x="0" y="24"/>
+							<TexCoords left="0" right="1" top="0" bottom="1"/>
+							<Anchors>
+								<Anchor point="TOPLEFT" relativeKey="$parent.FrameLeft" relativePoint="TOPLEFT" x="66" y="-16"/>
+								<Anchor point="BOTTOMRIGHT" relativeKey="$parent.FrameRight" relativePoint="BOTTOMRIGHT" x="-14" y="16"/>
+							</Anchors>
+						</Texture>
+					</Layer>
+					<Layer level="BACKGROUND" textureSubLevel="2">
+						<Texture parentKey="Ribbon" file="Interface\AddOns\Narcissus\Art\Modules\Achievement\PlayerToastRibbon">
+							<Size x="0" y="32"/>
+							<TexCoords left="0" right="1" top="0" bottom="0.3125"/>
+							<Anchors>
+								<Anchor point="LEFT" relativeKey="$parent.FrameLeft" relativePoint="CENTER" x="6"/>
+								<Anchor point="RIGHT" relativeKey="$parent.FrameRight" relativePoint="LEFT" x="4"/>
+								<Anchor point="BOTTOM" y="16"/>
+							</Anchors>
+						</Texture>
+					</Layer>
+					<Layer level="OVERLAY" textureSubLevel="3">
+						<Texture parentKey="ShineLeft" file="Interface\AddOns\Narcissus\Art\Modules\Achievement\PlayerToastShine" alphaMode="ADD">
+							<TexCoords left="0" right="0.375" top="0" bottom="1"/>
+							<Anchors>
+								<Anchor point="TOPLEFT" relativeKey="$parent.FrameLeft" relativePoint="TOPRIGHT"/>
+								<Anchor point="BOTTOMRIGHT" relativeKey="$parent.FrameLeft" relativePoint="BOTTOMLEFT"/>
+							</Anchors>
+						</Texture>
+						<Texture parentKey="ShineRight" file="Interface\AddOns\Narcissus\Art\Modules\Achievement\PlayerToastShine" alphaMode="ADD">
+							<TexCoords left="0.8125" right="1" top="0" bottom="1"/>
+							<Anchors>
+								<Anchor point="TOPLEFT" relativeKey="$parent.FrameRight" relativePoint="TOPRIGHT"/>
+								<Anchor point="BOTTOMRIGHT" relativeKey="$parent.FrameRight" relativePoint="BOTTOMLEFT"/>
+							</Anchors>
+						</Texture>
+						<Texture parentKey="ShineCenter" file="Interface\AddOns\Narcissus\Art\Modules\Achievement\PlayerToastShine" alphaMode="ADD">
+							<TexCoords left="0.375" right="0.8125" top="0" bottom="1"/>
+							<Anchors>
+								<Anchor point="TOPLEFT" relativeKey="$parent.FrameCenter" relativePoint="TOPRIGHT"/>
+								<Anchor point="BOTTOMRIGHT" relativeKey="$parent.FrameCenter" relativePoint="BOTTOMLEFT"/>
+							</Anchors>
+						</Texture>
+						<MaskTexture parentKey="ShineMask" file="Interface\AddOns\Narcissus\Art\Modules\Achievement\PlayerToastShineMask" hWrapMode="CLAMPTOBLACKADDITIVE" vWrapMode="CLAMPTOBLACKADDITIVE">
+							<Size x="78" y="78"/>
+							<Anchors>
+								<Anchor point="RIGHT" relativeKey="$parent" relativePoint="LEFT"/>
+							</Anchors>
+							<MaskedTextures>
+								<MaskedTexture childKey="ShineLeft"/>
+								<MaskedTexture childKey="ShineCenter"/>
+								<MaskedTexture childKey="ShineRight"/>
+							</MaskedTextures>
+							<Animations>
+								<AnimationGroup parentKey="animIn">
+									<Translation offsetX="360" offsetY="0" duration="1.5" order="1" smoothing="IN_OUT" parentKey="Translation"/>
+									<Alpha startDelay="0.9" fromAlpha="1" toAlpha="0" duration="0.5" order="1"/>
+								</AnimationGroup>
+							</Animations>
+						</MaskTexture>
+					</Layer>
+				</Layers>
+				<Frames>
+					<Frame parentKey="Glow" useParentLevel="true" hidden="true">
+						<Size x="8" y="8"/>
+						<Anchors>
+							<Anchor point="CENTER"/>
+						</Anchors>
+						<Layers>
+							<Layer level="OVERLAY" textureSubLevel="3">
+								<Texture parentKey="ShineLeft" file="Interface\AddOns\Narcissus\Art\Modules\Achievement\PlayerToastGlow" alphaMode="ADD">
+									<TexCoords left="0" right="0.375" top="0" bottom="1"/>
+									<Anchors>
+										<Anchor point="TOPLEFT" relativeKey="$parent.$parent.FrameLeft" relativePoint="TOPRIGHT"/>
+										<Anchor point="BOTTOMRIGHT" relativeKey="$parent.$parent.FrameLeft" relativePoint="BOTTOMLEFT"/>
+									</Anchors>
+								</Texture>
+								<Texture parentKey="ShineRight" file="Interface\AddOns\Narcissus\Art\Modules\Achievement\PlayerToastGlow" alphaMode="ADD">
+									<TexCoords left="0.8125" right="1" top="0" bottom="1"/>
+									<Anchors>
+										<Anchor point="TOPLEFT" relativeKey="$parent.$parent.FrameRight" relativePoint="TOPRIGHT"/>
+										<Anchor point="BOTTOMRIGHT" relativeKey="$parent.$parent.FrameRight" relativePoint="BOTTOMLEFT"/>
+									</Anchors>
+								</Texture>
+								<Texture parentKey="ShineCenter" file="Interface\AddOns\Narcissus\Art\Modules\Achievement\PlayerToastGlow" alphaMode="ADD">
+									<TexCoords left="0.375" right="0.8125" top="0" bottom="1"/>
+									<Anchors>
+										<Anchor point="TOPLEFT" relativeKey="$parent.$parent.FrameCenter" relativePoint="TOPRIGHT"/>
+										<Anchor point="BOTTOMRIGHT" relativeKey="$parent.$parent.FrameCenter" relativePoint="BOTTOMLEFT"/>
+									</Anchors>
+								</Texture>
+							</Layer>
+						</Layers>
+						<Animations>
+							<AnimationGroup parentKey="animIn">
+								<Alpha fromAlpha="0" toAlpha="1" duration="0.2" order="1"/>
+								<Alpha fromAlpha="1" toAlpha="0" duration="0.5" order="2"/>
+								<Scripts>
+									<OnFinished>
+										self:GetParent():Hide();
+									</OnFinished>
+								</Scripts>
+							</AnimationGroup>
+						</Animations>
+					</Frame>
+				</Frames>
+			</Frame>
+
+			<Frame parentKey="GuildAchievementBackground" useParentLevel="true" hidden="true">
+				<Size x="312" y="98"/>
+				<Anchors>
+					<Anchor point="CENTER"/>
+				</Anchors>
+				<Layers>
+					<Layer level="BACKGROUND" textureSubLevel="2">
+						<Texture parentKey="Background" file="Interface\AddOns\Narcissus\Art\Modules\Achievement\AlertFrameGuildBackground">
+							<TexCoords left="0" right="1" top="0.1875" bottom="0.8125"/>
+							<Anchors>
+								<Anchor point="TOPLEFT"/>
+								<Anchor point="BOTTOMRIGHT"/>
+							</Anchors>
+						</Texture>
+						<MaskTexture parentKey="Mask" file="Interface\AddOns\Narcissus\Art\Modules\Achievement\AlertFrameGuildMask" hWrapMode="CLAMPTOBLACKADDITIVE" vWrapMode="CLAMPTOBLACKADDITIVE">
+							<Size x="312" y="156"/>
+							<Anchors>
+								<Anchor point="CENTER"/>
+							</Anchors>
+							<MaskedTextures>
+								<MaskedTexture childKey="Background"/>
+							</MaskedTextures>
+						</MaskTexture>
+					</Layer>
+					<Layer level="OVERLAY" textureSubLevel="3">
+						<Texture file="Interface\AddOns\Narcissus\Art\Modules\Achievement\AlertFrameGuildGlow" alphaMode="ADD" hidden="true" parentKey="Glow">
+							<Size x="360" y="180"/>
+							<Anchors>
+								<Anchor point="CENTER" x="0" y="0"/>
+							</Anchors>
+							<Animations>
+								<AnimationGroup parentKey="animIn">
+									<Alpha fromAlpha="0" toAlpha="1" duration="0.2" order="1"/>
+									<Alpha fromAlpha="1" toAlpha="0" duration="0.5" order="2"/>
+									<Scripts>
+										<OnFinished>
+											self:GetParent():Hide();
+										</OnFinished>
+									</Scripts>
+								</AnimationGroup>
+							</Animations>
+						</Texture>
+						<Texture file="Interface\AddOns\Narcissus\Art\Modules\Achievement\AlertFrameGuildShine" alphaMode="ADD" hidden="true" parentKey="Shine">
+							<Size x="98" y="98"/>
+							<Anchors>
+								<Anchor point="BOTTOMLEFT" relativeKey="$parent" relativePoint="BOTTOMLEFT"  x="0" y="0"/>
+							</Anchors>
+							<Animations>
+								<AnimationGroup parentKey="animIn">
+									<Translation offsetX="-80" offsetY="0" duration="0" order="1"/>
+									<Translation offsetX="360" offsetY="0" duration="1.5" order="2" smoothing="IN_OUT"/>
+									<Alpha startDelay="0.9" fromAlpha="1" toAlpha="0" duration="0.5" order="2"/>
+									<Scripts>
+										<OnFinished>
+											self:GetParent():Hide();
+										</OnFinished>
+									</Scripts>
+								</AnimationGroup>
+							</Animations>
+						</Texture>
+						<MaskTexture parentKey="ShineMask" file="Interface\AddOns\Narcissus\Art\Modules\Achievement\AlertFrameGuildShineMask" hWrapMode="CLAMPTOBLACKADDITIVE" vWrapMode="CLAMPTOBLACKADDITIVE">
+							<Anchors>
+								<Anchor point="TOPLEFT" relativeKey="$parent.Mask" relativePoint="TOPLEFT"/>
+								<Anchor point="BOTTOMRIGHT" relativeKey="$parent.Mask" relativePoint="BOTTOMRIGHT"/>
+							</Anchors>
+							<MaskedTextures>
+								<MaskedTexture childKey="Shine"/>
+							</MaskedTextures>
+						</MaskTexture>
+					</Layer>
+				</Layers>
+			</Frame>
+		</Frames>
 		<Scripts>
 			<OnClick function="NarciAchievementAlertFrame_OnClick"/>
 		</Scripts>
