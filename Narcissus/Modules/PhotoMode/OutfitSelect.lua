@@ -12,13 +12,16 @@ local SmartSetActorName = NarciAPI.SmartSetActorName;
 
 local C_TransmogCollection = C_TransmogCollection;
 local After = C_Timer.After;
+local GetCursorPosition = GetCursorPosition;
+local UIParent = UIParent;
 
 local BUTTON_PER_PAGE = 8;
 local PIXEL = NarciAPI.GetPixelByScale(1);
 local IGNORE_NO_OUTFIT_CHARS = true;
 
-local MainFrame, ActivePreviewModel, CharacterList;
+local MainFrame, ActivePreviewModel, CharacterList, FilterButton, SimpleTooltip;
 local PreviewModels = {};
+
 
 local function Mixin(object, mixin)
     for k, v in pairs(mixin) do
@@ -107,6 +110,17 @@ local function GetUICameraIDByModelFileID(fileID)
 end
 
 
+local function GetPlayerInfoFromNarcissusDB(uid, key)
+    return CharacterProfile:GetPlayerInfo(uid, key);
+end
+
+local function GetPlayerInfoFromBetterWardrobeDB(profileKey, key)
+    return TransmogDataProvider:GetBWCharacterData(profileKey, key);
+end
+
+local GetPlayerInfo = GetPlayerInfoFromNarcissusDB;
+
+
 local OutfitDataProvider = {};
 OutfitDataProvider.isCurrentPlayer = true;
 OutfitDataProvider.outfitIDs = {};
@@ -158,10 +172,10 @@ function OutfitDataProvider:SelectProfile(playerUID, forceUpdate)
         else
             self["GetNameByOrder"] = self["GetNameFromProfile"];
             self["GetOutfitByOrder"] = self["GetOutfitFromProfile"];
-            self.outfitStrings = CharacterProfile:GetPlayerInfo(playerUID, "outfits");
+            self.outfitStrings = GetPlayerInfo(playerUID, "outfits");
             self.numOutfits = #self.outfitStrings;
         end
-        SmartSetActorName(MainFrame.ProfileLabel, string.format(L["Outfit Owner Format"], CharacterProfile:GetPlayerInfo(playerUID, "name")));
+        SmartSetActorName(MainFrame.ProfileLabel, string.format(L["Outfit Owner Format"], GetPlayerInfo(playerUID, "name")));
     end
 
     MainFrame:UpdateOutfits();
@@ -293,11 +307,15 @@ end
 local function HeaderButton_OnEnter(self)
     self.Label:SetTextColor(1, 1, 1);
     self.Icon:SetVertexColor(1, 1, 1);
+    self.Label:Show();
 end
 
 local function HeaderButton_OnLeave(self)
     self.Label:SetTextColor(0.65, 0.65, 0.65);
     self.Icon:SetVertexColor(0.65, 0.65, 0.65);
+    if self.hiddenLabel then
+        self.Label:Hide();
+    end
 end
 
 local function HeaderButton_OnMouseDown(self)
@@ -309,6 +327,41 @@ local function HeaderButton_OnMouseUp(self)
 end
 
 
+--SimpleTooltip: Show this if the outfit name is truncated--
+
+local function SimpleTooltip_OnUpdate(self, elapsed)
+    self.x, self.y = GetCursorPosition();
+    self.x = self.x + 0;
+    self.y = self.y + 8;
+    self:SetPoint("LEFT", UIParent, "BOTTOMLEFT", self.x, self.y);
+    if self.t then
+        self.t = self.t + elapsed;
+        if self.t < 0 then
+            self:SetAlpha(0);
+        elseif self.t < 0.2 then
+            self:SetAlpha(self.t * 5);
+        else
+            self:SetAlpha(1);
+            self.t = nil;
+        end
+    end
+end
+
+local function SimpleTooltip_SetText(text)
+    SimpleTooltip.Name:SetText(text);
+    SimpleTooltip:SetScript("OnUpdate", SimpleTooltip_OnUpdate);
+    SimpleTooltip.t = -0.5;
+    SimpleTooltip:SetAlpha(0);
+    SimpleTooltip:Show();
+end
+
+local function SimpleTooltip_OnHide()
+    SimpleTooltip:SetScript("OnUpdate", nil);
+    SimpleTooltip:Hide();
+    SimpleTooltip.x = nil;
+    SimpleTooltip.y = nil;
+end
+
 NarciPhotoModeOutfitButtonMixin = {};
 
 function NarciPhotoModeOutfitButtonMixin:ShowHighlight()
@@ -318,6 +371,8 @@ end
 function NarciPhotoModeOutfitButtonMixin:OnLeave()
     FadeFrame(self.Highlight, 0.2, 0);
     MainFrame.RightArea:SetScript("OnUpdate", nil);
+
+    SimpleTooltip:Hide();
 end
 
 function NarciPhotoModeOutfitButtonMixin:HideButton()
@@ -332,6 +387,11 @@ function NarciPhotoModeOutfitButtonMixin:OnEnter()
     DelayTryOn.t = 0;
     DelayTryOn.orderID = self.orderID;
     MainFrame.RightArea:SetScript("OnUpdate", DelayTryOn_OnUpdate);
+    if self.Name:IsTruncated() then
+        SimpleTooltip_SetText(self.Name:GetText());
+    else
+        SimpleTooltip:Hide();
+    end
 end
 
 function NarciPhotoModeOutfitButtonMixin:OnClick()
@@ -497,19 +557,19 @@ local ValidSortMethods = {
     recent = 2,
 };
 
-local function FilterButton_UpdateName(self, methodID)
+local function FilterButton_UpdateName(methodID)
     if not methodID then
         local currentMethod = NarcissusDB.OutfitSortMethod;
         methodID = ValidSortMethods[currentMethod];
     end
     if methodID == 1 then
-        self.Label:SetText(L["SortMethod Name"]);
+        FilterButton.Label:SetText(L["SortMethod Name"]);
     else
-        self.Label:SetText(L["SortMethod Recent"]);
+        FilterButton.Label:SetText(L["SortMethod Recent"]);
     end
 end
 
-local function FilterButton_OnClick(self)
+local function FilterButton_OnClick()
     local currentMethod = NarcissusDB.OutfitSortMethod;
     local methodID = ValidSortMethods[currentMethod];
     local newMethod;
@@ -522,8 +582,9 @@ local function FilterButton_OnClick(self)
     end
     CharacterList:Init(newMethod);
     NarcissusDB.OutfitSortMethod = newMethod;
-    FilterButton_UpdateName(self, methodID);
+    FilterButton_UpdateName(methodID);
 end
+
 
 local UIDRoster;
 
@@ -537,7 +598,11 @@ function CharacterListMixin:Init(sortMethod)
     end
 
     local numCharacters, numIgnored;
-    UIDRoster, numCharacters, numIgnored = CharacterProfile:GetRoster(sortMethod, IGNORE_NO_OUTFIT_CHARS and "outfit");
+    if sortMethod == "BetterWardrobe" then
+        UIDRoster, numCharacters, numIgnored = TransmogDataProvider:GetBWCharacters();
+    else
+        UIDRoster, numCharacters, numIgnored = CharacterProfile:GetRoster(sortMethod, IGNORE_NO_OUTFIT_CHARS and "outfit");
+    end   
 
     table.insert(UIDRoster, 1, "actors");   --the first entry is reserved for actors' original outfits
     numCharacters = numCharacters + 1;
@@ -570,6 +635,10 @@ function CharacterListMixin:Init(sortMethod)
             end
             self.PageNodes[i]:ClearAllPoints();
             self.PageNodes[i]:SetPoint("TOP", self, "RIGHT", -6, 4 * (numPages - 0.5) + (1 - i) * 8);
+            self.PageNodes[i]:Show();
+        end
+        for i = numPages + 1, #self.PageNodes do
+            self.PageNodes[i]:Hide();
         end
     else
         for _, tex in pairs(self.PageNodes) do
@@ -579,7 +648,6 @@ function CharacterListMixin:Init(sortMethod)
 
     self:UpdatePage();
 end
-
 
 function CharacterListMixin:UpdatePage()
     AnchorSelectionMarkToButton(self.ClipContainer, nil);
@@ -595,7 +663,7 @@ function CharacterListMixin:UpdatePage()
             if uid == "actors" then
                 characterData = OutfitDataProvider.originalOutfitData;
             else
-                characterData = CharacterProfile:GetPlayerInfo(uid);
+                characterData = GetPlayerInfo(uid);
             end
 
             if not self.Buttons[i] then
@@ -607,7 +675,7 @@ function CharacterListMixin:UpdatePage()
             button = self.Buttons[i];
             name = characterData.name;
             classID = characterData.class;
-            numOutfits = characterData.outfits and #characterData.outfits;
+            numOutfits = characterData.numOutfits or (characterData.outfits and #characterData.outfits);
             button:SetData(name, classID, numOutfits);
             button.uid = uid;
             button:Show();
@@ -652,6 +720,38 @@ function CharacterListMixin:UpdatePage()
     --]]
 end
 
+local function SetDataSource(source)
+    if source == "BetterWardrobe" then
+        GetPlayerInfo = GetPlayerInfoFromBetterWardrobeDB;
+        CharacterList:Init("BetterWardrobe");
+        FilterButton:Hide();
+        FilterButton.Label:SetText("BetterWardrobe");
+    else
+        GetPlayerInfo = GetPlayerInfoFromNarcissusDB;
+        CharacterList:Init(NarcissusDB.OutfitSortMethod);
+        FilterButton:Show();
+        FilterButton_UpdateName();
+    end
+end
+
+local function DataSourceButton_SetLabelText(self, text)
+    self.Label:SetText(text);
+    self:SetWidth(math.ceil(self.Label:GetWidth() or 16) + 20);
+end
+
+local function DataSourceButton_OnClick(self)
+    self.isBW = not self.isBW;
+    local name;
+    if self.isBW then
+        name = "BetterWardrobe";
+    else
+        name = "Narcissus";
+    end
+    SetDataSource(name);
+    DataSourceButton_SetLabelText(self, name);
+end
+
+
 
 NarciPhotoModeOutfitSelectMixin = {};
 
@@ -694,10 +794,13 @@ function NarciPhotoModeOutfitSelectMixin:Init()
     end);
     --]]
 
-    local swtich = Narci_ModelSettings.BasicPanel.OutfitToggle;
+    SimpleTooltip = self.SimpleTooltip;
+    SimpleTooltip:SetScript("OnHide", SimpleTooltip_OnHide);
+
+    local switch = Narci_ModelSettings.BasicPanel.OutfitToggle;
     self:ClearAllPoints();
-    self:SetPoint("BOTTOMRIGHT", swtich, "TOPLEFT", 214, 4);
-    self.parentSwtich = swtich;
+    self:SetPoint("BOTTOMRIGHT", switch, "TOPLEFT", 214, 4);
+    self.parentSwitch = switch;
 
     --Create Background Textures
     local function TileBackground(frame, fromCoordX, sublevel)
@@ -791,15 +894,49 @@ function NarciPhotoModeOutfitSelectMixin:Init()
 
     CharacterList:Init(NarcissusDB.OutfitSortMethod);
 
-    local fb = self.CharacterList.ClipContainer.FilterButton;
+    FilterButton = self.CharacterList.ClipContainer.FilterButton;
+    local fb = FilterButton;
     fb.methodID = 1;
     fb:SetScript("OnClick", FilterButton_OnClick);
     fb:SetScript("OnEnter", HeaderButton_OnEnter);
     fb:SetScript("OnLeave", HeaderButton_OnLeave);
     fb:SetScript("OnMouseDown", HeaderButton_OnMouseDown);
     fb:SetScript("OnMouseUp", HeaderButton_OnMouseUp);
-    FilterButton_UpdateName(fb);
+    FilterButton_UpdateName();
     HeaderButton_OnLeave(fb);
+
+    if TransmogDataProvider:IsBWDatabaseValid() then
+        --Create a button to select outfit data source (Narcissus, BetterWardrobe)
+        local dsb = self.CharacterList.ClipContainer.DataSourceButton;
+        dsb:Show();
+        dsb:SetScript("OnEnter", HeaderButton_OnEnter);
+        dsb:SetScript("OnLeave", HeaderButton_OnLeave);
+        dsb:SetScript("OnMouseDown", function(f)
+            f.Label:SetPoint("LEFT", 19, -1.6);
+        end);
+        dsb:SetScript("OnMouseUp", function(f)
+            f.Label:SetPoint("LEFT", 19, -1);
+        end);
+        dsb:SetScript("OnClick", DataSourceButton_OnClick);
+        DataSourceButton_SetLabelText(dsb, "Narcissus");
+
+        fb:ClearAllPoints();
+        fb:SetPoint("CENTER", CharacterList, "TOP", 46, 8);
+        fb:SetSize(16, 16);
+        fb.hiddenLabel = true;
+        fb.Icon:ClearAllPoints();
+        fb.Icon:SetPoint("CENTER", fb, "CENTER", 0, -1);
+        fb.Label:Hide();
+        fb.Label:ClearAllPoints();
+        fb.Label:SetPoint("RIGHT", fb.Icon, "LEFT", 4, 0);
+        fb.Label:SetJustifyH("RIGHT");
+        fb:SetScript("OnMouseDown", function(f)
+            f.Icon:SetPoint("CENTER", 0, -1.6);
+        end);
+        fb:SetScript("OnMouseUp", function(f)
+            f.Icon:SetPoint("CENTER", 0, -1);
+        end);
+    end
 
     self:AddPlayerActor("player", _G["NarciPlayerModelFrame1"]);
     if self.activeModelIndex == 1 then
@@ -823,6 +960,8 @@ local function CopyTable(settings)
 end
 
 function NarciPhotoModeOutfitSelectMixin:AddPlayerActor(unit, model)
+    if not model.GetItemTransmogInfoList then return end;
+
     local index = model:GetID();
 
     if not PreviewModels[index] then
@@ -958,13 +1097,13 @@ function NarciPhotoModeOutfitSelectMixin:OnShow()
         OutfitDataProvider:OnTransmogOutfitsChanged();
     end
     self:RegisterEvent("GLOBAL_MOUSE_DOWN");
-    self.parentSwtich.Arrow:SetTexCoord(0, 1, 0, 1);
+    self.parentSwitch.Arrow:SetTexCoord(0, 1, 0, 1);
 end
 
 function NarciPhotoModeOutfitSelectMixin:OnHide()
     self:UnregisterEvent("GLOBAL_MOUSE_DOWN");
     self:Hide();
-    self.parentSwtich.Arrow:SetTexCoord(0, 1, 1, 0);
+    self.parentSwitch.Arrow:SetTexCoord(0, 1, 1, 0);
     if self.t then
         if self.toWidth then
             local listWidth = self.toWidth - 216;
@@ -1065,7 +1204,7 @@ end
 
 function NarciPhotoModeOutfitSelectMixin:OnEvent(event)
     if event == "GLOBAL_MOUSE_DOWN" then
-        if not (self:IsMouseOver(8, 0, -4, 4) or self.parentSwtich:IsMouseOver()) then
+        if not (self:IsMouseOver(8, 0, -4, 4) or self.parentSwitch:IsMouseOver()) then
             self:HideUI();
         end
     elseif event == "TRANSMOG_OUTFITS_CHANGED" then
@@ -1100,3 +1239,10 @@ end
 
 
 --/script local a={0,84,1};local i=1;local m=Narci.ActiveModel;m:SetScript("OnAnimFinished",function(m)i=i+1;if a[i] then m:SetAnimation(a[i]) else m:SetScript("OnAnimFinished",nil)end end);m:SetAnimation(a[1]);
+--/script for k, v in pairs(BW) do if type(v) == "function" then print(k) end end
+
+--[[
+BetterWardrobe_SavedSetData.global.sets.[name - server].sources     --Blizzard Outfit
+BetterWardrobe_ListData.OutfitDB.char.[name - server].outfits       --SavedExtra (mainHandEnchant, offHandEnchant, offShoulder)
+
+--]]

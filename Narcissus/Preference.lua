@@ -1583,10 +1583,12 @@ end
 -----------------
 local function SetCreditList()
     local ACIVE_COLOR = "|cffd9ccb4";
-    local ACTIVE_PATRONS = {"Elexys", "Solanya", "Erik Shafer", "Pierre-Yves Bertolus", "Celierra&Darvian", "Alex Boehm", "Terradon", "Brian Haberer", "Albator S.", "Lars Norberg", "Miroslav Kovac", };
-    local FORMER_PATRONS = {"Miroslav Kovac", "Knightlord", "Andrew Phoenix", "Ellypse", "Nantangitan", "Blastflight ", "Valnoressa", "Nimrodan", "Brux", "Karl", "Webb", "Acein", "Christian Williamson", "Tzutzu",
-    "Anthony Cordeiro", "Nina Recchia", "heiteo", "Psyloken", "Jesse Blick", "Victor Torres", };
+    local ACTIVE_PATRONS = {"Solanya", "Erik Shafer", "Celierra&Darvian", "Albator S.", "Pierre-Yves Bertolus", "Brian Haberer", "Terradon", "Alex Boehm", "Miroslav Kovac", "Ryan Zerbin"};
+    local FORMER_PATRONS = {"Elexys", "Ben Ashley", "Knightlord", "Andrew Phoenix", "Nantangitan", "Blastflight", "Lars Norberg", "Valnoressa", "Nimrodan", "Brux", "Karl", "Webb", "acein", "Christian Williamson", "Tzutzu", "Anthony Cordeiro", "Nina Recchia", "heiteo", "Psyloken", "Jesse Blick", "Victor Torres",};
+    local CREDIT_LIST_EXTRA = "Marlamin | WoW.tools\nKeyboardturner | Avid Bug Finder(Generator)\nMeorawr | Wondrous Wisdomball\nHubbotu | Translator - Russian\nRomanv  | Translator - Spanish";
+    
     local RawList = {};
+    local tinsert = tinsert;
     for i = 1, #ACTIVE_PATRONS do
         tinsert(RawList, ACIVE_COLOR.. ACTIVE_PATRONS[i] .."|r");
     end
@@ -1634,7 +1636,7 @@ local function SetCreditList()
     CreditList.PatronListMid:SetText(MID);
     CreditList.PatronListRight:SetText(RIGHT);
 
-    CreditList.ExtraList:SetText(L["Credit List Extra"]);
+    CreditList.ExtraList:SetText(CREDIT_LIST_EXTRA);
 end
 
 local function Narci_InsertHeart()

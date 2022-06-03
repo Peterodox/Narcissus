@@ -10,6 +10,7 @@ local upper = string.upper;
 local format = string.format;
 local After = C_Timer.After;
 local strsplit = strsplit;
+local tinsert = table.insert;
 
 
 local textLocale = GetLocale();

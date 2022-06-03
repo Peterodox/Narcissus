@@ -19,7 +19,7 @@ local WidgetsContainer = {};
 local NUM_WIDGETS = 100;
 
 local CrashCreatureIDs = {
-    [117932] = true,    --Imp Gang 
+    [117932] = true,  
 };
 
 
@@ -84,8 +84,8 @@ local function RequsetNPCName(list)
     end
 end
 
-local NUM_SUBLIST = 187;    --182000
-local NUM_LAST_EXPANSION_INDEX = 174;
+local NUM_SUBLIST = 192;
+local NUM_LAST_EXPANSION_INDEX = 187;
 
 local NPCInfo = {};
 local HasCached = {};
@@ -319,13 +319,13 @@ local function CreateVirtualModel(index)
     VirtualModel.queue = {};
     VirtualModel.isIdle = true;
     VirtualModel.index = 1;
-    --VirtualModel:SetScript("OnUpdate", ModelOnUpdate);
+  
     VirtualModel:SetScript("OnModelLoaded", function(self)
         local creatureID = self.creatureID;
         local fileID = self:GetModelFileID();
         CreatureIDxModelFileID[creatureID] = fileID;
         print(fileID)
-        --[[
+      
         if IsValidFileID(fileID) then
             local name = GetCreatureName(creatureID);
             if name and name ~= "" then
@@ -340,7 +340,7 @@ local function CreateVirtualModel(index)
                 end
             end
         end
-        --]]
+      
         
         After(0, function()
             PostModelLoaded(self);
@@ -475,7 +475,7 @@ function Debug_GetCrashID(section)
 end
 
 function Debug_GetUnprocessedModel()
-    --Use this to get new ModelFileID
+  
     local completeList = NarciCreatureInfo.Names;
     local processedIDs = NarciCreatureInfo.ModelFileID;
     local flatIDs = {};
@@ -537,7 +537,7 @@ function Debug_GetUnprocessedModel()
 end
 
 function GetUniqueModelFromOfflineList()
-    --Use this to Get Unique Model
+  
     local fileIDs = NarciCreatureInfo.ModelFileID;
     local completeList = NarciCreatureInfo.Names;
     local names = {};
@@ -156462,19 +156462,124 @@ List.From185001To186000 = {
     185953,
 };
 
+--9.2.5
 List.From186001To187000 = {
+    186001,
+    186002,
+    186003,
+    186004,
+    186005,
+    186006,
+    186007,
+    186008,
+    186009,
+    186010,
+    186011,
+    186012,
+    186013,
+    186014,
+    186015,
+    186016,
+    186017,
+    186018,
+    186019,
+    186022,
+    186023,
+    186024,
+    186025,
+    186026,
+    186027,
+    186028,
+    186029,
+    186030,
+    186031,
+    186032,
+    186033,
+    186034,
+    186035,
+    186036,
+    186037,
+    186038,
+    186039,
+    186040,
+    186041,
+    186042,
+    186043,
+    186044,
+    186045,
+    186046,
+    186047,
     186048,
     186057,
+    186058,
+    186060,
+    186066,
+    186067,
+    186068,
+    186069,
+    186070,
+    186071,
+    186072,
+    186073,
+    186074,
+    186075,
+    186076,
+    186077,
+    186078,
+    186080,
+    186081,
+    186082,
+    186083,
+    186084,
+    186085,
+    186086,
+    186087,
+    186088,
+    186089,
+    186090,
+    186091,
+    186092,
+    186093,
+    186094,
+    186095,
+    186096,
+    186097,
+    186098,
+    186100,
+    186101,
+    186104,
     186105,
     186106,
     186127,
     186128,
     186150,
+    186152,
+    186153,
+    186154,
+    186156,
+    186158,
     186159,
+    186160,
+    186170,
+    186171,
+    186172,
     186178,
+    186180,
+    186182,
+    186195,
+    186196,
+    186199,
+    186205,
     186209,
     186211,
+    186213,
+    186225,
     186286,
+    186287,
+    186288,
+    186292,
+    186294,
+    186296,
     186353,
     186357,
     186373,
@@ -156482,26 +156587,143 @@ List.From186001To187000 = {
     186379,
     186381,
     186382,
+    186389,
+    186403,
+    186416,
+    186444,
+    186445,
+    186459,
     186484,
     186485,
     186785,
     186786,
+    186872,
+    186877,
+    186910,
+    186963,
+    186964,
+    186967,
 };
 
-
-
 List.From187001To188000 = {
-
+    187038,
+    187268,
+    187354,
+    187364,
+    187365,
+    187368,
+    187369,
+    187370,
+    187371,
+    187372,
+    187373,
+    187374,
+    187375,
+    187376,
+    187377,
+    187380,
+    187381,
+    187382,
+    187421,
+    187436,
+    187441,
+    187651,
+    187688,
+    187696,
+    187719,
+    187733,
+    187734,
+    187736,
+    187737,
+    187758,
+    187775,
+    187806,
+    187821,
+    187905,
+    187929,
+    187933,
+    187934,
+    187952,
+    187970,
+    187983,
+    187987,
 };
 
 List.From188001To189000 = {
-
+    188034,
+    188037,
+    188061,
+    188062,
+    188073,
+    188112,
+    188142,
+    188151,
+    188157,
+    188163,
+    188166,
+    188167,
+    188169,
+    188213,
+    188216,
+    188302,
+    188342,
+    188371,
+    188374,
+    188377,
+    188386,
+    188389,
+    188391,
+    188392,
+    188479,
+    188482,
+    188512,
+    188513,
+    188521,
+    188523,
+    188583,
+    188588,
+    188592,
+    188655,
+    188656,
+    188678,
+    188679,
+    188683,
+    188703,
 };
 
 List.From189001To190000 = {
-
+    189038,
+    189082,
+    189100,
+    189143,
+    189170,
+    189212,
+    189527,
+    189580,
+    189706,
+    189707,
+    189773,
+    189878,
+    189900,
+    189910,
+    189951,
 };
 
 List.From190001To191000 = {
+    190057,
+    190128,
+    190148,
+    190174,
+    190258,
+    190291,
+    190360,
+    190372,
+    190399,
+    190416,
+    190429,
+};
 
+List.From191001To192000 = {
+    191045,
+    191046,
 };

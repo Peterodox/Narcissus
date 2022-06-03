@@ -124,7 +124,7 @@
 						<Anchor point="CENTER" relativeKey="$parent" relativePoint="CENTER" x="0" y="0"/>
 					</Anchors>
 				</Texture>
-				<Texture file="Interface\AddOns\Narcissus\Art\Widgets\LightSetup\ModelIndexIcons" Alpha="1" parentKey="Icon">
+				<Texture file="Interface\AddOns\Narcissus\Art\Widgets\LightSetup\ModelIndexIcons" alpha="1" parentKey="Icon">
 					<Size x="20" y="20"/>
 					<Anchors>
 						<Anchor point="CENTER" relativeKey="$parent" relativePoint="CENTER" x="0" y="0"/>
@@ -421,7 +421,7 @@
 					</OnLoad>
 				</Scripts>
 			</Frame>
-			<Frame setAllPoints="true" parentKey="Option" Alpha="0" mixin="ExpansionTransitionBackdropTemplateMixin">
+			<Frame setAllPoints="true" parentKey="Option" alpha="0" mixin="ExpansionTransitionBackdropTemplateMixin">
 				<Anchors>
 					<Anchor point="TOPLEFT" relativeKey="$parent" relativePoint="TOPLEFT" x="0" y="0"/>
 					<Anchor point="BOTTOMRIGHT" relativeKey="$parent" relativePoint="BOTTOMRIGHT" x="0" y="0"/>
@@ -631,7 +631,7 @@
 		</Layers>
 	</Button>
 
-	<Frame name="Narci_FullScreenAlphaChannel" hidden="true" setAllPoints="true" frameStrata="LOW" Alpha="0">
+	<Frame name="Narci_FullScreenAlphaChannel" hidden="true" setAllPoints="true" frameStrata="LOW" alpha="0">
 		<Anchors>
 			<Anchor point="TOPLEFT" relativePoint="TOPLEFT"/>
 			<Anchor point="BOTTOMRIGHT" relativePoint="BOTTOMRIGHT"/>
@@ -648,7 +648,7 @@
 	<Frame name="Narci_ModelContainer">
 		<Layers>
 			<Layer level="BACKGROUND" textureSubLevel="2">
-				<Texture setAllPoints="true" hidden="false" parentKey="Brightness" name="Narci_BackgroundDarkness" Alpha="0">
+				<Texture setAllPoints="true" hidden="false" parentKey="Brightness" name="Narci_BackgroundDarkness" alpha="0">
 					<Color r="0" g="0" b="0" a="1"/>
 					<Anchors>
 						<Anchor point="TOPLEFT" relativeTo="UIParent" relativePoint="TOPLEFT" x="0" y="0"/>
@@ -657,7 +657,7 @@
 				</Texture>
 			</Layer>
 			<Layer level="BACKGROUND" textureSubLevel="3">
-				<Texture setAllPoints="true" hidden="true" parentKey="ChromaKey" Alpha="0" name="Narci_ChromaKey">
+				<Texture setAllPoints="true" hidden="true" parentKey="ChromaKey" alpha="0" name="Narci_ChromaKey">
 					<Color r="1" g="1" b="1" a="1"/>
 					<Anchors>
 						<Anchor point="TOPLEFT" relativeTo="UIParent" relativePoint="TOPLEFT" x="0" y="0"/>
@@ -711,7 +711,7 @@
 							</Layer>
 						</Layers>
 					</Frame>
-					<Frame name="Narci_PlayerModelGuideFrame" parentKey="GuideFrame" hidden="true" frameStrata="LOW" Alpha="0">
+					<Frame name="Narci_PlayerModelGuideFrame" parentKey="GuideFrame" hidden="true" frameStrata="LOW" alpha="0">
 						<Size x="10" y="10"/>
 						<Anchors>
 							<Anchor point="LEFT" relativeTo="Narci_VirtualLineLeft" relativePoint="LEFT" x="0" y="0"/>
@@ -727,7 +727,7 @@
 										<Anchor point="LEFT" relativeTo="Narci_VirtualLineRight" relativePoint="RIGHT" x="80" y="0"/>
 									</Anchors>
 								</Texture>
-								<Texture parentKey="VignetteRightSmall" file="Interface\AddOns\Narcissus\Art\Vignetting\Vignetting-Left" Alpha="0.8" setAllPoints="false">
+								<Texture parentKey="VignetteRightSmall" file="Interface\AddOns\Narcissus\Art\Vignetting\Vignetting-Left" alpha="0.8" setAllPoints="false">
 									<Size x="2000" y="800"/>
 									<TexCoords left="1" right="0" top="0" bottom="1"/>
 									<Anchors>
@@ -761,10 +761,10 @@
 	<Button name="Narci_Model_PlayAnimationTemplate" inherits="Narci_RoundButtonTemplate" virtual="true" hidden="true">
 		<Animations>
 			<AnimationGroup parentKey="animIn">
-				<Alpha fromAlpha="0" toAlpha="1" duration="0.38" order="1"/>
+				<Alpha fromalpha="0" toalpha="1" duration="0.38" order="1"/>
 			</AnimationGroup>
 			<AnimationGroup parentKey="animOut">
-				<Alpha fromAlpha="1" toAlpha="0" duration="0.12" order="1"/>
+				<Alpha fromalpha="1" toalpha="0" duration="0.12" order="1"/>
 				<Scripts>
 					<OnFinished>
 						self:GetParent().Highlight:Hide();
@@ -832,7 +832,7 @@
 		<Size x="134" y="24"/>
 		<Layers>
 			<Layer level="BACKGROUND">
-				<Texture file="Interface\AddOns\Narcissus\Art\Widgets\LightSetup\SecondPane" Alpha="1" hidden="false" parentKey="Background">
+				<Texture file="Interface\AddOns\Narcissus\Art\Widgets\LightSetup\SecondPane" alpha="1" hidden="false" parentKey="Background">
 					<TexCoords left="0.25" right="0.7578125" top="0.31640625" bottom="0.421875"/>
 					<Size x="144" y="30"/>
 					<Anchors>
@@ -849,7 +849,7 @@
 				</FontString>
 			</Layer>
 		</Layers>
-		<HighlightTexture file="Interface\AddOns\Narcissus\Art\Widgets\LightSetup\SecondPane" Alpha="1" hidden="true">
+		<HighlightTexture file="Interface\AddOns\Narcissus\Art\Widgets\LightSetup\SecondPane" alpha="1" hidden="true">
 			<TexCoords left="0.25" right="0.7578125" top="0.421875" bottom="0.52734375"/>
 			<Anchors>
 				<Anchor point="TOPLEFT" relativeKey="$parent.Background" relativePoint="TOPLEFT" x="0" y="0"/>
@@ -905,7 +905,7 @@
 		<HitRectInsets>
 			<AbsInset left="0" right="0" top="4" bottom="4"/>
 		</HitRectInsets>
-		<HighlightTexture parentKey="Highlight" file="Interface\AddOns\Narcissus\Art\Widgets\LightSetup\LayerButton" setAllPoints="true" Alpha="1">
+		<HighlightTexture parentKey="Highlight" file="Interface\AddOns\Narcissus\Art\Widgets\LightSetup\LayerButton" setAllPoints="true" alpha="1">
 			<TexCoords left="0" right="0.75390625" top="0.2578125" bottom="0.515625"/>
 		</HighlightTexture>
 		<Layers>
@@ -918,7 +918,7 @@
 
 			</Layer>
 			<Layer level="OVERLAY">
-				<Texture parentKey="Icon" file="Interface\AddOns\Narcissus\Art\Widgets\LightSetup\LayerButton" Alpha="0.15" alphaMode="ADD">
+				<Texture parentKey="Icon" file="Interface\AddOns\Narcissus\Art\Widgets\LightSetup\LayerButton" alpha="0.15" alphaMode="ADD">
 					<Size x="52" y="24"/>
 					<TexCoords left="0.296875" right="0.5" top="0.703125" bottom="0.890625"/>
 					<Anchors>
@@ -957,7 +957,7 @@
 		<Size x="96" y="24"/>
 		<Layers>
 			<Layer level="BACKGROUND">
-				<Texture file="Interface\AddOns\Narcissus\Art\Widgets\LightSetup\Pane" Alpha="1" hidden="false">
+				<Texture file="Interface\AddOns\Narcissus\Art\Widgets\LightSetup\Pane" alpha="1" hidden="false">
 					<TexCoords left="0" right="0.373046875" top="0.421875" bottom="0.52734375"/>
 					<Size x="105" y="30"/>
 					<Anchors>
@@ -980,12 +980,12 @@
 		<Size x="98" y="20"/>					
 		<Layers>
 			<Layer level="ARTWORK">
-				<Texture file="Interface\AddOns\Narcissus\Art\Widgets\LightSetup\Pane" Alpha="1" hidden="false" parentKey="Background" setAllPoints="true">
+				<Texture file="Interface\AddOns\Narcissus\Art\Widgets\LightSetup\Pane" alpha="1" hidden="false" parentKey="Background" setAllPoints="true">
 					<TexCoords left="0" right="0.373046875" bottom="0.6328125" top="0.703125"/>
 				</Texture>
 			</Layer>
 			<Layer level="OVERLAY" textureSubLevel="1">
-				<Texture file="Interface\AddOns\Narcissus\Art\Widgets\LightSetup\Pane" Alpha="1" parentKey="Highlight" hidden="true" setAllPoints="true">
+				<Texture file="Interface\AddOns\Narcissus\Art\Widgets\LightSetup\Pane" alpha="1" parentKey="Highlight" hidden="true" setAllPoints="true">
 					<Size x="98" y="30"/>				
 					<Anchors>
 						<Anchor point="CENTER" relativePoint="CENTER"/>
@@ -1027,7 +1027,7 @@
 		<Size x="98" y="20"/>					
 		<Layers>
 			<Layer level="ARTWORK">
-				<Texture file="Interface\AddOns\Narcissus\Art\Widgets\LightSetup\Pane" Alpha="1" hidden="false" parentKey="Background">
+				<Texture file="Interface\AddOns\Narcissus\Art\Widgets\LightSetup\Pane" alpha="1" hidden="false" parentKey="Background">
 					<Size x="98" y="30"/>
 					<TexCoords left="0" right="0.373046875" bottom="0.703125" top="0.806640625"/>
 					<Anchors>
@@ -1036,7 +1036,7 @@
 				</Texture>
 			</Layer>
 			<Layer level="OVERLAY" textureSubLevel="1">
-				<Texture file="Interface\AddOns\Narcissus\Art\Widgets\LightSetup\Pane" Alpha="1" parentKey="Highlight" hidden="true" setAllPoints="true">
+				<Texture file="Interface\AddOns\Narcissus\Art\Widgets\LightSetup\Pane" alpha="1" parentKey="Highlight" hidden="true" setAllPoints="true">
 					<Size x="98" y="30"/>				
 					<Anchors>
 						<Anchor point="CENTER" relativePoint="CENTER"/>
@@ -1081,8 +1081,8 @@
 					</Anchors>
 					<Animations>
 						<AnimationGroup parentKey="Bling">
-							<Alpha fromAlpha="1" toAlpha="0" duration="0.3" order="1"/>
-							<Alpha fromAlpha="0.2" toAlpha="1" duration="0.4" order="2"/>
+							<Alpha fromalpha="1" toalpha="0" duration="0.3" order="1"/>
+							<Alpha fromalpha="0.2" toalpha="1" duration="0.4" order="2"/>
 						</AnimationGroup>
 					</Animations>
 				</Texture>
@@ -1102,8 +1102,8 @@
 					</Anchors>
 					<Animations>
 						<AnimationGroup parentKey="Bling">
-							<Alpha fromAlpha="0.6" toAlpha="0" duration="0.3" order="1"/>
-							<Alpha fromAlpha="0" toAlpha="0.6" duration="0.4" order="2"/>
+							<Alpha fromalpha="0.6" toalpha="0" duration="0.3" order="1"/>
+							<Alpha fromalpha="0" toalpha="0.6" duration="0.4" order="2"/>
 						</AnimationGroup>
 					</Animations>
 				</Texture>
@@ -1212,9 +1212,9 @@
 							<Anchor point="RIGHT" relativeKey="$parent" relativePoint="RIGHT" x="-2" y="-2"/>
 						</Anchors>
 						<Animations>
-							<AnimationGroup parentKey="FadeOut" setToFinalAlpha="true">
-								<Alpha fromAlpha="1" toAlpha="1" duration="0" order="1"/>
-								<Alpha startDelay="1" fromAlpha="1" toAlpha="0" duration="0.25" order="2"/>
+							<AnimationGroup parentKey="FadeOut" setToFinalalpha="true">
+								<Alpha fromalpha="1" toalpha="1" duration="0" order="1"/>
+								<Alpha startDelay="1" fromalpha="1" toalpha="0" duration="0.25" order="2"/>
 							</AnimationGroup>
 						</Animations>
 						<Scripts>
@@ -1237,7 +1237,7 @@
 						</Texture>
 					</Layer>
 					<Layer level="OVERLAY" textureSubLevel="4">
-						<Texture file="Interface\AddOns\Narcissus\Art\Widgets\ActorPanel\Panel" parentKey="Highlight" Alpha="0">
+						<Texture file="Interface\AddOns\Narcissus\Art\Widgets\ActorPanel\Panel" parentKey="Highlight" alpha="0">
 							<TexCoords left="0" right="0.44140625" top="0.56640625" bottom="0.6796875"/>
 						</Texture>
 					</Layer>
@@ -1371,7 +1371,7 @@
 		</Scripts>
 	</Button>
 
-	<Frame name="Narci_ModelSettings" frameLevel="1" frameStrata="FULLSCREEN" hidden="true" clampedToScreen="false" Alpha="0" movable="true" clipChildren="false" mixin="NarciModelSettingsMixin">
+	<Frame name="Narci_ModelSettings" frameLevel="1" frameStrata="FULLSCREEN" hidden="true" clampedToScreen="false" alpha="0" movable="true" clipChildren="false" mixin="NarciModelSettingsMixin">
 		<Size>
 			<AbsDimension x="440" y="310"/>
 		</Size>
@@ -1877,7 +1877,7 @@
 								</Scripts>
 							</Frame>
 
-							<Frame name="Narci_ActorPanelPopUp" parentKey="PopUp" hidden="true" frameLevel="80" Alpha="0" mixin="NarciActorPanelPopUpMixin">
+							<Frame name="Narci_ActorPanelPopUp" parentKey="PopUp" hidden="true" frameLevel="80" alpha="0" mixin="NarciActorPanelPopUpMixin">
 								<Size x="24" y="104"/>
 								<Layers>
 									<Layer level="BACKGROUND">
@@ -2000,7 +2000,7 @@
 								</Scripts>
 							</Frame>
 							
-							<Button parentKey="SyncButton" Alpha="0.5" hidden="true">
+							<Button parentKey="SyncButton" alpha="0.5" hidden="true">
 								<Size x="60" y="60"/>
 								<Anchors>
 									<Anchor point="BOTTOMLEFT" relativeKey="$parent.LinkLight" relativePoint="BOTTOMRIGHT" x="0" y="0"/>
@@ -2048,7 +2048,7 @@
 						</Anchors>
 						<Layers>
 							<Layer level="BACKGROUND">
-								<Texture file="Interface\AddOns\Narcissus\Art\Widgets\LightSetup\UI" Alpha="0.95" hidden="false" parentKey="Background">
+								<Texture file="Interface\AddOns\Narcissus\Art\Widgets\LightSetup\UI" alpha="0.95" hidden="false" parentKey="Background">
 									<TexCoords left="0.375" right="0.75" top="0" bottom="0.75"/>
 									<Size x="102.0" y="102.0"/>
 									<Anchors>
@@ -2057,14 +2057,14 @@
 								</Texture>
 							</Layer>
 							<Layer level="ARTWORK">
-								<Texture parentKey="FaceRight" file="Interface\AddOns\Narcissus\Art\Widgets\LightSetup\UI" Alpha="1" hidden="false">
+								<Texture parentKey="FaceRight" file="Interface\AddOns\Narcissus\Art\Widgets\LightSetup\UI" alpha="1" hidden="false">
 									<TexCoords left="0.8359375" right="1" top="0.171875" bottom="0.75"/>
 									<Size x="45" y="79"/>
 									<Anchors>
 										<Anchor point="BOTTOM" relativeKey="$parent.Background" relativePoint="BOTTOM" x="0" y="0"/>
 									</Anchors>
 								</Texture>
-								<Texture parentKey="FaceLeft" file="Interface\AddOns\Narcissus\Art\Widgets\LightSetup\UI" Alpha="0" hidden="false">
+								<Texture parentKey="FaceLeft" file="Interface\AddOns\Narcissus\Art\Widgets\LightSetup\UI" alpha="0" hidden="false">
 									<TexCoords left="1" right="0.8359375" top="0.171875" bottom="0.75"/>
 									<Size x="45" y="79"/>
 									<Anchors>
@@ -2099,7 +2099,7 @@
 						</Anchors>
 						<Layers>
 							<Layer level="BACKGROUND">
-								<Texture file="Interface\AddOns\Narcissus\Art\Widgets\LightSetup\UI" Alpha="0.95" hidden="false">
+								<Texture file="Interface\AddOns\Narcissus\Art\Widgets\LightSetup\UI" alpha="0.95" hidden="false">
 									<TexCoords left="0" right="0.375" top="0" bottom="0.75"/>
 									<Size x="102.0" y="102.0"/>
 									<Anchors>
@@ -2108,7 +2108,7 @@
 								</Texture>
 							</Layer>
 							<Layer level="ARTWORK">
-								<Texture file="Interface\AddOns\Narcissus\Art\Widgets\LightSetup\UI" Alpha="1" hidden="false">
+								<Texture file="Interface\AddOns\Narcissus\Art\Widgets\LightSetup\UI" alpha="1" hidden="false">
 									<TexCoords left="0" right="0.375" top="0.75" bottom="0.953125"/>
 									<Size x="102" y="30"/>
 									<Anchors>
@@ -2133,7 +2133,7 @@
 						</Anchors>
 						<Layers>
 							<!--Layer level="OVERLAY">
-								<Texture file="Interface\AddOns\Narcissus\Art\Widgets\LightSetup\UI" Alpha="0.5" hidden="true" parentKey="Highlight">
+								<Texture file="Interface\AddOns\Narcissus\Art\Widgets\LightSetup\UI" alpha="0.5" hidden="true" parentKey="Highlight">
 									<TexCoords left="0.953125" right="1" top="0" bottom="0.09375"/>
 									<Size x="12" y="12"/>
 									<Anchors>
@@ -2142,7 +2142,7 @@
 								</Texture>
 							</Layer-->
 							<Layer level="OVERLAY" textureSubLevel="2">
-								<Texture file="Interface\AddOns\Narcissus\Art\Widgets\LightSetup\LightSwitchIcons" Alpha="1" hidden="false" parentKey="Icon">
+								<Texture file="Interface\AddOns\Narcissus\Art\Widgets\LightSetup\LightSwitchIcons" alpha="1" hidden="false" parentKey="Icon">
 									<TexCoords left="0" right="0.25" top="0" bottom="1"/>
 									<Size x="20" y="20"/>
 									<Anchors>
@@ -2221,7 +2221,7 @@
 						</Anchors>
 						<Layers>
 							<Layer level="OVERLAY">
-								<Texture file="Interface\AddOns\Narcissus\Art\Widgets\LightSetup\AnimationAndLightIcons" Alpha="1" hidden="false" parentKey="Icon">
+								<Texture file="Interface\AddOns\Narcissus\Art\Widgets\LightSetup\AnimationAndLightIcons" alpha="1" hidden="false" parentKey="Icon">
 									<TexCoords left="0" right="0.25" top="0.25" bottom="0.5"/>
 									<Size x="18" y="18"/>
 									<Anchors>
@@ -2585,7 +2585,7 @@
 										<Anchor point="LEFT" relativeKey="$parent" relativePoint="LEFT" x="6" y="0"/>
 									</Anchors>
 								</FontString>
-								<Texture file="Interface\AddOns\Narcissus\Art\Widgets\Arrows\Arrow-V" Alpha="1" parentKey="Arrow">
+								<Texture file="Interface\AddOns\Narcissus\Art\Widgets\Arrows\Arrow-V" alpha="1" parentKey="Arrow">
 									<Size x="8" y="8"/>
 									<TexCoords left="0" right="1" top="1" bottom="0"/>
 									<Anchors>
@@ -2628,7 +2628,7 @@
 								</Anchors>
 								<Layers>
 									<Layer level="ARTWORK">
-										<Texture file="Interface\AddOns\Narcissus\Art\Widgets\LightSetup\Pane" Alpha="1" hidden="false" parentKey="Background">
+										<Texture file="Interface\AddOns\Narcissus\Art\Widgets\LightSetup\Pane" alpha="1" hidden="false" parentKey="Background">
 											<TexCoords left="0" right="0.376953125" top="0.2109375" bottom="0.31640625"/>
 											<Size x="102" y="30"/>
 											<Anchors>
@@ -2637,7 +2637,7 @@
 										</Texture>
 									</Layer>
 									<Layer level="OVERLAY" textureSubLevel="1">
-										<Texture file="Interface\AddOns\Narcissus\Art\Widgets\LightSetup\Pane" Alpha="1" parentKey="Highlight" hidden="true">
+										<Texture file="Interface\AddOns\Narcissus\Art\Widgets\LightSetup\Pane" alpha="1" parentKey="Highlight" hidden="true">
 											<TexCoords left="0" right="0.376953125" top="0.31640625" bottom="0.421875"/>
 											<Size x="102" y="30"/>
 											<Anchors>
@@ -2653,7 +2653,7 @@
 												<Anchor point="LEFT" relativeKey="$parent" relativePoint="LEFT" x="5" y="0"/>
 											</Anchors>
 										</FontString>
-										<Texture file="Interface\AddOns\Narcissus\Art\Widgets\Arrows\Arrow-V" Alpha="1" parentKey="Arrow">
+										<Texture file="Interface\AddOns\Narcissus\Art\Widgets\Arrows\Arrow-V" alpha="1" parentKey="Arrow">
 											<Size x="8" y="8"/>
 											<TexCoords left="0" right="1" top="1" bottom="0"/>
 											<Anchors>
@@ -2750,7 +2750,7 @@
 										</Texture>
 									</Layer>
 									<Layer level="ARTWORK">
-										<Texture file="Interface\AddOns\Narcissus\Art\Widgets\ModelAnimation\Panel" parentKey="Highlight" Alpha="0" hidden="true">
+										<Texture file="Interface\AddOns\Narcissus\Art\Widgets\ModelAnimation\Panel" parentKey="Highlight" alpha="0" hidden="true">
 											<TexCoords left="0.5" right="1" top="0.125" bottom="0.2421875"/>
 											<Anchors>
 												<Anchor point="TOPLEFT" relativeKey="$parent.Background" relativePoint="TOPLEFT" x="0" y="0"/>
@@ -2759,15 +2759,15 @@
 										</Texture>
 									</Layer>
 									<Layer level="ARTWORK" textureSubLevel="2">
-										<Texture file="Interface\AddOns\Narcissus\Art\Widgets\ModelAnimation\Star-Hollow" parentKey="Star" Alpha="0">
+										<Texture file="Interface\AddOns\Narcissus\Art\Widgets\ModelAnimation\Star-Hollow" parentKey="Star" alpha="0">
 											<Size x="24" y="24"/>
 											<Anchors>
 												<Anchor point="RIGHT" relativeKey="$parent" relativePoint="RIGHT" x="0" y="0"/>
 											</Anchors>
 											<Animations>
 												<AnimationGroup parentKey="flyOut">
-													<Alpha fromAlpha="0" toAlpha="0.5" startDelay="0.2" duration="0.05" order="1"/>
-													<Alpha fromAlpha="0.5" toAlpha="0" startDelay="0.25" duration="0.5" order="2"/>
+													<Alpha fromalpha="0" toalpha="0.5" startDelay="0.2" duration="0.05" order="1"/>
+													<Alpha fromalpha="0.5" toalpha="0" startDelay="0.25" duration="0.5" order="2"/>
 													<Rotation degrees="28" duration="0.75" order="2"/>
 													<Scale scaleX="3" scaleY="3" duration="0.75" order="2"/>
 												</AnimationGroup>
@@ -2835,13 +2835,13 @@
 										</Texture>
 									</Layer>
 									<Layer level="OVERLAY" textureSubLevel="2">	
-										<Texture parentKey="Star" Alpha="0">
+										<Texture parentKey="Star" alpha="0">
 											<Anchors>
 												<Anchor point="CENTER"/>
 											</Anchors>
 											<Animations>
 												<AnimationGroup parentKey="flyOut">
-													<Alpha fromAlpha="1" toAlpha="1" duration="0.5" order="1"/>
+													<Alpha fromalpha="1" toalpha="1" duration="0.5" order="1"/>
 													<Translation offsetX="-48" duration="0.5" order="1"/>
 													<Rotation degrees="90" duration="0.5" order="1"/>
 												</AnimationGroup>
@@ -2955,11 +2955,11 @@
 								<Animations>
 									<AnimationGroup parentKey="animIn">
 										<Translation offsetY="12" duration="0" order="1"/>
-										<Alpha fromAlpha="0" toAlpha="1" duration="0.15" order="2"/>
+										<Alpha fromalpha="0" toalpha="1" duration="0.15" order="2"/>
 										<Translation offsetY="-12" duration="0.2" order="2" smoothing="OUT"/>
 									</AnimationGroup>
 									<AnimationGroup parentKey="animOut">
-										<Alpha fromAlpha="1" toAlpha="0" duration="0.25" order="1"/>
+										<Alpha fromalpha="1" toalpha="0" duration="0.25" order="1"/>
 										<Translation offsetY="24" duration="0.25" order="1"/>
 										<Scripts>
 											<OnFinished>
@@ -2985,7 +2985,7 @@
 								</Anchors>
 								<Layers>
 									<Layer level="OVERLAY">
-										<Texture file="Interface\AddOns\Narcissus\Art\Widgets\LightSetup\AnimationAndLightIcons" Alpha="1" hidden="false" parentKey="Icon">
+										<Texture file="Interface\AddOns\Narcissus\Art\Widgets\LightSetup\AnimationAndLightIcons" alpha="1" hidden="false" parentKey="Icon">
 											<TexCoords left="0.5" right="0.75" top="0" bottom="0.25"/>
 											<Size x="18" y="18"/>
 											<Anchors>
@@ -3012,7 +3012,7 @@
 								</Anchors>
 								<Layers>
 									<Layer level="OVERLAY">
-										<Texture file="Interface\AddOns\Narcissus\Art\Widgets\LightSetup\AnimationAndLightIcons" Alpha="1" hidden="false" parentKey="Icon">
+										<Texture file="Interface\AddOns\Narcissus\Art\Widgets\LightSetup\AnimationAndLightIcons" alpha="1" hidden="false" parentKey="Icon">
 											<TexCoords left="0.25" right="0.5" top="0" bottom="0.25"/>
 											<Size x="18" y="18"/>
 											<Anchors>
@@ -3033,7 +3033,7 @@
 								</Scripts>
 							</Button>
 
-							<Button name="NarciModelControl_AnimationVariationButton" parentKey="Variation" mixin="NarciAnimationVariationSphereMixin" registerForClicks="LeftButtonUp, RightButtonUp" frameLevel="42">
+							<Button name="NarciModelControl_AnimationVariationButton" parentKey="Variation" mixin="NarciAnimationVariationSphereMixin" registerForClicks="LeftButtonUp, RightButtonUp, MiddleButtonUp" frameLevel="42">
 								<Size x="24" y="24"/>
 								<Anchors>
 									<Anchor point="RIGHT" relativeKey="$parent.Play" relativePoint="LEFT" x="0"/>
@@ -3045,6 +3045,13 @@
 												<Anchor point="CENTER"/>
 											</Anchors>
 										</Texture>
+										<FontString inherits="NarciPastelBrownFont" justifyH="CENTER" justifyV="MIDDLE" parentKey="IDText" hidden="true">
+											<Size x="0" y="0"/>
+											<Color r="0.25" g="0.78" b="0.92" a="1"/>
+											<Anchors>
+												<Anchor point="CENTER" relativeKey="$parent" relativePoint="CENTER" x="0" y="0"/>
+											</Anchors>
+										</FontString>
 									</Layer>
 								</Layers>
 								<Scripts>
@@ -3122,7 +3129,7 @@
 						</Anchors>
 						<Layers>
 							<Layer level="BACKGROUND">
-								<Texture file="Interface\AddOns\Narcissus\Art\Widgets\LightSetup\SecondPane" Alpha="1" hidden="false" parentKey="Background">
+								<Texture file="Interface\AddOns\Narcissus\Art\Widgets\LightSetup\SecondPane" alpha="1" hidden="false" parentKey="Background">
 									<TexCoords left="0" right="0.72265625" top="0.10546875" bottom="0.2109375"/>
 									<Size x="202" y="30"/>
 									<Anchors>
@@ -3139,7 +3146,7 @@
 								</FontString>
 							</Layer>
 							<Layer level="OVERLAY" textureSubLevel="2">
-								<Texture file="Interface\AddOns\Narcissus\Art\Widgets\LightSetup\SecondPane" Alpha="1" hidden="false">
+								<Texture file="Interface\AddOns\Narcissus\Art\Widgets\LightSetup\SecondPane" alpha="1" hidden="false">
 									<TexCoords left="0" right="0.72265625" top="0" bottom="0.10546875"/>
 									<Anchors>
 										<Anchor point="TOPLEFT" relativeKey="$parent.Background" relativePoint="TOPLEFT" x="0" y="0"/>
@@ -3148,7 +3155,7 @@
 								</Texture>
 							</Layer>
 						</Layers>
-						<HighlightTexture file="Interface\AddOns\Narcissus\Art\Widgets\LightSetup\SecondPane" Alpha="1">
+						<HighlightTexture file="Interface\AddOns\Narcissus\Art\Widgets\LightSetup\SecondPane" alpha="1">
 							<TexCoords left="0" right="0.72265625" top="0.2109375" bottom="0.31640625"/>
 							<Anchors>
 								<Anchor point="TOPLEFT" relativeKey="$parent.Background" relativePoint="TOPLEFT" x="0" y="0"/>
@@ -3166,17 +3173,17 @@
 								</Anchors>
 								<Layers>
 									<Layer level="BACKGROUND">
-										<Texture file="Interface\AddOns\Narcissus\Art\Widgets\LightSetup\SecondPane" Alpha="1" hidden="false" parentKey="Background" setAllPoints="true">
+										<Texture file="Interface\AddOns\Narcissus\Art\Widgets\LightSetup\SecondPane" alpha="1" hidden="false" parentKey="Background" setAllPoints="true">
 											<TexCoords left="0" right="0.125" top="0.31640625" bottom="0.421875"/>
 										</Texture>
 									</Layer>
 									<Layer level="ARTWORK">
-										<Texture file="Interface\AddOns\Narcissus\Art\Widgets\LightSetup\SecondPane" Alpha="1" setAllPoints="true" hidden="true" parentKey="Highlight">
+										<Texture file="Interface\AddOns\Narcissus\Art\Widgets\LightSetup\SecondPane" alpha="1" setAllPoints="true" hidden="true" parentKey="Highlight">
 											<TexCoords left="0.125" right="0.25" top="0.31640625" bottom="0.421875"/>
 										</Texture>
 									</Layer>
 									<Layer level="OVERLAY">
-										<Texture file="Interface\AddOns\Narcissus\Art\Widgets\LightSetup\SecondPane" Alpha="1" parentKey="Icon">
+										<Texture file="Interface\AddOns\Narcissus\Art\Widgets\LightSetup\SecondPane" alpha="1" parentKey="Icon">
 											<TexCoords left="0.875" right="1" top="0" bottom="0.125"/>
 											<Size x="30" y="30"/>
 											<Anchors>
@@ -3291,7 +3298,7 @@
 						</Anchors>
 						<Layers>
 							<Layer level="BACKGROUND">
-								<Texture file="Interface\AddOns\Narcissus\Art\Widgets\LightSetup\SecondPane" Alpha="1" hidden="false" parentKey="Background">
+								<Texture file="Interface\AddOns\Narcissus\Art\Widgets\LightSetup\SecondPane" alpha="1" hidden="false" parentKey="Background">
 									<TexCoords left="0" right="0.25" top="0.421875" bottom="0.671875"/>
 									<Size x="68" y="68"/>
 									<Anchors>
@@ -3308,7 +3315,7 @@
 								</FontString>
 							</Layer>
 						</Layers>
-						<HighlightTexture file="Interface\AddOns\Narcissus\Art\Widgets\LightSetup\SecondPane" Alpha="1" hidden="true">
+						<HighlightTexture file="Interface\AddOns\Narcissus\Art\Widgets\LightSetup\SecondPane" alpha="1" hidden="true">
 							<TexCoords left="0" right="0.25" top="0.671875" bottom="0.921875"/>
 							<Anchors>
 								<Anchor point="TOPLEFT" relativeKey="$parent.Background" relativePoint="TOPLEFT" x="0" y="0"/>
@@ -3395,7 +3402,7 @@
 		</Layers>
 		<Animations>
 			<AnimationGroup parentKey="InOut">
-				<Alpha startDelay="2" fromAlpha="1" toAlpha="0" duration="1" order="1"/>
+				<Alpha startDelay="2" fromalpha="1" toalpha="0" duration="1" order="1"/>
 				<Scripts>
 					<OnFinished>
 						self:GetParent():Hide();

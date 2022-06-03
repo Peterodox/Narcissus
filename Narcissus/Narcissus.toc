@@ -1,6 +1,6 @@
-## Interface: 90200
+## Interface: 90205
 ## Plain Title: Narcissus
-## Version: 1.2.3
+## Version: 1.2.4
 
 ## Title: |cffA236EFN|cff9448F1a|cff865BF2r|cff786DF4c|cff6A80F6i|cff5D92F7s|cff4FA4F9s|cff41B7FAu|cff33C9FCs|r
 
@@ -9,7 +9,7 @@
 ## Notes-zhTW: 為展示和分享而生的沈浸式角色界面|n|cff959595命令: /Narci|r
 
 ## Author: Peterodox
-## SavedVariables: NarcissusDB, NarciCreatureOptions, NarciAchievementOptions, NarciStatisticsDB, NarciTurntableOptions, NarciCharacterProfiles,
+## SavedVariables: NarcissusDB, NarciCreatureOptions, NarciAchievementOptions, NarciStatisticsDB, NarciTurntableOptions, NarciCharacterProfiles
 ## SavedVariablesPerCharacter: NarcissusDB_PC, NarciStatisticsDB_PC
 
 

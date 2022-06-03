@@ -7,7 +7,7 @@ local S = Narci.L.S;
 NARCI_GRADIENT = "|cffA236EFN|r|cff9448F1a|r|cff865BF2r|r|cff786DF4c|r|cff6A80F6i|r|cff5D92F7s|r|cff4FA4F9s|r|cff41B7FAu|r|cff33C9FCs|r"
 MYMOG_GRADIENT = "|cffA236EFM|cff9448F1y |cff865BF2T|cff786DF4r|cff6A80F6a|cff5D92F7n|cff4FA4F9s|cff41B7FAm|cff33C9FCo|cff32c9fbg|r"
 
-NARCI_VERSION_INFO = "1.2.3";
+NARCI_VERSION_INFO = "1.2.4";
 NARCI_DEVELOPER_INFO = "Developed by Peterodox";
 
 NARCI_NEW_ENTRY_PREFIX = "|cff40C7EB";
@@ -496,13 +496,12 @@ L["Splash Content7 Description"] = "-The hexagon item border gets a new look. Ce
 
 --Project Details--
 NARCI_ALL_PROJECTS = "All Projects";
-NARCI_PROJECT_DETAILS = "|cFFFFD100Developer: Peterodox\nRelease Date: May 2, 2022|r\n\nThank you for trying this add-on! If you have any issues, suggestions, ideas, please leave a comment on the curseforge page or contact me on...";
+NARCI_PROJECT_DETAILS = "|cFFFFD100Developer: Peterodox\nRelease Date: June 2, 2022|r\n\nThank you for trying this add-on! If you have any issues, suggestions, ideas, please leave a comment on the curseforge page or contact me on...";
 NARCI_PROJECT_AAA_TITLE = "|cff008affA|cff0d8ef2z|cff1a92e5e|cff2696d9r|cff339acco|cff409ebft|cff4da1b2h |cff59a5a6A|cff66a999d|cff73ad8cv|cff7fb180e|cff8cb573n|cff99b966t|cffa6bd59u|cffb2c14dr|cffbfc440e |cffccc833A|cffd9cc26l|cffe5d01ab|cfff2d40du|cffffd800m|r";
 NARCI_PROJECT_AAA_SUMMARY = "Explore places of interest and collect lores and photos from all across Azeroth.|cff636363";
 NARCI_PROJECT_NARCISSUS_SUMMARY = "An immersive character pane and your ultimate screenshot tool.";
 
---Credits--
-L["Credit List Extra"] = "Marlamin | WoW.tools\nKeyboardturner | Avid Bug Finder(Generator)\nHubbotu | Translator - Russian\nMeorawr | Wondrous Wisdomball";
+--Credits-- (moved to Preference.lua)
 
 --Conversation--
 L["Q1"] = "What is this?";

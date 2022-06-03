@@ -1311,4 +1311,16 @@
 	<Font name="NarciFontUniversal8" font="Interface\AddOns\Narcissus\Font\NotoSansCJKsc-Regular.otf" height="8" virtual="true" spacing="2"/>
 	<Font name="NarciFontUniversal6" font="Interface\AddOns\Narcissus\Font\NotoSansCJKsc-Regular.otf" height="6" virtual="true"/>
 	<Font name="NarciFontUniversal12Outline" font="Interface\AddOns\Narcissus\Font\NotoSansCJKsc-Regular.otf" height="12" virtual="true" outline="THICK"/>
+
+
+	<Font name="NarciFontItemCategory" font="Interface\AddOns\Narcissus\Font\SourceSansPro-Semibold.ttf" height="10" virtual="true">
+		<Shadow>
+			<Offset>
+				<AbsDimension x="1" y="-1"/>
+			</Offset>
+			<Color a="1" r="0" g="0" b="0"/>
+		</Shadow>
+	</Font>
+
+	<Font name="NarciFontItemCount" font="Interface\AddOns\Narcissus\Font\SourceSansPro-Semibold.ttf" height="9" virtual="true" outline="NORMAL"/>
 </Ui>

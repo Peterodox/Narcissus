@@ -49,7 +49,7 @@
 				</FontString>
 			</Layer>
 			<Layer level="OVERLAY" textureSubLevel="1">
-				<Texture file="Interface\AddOns\Narcissus\Art\Widgets\NPCBrowser\Panel" Alpha="0" parentKey="Highlight">
+				<Texture file="Interface\AddOns\Narcissus\Art\Widgets\NPCBrowser\Panel" alpha="0" parentKey="Highlight">
 					<TexCoords left="0.25" right="0.5" top="0.625" bottom="1"/>
 				</Texture>
 			</Layer>
@@ -114,7 +114,6 @@
 			<OnMouseUp>
 				self.TextRef:SetPoint("CENTER", 0, 0);
 			</OnMouseUp>
-
 		</Scripts>
 	</Button>
 
@@ -134,10 +133,10 @@
 				</Texture>
 			</Layer>
 			<Layer level="BORDER">
-				<Texture setAllPoints="true" parentKey="HighlightFull" hidden="true" Alpha="0">
+				<Texture setAllPoints="true" parentKey="HighlightFull" hidden="true" alpha="0">
 					<Color r="1" g="1" b="1" a="0.08"/>		
 				</Texture>
-				<Texture parentKey="HighlightNPC" Alpha="0" hidden="true">
+				<Texture parentKey="HighlightNPC" alpha="0" hidden="true">
 					<Size x="128" y="32"/>
 					<TexCoords left="0" right="1" top="0.5" bottom="1"/>
 					<Anchors>
@@ -181,7 +180,7 @@
 		</Layers>
 
 		<Frames>
-			<Frame parentKey="Drawer" clipChildren="true" frameLevel="1" Alpha="0">
+			<Frame parentKey="Drawer" clipChildren="true" frameLevel="1" alpha="0">
 				<Size x="192" y="16"/>
 				<Anchors>
 					<Anchor point="TOPLEFT" relativeKey="$parent" relativePoint="TOPLEFT" y="0"/>
@@ -206,15 +205,10 @@
 	<Button name="NarciNPCMatchButtonTemplate" virtual="true" inherits="NarciNPCButtonTemplate" hidden="true">
 		<Layers>
 			<Layer level="ARTWORK" textureSubLevel="2">
-				<Texture setAllPoints="true" parentKey="Highlight" hidden="true" Alpha="0" file="Interface\AddOns\Narcissus\Art\Widgets\NPCBrowser\Gradient-90To10"/>
+				<Texture parentKey="Highlight" hidden="true" alpha="0" file="Interface\AddOns\Narcissus\Art\Widgets\NPCBrowser\Gradient-90To10"/>
 			</Layer>
 		</Layers>
 		<Scripts>
-			<OnLeave>
-				if not self:IsMouseOver() then
-					UIFrameFadeOut(self.Highlight, 0.2, self.Highlight:GetAlpha(), 0);
-				end
-			</OnLeave>
 		</Scripts>
 	</Button>
 
@@ -249,7 +243,7 @@
 					<Anchor point="TOPRIGHT" relativePoint="TOPRIGHT" x="-1.5" y="0"/>
 					<Anchor point="BOTTOMRIGHT" relativePoint="BOTTOMRIGHT" x="-1.5" y="0"/>
 				</Anchors>
-				<ThumbTexture setAllPoints="true" parentKey="Thumb" Alpha="1" hidden="true">
+				<ThumbTexture setAllPoints="true" parentKey="Thumb" alpha="1" hidden="true">
 					<Size x="2" y="32"/>
 					<Color r="1" g="1" b="1" a="0.1"/>
 				</ThumbTexture>
@@ -342,27 +336,7 @@
 							</Layer>
 						</Layers>
 						<Frames>
-							<CinematicModel parentKey="IDModel" hidden="true" Alpha="0">
-								<Size x="192" y="192"/>
-								<Anchors>
-									<Anchor point="TOP" relativeKey="$parent" relativePoint="TOP"/>
-								</Anchors>
-								<Scripts>
-									<OnLoad>
-										self:UseModelCenterToTransform(true);
-									</OnLoad>
-									<OnHide>
-										self:ClearModel();
-										self:Hide();
-									</OnHide>
-									<OnModelLoaded>
-										self:SetCamera(0);
-										self:SetPortraitZoom(1);
-										self:SetPortraitZoom(0);
-									</OnModelLoaded>
-								</Scripts>				
-							</CinematicModel>
-							<CinematicModel parentKey="MatchPreview" hidden="true" Alpha="0" frameLevel="60" drawLayer="ARTWORK">
+							<CinematicModel parentKey="MatchPreview" hidden="true" alpha="0" frameLevel="60" drawLayer="ARTWORK">
 								<Size x="192" y="192"/>
 								<Anchors>
 									<Anchor point="TOP" relativeKey="$parent" relativePoint="TOP"/>
@@ -412,7 +386,7 @@
 								</Anchors>
 								<Layers>
 									<Layer>
-										<Texture parentKey="Icon" file="Interface\AddOns\Narcissus\Art\Widgets\NPCBrowser\WeaponMark" hidden="false" Alpha="0.6">
+										<Texture parentKey="Icon" file="Interface\AddOns\Narcissus\Art\Widgets\NPCBrowser\WeaponMark" hidden="false" alpha="0.6">
 											<Size x="12" y="12"/>
 											<Anchors>
 												<Anchor point="CENTER" relativeKey="$parent" relativePoint="CENTER"/>

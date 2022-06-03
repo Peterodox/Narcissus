@@ -2177,6 +2177,7 @@ function NarciAutoFittingActorMixin:OnAnimFinished()
         --print("Duration: "..self.t);
         AnimationSlider:SetCeiling(self.t * 1000);
     end
+    --self:TryAnimation(self.animationID);    --loop animation
 end
 
 function NarciAutoFittingActorMixin:OnUpdate(elapsed)

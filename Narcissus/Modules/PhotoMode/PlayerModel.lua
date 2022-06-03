@@ -1977,8 +1977,16 @@ end
 NarciAnimationVariationSphereMixin = {};
 
 function NarciAnimationVariationSphereMixin:SetVisual(variationID)
-	local left = variationID * 0.25;
-	self.Icon:SetTexCoord(left, left + 0.25, 0, 1);
+	if variationID <= 3 then
+		local left = variationID * 0.25;
+		self.Icon:SetTexCoord(left, left + 0.25, 0, 1);
+		self.Icon:Show();
+		self.IDText:Hide();
+	else
+		self.Icon:Hide();
+		self.IDText:Show();
+		self.IDText:SetText(variationID);
+	end
 	self.variationID = variationID;
 end
 
@@ -2009,12 +2017,15 @@ function NarciAnimationVariationSphereMixin:OnClick(button)
 		else
 			newVariationID = 0;
 		end
-	else
+	elseif button == "RightButton" then
 		if self.variationID > 0 then
 			newVariationID = self.variationID - 1;
 		else
 			newVariationID = self.maxVariations;
 		end
+	elseif button == "MiddleButton" then
+		newVariationID = 4;
+		self.maxVariations = 20;	--hidden feature: uncap variationID
 	end
 
 	self:SetVisual(newVariationID);
@@ -3323,7 +3334,7 @@ local function CreateAndSelectNewActor(actorIndex, unit, isVirtual)
 		model:SetModelAlpha(0)
 		model.isVirtual = true;
 
-		playerInfo[ID].name = "|cff0081a9"..VIRTUAL_ACTOR;
+		playerInfo[ID].name = "|cff0081a9"..VIRTUAL_ACTOR.."|r";
 		IndexButton.Label:SetText(VIRTUAL_ACTOR);
 		IndexButton.Label:SetTextColor(0, 0.505, 0.663);
 	else
@@ -3348,6 +3359,7 @@ local function CreateAndSelectNewActor(actorIndex, unit, isVirtual)
 	UpdateGroundShadowOption();
 
 	model.creatureID = nil;
+	model.displayID = nil;
 
 	WeaponUpdator:GetTargetWeapons(unit);
 end
@@ -3570,6 +3582,7 @@ local function RemoveActor(actorIndex)
 		model:Hide();
 
 		model.creatureID = nil;
+		model.displayID = nil;
 		model.creatureName = nil;
 		model.equippedWeapons = nil;
 		model.isAnimationCached = nil;

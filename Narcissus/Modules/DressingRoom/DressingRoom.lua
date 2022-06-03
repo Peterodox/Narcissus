@@ -1,5 +1,5 @@
 ----------------------------------------------------------------------------------------
-local DEFAULT_WIDTH, DEFAULT_HEIGHT = 450, 545;       --BLZ dressing room size
+
 
 ----------------------------------------------------------------------------------------
 local _G = _G;
@@ -9,18 +9,29 @@ local C_TransmogCollection = C_TransmogCollection;
 local IsFavorite = C_TransmogCollection.GetIsAppearanceFavorite;
 local IsHiddenVisual = C_TransmogCollection.IsAppearanceHiddenVisual;
 local GetOutfitInfo = C_TransmogCollection.GetOutfitInfo;
+local InCombatLockdown = InCombatLockdown;
+
+local DressUpFrame = DressUpFrame;
 
 local FadeFrame = NarciFadeUI.Fade;
 local GetInspectSources = C_TransmogCollection.GetInspectSources or C_TransmogCollection.GetInspectItemTransmogInfoList;        --API changed in 9.1.0
 
-local WIDTH_HEIGHT_RATIO = DEFAULT_WIDTH/DEFAULT_HEIGHT;
-local OVERRIDE_HEIGHT = math.floor(GetScreenHeight()*0.8 + 0.5);
+local WIDTH_HEIGHT_RATIO;
+do
+    local DEFAULT_WIDTH, DEFAULT_HEIGHT = 450, 545;       --BLZ dressing room size
+    WIDTH_HEIGHT_RATIO = DEFAULT_WIDTH/DEFAULT_HEIGHT;
+end
+local HEIGHT_MULTIPLIER = 0.8;  --/dump DressUpFrame:SetAttribute("UIPanelLayout-extraWidth", -500) /dump GetUIPanelWidth(DressUpFrame)
+local OVERRIDE_HEIGHT = math.floor(GetScreenHeight()*HEIGHT_MULTIPLIER + 0.5);
 local OVERRIDE_WIDTH = math.floor(WIDTH_HEIGHT_RATIO * OVERRIDE_HEIGHT + 0.5);
 
-local slotFrameEnabled = true;            --If DressUp addon is loaded, hide our slot frame
-local UseTargetModel = true;                 --Replace your model with target's
+--print(OVERRIDE_HEIGHT, OVERRIDE_WIDTH)
+
+local SLOT_FRAME_ENABLED = true;              --If DressUp addon is loaded, hide our slot frame
+local USE_TARGET_MODEL = true;                --Replace your model with target's
 
 local GetActorInfoByUnit = NarciAPI_GetActorInfoByUnit;
+
 
 --Frames:
 local DressingRoomOverlayFrame;
@@ -193,6 +204,14 @@ local function IsDressUpFrameMaximized()
     return (DressUpFrame.MaximizeMinimizeFrame and not DressUpFrame.MaximizeMinimizeFrame:IsMinimized())
 end
 
+local function UpdateDressingRoomExtraWdith()
+    --Speculative Fix: Not enough room to display EncounterJournal and DressUpFrame at the same time
+    if not InCombatLockdown() then
+       --DressUpFrame:SetAttribute("UIPanelLayout-extraWidth", (IsDressUpFrameMaximized() and -100) or 0);   --self.OutfitDetailsPanel
+       DressUpFrame:SetAttribute("UIPanelLayout-width", (IsDressUpFrameMaximized() and 450) or 334);    --DressUpModelFrameMixin:ConfigureSize(isMinimized)
+    end
+end
+
 local function InitializeActor(actor, actorInfo)
     --[[
 	actor:SetUseCenterForOrigin(actorInfo.useCenterForOriginX, actorInfo.useCenterForOriginY, actorInfo.useCenterForOriginZ);
@@ -264,7 +283,7 @@ local function UpdateDressingRoomModelByUnit(unit)
     local updateScale;
     local sheatheWeapons = actor:GetSheathed() or false;
 
-    if UseTargetModel then
+    if USE_TARGET_MODEL then
         modelUnit = unit;
         actor:SetModelByUnit(modelUnit, sheatheWeapons, true);
         updateScale = true;
@@ -341,8 +360,8 @@ end
 local function InspectButton_OnClick(self)
     local state = NarcissusDB.DressingRoomUseTargetModel;
     NarcissusDB.DressingRoomUseTargetModel = not state;
-    UseTargetModel = not state;
-    self.useTargetModel = not state;
+    USE_TARGET_MODEL = not state;
+    self.USE_TARGET_MODEL = not state;
     if not state then   --true
         self.Label:SetText(self.targetModelText);
     else
@@ -353,14 +372,14 @@ end
 
 function Narci_UpdateDressingRoom()
     local frame = DressingRoomOverlayFrame;
-    if not frame or not slotFrameEnabled then return end;
+    if not frame or not SLOT_FRAME_ENABLED then return end;
 
     frame.mode = "visual";
 
     if not frame.pauseUpdate then
         frame.pauseUpdate = true;
         After(0, function()
-            if slotFrameEnabled and IsDressUpFrameMaximized() then
+            if SLOT_FRAME_ENABLED and IsDressUpFrameMaximized() then
                 frame.SlotFrame:Show();
                 frame.OptionFrame:Show();
                 GetDressingSourceFromActor();
@@ -458,7 +477,7 @@ function Narci_ShowDressingRoom()
         end
         
 
-        if slotFrameEnabled then
+        if SLOT_FRAME_ENABLED then
             UpdateDressingRoomModelByUnit("player");
         end
 
@@ -619,6 +638,7 @@ local function DressingRoomOverlayFrame_Initialize()
     local frame = CreateFrame("Frame", "NarciDressingRoomOverlay", parentFrame, "NarciDressingRoomOverlayTemplate")
     CreateSlotButton(frame)
     DressingRoomOverlayFrame_OnLoad(frame);
+    UpdateDressingRoomExtraWdith();
 
     local texName = parentFrame:GetName() and parentFrame:GetName().."BackgroundOverlay"
     local tex = parentFrame:CreateTexture(texName, "BACKGROUND", "NarciDressingRoomBackgroundTemplate", 2)
@@ -714,12 +734,12 @@ local function DressingRoomOverlayFrame_Initialize()
 
     --expensive call
     DressUpFrame.ModelScene:HookScript("OnDressModel", function(f, ...)
-        if not (DressingRoomOverlayFrame and slotFrameEnabled) then return end;
+        if not (DressingRoomOverlayFrame and SLOT_FRAME_ENABLED) then return end;
         if not DressingRoomOverlayFrame.pauseUpdate then
             DressingRoomOverlayFrame.pauseUpdate = true;
             DressingRoomOverlayFrame.mode = "visual";
             After(0, function()
-                if slotFrameEnabled and IsDressUpFrameMaximized() then
+                if SLOT_FRAME_ENABLED and IsDressUpFrameMaximized() then
                     DressingRoomOverlayFrame.SlotFrame:Show();
                     DressingRoomOverlayFrame.OptionFrame:Show();
                     GetDressingSourceFromActor();
@@ -911,7 +931,7 @@ initialize:SetScript("OnEvent",function(self, event, ...)
         end
     elseif event == "PLAYER_ENTERING_WORLD" then
         self:UnregisterEvent(event);
-        UseTargetModel = NarcissusDB.DressingRoomUseTargetModel;
+        USE_TARGET_MODEL = NarcissusDB.DressingRoomUseTargetModel;
 
         if not DressingRoomOverlayFrame then
             self:UnregisterAllEvents();
@@ -920,19 +940,19 @@ initialize:SetScript("OnEvent",function(self, event, ...)
 
         local InspectButton = DressingRoomOverlayFrame.OptionFrame.InspectButton;
         InspectButton:SetScript("OnClick", InspectButton_OnClick);
-        if UseTargetModel then   --true
+        if USE_TARGET_MODEL then   --true
             InspectButton.Label:SetText(L["Use Target Model"]);
-            InspectButton.useTargetModel = true;
+            InspectButton.USE_TARGET_MODEL = true;
         else
             InspectButton.Label:SetText(L["Use Your Model"]);
-            InspectButton.useTargetModel = false;
+            InspectButton.USE_TARGET_MODEL = false;
         end
 
         local ShareButton = DressingRoomOverlayFrame.OptionFrame.ShareButton;
         local buttonOffsetX, buttonOffsetY, buttonGap;
         if Adaptor:IsConflictedAddOnLoaded() then                                --DressUp: Hide our dressing room slot frame
             DressingRoomOverlayFrame.SlotFrame:Disable();
-            slotFrameEnabled = false;
+            SLOT_FRAME_ENABLED = false;
             buttonOffsetX = 24;
             buttonOffsetY = 48;
             buttonGap = 8;
@@ -956,7 +976,7 @@ initialize:SetScript("OnEvent",function(self, event, ...)
 
     elseif event == "UI_SCALE_CHANGED" then
         After(0.5, function()
-            OVERRIDE_HEIGHT = math.floor(GetScreenHeight()*0.8 + 0.5);
+            OVERRIDE_HEIGHT = math.floor(GetScreenHeight()*HEIGHT_MULTIPLIER + 0.5);
             OVERRIDE_WIDTH = math.floor(WIDTH_HEIGHT_RATIO * OVERRIDE_HEIGHT + 0.5);
             if IsDressUpFrameMaximized() then
                 DressUpFrame:SetSize(OVERRIDE_WIDTH, OVERRIDE_HEIGHT)
@@ -1050,7 +1070,7 @@ function NarciDressingRoomOverlayMixin:OnSizeChanged(width, height)
     local frameScale = math.max(uiScale, 0.75);
     self.OptionFrame.SharedPopup:SetScale(frameScale);
 
-    if slotFrameEnabled then
+    if SLOT_FRAME_ENABLED then
         self.OptionFrame.GroupController:SetLabelScale(frameScale);
         if IsDressUpFrameMaximized() then
             self.SlotFrame:SetInvisible(false);
@@ -1067,6 +1087,8 @@ function NarciDressingRoomOverlayMixin:OnSizeChanged(width, height)
         self.OptionFrame.GroupController:SetLabelScale(frameScale);
         self.UndressButton:Hide();
     end
+
+    UpdateDressingRoomExtraWdith();
 end
 
 function NarciDressingRoomOverlayMixin:ShowItemList()
@@ -1247,7 +1269,6 @@ function NarciStaticPopupOutfitIconSelectMixin:SelectButton(button)
         self.IconSelection:SetPoint("CENTER", button, "CENTER", 0, 0);
         self.IconSelection:Show();
         self.selectedIcon = button.icon;
-        
         self.Toggle.Icon:SetTexture(button.icon);
     end
 end

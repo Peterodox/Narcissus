@@ -180,7 +180,7 @@
 				</Texture>
 			</Layer>
 			<Layer level="OVERLAY" textureSubLevel="3">
-				<Texture Alpha="1" parentKey="Icon">
+				<Texture alpha="1" parentKey="Icon">
 					<Size x="12" y="12"/>
 					<Anchors>
 						<Anchor point="LEFT" relativeKey="$parent" relativePoint="LEFT" x="4" y="0"/>
@@ -258,7 +258,7 @@
 			</Layer>
 		</Layers>
 		<Frames>
-			<Frame parentKey="Drawer" clipChildren="true" frameLevel="1" Alpha="0">
+			<Frame parentKey="Drawer" clipChildren="true" frameLevel="1" alpha="0">
 				<Size y="16"/>
 				<Anchors>
 					<Anchor point="TOPLEFT" relativeKey="$parent" relativePoint="TOPLEFT" y="-1"/>
@@ -272,7 +272,7 @@
 		<Size x="8" y="12"/>
 		<Layers>
 			<Layer level="OVERLAY">
-				<Texture file="Interface/AddOns/Narcissus/Art/Widgets/SpellVisualBrowser/Icons.tga" parentKey="Icon" Alpha="0.4">
+				<Texture file="Interface/AddOns/Narcissus/Art/Widgets/SpellVisualBrowser/Icons.tga" parentKey="Icon" alpha="0.4">
 					<Size x="16" y="16"/>
 					<TexCoords left="0" right="0" top="0" bottom="0"/>
 					<Anchors>
@@ -306,7 +306,7 @@
 	<Button name="Narci_SavedSpellVisualButtonTemplate" inherits="Narci_SpellVisualButtonSharedTemplate" motionScriptsWhileDisabled="true" virtual="true">
 		<Layers>
 			<Layer level="ARTWORK">
-				<Texture setAllPoints="true" parentKey="Green" Alpha="0">
+				<Texture setAllPoints="true" parentKey="Green" alpha="0">
 					<Color r="0.48627" g="0.77255" b="0.46275" a="0.5"/>
 					<Animations>
 						<AnimationGroup parentKey="animIn">
@@ -321,15 +321,8 @@
 					</Animations>
 				</Texture>
 			</Layer>
-			<Layer level="OVERLAY" textureSubLevel="1">
-				<Texture parentKey="Overlay" setAllPoints="true" hidden="true"/>
-			</Layer>
 		</Layers>
 		<Scripts>
-			<OnLoad>
-				local a = 44/255;
-				self.Overlay:SetColorTexture(a, a, a, 1);
-			</OnLoad>
 			<OnDisable>
 				self.Icon:SetDesaturated(true);
 				self:SetAlpha(0.4);
@@ -484,7 +477,7 @@
 		</Scripts>
 	</Button>
 
-	<Frame name="Narci_SpellVisualBrowser" parent="Narci_ModelSettings" Alpha="0" parentKey="SpellPanel">
+	<Frame name="Narci_SpellVisualBrowser" parent="Narci_ModelSettings" alpha="0" parentKey="SpellPanel">
 		<Size x="200" y="34"/>	<!-- full height: 216 -->
 		<Anchors>
 			<Anchor point="BOTTOMRIGHT" relativeTo="Narci_AnimationIDFrame" relativePoint="BOTTOMLEFT" x="150" y="-6"/>	<!-- -28 -->
@@ -510,7 +503,7 @@
 				</Scripts>
 			</Frame>
 
-			<Frame parentKey="ExpandableFrames" hidden="true" Alpha="0">
+			<Frame parentKey="ExpandableFrames" hidden="true" alpha="0">
 				<Size x="10" y="10"/> <!--Size is not relevant-->
 				<Anchors>
 					<Anchor point="BOTTOM" relativeKey="$parent.VisualIDFrame" relativePoint="TOP" x="0" y="-40"/>	<!-- y="0" -->
@@ -573,7 +566,7 @@
 						</Scripts>
 					</Button>
 
-					<Frame name="Narci_SpellVisualBrowser_PopUpFrame" parentKey="PopUpFrame" frameLevel="45" hidden="true" Alpha="0">
+					<Frame name="Narci_SpellVisualBrowser_PopUpFrame" parentKey="PopUpFrame" frameLevel="45" hidden="true" alpha="0">
 						<Size x="137" y="48"/>
 						<HitRectInsets>
 							<AbsInset left="0" right="0" top="0" bottom="12"/>
@@ -592,7 +585,7 @@
 							</Layer>
 						</Layers>
 						<Frames>
-							<Frame parentKey="HiddenFrame" Alpha="0">
+							<Frame parentKey="HiddenFrame" alpha="0">
 								<Anchors>
 									<Anchor point="TOPLEFT" relativeKey="$parent" relativePoint="TOPLEFT"/>
 									<Anchor point="BOTTOMRIGHT" relativeKey="$parent" relativePoint="BOTTOMRIGHT"/>
@@ -703,10 +696,13 @@
 						<FontString inherits="NarciPastelBrownFont" justifyH="CENTER" justifyV="MIDDLE" text="1" maxLines="1" parentKey="ID">
 							<Size x="48" y="30"/>
 							<Color r="0.25" g="0.78" b="0.92" a="1"/>
-						</FontString>											
+						</FontString>
+						<HighlightColor>
+							<Color r="0" g="0" b="0"/>
+						</HighlightColor>
 						<Layers>
 							<Layer level="BORDER">
-								<Texture file="Interface\AddOns\Narcissus\Art\Widgets\SpellVisualBrowser\Panel" Alpha="1" hidden="false" parentKey="Background">
+								<Texture file="Interface\AddOns\Narcissus\Art\Widgets\SpellVisualBrowser\Panel" alpha="1" hidden="false" parentKey="Background">
 									<TexCoords left="0.8125" right="1" top="0.109375" bottom="0.21875"/>
 									<Size x="102.8" y="30"/>
 									<Anchors>
@@ -714,8 +710,8 @@
 									</Anchors>
 								</Texture>
 							</Layer>
-							<Layer level="ARTWORK" textureSubLevel="1">
-								<Texture file="Interface\AddOns\Narcissus\Art\Widgets\SpellVisualBrowser\Panel" Alpha="1" parentKey="Highlight" hidden="true" setAllPoints="true">
+							<Layer level="BORDER" textureSubLevel="1">
+								<Texture file="Interface\AddOns\Narcissus\Art\Widgets\SpellVisualBrowser\Panel" parentKey="Highlight" hidden="true">
 									<TexCoords left="0.8125" right="1" top="0" bottom="0.109375"/>
 									<Anchors>
 										<Anchor point="TOPLEFT" relativeKey="$parent.Background" relativePoint="TOPLEFT" x="0" y="0"/>
@@ -724,6 +720,7 @@
 								</Texture>
 							</Layer>
 						</Layers>
+						
 						<Animations>
 							<AnimationGroup parentKey="Timer">
 								<Scale duration="3"/>
@@ -789,7 +786,7 @@
 								</Anchors>
 								<Layers>
 									<Layer level="ARTWORK" textureSubLevel="2">
-										<Texture setAllPoints="true" parentKey="Fill" hidden="false" Alpha="0">
+										<Texture setAllPoints="true" parentKey="Fill" hidden="false" alpha="0">
 											<Anchors>
 												<Anchor point="TOPLEFT" relativeKey="$parent.Highlight" relativePoint="TOPLEFT" x="0" y="0"/>
 												<Anchor point="BOTTOMRIGHT" relativeKey="$parent.Highlight" relativePoint="BOTTOMRIGHT" x="0" y="-1"/>
@@ -1066,7 +1063,15 @@
 												<!--Waiting to be assigned anchors-->
 												<Size x="20" y="16"/>
 												<Layers>
-	
+													<Layer level="OVERLAY">
+														<Texture parentKey="EditBoxBackground" hidden="true">
+															<Color r="0.2" g="0.2" b="0.2"/>
+															<Size x="116" y="16"/>
+															<Anchors>
+																<Anchor point="RIGHT"/>
+															</Anchors>
+														</Texture>
+													</Layer>
 												</Layers>
 												<Frames>
 													<Button inherits="Narci_SavedSpellVisualButton_EditButtonTemplate" parentKey="DeleteButton">
@@ -1162,7 +1167,7 @@
 											</Layer>
 										</Layers>
 										<Frames>
-											<Button parentKey="HomeButton" hidden="true" inherits="Narci_NavigationButton_Template" Alpha="0">
+											<Button parentKey="HomeButton" hidden="true" inherits="Narci_NavigationButton_Template" alpha="0">
 												<HitRectInsets>
 													<AbsInset left="0" right="-10" top="-1" bottom="0"/>
 												</HitRectInsets>
@@ -1211,7 +1216,7 @@
 			<Frame inherits="NarciArtFrameTemplate" parentKey="ArtFrame" frameLevel="50">
 				<Layers>
 					<Layer level="OVERLAY" textureSubLevel="4">
-						<Texture file="Interface\AddOns\Narcissus\Art\Widgets\SpellVisualBrowser\Favorites" Alpha="0" hidden="false" parentKey="Bling">
+						<Texture file="Interface\AddOns\Narcissus\Art\Widgets\SpellVisualBrowser\Favorites" alpha="0" hidden="false" parentKey="Bling">
 							<TexCoords left="0.5" right="0.75" top="0" bottom="1"/>
 							<Size x="18" y="18"/>
 							<Anchors>

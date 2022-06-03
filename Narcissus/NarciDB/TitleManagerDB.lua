@@ -456,5 +456,14 @@ Narci_CharacterTitlesTable =
     [715] = {"pve", 3, "Guardian of the Pattern", 455, 15489},  --Mythic: Jailer
     [716] = {"pvp", 0, "Soloist", 456, 15544},
     [717] = {"pve", 0, "the Cryptic", 457, 15498},     --M+ S3
-    [718] = {"achv", 0, "the Cryptic Hero", 458, },
+    [718] = {"pve", 5, "the Cryptic Hero", 458, 15691},
+
+    [719] = {"pvp", 0, "Fearless Spectator", 459, 15594},
+    [720] = {"achv", 0, "of Lordaeron", 460, 15579},
+    [721] = {"pvp", 5, "Eternal Gladiator", 461, 15606},
+    [722] = {"achv", 1, "Maw Walker", 462, 15648},
+    [723] = {"achv", 2, "Veilstrider", 463, 15654},
+    [724] = {"pve", 0, "Hero of Fate", 464, 15685},
+    [725] = {"pve", 0, "the Shrouded", 465, 15689},
+    [727] = {"pve", 5, "the Shrouded Hero", 466, 15756},
 }

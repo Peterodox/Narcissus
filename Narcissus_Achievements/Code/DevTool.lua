@@ -122,9 +122,10 @@ function Loader:LoadList(category)
 end
 
 
---save the output to Narcissus\Modules\Achievement\Meta.lua
 
 function GetAchievementRelationship(isGuild)
+    --Save the output to Narcissus\Modules\Achievement\Meta.lua
+    --Run this on Horde and Alliance characters (some achievements are faction-based)
     if not NarciDevToolOutput then
         NarciDevToolOutput = {};
     end

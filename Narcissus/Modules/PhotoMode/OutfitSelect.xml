@@ -13,7 +13,7 @@
                 </FontString>
             </Layer>
 			<Layer level="ARTWORK">
-				<Texture setAllPoints="true" parentKey="Highlight" hidden="true" Alpha="0">
+				<Texture setAllPoints="true" parentKey="Highlight" hidden="true" alpha="0">
 					<Color r="1" g="1" b="1" a="0.08"/>
 				</Texture>
 			</Layer>
@@ -110,7 +110,7 @@
                                     </Anchors>
                                 </FontString>
                                 <Texture parentKey="Icon" file="Interface\AddOns\Narcissus\Art\Modules\PhotoMode\OutfitSelect\HeaderIcons">
-                                    <TexCoords left="0.5" right="1" top="0" bottom="1"/>
+                                    <TexCoords left="0.5" right="1" top="0" bottom="0.5"/>
                                     <Size x="17" y="17"/>
                                     <Color r="0.5" g="0.5" b="0.5"/>
                                     <Anchors>
@@ -182,7 +182,7 @@
                                 </HitRectInsets>
                                 <Layers>
                                     <Layer level="OVERLAY">
-                                        <FontString inherits="NarciNonInteractiveFont" justifyH="CENTER" justifyV="MIDDLE" parentKey="Label" text="Name">
+                                        <FontString inherits="NarciNonInteractiveFont" justifyH="CENTER" justifyV="MIDDLE" parentKey="Label" text="Name" hidden="false">
                                             <Size x="0" y="0"/>
                                             <Color r="0.72" g="0.72" b="0.72"/>
                                             <Anchors>
@@ -190,7 +190,7 @@
                                             </Anchors>
                                         </FontString>
                                         <Texture parentKey="Icon" file="Interface\AddOns\Narcissus\Art\Modules\PhotoMode\OutfitSelect\HeaderIcons">
-                                            <TexCoords left="0" right="0.5" top="0" bottom="1"/>
+                                            <TexCoords left="0" right="0.5" top="0" bottom="0.5"/>
                                             <Size x="17" y="17"/>
                                             <Color r="0.5" g="0.5" b="0.5"/>
                                             <Anchors>
@@ -200,9 +200,61 @@
                                     </Layer>
                                 </Layers>
                             </Button>
+                            <Button parentKey="DataSourceButton" hidden="true">
+                                <Size x="96" y="16"/>
+                                <Anchors>
+                                    <Anchor point="LEFT" relativeKey="$parent.$parent" relativePoint="TOPLEFT" x="0" y="8"/>
+                                </Anchors>
+                                <HitRectInsets>
+                                    <AbsInset left="0" right="0" top="0" bottom="-4"/>
+                                </HitRectInsets>
+                                <Layers>
+                                    <Layer level="OVERLAY">
+                                        <FontString inherits="NarciNonInteractiveFont" justifyH="LEFT" justifyV="MIDDLE" parentKey="Label">
+                                            <Size x="0" y="0"/>
+                                            <Color r="0.72" g="0.72" b="0.72"/>
+                                            <Anchors>
+                                                <Anchor point="LEFT" relativeKey="$parent" relativePoint="LEFT" x="19" y="-1"/>
+                                            </Anchors>
+                                        </FontString>
+                                        <Texture parentKey="Icon" file="Interface\AddOns\Narcissus\Art\Modules\PhotoMode\OutfitSelect\HeaderIcons">
+                                            <TexCoords left="0" right="0.5" top="0.5" bottom="1"/>
+                                            <Size x="17" y="17"/>
+                                            <Color r="0.5" g="0.5" b="0.5"/>
+                                            <Anchors>
+                                                <Anchor point="RIGHT" relativeKey="$parent.Label" relativePoint="LEFT" x="0"/>
+                                            </Anchors>
+                                        </Texture>
+                                    </Layer>
+                                </Layers>
+                            </Button>
                         </Frames>
                     </Frame>
                 </Frames>
+            </Frame>
+
+            <Frame parentKey="SimpleTooltip" hidden="true" frameLevel="80">
+                <Size x="16" y="16"/>
+                <Layers>
+                    <Layer level="OVERLAY">
+                        <FontString inherits="NarciDisabledButtonFont" justifyH="LEFT" justifyV="MIDDLE" maxLines="1" parentKey="Name" text="Outfit">
+                            <Size x="0" y="0"/>
+                            <Anchors>
+                                <Anchor point="LEFT" relativeKey="$parent" relativePoint="LEFT" x="4" y="0"/>
+                            </Anchors>
+                        </FontString>
+                    </Layer>
+                    <Layer level="ARTWORK">
+                        <Texture parentKey="Background">
+                            <Color r="0.08" g="0.08" b="0.08" a="0.9"/>
+                            <Size x="0" y="16"/>
+                            <Anchors>
+                                <Anchor point="LEFT" relativeKey="$parent" relativePoint="LEFT" x="0" y="0"/>
+                                <Anchor point="RIGHT" relativeKey="$parent.Name" relativePoint="RIGHT" x="4" y="0"/>
+                            </Anchors>
+                        </Texture>
+                    </Layer>
+                </Layers>
             </Frame>
         </Frames>
         <Scripts>

@@ -1275,7 +1275,7 @@ NarciAPI.SmartSetActorName = SmartSetActorName;
 NarciAPI.SmartFontType = NarciAPI_SmartFontType;
 NarciAPI.SmartSetName = SmartSetName;
 
-function NarciAPI_SmartEditBoxType(self, extraHeight)
+function NarciAPI_SmartEditBoxType(self, isUserInput, extraHeight)
     SmartEditBoxFont(self, extraHeight);
 end
 
@@ -3168,6 +3168,41 @@ NarciAPI.GetOutfitSlashCommand = GetOutfitSlashCommand;
 NarciAPI.GetScreenPixelSize = function()
     return 768 / SCREEN_HEIGHT
 end
+
+
+
+local UtilityModel, ValidDisplayIDs;
+
+local function DoesCreatureDisplayIDExist(id)
+    if not id then return end;
+
+    if not UtilityModel then
+        ValidDisplayIDs = {};
+
+        UtilityModel = CreateFrame("CinematicModel", nil, UIParent);
+        UtilityModel:SetKeepModelOnHide(true);
+        UtilityModel:SetSize(2, 2);
+        UtilityModel:SetPoint("TOP", UIParent, "BOTTOM", 0, -3);
+        UtilityModel:SetScript("OnModelLoaded", function(self)
+            local displayID = self:GetDisplayInfo();
+            if displayID and displayID ~= 0 then
+                ValidDisplayIDs[displayID] = true;
+                self.displayID = nil;
+            end
+            self:ClearModel();
+        end);
+        UtilityModel:Hide();
+    end
+
+    if ValidDisplayIDs[id] ~= nil then
+        return ValidDisplayIDs[id];
+    else
+        UtilityModel:ClearModel();
+        UtilityModel:SetDisplayInfo(id);
+    end
+end
+
+NarciAPI.DoesCreatureDisplayIDExist = DoesCreatureDisplayIDExist;
 
 --[[
 function TestFX(modelFileID, zoomDistance, view)

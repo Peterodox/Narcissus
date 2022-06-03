@@ -369,7 +369,7 @@
 						self:GetParent().CancelButton:Click();
 					</OnEscapePressed>
 					<OnTextChanged>
-						NarciAPI_SmartEditBoxType(self, 3);
+						NarciAPI_SmartEditBoxType(self, true, 3);
 						self.LetterCount:SetText(self.MaxLetters - self:GetNumLetters() );
 					</OnTextChanged>
 				</Scripts>

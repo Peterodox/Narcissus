@@ -31,6 +31,9 @@ Attachment ID:
 365680 Light bulb
 108563 Coin Rain Small
 ----------------------------------------------
+
+159569 Progenitor Impact
+
 149490
 149856 Arcane Rune Ring
 149584 Maw Empowered Area
