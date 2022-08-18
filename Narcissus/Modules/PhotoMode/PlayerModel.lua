@@ -352,10 +352,7 @@ local function Narci_CharacterModelFrame_OnShow(self)
 	end
 
 	if not SettingFrame:IsShown() then
-		SettingFrame:Show();
-		After(1, function()
-			SettingFrame:FadeIn(0.5);
-		end);
+		SettingFrame:FadeIn(0.5, 1);
 	end
 end
 
@@ -404,6 +401,7 @@ local LightControl = {};
 LightControl.ambientMode = false;
 LightControl.angleZ = pi/4;
 LightControl.angleXY = -3*pi/4;
+LightControl.targetModelIndex = 1;
 
 function LightControl:SetLightWidgetFromActiveModel()
 	local model = ModelFrames[ACTIVE_MODEL_INDEX];
@@ -412,7 +410,7 @@ function LightControl:SetLightWidgetFromActiveModel()
 
 	local angleZ = -atan2(dirZ, hypotenuse);
 	local angleXY = - pi - atan2(dirX, dirY);
-	
+
 	local r = self.radius;
 	local button1 = self.parentButton1;
 	local button2 = self.parentButton2;
@@ -430,7 +428,7 @@ function LightControl:SetLightWidgetFromActiveModel()
 	BasicPanel.TopView.LightColor:SetRotation(angleXY);
 
 	local h, s, v;
-	
+
 	if self.ambientMode then
 		h, s, v = RGBRatio2HSV(ambR, ambG, ambB);
 	else
@@ -445,6 +443,12 @@ function LightControl:SetLightWidgetFromActiveModel()
 	BasicPanel.LeftView.AmbientColor:SetColorTexture(ambR, ambG, ambB, 0.6);
 	BasicPanel.TopView.LightColor:SetVertexColor(dirR, dirG, dirB, 0.6);
 	BasicPanel.LeftView.LightColor:SetVertexColor(dirR, dirG, dirB, 0.6);
+end
+
+function LightControl:CopyLightToNewModel(newModel)
+	if self.targetModelIndex and ModelFrames[self.targetModelIndex] then
+		newModel:SetLight( ModelFrames[self.targetModelIndex]:GetLight() );
+	end
 end
 
 function LightControl:UpdateModel()
@@ -699,7 +703,7 @@ function WeaponUpdator:ProcessInspect(inspecteeGUID)
 			end
 			if transmogInfoList[17] then
 				model:TryOn(transmogInfoList[17], "SECONDARYHANDSLOT", offHandEnchant);
-				model.equippedWeapons[1] = transmogInfoList[17];
+				model.equippedWeapons[2] = transmogInfoList[17];
 			end
 		end
 
@@ -772,7 +776,10 @@ local function PlayerModelAnimIn_Update_Style1(self, elapsed)
 end
 
 local function InitializeModel(model)
-	model:SetLight(true, false, cos(pi/4)*sin(-pi/4) ,  cos(pi/4)*cos(-pi/4) , -cos(pi/4), 1, 204/255, 204/255, 204/255, 1, 0.8, 0.8, 0.8);
+	--model:SetLight(true, false, cos(pi/4)*sin(-pi/4) ,  cos(pi/4)*cos(-pi/4) , -cos(pi/4), 1, 204/255, 204/255, 204/255, 1, 0.8, 0.8, 0.8);
+
+	LightControl:CopyLightToNewModel(model);
+
 	local zoomLevel = -0.5;
 	model:MakeCurrentCameraCustom();
 	model:SetPortraitZoom(zoomLevel)
@@ -1694,7 +1701,6 @@ end
 ---------------------------
 local LayersToBeCaptured = -1;
 local Temps = {
-	Alpha1 = 1,
 	Alpha2 = 1,
 	Vignette = 0,
 	Brightness = 0,
@@ -2297,20 +2303,8 @@ end
 
 local function InitializeModelLight(newModel)
 	local model = ModelFrames[ACTIVE_MODEL_INDEX];
-	local r, g, b = HSV2RGB(xHUE, xSAT, xBRT);
-	local _;
 	if LINK_LIGHT then
 		newModel:SetLight(model:GetLight());
-		--[[
-		if LightControl.ambientMode then
-			_, _, XdirX, XdirY, XdirZ, _, _, _, _, _, XdirR, XdirG, XdirB = model:GetLight();
-			newModel:SetLight(true, false, XdirX, XdirY, XdirZ, 1, r, g, b, 1, XdirR, XdirG, XdirB);
-		else
-			local r0, g0, b0;
-			_, _, XdirX, XdirY, XdirZ, _, r0, g0, b0, _, XdirR, XdirG, XdirB = model:GetLight();
-			newModel:SetLight(true, false, XdirX, XdirY, XdirZ, 1, r0, g0, b0, 1, r, g, b);
-		end
-		--]]
 	end
 end
 
@@ -3180,7 +3174,7 @@ local function CreateEmptyModelForNPCBrowser(actorIndex, isPet)
 		model = CreateFrame("CinematicModel", "NarciNPCModelFrame"..ID, Narci_ModelContainer, "Narci_NPCModelFrame_Template");
 		model:SetID(ID);
 	end
-	model:SetModel(124640);
+	--model:SetModel(124640);
 	model.isLoaded = false;
 	model.isPlayer = false;
 	ModelFrames[ID] = model;
@@ -3706,7 +3700,7 @@ function Narci_GenderButton_OnClick(self)
 		After(0, function()
 			RestoreModelAfterRaceChange(model);
 			model:SetLight(true, false, dirX, dirY, dirZ, 1, ambR, ambG, ambB, 1, dirR, dirG, dirB);
-		end)	
+		end);
 	end);
 end
 
@@ -3752,7 +3746,7 @@ function Narci_RaceOptionButton_OnClick(self)
 		After(0, function()
 			RestoreModelAfterRaceChange(model);
 			model:SetLight(true, false, dirX, dirY, dirZ, 1, ambR, ambG, ambB, 1, dirR, dirG, dirB);
-		end)	
+		end);
 	end);
 end
 
@@ -4169,6 +4163,8 @@ function NarciShadowRotationMixin:OnMouseDown()
 
 	self.UpdateFrame:Show();
 	self:LockHighlight();
+
+	LightControl.targetModelIndex = ACTIVE_MODEL_INDEX;
 end
 
 function NarciShadowRotationMixin:OnMouseUp()
@@ -4436,7 +4432,7 @@ function NarciModelSettingsMixin:OnEnter()
 	if IsMouseButtonDown() then return end;
 
 	HideGroundShadowControl();
-	Narci_PhotoModeToolbar:SetAlpha(0);
+	NarciScreenshotToolbar:FadeOut(true);
 	self:FadeIn(0.15);
 end
 
@@ -4453,7 +4449,9 @@ function NarciModelSettingsMixin:OnLeave()
 end
 
 function NarciModelSettingsMixin:OnHide()
-	self:SetAlpha(0);
+	--self:SetAlpha(0);
+	self:FadeOut(0, 0);
+
 	ResetIndexButton();
 	ExitGroupPhoto();
 	RestorePlayerInfo(1);
@@ -4570,12 +4568,10 @@ ScreenshotListener:RegisterEvent("SCREENSHOT_SUCCEEDED")
 ScreenshotListener:RegisterEvent("PLAYER_ENTERING_WORLD");
 ScreenshotListener:SetScript("OnEvent",function(self,event,...)
 	if event == "SCREENSHOT_STARTED" then
-		Temps.Alpha1 = Narci_PhotoModeToolbar:GetAlpha();
 		Temps.Alpha2 = SettingFrame:GetAlpha();
-		Narci_PhotoModeToolbar:SetAlpha(0);
+		NarciScreenshotToolbar:FadeOut(true);
 		SettingFrame:SetAlpha(0);
 	elseif event == "SCREENSHOT_SUCCEEDED" then
-		Narci_PhotoModeToolbar:SetAlpha(Temps.Alpha1);
 		SettingFrame:SetAlpha(Temps.Alpha2);
 		if LayersToBeCaptured >= 0 then
 			After(1.5, function()
@@ -4715,3 +4711,111 @@ end
 
 /script local m=Narci.ActiveModel;local v=m.variationID;v=(v<15 and v+1)or(0);m.variationID=v;m:PlayAnimation(m.animationID);print(v);
 --]]
+
+local GetCameraZoom = GetCameraZoom;
+local SetCVar = SetCVar;
+local IsShiftKeyDown = IsShiftKeyDown;
+
+local function GetFoVByZoom(zoom)
+	local fov = -28.162 * zoom + 144.68
+	if fov > 90 then
+		fov = 90;
+	elseif fov < 50 then
+		fov = 50;
+	end
+	return fov
+end
+
+local function GetZoomByFoV(fov)
+	return -0.035 * fov + 5.0993
+end
+
+function Narci_Camera_OnUpdate(self)
+	if true then return end;
+	local zoom = GetCameraZoom();
+	if zoom ~= self.lastZoom or true then
+		self.lastZoom = zoom;
+		print(zoom)
+		local fov = GetFoVByZoom(zoom);
+		SetCVar("camerafov", fov);
+
+		local goal;
+
+		if zoom > 4 then
+			goal = 2;
+		elseif zoom < 2 then
+			goal = 4;
+		end
+
+		if goal then
+			if goal ~= self.newGoal then
+				self.newGoal = goal;
+				print("Zoom Flip "..goal.." "..fov)
+				if goal == 2 then
+					MoveViewInStop();
+					MoveViewOutStop();
+					MoveViewInStart(1);
+				elseif goal == 4 then
+					MoveViewInStop();
+					MoveViewOutStop();
+					MoveViewOutStart(1);
+				end
+			end
+		end
+	end
+end
+
+function Narci_FoVSlider_OnValueChanged(self, value, isUserInput)
+    self.VirtualThumb:SetPoint("CENTER", self.Thumb, "CENTER", 0, 0)
+    if value ~= self.oldValue and isUserInput then
+		self.oldValue = value;
+		SetCVar("camerafov", value);
+		self.Label:SetText(string.format("%.1f°", value));
+
+		if IsShiftKeyDown() then
+			local zoom = GetZoomByFoV(value);
+			local current = GetCameraZoom();
+			local diff = current - zoom;
+			if diff > 0 then
+				CameraZoomIn(diff);
+			elseif diff < 0 then
+				CameraZoomOut(-diff);
+			end
+			self:GetParent().ZoomSlider:SetValue(zoom)
+		end
+    end
+end
+
+
+function Narci_ZoomSlider_OnValueChanged(self, value, isUserInput)
+    self.VirtualThumb:SetPoint("CENTER", self.Thumb, "CENTER", 0, 0)
+    if value ~= self.oldValue then
+		self.oldValue = value;
+		self.Label:SetText(string.format("%.2f", value));
+
+		if false then
+			local diff = value - GetCameraZoom();
+			if diff > 0 then
+				CameraZoomOut(diff);
+			elseif diff < 0 then
+				CameraZoomIn(-diff);
+			end
+		end
+    end
+end
+
+function ZoomInOut()
+	local current = GetCameraZoom();
+	local zoom;
+	if current < 3 then
+		zoom = 4;
+	else
+		zoom = 2;
+	end
+	local diff = current - zoom;
+	if diff > 0 then
+		CameraZoomIn(diff);
+	elseif diff < 0 then
+		CameraZoomOut(-diff);
+	end
+end

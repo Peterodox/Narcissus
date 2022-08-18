@@ -64,8 +64,8 @@
             </Layer>
             <Layer level="BACKGROUND" textureSubLevel="3">
                 <Texture parentKey="MapTexture">
-                    <TexCoords left="0" right="1" top="0" bottom="0.9"/>
-                    <Size x="160" y="72"/>
+                    <TexCoords left="0" right="1" top="0" bottom="0.5"/>
+                    <Size x="160" y="80"/>
                     <Anchors>
                         <Anchor point="CENTER" relativeKey="$parent" relativePoint="CENTER"/>
                     </Anchors>
@@ -73,7 +73,8 @@
                 <MaskTexture parentKey="MapMask" hWrapMode="CLAMPTOBLACKADDITIVE" vWrapMode="CLAMPTOBLACKADDITIVE" file="Interface\AddOns\Narcissus\Art\Modules\Competitive\MythicPlus\MapMask">
                     <Size x="160" y="72"/>
                     <Anchors>
-                        <Anchor point="TOPRIGHT" relativeKey="$parent" relativePoint="TOPRIGHT"/>
+                        <Anchor point="TOPLEFT" relativeKey="$parent" relativePoint="TOPLEFT"/>
+                        <Anchor point="BOTTOMRIGHT" relativeKey="$parent" relativePoint="BOTTOMRIGHT"/>
                     </Anchors>
 					<MaskedTextures>
 						<MaskedTexture childKey="MapTexture"/>
@@ -84,39 +85,43 @@
                 <FontString parentKey="Score" inherits="NarciFontNumber24Outline" justifyH="CENTER" justifyV="MIDDLE" text="128" hidden="true">
                     <Size x="0" y="0"/>
                     <Anchors>
-                        <Anchor point="CENTER" relativeKey="$parent" relativePoint="LEFT" x="36" y="-12"/>
+                        <Anchor point="CENTER" relativeKey="$parent" relativePoint="LEFT" x="39" y="-12"/>
                     </Anchors>
                 </FontString>
                 <Texture parentKey="ScoreBound" file="Interface\AddOns\Narcissus\Art\Modules\Competitive\MythicPlus\ScoreBound" hidden="true" Alpha="0.4">
                     <Size x="40" y="28"/>
                     <Anchors>
-                        <Anchor point="CENTER" relativeKey="$parent" relativePoint="LEFT" x="36" y="-12"/>
+                        <Anchor point="CENTER" relativeKey="$parent" relativePoint="LEFT" x="39" y="-12"/>
                     </Anchors>
                 </Texture>
                 <FontString parentKey="Level1" inherits="NarciFontNumber24Outline" justifyH="CENTER" justifyV="TOP" text="15" hidden="true" Alpha="0.8">
-                    <Size x="0" y="0"/>
+                    <Size x="40" y="28"/>
                     <Anchors>
-                        <Anchor point="TOP" relativeKey="$parent" relativePoint="TOPLEFT" x="88" y="-26.0"/>
+                        <Anchor point="TOPLEFT" relativeKey="$parent.ScoreBound" relativePoint="TOPRIGHT" x="8" y="3"/>
+                        <!--Anchor point="TOP" relativeKey="$parent" relativePoint="TOPLEFT" x="88" y="-26.0"/-->
                     </Anchors>
                 </FontString>
 				<FontString parentKey="Duration1" inherits="NarciFontNumber12Outline" justifyH="CENTER" justifyV="BOTTOM" text="12:08" hidden="true">
 					<Size x="0" y="0"/>
 					<Color r="0.92" g="0.92" b="0.92"/>
 					<Anchors>
-						<Anchor point="BOTTOM" relativeKey="$parent" relativePoint="BOTTOMLEFT" x="88" y="4.0"/>
+						<!--Anchor point="BOTTOM" relativeKey="$parent" relativePoint="BOTTOMLEFT" x="88" y="4.0"/-->
+                        <Anchor point="BOTTOM" relativeKey="$parent.Level1" relativePoint="BOTTOM" x="0" y="-5"/>
 					</Anchors>
 				</FontString>
-                <FontString parentKey="Level2" inherits="NarciFontNumber24Outline" justifyH="CENTER" justifyV="TOP" text="15" hidden="true" Alpha="0.8">
-                    <Size x="0" y="0"/>
+                <FontString parentKey="Level2" inherits="NarciFontNumber24Outline" justifyH="CENTER" justifyV="TOP" text="15" Alpha="0.8" hidden="true">
+                    <Size x="40" y="28"/>
                     <Anchors>
-                        <Anchor point="TOP" relativeKey="$parent" relativePoint="TOPLEFT" x="128" y="-26.0"/>
+                        <!--Anchor point="TOP" relativeKey="$parent" relativePoint="TOPLEFT" x="128" y="-26.0"/-->
+                        <Anchor point="TOPLEFT" relativeKey="$parent.Level1" relativePoint="TOPRIGHT" x="0" y="0"/>
                     </Anchors>
                 </FontString>
 				<FontString parentKey="Duration2" inherits="NarciFontNumber12Outline" justifyH="CENTER" justifyV="BOTTOM" text="12:08" hidden="true">
 					<Size x="0" y="0"/>
 					<Color r="0.92" g="0.92" b="0.92"/>
 					<Anchors>
-						<Anchor point="BOTTOM" relativeKey="$parent" relativePoint="BOTTOMLEFT" x="128" y="4.0"/>
+						<!--Anchor point="BOTTOM" relativeKey="$parent" relativePoint="BOTTOMLEFT" x="128" y="4.0"/-->
+                        <Anchor point="BOTTOM" relativeKey="$parent.Level2" relativePoint="BOTTOM" x="0" y="-5"/>
 					</Anchors>
 				</FontString>
 				<FontString parentKey="NoRecordLabel" inherits="NarciFontMedium12" justifyH="CENTER" justifyV="MIDDLE" text="No record" hidden="true">
@@ -491,7 +496,7 @@
                             <Layer level="BACKGROUND">
                                 <Texture parentKey="Header">
                                     <Size y="48"/>
-                                    <TexCoords left="0" right="1" top="0.3" bottom="0.6"/>
+                                    <TexCoords left="0" right="1" top="0.6758" bottom="0.8242"/>
                                     <Anchors>
                                         <Anchor point="TOPLEFT"/>
                                         <Anchor point="TOPRIGHT"/>

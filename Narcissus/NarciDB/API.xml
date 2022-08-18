@@ -12,5 +12,7 @@
     <Script file="TransmogDataProvider.lua"/>
     <Script file="CypherEquipment.lua"/>
     <Script file="CharacterProfile.lua"/>
+    <Script file="CustomChatLink.lua"/>
+
     <!--Script file="Utilities.lua"/-->
 </Ui>

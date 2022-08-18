@@ -2,12 +2,11 @@
 
 local _, addon = ...
 
-local MAX_INDEX = 57;
+
 local NUM_ROW = 6;
 local NUM_COL = 4;
 
 local NUM_BUTTONS = NUM_ROW * NUM_COL;
-local MAX_PAGE = math.ceil(MAX_INDEX/NUM_BUTTONS);
 
 local modf = math.modf;
 local pow = math.pow;
@@ -31,71 +30,113 @@ local SELECTED_INDEX, PREVIEW_INDEX;
 local AreaData = {
     --[index] = {fileName, areaID},     --see https://wow.tools/dbc/?dbc=areatable
     --/script local s=7900;local n;for i = s, s+100 do n=C_Map.GetAreaInfo(i) if n then print(i.. "  "..n) end end
-    [1] = {"stormwind_cathedral", 5151},
-    [2] = {"ironforge", 809},
-    [3] = {"darnassus", 1658},
-    [4] = {"new_tinkertown", 6457},
-    [5] = {"ammen_vale", 3526},
-    [6] = {"gilneas_city", 4755},
-    [7] = {"the_jade_forest", 5975},
-    [8] = {"telogrus_rift", 9415},
+    {"stormwind_cathedral", 5151},
+    {"ironforge", 809},
+    {"darnassus", 1658},
+    {"new_tinkertown", 6457},
+    {"ammen_vale", 3526},
+    {"gilneas_city", 4755},
+    {"the_jade_forest", 5975},
+    {"telogrus_rift", 9415},
 
-    [9] = {"vindicaar", 9359},
-    [10] = {"blackrock_depths", 10028},
-    [11] = {"boralus", 8568},
-    [12] = {"mechagon", 12825},
-    [13] = {"valley_of_trials", 363},
-    [14] = {"tirisfal_glades", 85},
-    [15] = {"mulgore", 1638},
-    [16] = {"darkspear_hold", 4866},
+    {"vindicaar", 9359},
+    {"blackrock_depths", 10028},
+    {"boralus", 8568},
+    {"mechagon", 12825},
+    {"valley_of_trials", 363},
+    {"tirisfal_glades", 85},
+    {"mulgore", 1638},
+    {"darkspear_hold", 4866},
 
-    [17] = {"sunstrider_isle", 3431},
-    [18] = {"kezan", 4737},
-    [19] = {"suramar", 8148},
-    [20] = {"thunder_totem", 7731},
-    [21] = {"valley_of_honor", 5168},
-    [22] = {"dazaralor", 8670},
-    [23] = {"voldun", 8854},
-    [24] = {"halls_of_valor", 7672},
+    {"sunstrider_isle", 3431},
+    {"kezan", 4737},
+    {"suramar", 8148},
+    {"thunder_totem", 7731},
+    {"valley_of_honor", 5168},
+    {"dazaralor", 8670},
+    {"voldun", 8854},
+    {"halls_of_valor", 7672},
 
-    [25] = {"trueshot_lodge", 7877},
-    [26] = {"dalaran", 7502},
-    [27] = {"black_rook_hold", 7780},
-    [28] = {"netherlight_temple", 7834},
-    [29] = {"edge_of_reality", 7519},
-    [30] = {"sanctum_of_light", 8347},
-    [31] = {"dreamgrove", 7979},
-    [32] = {"throne_of_elements", 7280},
+    {"trueshot_lodge", 7877},
+    {"dalaran", 7502},
+    {"black_rook_hold", 7780},
+    {"netherlight_temple", 7834},
+    {"edge_of_reality", 7519},
+    {"sanctum_of_light", 8347},
+    {"dreamgrove", 7979},
+    {"throne_of_elements", 7280},
 
-    [33] = {"peak_of_serenity", 6081},
-    [34] = {"mardum", 7705},
-    [35] = {"frozen_throne", 4859},
-    [36] = {"elysian_hold", 11012},
-    [37] = {"seat_of_the_primus", 12876},
-    [38] = {"heart_of_the_forest", 12858},
-    [39] = {"sinfall", 10986},
-    [40] = {"torghast", 10472},
+    {"peak_of_serenity", 6081},
+    {"mardum", 7705},
+    {"frozen_throne", 4859},
+    {"elysian_hold", 11012},
+    {"seat_of_the_primus", 12876},
+    {"heart_of_the_forest", 12858},
+    {"sinfall", 10986},
+    {"torghast", 10472},
 
-    [41] = {"oribos", 10565},
-    [42] = {"stormwind_rain", 5151},
-    [43] = {"undercity", 1497},
-    [44] = {"silvermoon_city", 3487},
-    [45] = {"broken_shore", 7543},
-    [46] = {"bladespire_grounds", 3931},
-    [47] = {"netherstorm", 3523},
-    [48] = {"zulgurub", 19},
+    {"oribos", 10565},
+    {"stormwind_rain", 5151},
+    {"undercity", 1497},
+    {"silvermoon_city", 3487},
+    {"broken_shore", 7543},
+    {"bladespire_grounds", 3931},
+    {"netherstorm", 3523},
+    {"zulgurub", 19},
 
-    [49] = {"zulaman", 3805},
-    [50] = {"valley_of_kings", 924},
-    [51] = {"twilight_citidel", 5473},
-    [52] = {"marris_stead", 2260},
-    [53] = {"gorgrond", 6721},
-    [54] = {"deadwind_pass", 41},
-    [55] = {"tanaris", 440},
+    {"zulaman", 3805},
+    {"valley_of_kings", 924},
+    {"twilight_citidel", 5473},
+    {"marris_stead", 2260},
+    {"gorgrond", 6721},
+    {"deadwind_pass", 41},
+    {"tanaris", 440},
+    {"the_crucible", 13655},
 
-    [56] = {"the_crucible", 13655},
-    [57] = {"provis_fauna", 13706},
+    {"provis_fauna", 13706},
+    {"akstad", 8279},
+    {"black_tooth_hovel", 5652},
+    {"bradensbrook", 7642},
+    {"burning_breach", 9145},
+    {"chapel_gardens", 6386},
+    {"embaari_village", 6923},
+    {"emerald_nightmare", 8026},
+
+    {"feast_of_arrogance", 10980},
+    {"glutharns_decay", 12805},
+    {"halls_of_atonement", 10995},
+    {"hellfire_peninsula", 3483},
+    {"korthia", 13570},
+    {"lake_elrendar", 3473},
+    {"lunarfall", 6790},
+    {"outrigger_post", 9582},
+
+    {"skettis", 3679},
+    {"talador", 6662},
+    {"thastalah_basin", 7668},
+    {"the_cracking_plains", 6774},
+    {"the_lost_isles", 4720},
+    {"the_shadow_vault", 4477},
+    {"the_tremaculum", 13216},
+    {"tomb_of_the_old_kings", 7744},
+
+    {"uldum", 5034},
+    {"underrot", 9391},
+    {"wakeners_enclave", 8946},
+    {"wardens_redoubt", 8371},
+    {"waycrest_manor", 9561},
+    {"winterspring", 618},
+    {"zangarmarsh", 3521},
+    {"moonbrook", 20},
+
+    {"crapopolis", 11455},
+    {"the_heartland", 5992},
+    {"queens_court", 10425},
+    {"nyalotha", 12877},
 };
+
+local MAX_INDEX = #AreaData;
+local MAX_PAGE = math.ceil(MAX_INDEX/NUM_BUTTONS);
 
 local RaceImage = {
     --[raceID] = imageIndex
@@ -153,7 +194,7 @@ local function SetupThumbnail(texture, index, inset)
     else
         local row = modf((index - 1) * 0.125);
         local col = index - row * 8 - 1;
-        texture:SetTexCoord(col*0.125 + inset, (col+1)*0.125 - inset, row*0.125 + inset, (row+1)*0.125 - inset);
+        texture:SetTexCoord(col*0.125 + inset, (col+1)*0.125 - inset, row*0.0625 + inset, (row+1)*0.0625 - inset);
         return true
     end
 end

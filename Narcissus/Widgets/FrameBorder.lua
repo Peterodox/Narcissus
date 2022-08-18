@@ -110,11 +110,17 @@ function NarciFrameBorderMixin:OnEnter()
     if not self:IsHighlightLocked() then
         self:SetBackdropBorderColor(0.5, 0.5, 0.5, 1);
     end
+    if self.onMouseMotion then
+        self.onMouseMotion(self, true);
+    end
 end
 
 function NarciFrameBorderMixin:OnLeave()
     if not self:IsHighlightLocked() then
         self:SetBorderColor(unpack(self.borderColor));
+    end
+    if self.onMouseMotion then
+        self.onMouseMotion(self, false);
     end
 end
 

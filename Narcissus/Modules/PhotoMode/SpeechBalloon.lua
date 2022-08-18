@@ -1514,8 +1514,8 @@ function ToggleFontSizeOptions(self, visible)
             widget.value = value;
         end
 
-        function FontSizeDropDown:IsFocused(f)
-            return f:IsShown() and f:IsMouseOver()
+        function FontSizeDropDown:IsFocused()
+            return FontSizeDropDown:IsShown() and FontSizeDropDown:IsMouseOver()
         end
     end
 

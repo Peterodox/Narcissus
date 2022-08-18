@@ -2783,8 +2783,8 @@
 							<AbsInset left="0" right="-2" top="-2" bottom="-2"/>
 						</HitRectInsets>
 						<Anchors>
-							<Anchor point="TOPRIGHT" relativePoint="TOPRIGHT" x="6" y="6"/>
-							<Anchor point="BOTTOMRIGHT" relativePoint="BOTTOMRIGHT" x="6" y="-6"/>
+							<Anchor point="TOPRIGHT" relativeKey="$parent" relativePoint="TOPRIGHT" x="6" y="6"/>
+							<Anchor point="BOTTOMRIGHT" relativeKey="$parent" relativePoint="BOTTOMRIGHT" x="6" y="-6"/>
 						</Anchors>
 					</Slider>
 				</Frames>
@@ -2912,7 +2912,7 @@
 		</Layers>
 	</Frame>
 
-	<Slider name="NarciVerticalLineSliderTemplate" valueStep="0.01" virtual="true" mixin="NarciVerticalLineSliderMixin">
+	<Slider name="NarciVerticalLineSliderTemplate" valueStep="0.01" virtual="true" mixin="NarciVerticalLineSliderMixin" defaultValue="0" minValue="0" maxValue="0">
 		<Size x="12"/>
 		<Layers>
 			<Layer level="BACKGROUND">

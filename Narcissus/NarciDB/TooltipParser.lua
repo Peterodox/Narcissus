@@ -3,6 +3,7 @@ local gsub = string.gsub;
 local match = string.match;
 local find = string.find;
 local format = string.format;
+local split = string.split;
 
 local tinsert = table.insert;
 
@@ -88,6 +89,7 @@ local PATTERN_COOLDOWN_TIME = "%((%d.+) Cooldown%)$";
 local PATTERN_UPGRADE_LEVEL = gsub(ITEM_UPGRADE_TOOLTIP_FORMAT, "%%d+", "(%%d+)");
 local PATTERN_ITEM_SET_NAME = "(.+) %((%d+)/(%d+)%)";   --Pattern_WrapNumber( Pattern_WrapSpace( Pattern_WrapBrace( ITEM_SET_NAME) ) );
 local PATTERN_CLASS_REQUIREMENT = Pattern_WrapSpace(ITEM_CLASSES_ALLOWED);
+local PATTERN_AMMO_DPS = gsub(AMMO_DAMAGE_TEMPLATE, "%%s", "([%%d.]+)");
 
 do
     if TEXT_LOCALE == "zhCN" then
@@ -366,6 +368,39 @@ NarciAPI.GetItemEnchantText = GetItemEnchantText;
 NarciAPI.GetEnchantTextByEnchantID = GetEnchantTextByEnchantID;
 
 
+local function GetEnchantTextByItemLink(itemLink, colorized)
+    if not itemLink then return end;
+
+    local _, _, _, linkType, linkID, enchantID = split(":|H", itemLink);
+
+    if enchantID then
+        TP:SetHyperlink("item:2092:"..enchantID);
+
+        if not LEFT_FONT_STRINGS[7] then
+            LEFT_FONT_STRINGS[7] = _G["NarciVirtualTooltipTextLeft7"];
+        end
+
+        if LEFT_FONT_STRINGS[7] then
+            local enchantText = LEFT_FONT_STRINGS[7]:GetText();
+
+            if enchantText and enchantText ~= "" then
+                --remove "Enchanted:"
+                local effect = match(enchantText, ITEM_ENCHANT_FORMAT);
+                if not effect then
+                    effect = enchantText;
+                end
+                if colorized then
+                    effect = "|cff5fbd6b"..effect.."|r";
+                end
+                return effect
+            end
+        end
+    end
+end
+
+NarciAPI.GetEnchantTextByItemLink = GetEnchantTextByItemLink;
+
+
 local TEMP_ENCHANT_FORMAT = "([^+].+) %((%d+%D+)%)";
 local FORMAT_COLON = ":";
 if TEXT_LOCALE == "zhCN" then
@@ -540,7 +575,7 @@ local function GetItemExtraEffect(itemLink, checkBonus, keepFormat)
 
     TP:SetHyperlink(itemLink);
     local num = TP:NumLines();
-    local begin = max(num - 6, 0);
+    local begin = max(num - 6, 3);
     local output = "";
     local category, str;
 
@@ -1150,7 +1185,7 @@ local function DoesItemHaveSockets(itemLink)
     if not itemLink then return end
 
     local stats = GetItemStats(itemLink);
-    IS = stats;
+
     if stats then
         local numSocket = 0;
         local subType, lastType;
@@ -1176,10 +1211,27 @@ end
 
 NarciAPI.DoesItemHaveSockets = DoesItemHaveSockets;
 
+--[[
 GameTooltip:HookScript("OnTooltipSetItem", function(self)
     local _, itemLink = self:GetItem();
     DoesItemHaveSockets(itemLink);
 end);
+--]]
+
+local function GetAmmoDps(itemID)
+    if not itemID then return end;
+
+    TP:SetItemByID(itemID);
+    if not LEFT_FONT_STRINGS[3] then
+        LEFT_FONT_STRINGS[3] = _G["NarciVirtualTooltipTextLeft3"];
+    end
+    if LEFT_FONT_STRINGS[3] then
+        return tonumber(match(LEFT_FONT_STRINGS[3]:GetText(), PATTERN_AMMO_DPS) or 0);
+    end
+end
+
+NarciAPI.GetAmmoDps = GetAmmoDps;
+
 
 --[[
 itemName, itemLink, itemQuality, itemLevel, itemMinLevel, itemType, itemSubType, itemStackCount,

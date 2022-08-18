@@ -104,7 +104,8 @@ end
 
 function NarciAnimKitTestModelMixin:OnShow()
     if not self.isInit then
-        self:SetUnit("player");
+        --self:SetUnit("player");
+        self:SetDisplayInfo(21976);
         self.isInit = true;
     end
     self:TryOn("item:72019");

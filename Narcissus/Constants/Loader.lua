@@ -1,7 +1,7 @@
 local _, Loader = ...
 
 Loader.eventFrame = CreateFrame("frame");
-Loader.dbVersion = 90205;
+Loader.dbVersion = 90207;
 
 Loader.eventCallback = {};
 Loader.initCallback = {};

@@ -55,7 +55,7 @@
 
 	<FontFamily name="NarciFontNormal10Outline" virtual="true">
 		<Member alphabet="roman">
-			<Font font="Interface\AddOns\Narcissus\Font\SourceSansPro-Semibold.ttf" height="11" outline="NORMAL">
+			<Font font="Interface\AddOns\Narcissus\Font\SourceSansPro-Semibold.ttf" height="10" outline="NORMAL">
 
 			</Font>
 		</Member>
@@ -101,7 +101,7 @@
 
 	<FontFamily name="NarciFontThin12" virtual="true">
 		<Member alphabet="roman">
-			<Font font="Interface\AddOns\Narcissus\Font\SourceSansPro-Regular.ttf" height="13"/>
+			<Font font="Interface\AddOns\Narcissus\Font\SourceSansPro-Regular.ttf" height="12"/>
 		</Member>
 		<Member alphabet="korean">
 			<Font font="Interface\AddOns\Narcissus\Font\NotoSansCJKsc-Regular.otf" height="12"/>
@@ -113,7 +113,7 @@
 			<Font font="Interface\AddOns\Narcissus\Font\NotoSansCJKsc-Regular.otf" height="12"/>
 		</Member>
 		<Member alphabet="russian">
-			<Font font="Interface\AddOns\Narcissus\Font\SourceSansPro-Regular.ttf" height="13"/>
+			<Font font="Interface\AddOns\Narcissus\Font\SourceSansPro-Regular.ttf" height="12"/>
 		</Member>
 	</FontFamily>
 

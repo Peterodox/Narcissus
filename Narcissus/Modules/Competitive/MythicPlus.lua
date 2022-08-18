@@ -15,7 +15,6 @@ local RemoveTextBeforeColon = NarciAPI.RemoveTextBeforeColon;
 local UpdateTabButtonVisual = addon.UpdateTabButtonVisual;
 
 local MAP_FILE_PREFIX = "Interface\\AddOns\\Narcissus\\Art\\Modules\\Competitive\\MythicPlus\\Maps\\";
-local BLUR_FILE_PREFIX = "Interface\\AddOns\\Narcissus\\Art\\Modules\\Competitive\\MythicPlus\\BlurredMaps\\";
 local CARD_FULL_HEIGHT = 315;   --13 * 24
 
 local AFFIX_TYRANNICAL;     --9
@@ -23,18 +22,54 @@ local AFFIX_FORTIFIED;      --10
 
 local MainFrame, OwnedKeystoneFrame;
 
-local mapUIInfo = {
-    [375] = {name = 'mists-of-tirna-scithe', barColor='6273f4'};
-    [376] = {name = 'the-necrotic-wake', barColor = '63c29a'};
-    [377] = {name = 'de-other-side', barColor = '8240e8'};
-    [378] = {name = 'halls-of-atonement', barColor = 'd80075'};
-    [379] = {name = 'plaguefall', barColor = '6fd54f'};
-    [380] = {name = 'sanguine-depths', barColor = 'f73b39'};
-    [381] = {name = 'spires-of-ascension', barColor = '85c5ff'};
-    [382] = {name = 'theater-of-pain', barColor = '83c855'};
-    [391] = {name = 'tazavesh-the-veiled-market', barColor = '5f8afa'};
-    [392] = {name = 'tazavesh-the-veiled-market', barColor = '5f8afa'};
+local MAP_UI_INFO = {
+    --[] = {name = '', barColor = ''},
+
+    [375] = {name = 'mists-of-tirna-scithe', barColor ='6273f4'},
+    [376] = {name = 'the-necrotic-wake', barColor = '63c29a'},
+    [377] = {name = 'de-other-side', barColor = '8240e8'},
+    [378] = {name = 'halls-of-atonement', barColor = 'd80075'},
+    [379] = {name = 'plaguefall', barColor = '6fd54f'},
+    [380] = {name = 'sanguine-depths', barColor = 'f73b39'},
+    [381] = {name = 'spires-of-ascension', barColor = '85c5ff'},
+    [382] = {name = 'theater-of-pain', barColor = '83c855'},
+    [391] = {name = 'tazavesh-the-veiled-market', barColor = '5f8afa'},     --Street
+    [392] = {name = 'tazavesh-the-veiled-market', barColor = '5f8afa'},     --Gambit
+
+    [369] = {name = 'operation-mechagon', barColor = '4ebbc9'},    --Junkyard
+    [370] = {name = 'operation-mechagon', barColor = '4ebbc9'},    --Workshop
+    [227] = {name = 'return-to-karazhan', barColor = '68abe0'},    --Lower
+    [234] = {name = 'return-to-karazhan', barColor = '68abe0'},    --Upper
+    [166] = {name = 'grimrail-depot', barColor = 'b79266'},
+    [169] = {name = 'iron-docks', barColor = 'b79266'},
 };
+
+local SEASON_MAPS = {391, 392, 234, 227, 370, 369, 169, 166};
+
+
+local function ShowNewDungeons()
+    --Use this to get season map
+    local maps = C_ChallengeMode.GetMapTable();
+    print(string.format("This season has %d dungeons.", #maps));
+
+    local numNew = 0;
+
+    for _, mapChallengeModeID in ipairs(maps) do
+        if not MAP_UI_INFO[mapChallengeModeID] then
+            if numNew == 0 then
+                print("Missing UI Info:")
+            end
+            numNew = numNew + 1;
+            local mapName = C_ChallengeMode.GetMapUIInfo(mapChallengeModeID);
+            print(string.format("#%d  %d  %s", numNew, mapChallengeModeID, mapName));
+        end
+    end
+end
+
+NarciAPI.ShowNewMythicPlusDungeons = ShowNewDungeons;
+--/run NarciAPI.ShowNewMythicPlusDungeons()
+
+
 
 local function FormatDuration(seconds)
     seconds = (seconds and tonumber(seconds)) or 0;
@@ -160,13 +195,9 @@ function DataProvider:GetMapIcon(mapID)
     return self.mapIcons[mapID];
 end
 
-function DataProvider:GetMapTexture(mapID, blurred)
-    if mapID and mapUIInfo[mapID] then
-        if blurred then
-            return BLUR_FILE_PREFIX.. mapUIInfo[mapID].name
-        else
-            return MAP_FILE_PREFIX.. mapUIInfo[mapID].name
-        end
+function DataProvider:GetMapTexture(mapID)
+    if mapID and MAP_UI_INFO[mapID] then
+        return MAP_FILE_PREFIX.. MAP_UI_INFO[mapID].name
     end
 end
 
@@ -184,7 +215,7 @@ function DataProvider:GetMapIDByOrder(page)
 end
 
 function DataProvider:SetMapComplete(mapID)
-    tinsert(self.mapIDs, mapID);
+    table.insert(self.mapIDs, mapID);
     self.numCompleteMaps = #self.mapIDs;
 end
 
@@ -263,8 +294,8 @@ end
 NarciMythicPlusRatingCardMixin = {};
 
 function NarciMythicPlusRatingCardMixin:LoadMap(mapID)
-    if mapID ~= self.mapID and mapUIInfo[mapID] then
-        self.MapTexture:SetTexture( MAP_FILE_PREFIX.. (mapUIInfo[mapID].name) );
+    if mapID ~= self.mapID and MAP_UI_INFO[mapID] then
+        self.MapTexture:SetTexture( DataProvider:GetMapTexture(mapID) );
     end
 end
 
@@ -349,10 +380,12 @@ function NarciMythicPlusRatingCardMixin:SetEmpty()
     self.Duration1:Hide();
     self.Level2:Hide();
     self.Duration2:Hide();
+
     if not HIDE_MYTHIC_TAB_ON_LOW_LEVELS then
         DataProvider:SetMapComplete(self.mapID);
         return
     end
+
     self.MapTexture:SetDesaturation(1);
     self.MapTexture:SetVertexColor(0.6, 0.6, 0.6);
     self.Header:SetDesaturation(1);
@@ -409,6 +442,8 @@ end
 
 
 local function MapDetail_OnMouseWheel(self, delta)
+    if not DataProvider.numCompleteMaps then return end;
+
     if delta > 0 then
         if self.page > 1 then
             self.page = self.page - 1;
@@ -495,9 +530,36 @@ function NarciMythicPlusDisplayMixin:Init()
     local OFFSET_Y= -24;
 
     if not self.maps then
-        --self.maps = C_ChallengeMode.GetMapTable();
-        self.maps = {376, 381, 379, 382, 375, 377, 378, 380, 391, 392};
+        --Check if the current season maps match the data since last update
+        local mapsThisSeason = C_ChallengeMode.GetMapTable();
+        local isNewSeason;
+
+        if mapsThisSeason and #mapsThisSeason > 0 then
+            local presetMaps = {};
+
+            for _, mapID in ipairs(SEASON_MAPS) do
+                presetMaps[mapID] = true;
+            end
+
+            for _, mapID in ipairs(mapsThisSeason) do
+                if not presetMaps[mapID] then
+                    isNewSeason = true;
+                    break
+                end
+            end
+
+            presetMaps = nil;
+        end
+
+        if isNewSeason then
+            self.maps = mapsThisSeason;
+        else
+            self.maps = SEASON_MAPS;
+        end
+
     end
+
+    local numRows = math.ceil(#self.maps * 0.5);
 
     self.Map2Cards = {};
 
@@ -505,7 +567,7 @@ function NarciMythicPlusDisplayMixin:Init()
     local card;
     local row, col = 0, 0;
     local container = self.CardContainer;
-    local cardHeight = CARD_FULL_HEIGHT/5;  --72
+    local cardHeight = (CARD_FULL_HEIGHT - 24) / numRows;  --72
     for i = 1, numMaps do
         card = self.Cards[i];
         if not card then
@@ -1026,8 +1088,8 @@ function NarciMythicPlusHistogrameMixin:SetData(mapID, intimeRun, overtimeRun, n
     local sum = normalizedRun--(intimeRun + overtimeRun);
     self.MapName:SetText(DataProvider:GetMapName(mapID));
     local r, g, b;
-    if mapUIInfo[mapID] then
-        r, g, b = unpack(ConvertHexColorToRGB(mapUIInfo[mapID].barColor));
+    if MAP_UI_INFO[mapID] then
+        r, g, b = unpack(ConvertHexColorToRGB(MAP_UI_INFO[mapID].barColor));
     else
         r, g, b = 0.8, 0.8, 0.8;
     end

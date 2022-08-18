@@ -2463,7 +2463,6 @@ local function ShowMouseOverButtons(anchorButton)
 end
 
 local function SetNPCModel(model, id, isDisplayID)
-    local _, _, dirX, dirY, dirZ, _, ambR, ambG, ambB, _, dirR, dirG, dirB = model:GetLight();
     model.isModelLoaded = false;
     if isDisplayID then
         model:SetDisplayInfo(id);
@@ -2478,7 +2477,6 @@ local function SetNPCModel(model, id, isDisplayID)
     model:SetModelAlpha(0);
     After(0.1, function()
         model:SetModelAlpha(1);
-        model:SetLight(true, false, dirX, dirY, dirZ, 1, ambR, ambG, ambB, 1, dirR, dirG, dirB);
 	end);
 end
 

@@ -299,11 +299,20 @@ function NarciPhotoModeWeaponFrameMixin:SetItemFromActor(actor)
                 local itemID, name, icon;
                 for i = 1, 2 do
                     itemID = weapons[i];
-                    icon = GetItemIcon(itemID);
-                    if i == 1 then
-                        self.MainHandSlot:SetSlotInfo(itemID, name, icon);
+                    if itemID then
+                        icon = GetItemIcon(itemID);
+                        name = C_Item.GetItemNameByID(itemID);  --in fact, itemlink
+                        if i == 1 then
+                            self.MainHandSlot:SetSlotInfo(itemID, name, icon);
+                        else
+                            self.OffHandSlot:SetSlotInfo(itemID, name, icon);
+                        end
                     else
-                        self.OffHandSlot:SetSlotInfo(itemID, name, icon);
+                        if i == 1 then
+                            self.MainHandSlot:SetSlotInfo(nil);
+                        else
+                            self.OffHandSlot:SetSlotInfo(nil);
+                        end
                     end
                 end
             else

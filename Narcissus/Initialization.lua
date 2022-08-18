@@ -27,9 +27,6 @@ local DefaultValue = {
     ["FadeButton"] = false,
     ["WeatherEffect"] = true,
     ["VignetteStrength"] = 0.5,
-    ["FadeMusic"] = false,
-    ["AlwaysShowModel"] = false,
-    ["DefaultLayout"] = 2,
     ["LetterboxEffect"] = false,
     ["LetterboxRatio"] = 2,
     ["AFKScreen"] = false,
@@ -61,6 +58,8 @@ local DefaultValue = {
     ["ItemTooltipStyle"] = 1,
     ["ShowItemID"] = false,
     ["OutfitSortMethod"] = "name",                  --Filter for sorting outfits: (name alphabet/recently visited)
+    ["HideTextsWithUI"] = true,                     --Hide all texts when UI is hidden
+
     --# Internal Hotkey
     ["SearchRelativesHotkey"] = "TAB",              --The key you press to begin/cycle relative search
 
@@ -70,6 +69,9 @@ local DefaultValue = {
     --# Deprecated
     --["UseExitConfirmation"] = true,               --Show exit confirmation dialog upon leaving group photo mode
     --["ShowFullBody"] = true,                      --Show entire body in Xmog Mode
+    --["AlwaysShowModel"] = false,                  --Related to mog mode layout
+    --["DefaultLayout"] = 2,                        --Related to mog mode layout
+    --["FadeMusic"] = false,
 
     --# User Tag
     --"UserIsCurious" (user interacted with our item shop)
@@ -117,12 +119,10 @@ local function Initialize_NarcissusDB()
         NarcissusDB.Version = 10000;
     end
 
-    if (not NarcissusDB.PhotoModeButton) or (type(NarcissusDB.PhotoModeButton) ~= "table") then
-        NarcissusDB.PhotoModeButton = {};
-    end
-
-    if NarcissusDB.PhotoModeButton.HideTexts == nil then
-        NarcissusDB.PhotoModeButton.HideTexts =  true;
+    if NarcissusDB.HideTextsWithUI == nil then
+        if NarcissusDB.PhotoModeButton and NarcissusDB.PhotoModeButton.HideTexts ~= nil then
+            NarcissusDB.HideTextsWithUI = NarcissusDB.PhotoModeButton.HideTexts;
+        end
     end
 
     ---------------------

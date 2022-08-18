@@ -2,7 +2,7 @@ local L = Narci.L;
 
 --NARCI_NEW_ENTRY_PREFIX..
 local TabNames = { 
-    L["Interface"], L["Shortcuts"], NARCI_NEW_ENTRY_PREFIX..L["Item Tooltip"], L["Themes"], L["Effects"], L["Camera"], L["Transmog"],
+    L["Interface"], L["Shortcuts"], NARCI_NEW_ENTRY_PREFIX..L["Item Tooltip"], L["Themes"], L["Effects"], L["Camera"],
     L["Photo Mode"], L["NPC"], NARCI_NEW_ENTRY_PREFIX..EXPANSION_NAME8, L["Extensions"],
 };  --Credits and About will be inserted later
 
@@ -40,12 +40,13 @@ end
 
 --Interface
 local function SetFrameScale(scale)
-	local scale = tonumber(scale) or 1;
+	scale = tonumber(scale) or 1;
 
-	Narci_PhotoModeToolbar:SetScale(scale);
+	NarciScreenshotToolbar:SetDefaultScale(scale);
 	Narci_Character:SetScale(scale);
 	Narci_Attribute:SetScale(scale);
     NarciTooltip:SetCustomScale(scale);
+
 	if Settings then
 		Settings.GlobalScale = scale;
 	end
@@ -258,10 +259,10 @@ end
 
 local function SetUseEcapeButtonForExit(self, state)
     if state then
-        Narci_PhotoModeToolbar.KeyListener.EscapeKey = "ESCAPE";
+        NarciScreenshotToolbar.KeyListener.escapeKey = "ESCAPE";
         self.Description:SetText(L["Use Escape Button Description1"]);
     else
-        Narci_PhotoModeToolbar.KeyListener.EscapeKey = "HELLOWORLD";
+        NarciScreenshotToolbar.KeyListener.escapeKey = "HELLOWORLD";
         self.Description:SetText(L["Use Escape Button Description2"]);
     end
 end
@@ -388,18 +389,7 @@ local function LetterboxRatioSlider_OnValueChanged(self, value)
     end
 end
 
-local function SmoothMusicVolume(state)
-    local frame = Narci_MusicInOut;
-    frame:Hide()
-    frame.state = state;
-    frame:Show()
-end
 
-local function FadeMusicSwitch_SetState(self, state)
-    if self:IsVisible() then
-        SmoothMusicVolume(state);
-    end
-end
 
 
 --Camera
@@ -694,12 +684,11 @@ local Structure = {
     {Category = "Effects", localizedName = L["Effects"], layout = {
         { name = "FilterHeader", type = "header", localizedName = L["Image Filter"], },
         { name = "VignetteStrength", type = "slider", localizedName = L["Vignette Strength"], minValue = 0, maxValue = 1, valueStep = 0.1, valueFunc = VignetteStrengthSlider_OnValueChanged },
+        { name = "Space", type = "space", height = 24},
         { name = "FilterDescription", type = "subheader", localizedName = L["Image Filter Description"], },
         { name = "WeatherEffect", type = "checkbox", localizedName = L["Weather Effect"], valueFunc = WeatherSwitch_SetState },
         { name = "LetterboxEffect", type = "checkbox", localizedName = L["Letterbox"], description = " ", globalName = "Narci_LetterboxToggle", valueFunc = LetterboxEffectSwitch_SetState, onShowFunc = LetterboxEffectSwitch_OnShow },
         { name = "LetterboxRatio", type = "slider", localizedName = L["Letterbox Ratio"], globalName = "Narci_LetterboxRatioSlider", offsetX = 80, offsetY = 40, width = 40, minValue = 2.0, maxValue = 2.350, valueStep = 2, valueFunc = LetterboxRatioSlider_OnValueChanged },
-        { name = "SoundHeader", type = "header", localizedName = SOUND },
-        { name = "FadeMusic", type = "checkbox", localizedName = L["Fade Music"], valueFunc = FadeMusicSwitch_SetState },
     }},
 
     {Category = "Camera", localizedName = L["Camera"], layout = {
@@ -710,6 +699,7 @@ local Structure = {
         { name = "UseBustShot", type = "checkbox", localizedName = L["Use Bust Shot"], valueFunc = BustShotSwitch_SetState },
     }},
 
+    --[[
     {Category = "Transmog", localizedName = L["Transmog"], layout = {
         { name = "CameraMovementHeader", type = "header", localizedName = L["Default Layout"], },
         { name = "DefaultLayout", type = "radio", localizedName = L["Transmog Layout1"], valueFunc = LayoutButtonButton_SetState, optionValue = 1, groupIndex = 1 },
@@ -719,6 +709,7 @@ local Structure = {
         { name = "AlwaysShowModel", type = "checkbox", localizedName = L["Always Show Model"], globalName = "Narci_AlwaysShowModelToggle", valueFunc = AlwaysShowModelSwitch_SetState },
         { name = "UseEntranceVisual", type = "checkbox", localizedName = L["Entrance Visual"], description = L["Entrance Visual Description"], valueFunc = EntranceVisualSwitch_SetState },
     }},
+    --]]
 
     {Category = "PhotoMode", localizedName = L["Photo Mode"], layout = {
         { name = "CameraMovementHeader", type = "header", localizedName = L["General"], },
@@ -1356,11 +1347,27 @@ local function TabButton_OnClick(self)
     self.SelectedColor:SetAlpha(SelectedColorAlpha);
 end
 
-local function BuildTabButtonList(self, buttonTemplate, buttonNameTable, initialOffsetX, initialOffsetY, initialPoint, initialRelative, offsetX, offsetY, point, relativePoint)
-	local button, buttonHeight, buttons, numButtons;
+local function TabButton_OnEnter(self)
+    self.HighlightColor:Show();
+end
 
-	local parentName = self:GetName();
-	local buttonName = parentName and (parentName .. "Button") or nil;
+local function TabButton_OnLeave(self)
+    self.HighlightColor:Hide();
+end
+
+local function TabButton_SetName(self, name)
+    self.Name:SetText(name);
+    local numLines = self.Name:GetNumLines();
+    if numLines > 1 then
+        self:SetHeight(24);
+        return 24
+    else
+        return 16
+    end
+end
+
+local function BuildTabButtonList(self, buttonTemplate, buttonNameTable, initialOffsetX, initialOffsetY, initialPoint, initialRelative, offsetX, offsetY, point, relativePoint)
+    local button, buttons;
 
 	initialPoint = initialPoint or "TOPLEFT";
     initialRelative = initialRelative or "TOPLEFT";
@@ -1371,40 +1378,42 @@ local function BuildTabButtonList(self, buttonTemplate, buttonNameTable, initial
 	offsetX = offsetX or 0;
 	offsetY = offsetY or 0;
 
-	if ( self.buttons ) then
-		buttons = self.buttons;
-		buttonHeight = buttons[1]:GetHeight();
-	else
-        button = CreateFrame("BUTTON", buttonName and (buttonName .. 1) or nil, self, buttonTemplate);
-        button:SetScript("OnClick", TabButton_OnClick);
-		buttonHeight = button:GetHeight();
-        button:SetPoint(initialPoint, self, initialRelative, initialOffsetX, initialOffsetY);
-        button:SetID(0);
-        buttons = {}
-        button.Name:SetText(buttonNameTable[1])
-		tinsert(buttons, button);
+	if not self.buttons then
+        self.buttons = {};
 	end
+    buttons = self.buttons;
 
 	local numButtons = #buttonNameTable;
+    local totalHeight = 0;
+    local buttonHeight;
 
-	for i = 2, numButtons do
-        button = CreateFrame("BUTTON", buttonName and (buttonName .. i) or nil, self, buttonTemplate);
-        button:SetScript("OnClick", TabButton_OnClick);
+	for i = 1, numButtons do
+        button = CreateFrame("BUTTON", nil, self, buttonTemplate);
         button:SetID(i-1);
-        button.Name:SetText(buttonNameTable[i])
-        if i == numButtons then         --About Tab
+
+        button:SetScript("OnClick", TabButton_OnClick);
+        button:SetScript("OnEnter", TabButton_OnEnter);
+        button:SetScript("OnLeave", TabButton_OnLeave);
+
+        buttonHeight = TabButton_SetName(button, buttonNameTable[i]);
+
+        if i == numButtons then
+            --About Tab
             button:SetPoint("BOTTOMLEFT", self, "BOTTOMLEFT", initialOffsetX, -initialOffsetY);
-        elseif i == numButtons - 1 then --Credit Tab
-            button:SetPoint("BOTTOMLEFT", self, "BOTTOMLEFT", initialOffsetX, -initialOffsetY + buttonHeight);
+        elseif i == numButtons - 1 then
+            --Credit Tab
+            button:SetPoint("BOTTOMLEFT", self, "BOTTOMLEFT", initialOffsetX, -initialOffsetY + 16);
             button.HighlightColor:SetColorTexture(0.6666, 0, 0.549);
             button.SelectedColor:SetColorTexture(0.6666, 0, 0.549);
-        else                            --Regular Tab
-            button:SetPoint(point, buttons[i-1], relativePoint, offsetX, offsetY);
+        else
+            --Regular Tab
+            button:SetPoint(initialPoint, self, initialRelative, initialOffsetX, initialOffsetY - totalHeight);
         end
-		tinsert(buttons, button);
+		
+        buttons[i] = button;
+        totalHeight = totalHeight + buttonHeight;
 	end
 
-    self.buttons = buttons;
     buttons[1]:Click();
 
     wipe(buttonNameTable);  --Reclaim space
@@ -1583,8 +1592,8 @@ end
 -----------------
 local function SetCreditList()
     local ACIVE_COLOR = "|cffd9ccb4";
-    local ACTIVE_PATRONS = {"Solanya", "Erik Shafer", "Celierra&Darvian", "Albator S.", "Pierre-Yves Bertolus", "Brian Haberer", "Terradon", "Alex Boehm", "Miroslav Kovac", "Ryan Zerbin"};
-    local FORMER_PATRONS = {"Elexys", "Ben Ashley", "Knightlord", "Andrew Phoenix", "Nantangitan", "Blastflight", "Lars Norberg", "Valnoressa", "Nimrodan", "Brux", "Karl", "Webb", "acein", "Christian Williamson", "Tzutzu", "Anthony Cordeiro", "Nina Recchia", "heiteo", "Psyloken", "Jesse Blick", "Victor Torres",};
+    local ACTIVE_PATRONS = {"Albator S.", "Solanya", "Erik Shafer", "Celierra&Darvian", "Pierre-Yves Bertolus", "Terradon", "Alex Boehm", "Miroslav Kovac", "Ryan Zerbin", "Nisutec"};
+    local FORMER_PATRONS = {"Elexys", "Ben Ashley", "Knightlord", "Brian Haberer", "Andrew Phoenix", "Nantangitan", "Blastflight", "Lars Norberg", "Valnoressa", "Nimrodan", "Brux", "Karl", "Webb", "acein", "Christian Williamson", "Tzutzu", "Anthony Cordeiro", "Nina Recchia", "heiteo", "Psyloken", "Jesse Blick", "Victor Torres",};
     local CREDIT_LIST_EXTRA = "Marlamin | WoW.tools\nKeyboardturner | Avid Bug Finder(Generator)\nMeorawr | Wondrous Wisdomball\nHubbotu | Translator - Russian\nRomanv  | Translator - Spanish";
     
     local RawList = {};
@@ -1769,7 +1778,7 @@ function NarciPreferenceMixin:OnLoad()
     resetButton:SetWidth( (resetButton.Label:GetWidth() or 20) + 48 );
 
     --Build Tab Buttons
-    BuildTabButtonList(self.TabButtonFrame, "Narci_TabButtonTemplate", TabNames, 0, -12);
+    BuildTabButtonList(self.TabButtonFrame, "NarciTabButtonTemplate", TabNames, 0, -12);
 end
 
 function NarciPreferenceMixin:OnShow()

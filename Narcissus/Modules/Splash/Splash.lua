@@ -22,9 +22,6 @@ local cos = math.cos;
 local pow = math.pow;
 local L = Narci.L;
 
-local function linear(t, b, e, d)
-    return (e - b) * t / d + b
-end
 
 local function outSine(t, b, e, d)
 	return (e - b) * sin(t / d * (pi / 2)) + b
@@ -34,10 +31,6 @@ local function inOutSine(t, b, e, d)
 	return (b - e) / 2 * (cos(pi * t / d) - 1) + b
 end
 
-local function outQuart(t, b, e, d)
-    t = t / d - 1;
-    return (b - e) * (pow(t, 4) - 1) + b
-end
 
 --New Splash--
 local MainFrame, PreviewFrame;

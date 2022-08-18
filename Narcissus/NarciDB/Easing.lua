@@ -36,6 +36,11 @@ local cos = math.cos;
 local pow = math.pow;
 local pi = math.pi;
 
+--t: total time elapsed
+--b: beginning position
+--e: ending position
+--d: animation duration
+
 function EasingFunctions.linear(t, b, e, d)
 	return (e - b) * t / d + b
 end

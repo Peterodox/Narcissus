@@ -1,6 +1,6 @@
-## Interface: 90205
+## Interface: 90207
 ## Plain Title: Narcissus
-## Version: 1.2.4
+## Version: 1.2.6
 
 ## Title: |cffA236EFN|cff9448F1a|cff865BF2r|cff786DF4c|cff6A80F6i|cff5D92F7s|cff4FA4F9s|cff41B7FAu|cff33C9FCs|r
 
@@ -42,8 +42,8 @@ Modules\CharacterFrame\ItemSocketing.xml
 Modules\EquipmentOption\EquipmentOption.xml
 Modules\CharacterFrame\ItemCooldown.xml
 Modules\CharacterFrame\Attributes.xml
-
 Modules\MsgAlert\Alert.xml
+Modules\ScreenshotTool\ScreenshotTool.xml
 
 Narcissus.xml
 Preference.xml
@@ -81,7 +81,7 @@ Modules\Splash\Splash.xml
 Modules\Achievement\Core.xml
 Modules\Statistics\Core.lua
 
-# Modules\ParticleSystem\ParticleSystem.xml
+#Modules\ParticleSystem\ParticleSystem.xml
 
 Filters\CameraEffect.xml
 Filters\Letterbox.xml
@@ -94,4 +94,3 @@ Guide\Guide.xml
 # Modules\Inspector\Inspector.xml
 # Modules\LootTracker\Main.lua
 # Modules\AnimKit\AnimKit.xml
-# Modules\Map\Map.xml

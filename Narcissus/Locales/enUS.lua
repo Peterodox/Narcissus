@@ -7,7 +7,7 @@ local S = Narci.L.S;
 NARCI_GRADIENT = "|cffA236EFN|r|cff9448F1a|r|cff865BF2r|r|cff786DF4c|r|cff6A80F6i|r|cff5D92F7s|r|cff4FA4F9s|r|cff41B7FAu|r|cff33C9FCs|r"
 MYMOG_GRADIENT = "|cffA236EFM|cff9448F1y |cff865BF2T|cff786DF4r|cff6A80F6a|cff5D92F7n|cff4FA4F9s|cff41B7FAm|cff33C9FCo|cff32c9fbg|r"
 
-NARCI_VERSION_INFO = "1.2.4";
+NARCI_VERSION_INFO = "1.2.6";
 NARCI_DEVELOPER_INFO = "Developed by Peterodox";
 
 NARCI_NEW_ENTRY_PREFIX = "|cff40C7EB";
@@ -49,34 +49,36 @@ L["Format Years Ago"] = "%d years ago";
 L["Swap items"] = "Swap items";
 L["Press Copy"] = NARCI_COLOR_GREY_70.. "Press |r".. NARCI_SHORTCUTS_COPY.. NARCI_COLOR_GREY_70 .." to Copy";
 L["Copied"] = NARCI_COLOR_GREEN_MILD.. "Link Copied";
-
 L["Movement Speed"] = "MSPD";
 L["Damage Reduction Percentage"] = "DR%";
-
 L["Advanced Info"] = "Left click to toggle advanced info.";
+L["Restore On Exit"] = "\nYour previous settings will be restored after exit.";
 
 L["Photo Mode"] = "Photo Mode";
 L["Photo Mode Tooltip Open"] = "Open the screenshot toolbox.";
 L["Photo Mode Tooltip Close"] = "Close the screenshot toolbox.";
 L["Photo Mode Tooltip Special"] = "Your captured screenshots in the WoW Screenshots folder will not include this widget.";
 
-L["Xmog Button"] = "Share Transmog";
-L["Xmog Button Tooltip Open"] = "Show the transmog items instead of actual gears.";
-L["Xmog Button Tooltip Close"] = "Show the actual gears in your equipment slots.";
-L["Xmog Button Tooltip Special"] = "Your may try different layouts.";
+L["Toolbar Mog Button"] = "Photo Mode";
+L["Toolbar Mog Button Tooltip"] = "Showcase your transmog or create a photo booth where you can add other players and NPCs.";
 
-L["Emote Button"] = "Do Emote";
-L["Emote Button Tooltip Open"] = "Do the emotes with unique animations.";
+L["Toolbar Emote Button"] = "Do Emote";
+L["Toolbar Emote Button Tooltip"] = "Use the emotes with unique animations.";
 L["Auto Capture"] = "Auto Capture";
 
-L["HideTexts Button"] = "Hide Texts";
-L["HideTexts Button Tooltip Open"] = "Hide all unit names, chat bubbles and combat texts.";
-L["HideTexts Button Tooltip Close"] = "Restore the unit names, chat bubbles and combat texts.";
-L["HideTexts Button Tooltip Special"] = "Previous settings will be restored when you exit.";
+L["Toolbar HideTexts Button"] = "Hide Texts";
+L["Toolbar HideTexts Button Tooltip"] = "Hide all names, chat bubbles and combat texts." ..L["Restore On Exit"];
 
-L["TopQuality Button"] = "Top Quality";
-L["TopQuality Button Tooltip Open"] = "Set every graphics quality option to its maximum.";
-L["TopQuality Button Tooltip Close"] = "Restore your graphics settings.";
+L["Toolbar TopQuality Button"] = "Top Quality";
+L["Toolbar TopQuality Button Tooltip"] = "Set every option in the graphics settings to max." ..L["Restore On Exit"];
+
+L["Toolbar Location Button"] = "Player Location";
+L["Toolbar Location Button Tooltip"] = "Show current zone name and player's coordinates."
+
+L["Toolbar Camera Button"] = "Camera";
+L["Toolbar Camera Button Tooltip"] = "Temporarily change camera settings."
+
+L["Toolbar Preferences Button Tooltip"] = "Open Preferences panel.";
 
 --Special Source--
 L["Heritage Armor"] = "Heritage Armor";
@@ -109,7 +111,7 @@ NARCI_CLIPBOARD = "Clipboard";
 L["Layout"] = "Layout";
 L["Symmetry"] = "Symmetry";
 L["Asymmetry"] = "Asymmetry";
-L["Copy Texts"] = "Copy Texts";
+L["Copy Texts"] = "Copy Item List";
 L["Syntax"] = "Syntax";
 L["Plain Text"] = "Plain Text";
 L["BB Code"] = "BB Code";
@@ -226,7 +228,7 @@ L["Orbit Camera Description On"] = "When you open this character panel, the came
 L["Orbit Camera Description Off"] = "When you open this character panel, the camera will be zoomed in without rotation";
 L["Camera Safe Mode"] = "Camera Safe Mode";
 L["Camera Safe Mode Description"] = "Fully disable ActionCam feature after closing this addon.";
-L["Camera Safe Mode Description Extra"] = "Untoggled because you are using DynamicCam."
+L["Camera Safe Mode Description Extra"] = "This option is locked because you are using DynamicCam.";
 L["Camera Transition"] = "Camera Transition";
 L["Camera Transition Description On"] = "Camera will move smoothly to the predetermined position when you open this character panel.";
 L["Camera Transition Description Off"] = "Camera transition becomes instant. Starts from the second time you use this character panel.\nInstant transition will override camera preset #4.";
@@ -240,7 +242,7 @@ L["Tooltip Style 1"] = "Next Generation";
 L["Tooltip Style 2"] = "The Original";
 L["Addtional Info"] = "Additional Info";
 L["Item ID"] = "Item ID";
-
+L["Camera Reset Notification"] = "Camera offset has been reset to zero. If you wish to disable this feature, go to Preferences - Camera, then toggle off Camera Safe Mode.";
 
 --Model Control--
 NARCI_STAND_IDLY = "Stand Idly";
@@ -437,11 +439,12 @@ L["Pinned Entry Format"] = "Pinned  %d/%d";
 
 --Barbershop--
 L["Save New Look"] = "Save New Look";
-L["No Available Slot"] = "No Available Slot";
+L["No Available Slot"] = "No Available Save Slot";
 L["Look Saved"] = "Look Saved";
 L["Cannot Save Forms"] = "Cannot Save Forms";
 L["Profiles"] = "Profiles";
 L["Save Notify"] = "Notify You to Save New Appearance";
+L["Save Notify Tooltip"] = "Notify you to save the customization after clicking Accept button.";
 L["Show Randomize Button"] = "Show Randomize Appearance Button";
 L["Coins Spent"] = "Coins Spent";
 L["Locations"] = "Locations";
@@ -450,6 +453,21 @@ L["Visits"] = "Visits";     --number of visits
 L["Duration"] = "Duration";
 L["Edit Name"] = "Edit Name";
 L["Delete Look"] = "Delete Look\n(Click and Hold)";
+L["Export"] = "Export";
+L["Import"] = "Import";
+L["Paste Here"] = "Paste Here";
+L["Press To Copy"] = "Press |cffcccccc".. NARCI_SHORTCUTS_COPY.."|r to Copy";
+L["String Copied"] = NARCI_COLOR_GREEN_MILD.. "Copied";
+L["Failure Reason Unknown"] = "Unknown error";
+L["Failure Reason Decode"] = "Failed to decode.";
+L["Failure Reason Wrong Character"] = "Current race/gender/form did not match the imported profile.";
+L["Failure Reason Dragonriding"] = "This profile is for Dragonriding.";
+L["Wrong Character Format"] = "Requires %s %s."; --e.g. Rquires Male Human
+L["Import Lack Option"] = "%d |4option:options; were not found.";
+L["Import Lack Choice"] = "%d |4choice:choices; were not found.";
+L["Decode Good"] = "Decoded successfully.";
+L["Barbershop Export Tooltip"] = "Encodes the currently used customization into a string that can be shared online.\n\nYou may change any texts before the colon (:)";
+L["Settings And Share"] = (SETTINGS or "Settings") .." & ".. (SOCIAL_SHARE_TEXT or "Share");
 
 --Tutorial--
 L["Alert"] = "Warning";
@@ -496,7 +514,7 @@ L["Splash Content7 Description"] = "-The hexagon item border gets a new look. Ce
 
 --Project Details--
 NARCI_ALL_PROJECTS = "All Projects";
-NARCI_PROJECT_DETAILS = "|cFFFFD100Developer: Peterodox\nRelease Date: June 2, 2022|r\n\nThank you for trying this add-on! If you have any issues, suggestions, ideas, please leave a comment on the curseforge page or contact me on...";
+NARCI_PROJECT_DETAILS = "|cFFFFD100Developer: Peterodox\nRelease Date: August 18, 2022|r\n\nThank you for trying this add-on! If you have any issues, suggestions, ideas, please leave a comment on the curseforge page or contact me on...";
 NARCI_PROJECT_AAA_TITLE = "|cff008affA|cff0d8ef2z|cff1a92e5e|cff2696d9r|cff339acco|cff409ebft|cff4da1b2h |cff59a5a6A|cff66a999d|cff73ad8cv|cff7fb180e|cff8cb573n|cff99b966t|cffa6bd59u|cffb2c14dr|cffbfc440e |cffccc833A|cffd9cc26l|cffe5d01ab|cfff2d40du|cffffd800m|r";
 NARCI_PROJECT_AAA_SUMMARY = "Explore places of interest and collect lores and photos from all across Azeroth.|cff636363";
 NARCI_PROJECT_NARCISSUS_SUMMARY = "An immersive character pane and your ultimate screenshot tool.";
@@ -527,7 +545,7 @@ L["WeaponBrowser Guide Hotkey"] = "Specify which hand to hold the weapon:";
 L["WeaponBrowser Guide ModelType"] = "Some items are limited to certain type of model:";
 L["WeaponBrowser Guide DressUpModel"] = "This will be the default type if your target is a player unless you are holding <%s> while creating it.";
 L["WeaponBrowser Guide CinematicModel"] = "The model type will always be Cinematic if the creature is an NPC. You cannot sheathe weapons.";
-L["Outfit"] = "Outfit";
+L["Weapon Browser Specify Hand"] = "|cffffd100"..NARCI_MODIFIER_CONTROL.." + Left-click|r to equip item in the main hand.\n|cffffd100"..NARCI_MODIFIER_ALT.." + Left-click|r for off hand.";
 
 --Pet Stables--
 L["PetStable Tooltip"] = "Choose a pet from your stable";
@@ -589,6 +607,7 @@ L["Raise Level"] = "Bring to front";
 L["Lower Level"] = "Send to back";
 L["Show Mount"] = "Show Mount";
 L["Hide Mount"] = "Hide Mount";
+L["Loop Animation On"] = "Loop";
 L["Click To Continue"] = "click to continue";
 L["Showcase Splash 1"] = "Create turntable animations to showcase your transmog with Narcissus and screen recorder.";
 L["Showcase Splash 2"] = "Click the button below to copy items from the Dressing Room.";
@@ -601,6 +620,7 @@ L["Paperdoll Splash 1"] = "Enable class set indicator?";
 L["Paperdoll Splash 2"] = "Choose a theme";
 
 --Outfit Select--
+L["Outfit"] = "Outfit";
 L["Models"] = "Models";
 L["Origin Outfits"] = "Original outfits";
 L["Outfit Owner Format"] = "%s's outfits";

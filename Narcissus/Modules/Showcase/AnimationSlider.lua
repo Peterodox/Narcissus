@@ -193,6 +193,9 @@ function NarciShowcaseAnimationSliderMixin:OnMouseDown(button)
     elseif button == "MiddleButton" then
         self:SetValue(0, true);
     end
+    if self.onMouseDownFunc then
+        self.onMouseDownFunc(self);
+    end
 end
 
 function NarciShowcaseAnimationSliderMixin:OnMouseUp()

@@ -1,5 +1,7 @@
 <Ui xsi:schemaLocation="http://www.blizzard.com/wow/ui/..\FrameXML\UI.xsd">
     <Script file="ItemParser.lua"/>
+    <Script file="DataExport.lua"/>
+    <Script file="ModelScene.lua"/>
 
     <Frame name="NarciDevToolNumberContainerTemplate" mixin="NarciDevToolNumberContainerMixin" virtual="true">
         <Size x="32" y="16"/>

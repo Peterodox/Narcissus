@@ -3,6 +3,7 @@ local After = C_Timer.After;
 local pi = math.pi;
 local sqrt = math.sqrt;
 local GetCursorPosition = GetCursorPosition;
+local IsMouseButtonDown = IsMouseButtonDown;
 local NarciAPI = NarciAPI;
 
 local function EmptyFunc()
@@ -686,7 +687,7 @@ NarciCustomScrollBarMixin = {};
 function NarciCustomScrollBarMixin:OnLoad()
     self.thumbRange = 0;
     self.value = 0;
-    self.barHeight = self:GetHeight() or 0;
+
     self:SetMinMaxValues(0, 0);
     self:SetThumbAlpha(0.25);
 
@@ -717,7 +718,7 @@ function NarciCustomScrollBarMixin:SetValue(value)
     self.value = value;
 
     if self.maxValue ~= 0 then
-        self.ThumbTexture:SetPoint("TOPRIGHT", self, "TOPRIGHT", 0, - value / self.maxValue * self.thumbRange);
+        self.ThumbTexture:SetPoint("TOPRIGHT", self, "TOPRIGHT", 0, -value / self.maxValue * self.thumbRange);
     end
 
     self.onValueChangedFunc(value);
@@ -784,13 +785,14 @@ end
 function NarciCustomScrollBarMixin:SetRange(fullRange, changeThumbHeight)
     local ScrollFrame = self:GetParent();
     local thumbHeight = 16;
+    local barHeight = self:GetHeight() or 0;
+
     if not fullRange or fullRange <= 0.5 then
         fullRange = 0;
         self:Hide();
     else
         self:SetMinMaxValues(0, fullRange);
         if changeThumbHeight then
-            local barHeight = self:GetHeight();
             thumbHeight = math.floor(barHeight^2 / fullRange);
             if thumbHeight > barHeight - 24 then
                 thumbHeight = barHeight - 24;
@@ -801,8 +803,8 @@ function NarciCustomScrollBarMixin:SetRange(fullRange, changeThumbHeight)
         end
         self.ThumbTexture:SetHeight(thumbHeight);
     end
-    self.thumbRange = self.barHeight - thumbHeight;
 
+    self.thumbRange = barHeight - thumbHeight;
     ScrollFrame.range = fullRange;
 end
 
@@ -1083,6 +1085,7 @@ end
 
 
 --------------------------------------------------------------------------------------------------
+local CreateKeyChordStringUsingMetaKeyState = CreateKeyChordStringUsingMetaKeyState;
 --Name: Clipboard
 --Notes: Highlight the border when gaining focus. Show visual feedback (glow) after pressing Ctrl+C
 
@@ -1220,7 +1223,8 @@ function NarciScrollEditBoxMixin:UpdateScrollRange(resetOffset)
 
     local editBoxHeight = self.ScrollFrame.EditBox:GetHeight();
     local scrollFrameHeight = self.ScrollFrame:GetHeight();
-    self.ScrollFrame.scrollBar:SetRange(editBoxHeight - scrollFrameHeight, true);
+    local range = math.floor(editBoxHeight - scrollFrameHeight + 0.5);
+    self.ScrollFrame.scrollBar:SetRange(range, true);
 end
 
 function NarciScrollEditBoxMixin:OnMouseDown()
@@ -1230,6 +1234,10 @@ end
 function NarciScrollEditBoxMixin:PostLoad()
     self:OnLoad();
     self.ScrollFrame.scrollBar:OnLoad();
+
+    self.ScrollFrame.buttonHeight = 14;
+    self.ScrollFrame.scrollBar:SetRange(0, true);
+    NarciAPI_SmoothScroll_Initialization(self.ScrollFrame, nil, nil, 2, 0.14);
 end
 
 

@@ -249,6 +249,15 @@ function AlertUtil:SetReason(reasonIndex)
     end
 end
 
+function AlertUtil:ShowShorcutTooltip()
+    if self.widget then
+        self.widget.Reason:SetText(L["Weapon Browser Specify Hand"]);
+        self:UpdateFadeDuration();
+        self:SetBackgroundColor(1);
+        self:ShowAlert(false);
+    end
+end
+
 function AlertUtil:UpdateFadeDuration()
     local numLines = self.widget.Reason:GetNumLines();
     self.widget:SetHeight(numLines * 8 + 8);
@@ -1144,7 +1153,7 @@ function NarciWeaponNicheMixin:OnClick(mouseButton)
             local slot;
             if IsAltKeyDown() then
                 slot = 2;
-            else    --IsControlKeyDown
+            else    --IsControlKeyDown or Shift
                 slot = 1;
             end
 
@@ -1194,6 +1203,7 @@ function NarciWeaponNicheMixin:OnClick(mouseButton)
             MainFrame:ReturnHome();
         else
             --MainFrame:ShowModelComparison(self.itemID);
+            AlertUtil:ShowShorcutTooltip();
         end
     end
 end

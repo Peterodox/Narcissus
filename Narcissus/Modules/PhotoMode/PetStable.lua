@@ -15,6 +15,10 @@ local TARGET_MODEL_INDEX;
 local ACTOR_CREATED = false;
 
 -----------------------------------------------------
+local function SetPetModel(model, index)
+    SetPetStablePaperdoll(model, index);
+end
+
 --UI Animations
 local pow = math.pow;
 
@@ -150,7 +154,7 @@ local function DataRetriever_OnUpdate(self, elapsed)
     local petIcon, petName, petLevel, petType, petTalents = GetStablePetInfo(self.index);
     if petIcon then
         DataProvider.numPets = DataProvider.numPets + 1;
-        local petTypeIndex = DataProvider:GetPetTypeIndex(petName);
+        local petTypeIndex = DataProvider:GetPetTypeIndex(petType);
         DataProvider.data[DataProvider.numPets] = {self.index, petIcon, petName, petTypeIndex};
     end
     if self.index >= MAX_PETS then
@@ -211,6 +215,10 @@ end
 
 function DataProvider:GetNumPets()
     return self.numPets or 0;
+end
+
+function DataProvider:GetPetName(petIndex)
+    return (self.filteredData[petIndex] and self.filteredData[petIndex][3]) or "Pet"
 end
 
 function DataProvider:UpdatePetData()
@@ -576,8 +584,8 @@ function NarciPetStableMixin:OnLoad()
 end
 
 function NarciPetStableMixin:SelectPet(petIndex)
-    SetPetStablePaperdoll(PetModel, petIndex);
-    SetPetStablePaperdoll(ModelShadow, petIndex);
+    SetPetModel(PetModel, petIndex);
+    SetPetModel(ModelShadow, petIndex);
     PetModel:SetAnimation(0, 0);
     ModelShadow:SetAnimation(0, 0);
     self.selectedPetIndex = petIndex;
@@ -587,10 +595,10 @@ function NarciPetStableMixin:ConfirmPet()
     local petIndex = self.selectedPetIndex;
     if petIndex then
         ACTOR_CREATED = true;
-        NarciPhotoModeAPI.OverrideActorInfo(TARGET_MODEL_INDEX, DataProvider:GetPetTypeName(petIndex), nil, self.petIcon);
+        NarciPhotoModeAPI.OverrideActorInfo(TARGET_MODEL_INDEX, DataProvider:GetPetName(petIndex), nil, self.petIcon);
         local newActor = self.targetModel;
         C_Timer.After(0, function()
-            SetPetStablePaperdoll(newActor, self.selectedPetIndex);
+            SetPetModel(newActor, self.selectedPetIndex);
         end);
     end
 end

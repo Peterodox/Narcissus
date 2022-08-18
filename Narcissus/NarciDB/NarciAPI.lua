@@ -10,6 +10,7 @@ local PlaySound = PlaySound;
 local unpack = unpack;
 local _, _, _, tocversion = GetBuildInfo();
 
+local find = string.find;
 local match = string.match;
 local strsub = string.sub;
 local strsplit = strsplit;
@@ -774,19 +775,29 @@ NarciAPI.FormatLargeNumbers = NarciAPI_FormatLargeNumbers;
 
 
 local RemoveTextBeforeColon;
+
 if TEXT_LOCALE == "zhCN" or TEXT_LOCALE == "zhTW" then
     function RemoveTextBeforeColon(text)
-        if string.find(text, ": ") then
-            return string.match(text, ": (.+)");
-        elseif string.find(text, "：") then
-            return string.match(text, "：(.+)");
+        if find(text, ": ") then
+            return match(text, ": (.+)");
+        elseif find(text, "：") then
+            return match(text, "：(.+)");
         else
             return text
         end
     end
 else
     function RemoveTextBeforeColon(text)
-        return string.gsub(text, "^.+[:]%s*", "");
+        if find(text, ":") then
+            text = match(text, ":%s*(.+)");
+        end
+
+        if find(text, "- ") then
+            text = match(text, "- (.+)");
+        end
+
+        return text
+        --return string.gsub(text, "^.+[:-]%s*", "");   --May not working on Russian?
     end
 end
 
@@ -1234,7 +1245,7 @@ local function SmartSetActorName(fontstring, text)
 	--Automatically apply different font based on given text languange. Change text color after this step.
 	if not fontstring then return; end;
 	fontstring:SetText(text);
-	local language = GetFirstLetterLanguage(text);
+	local language = LanguageDetector(text);
 	if language and ActorNameFont[language] then
 		fontstring:SetFont(ActorNameFont[language][1] , ActorNameFont[language][2]);
 	end
@@ -2333,30 +2344,39 @@ function NarciAPI_CreateFadingFrame(parentObject)
     animFade.timeFactor = 1;
     parentObject.animFade = animFade;
     animFade:SetScript("OnUpdate", function(frame, elapsed)
-        local alpha = frame.fromAlpha;
-        alpha = alpha + frame.timeFactor * elapsed;
-        frame.fromAlpha = alpha;
-        if alpha >= 1 then
-            alpha = 1;
-            frame:Hide();
-        elseif alpha <= 0 then
-            alpha = 0;
-            frame:Hide();
+        frame.t = frame.t + elapsed;
+        if frame.t > 0 then
+            local alpha = frame.fromAlpha;
+            alpha = alpha + frame.timeFactor * elapsed;
+            frame.fromAlpha = alpha;
+            if alpha >= 1 then
+                alpha = 1;
+                frame:Hide();
+            elseif alpha <= 0 then
+                alpha = 0;
+                frame:Hide();
+            end
+            parentObject:SetAlpha(alpha);
         end
-        parentObject:SetAlpha(alpha);
     end);
     
-    function parentObject:FadeOut(duration)
+    function parentObject:FadeOut(duration, delay)
+        delay = delay or 0;
+        animFade.t = -delay;
         duration = duration or 0.15;
         local alpha = parentObject:GetAlpha();
         animFade.fromAlpha = alpha;
         animFade.timeFactor = -1/duration;
-        if alpha ~= 0 then
+        if alpha == 0 then
+            animFade:Hide();
+        else
             animFade:Show();
         end
     end
     
-    function parentObject:FadeIn(duration)
+    function parentObject:FadeIn(duration, delay)
+        delay = delay or 0;
+        animFade.t = -delay;
         duration = duration or 0.2;
         local alpha = parentObject:GetAlpha();
         animFade.fromAlpha = alpha;
@@ -3204,7 +3224,10 @@ end
 
 NarciAPI.DoesCreatureDisplayIDExist = DoesCreatureDisplayIDExist;
 
+
+
 --[[
+    /script DEFAULT_CHAT_FRAME:AddMessage("\124Hitem:narcissus:0:\124h[Test Link]\124h\124r");
 function TestFX(modelFileID, zoomDistance, view)
     NarciAPI_SetupModelScene(TestScene, modelFileID, zoomDistance, view);
 end

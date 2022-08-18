@@ -528,8 +528,12 @@ function NarciEquipmentOptionMixin:SetGemListForBlizzardUI(id1, id2)
 
     if not itemLink then return end;
 
-    local itemID, _, _, invType = GetItemInfoInstant(itemLink);
     local typeName = GetSocketTypes(1);
+    if not typeName then
+        return
+    end
+
+    local itemID, _, _, invType = GetItemInfoInstant(itemLink);
     local socketType = GetSocketTypeID(typeName);
     socketType = (typeName and SocketTypeNameDatabase[typeName]) or 1;
 
@@ -706,9 +710,12 @@ function NarciEquipmentOptionMixin:ShowGemList(specifiedTypeName, forceReset)
     DataProvider = GemDataProvider;
 
     local socketType = self.ItemList.SocketSelect:SetupFromItemLink(self.itemLink);
+
     if specifiedTypeName then
         socketType = specifiedTypeName;
     end
+
+    socketType = socketType or "none";
 
     local newSockeTypeID = GemDataProvider:SetSubsetBySocketName(socketType);
     local resetScroll = forceReset or newSockeTypeID ~= self.socketTypeID;

@@ -41,6 +41,7 @@ local IMAGE_HEIGHT = 600;
 local MODEL_WIDTH_RATIO = 0.75; --width:height = 3:4
 
 local ACTOR_IS_MOUNT = false;
+local LOOP_ANIMATION = false;
 local SHOW_ITEM_NAME = true;
 local NUM_DOUBLE_LINE_OBJECT = 0;
 local MAX_DOUBLE_LINE_OBJECT = 4;
@@ -74,7 +75,7 @@ local max = math.max;
 local DB;
 local MainFrame, ModelScene, ControlPanel, FadeOptionFrame, UtilityModel, Tooltip, DropDownPanel, TabSelection, SheatheButton, GroundShadow;
 local ActiveActor, PlayerActor, MountActor;
-local IDFrame, VariationButton, AnimationSlider, MountToggle;
+local IDFrame, VariationButton, AnimationSlider, MountToggle, LoopToggle;
 
 
 local function GetScreenAspectText(width, height)
@@ -1060,6 +1061,11 @@ local function AnimationSlider_OnValueChangedFunc(self, value)
     ModelScene.actor:PauseAtFrame(value);
 end
 
+local function AnimationSlider_OnMouseDownFunc(self)
+    LOOP_ANIMATION = false;
+    LoopToggle:UpdateVisual();
+end
+
 local function SetUpTooltipText(infobutton, customText, offsetX)
     Tooltip:Hide();
     Tooltip.AnimIn:Stop();
@@ -1481,6 +1487,7 @@ local function UpdateMountActor(resetModel)
             MountActor:SetUseCenterForOrigin(false, false, false);
             MountActor:SetPosition(0, 0, 0);
             --MountActor:SetParticleOverrideScale(0);
+            MA = MountActor;
         end
 
         if resetModel then
@@ -1639,7 +1646,7 @@ function NarciOutfitShowcaseMixin:Init()
 
     AnimationSlider = self.ControlPanel.AnimationTab.AnimationSlider;
     AnimationSlider.onValueChangedFunc = AnimationSlider_OnValueChangedFunc;
-
+    AnimationSlider.onMouseDownFunc = AnimationSlider_OnMouseDownFunc;
 
     --Image Settings
     local widget = self.ControlPanel.LayoutTab.ImageSize;
@@ -1688,7 +1695,6 @@ function NarciOutfitShowcaseMixin:Init()
 
     --Backdrop Tab
     CreateBackgroundOptions(self.ControlPanel.BackgroundTab);
-    CreateBackgroundOptions = nil;
 
     --Load User Settings
     LoadSettings();
@@ -2143,8 +2149,13 @@ function NarciOutfitShowcaseMixin:SetMountMode(state)
         ANIMATION_ID = 0;
         IDFrame.EditBox:SetText(0);
     end
+
     MainFrame:SyncModel();
     MountToggle:UpdateIcon();
+
+    if LOOP_ANIMATION then
+        ActiveActor:TryAnimation(ANIMATION_ID);
+    end
 end
 
 
@@ -2173,11 +2184,15 @@ end
 function NarciAutoFittingActorMixin:OnAnimFinished()
     self:SetPaused(true);
     self.isPlaying = false;
+
     if self.t then
         --print("Duration: "..self.t);
         AnimationSlider:SetCeiling(self.t * 1000);
     end
-    --self:TryAnimation(self.animationID);    --loop animation
+
+    if LOOP_ANIMATION then
+        self:TryAnimation(self.animationID);    --loop animation
+    end
 end
 
 function NarciAutoFittingActorMixin:OnUpdate(elapsed)
@@ -2678,7 +2693,7 @@ end
 
 function NarciShowcaseMountToggleMixin:OnLeave()
     if not self.isOn then
-        self.Icon:SetVertexColor(0.5, 0.5, 0.5);
+        self.Icon:SetVertexColor(0.8, 0.8, 0.8);
     end
     SetUpTooltipText();
 end
@@ -2697,3 +2712,46 @@ function NarciShowcaseMountToggleMixin:UpdateIcon()
         self.isOn = nil;
     end
 end
+
+NarciShowcaseLoopToggleMixin = {};
+
+function NarciShowcaseLoopToggleMixin:OnLoad()
+    LoopToggle = self;
+end
+
+function NarciShowcaseLoopToggleMixin:OnEnter()
+    self.Icon:SetVertexColor(1, 1, 1);
+    local tooltipText = L["Loop Animation On"];
+    SetUpTooltipText(self, tooltipText, 8);
+end
+
+function NarciShowcaseLoopToggleMixin:OnLeave()
+    if not LOOP_ANIMATION then
+        self.Icon:SetVertexColor(0.8, 0.8, 0.8);
+    end
+    SetUpTooltipText();
+end
+
+function NarciShowcaseLoopToggleMixin:OnClick()
+    LOOP_ANIMATION = not LOOP_ANIMATION;
+
+    if LOOP_ANIMATION then
+        ActiveActor:TryAnimation(ANIMATION_ID);
+    else
+        ActiveActor:OnAnimFinished();
+    end
+
+    self:UpdateVisual();
+    SetUpTooltipText();
+end
+
+function NarciShowcaseLoopToggleMixin:UpdateVisual()
+    if LOOP_ANIMATION then
+        self.Icon:SetTexCoord(0.5, 1, 0, 1);
+    else
+        self.Icon:SetTexCoord(0, 0.5, 0, 1);
+    end
+end
+
+
+--/script local m=MountJournal.MountDisplay.ModelScene:GetActorByTag("unwrapped");if m then m:SetAnimation(97) end;

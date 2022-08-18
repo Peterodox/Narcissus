@@ -87,7 +87,7 @@
         </Scripts>
     </Frame>
 
-    <Button name="Narci_TabButtonTemplate" registerForClicks="LeftButtonUp, RightButtonUp" virtual="true" useParentLevel="true">
+    <Button name="NarciTabButtonTemplate" registerForClicks="LeftButtonUp, RightButtonUp" virtual="true" useParentLevel="true">
 		<Size y="16"/>
         <PushedTextOffset>
             <AbsDimension x="-1" y="-0.6"/>
@@ -107,72 +107,45 @@
             </Layer>
         </Layers>
 
-		<ButtonText name="$parentTitleText" inherits="NarciNonInteractiveFont" justifyH="LEFT" justifyV="MIDDLE" maxLines="1" parentKey="Name">
+		<ButtonText inherits="NarciNonInteractiveFont" justifyH="LEFT" justifyV="MIDDLE" maxLines="2" parentKey="Name">
             <Color a="1" r="0.72" g="0.72" b="0.72"/>
             <Anchors>
                 <Anchor point="TOPLEFT" relativeKey="$parent" relativePoint="TOPLEFT" x="10" y="0"/>
                 <Anchor point="BOTTOMRIGHT" relativeKey="$parent" relativePoint="BOTTOMRIGHT" x="-10" y="0"/>
             </Anchors>
 		</ButtonText>
-
-        <Scripts>
-            <OnEnter>
-                self.HighlightColor:Show();
-            </OnEnter>
-            <OnLeave>
-                self.HighlightColor:Hide();
-            </OnLeave>
-        </Scripts>
     </Button>
 
-    <Button name="Narci_PreferenceButton" parent="Narci_PhotoModeToolbar" inherits="Narci_RoundButtonTemplate" parentKey="PreferenceToggle">
+    <Button name="Narci_PreferenceButton" parent="NarciScreenshotToolbar" parentKey="PreferenceToggle" hidden="true">
         <Anchors>
-            <Anchor point="LEFT" relativeKey="$parent.Bar" relativePoint="RIGHT" x="0"/>
+            <Anchor point="LEFT" relativeKey="$parent.BarRight" relativePoint="RIGHT" x="-4"/>
         </Anchors>
 		<Size>
-			<AbsDimension x="24" y="24"/>
+			<AbsDimension x="40" y="40"/>
 		</Size>
-        <HitRectInsets>
-            <AbsInset left="-4" right="-10" top="-10" bottom="-10"/>
-        </HitRectInsets>
 		<Layers>
-			<Layer level="ARTWORK">
-				<Texture file="Interface\AddOns\Narcissus\Art\Tooltip\Gear" Alpha="1" hidden="false" parentKey="Icon">
-					<TexCoords left="0" right="0.5" top="0" bottom="1"/>
-                    <Size x="12" y="12"/>
-					<Anchors>
-						<Anchor point="CENTER" relativePoint="CENTER"/>
-					</Anchors>
-				</Texture>
-			</Layer>
 			<Layer level="OVERLAY">
-				<Texture file="Interface\AddOns\Narcissus\Art\Widgets\LightSetup\UI" Alpha="1" hidden="false" parentKey="Border">
-					<TexCoords left="0.75" right="0.8359375" top="0" bottom="0.171875"/>
-					<Anchors>
-						<Anchor point="TOPLEFT" relativePoint="TOPLEFT"/>
-						<Anchor point="BOTTOMRIGHT" relativePoint="BOTTOMRIGHT"/>
-					</Anchors>
-				</Texture>
+                <Texture parentKey="Texture" file="Interface\AddOns\Narcissus\Art\Modules\ScreenshotTool\Toolbar">
+                    <TexCoords left="0" right="0.125" top="0.875" bottom="1"/>
+                    <Size x="40" y="40"/>
+                    <Anchors>
+                        <Anchor point="CENTER" relativeKey="$parent" relativePoint="CENTER" x="0"/>
+                    </Anchors>
+                </Texture>
 			</Layer>
 		</Layers>
-        <HighlightTexture file="Interface\AddOns\Narcissus\Art\Tooltip\Gear" Alpha="0.5">
-            <TexCoords left="0.5" right="1" top="0" bottom="1"/>
+        <HighlightTexture file="Interface\AddOns\Narcissus\Art\Modules\ScreenshotTool\Toolbar" alphaMode="ADD">
+            <TexCoords left="0.125" right="0.25" top="0.875" bottom="1"/>
+            <Size x="40" y="40"/>
             <Anchors>
-                <Anchor point="TOPLEFT" relativeKey="$parent.Icon" relativePoint="TOPLEFT"/>
-                <Anchor point="BOTTOMRIGHT" relativeKey="$parent.Icon" relativePoint="BOTTOMRIGHT"/>
+                <Anchor point="CENTER" relativeKey="$parent" relativePoint="CENTER" x="0"/>
             </Anchors>
         </HighlightTexture>
         <Scripts>
             <OnLoad>
-                self.tooltipHeadline = Narci.L["Preferences"];
-                self.tooltipLine1 = Narci.L["Preferences Tooltip"];
+                self.scriptNotSet = true;
+                self.type = "Preferences";
             </OnLoad>
-            <OnEnter>
-                Narci_ShowButtonTooltip(self);
-            </OnEnter>
-            <OnLeave>
-                Narci:HideButtonTooltip(self);
-            </OnLeave>
             <OnClick function="Narci_PreferenceButton_OnClick"/>
         </Scripts>
     </Button>	
@@ -470,35 +443,17 @@
                                 </Layers>
                             </Frame>
 
-                            <Frame inherits="NarciPreferenceTabTemplate" parentKey="Tab7"> <!--Photo Mode-->
+                            <Frame inherits="NarciPreferenceTabTemplate" parentKey="Tab7"> <!--Database-->
                                 <Anchors>
                                     <Anchor point="TOPLEFT" relativeKey="$parent.Tab6" relativePoint="BOTTOMLEFT"/>
                                     <Anchor point="TOPRIGHT" relativeKey="$parent.Tab6" relativePoint="BOTTOMRIGHT"/>
-                                </Anchors>
-                                <Layers>
-                                    <Layer>
-                                        <Texture file="Interface\AddOns\Narcissus\Art\Preference\Layouts" parentKey="Preview">
-                                            <TexCoords left="0" right="0.4443359375" top="0" bottom="0.5"/>
-                                            <Size x="154" y="86"/>
-                                            <Anchors>
-                                                <Anchor point="TOPRIGHT" relativeKey="$parent" relativePoint="TOPRIGHT" x="-28" y="-28"/>
-                                            </Anchors>
-                                        </Texture>  
-                                    </Layer>
-                                </Layers>
-                            </Frame>
-
-                            <Frame inherits="NarciPreferenceTabTemplate" parentKey="Tab8"> <!--Database-->
-                                <Anchors>
-                                    <Anchor point="TOPLEFT" relativeKey="$parent.Tab7" relativePoint="BOTTOMLEFT"/>
-                                    <Anchor point="TOPRIGHT" relativeKey="$parent.Tab7" relativePoint="BOTTOMRIGHT"/>
                                 </Anchors>
                             </Frame>
 
                             <Frame inherits="NarciPreferenceTabTemplate" parentKey="CreatureTab">
                                 <Anchors>
-                                    <Anchor point="TOPLEFT" relativeKey="$parent.Tab8" relativePoint="BOTTOMLEFT"/>
-                                    <Anchor point="TOPRIGHT" relativeKey="$parent.Tab8" relativePoint="BOTTOMRIGHT"/>
+                                    <Anchor point="TOPLEFT" relativeKey="$parent.Tab7" relativePoint="BOTTOMLEFT"/>
+                                    <Anchor point="TOPRIGHT" relativeKey="$parent.Tab7" relativePoint="BOTTOMRIGHT"/>
                                 </Anchors>
                                 <Layers>
                                     <Layer>
@@ -696,7 +651,7 @@
                                 </Layers>
                             </Frame>
 
-                            <Frame inherits="NarciPreferenceTabTemplate" parentKey="Tab9"> <!--Soulbinds-->
+                            <Frame inherits="NarciPreferenceTabTemplate" parentKey="Tab8"> <!--Expansion Feature-->
                                 <Anchors>
                                     <Anchor point="TOPLEFT" relativeKey="$parent.CreatureTab" relativePoint="BOTTOMLEFT"/>
                                     <Anchor point="TOPRIGHT" relativeKey="$parent.CreatureTab" relativePoint="BOTTOMRIGHT"/>
@@ -722,8 +677,8 @@
 
                             <Frame inherits="NarciPreferenceTabTemplate" parentKey="ExtensionTab">
                                 <Anchors>
-                                    <Anchor point="TOPLEFT" relativeKey="$parent.Tab9" relativePoint="BOTTOMLEFT"/>
-                                    <Anchor point="TOPRIGHT" relativeKey="$parent.Tab9" relativePoint="BOTTOMRIGHT"/>
+                                    <Anchor point="TOPLEFT" relativeKey="$parent.Tab8" relativePoint="BOTTOMLEFT"/>
+                                    <Anchor point="TOPRIGHT" relativeKey="$parent.Tab8" relativePoint="BOTTOMRIGHT"/>
                                 </Anchors>
                                 <Layers>
                                     <Layer>
@@ -906,7 +861,7 @@
                                 </Scripts>
                             </Frame>
                             
-                            <Frame inherits="NarciPreferenceTabTemplate" parentKey="Tab10">
+                            <Frame inherits="NarciPreferenceTabTemplate" parentKey="AboutTab">
                                 <Anchors>
                                     <Anchor point="TOPLEFT" relativeKey="$parent.CreditTab" relativePoint="BOTTOMLEFT"/>
                                     <Anchor point="TOPRIGHT" relativeKey="$parent.CreditTab" relativePoint="BOTTOMRIGHT"/>

@@ -1094,8 +1094,36 @@
 								<Layers>
 									<Layer level="OVERLAY">
 										<Texture parentKey="Icon" file="Interface\AddOns\Narcissus\Art\Modules\Showcase\MountIcon">
-											<Color r="0.5" g="0.5" b="0.5"/>
 											<TexCoords left="0" right="0.5" top="0" bottom="1"/>
+											<Color r="0.8" g="0.8" b="0.8"/>
+											<Size x="16" y="16"/>
+											<Anchors>
+												<Anchor point="CENTER"/>
+											</Anchors>
+										</Texture>
+									</Layer>
+								</Layers>
+								<Scripts>
+									<OnLoad method="OnLoad"/>
+									<OnEnter method="OnEnter"/>
+									<OnLeave method="OnLeave"/>
+									<OnClick method="OnClick"/>
+								</Scripts>
+							</Button>
+
+							<Button parentKey="LoopToggle" mixin="NarciShowcaseLoopToggleMixin">
+								<Size x="14" y="14"/>
+								<HitRectInsets>
+									<AbsInset left="-5" right="-5" top="-1" bottom="-1"/>
+								</HitRectInsets>
+								<Anchors>
+									<Anchor point="TOPLEFT" relativeKey="$parent" relativePoint="TOPLEFT" x="16" y="-53"/>
+								</Anchors>
+								<Layers>
+									<Layer level="OVERLAY">
+										<Texture parentKey="Icon" file="Interface\AddOns\Narcissus\Art\Modules\Showcase\LoopButton">
+											<TexCoords left="0" right="0.5" top="0" bottom="1"/>
+											<Color r="0.8" g="0.8" b="0.8"/>
 											<Size x="16" y="16"/>
 											<Anchors>
 												<Anchor point="CENTER"/>
@@ -1121,7 +1149,7 @@
 							<Frame parentKey="OBSInfo">
 								<Size x="14" y="14"/>
 								<HitRectInsets>
-									<AbsInset left="-1" right="-1" top="-1" bottom="-1"/>
+									<AbsInset left="-5" right="-5" top="-1" bottom="-1"/>
 								</HitRectInsets>
 								<Anchors>
 									<Anchor point="TOPLEFT" relativeKey="$parent" relativePoint="TOPLEFT" x="16" y="-16"/>
@@ -1138,7 +1166,7 @@
 							<Button parentKey="OutlineToggle">
 								<Size x="14" y="14"/>
 								<HitRectInsets>
-									<AbsInset left="-1" right="-1" top="-1" bottom="-1"/>
+									<AbsInset left="-5" right="-5" top="-1" bottom="-1"/>
 								</HitRectInsets>
 								<Anchors>
 									<Anchor point="TOPLEFT" relativeKey="$parent" relativePoint="TOPLEFT" x="16" y="-36"/>
