@@ -59,7 +59,7 @@
             <Anchor point="CENTER"/>
         </Anchors>
 		<Layers>
-			<Layer level="BORDER" textureSubLevel="1" snapToPixelGrid="false">
+			<Layer level="BORDER" textureSubLevel="1">
 				<Texture parentKey="Tail">
 					<Anchors>
 						<Anchor point="CENTER" relativePoint="BOTTOM" x="0" y="4"/>
@@ -685,9 +685,7 @@
 						<AnimationGroup parentKey="Timer">
 							<Alpha fromAlpha="1" toAlpha="1" duration="0" order="1"/>
 							<Scale startDelay="0.0" parentKey="scale" fromScaleX="1" toScaleX="1" fromScaleY="0" toScaleY="1" duration="0.7" order="2">
-								<Origin point="BOTTOM">
-									<Offset x="0" y="0"/>
-								</Origin>
+								<Origin point="BOTTOM"/>
 							</Scale>
 						</AnimationGroup>
 					</Animations>

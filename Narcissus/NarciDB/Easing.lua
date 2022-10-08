@@ -57,3 +57,13 @@ function EasingFunctions.outQuart(t, b, e, d)
     t = t / d - 1;
     return (b - e) * (pow(t, 4) - 1) + b
 end
+
+function EasingFunctions.outQuint(t, b, e, d)
+    t = t / d
+    return (b - e)* (pow(1 - t, 5) - 1) + b
+end
+
+function EasingFunctions.inQuad(t, b, e, d)
+    t = t / d
+    return (e - b) * pow(t, 2) + b
+end

@@ -195,8 +195,7 @@ function NarciWeaponTooltipMixin:Load()
     local shadow = frame:CreateTexture(nil, "OVERLAY");
     shadow:SetPoint("TOPLEFT", frame, "TOPLEFT", 0, 0);
     shadow:SetSize(totalWidth, 4);
-    shadow:SetColorTexture(0, 0, 0);
-    shadow:SetGradientAlpha("VERTICAL", 0, 0, 0, 0, 0, 0, 0, 0.8);
+    shadow:SetColorTexture(0, 0, 0, 0.5);
     frame.shadow = shadow;
 
     self.Load = nil;

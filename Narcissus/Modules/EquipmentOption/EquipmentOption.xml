@@ -392,7 +392,6 @@
                                     </Anchors>
                                     <Animations>
                                         <AnimationGroup parentKey="AnimIn">
-                                            <Alpha fromAlpha="0" toAlpha="1" duration="0.1" order="1"/>
                                             <Scale fromScaleX="0.5" toScaleX="1" fromScaleY="0.5" toScaleY="1" duration="0.12" order="1"/>
                                         </AnimationGroup>
                                     </Animations>
@@ -776,7 +775,7 @@
                             <Color r="0" g="0" b="0" a="1"/>
                             <Gradient orientation="VERTICAL">
                                 <MaxColor a="0.6" r="1" g="1" b="1"/>
-                                <MimColor a="0" r="1" g="1" b="1"/>
+                                <MinColor a="0" r="1" g="1" b="1"/>
                             </Gradient>
                         </Texture>
                     </Layer>
@@ -814,7 +813,7 @@
                             </Anchors>
                             <Gradient orientation="HORIZONTAL">
                                 <MaxColor a="0.6" r="1" g="1" b="1"/>
-                                <MimColor a="0" r="1" g="1" b="1"/>
+                                <MinColor a="0" r="1" g="1" b="1"/>
                             </Gradient>
                         </Texture>
                         <Texture parentKey="BlipCenter" hidden="true">

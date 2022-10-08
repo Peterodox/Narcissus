@@ -226,29 +226,6 @@
 		</Frames-->
 	</Frame>
 
-	<Frame name="NarciFrameDispersiveShadowBorderTemplate" virtual="true" mixin="ExpansionTransitionBackdropTemplateMixin">
-		<Backdrop edgeFile="Interface\AddOns\Narcissus\Art\Tooltip\Tooltip-DispersiveShadowBorder" tile="true">
-			<EdgeSize>
-				<AbsValue val="24"/>
-			</EdgeSize>
-		</Backdrop>
-		<Anchors>
-			<Anchor point="TOPLEFT" relativePoint="TOPLEFT" x="-13" y="13"/>
-			<Anchor point="BOTTOMRIGHT" relativePoint="BOTTOMRIGHT" x="13" y="-13"/>
-		</Anchors>
-		<Scripts>
-			<OnLoad>
-				local backdropInfo = {
-					edgeFile = "Interface\\AddOns\\Narcissus\\Art\\Tooltip\\Tooltip-DispersiveShadowBorder",
-					tile = true,
-					tileEdge = true,
-					tileSize = 24,
-					edgeSize = 24,
-				}
-				self:SetBackdrop(backdropInfo);
-			</OnLoad>
-		</Scripts>
-	</Frame>
 
 	<Frame name="NarciFrameDispersiveShadowTemplate" virtual="true" mixin="ExpansionTransitionBackdropTemplateMixin">
 		<Anchors>
@@ -269,40 +246,6 @@
 		</Scripts>
 	</Frame>
 
-	<Frame name="NarciFrameRegularShadowBorderTemplate" virtual="true" mixin="ExpansionTransitionBackdropTemplateMixin">
-		<Backdrop edgeFile="Interface\AddOns\Narcissus\Art\Tooltip\Tooltip-DispersiveShadowBorder" tile="true">
-			<EdgeSize>
-				<AbsValue val="24"/>
-			</EdgeSize>
-		</Backdrop>
-		<Anchors>
-			<Anchor point="TOPLEFT" relativePoint="TOPLEFT" x="-7" y="7"/>
-			<Anchor point="BOTTOMRIGHT" relativePoint="BOTTOMRIGHT" x="7" y="-7"/>
-		</Anchors>
-		<Layers>
-			<Layer level="BACKGROUND" textureSubLevel="-1">
-				<Texture setAllPoints="true">
-					<Color r="0.05" g="0.05" b="0.05" a="0.8"/>
-					<Anchors>
-						<Anchor point="TOPLEFT" relativeKey="$parent.$parent" relativePoint="TOPLEFT"/>
-						<Anchor point="BOTTOMRIGHT" relativeKey="$parent.$parent" relativePoint="BOTTOMRIGHT"/>
-					</Anchors>
-				</Texture>
-			</Layer>
-		</Layers>
-		<Scripts>
-			<OnLoad>
-				local backdropInfo = {
-					edgeFile = "Interface\\AddOns\\Narcissus\\Art\\Tooltip\\Tooltip-RoundedWhite",
-					tile = true,
-					tileEdge = true,
-					tileSize = 12,
-					edgeSize = 12,
-				}
-				self:SetBackdrop(backdropInfo);
-			</OnLoad>
-		</Scripts>
-	</Frame>
 
 	<Frame name="NarciFrameWithShadowTemplate" virtual="true" mixin="ExpansionTransitionBackdropTemplateMixin">
 		<Anchors>
@@ -1006,17 +949,6 @@
 
 	<Button name="Narci_AlertFrame" inherits="NarciFrameWithShadowTemplate" frameStrata="TOOLTIP" frameLevel="30" Alpha="0" clampedToScreen="true" registerForClicks="LeftButtonUp, RightButtonUp" virtual="true" hidden="true" mixin="NarciAlertFrameMixin">
 		<Size x="240" y="60"/>
-		<Backdrop edgeFile="Interface\AddOns\Narcissus\Art\Tooltip\Tooltip-Red" tile="true">
-			<EdgeSize>
-				<AbsValue val="24"/>
-			</EdgeSize>
-			<TileSize>
-				<AbsValue val="24"/>
-			</TileSize>
-			<BackgroundInsets>
-				<AbsInset left="0" right="0" top="0" bottom="0"/>
-			</BackgroundInsets>
-		</Backdrop>
 		<Layers>
 			<Layer level="OVERLAY">
 				<FontString parentKey="Text" inherits="NarciFontNormal10" justifyH="CENTER" justifyV="TOP" text="Description" spacing="2">
@@ -1283,17 +1215,6 @@
                     <Anchor point="TOPLEFT" relativeKey="$parent" relativePoint="TOPLEFT" x="-11" y="31"/>
                     <Anchor point="BOTTOMRIGHT" relativeKey="$parent" relativePoint="BOTTOMRIGHT" x="11" y="-11"/>
                 </Anchors>
-                <Backdrop edgeFile="Interface\AddOns\Narcissus\Art\Tooltip\Tooltip-White-Border" tile="true">
-                    <EdgeSize>
-                        <AbsValue val="24"/>
-                    </EdgeSize>
-                    <TileSize>
-                        <AbsValue val="24"/>
-                    </TileSize>
-                    <BackgroundInsets>
-                        <AbsInset left="0" right="0" top="0" bottom="0"/>
-                    </BackgroundInsets>
-                </Backdrop>
             </Frame>
 
             <Button inherits="NarciCloseButtonTemplate">
@@ -2007,7 +1928,7 @@
 		</Layers>
 	</Frame>
 
-    <Frame name="Narci_ItemParser" frameStrata="HIGH" level="11" movable="true" enableMouse="true" clampedToScreen="true" hidden="true" Alpha="1">
+    <Frame name="Narci_ItemParser" frameStrata="HIGH" movable="true" enableMouse="true" clampedToScreen="true" hidden="true" Alpha="1">
         <Size x="300" y="400"/>
         <Anchors>
             <Anchor point="CENTER" relativeTo="UIParent" relativePoint="CENTER"/>
@@ -2380,10 +2301,26 @@
 					<Anchor point="TOPLEFT" relativePoint="TOP" y="-72" x="8"/>
 				</Anchors>				
 			</Button>
+
+			<Frame parentKey="FrameContainer" useParentLevel="true">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativePoint="TOPLEFT" x="-7" y="7"/>
+					<Anchor point="BOTTOMRIGHT" relativePoint="BOTTOMRIGHT" x="7" y="-7"/>
+				</Anchors>
+				<Layers>
+					<Layer level="BACKGROUND" textureSubLevel="-1">
+						<Texture setAllPoints="true">
+							<Color r="0.05" g="0.05" b="0.05" a="0.8"/>
+							<Anchors>
+								<Anchor point="TOPLEFT" relativeKey="$parent.$parent" relativePoint="TOPLEFT"/>
+								<Anchor point="BOTTOMRIGHT" relativeKey="$parent.$parent" relativePoint="BOTTOMRIGHT"/>
+							</Anchors>
+						</Texture>
+					</Layer>
+				</Layers>
+			</Frame>
 		</Frames>
-		<Frames>
-			<Frame inherits="NarciFrameRegularShadowBorderTemplate" useParentLevel="true" parentKey="FrameContainer"/>
-		</Frames>
+
 		<Scripts>
 			<OnLoad method="OnLoad"/>
 			<OnDragStart method="OnDragStart"/>
@@ -2474,7 +2411,7 @@
         </Layers>
     </Frame>
 
-	<Frame name="NarciCustomScrollBarTemplate" valueStep="0.01" parentKey="scrollBar" virtual="true" mixin="NarciCustomScrollBarMixin">
+	<Frame name="NarciCustomScrollBarTemplate" parentKey="scrollBar" virtual="true" mixin="NarciCustomScrollBarMixin">
 		<Size x="8" y="0"/>
 		<Layers>
 			<Layer level="OVERLAY" textureSubLevel="1">
@@ -2655,7 +2592,7 @@
     <Frame name="NarciFrameBorderTemplate" mixin="NarciFrameBorderMixin" virtual="true">
         <Layers>
             <Layer level="BACKGROUND">
-                <Texture parentKey="Background" textureSubLevel="-1">
+                <Texture parentKey="Background">
                     <Color r="0.08" g="0.08" b="0.08" a="0.9"/>
                     <Anchors>
                         <Anchor point="TOPLEFT" x="9" y="-9"/>
@@ -2805,7 +2742,7 @@
 			<KeyValue key="keepOnHide" value="false" type="boolean"/>
 		</KeyValues>
 		<Layers>
-			<Layer levle="OVERLAY">
+			<Layer level="OVERLAY">
 				<Texture parentKey="Pointer">
 					<Size x="4" y="4"/>
 					<Color g="1"/>
@@ -2916,12 +2853,13 @@
 		<Size x="12"/>
 		<Layers>
 			<Layer level="BACKGROUND">
-				<Texture file="Interface\AddOns\Narcissus\Art\Widgets\Slider\VerticalLine" parentKey="Background" alphaMode="ADD" Alpha="0.1"/>
-				<Size x="8"/>
-				<Anchors>
-					<Anchor point="TOP" relativeKey="$parent" relativePoint="TOP"/>
-					<Anchor point="BOTTOM" relativeKey="$parent" relativePoint="BOTTOM"/>
-				</Anchors>
+				<Texture file="Interface\AddOns\Narcissus\Art\Widgets\Slider\VerticalLine" parentKey="Background" alphaMode="ADD" Alpha="0.1">
+					<Size x="8"/>
+					<Anchors>
+						<Anchor point="TOP" relativeKey="$parent" relativePoint="TOP"/>
+						<Anchor point="BOTTOM" relativeKey="$parent" relativePoint="BOTTOM"/>
+					</Anchors>
+				</Texture>
 			</Layer>
 		</Layers>
 		<ThumbTexture parentKey="Thumb" file="Interface\AddOns\Narcissus\Art\Widgets\Slider\Thumb">
@@ -3045,7 +2983,7 @@
 					</Anchors>
 				</Texture>
 
-				<Texture parentKey="Icon" >
+				<Texture parentKey="Icon">
 					<Size x="16" y="16"/>
 					<Anchors>
 						<Anchor point="CENTER" relativeKey="$parent" relativePoint="CENTER"/>

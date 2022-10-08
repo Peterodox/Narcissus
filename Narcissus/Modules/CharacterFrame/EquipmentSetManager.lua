@@ -640,7 +640,7 @@ local function SetEnhancements(c, h, m, v)
         key = string.gsub(key, "^%l", string.upper)
         Radar[key].ValueRating:SetText(stat);
         Radar[key].Value:SetText(percentageText);
-	end   
+	end
 end
 
 local function HighlightRelevantSlots(table)

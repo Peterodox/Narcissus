@@ -13,7 +13,6 @@ local EXTRACTOR_ITEM_NAME = "Soulfire Chisel";
 local EXTRACTOR_ITEM_LOCALIZED_NAME = C_Item.GetItemNameByID(EXTRACTOR_ITEM_ID);    --nilable
 local MARCO_USE_ITEM_BY_ID = "/use item:%s";
 
-local targetItem;
 
 local function DoesPlayerHaveItem(itemID)
     return GetItemCount(itemID) > 0
@@ -51,13 +50,6 @@ local function GetCurrentSocketingItem(bag, slot)
     return itemlocation;
 end
 
-hooksecurefunc("SocketInventoryItem", function(slot)
-    targetItem = GetCurrentSocketingItem(nil, slot);
-end)
-
-hooksecurefunc("SocketContainerItem", function(bag, slot)
-    targetItem = GetCurrentSocketingItem(bag, slot);
-end)
 
 --/dump GetMouseFocus().itemLocation:GetBagAndSlot()
 --Protected: UseContainerItem

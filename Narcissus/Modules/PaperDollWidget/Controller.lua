@@ -243,3 +243,15 @@ function NarciPaperDollItemHighlightMixin:OnHide()
         self:Clear();
     end
 end
+
+
+do
+    local _, addon = ...
+
+    function addon.SettingFunctions.EnablePaperDollWidget(state, db)
+        if state == nil then
+            state = db["PaperDollWidget"];
+        end
+        Controller:SetEnabled(state);
+    end
+end

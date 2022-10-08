@@ -30,7 +30,7 @@ function NarciGuideMixin:OnHide()
     self:StopAnimating();
 end
 
-function NarciGuideMixin:NewText(title, description, anchorTo, offsetX, offsetY, buttonDelay, buttonFunc, horizontal)
+function NarciGuideMixin:NewText(title, description, anchorTo, offsetX, offsetY, nextButtonOnClickFunc, horizontal)
     self:Hide();
     self:ClearAllPoints();
     self.Header:SetText(title);
@@ -47,23 +47,17 @@ function NarciGuideMixin:NewText(title, description, anchorTo, offsetX, offsetY,
         self.Pointer:Show();
     end
     self:Show();
-    self.Next:Hide();
-    local t = buttonDelay or -1;
-    if t >= 0 then
-        After(t, function()
-            FadeFrame(self.Next, 0.25, 1, 0);
-        end);
-        if buttonFunc then
-            if type(buttonFunc) == "function" then
-                self.Next:SetScript("OnClick", buttonFunc);
 
-            else
-                self.Next.IconClose:Show();
-                self.Next.IconNext:Hide();
-                self.Next:SetScript("OnClick", CloseGuide); 
-            end
-        end
+    if nextButtonOnClickFunc and type(nextButtonOnClickFunc) == "function" then
+        self.Next:SetScript("OnClick", nextButtonOnClickFunc);
+        self.Next.IconClose:Hide();
+        self.Next.IconNext:Show();
+    else
+        self.Next.IconClose:Show();
+        self.Next.IconNext:Hide();
+        self.Next:SetScript("OnClick", CloseGuide);
     end
+    self.Next:Show();
 end
 
 ---------------------------------------------------------------------------------------
@@ -75,22 +69,23 @@ local BrowserGuide;
 local LeftClickUsed, RightClickUsed = false, false;
 
 local function MoveToEditBox()
-    BrowserGuide:NewText(L["Guide Input Headline"], L["Guide Input Line1"], Narci_SpellVisualBrowser.ExpandableFrames.EditBox, 0, -4, 5, "END");
+    BrowserGuide:NewText(L["Guide Input Headline"], L["Guide Input Line1"], Narci_SpellVisualBrowser.ExpandableFrames.EditBox, 0, -4, "END");
 end
 
 local function MoveToReApplyButton()
-    BrowserGuide:NewText(L["Refresh Model"], L["Guide Refresh Line1"], Narci_SpellVisualBrowser.ExpandableFrames.ResetButton, 0, -4, 4, MoveToEditBox);
+    BrowserGuide:NewText(L["Refresh Model"], L["Guide Refresh Line1"], Narci_SpellVisualBrowser.ExpandableFrames.ResetButton, 0, -4, MoveToEditBox);
 end
 
 local function MoveToHistoryTab()
+    BrowserGuide:Hide();
     After(1, function()
-        BrowserGuide:NewText(L["Guide History Headline"], L["Guide History Line1"], Narci_SpellVisualBrowser.ExpandableFrames.HistoryFrame, 0, -6, 4.5, MoveToReApplyButton);
+        BrowserGuide:NewText(L["Guide History Headline"], L["Guide History Line1"], Narci_SpellVisualBrowser.ExpandableFrames.HistoryFrame, 0, -6, MoveToReApplyButton);
     end);
 end
 
-local function OnTabChanged(self, value)
+local function SpellVisualBrowser_OnTabChanged(self, value)
     After(2, function()
-        BrowserGuide:NewText(L["Guide Spell Headline"], L["Guide Spell Line1"].."\n"..L["Guide Spell Criteria1"].."\n"..L["Guide Spell Criteria2"], Narci_SpellVisualBrowser.ExpandableFrames.ListFrame);
+        BrowserGuide:NewText(L["Guide Spell Headline"], L["Guide Spell Line1"].."\n"..L["Guide Spell Criteria1"].."\n"..L["Guide Spell Criteria2"], Narci_SpellVisualBrowser.ExpandableFrames.ListFrame, 0, 0, MoveToHistoryTab);
         
         hooksecurefunc(NarciPlayerModelFrame1, "ApplySpellVisualKit", function(self, visualID, oneshot)
             if LeftClickUsed and RightClickUsed then
@@ -128,16 +123,20 @@ local function BuildSpellVisualBrowserGuide()
     local Browser = Narci_SpellVisualBrowser;
     Browser.ShowGuide = true;
     BrowserGuide = CreateFrame("Frame", nil, Browser, "NarciGenericGuideTemplate");
-    local TabListener = CreateFrame("SLIDER", "TestSlider", BrowserGuide);
+    local TabListener = CreateFrame("SLIDER", nil, BrowserGuide);
     TabListener:SetMinMaxValues(-1, 5);     --Necessary!
-    TabListener:SetScript("OnValueChanged", OnTabChanged);
+    TabListener:SetScript("OnValueChanged", SpellVisualBrowser_OnTabChanged);
     BrowserGuide.TabListener = TabListener;
 
-    --Guide.Next:SetScript("OnClick", RelocateGuide);
+    local function SelectFirstEntry()
+        BrowserGuide:Hide();
+        NarciSpellVisualBrowser:SelectFirstEntry();
+    end
+
     local ExpandableFrames = Browser.ExpandableFrames;
     ExpandableFrames:SetScript("OnShow", function(self)
         After(0.6, function()
-            BrowserGuide:NewText(L["Category"], L["Guide Spell Choose Category"], ExpandableFrames.ListFrame);
+            BrowserGuide:NewText(L["Category"], L["Guide Spell Choose Category"], ExpandableFrames.ListFrame, 0, 0, SelectFirstEntry);
             tutorial["SpellVisualBrowser"] = false;
         end);
         self:SetScript("OnShow", EmptyFunc);
@@ -173,22 +172,7 @@ Initialization:SetScript("OnEvent", function(self, event, ...)
         tutorial = NarcissusDB.Tutorials;
         if not tutorial then return; end;
         --True ~ will show tutorial
-        --Race change
-        local key = tutorial["RaceChangeFixed"];
-        if key then
-            local ActorPortrait = NarciModelControl_ActorButton;
-            local Tip = CreateFrame("Frame", nil, ActorPortrait, "NarciGenericGuideTemplate");
-            ActorPortrait:SetScript("OnShow", function(self)
-                SetPortraitTexture(self.Portrait1, "player");
-                After(1, function()
-                    Tip:NewText(L["Race Change"], L["Race Change Line1"], ActorPortrait, 0, -6, 5, "END");
-                    tutorial["RaceChangeFixed"] = false;
-                end);
-                self:SetScript("OnShow", function(self)
-                    SetPortraitTexture(self.Portrait1, "player");
-                end);
-            end)
-        end
+        local key;
 
         --Enlarged Exit Confirmation
         key = tutorial["ExitConfirmation"];
@@ -203,18 +187,6 @@ Initialization:SetScript("OnEvent", function(self, event, ...)
         end
 
         --Equipment Set Manager
-        key = tutorial["EquipmentSetManager"];
-        if key then
-            local ManagerFrame = Narci_EquipmentSetManagerFrame;
-            local Tip = CreateFrame("Frame", nil, ManagerFrame, "NarciGenericGuideTemplate");
-            ManagerFrame:SetScript("OnShow", function(self)
-                After(1, function()
-                    Tip:NewText(L["Equipment Manager"], L["Guide Equipment Manager Line1"], Narci_EquipmentSetManagerFrame, 0, 20, 2, "END");
-                    tutorial["EquipmentSetManager"] = false;
-                end);
-                self:SetScript("OnShow", EmptyFunc);
-            end)
-        end
 
         --Character Movement
         key = tutorial["Movement"];
@@ -223,7 +195,7 @@ Initialization:SetScript("OnEvent", function(self, event, ...)
             Narci_ModelSettings:SetScript("OnShow", function(self)
                 self:RegisterEvent("MODIFIER_STATE_CHANGED");
                 After(2, function()
-                    Movement:NewText(L["Guide Model Control Headline"], L["Guide Model Control Line1"], Narci_ModelSettings, 0, 32, 2, "END");
+                    Movement:NewText(L["Guide Model Control Headline"], L["Guide Model Control Line1"], Narci_ModelSettings, 0, 32, "END");
                     tutorial["Movement"] = false;
                 end);
                 self:SetScript("OnShow", function(self)
@@ -238,7 +210,7 @@ Initialization:SetScript("OnEvent", function(self, event, ...)
         if key and NarcissusDB.Version > 10000 then
             local Mini = CreateFrame("Frame", nil, Minimap, "NarciGenericGuideTemplate");
             After(1, function()
-                Mini:NewText(L["Guide Minimap Button Headline"], L["Guide Minimap Button Line1"], Narci_MinimapButton, 0, 0, 2, "END", "LEFT");
+                Mini:NewText(L["Guide Minimap Button Headline"], L["Guide Minimap Button Line1"], Narci_MinimapButton, 0, 0, "END", "LEFT");
             end)
             tutorial["IndependentMinimapButton"] = false;
         end
@@ -251,8 +223,8 @@ Initialization:SetScript("OnEvent", function(self, event, ...)
             local hasHidden = true;
             IndexButton2:SetScript("OnShow", function(self)
                 After(0.5, function()
-                    hasHidden = nil;
-                    Entrance:NewText(L["NPC Browser"], L["Guide NPC Entrance Line1"], IndexButton2, 0, -3, 1, "END");
+                    hasHidden = false;
+                    Entrance:NewText(L["NPC Browser"], L["Guide NPC Entrance Line1"], IndexButton2, 0, -3, "END");
                     tutorial["NPCBrowserEntance"] = false;
                 end);
                 self:SetScript("OnShow", nil);
@@ -272,7 +244,7 @@ Initialization:SetScript("OnEvent", function(self, event, ...)
             local NPC = CreateFrame("Frame", nil, Narci_NPCBrowser, "NarciGenericGuideTemplate");
             Narci_NPCBrowser:SetScript("OnShow", function(self)
                 After(0.5, function()
-                    NPC:NewText(L["NPC Browser"], L["Guide NPC Browser Line1"], Narci_NPCBrowser, 0, 0, 4, "END");
+                    NPC:NewText(L["NPC Browser"], L["Guide NPC Browser Line1"], Narci_NPCBrowser, 0, 0, "END");
                     tutorial["NPCBrowser"] = false;
                 end);
                 self:SetScript("OnShow", nil);

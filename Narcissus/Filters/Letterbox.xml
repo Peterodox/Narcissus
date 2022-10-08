@@ -3,10 +3,10 @@
 
     <Script file="Letterbox.lua"/>
 
-	<Frame name="Narci_FullScreenMask" parentKey="ScreenMask" parent="Narci_Vignette" setAllPoint="true" hidden="true">
+	<Frame name="Narci_FullScreenMask" parentKey="ScreenMask" parent="Narci_Vignette" setAllPoints="true" hidden="true">
 		<Layers>
 			<Layer level="OVERLAY">
-				<Texture setAllPoints="true" parentKey="BottomMask" name="Narci_FullScreenMask_Bottom">
+				<Texture parentKey="BottomMask" name="Narci_FullScreenMask_Bottom">
 					<Color r="0" g="0" b="0" a="1"/>
 					<Anchors>
 						<Anchor point="BOTTOMLEFT" relativeTo="UIParent" relativePoint="BOTTOMLEFT"/>

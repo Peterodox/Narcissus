@@ -103,6 +103,7 @@ function NarciEquipmentSpellFrameMixin:SetSpellInactive(requirementText)
             self.RedBackground:Show();
             self.bottomPadding = 6;
         end
+        self.InactiveAlert:SetText(requirementText);
     else
         if not self.isActive then
             self.isActive = true;
@@ -117,6 +118,6 @@ function NarciEquipmentSpellFrameMixin:SetSpellInactive(requirementText)
             self.RedBackground:Hide();
             self.bottomPadding = 0;
         end
+        self.InactiveAlert:SetText(nil);
     end
-    self.InactiveAlert:SetText(requirementText);
 end

@@ -276,7 +276,7 @@
 					<Offset>
 						<AbsDimension x="1" y="-1"/>
 					</Offset>
-					<Color r="0" g="0" b="0" a="0.6"/>
+					<Color r="0" g="0" b="0" a="1"/>
 				</Shadow>
 			</Font>
 		</Member>
@@ -286,7 +286,7 @@
 					<Offset>
 						<AbsDimension x="1" y="-1"/>
 					</Offset>
-					<Color r="0" g="0" b="0" a="0.6"/>
+					<Color r="0" g="0" b="0" a="1"/>
 				</Shadow>
 			</Font>
 		</Member>
@@ -296,7 +296,7 @@
 					<Offset>
 						<AbsDimension x="1" y="-1"/>
 					</Offset>
-					<Color r="0" g="0" b="0" a="0.6"/>
+					<Color r="0" g="0" b="0" a="1"/>
 				</Shadow>
 			</Font>
 		</Member>
@@ -306,7 +306,7 @@
 					<Offset>
 						<AbsDimension x="1" y="-1"/>
 					</Offset>
-					<Color r="0" g="0" b="0" a="0.6"/>
+					<Color r="0" g="0" b="0" a="1"/>
 				</Shadow>
 			</Font>
 		</Member>
@@ -357,7 +357,7 @@
 					<Offset>
 						<AbsDimension x="1" y="-1"/>
 					</Offset>
-					<Color r="0" g="0" b="0" a="0.6"/>
+					<Color r="0" g="0" b="0" a="1"/>
 				</Shadow>
 			</Font>
 		</Member>
@@ -367,7 +367,7 @@
 					<Offset>
 						<AbsDimension x="1" y="-1"/>
 					</Offset>
-					<Color r="0" g="0" b="0" a="0.6"/>
+					<Color r="0" g="0" b="0" a="1"/>
 				</Shadow>
 			</Font>
 		</Member>
@@ -377,7 +377,7 @@
 					<Offset>
 						<AbsDimension x="1" y="-1"/>
 					</Offset>
-					<Color r="0" g="0" b="0" a="0.6"/>
+					<Color r="0" g="0" b="0" a="1"/>
 				</Shadow>
 			</Font>
 		</Member>
@@ -387,7 +387,7 @@
 					<Offset>
 						<AbsDimension x="1" y="-1"/>
 					</Offset>
-					<Color r="0" g="0" b="0" a="0.6"/>
+					<Color r="0" g="0" b="0" a="1"/>
 				</Shadow>
 			</Font>
 		</Member>
@@ -410,7 +410,7 @@
 					<Offset>
 						<AbsDimension x="1" y="-1"/>
 					</Offset>
-					<Color r="0" g="0" b="0" a="0.6"/>
+					<Color r="0" g="0" b="0" a="1"/>
 				</Shadow>
 			</Font>
 		</Member>
@@ -420,7 +420,7 @@
 					<Offset>
 						<AbsDimension x="1" y="-1"/>
 					</Offset>
-					<Color r="0" g="0" b="0" a="0.6"/>
+					<Color r="0" g="0" b="0" a="1"/>
 				</Shadow>
 			</Font>
 		</Member>
@@ -430,7 +430,7 @@
 					<Offset>
 						<AbsDimension x="1" y="-1"/>
 					</Offset>
-					<Color r="0" g="0" b="0" a="0.6"/>
+					<Color r="0" g="0" b="0" a="1"/>
 				</Shadow>
 			</Font>
 		</Member>
@@ -440,7 +440,7 @@
 					<Offset>
 						<AbsDimension x="1" y="-1"/>
 					</Offset>
-					<Color r="0" g="0" b="0" a="0.6"/>
+					<Color r="0" g="0" b="0" a="1"/>
 				</Shadow>
 			</Font>
 		</Member>
@@ -463,7 +463,7 @@
 					<Offset>
 						<AbsDimension x="1" y="-1"/>
 					</Offset>
-					<Color r="0" g="0" b="0" a="0.6"/>
+					<Color r="0" g="0" b="0" a="1"/>
 				</Shadow>
 			</Font>
 		</Member>
@@ -473,7 +473,7 @@
 					<Offset>
 						<AbsDimension x="1" y="-1"/>
 					</Offset>
-					<Color r="0" g="0" b="0" a="0.6"/>
+					<Color r="0" g="0" b="0" a="1"/>
 				</Shadow>
 			</Font>
 		</Member>
@@ -483,7 +483,7 @@
 					<Offset>
 						<AbsDimension x="1" y="-1"/>
 					</Offset>
-					<Color r="0" g="0" b="0" a="0.6"/>
+					<Color r="0" g="0" b="0" a="1"/>
 				</Shadow>
 			</Font>
 		</Member>
@@ -493,7 +493,7 @@
 					<Offset>
 						<AbsDimension x="1" y="-1"/>
 					</Offset>
-					<Color r="0" g="0" b="0" a="0.6"/>
+					<Color r="0" g="0" b="0" a="1"/>
 				</Shadow>
 			</Font>
 		</Member>
@@ -516,7 +516,7 @@
 					<Offset>
 						<AbsDimension x="1" y="-1"/>
 					</Offset>
-					<Color r="0" g="0" b="0" a="0.6"/>
+					<Color r="0" g="0" b="0" a="1"/>
 				</Shadow>
 			</Font>
 		</Member>
@@ -526,7 +526,7 @@
 					<Offset>
 						<AbsDimension x="1" y="-1"/>
 					</Offset>
-					<Color r="0" g="0" b="0" a="0.6"/>
+					<Color r="0" g="0" b="0" a="1"/>
 				</Shadow>
 			</Font>
 		</Member>
@@ -536,7 +536,7 @@
 					<Offset>
 						<AbsDimension x="1" y="-1"/>
 					</Offset>
-					<Color r="0" g="0" b="0" a="0.6"/>
+					<Color r="0" g="0" b="0" a="1"/>
 				</Shadow>
 			</Font>
 		</Member>
@@ -546,7 +546,7 @@
 					<Offset>
 						<AbsDimension x="1" y="-1"/>
 					</Offset>
-					<Color r="0" g="0" b="0" a="0.6"/>
+					<Color r="0" g="0" b="0" a="1"/>
 				</Shadow>
 			</Font>
 		</Member>
@@ -1323,4 +1323,111 @@
 	</Font>
 
 	<Font name="NarciFontItemCount" font="Interface\AddOns\Narcissus\Font\SourceSansPro-Semibold.ttf" height="9" virtual="true" outline="NORMAL"/>
+
+
+	<FontFamily name="NarciFontMedium13" virtual="true">
+		<Member alphabet="roman">
+			<Font font="Interface\AddOns\Narcissus\Font\SourceSansPro-Semibold.ttf" height="13">
+				<Shadow>
+					<Offset>
+						<AbsDimension x="1" y="-1"/>
+					</Offset>
+					<Color r="0" g="0" b="0" a="1"/>
+				</Shadow>
+			</Font>
+		</Member>
+		<Member alphabet="korean">
+			<Font font="Interface\AddOns\Narcissus\Font\NotoSansCJKsc-Medium.otf" height="12">
+				<Shadow>
+					<Offset>
+						<AbsDimension x="1" y="-1"/>
+					</Offset>
+					<Color r="0" g="0" b="0" a="1"/>
+				</Shadow>
+			</Font>
+		</Member>
+		<Member alphabet="simplifiedchinese">
+			<Font font="Interface\AddOns\Narcissus\Font\NotoSansCJKsc-Medium.otf" height="12">
+				<Shadow>
+					<Offset>
+						<AbsDimension x="1" y="-1"/>
+					</Offset>
+					<Color r="0" g="0" b="0" a="1"/>
+				</Shadow>
+			</Font>
+		</Member>
+		<Member alphabet="traditionalchinese">
+			<Font font="Interface\AddOns\Narcissus\Font\NotoSansCJKsc-Medium.otf" height="12">
+				<Shadow>
+					<Offset>
+						<AbsDimension x="1" y="-1"/>
+					</Offset>
+					<Color r="0" g="0" b="0" a="1"/>
+				</Shadow>
+			</Font>
+		</Member>
+		<Member alphabet="russian">
+			<Font font="Interface\AddOns\Narcissus\Font\NotoSans-Medium.ttf" height="13">
+				<Shadow>
+					<Offset>
+						<AbsDimension x="1" y="-1"/>
+					</Offset>
+					<Color r="0" g="0" b="0" a="1"/>
+				</Shadow>
+			</Font>
+		</Member>
+	</FontFamily>
+
+	<FontFamily name="NarciFontThin13" virtual="true">
+		<Member alphabet="roman">
+			<Font font="Interface\AddOns\Narcissus\Font\SourceSansPro-Regular.ttf" height="13">
+				<Shadow>
+					<Offset>
+						<AbsDimension x="1" y="-1"/>
+					</Offset>
+					<Color r="0" g="0" b="0" a="1"/>
+				</Shadow>
+			</Font>
+		</Member>
+		<Member alphabet="korean">
+			<Font font="Interface\AddOns\Narcissus\Font\NotoSansCJKsc-Regular.otf" height="12">
+				<Shadow>
+					<Offset>
+						<AbsDimension x="1" y="-1"/>
+					</Offset>
+					<Color r="0" g="0" b="0" a="1"/>
+				</Shadow>
+			</Font>
+		</Member>
+		<Member alphabet="simplifiedchinese">
+			<Font font="Interface\AddOns\Narcissus\Font\NotoSansCJKsc-Regular.otf" height="12">
+				<Shadow>
+					<Offset>
+						<AbsDimension x="1" y="-1"/>
+					</Offset>
+					<Color r="0" g="0" b="0" a="1"/>
+				</Shadow>
+			</Font>
+		</Member>
+		<Member alphabet="traditionalchinese">
+			<Font font="Interface\AddOns\Narcissus\Font\NotoSansCJKsc-Regular.otf" height="12">
+				<Shadow>
+					<Offset>
+						<AbsDimension x="1" y="-1"/>
+					</Offset>
+					<Color r="0" g="0" b="0" a="1"/>
+				</Shadow>
+			</Font>
+		</Member>
+		<Member alphabet="russian">
+			<Font font="Interface\AddOns\Narcissus\Font\SourceSansPro-Regular.ttf" height="13">
+				<Shadow>
+					<Offset>
+						<AbsDimension x="1" y="-1"/>
+					</Offset>
+					<Color r="0" g="0" b="0" a="1"/>
+				</Shadow>
+			</Font>
+		</Member>
+	</FontFamily>
 </Ui>

@@ -1,5 +1,9 @@
+local _, addon = ...
+
+local TransitionAPI = addon.TransitionAPI;
+
 ------------------------------------------------------------------------
-local visualID_Max = 180000;
+local VISUAL_ID_MAX = 180000;
 local TAB_WIDTH = 116;
 local NUM_MAX_HISTORY = 5;
 local MODEL_SETTINGS_FRAME_WIDTH = 440;
@@ -24,7 +28,6 @@ local GetSpellVisualKitInfo = NarciSpellVisualBrowser.GetSpellVisualKitInfo;
 local IsSpellVisualLogged = NarciSpellVisualBrowser.IsSpellVisualLogged;
 local NarciTooltip = NarciTooltip;
 local SelectedVisualIndex;
-local _;
 
 local function CountLength(table)
     local count = 0;
@@ -585,6 +588,9 @@ local function Remove_OnUpdate(self, elapsed)
             RemapIcons(self.buttonID)
         end);
     end
+    if alpha < 0 then
+        alpha = 0;
+    end
     self.RemovedButton:SetAlpha(alpha);
     if self.Reposition then
         self.LeadButton:SetPoint("BOTTOMRIGHT", HistoryButtonFrame, "BOTTOMRIGHT", offsetX, 0);
@@ -1102,6 +1108,16 @@ function NarciSpellVisualBrowser:SelectPack(index)
     end)
     return packName
 end
+
+function NarciSpellVisualBrowser:SelectFirstEntry()
+    --for tutorial
+    ListFrame.Category.CategoryButtons[1]:Click();
+    After(0.65, function()
+        if ListFrame.ScrollFrame.ScrollChild.buttons[1] then
+            ListFrame.ScrollFrame.ScrollChild.buttons[1]:Click();
+        end
+    end);
+end
 -----------------------------------------------------------------------
 --History Tab
 
@@ -1187,7 +1203,7 @@ end
 local function EditBox_OnEnterPressed(self)
     self:ClearFocus();
 	self.Highlight:Hide();
-	local id = math.min(self:GetNumber(), visualID_Max);
+	local id = math.min(self:GetNumber(), VISUAL_ID_MAX);
 
     local model = Narci.ActiveModel;
     if not model then return; end;
@@ -1198,7 +1214,7 @@ end
 local function EditBox_OnMouseWheel(self, delta)
 	local id = self:GetNumber();
 
-	if delta < 0 and id < visualID_Max then
+	if delta < 0 and id < VISUAL_ID_MAX then
 		id = id + 1;
 	elseif delta > 0 and id > 0 then
         id = id - 1;
@@ -1248,9 +1264,10 @@ end
 local function ResetModel()
     local model = Narci.ActiveModel;
     if not model then return; end;
+
     local posX, posY, posZ = model:GetPosition();
     local camX, camY, camZ = model:GetCameraPosition();
-    local _, _, dirX, dirY, dirZ, _, ambR, ambG, ambB, _, dirR, dirG, dirB = model:GetLight();
+    local _, _, dirX, dirY, dirZ, _, ambR, ambG, ambB, _, dirR, dirG, dirB = TransitionAPI.GetModelLight(model);
     local distance = model.cameraDistance;
     local animationID = model.animationID;
     local isPaused = model.isPaused;
@@ -1267,7 +1284,11 @@ local function ResetModel()
     elseif model.displayID then
         model:SetDisplayInfo(model.displayID);
     else
-        model:RefreshUnit();
+        if model.unit and model.unit == "player" then
+            TransitionAPI.SetModelByUnit(model, "player");
+        else
+            model:RefreshUnit();
+        end
     end
 
     After(0, function()
@@ -1276,7 +1297,7 @@ local function ResetModel()
         model:SetCameraTarget(0, 0, 0.8);
         model:SetCameraPosition(camX, camY, camZ);
         model.cameraDistance = distance;
-        model:SetLight(true, false, dirX, dirY, dirZ, 1, ambR, ambG, ambB, 1, dirR, dirG, dirB);
+        TransitionAPI.SetModelLight(model, true, false, dirX, dirY, dirZ, 1, ambR, ambG, ambB, 1, dirR, dirG, dirB);
         if isPaused then
             --model:Freeze(animationID);
             NarciModelControl_AnimationSlider:SetValue(model.freezedFrame or 0, true)
@@ -1377,7 +1398,7 @@ local function PlusButton_OnClick(self, button)
     local EditBox = self:GetParent().EditBox;
 	EditBox:ClearFocus();
 	local id = EditBox:GetNumber();
-	if button == "LeftButton" and id < visualID_Max then
+	if button == "LeftButton" and id < VISUAL_ID_MAX then
 		id = id + 1;
 	elseif button == "RightButton" and id > 0 then
 		id = id - 1;

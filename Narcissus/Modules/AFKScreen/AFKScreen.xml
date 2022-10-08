@@ -1,0 +1,47 @@
+<Ui xsi:schemaLocation="http://www.blizzard.com/wow/ui/..\FrameXML\UI.xsd">
+    <Frame name="NarciAFKCoundownFrame" parent="UIParent" ignoreParentScale="true" virtual="true" hidden="true">
+        <Size x="128" y="48"/>
+        <Anchors>
+            <Anchor point="TOP" relativeTo="UIParent" relativePoint="TOP" y="-120"/>
+        </Anchors>
+        <Layers>
+            <Layer level="OVELRAY">
+                <FontString parentKey="Header" inherits="NarciFontMedium12Outline" justifyH="CENTER" justifyV="TOP">
+                    <Anchors>
+                        <Anchor point="TOP" relativeKey="$parent" relativePoint="TOP" x="0"/>
+                    </Anchors>
+                    <Color r="0.92" g="0.92" b="0.92"/>
+                </FontString>
+                <FontString parentKey="Text" inherits="NarciFontMedium12Outline" justifyH="CENTER" justifyV="TOP">
+                    <Anchors>
+                        <Anchor point="TOP" relativeKey="$parent" relativePoint="TOP" y="-14"/>
+                    </Anchors>
+                    <Color r="1" g="0.82" b="0"/>
+                </FontString>
+            </Layer>
+            <Layer level="OVERLAY" textureSubLevel="1">
+                <FontString parentKey="CountdownNumber" inherits="NarciFontMedium12Outline" justifyH="CENTER" justifyV="MIDDLE">
+                    <Anchors>
+                        <Anchor point="CENTER" relativeKey="$parent" relativePoint="BOTTOM" x="0" y="6"/>
+                    </Anchors>
+                    <Color r="1" g="1" b="1"/>
+                    <Animations>
+                        <AnimationGroup parentKey="AnimBlip">
+                            <Alpha duration="0.2" order="1" fromAlpha="0" toAlpha="1"/>
+                            <Translation duration="1" order="1" offsetX="0" offsetY="-3" smoothing="OUT"/>
+                            <Scale fromScaleX="1.5" toScaleX="1" fromScaleY="1.5" toScaleY="1" duration="0.2" order="1"/>
+                            <Alpha duration="0.2" startDelay="0.8" order="1" fromAlpha="1" toAlpha="0"/>
+                        </AnimationGroup>
+                    </Animations>
+                </FontString>
+            </Layer>
+        </Layers>
+        <Animations>
+            <AnimationGroup parentKey="FadeIn">
+                <Alpha duration="0.25" order="1" fromAlpha="0" toAlpha="1"/>
+            </AnimationGroup>
+        </Animations>
+    </Frame>
+
+    <Script file="AFKScreen.lua"/>
+</Ui>

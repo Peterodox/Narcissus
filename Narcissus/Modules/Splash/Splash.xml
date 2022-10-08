@@ -29,7 +29,7 @@
                         <Anchor point="BOTTOMRIGHT" relativeKey="$parent" relativePoint="BOTTOMLEFT" x="-10" y="2.5"/>
                     </Anchors>
                     <Animations>
-                        <AnimationGroup parentKey="scaleIn" smoothing="OUT">
+                        <AnimationGroup parentKey="scaleIn">
                             <Scale scaleX="1" scaleY="0.2" duration="0" order="1"/>
                             <Scale scaleX="1" scaleY="5" duration="0.25" order="2" smoothing="OUT"/>
                         </AnimationGroup>
@@ -57,10 +57,10 @@
             <Layer level="ARTWORK" textureSubLevel="1">
                 <Texture file="Interface\AddOns\Narcissus\Art\Splash\Backdrop2.tga" setAllPoints="true" parentKey="Backdrop"/>
             </Layer>
-            <Layer level="ARTWORK" textureSubLevel="2" ignoreParentAlpha="true">
+            <Layer level="ARTWORK" textureSubLevel="2">
                 <Texture file="Interface\AddOns\Narcissus\Art\Splash\Backdrop1.tga" setAllPoints="true" parentKey="BackdropFront">
                     <Animations>
-                        <AnimationGroup parentKey="animIn" smoothing="OUT">
+                        <AnimationGroup parentKey="animIn">
                             <Alpha startDelay="3.5" fromAlpha="0" toAlpha="1" duration="0.5" order="1"/> 
                             <Scripts>
                                 <OnFinished>
@@ -71,7 +71,7 @@
                                 </OnFinished>
                             </Scripts>
                         </AnimationGroup>
-                        <AnimationGroup parentKey="animOut" smoothing="OUT" setToFinalAlpha="true">
+                        <AnimationGroup parentKey="animOut" setToFinalAlpha="true">
                             <Alpha startDelay="3.5" fromAlpha="1" toAlpha="0" duration="0.5" order="1"/> 
                             <Scripts>
                                 <OnFinished>
@@ -145,7 +145,7 @@
             </Frame>
         </Frames>
 		<Animations>
-			<AnimationGroup parentKey="animIn" smoothing="OUT">
+			<AnimationGroup parentKey="animIn">
 				<Scale scaleX="0.6" scaleY="0.6" duration="0" order="1"/>
 				<Scale scaleX="1.75" scaleY="1.75" duration="0.25" order="2"/>
 				<Scale scaleX="0.952" scaleY="0.952" duration="0.15" order="3"/>
@@ -277,7 +277,7 @@
                         <Anchor point="TOPRIGHT" relativeKey="$parent" relativePoint="BOTTOMRIGHT" x="0" y="-4"/>
                     </Anchors>
                     <Animations>
-                        <AnimationGroup parentKey="Expand" smoothing="OUT">
+                        <AnimationGroup parentKey="Expand">
                             <Alpha fromAlpha="0" toAlpha="1" duration="0.25" order="1"/>
                             <Scale fromScaleX="0.8" toScaleX="1" fromScaleY="1" toScaleY="1" smoothing="OUT" duration="0.25" order="1"/>
                         </AnimationGroup>
@@ -321,7 +321,7 @@
                         <Anchor point="TOPRIGHT" relativeKey="$parent" relativePoint="BOTTOMRIGHT" x="0" y="-2"/>
                     </Anchors>
                     <Animations>
-                        <AnimationGroup parentKey="Expand" smoothing="OUT">
+                        <AnimationGroup parentKey="Expand">
                             <Alpha fromAlpha="0" toAlpha="1" duration="0.25" order="1"/>
                             <Scale fromScaleX="0.8" toScaleX="1" fromScaleY="1" toScaleY="1" smoothing="OUT" duration="0.25" order="1"/>
                         </AnimationGroup>
@@ -334,7 +334,7 @@
                         <Anchor point="TOPRIGHT" relativeKey="$parent" relativePoint="BOTTOMRIGHT" x="0" y="-2"/>
                     </Anchors>
                     <Animations>
-                        <AnimationGroup parentKey="Expand" smoothing="OUT">
+                        <AnimationGroup parentKey="Expand">
                             <Alpha fromAlpha="0" toAlpha="1" duration="0.25" order="1"/>
                             <Scale fromScaleX="0.8" toScaleX="1" fromScaleY="1" toScaleY="1" smoothing="OUT" duration="0.25" order="1"/>
                         </AnimationGroup>
@@ -1006,7 +1006,7 @@
                             <Layer level="ARTWORK" textureSubLevel="2">
                                 <Texture file="Interface\AddOns\Narcissus\ART\Splash\SplashIMG1" parentKey="ImageTop">
                                     <Animations>
-                                        <AnimationGroup parentKey="fadeOut" smoothing="OUT" setToFinalAlpha="true">
+                                        <AnimationGroup parentKey="fadeOut" setToFinalAlpha="true">
                                             <Alpha fromAlpha="1" toAlpha="0" duration="0.5" order="1"/> 
                                             <Scripts>
                                                 <OnFinished function="NarciSplash_PreviewFadeIn_OnFinished"/>
@@ -1101,7 +1101,7 @@
                                 <Anchor point="LEFT" relativeKey="$parent" relativePoint="LEFT" x="48"/>
                             </Anchors>
                             <Animations>
-                                <AnimationGroup parentKey="Bling" smoothing="IN_OUT" looping="REPEAT">
+                                <AnimationGroup parentKey="Bling" looping="REPEAT">
                                     <Alpha fromAlpha="0" toAlpha="0" duration="0" order="1"/>
                                     <Alpha fromAlpha="0" toAlpha="1" duration="0.5" order="2"/>
                                     <Alpha startDelay="1" fromAlpha="1" toAlpha="0" duration="1.5" order="3"/>

@@ -1,3 +1,7 @@
+local _, addon = ...
+
+local SetModelLight = addon.TransitionAPI.SetModelLight;
+
 local BACKGROUND_INSET = 3.5;
 local TEXT_INSET = 16;
 local SPEECH_BALLOON_MIN_SIZE = 16;
@@ -28,7 +32,6 @@ local min = math.min;
 local floor = math.floor;
 local sqrt = math.sqrt;
 local abs = math.abs;
-local sin = math.sin;
 local atan2 = math.atan2;
 local pi = math.pi;
 local pi90 = pi/2;
@@ -2558,10 +2561,6 @@ end);
 local function InteractableLineBorder_OnDragStart(self)
     if self:GetParent().OnDragStart then
         self:GetParent():OnDragStart();
-        self.lt:Hide();
-        self.ll:Hide();
-        self.lr:Hide();
-        self.lb:Hide();
     end
 end
 
@@ -2675,7 +2674,7 @@ function NarciCustomTalkingHeadMixin:SetCreature(creatureID, creatureName)
 end
 
 function NarciCustomTalkingHeadMixin:OnModelLoaded()
-    self.Model:SetLight(true, false, -0.5124, -0.4872, -0.7071, 1, 204/255, 204/255, 204/255, 1, 0.8, 0.8, 0.8);
+    SetModelLight(self.Model, true, false, -0.5124, -0.4872, -0.7071, 1, 204/255, 204/255, 204/255, 1, 0.8, 0.8, 0.8);
     self.Model:SetCamera(0);
     self.Model:SetPortraitZoom(1);
     self.Model:SetPortraitZoom(0.975);

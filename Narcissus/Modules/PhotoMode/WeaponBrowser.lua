@@ -1,12 +1,15 @@
+local _, addon = ...
+
+local SetModelLight = addon.TransitionAPI.SetModelLight;
+
+
 local DataAPI;
 local GetItemName, GetSourceID, IsItemValidForTryOn;
 
 local MainFrame, HomePage, FavButton;
 
 local PI =  3.1416  --math.pi;
-local sin = math.sin;
 local floor = math.floor;
-local pow = math.pow;
 local tinsert = table.insert;
 local tremove = table.remove;
 local type = type;
@@ -27,20 +30,9 @@ local TRY_ON_CHECK = false;
     MountJournalLore
 --]]
 
-local function outQuart(t, b, e, d)
-    t = t / d - 1;
-    return (b - e) * (pow(t, 4) - 1) + b
-end
-
-local function outQuint(t, b, e, d)
-    t = t / d
-    return (b - e)* (pow(1 - t, 5) - 1) + b
-end
-
-local function inQuad(t, b, e, d)
-    t = t / d
-    return (e - b) * pow(t, 2) + b
-end
+local outQuart = addon.EasingFunctions.outQuart;
+local outQuint = addon.EasingFunctions.outQuint;
+local inQuad = addon.EasingFunctions.inQuad;
 
 local DataProvider = {};
 local FavUtil = {};
@@ -953,14 +945,14 @@ function NarciWeaponNicheMixin:OnLoad()
 
     local m = self.Model;
     m:SetScript("OnModelLoaded", Niche_OnModelLoaded);
-    m:SetLight(true, false, -0.55, 0, -0.83, 1, 0.8, 0.8, 0.8, 1, 0.6, 0.6, 0.6);
+    SetModelLight(m, true, false, -0.55, 0, -0.83, 1, 0.8, 0.8, 0.8, 1, 0.6, 0.6, 0.6);
     m:SetFacing(PI/2);
     m:UseModelCenterToTransform(true);
 
     local ms = self.ModelShadow;
     local a = 0.1;
     ms:SetFogColor(a, a, a);
-    ms:SetLight(false, false);
+    SetModelLight(ms, false);
     ms:SetScript("OnModelLoaded", RenderedShadow_OnModelLoaded);
     m:SetFacing(PI/2);
     ms:UseModelCenterToTransform(true);
@@ -1308,8 +1300,7 @@ end
 function ButtonHighlight:Init(widget)
     self.object = widget;
     Turner.model = widget.WeaponModel;
-    --widget.WeaponModel:SetLight(true, false, 0.21, -0.49, -0.84, 1, 0.5, 0.5, 0.5, 1, 1, 1, 1);
-    widget.WeaponModel:SetLight(true, false, -0.61, 0.52, -0.6, 1, 0.5, 0.5, 0.5, 1, 1, 1, 1);
+    SetModelLight(widget.WeaponModel, true, false, -0.61, 0.52, -0.6, 1, 0.5, 0.5, 0.5, 1, 1, 1, 1);
     widget.WeaponModel:SetScript("OnModelLoaded", Highlight_OnModelLoaded);
 end
 

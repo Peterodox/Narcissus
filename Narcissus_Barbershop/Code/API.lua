@@ -49,3 +49,16 @@ local function GetColorByKey(k)
     end
 end
 API.GetColorByKey = GetColorByKey;
+
+
+do
+    local version = GetBuildInfo();
+    local expansionID = string.match(version, "(%d+)%.");
+	local isDF = (tonumber(expansionID) or 1) >= 10;
+	
+    local function IsDragonflight()
+        return isDF
+    end
+
+    addon.IsDragonflight = IsDragonflight;
+end

@@ -312,9 +312,7 @@
 						<AnimationGroup parentKey="animIn">
 							<Alpha fromAlpha="1" toAlpha="1" duration="0.25" order="1"/>
 							<Scale fromScaleX="0" toScaleX="1" fromScaleY="1" toScaleY="1" duration="0.25" order="1">
-								<Origin point="LEFT">
-									<Offset x="0" y="0"/>
-								</Origin>
+								<Origin point="LEFT"/>
 							</Scale>
 							<Alpha startDelay="1" fromAlpha="1" toAlpha="0" duration="1" order="2"/>
 						</AnimationGroup>
@@ -363,9 +361,7 @@
 		<Animations>
 			<AnimationGroup parentKey="animIn">
 				<Scale fromScaleX="0.2" toScaleX="1" fromScaleY="0.2" toScaleY="1" duration="0.45" order="1">
-					<Origin point="CENTER">
-						<Offset x="0" y="0"/>
-					</Origin>
+					<Origin point="CENTER"/>
 				</Scale>
 			</AnimationGroup>
 		</Animations>
@@ -654,7 +650,7 @@
 							</Button>
 						</Frames>
 						<Animations>
-							<AnimationGroup parentKey="animIn" smoothing="OUT">
+							<AnimationGroup parentKey="animIn">
 								<Scale scaleX="0.6" scaleY="0.6" duration="0" order="1"/>
 								<Scale scaleX="1.75" scaleY="1.75" duration="0.15" order="2"/>
 								<Scale scaleX="0.952" scaleY="0.952" duration="0.15" order="3"/>
@@ -697,9 +693,7 @@
 							<Size x="48" y="30"/>
 							<Color r="0.25" g="0.78" b="0.92" a="1"/>
 						</FontString>
-						<HighlightColor>
-							<Color r="0" g="0" b="0"/>
-						</HighlightColor>
+						<HighlightColor r="0" g="0" b="0"/>
 						<Layers>
 							<Layer level="BORDER">
 								<Texture file="Interface\AddOns\Narcissus\Art\Widgets\SpellVisualBrowser\Panel" alpha="1" hidden="false" parentKey="Background">
@@ -799,9 +793,7 @@
 												<AnimationGroup parentKey="Timer">
 													<Alpha fromAlpha="1" toAlpha="1" duration="0" order="1"/>
 													<Scale startDelay="0.2" parentKey="scale" fromScaleX="1" toScaleX="1" fromScaleY="0" toScaleY="1" duration="0.7" order="2">
-														<Origin point="BOTTOM">
-															<Offset x="0" y="0"/>
-														</Origin>
+														<Origin point="BOTTOM"/>
 													</Scale>
 												</AnimationGroup>
 											</Animations>

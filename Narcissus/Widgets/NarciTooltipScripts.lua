@@ -1,11 +1,12 @@
+local _, addon = ...
+local SetGradient = addon.TransitionAPI.SetGradient;
+
 NarciTooltipMixin = CreateFromMixins(BackdropTemplateMixin);
 
 local TP = NarciTooltipMixin;
 local GetMouseFocus = GetMouseFocus;
 local IsMouseButtonDown = IsMouseButtonDown;
 local max = math.max;
-local sin = math.sin;
-local pi = math.pi;
 local After = C_Timer.After;
 -----------------------------------
 local tooltipAnchor, pointerOffsetX, pointerOffsetY, isHorizontal;
@@ -202,10 +203,9 @@ function TP:OnLoad()
     self.IsSignleLine = true;
     self.Scale = 1;
     local animFade = NarciAPI_CreateFadingFrame(self);
-
-    
     self.ShadowFrame:SetBackdrop(BackdropInfo);
     self.ShadowFrame:SetFrameLevel(self:GetFrameLevel() - 1);
+    self:SetColorTheme(1);
 end
 
 function TP:OnSizeChanged(width, height)
@@ -287,7 +287,7 @@ function TP:SetColorTheme(index)
         self.Icon:SetAlpha(0.1);
     end
 
-    self.Gradient:SetGradient("VERTICAL", minG, minG, minG, maxG, maxG, maxG);
+    SetGradient(self.Gradient, "VERTICAL", minG, minG, minG, maxG, maxG, maxG);
 end
 
 function TP:SetCustomScale(scale)

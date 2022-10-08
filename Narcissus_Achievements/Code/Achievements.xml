@@ -181,12 +181,6 @@
 
 	<Button name="NarciAchievementEditorSaveButtonTemplate" virtual="true" frameLevel="8" mixin="ExpansionTransitionBackdropTemplateMixin">
 		<Size x="120" y="52"/>
-		<Backdrop edgeFile="Interface\AddOns\Narcissus_Achievements\Art\Shared\Tooltip-SoftShadowChamfer" tile="true">
-			<EdgeSize>
-				<AbsValue val="24"/>
-			</EdgeSize>
-			<BorderColor r="0.5" g="0.5" b="0.5"/>
-		</Backdrop>
 		<HitRectInsets>
 			<AbsInset left="12" right="12" top="12" bottom="12"/>
 		</HitRectInsets>
@@ -229,12 +223,6 @@
 			<OnLeave>
 				self.colorBackground:SetColorTexture(0.2, 0.2, 0.2);
 			</OnLeave>
-			<OnMouseDown>
-				self.colorBackground:SetGradient("VERTICAL", 0.5, 0.5, 0.5, 0.1, 0.1, 0.1);
-			</OnMouseDown>
-			<OnMouseUp>
-				self.colorBackground:SetGradient("VERTICAL", 0.1, 0.1, 0.1, 0.5, 0.5, 0.5);
-			</OnMouseUp>
 		</Scripts>
 	</Button>
 
@@ -889,7 +877,7 @@
 						<Anchor point="TOP" relativeKey="$parent" relativePoint="TOP"/>
 					</Anchors>
 					<Animations>
-						<AnimationGroup parentKey="fade" setToFinalAlpha="true" smoothing="OUT">
+						<AnimationGroup parentKey="fade" setToFinalAlpha="true">
 							<Alpha startDelay="1.5" fromAlpha="1" toAlpha="0" duration="1.5" order="2"/>
 						</AnimationGroup>
 					</Animations>
@@ -901,7 +889,7 @@
 						<Anchor point="BOTTOMRIGHT" relativeKey="$parent.background" relativePoint="BOTTOMRIGHT"/>
 					</Anchors>
 					<Animations>
-						<AnimationGroup parentKey="fade" setToFinalAlpha="true" smoothing="OUT">
+						<AnimationGroup parentKey="fade" setToFinalAlpha="true">
 							<Alpha startDelay="1.5" fromAlpha="1" toAlpha="0" duration="1.5" order="2"/>
 						</AnimationGroup>
 					</Animations>
@@ -913,7 +901,7 @@
 						<Anchor point="BOTTOMRIGHT" relativeKey="$parent.bottom" relativePoint="BOTTOMRIGHT" y="-4"/>
 					</Anchors>
 					<Animations>
-						<AnimationGroup parentKey="fade" setToFinalAlpha="true" smoothing="OUT">
+						<AnimationGroup parentKey="fade" setToFinalAlpha="true">
 							<Alpha startDelay="1.5" fromAlpha="1" toAlpha="0" duration="1.5" order="2"/>
 						</AnimationGroup>
 					</Animations>
@@ -1517,7 +1505,6 @@
 			</Layer>
 		</Layers>
 		<Frames>
-			<Frame inherits="NarciFrameDispersiveShadowBorderTemplate"/>
 			<Frame parentKey="ClipFrame" clipChildren="true">
 				<Anchors>
 					<Anchor point="TOPLEFT" relativeKey="$parent.header" relativePoint="BOTTOMLEFT" x="0" y="-4"/>
@@ -2194,9 +2181,7 @@
 										<AnimationGroup parentKey="Timer">
 											<Alpha fromAlpha="0" toAlpha="1" duration="0" order="1"/>
 											<Scale startDelay="0.2" parentKey="scale" fromScaleX="0" toScaleX="1" fromScaleY="1" toScaleY="1" duration="0.7" order="2">
-												<Origin point="LEFT">
-													<Offset x="0" y="0"/>
-												</Origin>
+												<Origin point="LEFT"/>
 											</Scale>
 										</AnimationGroup>
 									</Animations>
@@ -2770,7 +2755,7 @@
 					</Layer>
 				</Layers>
 				<Frames>
-					<Frame inherits="NarciFrameDispersiveShadowBorderTemplate"/>
+
 				</Frames>
 				<Scripts>
 					<OnLoad method="OnLoad"/>

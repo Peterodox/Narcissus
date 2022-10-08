@@ -25,7 +25,7 @@
 				</Texture>
 			</Layer>
 			<Layer level="BORDER" textureSubLevel="1">
-				<Texture parentKey="GemIcon" hidden="true" textureSubLevel="1">
+				<Texture parentKey="GemIcon" hidden="true">
 					<Size x="10" y="10"/>
 					<Anchors>
 						<Anchor point="CENTER" relativeKey="$parent.GemBorder" relativePoint="CENTER" x="0" y="0"/>

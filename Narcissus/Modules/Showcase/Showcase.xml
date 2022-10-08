@@ -928,9 +928,7 @@
 											<Anchor point="CENTER"/>
 										</Anchors>
 										<FontString inherits="NarciFontUniversal9" justifyH="CENTER"/>
-										<HighlightColor>
-											<Colo r="0" g="0" b="0"/>
-										</HighlightColor>
+										<HighlightColor r="0" g="0" b="0"/>
 										<Layers>
 											<Layer level="BACKGROUND">
 												<Texture parentKey="Highlight" hidden="true">
@@ -1294,9 +1292,7 @@
 											<Anchor point="TOPLEFT"/>
 											<Anchor point="BOTTOMRIGHT"/>
 										</Anchors>
-										<HighlightColor>
-											<Color r="0" g="0" b="0"/>
-										</HighlightColor>
+										<HighlightColor r="0" g="0" b="0"/>
 										<TextInsets>
 											<AbsInset left="4" right="4" top="0" bottom="0"/>
 										</TextInsets>
@@ -1310,7 +1306,7 @@
 					</Frame>
 					<Frame parentKey="DropDownPanel" hidden="true" frameLevel="6">
 						<Layers>
-							<Layer level="OVERLAY" textureSubLevel="1" hidden="true">
+							<Layer level="OVERLAY" textureSubLevel="1">
 								<Texture parentKey="Check" file="Interface\AddOns\Narcissus\Art\Modules\Showcase\SelectionCheck">
 									<Size x="8" y="8"/>
 									<Anchors>

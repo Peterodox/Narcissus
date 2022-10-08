@@ -334,15 +334,15 @@ local function GetPlayerPosition(MapID)
 end
 
 function Narci_SnowEffect(switch)
-    mapID = C_Map.GetBestMapForUnit("player");
-    --print(mapID)
-    if mapID ~= nil then
-        GetPlayerPosition(mapID);
-    else
-        return;
-    end
-    if switch == true and IsOutdoors() and (not IsSubmerged()) and NarcissusDB.WeatherEffect then
-        if SnowyLand[mapID] ~= nil and (Px > SnowyLand[mapID][2] and Px < SnowyLand[mapID][4]) and (Py > SnowyLand[mapID][3] and Py < SnowyLand[mapID][5]) then
+    if switch and NarcissusDB.WeatherEffect and IsOutdoors() and (not IsSubmerged()) then
+        mapID = C_Map.GetBestMapForUnit("player");
+        --print(mapID)
+        if mapID ~= nil then
+            GetPlayerPosition(mapID);
+        else
+            return;
+        end
+        if (SnowyLand[mapID] ~= nil and (Px > SnowyLand[mapID][2] and Px < SnowyLand[mapID][4]) and (Py > SnowyLand[mapID][3] and Py < SnowyLand[mapID][5])) and (Narci_Attribute:IsVisible()) then
             FadeFrame(Narci_ScreenFilter, 2, "IN");
             SnowDensity = SnowyLand[mapID][1]
             animOut:Stop();

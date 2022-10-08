@@ -1,4 +1,7 @@
-local abs = math.abs;
+local _, addon = ...
+local SetGradient = addon.TransitionAPI.SetGradient;
+
+
 local L = Narci.L;
 local NarciThemeUtil = NarciThemeUtil;
 local floor = math.floor;
@@ -46,17 +49,21 @@ end
 --Displayed Gradient Type
 local function ColorByDefault(button, index)
 	if index % 2 == 1 then
-		button.BackgroundColor:SetGradient("HORIZONTAL", 0, 0 ,0, 0.2, 0.2, 0.2);
+		--button.BackgroundColor:SetGradient("HORIZONTAL", 0, 0 ,0, 0.2, 0.2, 0.2);
+		SetGradient(button.BackgroundColor, "HORIZONTAL", 0, 0 ,0, 0.2, 0.2, 0.2);
 	else
-		button.BackgroundColor:SetGradient("HORIZONTAL", 0.1, 0.1 ,0.1, 0.3, 0.3, 0.3);
+		--button.BackgroundColor:SetGradient("HORIZONTAL", 0.1, 0.1 ,0.1, 0.3, 0.3, 0.3);
+		SetGradient(button.BackgroundColor, "HORIZONTAL", 0.1, 0.1 ,0.1, 0.3, 0.3, 0.3);
 	end
 end
 
 local function ColorByCategory(button, type)
 	if type == "achv" or type == "pve" or type == "repu" then
-		button.BackgroundColor:SetGradient("HORIZONTAL", 0.1, 0.1 ,0.1, 0.3, 0.3, 0.3);
+		--button.BackgroundColor:SetGradient("HORIZONTAL", 0.1, 0.1 ,0.1, 0.3, 0.3, 0.3);
+		SetGradient(button.BackgroundColor, "HORIZONTAL", 0.1, 0.1 ,0.1, 0.3, 0.3, 0.3);
 	else
-		button.BackgroundColor:SetGradient("HORIZONTAL", 0, 0 ,0, 0.2, 0.2, 0.2);
+		--button.BackgroundColor:SetGradient("HORIZONTAL", 0, 0 ,0, 0.2, 0.2, 0.2);
+		SetGradient(button.BackgroundColor, "HORIZONTAL", 0, 0 ,0, 0.2, 0.2, 0.2);
 	end
 end
 
@@ -180,9 +187,11 @@ local function CreateTitleOptions(self, buttonTemplate, initialOffsetX, initialO
 		button:SetPoint(initialPoint, ScrollChild, initialRelative, initialOffsetX, initialOffsetY + (1 - i) * buttonHeight);
 		if button.BackgroundColor then
 			if i % 2 == 1 then
-				button.BackgroundColor:SetGradient("HORIZONTAL", 0, 0 ,0, 0.2, 0.2, 0.2);
+				--button.BackgroundColor:SetGradient("HORIZONTAL", 0, 0 ,0, 0.2, 0.2, 0.2);
+				SetGradient(button.BackgroundColor, "HORIZONTAL", 0, 0 ,0, 0.2, 0.2, 0.2);
 			else
-				button.BackgroundColor:SetGradient("HORIZONTAL", 0.1, 0.1 ,0.1, 0.3, 0.3, 0.3);
+				--button.BackgroundColor:SetGradient("HORIZONTAL", 0.1, 0.1 ,0.1, 0.3, 0.3, 0.3);
+				SetGradient(button.BackgroundColor, "HORIZONTAL", 0.1, 0.1 ,0.1, 0.3, 0.3, 0.3);
 			end
 		end
 		tinsert(TitleButtons, button);

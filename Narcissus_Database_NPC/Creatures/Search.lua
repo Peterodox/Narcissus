@@ -12,6 +12,8 @@ local After = C_Timer.After;
 local strsplit = strsplit;
 local tinsert = table.insert;
 
+local UnitIsPlayer = UnitIsPlayer;
+local UnitIsOtherPlayersPet = UnitIsOtherPlayersPet;
 
 local textLocale = GetLocale();
 if textLocale == "enGB" then
@@ -49,15 +51,30 @@ local function GetNumCreatures()
     return numNPC
 end
 
+
 local function IgnoreDatabase(databaseLanguage)
-    local Settings = NarciCreatureOptions;
-    return not ( (GetLocale() == databaseLanguage) or                                                                               --Always load current client text language
-    ( Settings and Settings["TranslateName"] and 
-    (( (not Settings["ShowTranslatedNameOnNamePlate"]) and Settings["Languages"] and Settings["Languages"][databaseLanguage] ) or   --Show translation on tooltip. Load multiple languges (if selected so)
-    ( Settings["ShowTranslatedNameOnNamePlate"] and databaseLanguage == Settings["NamePlateLanguage"] ))                            --Show translation on name plate. Only load one language
-    )
-    or (Settings and Settings["SearchRelatives"] and databaseLanguage == "enUS")                                                    --Search Relatives Enabled
-    )
+    if databaseLanguage == "enUS" then
+        return false
+    end
+
+    if GetLocale() == databaseLanguage then
+        return true
+    else
+        local Settings = NarcissusDB;
+        if not Settings.TranslateName then
+            return true
+        end
+        local ignoreThis;
+        if Settings["NameTranslationPosition"] == 1 then
+            if not Settings["TooltipLanguages"][databaseLanguage] then
+                ignoreThis = true;
+            end
+        elseif Settings["NamePlateLanguage"] ~= databaseLanguage then
+            ignoreThis = true;
+        end
+
+        return ignoreThis
+    end
 end
 
 NarciCreatureInfo.GetCreatureNameByID = GetCreatureNameByID;
@@ -401,7 +418,7 @@ local function GetFontByLanguage(language)
 end
 
 local function SetNamePlateNameOffset(offset)
-    NamePlateNameOffset = offset or NarciCreatureOptions.NamePlateNameOffset or 0;
+    NamePlateNameOffset = offset or NarcissusDB.NamePlateNameOffset or 0;
     local point, relativeTo, relativePoint, fontString;
     for _, frame in pairs(NarcissusUnitFrames) do
         fontString = frame.TranslatedName;
@@ -459,8 +476,8 @@ end
 
 local NamePlateListener = CreateFrame("Frame");
 
-local function ShowNarciUnitFrames(state)
-    local language = NarciCreatureOptions.NamePlateLanguage;
+local function ShowTranslationOnNameplate(state)
+    local language = NarcissusDB.NamePlateLanguage;
 
     if state and language then
         NamePlateListener:RegisterEvent("NAME_PLATE_UNIT_ADDED");
@@ -471,7 +488,6 @@ local function ShowNarciUnitFrames(state)
             frame.TranslatedName:SetFont(font, 8);
             frame:Show();
         end
-
         SetNamePlateNameOffset();
     else
         NamePlateListener:UnregisterEvent("NAME_PLATE_UNIT_ADDED");
@@ -482,7 +498,7 @@ local function ShowNarciUnitFrames(state)
         end
     end
 end
-NarciCreatureInfo.ShowNarciUnitFrames = ShowNarciUnitFrames;
+NarciCreatureInfo.ShowTranslationOnNameplate = ShowTranslationOnNameplate;
  
 NamePlateListener:SetScript("OnEvent", function(self,event,...)
     if event == "NAME_PLATE_UNIT_ADDED" then
@@ -509,13 +525,13 @@ local ETP, ETP2;                      --Extra Tooltips. Create this frame after 
 local ETPName = "Narci_NPCTooltip";
 local ETP2Name = "Narci_RelatedNPCTooltip";
 local FORMAT_FIND_RELATIVES_HOTKEY = L["Find Relatives Hotkey Format"];
-local CREATURE_TOOLTIP_ENABLED, FIND_RELATIVES;     --Load it later
+local CREATURE_TOOLTIP_ENABLED, FIND_RELATIVES, TRANSLATE_NAME_TOOLTIP;     --Load it later
 local NPCModel;
 local UnitData = {};
 local lastUnitName = "";
 local hasRequested = {};
 local EnabledLanguages = {};
-local numEnabledLanguages = 0;
+local NUM_ENABLED_LOCALES = 0;
 local strsplit = strsplit;
 
 local function split(str)
@@ -524,45 +540,45 @@ end
 
 local function UpdateEnabledLanguages()
     wipe(EnabledLanguages);
-    numEnabledLanguages = 0;
+    NUM_ENABLED_LOCALES = 0;
     ETP:Hide();
 
-    if NarciCreatureOptions.TranslateName then
-        if NarciCreatureOptions.ShowTranslatedNameOnNamePlate then
+    if NarcissusDB.TranslateName then
+        if NarcissusDB.NameTranslationPosition == 2 then
             --print("Show translated name on name plate");
-            ShowNarciUnitFrames(true);
+            ShowTranslationOnNameplate(true);
         else
             --print("Show translated name on tooltip");
-            local Languages = NarciCreatureOptions.Languages;
+            local Languages = NarcissusDB.TooltipLanguages;
             if Languages then
                 for language, isEnabled in pairs(Languages) do
                     if isEnabled and language ~= textLocale then
                         tinsert(EnabledLanguages, language);
-                        numEnabledLanguages = numEnabledLanguages + 1;
+                        NUM_ENABLED_LOCALES = NUM_ENABLED_LOCALES + 1;
                     end
                 end
             end
 
             table.sort(EnabledLanguages, function(a, b) return a < b end);
-            GameTooltip_AddBlankLinesToTooltip(ETP, numEnabledLanguages + 3);
-            ShowNarciUnitFrames(false);
+            GameTooltip_AddBlankLinesToTooltip(ETP, NUM_ENABLED_LOCALES + 3);
+            ShowTranslationOnNameplate(false);
         end
     else
-        --print("Don't translate names");
-        ShowNarciUnitFrames(false);
+        ShowTranslationOnNameplate(false);
     end
 end
 
 local function EnableLanguage(language, state)
-    NarciCreatureOptions.Languages = NarciCreatureOptions.Languages or {};
-    NarciCreatureOptions.Languages[language] = state;
+    NarcissusDB.TooltipLanguages = NarcissusDB.TooltipLanguages or {};
+    NarcissusDB.TooltipLanguages[language] = state;
     UpdateEnabledLanguages();
 end
 
 local OnTooltipSetUnit;     --function Create Later
 local function SetIsCreatureTooltipEnabled()
-    FIND_RELATIVES = NarciCreatureOptions.SearchRelatives;
-    CREATURE_TOOLTIP_ENABLED = FIND_RELATIVES or (NarciCreatureOptions.TranslateName and not NarciCreatureOptions.ShowTranslatedNameOnNamePlate);
+    FIND_RELATIVES = NarcissusDB.SearchRelatives;
+    TRANSLATE_NAME_TOOLTIP = NarcissusDB.TranslateName and NarcissusDB.NameTranslationPosition == 1;
+    CREATURE_TOOLTIP_ENABLED = FIND_RELATIVES or TRANSLATE_NAME_TOOLTIP;
 
     if CREATURE_TOOLTIP_ENABLED and (not ETP.hasHooked) then
         ETP.hasHooked = true;
@@ -572,18 +588,32 @@ local function SetIsCreatureTooltipEnabled()
     end
 end
 
-local function DiasbleTranslator()
+local function DisableTranslator()
     wipe(EnabledLanguages);
-    numEnabledLanguages = 0;
-    NarciCreatureOptions.TranslateName = false;
+    NUM_ENABLED_LOCALES = 0;
+    NarcissusDB.TranslateName = false;
     SetIsCreatureTooltipEnabled();
 end
 
+local function UpdateNPCSettings()
+    FIND_RELATIVES = NarcissusDB.SearchRelatives;
+    TRANSLATE_NAME_TOOLTIP = NarcissusDB.TranslateName and NarcissusDB.NameTranslationPosition == 1;
+    CREATURE_TOOLTIP_ENABLED = FIND_RELATIVES or TRANSLATE_NAME_TOOLTIP;
+
+    if CREATURE_TOOLTIP_ENABLED and (not ETP.hasHooked) then
+        ETP.hasHooked = true;
+        GTP:HookScript("OnTooltipSetUnit", OnTooltipSetUnit);
+    else
+        ETP:Hide();
+    end
+    
+    ShowTranslationOnNameplate(NarcissusDB.TranslateName and NarcissusDB.NameTranslationPosition == 2);
+end
 
 NarciCreatureInfo.UpdateEnabledLanguages = UpdateEnabledLanguages;
 NarciCreatureInfo.EnableLanguage = EnableLanguage;
-NarciCreatureInfo.DiasbleTranslator = DiasbleTranslator;
-NarciCreatureInfo.SetIsCreatureTooltipEnabled = SetIsCreatureTooltipEnabled;
+NarciCreatureInfo.DisableTranslator = DisableTranslator;
+NarciCreatureInfo.UpdateNPCSettings = UpdateNPCSettings;
 
 local function RequestNPCInfo(id)
     ETP2:SetHyperlink(format("unit:Creature-0-0-0-0-%d", id));
@@ -652,10 +682,10 @@ local function UpdateNPCTooltip(name, unit, showRelatives)
         creatureID = tonumber(creatureID[6]);
         if not creatureID then return end
 
-        if numEnabledLanguages > 0 then
+        if TRANSLATE_NAME_TOOLTIP and NUM_ENABLED_LOCALES > 0 then
             InitializeExtraTooltip(name);
 
-            if numEnabledLanguages > 1 then
+            if NUM_ENABLED_LOCALES > 1 then
                 for _, language in pairs(EnabledLanguages) do
                     local localizedName = GetCreatureLocalizedNameByID(creatureID, language);
                     if localizedName then
@@ -688,7 +718,7 @@ local function UpdateNPCTooltip(name, unit, showRelatives)
                 relatives, numMacthes, overFlow, lastName = data.relatives, data.numMacthes, data.overFlow, data.lastName;
 
                 if numMacthes > 0 then
-                    if numEnabledLanguages > 0 then
+                    if NUM_ENABLED_LOCALES > 0 then
                         ETP:AddLine(" ");
                     else
                         InitializeExtraTooltip(name);
@@ -736,14 +766,14 @@ local function UpdateNPCTooltip(name, unit, showRelatives)
                 else
                     ETP.tooltipCycle = nil;
 
-                    if numEnabledLanguages == 0 then
+                    if NUM_ENABLED_LOCALES == 0 then
                         InitializeExtraTooltip(NARCI_COLOR_RED_MILD.. "No Result");
                     end
                 end
             else
                 if HasValidLastName(englishName) then
                     local tooltip;
-                    if numEnabledLanguages > 0 then
+                    if NUM_ENABLED_LOCALES > 0 then
                         tooltip = ETP;
                         ETP:SetClampedToScreen(true);
                     else
@@ -754,7 +784,7 @@ local function UpdateNPCTooltip(name, unit, showRelatives)
                         tooltip = GTP;
                     end
                     tooltip:AddLine(" ");
-                    tooltip:AddLine(format(FORMAT_FIND_RELATIVES_HOTKEY, (NarcissusDB.SearchRelativesHotkey or NOT_BOUND) ) , 0.5, 0.5, 0.5);
+                    tooltip:AddLine(format(FORMAT_FIND_RELATIVES_HOTKEY, ("Tab" or NOT_BOUND) ) , 0.5, 0.5, 0.5);
                 end
             end
         end
@@ -777,7 +807,7 @@ function OnTooltipSetUnit()
 end
 
 local function Tooltip_OnKeyDown(self, key)
-    if not InCombatLockdown() and key == NarcissusDB.SearchRelativesHotkey then
+    if not InCombatLockdown() and key == "Tab" then
         if self.tooltipCycle then
             if not IsShiftKeyDown() then
                 if self.creatureIndex < self.tooltipCycle then

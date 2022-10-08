@@ -1,3 +1,4 @@
+local _, addon = ...
 
 local strmatch = string.match;
 local gmatch = string.gmatch;
@@ -5,7 +6,7 @@ local After = C_Timer.After;
 local unpack = unpack;
 
 local FadeFrame = NarciFadeUI.Fade;
-
+local outQuart = addon.EasingFunctions.outQuart;
 local MAX_ROW = NarciConstants.Soulbinds.MaxRow or 8;   --12
 local FILE_PATH = "Interface\\AddOns\\Narcissus\\Art\\Modules\\CharacterFrame\\Soulbinds\\";
 local CONDUIT_OFFSET = 60;
@@ -22,11 +23,6 @@ local QUALITY_COLORS = {
 };
 --]]
 
-local pow = math.pow;
-local function outQuart(t, b, e, d)
-    t = t / d - 1;
-    return (b - e) * (pow(t, 4) - 1) + b
-end
 
 local QUALITY_COLORS = NarciAPI.GetItemQualityColorTable();
 QUALITY_COLORS[1] = {0.8, 0.8, 0.8};
@@ -1732,11 +1728,17 @@ end)
 --]]
 
 TooltipHooks:Hook(NarciGameTooltip);
-NarciAPI.EnableConduitTooltip = function(state)
-    if state then
-        TooltipHooks:Hook(GameTooltip);
-    else
-        TooltipHooks:Unhook(GameTooltip);
+
+do
+    function addon.SettingFunctions.EnableConduitTooltip(state, db)
+        if state == nil then
+            state = db["ConduitTooltip"];
+        end
+        if state then
+            TooltipHooks:Hook(GameTooltip);
+        else
+            TooltipHooks:Unhook(GameTooltip);
+        end
     end
 end
 

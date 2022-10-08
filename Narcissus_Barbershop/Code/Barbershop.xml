@@ -587,15 +587,8 @@
 		<Anchors>
 			<Anchor point="TOPLEFT" relativeKey="$parent" relativePoint="TOPLEFT" x="0" y="-95"/>
 		</Anchors>
-		<Layers>
-			<Layer>
-				<Texture>
-					<Color r="1" a="0.0"/>
-				</Texture>
-			</Layer>
-		</Layers>
 		<Frames>
-			<Button parentKey="PlusButton" mixin="NarciBarberShopPlusButtonMixin" frameStrata="HIGH" frameLevel="10" ignoreParentAlpha="true">
+			<Button parentKey="PlusButton" mixin="NarciBarberShopPlusButtonMixin" frameStrata="HIGH" frameLevel="10" ignoreParentAlpha="true" motionScriptsWhileDisabled="true">
 				<Size x="40" y="40"/>
 				<HitRectInsets>
 					<AbsInset left="0" right="-100" top="0" bottom="0"/>
@@ -638,6 +631,13 @@
 								<Anchor point="LEFT" relativeKey="$parent" relativePoint="RIGHT" x="4" y="0"/>
 							</Anchors>
 						</FontString>
+						<FontString parentKey="Count" inherits="SystemFont_Tiny" justifyH="LEFT" justifyV="MIDDLE" maxLines="1">
+							<Size x="0"/>
+							<Color r="0.5" g="0.5" b="0.5"/>
+							<Anchors>
+								<Anchor point="LEFT" relativeKey="$parent.Label" relativePoint="RIGHT" x="8" y="0"/>
+							</Anchors>
+						</FontString>
 					</Layer>
 				</Layers>
 				<Scripts>
@@ -661,8 +661,8 @@
 
 					<ScrollFrame inherits="NarciBarberShopScrollFrameTemplate" parentKey="CategoryMale"/>
 					<ScrollFrame inherits="NarciBarberShopScrollFrameTemplate" parentKey="CategoryFemale"/>
-					<ScrollFrame inherits="NarciBarberShopScrollFrameTemplate" parentKey="CategoryWorgenMale" hidden="true"/>
-					<ScrollFrame inherits="NarciBarberShopScrollFrameTemplate" parentKey="CategoryWorgenFemale" hidden="true"/>
+					<ScrollFrame inherits="NarciBarberShopScrollFrameTemplate" parentKey="CategoryAlternateFormMale" hidden="true"/>
+					<ScrollFrame inherits="NarciBarberShopScrollFrameTemplate" parentKey="CategoryAlternateFormFemale" hidden="true"/>
 
 					<EditBox parentKey="EditBox" multiLine="false" autoFocus="false" mixin="NarciBarberShopEditBoxMixin" frameLevel="8" hidden="true" letters="36">
 						<Size x="200" y="16"/>
@@ -695,7 +695,6 @@
 						</Scripts>
 					</EditBox>
 					<Button parentKey="EditButton" inherits="NarciBarberShopEditButtonTemplate" mixin="NarciBarberShopEditButtonMixin">
-
 					</Button>
 					<Button parentKey="DeleteButton" inherits="NarciBarberShopEditButtonTemplate" mixin="NarciBarberShopDeleteButtonMixin">
 						<Anchors>
@@ -748,6 +747,51 @@
 							</Layer>
 						</Layers>
 					</Button>
+					<Frame parentKey="LoadingFrame" frameLevel="20" mixin="NarciBarberShopLoadingFrameMixin" ignoreParentAlpha="true" hidden="true">
+						<Size x="96" y="96"/>
+						<Anchors>
+							<Anchor point="CENTER"/>
+						</Anchors>
+						<Layers>
+							<Layer level="BACKGROUND">
+								<Texture parentKey="Shadow" file="Interface\AddOns\Narcissus\Art\Modules\BarberShop\LoadingIndicatorShadow" alpha="0.8">
+									<Size x="384" y="384"/>
+									<Anchors>
+										<Anchor point="CENTER"/>
+									</Anchors>
+								</Texture>
+							</Layer>
+							<Layer level="OVERLAY">
+								<Texture parentKey="Ring" file="Interface\AddOns\Narcissus\Art\Modules\BarberShop\LoadingIndicator">
+									<Size x="192" y="192"/>
+									<Anchors>
+										<Anchor point="CENTER"/>
+									</Anchors>
+									<Animations>
+										<AnimationGroup parentKey="AnimSpin" looping="REPEAT">
+											<Rotation degrees="-360" duration="2" order="1"/>
+										</AnimationGroup>
+									</Animations>	
+								</Texture>
+								<FontString parentKey="Name" inherits="GameFontNormalMed3" justifyH="CENTER" justifyV="MIDDLE" spacing="2" maxLines="2">
+									<Size x="160" y="0"/>
+									<Anchors>
+										<Anchor point="CENTER" relativeKey="$parent" relativePoint="CENTER" x="0" y="6"/>
+									</Anchors>
+								</FontString>
+								<FontString parentKey="Progress" inherits="SystemFont_Tiny" justifyH="CENTER" justifyV="MIDDLE" spacing="2">
+									<Size x="80"/>
+									<Anchors>
+										<Anchor point="TOP" relativeKey="$parent.Name" relativePoint="BOTTOM" x="0" y="-4"/>
+									</Anchors>
+								</FontString>
+							</Layer>
+						</Layers>
+						<Scripts>
+							<OnLoad method="OnLoad"/>
+							<OnHide method="OnHide"/>
+						</Scripts>
+					</Frame>
 				</Frames>
 			</Frame>
 

@@ -4,8 +4,8 @@
     
     <Frame name="NarciWeaponTooltip" mixin="NarciWeaponTooltipMixin" frameStrata="TOOLTIP" hidden="true">
         <Layers>
-            <Layer level="BACKGROUND">
-                <Texture parentKey="Background" textureSubLevel="-1">
+            <Layer level="BACKGROUND" textureSubLevel="-1">
+                <Texture parentKey="Background">
                     <Color r="0.1" g="0.1" b="0.1" a="0.9"/>
                     <Anchors>
                         <Anchor point="TOPLEFT" x="6" y="-6"/>
@@ -136,7 +136,7 @@
                     <Anchor point="TOPLEFT" relativeKey="$parent" relativePoint="TOPLEFT" y="-12"/>
                 </Anchors>
                 <Layers>
-                    <Layer Layer="OVERLAY">
+                    <Layer level="OVERLAY">
                         <Texture parentKey="Background" file="Interface\AddOns\Narcissus\Art\Modules\PhotoMode\WeaponBrowser\FavButton">
                             <Animations>
                                 <AnimationGroup parentKey="FlyIn" setToFinalAlpha="true">
@@ -148,7 +148,7 @@
                             </Animations>
                         </Texture>
                     </Layer>
-                    <Layer Layer="OVERLAY" textureSubLevel="1">
+                    <Layer level="OVERLAY" textureSubLevel="1">
                         <Texture parentKey="Star" file="Interface\AddOns\Narcissus\Art\Modules\PhotoMode\WeaponBrowser\FavStarYellow">
                             <Size x="12" y="12"/>
                             <Anchors>

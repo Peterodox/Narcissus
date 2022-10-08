@@ -448,6 +448,7 @@ end
 function NarciProgenitorSetIndicatorMixin:OnShow()
     if not NarcissusDB.ProgenitorTheme then
         self.Splash:ShowSplash();
+        self:SetTheme(2, true);
     else
         self:SetTheme(NarcissusDB.ProgenitorTheme);
     end

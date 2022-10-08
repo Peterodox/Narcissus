@@ -1,3 +1,7 @@
+local _, addon = ...;
+
+local SetModelLight = addon.TransitionAPI.SetModelLight;
+
 local Narci = Narci;
 local L = Narci.L;
 local FadeFrame = NarciFadeUI.Fade;
@@ -26,28 +30,19 @@ local LoadingIndicator;
 local TARGET_MODEL_INDEX = 1;     --Add an NPC to NarciNPCModelFrame(n)
 local ACTOR_CREATED = false;      --Whether user has added an NPC from browser or not
 
-local _;
 local _G = _G;
-local pi = math.pi;
 local min = math.min;
 local max = math.max;
-local sin = math.sin;
-local cos = math.cos;
 local floor = math.floor;
 local tinsert = table.insert;
 local tremove = table.remove;
 
-local function outSine(t, b, e, d)                  --elapsed, begin, end, duration
-	return (e - b) * sin(t / d * (pi / 2)) + b
-end
-
-local function inOutSine(t, b, e, d)
-	return (b - e) / 2 * (cos(pi * t / d) - 1) + b
-end
+local outSine = addon.EasingFunctions.outSine;
+local inOutSine = addon.EasingFunctions.inOutSine;
 
 local function GetApproximation(number)
     --4 Decimals
-    return floor(number* 10^4 + 0.5)/ 10^4
+    return floor(number* 10000 + 0.5)/ 10000
 end
 
 local sub = string.sub;
@@ -2911,7 +2906,7 @@ end
 
 local function Match_OnEnter(self)
     FadeFrame(self.Highlight, 0.2, 1);
-    MatchPreviewModel:SetLight(true, false, - 0.44699833180028 ,  0.72403680806459 , -0.52532198881773, 0.8, 172/255, 172/255, 172/255, 1, 0.8, 0.8, 0.8);
+    SetModelLight(MatchPreviewModel, true, false, - 0.44699833180028 ,  0.72403680806459 , -0.52532198881773, 0.8, 172/255, 172/255, 172/255, 1, 0.8, 0.8, 0.8);
     if self.displayID then
         UpdatePreviewModel(self.displayID, true);
         MouseOverButtons:Hide();

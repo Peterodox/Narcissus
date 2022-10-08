@@ -268,7 +268,7 @@
                                 </Anchors>
                                 <Layers>
                                     <Layer level="OVERLAY">
-                                        <Texture parentKey="Texture" file="Interface\AddOns\Narcissus\Art\Widgets\Progenitor\ChooseButton">
+                                        <Texture parentKey="Texture" file="Interface\AddOns\Narcissus\Art\Buttons\YesNoButton">
                                             <TexCoords left="0" right="0.5" top="0.5" bottom="1"/>
                                             <Color r="0.6" g="0.6" b="0.6"/>
                                         </Texture>
@@ -280,12 +280,7 @@
                                         <Anchors>
                                             <Anchor point="CENTER"/>
                                         </Anchors>	
-                                        <SwipeTexture file="Interface\AddOns\Narcissus\Art\Widgets\Progenitor\ChooseButtonSwipe">
-                                            <Size x="24" y="24"/>
-                                            <Anchors>
-                                                <Anchor point="CENTER"/>
-                                            </Anchors>
-                                        </SwipeTexture>
+                                        <SwipeTexture file="Interface\AddOns\Narcissus\Art\Buttons\YesButtonSwipe"/>
                                         <Scripts>
                                         </Scripts>
                                     </Cooldown>
@@ -301,7 +296,7 @@
                                 </Anchors>
                                 <Layers>
                                     <Layer level="OVERLAY">
-                                        <Texture parentKey="Texture" file="Interface\AddOns\Narcissus\Art\Widgets\Progenitor\ChooseButton">
+                                        <Texture parentKey="Texture" file="Interface\AddOns\Narcissus\Art\Buttons\YesNoButton">
                                             <TexCoords left="0.5" right="1" top="0.5" bottom="1"/>
                                             <Color r="0.6" g="0.6" b="0.6"/>
                                         </Texture>

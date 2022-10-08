@@ -176,7 +176,6 @@
         </Layers>
         <Frames>
             <Button parentKey="Thumb">
-                <TexCoords left="0" right="0.125" top="0.125" bottom="0.25"/>
                 <Size x="24" y="24"/>
                 <Anchors>
                     <Anchor point="CENTER" relativeKey="$parent.RailCenter" relativePoint="LEFT" x="0"/>

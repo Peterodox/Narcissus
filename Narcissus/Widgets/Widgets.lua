@@ -1,3 +1,6 @@
+local _, addon = ...
+local SetGradient = addon.TransitionAPI.SetGradient;
+
 local FadeFrame = NarciFadeUI.Fade;
 local After = C_Timer.After;
 local pi = math.pi;
@@ -36,7 +39,7 @@ end
 --Description: Shimmers slowly. Maintains highlight when mouseovered
 --Notes: starting Alpha is always "0"
 
-TEMPS.totalDuration = 0;      
+TEMPS.totalDuration = 0;
 local shimmerStyle = {
     {toAlpha = 0.5, duration = 0.4},    --#1
     {toAlpha = 0.5, duration = 0.25},   --#2
@@ -365,7 +368,7 @@ function NarciUIColorPickerMixin:Preload()
             gt:SetPoint("LEFT", gradients[i - 1], "RIGHT", 0, 0);
         end
         gt:SetColorTexture(1, 1, 1, 1);
-        gt:SetGradient("HORIZONTAL", colors[i][1], colors[i][2], colors[i][3],  colors[i+1][1], colors[i+1][2], colors[i+1][3]);
+        SetGradient(gt, "HORIZONTAL", colors[i][1], colors[i][2], colors[i][3],  colors[i+1][1], colors[i+1][2], colors[i+1][3]);
     end
     HueSlider:SetMinMaxValues(0, 360);
     HueSlider:SetValueStep(1);
@@ -379,7 +382,7 @@ function NarciUIColorPickerMixin:Preload()
     gt2:SetSize(sliderWidth - thumbWidth, sliderHeight);
     gt2:SetPoint("LEFT", SatSlider, "LEFT", thumbWidth/2, 0);
     gt2:SetColorTexture(1, 1, 1, 1);
-    gt2:SetGradient("HORIZONTAL", 1, 1, 1, 1, 0, 0);
+    SetGradient(gt2, "HORIZONTAL", 1, 1, 1, 1, 0, 0);
     SatSlider:SetMinMaxValues(0, 100);
     SatSlider:SetValueStep(1);
     SatSlider:SetWidth(sliderWidth);
@@ -392,7 +395,7 @@ function NarciUIColorPickerMixin:Preload()
     gt3:SetSize(sliderWidth - thumbWidth, sliderHeight);
     gt3:SetPoint("LEFT", BriSlider, "LEFT", thumbWidth/2, 0);
     gt3:SetColorTexture(1, 1, 1, 1);
-    gt3:SetGradient("HORIZONTAL", 0, 0, 0, 1, 0, 0);
+    SetGradient(gt3, "HORIZONTAL", 0, 0, 0, 1, 0, 0);
     BriSlider:SetMinMaxValues(0, 100);
     BriSlider:SetValueStep(1);
     BriSlider:SetWidth(sliderWidth);
@@ -434,10 +437,9 @@ function NarciUIColorPickerMixin:Update()
 
     local h, s, v = self:GetHSV();
     local r, g, b = HSV2RGB(h, 1, v);
-    self.SaturationSlider.Gradient:SetGradient("HORIZONTAL", v, v, v, r, g, b);
+    SetGradient(self.SaturationSlider.Gradient, "HORIZONTAL", v, v, v, r, g, b);
     r, g, b = HSV2RGB(h, s, 1);
-    self.BrightnessSlider.Gradient:SetGradient("HORIZONTAL", 0, 0, 0, r, g, b);
-
+    SetGradient(self.BrightnessSlider.Gradient, "HORIZONTAL", 0, 0, 0, r, g, b);
     r, g, b = self:GetRGB();
     self.ConfirmButton:SetColor(r, g, b);
 

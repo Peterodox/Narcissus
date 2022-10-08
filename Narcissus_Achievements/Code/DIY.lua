@@ -1111,13 +1111,11 @@ local function CreateTextEditor()
     end);
 
     RemoveButton:SetScript("OnMouseDown", function(self)
-        self.colorBackground:SetGradient("VERTICAL", 0.5, 0.5, 0.5, 0.1, 0.1, 0.1);
         self:StopAnimating();
         self.fill:Show();
         self.fill.Timer:Play();
     end);
     RemoveButton:SetScript("OnMouseUp", function(self)
-        self.colorBackground:SetGradient("VERTICAL", 0.1, 0.1, 0.1, 0.5, 0.5, 0.5);
         self.fill.Timer:Pause();
         self.fill.FadeOut:Play();
     end);

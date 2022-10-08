@@ -25,7 +25,7 @@
                     </MaskedTextures>
                 </MaskTexture>
             </Layer>
-			<Layer levle="OVERLAY" textureSubLevel="6">
+			<Layer level="OVERLAY" textureSubLevel="6">
 				<Texture parentKey="ReadyBling" file="Interface\AddOns\Narcissus\Art\Cooldown\ReadyBling" alphaMode="ADD" hidden="true">
 					<Size x="128" y="128"/>
 					<Anchors>
@@ -80,12 +80,7 @@
                 <Anchors>
                     <Anchor point="CENTER"/>
                 </Anchors>	
-                <SwipeTexture file="Interface\AddOns\Narcissus\Art\Cooldown\NewCooldown-Fluid-Dark">
-                    <Size x="128" y="128"/>
-                    <Anchors>
-                        <Anchor point="CENTER"/>
-                    </Anchors>
-                </SwipeTexture>
+                <SwipeTexture file="Interface\AddOns\Narcissus\Art\Cooldown\NewCooldown-Fluid-Dark"/>
                 <Scripts>
                     <OnCooldownDone>
                         self:GetParent():OnCooldownDone();
@@ -103,7 +98,7 @@
                     <Anchor point="CENTER"/>
                 </Anchors>
                 <Layers>
-                    <Layer levle="OVERLAY" textureSubLevel="5">
+                    <Layer level="OVERLAY" textureSubLevel="5">
                         <Texture parentKey="Pointer">
                             <Size x="16" y="16"/>
                             <Anchors>

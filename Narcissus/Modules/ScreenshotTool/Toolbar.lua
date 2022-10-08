@@ -3,6 +3,9 @@ local _, addon = ...
 local EXPANDED_BAR_LEFT_OFFSET = 68;    --Constant
 local COLLAPSED_BAR_LEFT_OFFSET = -120; --Variable
 
+local GetTrackingInfo = addon.TransitionAPI.GetTrackingInfo;
+local SetTracking = addon.TransitionAPI.SetTracking;
+
 local outSine = addon.EasingFunctions.outSine;
 
 
@@ -105,6 +108,7 @@ local CVAR_GRAPHICS_VALUES = {
 	["graphicsDepthEffects"] = 4,
 	--["graphicsLightingQuality"] = 3,
 	["lightMode"] = 2,
+    ["ffxAntiAliasingMode"] = 2,    --FXAA High
 	["MSAAQuality"] = 4,	--4 is invalid. But used for backup
 	["shadowrt"] = -1,		--invalid
 }
@@ -513,7 +517,9 @@ local function PitchSlider_OnValueChanged(self, value, userInput)
 
 
     if userInput then
-        if not IsValueZero(value) then
+        if IsValueZero(value) then
+            SetCVar("test_cameraDynamicPitch", 0);
+        else
             SetCVar("test_cameraDynamicPitch", 1);
         end
         SetCVar("test_cameraDynamicPitchBaseFovPad", value);
@@ -1037,6 +1043,7 @@ function NarciScreenshotToolbarMixin:OnHide()
     self:UnregisterEvent("PLAYER_CAMPING");
     self:UnregisterEvent("SCREENSHOT_STARTED");
     self:FadeOut(true);
+    self:UseLowerLevel(false);
 end
 
 function NarciScreenshotToolbarMixin:OnEvent(event, ...)
@@ -1174,17 +1181,7 @@ function NarciRayTracingToggleMixin:OnLeave()
 end
 
 function NarciRayTracingToggleMixin:OnLoad()
-	local validity;
-	if Advanced_RTShadowQualityDropDown then
-		validity = true;
-	end
-	local info = { GetToolTipInfo(1, 4, "shadowrt", 0, 1, 2, 3) };
-	for i = 1, #info do
-		if info[i] ~= 0 then
-			validity = validity and false;
-			break;
-		end
-	end
+	local validity = addon.TransitionAPI.IsRTXSupported();
 
     self:OnLeave();
 

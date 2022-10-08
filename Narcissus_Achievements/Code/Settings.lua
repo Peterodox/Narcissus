@@ -236,8 +236,11 @@ local function CreateWidget(parent, widgetData, offset, widgetIndex)
         object.IsOn = defaultValue;
 
         if data.description then
-            object.Description = object:CreateFontString(nil, "ARTWORK", "NarciPreferenceDescriptionTemplate");
-            --object.Description:SetPoint("TOPLEFT", object.Label, "BOTTOMLEFT", 0, -4);    --Already defined in the template
+            object.Description = object:CreateFontString(nil, "ARTWORK", "NarciPrefFontGreyThin9");
+            object.Description:SetPoint("TOPLEFT", object.Label, "BOTTOMLEFT", 0, -4);
+            object.Description:SetSpacing(2);
+            object.Description:SetJustifyH("LEFT");
+            object.Description:SetJustifyV("TOP");
             object.Description:SetSize(0, 0);
             object.Description:SetPoint("RIGHT", parent, "RIGHT", -24, 0);
             object.Description:SetText(data.description);

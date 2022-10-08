@@ -1,4 +1,6 @@
-local _;
+local _, addon = ...
+local TransitionAPI = addon.TransitionAPI;
+
 local C_Item = C_Item;
 local After = C_Timer.After;
 local GetItemInfo = GetItemInfo;
@@ -7,7 +9,6 @@ local UIFrameFadeIn = UIFrameFadeIn;
 local UIFrameFadeOut = UIFrameFadeOut;
 local FadeFrame = NarciFadeUI.Fade;
 local PlaySound = PlaySound;
-local unpack = unpack;
 local _, _, _, tocversion = GetBuildInfo();
 
 local find = string.find;
@@ -19,6 +20,9 @@ local min = math.min;
 local max = math.max;
 local abs = math.abs;
 local floor = math.floor;
+
+local unpack = unpack;
+local tinsert = table.insert;
 
 local TEXT_LOCALE = GetLocale();
 
@@ -100,97 +104,6 @@ NarciAPI.GetSlotVisualID = NarciAPI_GetSlotVisualID;
 --------------------
 ----API Datebase----
 --------------------
-
-local _, COM_OF_ARGUS = GetAchievementInfo(12078);                                  --Argus Weapon Transmogs: Arsenal: Weapons of the Lightforged
-COM_OF_ARGUS = COM_OF_ARGUS or "Commander of Argus";
-COM_OF_ARGUS = "|cFFFFD100"..BATTLE_PET_SOURCE_6 .."|r "..COM_OF_ARGUS;
---local EnsorcelledEverwyrm = C_MountJournal.GetMountFromSpell(307932);
-local _, _, PROMOTION_SHADOWLANDS = C_MountJournal.GetMountInfoExtraByID(1289);         --EnsorcelledEverwyrm   Promotion: Shadowlands Heroic Edition
-
-local HERITAGE_ARMOR = Narci.L["Heritage Armor"];
-local HeritageArmorItemIDs = {
-    165931, 165932, 165933, 165934, 165935, 165936, 165937, 16598,                      --Dwarf
-    161008, 161009, 161010, 161011, 161012, 161013, 161014, 161015,                     --Dark Iron
-    156668, 156669, 156670, 156671, 156672, 156673, 156674, 156684,                     --Highmountain
-    156699, 156700, 156701, 156702, 156703, 156704, 156705, 156706,                     --Lightforged
-    161050, 161051, 161052, 161054, 161055, 161056, 161057, 161058,                     --Mag'har Orc (Blackrock Recolor)
-    161059, 161060, 161061, 161062, 161063, 161064, 161065, 161066,                     --Mag'har Orc (Frostwolf Recolor)
-    160992, 160993, 160994, 160999, 161000, 161001, 161002, 161003,                     --Mag'har Orc (Warsong Recolor)
-    156690, 156691, 156692, 156693, 156694, 156695, 156696, 156697, 157758, 158917,     --Void Elf
-    156675, 156676, 156677, 156678, 156679, 156680, 156681, 156685,                     --Nightborne
-    166348, 166349, 166351, 166352, 166353, 166354, 166355, 166356, 166357,             --Blood Elf
-    164993, 164994, 164995, 164996, 164997, 164998, 164999, 165000,                     --Zandalari
-    165002, 165003, 165004, 165005, 165006, 165007, 165008, 165009,                     --Kul'tiran
-    168282, 168283, 168284, 168285, 168286, 168287, 168288, 168289, 168290,             --Gnome
-    168291, 168292, 168293, 168294, 168295, 168296, 168297, 168298, 170063,             --Tauren
-    173968, 173966, 173970, 173971, 173967, 173969, 174354, 174355,                     --Vulpera
-    173961, 173962, 173963, 173964, 173958, 173972,                                     --Mechagnome
-    174000, 174001, 174002, 174003, 174004, 174005, 174006, 173999, 173998,             --Worgen
-
-    --Reserved for test ↓
-    
-}
-
-local SecretlItemIDs = {
-    [162690]  = true,     --Waist of Time
-}
-
-local SpecialItemList = {
-    [152332] = COM_OF_ARGUS,            --Brilliant Daybreak Aegis
-    [152333] = COM_OF_ARGUS,            --Lustrous Daybreak Aegis
-    [152334] = COM_OF_ARGUS,            --Brilliant Eventide Aegis
-    [152335] = COM_OF_ARGUS,            --Lustrous Eventide Aegis
-    [152336] = COM_OF_ARGUS,            --Lustrous Daybreak Blade
-    [152337] = COM_OF_ARGUS,            --Brilliant Daybreak Blade
-    [152338] = COM_OF_ARGUS,            --Lustrous Eventide Blade
-    [152339] = COM_OF_ARGUS,            --Brilliant Daybreak Blade
-    [152340] = COM_OF_ARGUS,            --Lustrous Daybreak Greatsword
-    [152341] = COM_OF_ARGUS,            --Lustrous Eventide Greatsword
-    [152342] = COM_OF_ARGUS,            --Lustrous Daybreak Staff
-    [152343] = COM_OF_ARGUS,            --Lustrous Eventide Staff
-
-    [172075] = PROMOTION_SHADOWLANDS,       --The Eternal Traveler's
-    [172076] = PROMOTION_SHADOWLANDS,
-    [172077] = PROMOTION_SHADOWLANDS,
-    [172078] = PROMOTION_SHADOWLANDS,
-    [172079] = PROMOTION_SHADOWLANDS,
-    [172080] = PROMOTION_SHADOWLANDS,
-    [172081] = PROMOTION_SHADOWLANDS,
-    [172082] = PROMOTION_SHADOWLANDS,
-    [172083] = PROMOTION_SHADOWLANDS,
-    --[134110] = PROMOTION_SHADOWLANDS,            --Test
-}
-
-local Ensemble_TheChosenDead_ItemIDs = {
-    142423, 142421, 142422, 142434, 142420, 142433,     --Mail
-    142427, 142425, 142431, 142435, 142426, 142424,     --Plate
-    142419, 142430, 142432, 142417, 142418, 142416,     --Leather
-    142415, 142411, 142410, 142413, 142429, 142414,     --Cloth
-    143355, 143345, 143334, 143354, 143346, 143347,
-    143356, 143339, 143349, 143342, 143344, 143335,
-    143353, 143368, 143340, 143337, 143348, 143341,
-    143343, 143367, 143336, 143352, 143366, 143351,
-    143360, 143358, 143350, 143361, 143364, 143359,
-    143338, 143369, 143365, 143363, 143362, 143357,
-};
-
-local function BuildSearchTable(table)
-    if type(table) ~="table" then
-        return;
-    end
-
-    local newTable = {};
-
-    for k, v in pairs(table) do
-        newTable[v] = true;
-    end
-
-    wipe(table);
-    return newTable;
-end
-
-local HeritageArmorList = BuildSearchTable(HeritageArmorItemIDs);
-local Ensemble_TheChosenDead = BuildSearchTable(Ensemble_TheChosenDead_ItemIDs);
 
 --[[
 function GetArtifactVisualModID(colorID)
@@ -466,7 +379,7 @@ local function GetCustomQualityColor(itemQuality)
     if (not itemQuality) or (not customQualityColors[itemQuality]) then
         itemQuality = 1;
     end
-    return unpack(customQualityColors[itemQuality]);
+    return customQualityColors[itemQuality][1], customQualityColors[itemQuality][2], customQualityColors[itemQuality][3];
 end
 
 NarciAPI.GetItemQualityColor = GetCustomQualityColor;
@@ -478,6 +391,15 @@ local function GetCustomQualityColorByItemID(itemID)
 end
 
 NarciAPI.GetItemQualityColorByItemID = GetCustomQualityColorByItemID;
+
+local function GetCustomQualityHexColor(itemQuality)
+    if (not itemQuality) or (not customQualityColors[itemQuality]) then
+        itemQuality = 1;
+    end
+    return customQualityColors[itemQuality][4]
+end
+
+NarciAPI.GetItemQualityHexColor = GetCustomQualityHexColor;
 
 
 NarciAPI.GetItemQualityColorTable = function()
@@ -573,47 +495,7 @@ end
 
 NarciAPI.GetItemEnchantID = GetItemEnchantID;
 
-local function IsHeritageArmor(itemID)
-    if not itemID then
-        return false;
-    end
-    
-    if HeritageArmorList[itemID] then
-        return true;
-    else
-        return false;
-    end
-end
 
-local ITEMSOURCE_SECRETFINDING = Narci.L["Secret Finding"];
-
-local function NarciAPI_IsItemSourceSpecial(itemID, modID)
-    if not itemID then
-        return false;
-    end
-
-    if IsHeritageArmor(itemID) then
-        return true, HERITAGE_ARMOR;
-    end
-
-    local itemSource = SpecialItemList[itemID];
-    if itemSource ~= nil then
-        --print("Is Special")
-        return true, itemSource;
-    end
-
-    if SecretlItemIDs[itemID] then
-        return true, ITEMSOURCE_SECRETFINDING;
-    end
-
-    if Ensemble_TheChosenDead[itemID] then
-        return true, "|cFFFFD100"..DUNGEON_FLOOR_HELHEIMRAID1.."|r";
-    end
-
-    return false;
-end
-
-NarciAPI.IsItemSourceSpecial = NarciAPI_IsItemSourceSpecial;
 
 local PrimaryStatsList = {
 	[LE_UNIT_STAT_STRENGTH] = NARCI_STAT_STRENGTH,
@@ -883,6 +765,17 @@ local function GetPixelByScale(scale, pixelSize)
 end
 
 NarciAPI.GetPixelByScale = GetPixelByScale;
+
+
+local function GetTexturePixelSize(texture)
+    local scale = texture:GetEffectiveScale();
+    local w, h = texture:GetSize();
+    local pixel = (768/SCREEN_HEIGHT)/scale;
+
+    return w/pixel, h/pixel
+end
+
+NarciAPI.GetTexturePixelSize = GetTexturePixelSize;
 
 
 function NarciAPI_OptimizeBorderThickness(self)
@@ -1247,7 +1140,7 @@ local function SmartSetActorName(fontstring, text)
 	fontstring:SetText(text);
 	local language = LanguageDetector(text);
 	if language and ActorNameFont[language] then
-		fontstring:SetFont(ActorNameFont[language][1] , ActorNameFont[language][2]);
+		fontstring:SetFont(ActorNameFont[language][1] , ActorNameFont[language][2], "");
 	end
 end
 
@@ -1257,7 +1150,7 @@ local function SmartFontType(self, fontTable)
 	--print(str.." Language is: "..Language);
     local height = self:GetHeight();
     if language and fontTable[language] then
-		self:SetFont(fontTable[language] , height);
+		self:SetFont(fontTable[language] , height, "");
 	end
 end
 
@@ -1266,7 +1159,7 @@ local function SmartEditBoxFont(self, extraHeight)
 	local language = LanguageDetector(str);
     if language and EditBoxFont[language] then
         local height = extraHeight or 0;
-		self:SetFont(EditBoxFont[language][1] , EditBoxFont[language][2] + height);
+		self:SetFont(EditBoxFont[language][1] , EditBoxFont[language][2] + height, "");
 	end
 end
 
@@ -1277,7 +1170,7 @@ end
 local function SmartSetName(fontString, str)
 	local language = LanguageDetector(str);
     if language and NormalFont12[language] then
-		fontString:SetFont(NormalFont12[language][1], NormalFont12[language][2]);
+		fontString:SetFont(NormalFont12[language][1], NormalFont12[language][2], "");
 	end
     fontString:SetText(str);
 end
@@ -1312,6 +1205,8 @@ function NarciAPI_LetterboxAnimation(command)
 			frame:Show();
 			frame.BottomMask.animIn:Play();
 			frame.TopMask.animIn:Play();
+        else
+            frame:Hide();
 		end
 	end
 end
@@ -1806,23 +1701,30 @@ local ActorIDByRace = {
     [35] = {924, 923},      -- Vulpera
     [36] = {495, 498},		-- Mag'har
     [37] = {929, 931},      -- Mechagnome
-}
+    [52] = {1554, 1554},    -- Dracthyr
+    [70] = {1554, 1554},    -- Dracthyr
+};
 
 --Re-check this↑ table every major patch
 --[[
-function Narci_GetActorByTag(raceName, gender)
-    raceName = string.lower(raceName);
-    
-    local playerRaceActor;
-    if gender == 1 then
-        playerRaceActor = raceName.."-".."male";
-    else
-        playerRaceActor = raceName.."-".."female";
+function Narci_FindActorIDBy(name)
+    local id = 500;
+    local info, tag;
+    local find = string.find;
+    while id < 2000 do
+        id = id + 1;
+        info = C_ModelInfo.GetModelSceneActorInfoByID(id);
+        if info then
+            tag = info.scriptTag;
+            if tag and find(tag, name) then
+                print(id, tag);
+                --return
+            end
+        end
     end
-    
-    return DressUpFrame.ModelScene:GetActorByTag(playerRaceActor);
 end
 --]]
+
 
 local ZoomDistanceByRace = {
     --[raceID] = {male Zoom, female Zoom, bustOffsetZ_M, bustOffsetZ_F},
@@ -2302,7 +2204,8 @@ NarciAPI.EncodeItemlist = EncodeItemlist;
 local function NarciAPI_InitializeModelLight(model)
     --Model: DressUpModel/Cinematic Model/...
     --Not ModelScene
-    model:SetLight(true, false, - 0.44699833180028 ,  0.72403680806459 , -0.52532198881773, 0.8, 172/255, 172/255, 172/255, 1, 0.8, 0.8, 0.8);
+    --model:SetLight(true, false, - 0.44699833180028 ,  0.72403680806459 , -0.52532198881773, 0.8, 172/255, 172/255, 172/255, 1, 0.8, 0.8, 0.8);
+    TransitionAPI.SetModelLight(model, true, false, - 0.44699833180028 ,  0.72403680806459 , -0.52532198881773, 0.8, 172/255, 172/255, 172/255, 1, 0.8, 0.8, 0.8);
 end
 
 NarciAPI.InitializeModelLight = NarciAPI_InitializeModelLight;
@@ -2364,6 +2267,13 @@ function NarciAPI_CreateFadingFrame(parentObject)
         delay = delay or 0;
         animFade.t = -delay;
         duration = duration or 0.15;
+
+        if duration == 0 then
+            animFade:Hide();
+            parentObject:SetAlpha(0);
+            return
+        end
+
         local alpha = parentObject:GetAlpha();
         animFade.fromAlpha = alpha;
         animFade.timeFactor = -1/duration;
@@ -2378,6 +2288,13 @@ function NarciAPI_CreateFadingFrame(parentObject)
         delay = delay or 0;
         animFade.t = -delay;
         duration = duration or 0.2;
+
+        if duration == 0 then
+            animFade:Hide();
+            parentObject:SetAlpha(1);
+            return
+        end
+
         local alpha = parentObject:GetAlpha();
         animFade.fromAlpha = alpha;
         animFade.timeFactor = 1/duration;
@@ -3224,6 +3141,41 @@ end
 
 NarciAPI.DoesCreatureDisplayIDExist = DoesCreatureDisplayIDExist;
 
+
+
+local function PixelPerfectDriver_Update(self)
+    local scale = self:GetParent():GetEffectiveScale();
+
+    if scale == self.scale then
+        return
+    else
+        self.scale = scale;
+    end
+
+    local p = 768 / SCREEN_HEIGHT / scale;
+
+    for i, tex in ipairs(self.textures) do
+        if tex.w then
+            tex:SetWidth(p * tex.w);
+        end
+        if tex.h then
+            tex:SetHeight(p * tex.h);
+        end
+    end
+end
+
+local function AddPixelPerfectTexture(frame, texture, pixelWidth, pixelHeight)
+    if not frame.pixelDriver then
+        frame.pixelDriver= CreateFrame("Frame", nil, frame);
+        frame.pixelDriver.textures = {};
+        frame.pixelDriver:SetScript("OnShow", PixelPerfectDriver_Update);
+    end
+    texture.w = pixelWidth;
+    texture.h = pixelHeight;
+    tinsert(frame.pixelDriver.textures, texture);
+end
+
+NarciAPI.AddPixelPerfectTexture = AddPixelPerfectTexture;
 
 
 --[[

@@ -2,6 +2,8 @@ local NineSliceUtil = {};
 
 NarciAPI.NineSliceUtil = NineSliceUtil;
 
+local AddPixelPerfectTexture = NarciAPI.AddPixelPerfectTexture; --(frame, texture, pixelWidth, pixelHeight)
+
 --Texture order ↓
 -- 1 | 2 | 3
 -- 4 | 5 | 6
@@ -75,10 +77,26 @@ local TextureData = {
         cornerSize = 12,
         cornerCoord = 0.25,
     },
+
+    settingsBackground = {
+        file = "SettingsFrame\\FrameBackground",
+        cornerSize = 32,
+        cornerCoord = 0.25,
+        pixelPerfect = true,
+        useCenterForAlignment = true,
+    },
+
+    settingsBorder = {
+        file = "SettingsFrame\\FrameBorder",
+        cornerSize = 32,
+        cornerCoord = 0.25,
+        pixelPerfect = true,
+        useCenterForAlignment = true,
+    },
 };
 
 function NineSliceUtil.SetUp(frame, textureKey, layer, shrink)
-    shrink = shrink or 0
+    shrink = shrink or 0;
     local group, subLevel;
     if layer == "backdrop" then
         if not frame.backdropTextures then
@@ -96,19 +114,25 @@ function NineSliceUtil.SetUp(frame, textureKey, layer, shrink)
         return
     end
 
-    local file = PATH_PREFIX .. TextureData[textureKey].file;
-    local size = TextureData[textureKey].cornerSize;
-    local coord = TextureData[textureKey].cornerCoord;
-    local offset = size * (TextureData[textureKey].offsetRatio or 0);
-    local tex;
-    local key;
+    local data = TextureData[textureKey];
+
+    local file = PATH_PREFIX .. data.file;
+    local size = data.cornerSize;
+    local coord = data.cornerCoord;
+    local pixelMode = data.pixelPerfect;
+    local useCenterForAlignment = data.useCenterForAlignment;
+    local offset = size * (data.offsetRatio or 0);
+    local ORDER = {1, 3, 7, 9, 2, 4, 6, 8, 5};
+    local tex, key;
+
+
     for i = 1, 9 do
         key = ORDER[i];
         if not group[key] then
             group[key] = frame:CreateTexture(nil, "BACKGROUND", nil, subLevel);
         end
         tex = group[key];
-        tex:SetTexture(file);
+        tex:SetTexture(file, nil, nil, "LINEAR"); --NEAREST LINEAR
         if key == 2 or key == 8 then
             --tex:SetHeight(size);
             if key == 2 then
@@ -135,20 +159,42 @@ function NineSliceUtil.SetUp(frame, textureKey, layer, shrink)
             tex:SetPoint("TOPLEFT", group[1], "BOTTOMRIGHT", 0, 0);
             tex:SetPoint("BOTTOMRIGHT", group[9], "TOPLEFT", 0, 0);
             tex:SetTexCoord(coord, 1-coord, coord, 1-coord);
+
         else
             tex:SetSize(size, size);
-            if key == 1 then
-                tex:SetPoint("TOPLEFT", frame, "TOPLEFT", -offset + shrink, offset - shrink);
-                tex:SetTexCoord(0, coord, 0, coord);
-            elseif key == 3 then
-                tex:SetPoint("TOPRIGHT", frame, "TOPRIGHT", offset - shrink, offset - shrink);
-                tex:SetTexCoord(1-coord, 1, 0, coord);
-            elseif key == 7 then
-                tex:SetPoint("BOTTOMLEFT", frame, "BOTTOMLEFT", -offset + shrink, -offset + shrink);
-                tex:SetTexCoord(0, coord, 1-coord, 1);
+
+            if useCenterForAlignment then
+                if key == 1 then
+                    tex:SetPoint("CENTER", frame, "TOPLEFT", shrink, -shrink);
+                    tex:SetTexCoord(0, coord, 0, coord);
+                elseif key == 3 then
+                    tex:SetPoint("CENTER", frame, "TOPRIGHT", -shrink, -shrink);
+                    tex:SetTexCoord(1-coord, 1, 0, coord);
+                elseif key == 7 then
+                    tex:SetPoint("CENTER", frame, "BOTTOMLEFT", shrink, shrink);
+                    tex:SetTexCoord(0, coord, 1-coord, 1);
+                elseif key == 9 then
+                    tex:SetPoint("CENTER", frame, "BOTTOMRIGHT", -shrink, shrink);
+                    tex:SetTexCoord(1-coord, 1, 1-coord, 1);
+                end
             else
-                tex:SetPoint("BOTTOMRIGHT", frame, "BOTTOMRIGHT", offset - shrink, -offset + shrink);
-                tex:SetTexCoord(1-coord, 1, 1-coord, 1);
+                if key == 1 then
+                    tex:SetPoint("TOPLEFT", frame, "TOPLEFT", -offset + shrink, offset - shrink);
+                    tex:SetTexCoord(0, coord, 0, coord);
+                elseif key == 3 then
+                    tex:SetPoint("TOPRIGHT", frame, "TOPRIGHT", offset - shrink, offset - shrink);
+                    tex:SetTexCoord(1-coord, 1, 0, coord);
+                elseif key == 7 then
+                    tex:SetPoint("BOTTOMLEFT", frame, "BOTTOMLEFT", -offset + shrink, -offset + shrink);
+                    tex:SetTexCoord(0, coord, 1-coord, 1);
+                elseif key == 9 then
+                    tex:SetPoint("BOTTOMRIGHT", frame, "BOTTOMRIGHT", offset - shrink, -offset + shrink);
+                    tex:SetTexCoord(1-coord, 1, 1-coord, 1);
+                end
+            end
+
+            if pixelMode then
+                AddPixelPerfectTexture(frame, tex, size, size);
             end
         end
     end

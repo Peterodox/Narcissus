@@ -29,7 +29,8 @@ local GetItemQualityColor = NarciAPI.GetItemQualityColor;
 local GetSlotVisualID = NarciAPI.GetSlotVisualID;
 
 local SharedTooltipDelay = addon.SharedTooltipDelay;
-
+local TransmogDataProvider = addon.TransmogDataProvider;
+local SetModelByUnit = addon.TransitionAPI.SetModelByUnit;
 
 local PT_EQUIPMENT_SETS = gsub(EQUIPMENT_SETS, ".cFF.+", "");
 local PT_ITEM_SOULBOUND = ITEM_SOULBOUND;
@@ -84,8 +85,12 @@ end
 local GENERIC_SETUP_FUNC = VoidFunc;
 
 
+if addon.IsDragonflight() and TooltipDataHandlerMixin then
+    NarciGameTooltipMixin = CreateFromMixins(TooltipDataHandlerMixin);
+else
+    NarciGameTooltipMixin = {};
+end
 
-NarciGameTooltipMixin = {};
 
 function NarciGameTooltipMixin:OnLoad()
     GenericTooltip = self;
@@ -95,6 +100,9 @@ function NarciGameTooltipMixin:OnLoad()
     self:SetPadding(p, p, p, p);
     self.leftTexts = {};
     self.rightTexts = {};
+
+    self:SetFrameStrata("TOOLTIP");
+    self:SetFixedFrameStrata(true);
 end
 
 function NarciGameTooltipMixin:OnShow()
@@ -377,8 +385,6 @@ function NarciEquipmentTooltipMixin:OnLoad()
     self:SetFrameStrata("TOOLTIP");
     self:SetFixedFrameStrata(true);
 
-    NarciAPI.InitializeModelLight(self.ItemModel);
-
     local alwaysShown = true;
     self.HotkeyFrame = CreateFrame("Frame", nil, self, "NarciHotkeyNotificationTemplate");
     self.HotkeyFrame:SetPoint("BOTTOM", self, "TOP", 0, 8);
@@ -387,6 +393,8 @@ function NarciEquipmentTooltipMixin:OnLoad()
     self.HotkeyFrame:Show();
 
     addon.ModuleManager:AddGamePadCallbackWidget(self);
+
+    NarciAPI.InitializeModelLight(self.ItemModel);
 end
 
 function NarciEquipmentTooltipMixin:OnShow()
@@ -790,6 +798,15 @@ function NarciEquipmentTooltipMixin:SetTransmogSource(appliedSourceID)
             self:AddLine(sourceText, GetColorByIndex(1));
         end
 
+        local specialSourceText = TransmogDataProvider:GetSpecialItemSourceText(appliedSourceID, sourceInfo.itemID, sourceInfo.itemModID);
+
+        if specialSourceText then
+            if TransmogDataProvider:IsLegionArtifactBySourceID(appliedSourceID) then
+                specialSourceText = (ARTIFACTS_APPEARANCE_TAB_TITLE or "Artifact Appearance") .. ":  "..specialSourceText;
+            end
+            self:AddLine(specialSourceText, GetColorByIndex(1));
+        end
+
         --Model
         self.ItemModel.FadeIn:Stop();
         local cameraID = C_TransmogCollection.GetAppearanceCameraIDBySource(appliedSourceID);
@@ -799,7 +816,7 @@ function NarciEquipmentTooltipMixin:SetTransmogSource(appliedSourceID)
         self.ItemModel.FadeIn.Hold:SetDuration(1);
         --self.ItemModel.FadeIn:Play();
         if not self.isWeapon then
-            self.ItemModel:SetUnit("player", false);
+            SetModelByUnit(self.ItemModel, "player");
             self.ItemModel:TryOn(appliedSourceID);
         else
             self.ItemModel:SetItemAppearance(appliedVisualID);
@@ -966,7 +983,7 @@ function NarciEquipmentTooltipMixin:SetItemModel()
         if self.isWeapon then
             self.ItemModel:SetItemAppearance(self.baseVisualID);
         else
-            self.ItemModel:SetUnit("player", false);
+            SetModelByUnit(self.ItemModel, "player")
             self.ItemModel:TryOn(self.baseSourceID);
         end
         self.HeaderFrame.ItemIcon:Hide();
@@ -1023,7 +1040,7 @@ function NarciEquipmentTooltipMixin:UpdateSize()
     local modelHeight = headerHeight - 10;
     local modelWidth = MODEL_SIZE_RATIO * modelHeight;
     self.ItemModel:SetSize(modelWidth, modelHeight);
-    local headerWidth = self.HeaderFrame.ItemName:GetWrappedWidth() + ((self.showItemModel and (modelWidth + 16) or 0));
+    local headerWidth = math.max(self.HeaderFrame.ItemName:GetWrappedWidth(), self.HeaderFrame.ItemType:GetWrappedWidth()) + ((self.showItemModel and (modelWidth + 16) or 0));
     local maxWidth = self.maxWidth;
     if headerWidth > maxWidth then
         maxWidth = headerWidth;
@@ -1156,11 +1173,22 @@ end
 
 --For Preferences--
 function Narci:ShowAdditionalInfoOnTooltip(state)
-    if state then
-        ADDTIONAL_SETUP_FUNC = AppendItemID;
-        GENERIC_SETUP_FUNC = AppendItemIDToGameTooltip;
-    else
-        ADDTIONAL_SETUP_FUNC = VoidFunc;
-        GENERIC_SETUP_FUNC = VoidFunc;
+
+end
+
+do
+    local SettingFunctions = addon.SettingFunctions;
+
+    function SettingFunctions.ShowItemIDOnTooltip(state, db)
+        if state == nil then
+            state = db["ShowItemID"];
+        end
+        if state then
+            ADDTIONAL_SETUP_FUNC = AppendItemID;
+            GENERIC_SETUP_FUNC = AppendItemIDToGameTooltip;
+        else
+            ADDTIONAL_SETUP_FUNC = VoidFunc;
+            GENERIC_SETUP_FUNC = VoidFunc;
+        end
     end
 end

@@ -1,9 +1,17 @@
+local UPDATE_PORTRAIT_DELAY = 0.2;
+
+
 local _, addon = ...
 
 local API = addon.API;
 local StatManager = addon.StatManager;
 local HotkeyManager = addon.HotkeyManager;
 
+local FadeFrame = NarciFadeUI.Fade;
+local TransitionAPI = NarciAPI.TransitionAPI;
+
+local C_BarberShop = C_BarberShop;
+local SetCustomizationChoice = C_BarberShop.SetCustomizationChoice;
 
 local After = C_Timer.After;
 local sin = math.sin;
@@ -11,7 +19,9 @@ local cos = math.cos;
 local pi = math.pi;
 local sqrt = math.sqrt;
 local abs = math.abs;
+local tremove = table.remove;
 local tinsert = table.insert;
+local unpack = unpack;
 local wipe = wipe;
 
 local IsMouseButtonDown = IsMouseButtonDown;
@@ -39,11 +49,12 @@ local function inOutSine(t, b, e, d)
 	return (b - e) / 2 * (cos(pi * t / d) - 1) + b
 end
 
-local UIFrameFadeIn = UIFrameFadeIn;
+
 local L = Narci.L;
 -----------------------------------------------
 
-local MainFrame, BarbershopModel, MaleButtons, FemaleButtons, WorgenMaleButtons, WorgenFemaleButtons, EditButton, EditBox, DeleteButton, PlusButton, SettingFrame, SettingButton, ExportEditBox;
+local MainFrame, MaleButtons, FemaleButtons, AlternateMaleButtons, AlternateFemaleButtons, EditButton, EditBox, DeleteButton, PlusButton, SettingFrame, SettingButton, LoadingFrame;
+local BarbershopModel, ExportEditBox;
 local ACTIVE_BUTTON_POOL;
 
 --[[
@@ -86,6 +97,7 @@ function NarciBarberShopModelMixin:ZoomTo(value)
     CameraUpdater:ZoomTo(value)
 end
 --]]
+
 
 
 ----------------------------------------------------------------------------------------------------
@@ -210,10 +222,38 @@ local CAMERA_PROFILES_BY_RACE = {
         male = {3.16, 0.05, -2.55, 0.52},
         female = {3.35, 0.04, -2.51, 0.44},
     },
+
+    dracthyr = {
+        male = {3.1, -0.58, -2.6, 0.52},
+        female = {3.1, -0.58, -2.6, 0.52},
+    },
 };
 
 
-local WORGEN_HUMAN_FORM_ID = 220;   --custom
+local HAS_ALTERNATE_FORM, IN_ALTERNATE_FORM = false, false;
+local CAMEAR_KEY_TRUE_FORM;
+local CAMEAR_KEY_ALTERNATE_FORM;
+
+local RACE_WITH_ALTERNATE_FORM = {
+    [22] = "human",       --worgen
+    [52] = "bloodelf",    --dracthyr
+    [70] = "bloodelf",    --dracthyr
+};
+
+do
+    local _, _, raceID = UnitRace("player");
+    if RACE_WITH_ALTERNATE_FORM[raceID] then
+        CAMEAR_KEY_ALTERNATE_FORM = RACE_WITH_ALTERNATE_FORM[raceID];
+        if raceID == 22 then
+            CAMEAR_KEY_TRUE_FORM = "worgen"
+        else
+            CAMEAR_KEY_TRUE_FORM = "dracthyr"
+        end
+    end
+end
+
+
+local ALTERNATE_FORM_SAVED_ID = 220;   --custom
 local MAX_SAVES = 10;
 local NUM_ACTIVE_BUTTONS = 0;
 local CAMERA_PROFILE;
@@ -241,7 +281,7 @@ local function UpdateScrollButtonAlpha(buttons)
                 button:Show();
             end
         end
-        button:SetAlpha(alpha);
+        button:SetButtonAlpha(alpha);
     end
 end
 
@@ -338,9 +378,10 @@ local function UpdateScrollRange(ScrollFrame)
     if numButtons >= MAX_SAVES then
         PlusButton:SetCase(3);
     end
+    PlusButton.numSaves = numButtons;
 end
 
-local function CreateSavedLooksButton(ScrollFrame, sex, isWorgen)
+local function CreateSavedLooksButton(ScrollFrame, sex, isAlternateForm)
     local button;
     local buttons = {};
     local ScrollChild = ScrollFrame.ScrollChild;
@@ -384,15 +425,16 @@ local function CreateSavedLooksButton(ScrollFrame, sex, isWorgen)
 
     NarciAPI_ApplySmoothScrollToScrollFrame(ScrollFrame, deltaRatio, speedRatio, positionFunc, (buttonHeight + 16), range, parentScrollFunc, onScrollFinishedFunc);
 
-    if sex == "male" then
-        if isWorgen then
-            WorgenMaleButtons = buttons;
+
+    if isAlternateForm then
+        if sex == "male" then
+            AlternateMaleButtons = buttons;
         else
-            MaleButtons = buttons;
+            AlternateFemaleButtons = buttons;
         end
     else
-        if isWorgen then
-            WorgenFemaleButtons = buttons;
+        if sex == "male" then
+            MaleButtons = buttons;
         else
             FemaleButtons = buttons;
         end
@@ -412,16 +454,24 @@ local function GetOrcCameraProfile(model)
     end
 end
 
-local function GetWorgenCameraProfile(model)
-    local fileID = model:GetModelFileID();
-    if fileID == 307453 then
-        return CAMERA_PROFILES_BY_RACE.worgen.female
-    elseif fileID == 307454 then
-        return CAMERA_PROFILES_BY_RACE.worgen.male
-    elseif fileID == 1000764 then
-        return CAMERA_PROFILES_BY_RACE.human.female
+local function GetTrueFormCameraProfile(model)
+    if IN_ALTERNATE_FORM then
+        print(CAMEAR_KEY_ALTERNATE_FORM)
+        return CAMERA_PROFILES_BY_RACE[CAMEAR_KEY_ALTERNATE_FORM].male
     else
-        return CAMERA_PROFILES_BY_RACE.human.male
+        --[[
+        local fileID = model:GetModelFileID();
+        if fileID == 307453 then
+            return CAMERA_PROFILES_BY_RACE.worgen.female
+        elseif fileID == 307454 then
+            return CAMERA_PROFILES_BY_RACE.worgen.male
+        elseif fileID == 1000764 then
+            return CAMERA_PROFILES_BY_RACE.human.female
+        else
+            return CAMERA_PROFILES_BY_RACE.human.male
+        end--]]
+        print(CAMEAR_KEY_TRUE_FORM)
+        return CAMERA_PROFILES_BY_RACE[CAMEAR_KEY_TRUE_FORM].male
     end
 end
 
@@ -436,10 +486,10 @@ local function UpdatePortraitCameraGeneric(model, profile)
         model:MakeCurrentCameraCustom();
         model:SetFacing(modelFacing);
         model:SetPosition(modelX, modelY, modelZ);
-        local cameraX, cameraY, cameraZ = model:TransformCameraSpaceToModelSpace(4, 0, 0);
-        local targetX, targetY, targetZ = model:TransformCameraSpaceToModelSpace(0, 0, 0);
-        model:SetCameraPosition(cameraX, cameraY, cameraZ);
-        model:SetCameraTarget(targetX, targetY, targetZ);
+        local cameraX, cameraY, cameraZ = TransitionAPI.TransformCameraSpaceToModelSpace(model, 4, 0, 0);
+        local targetX, targetY, targetZ = TransitionAPI.TransformCameraSpaceToModelSpace(model, 0, 0, 0);
+        TransitionAPI.SetCameraPosition(model, cameraX, cameraY, cameraZ);
+        TransitionAPI.SetCameraTarget(model, targetX, targetY, targetZ);
         return true
     end
 end
@@ -451,19 +501,20 @@ local function UpdatePortraitCameraForOrc(model)
 end
 
 local function UpdatePortraitCameraForWorgen(model)
-    UpdatePortraitCameraGeneric(model, GetWorgenCameraProfile(model))
+    UpdatePortraitCameraGeneric(model, GetTrueFormCameraProfile(model))
 end
 
-local IS_PLAYER_WORGEN, IS_HUMAN_FORM = false, false;
+
+
 local DataProvider = {};
 DataProvider.numMales = 0;
 DataProvider.numFemales = 0;
-DataProvider.numWorgenMales = 0;
-DataProvider.numWorgenFemales = 0;
+DataProvider.numAlternateMales = 0;
+DataProvider.numAlternateFemales = 0;
 DataProvider.maleButtonOrder = {};
 DataProvider.femaleButtonOrder = {};
-DataProvider.worgenMaleButtonOrder = {};
-DataProvider.worgenFemaleButtonOrder = {};
+DataProvider.alternateMaleButtonOrder = {};
+DataProvider.alternateFemaleButtonOrder = {};
 
 function DataProvider:GetCurrentSelection(customizationData, generateDescription)
     customizationData = customizationData or C_BarberShop.GetAvailableCustomizations();
@@ -508,6 +559,53 @@ end
 
 --sex 0 - Male 1- Female C_BarberShop.SetSelectedSex;
 
+local RaceAtlas = {};
+
+RaceAtlas.fixedRaceAtlasNames = {
+    ["highmountaintauren"] = "highmountain",
+    ["lightforgeddraenei"] = "lightforged",
+    ["scourge"] = "undead",
+    ["zandalaritroll"] = "zandalari",
+};
+
+RaceAtlas.alternateFormAtlasNames = {
+    ["dracthyr"] = "dracthyrvisage",    --visage
+    ["worgen"] = "human",
+};
+
+function RaceAtlas:GetAtlas(raceName, gender, useHiRez, alternateForm)
+    if alternateForm and self.alternateFormAtlasNames[raceName] then
+        raceName = self.alternateFormAtlasNames[raceName];
+    end
+
+    if (self.fixedRaceAtlasNames[raceName]) then
+        raceName = self.fixedRaceAtlasNames[raceName];
+    end
+
+    local formatingString = useHiRez and "raceicon128-%s-%s" or "raceicon-%s-%s";
+    return formatingString:format(raceName, gender);
+end
+
+--[[
+local f = CreateFrame("Frame");
+f:SetSize(96, 96);
+f:SetPoint("CENTER", 0, 0);
+local tex = f:CreateTexture(nil, "OVERLAY");
+tex:SetAllPoints(true);
+tex:SetAtlas( RaceAtlas:GetAtlas("dracthyr", "male", true, true) )
+--]]
+
+
+local function SetUpSavedLooksButton(buttonPool, dataSource, atlas)
+    for i = 1, #dataSource do
+        if i <= 4 then
+            buttonPool[i]:Show();
+        end
+        buttonPool[i]:SetInfo(dataSource[i]);
+        buttonPool[i].Portrait:SetAtlas(atlas);
+    end
+end
+
 function DataProvider:LoadData()
     local raceID = API.GetPlayerRaceID();
     self.raceID = raceID or 1;
@@ -549,35 +647,46 @@ function DataProvider:LoadData()
     CreateSavedLooksButton(MainFrame.SavedLooksFrame.CategoryMale, "male");
     CreateSavedLooksButton(MainFrame.SavedLooksFrame.CategoryFemale, "female");
     
-    --Worgen in human form
-    if raceID == 22 then
-        raceID = WORGEN_HUMAN_FORM_ID;
-        raceName = "human";
-        IS_PLAYER_WORGEN = true;
-        if not DB.PlayerData[playerID].SavedLooks[raceID] then
-            DB.PlayerData[playerID].SavedLooks[raceID] = { male = {}, female = {} };
-        end
-        self.savedLooksInHumanForm = DB.PlayerData[playerID].SavedLooks[raceID];
-        --MainFrame.SavedLooksFrame.CategoryWorgenMale = CreateFrame("ScrollFrame", nil, MainFrame.SavedLooks, "NarciBarberShopScrollFrameTemplate");
-        --MainFrame.SavedLooksFrame.CategoryWorgenFemale = CreateFrame("ScrollFrame", nil, MainFrame.SavedLooks, "NarciBarberShopScrollFrameTemplate");
-        CreateSavedLooksButton(MainFrame.SavedLooksFrame.CategoryWorgenMale, "male", IS_PLAYER_WORGEN);
-        CreateSavedLooksButton(MainFrame.SavedLooksFrame.CategoryWorgenFemale, "female", IS_PLAYER_WORGEN);
+    --Worgen in human form. Dracthyr in visage form.
+    if RACE_WITH_ALTERNATE_FORM[raceID] then
+        HAS_ALTERNATE_FORM = true;
+        local id = ALTERNATE_FORM_SAVED_ID;
 
-        UpdatePortraitCamera = UpdatePortraitCameraForWorgen;
+        if not DB.PlayerData[playerID].SavedLooks[id] then
+            DB.PlayerData[playerID].SavedLooks[id] = { male = {}, female = {} };
+        end
+        self.savedLooksInAlternateForm = DB.PlayerData[playerID].SavedLooks[id];
+        CreateSavedLooksButton(MainFrame.SavedLooksFrame.CategoryAlternateFormMale, "male", true);
+        CreateSavedLooksButton(MainFrame.SavedLooksFrame.CategoryAlternateFormFemale, "female", true);
+
+        local alternateMaleDB = DB.PlayerData[playerID].SavedLooks[id].male;
+        local alternateFemaleDB = DB.PlayerData[playerID].SavedLooks[id].female;
+        local numMales =  #alternateMaleDB;
+        local numFemales = #alternateFemaleDB;
+        self.numAlternateMales = numMales;
+        self.numAlternateFemales = numFemales;
+        local useHiRez = true;
+        local raceAtlasMale = RaceAtlas:GetAtlas(raceName, "male", useHiRez, HAS_ALTERNATE_FORM);
+        local raceAtlasFemale = RaceAtlas:GetAtlas(raceName, "female", useHiRez, HAS_ALTERNATE_FORM);
+        --NarciDevReferencePortrait:SetAtlas(raceAtlasFemale);
+        SetUpSavedLooksButton(AlternateMaleButtons, alternateMaleDB, raceAtlasMale);
+        SetUpSavedLooksButton(AlternateFemaleButtons, alternateFemaleDB, raceAtlasFemale);
     end
 
-    CAMERA_PROFILE = CAMERA_PROFILES_BY_RACE[raceName];
+    if CAMERA_PROFILES_BY_RACE[raceName] then
+        CAMERA_PROFILE = CAMERA_PROFILES_BY_RACE[raceName];
+    else
+        CAMERA_PROFILE = CAMERA_PROFILES_BY_RACE["human"];
+    end
 
     local useHiRez = true;
     
-    local raceAtlasMale = GetRaceAtlas(raceName, "male", useHiRez);
-    local raceAtlasFemale = GetRaceAtlas(raceName, "female", useHiRez);
+    local raceAtlasMale = RaceAtlas:GetAtlas(raceName, "male", useHiRez);
+    local raceAtlasFemale = RaceAtlas:GetAtlas(raceName, "female", useHiRez);
 
     if raceName == "orc" or raceName == "magharorc" then
         UpdatePortraitCamera = UpdatePortraitCameraForOrc;
     end
-
-    --NarciDevReferencePortrait:SetAtlas(raceAtlasMale);
 
     self.raceAtlasMale = raceAtlasMale;
     self.raceAtlasFemale = raceAtlasFemale;
@@ -593,38 +702,12 @@ function DataProvider:LoadData()
     for i = 1, MAX_SAVES do
         self.maleButtonOrder[i] = i; 
         self.femaleButtonOrder[i] = i; 
-        self.worgenMaleButtonOrder[i] = i;
-        self.worgenFemaleButtonOrder[i] = i;
-    end
-
-    local function SetUpSavedLooksButton(buttonPool, dataSource, atlas)
-        for i = 1, #dataSource do
-            if i <= 4 then
-                buttonPool[i]:Show();
-            end
-            buttonPool[i]:SetInfo(dataSource[i]);
-            buttonPool[i].Portrait:SetAtlas(atlas);
-        end
+        self.alternateMaleButtonOrder[i] = i;
+        self.alternateFemaleButtonOrder[i] = i;
     end
 
     SetUpSavedLooksButton(MaleButtons, maleDB, raceAtlasMale);
     SetUpSavedLooksButton(FemaleButtons, femaleDB, raceAtlasFemale);
-
-    --Worgen
-    if IS_PLAYER_WORGEN then
-        raceID = 22;
-        maleDB = DB.PlayerData[playerID].SavedLooks[raceID].male;
-        femaleDB = DB.PlayerData[playerID].SavedLooks[raceID].female;
-        numMales =  #maleDB;
-        numFemales = #femaleDB;
-        self.numWorgenMales = numMales;
-        self.numWorgenFemales = numFemales;
-        raceAtlasMale = GetRaceAtlas("worgen", "male", useHiRez);
-        raceAtlasFemale = GetRaceAtlas("worgen", "female", useHiRez);
-        --NarciDevReferencePortrait:SetAtlas(raceAtlasFemale);
-        SetUpSavedLooksButton(WorgenMaleButtons, maleDB, raceAtlasMale);
-        SetUpSavedLooksButton(WorgenFemaleButtons, femaleDB, raceAtlasFemale);
-    end
 end
 
 function DataProvider:GetRandomAppearance()
@@ -670,12 +753,12 @@ function DataProvider:IsCharacterDataUnique(customizationData)
     local SavedLooks;
     local newLooks = self:GetCurrentSelection(customizationData);
     
-    if IS_PLAYER_WORGEN then
-        if IS_HUMAN_FORM then
+    if HAS_ALTERNATE_FORM then
+        if IN_ALTERNATE_FORM then
             if sex == 0 then
-                SavedLooks = self.savedLooksInHumanForm.male;
+                SavedLooks = self.savedLooksInAlternateForm.male;
             else
-                SavedLooks = self.savedLooksInHumanForm.female;
+                SavedLooks = self.savedLooksInAlternateForm.female;
             end
         else
             if sex == 0 then
@@ -731,7 +814,7 @@ function DataProvider:IsCharacterDataUnique(customizationData)
     else
         PlusButton:SetCase(2);
     end
-
+    PlusButton.numSaves = numLooks;
 
     if ACTIVE_BUTTON_POOL then
         for i, portraitButton in ipairs(ACTIVE_BUTTON_POOL) do
@@ -753,12 +836,12 @@ function DataProvider:CheckAndSaveLooks(newLooks, generatedDescription, customNa
 
     local SavedLooks;
 
-    if IS_PLAYER_WORGEN then
-        if IS_HUMAN_FORM then
+    if HAS_ALTERNATE_FORM then
+        if IN_ALTERNATE_FORM then
             if sex == 0 then
-                SavedLooks = self.savedLooksInHumanForm.male;
+                SavedLooks = self.savedLooksInAlternateForm.male;
             else
-                SavedLooks = self.savedLooksInHumanForm.female;
+                SavedLooks = self.savedLooksInAlternateForm.female;
             end
         else
             if sex == 0 then
@@ -803,6 +886,7 @@ function DataProvider:CheckAndSaveLooks(newLooks, generatedDescription, customNa
 
     wipe(tempTable);
     numLooks = numLooks + 1;
+
     if numLooks > MAX_SAVES then
         return false
     end
@@ -824,6 +908,7 @@ function DataProvider:CheckAndSaveLooks(newLooks, generatedDescription, customNa
     else
         PlusButton:SetCase(2);
     end
+    PlusButton.numSaves = numLooks;
 end
 
 function DataProvider:SaveNewLooks(customName)
@@ -874,29 +959,29 @@ function DataProvider:DeleteLooks(dataSource)
     local sex = self.currentSex;
 
     local SavedLooks, OrderTable, ButtonPool, categoryID;
-    if IS_PLAYER_WORGEN then
-        if IS_HUMAN_FORM then
+    if HAS_ALTERNATE_FORM then
+        if not IN_ALTERNATE_FORM then
             if sex == 0 then
-                SavedLooks = self.savedLooksInHumanForm.male;
+                SavedLooks = self.savedLooksByRace.male;
                 OrderTable = self.maleButtonOrder;
                 ButtonPool = MaleButtons;
                 categoryID = 1;
             else
-                SavedLooks = self.savedLooksInHumanForm.female;
+                SavedLooks = self.savedLooksByRace.female;
                 OrderTable = self.femaleButtonOrder;
                 ButtonPool = FemaleButtons;
                 categoryID = 2;
             end
         else
             if sex == 0 then
-                SavedLooks = self.savedLooksByRace.male;
-                OrderTable = self.worgenMaleButtonOrder;
-                ButtonPool = WorgenMaleButtons;
+                SavedLooks = self.savedLooksInAlternateForm.male;
+                OrderTable = self.alternateMaleButtonOrder;
+                ButtonPool = AlternateMaleButtons;
                 categoryID = 3;
             else
-                SavedLooks = self.savedLooksByRace.female;
-                OrderTable = self.worgenFemaleButtonOrder;
-                ButtonPool = WorgenFemaleButtons;
+                SavedLooks = self.savedLooksInAlternateForm.female;
+                OrderTable = self.alternateFemaleButtonOrder;
+                ButtonPool = AlternateFemaleButtons;
                 categoryID = 4;
             end
         end
@@ -932,17 +1017,17 @@ function DataProvider:DeleteLooks(dataSource)
 
         local removedButton = tremove(ButtonPool, position);
         removedButton.isPortraitLoaded = false;
+        removedButton.appearanceData = nil;
         tinsert(ButtonPool, removedButton);
-        --RepositionButtons(ButtonPool);
 
         if categoryID == 1 then
             self.numMales = self.numMales - 1;
         elseif categoryID == 2 then
             self.numFemales = self.numFemales - 1;
         elseif categoryID == 3 then
-            self.numWorgenMales = self.numWorgenMales - 1;
+            self.numAlternateMales = self.numAlternateMales - 1;
         elseif categoryID == 4 then
-            self.numWorgenFemales = self.numWorgenFemales - 1;
+            self.numAlternateFemales = self.numAlternateFemales - 1;
         end
         NUM_ACTIVE_BUTTONS = NUM_ACTIVE_BUTTONS - 1;
 
@@ -958,8 +1043,8 @@ function DataProvider:GetButton()
     end
     local sex = currentCharacterData.sex;
     if sex == 0 then
-        if IS_PLAYER_WORGEN then
-            if IS_HUMAN_FORM then
+        if HAS_ALTERNATE_FORM then
+            if not IN_ALTERNATE_FORM then
                 self.numMales = self.numMales + 1;
                 if self.numMales > MAX_SAVES then
                     self.numMales = MAX_SAVES;
@@ -967,12 +1052,12 @@ function DataProvider:GetButton()
                 InsertButtonToTop(MaleButtons, self.numMales);
                 return MaleButtons[1], MaleButtons;
             else
-                self.numWorgenMales = self.numWorgenMales + 1;
-                if self.numWorgenMales > MAX_SAVES then
-                    self.numWorgenMales = MAX_SAVES;
+                self.numAlternateMales = self.numAlternateMales + 1;
+                if self.numAlternateMales > MAX_SAVES then
+                    self.numAlternateMales = MAX_SAVES;
                 end
-                InsertButtonToTop(WorgenMaleButtons, self.numWorgenMales);
-                return WorgenMaleButtons[1], WorgenMaleButtons;
+                InsertButtonToTop(AlternateMaleButtons, self.numAlternateMales);
+                return AlternateMaleButtons[1], AlternateMaleButtons;
             end
         else
             self.numMales = self.numMales + 1;
@@ -983,8 +1068,8 @@ function DataProvider:GetButton()
             return MaleButtons[1], MaleButtons;
         end
     elseif sex == 1 then
-        if IS_PLAYER_WORGEN then
-            if IS_HUMAN_FORM then
+        if HAS_ALTERNATE_FORM then
+            if not IN_ALTERNATE_FORM then
                 self.numFemales = self.numFemales + 1;
                 if self.numFemales > MAX_SAVES then
                     self.numFemales = MAX_SAVES;
@@ -992,13 +1077,13 @@ function DataProvider:GetButton()
                 InsertButtonToTop(FemaleButtons, self.numFemales);
                 return FemaleButtons[1], FemaleButtons;
             else
-                self.numWorgenFemales = self.numWorgenFemales + 1;
-                if self.numWorgenFemales > MAX_SAVES then
-                    self.numWorgenFemales = MAX_SAVES;
+                self.numAlternateFemales = self.numAlternateFemales + 1;
+                if self.numAlternateFemales > MAX_SAVES then
+                    self.numAlternateFemales = MAX_SAVES;
                 end
-                local index = self.worgenFemaleButtonOrder[self.numWorgenFemales];
-                InsertButtonToTop(WorgenFemaleButtons, self.numWorgenFemales);
-                return WorgenFemaleButtons[1], WorgenFemaleButtons;
+                local index = self.alternateFemaleButtonOrder[self.numAlternateFemales];
+                InsertButtonToTop(AlternateFemaleButtons, self.numAlternateFemales);
+                return AlternateFemaleButtons[1], AlternateFemaleButtons;
             end
         else
             self.numFemales = self.numFemales + 1;
@@ -1022,7 +1107,7 @@ local function RandomizeApperance()
 
     for i = 1, #data do
         local optionID, choiceID = unpack(data[i]);
-        C_BarberShop.SetCustomizationChoice(optionID, choiceID);
+        SetCustomizationChoice(optionID, choiceID);
     end
     BarberShopFrame:UpdateCharCustomizationFrame()
 end
@@ -1033,6 +1118,46 @@ local function SetFontStringShadow(fontString)
 end
 
 -------------------------------------------------------------
+
+local CustomizationUtil = {};
+CustomizationUtil.f = CreateFrame("Frame");
+
+function CustomizationUtil.repeater_OnUpdate(f, elapsed)
+    --Dracthyr Notes:
+    --some options are only valid when certain options are selected
+    --so we need to apply the same appearance profile again to ensure everything we need is selected
+    --Arbitrarily use a 2-frame delay
+
+    f.t = f.t + elapsed;
+
+    if f.t > 0.033 then
+        f:SetScript("OnUpdate", nil);
+        for i = 1, #CustomizationUtil.appearanceData do
+            local optionID, choiceID = unpack(CustomizationUtil.appearanceData[i]);
+            SetCustomizationChoice(optionID, choiceID);
+        end
+        BarberShopFrame:UpdateCharCustomizationFrame();
+    end
+end
+
+function CustomizationUtil:UseCustomization(appearanceData)
+    if not appearanceData then return end;
+
+    self.f:SetScript("OnUpdate", nil);
+    self.appearanceData = appearanceData;
+
+    local optionID, choiceID;
+    for i = 1, #appearanceData do
+        optionID, choiceID = unpack(appearanceData[i]);
+        SetCustomizationChoice(optionID, choiceID);
+    end
+
+    self.f.t = 0;
+    self.f:SetScript("OnUpdate", self.repeater_OnUpdate);
+end
+
+
+
 NarciBarberShopSavedLooksMixin = {};
 
 local function PortaitModel_OnModelLoaded(self)
@@ -1043,6 +1168,8 @@ local function PortaitModel_OnModelLoaded(self)
     p:SetPortraitZoom(0.975);
     p:SetPortraitZoom(1);
     p.isPortraitLoaded = true;
+
+    LoadingFrame:LoadNextPortrait(p.order);
 end
 
 function NarciBarberShopSavedLooksMixin:OnLoad()
@@ -1050,44 +1177,17 @@ function NarciBarberShopSavedLooksMixin:OnLoad()
     self.Portrait:SetDesaturation(0.6);
     SetFontStringShadow(self.Description);
 
-    local Model = self.Model;
-    Model:SetUnit("player");
-    Model:SetKeepModelOnHide(true);
-    Model:SetFacing(pi/24);
-    Model:SetLight(true, false, cos(pi/4)*sin(-pi/4) ,  cos(pi/4)*cos(-pi/4) , -cos(pi/4), 1, 0.5, 0.5, 0.5, 1, 0.9, 0.9, 0.9);
-    Model:SetCamera(0);
+    local model = self.Model;
+    model:SetUnit("player");
+    model:SetKeepModelOnHide(true);
+    model:SetFacing(pi/24);
+    TransitionAPI.SetModelLight(model, true, false, cos(pi/4)*sin(-pi/4) ,  cos(pi/4)*cos(-pi/4) , -cos(pi/4), 1, 0.5, 0.5, 0.5, 1, 0.9, 0.9, 0.9);
+    model:SetCamera(0);
     self:SetPortraitZoom(1);
-    Model:SetAnimation(0, 0);
-    Model:SetPaused(true);
-    Model:SetScript("OnModelLoaded", PortaitModel_OnModelLoaded);
-    Model:SetViewTranslation(0, 0);
-
-    --Animation Frame
-    --[[
-    local animZoom = NarciAPI_CreateAnimationFrame(0.35);
-    animZoom:SetScript("OnUpdate", function(frame, elapsed)
-        frame.total = frame.total + elapsed;
-        local zoom = inOutSine(frame.total, frame.fromZoom, frame.toZoom, frame.duration);
-        if frame.total >= frame.duration then
-            zoom = frame.toZoom;
-            frame:Hide();
-        end
-
-        self:SetPortraitZoom(zoom);
-    end);
-
-    function self:ZoomModel(fromValue, value)
-        animZoom:Hide();
-        local currentZoom = self:GetPortraitZoom();
-        animZoom.fromZoom = currentZoom;
-        animZoom.toZoom = value;
-        local duration = sqrt( abs( (currentZoom - value)/0.025) ) * 0.35;
-        animZoom.duration = duration;
-        if duration > 0 then
-            animZoom:Show();
-        end
-    end
-    --]]
+    model:SetAnimation(0, 0);
+    model:SetPaused(true);
+    model:SetScript("OnModelLoaded", PortaitModel_OnModelLoaded);
+    model:SetViewTranslation(0, 0);
 
     self:OnLeave();
 end
@@ -1128,7 +1228,7 @@ end
 function NarciBarberShopSavedLooksMixin:OnEnter()
     self.Name:SetAlpha(1);
     self.Description:SetAlpha(1);
-    UIFrameFadeIn(self.BorderHighlight, 0.15, self.BorderHighlight:GetAlpha(), 1);
+    FadeFrame(self.BorderHighlight, 0.15, 1);
     MainFrame:FadeIn(0.2);
     --self.Model:SetPaused(false);  --Playing character idle animation seems distractive, disabled
 
@@ -1142,7 +1242,7 @@ function NarciBarberShopSavedLooksMixin:OnLeave()
     end
     self.Name:SetAlpha(0.66);
     self.Description:SetAlpha(0.66);
-    UIFrameFadeIn(self.BorderHighlight, 0.25, self.BorderHighlight:GetAlpha(), 0);
+    FadeFrame(self.BorderHighlight, 0.25, 0);
     MainFrame:OnLeave();
 
     EditButton:Hide();
@@ -1150,26 +1250,28 @@ function NarciBarberShopSavedLooksMixin:OnLeave()
 end
 
 function NarciBarberShopSavedLooksMixin:OnClick()
-    self:UpdateCustomization();
+    --self:UseCustomization();
+    CustomizationUtil:UseCustomization(self.appearanceData);
+
     if not self.isPortraitLoaded then
-        After(0.1, function()
+        After(UPDATE_PORTRAIT_DELAY, function()
             self:RefreshPortrait();
         end)
     end
+
     PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON);
 end
 
 function NarciBarberShopSavedLooksMixin:LoadPortrait()
-    self:UpdateCustomization(true);
+    self:UseCustomization(true);
     if not self.isPortraitLoaded then
-        After(0.1, function()
+        After(UPDATE_PORTRAIT_DELAY, function()
             self:RefreshPortrait();
         end)
     end
 end
 
-local SetCustomizationChoice = C_BarberShop.SetCustomizationChoice;
-function NarciBarberShopSavedLooksMixin:UpdateCustomization(dontUpdateButton)
+function NarciBarberShopSavedLooksMixin:UseCustomization(dontUpdateButton)
     if not self.appearanceData then return end
 
     local BarberShopFrame = BarberShopFrame;
@@ -1178,7 +1280,9 @@ function NarciBarberShopSavedLooksMixin:UpdateCustomization(dontUpdateButton)
         SetCustomizationChoice(optionID, choiceID);
         --C_BarberShop.PreviewCustomizationChoice(optionID, choiceID);
     end
+
     if not dontUpdateButton then
+        --determine if it should update the option buttons on the right side of the screen
         BarberShopFrame:UpdateCharCustomizationFrame();
     end
 end
@@ -1197,6 +1301,24 @@ function NarciBarberShopSavedLooksMixin:SetSelection(state)
     end
 end
 
+if addon.IsDragonflight() then
+    function NarciBarberShopSavedLooksMixin:SetButtonAlpha(alpha)
+        --Dragonflight Beta: Model no longer inherts parent alpha.
+        --Probably a driver issue that only took place in beta but still
+        if not self.modelIgnoreAlpha then
+            self.modelIgnoreAlpha = true;
+            self.Model:SetIgnoreParentAlpha(true);
+        end
+        self:SetAlpha(alpha);
+        self.Model:SetModelAlpha(alpha);
+    end
+else
+    function NarciBarberShopSavedLooksMixin:SetButtonAlpha(alpha)
+        self:SetAlpha(alpha);
+    end
+end
+
+
 ----------------------------------
 local DURATION_FADE_OUT = 1.5;
 
@@ -1207,8 +1329,8 @@ autoHideTimer:SetScript("OnUpdate", function(self, elapsed)
         self.total = 0;
         if MainFrame:IsVisible() then
             if not MainFrame:IsMouseOver() then
-                MainFrame:FadeOut(DURATION_FADE_OUT);
                 self:Hide();
+                MainFrame:FadeOut(DURATION_FADE_OUT);
             end
         else
             self:Hide();
@@ -1354,6 +1476,7 @@ function animScrollButtons:RemoveOldButton(buttonPool, button)
     MainFrame.ScrollBlocker:Show();
 end
 
+
 --Click to save new looks
 NarciBarberShopPlusButtonMixin = {};
 
@@ -1390,26 +1513,26 @@ function NarciBarberShopPlusButtonMixin:OnDisable()
     self.Label:SetTextColor(0.5, 0.5, 0.5);
 end
 
-function NarciBarberShopPlusButtonMixin:SetCase(index)
-    if index == 1 then
+function NarciBarberShopPlusButtonMixin:SetCase(caseID)
+    if caseID == 1 then
         --Can be added
         self.Label:SetText(self.tooltipDefault);
         self:Enable();
-    elseif index == 2 then
+    elseif caseID == 2 then
         --Already saved
         self.Label:SetText(self.tooltipSaved);
         self:Disable();
-    elseif index == 3 then
+    elseif caseID == 3 then
         --Cannot save more
         self.Label:SetText(self.tooltipReachMax);
         self:Disable();
-    elseif index == 4 then
+    elseif caseID == 4 then
         --Cannot add shapes
         self.Label:SetText(self.tooltipShapeShifted);
         self:Disable();
     end
 
-    self.caseID = index;
+    self.caseID = caseID;
 end
 
 function NarciBarberShopPlusButtonMixin:GetCase()
@@ -1421,10 +1544,20 @@ function NarciBarberShopPlusButtonMixin:OnEnter()
     MainFrame:OnEnter();
     EditButton:Hide();
     DeleteButton:Hide();
+
+    local labelWidth = self.Label:GetWrappedWidth();
+    self.Count:SetPoint("LEFT", self.Label, "LEFT", labelWidth + 8, 0);
+    if self.numSaves then
+        self.Count:SetText(self.numSaves.." / "..MAX_SAVES);
+        self.Count:Show();
+    else
+        self.Count:Hide();
+    end
 end
 
 function NarciBarberShopPlusButtonMixin:OnLeave()
     self.Label:SetAlpha(0.66);
+    self.Count:Hide();
 end
 
 local function SaveCurrentAppearance(customName)
@@ -1438,14 +1571,15 @@ local function SaveCurrentAppearance(customName)
             button:SetInfo(data);
             button:Show();
             EditBox:SetParentObject(button, true);
-            After(0.1, function()
-                button:RefreshPortrait();
+            After(UPDATE_PORTRAIT_DELAY, function()
+                button:RefreshPortrait(true);
                 button:SetSelection(true);
             end)
         end
         return true
     end
 end
+
 API.SaveCurrentAppearance = SaveCurrentAppearance;
 
 function NarciBarberShopPlusButtonMixin:OnClick()
@@ -1528,7 +1662,7 @@ function NarciBarberShopDeleteButtonMixin:OnLoad()
     self.Tooltip:SetTextColor(1, 0.31, 0.31);
     SetFontStringShadow(self.Tooltip);
 
-    self.Ring:SetDrawLayer("BORDER");
+    --self.Ring:SetDrawLayer("BORDER");
 end
 
 function NarciBarberShopDeleteButtonMixin:SetParentObject(object)
@@ -1552,14 +1686,12 @@ end
 function NarciBarberShopDeleteButtonMixin:OnEnter()
     self:GetParent():OnEnter();
     self.Tooltip:Show();
-    self.Ring:Show();
 end
 
 function NarciBarberShopDeleteButtonMixin:OnLeave()
     MainFrame:OnLeave();
     self:GetParent():OnLeave();
     self.Tooltip:Hide();
-    self.Ring:Hide();
 end
 
 function NarciBarberShopDeleteButtonMixin:OnHide()
@@ -1741,99 +1873,6 @@ function NarciBarberShopMixin:OnLeave()
     end
 end
 
-local PortraitLoader = CreateFrame("Frame");
-PortraitLoader.t = 0;
-PortraitLoader.index = 1;
-PortraitLoader:Hide();
-PortraitLoader:SetScript("OnUpdate", function(self, elapsed)
-    self.t = self.t + elapsed;
-    if self.t >= 0.12 then
-        self.t = 0;
-        local button = self.buttons[self.index];
-        if button and button.appearanceData then
-            button:LoadPortrait();
-            self.index = self.index + 1;
-        else
-            BarberShopFrame:RegisterEvent("BARBER_SHOP_FORCE_CUSTOMIZATIONS_UPDATE");
-            self:Hide();
-            local sex = UnitSex("player");
-            if self.sex == 0 then
-                if self.isWorgen then
-                    self.isWorgenMaleLoaded = true;
-                else
-                    self.isMaleLoaded = true;
-                end
-                if self.index ~= 1 then
-                    if sex == 2 then
-                        C_BarberShop.ResetCustomizationChoices();
-                    else
-                        --BarberShopFrame:UpdateCharCustomizationFrame();
-                    end
-                end
-            elseif self.sex == 1 then
-                if self.isWorgen then
-                    self.isWorgenFemaleLoaded = true;
-                else
-                    self.isFemaleLoaded = true;
-                end
-                if self.index ~= 1 then
-                    if sex == 3 then
-                        C_BarberShop.ResetCustomizationChoices();
-                    else
-                        --BarberShopFrame:UpdateCharCustomizationFrame();
-                    end
-                end
-            end
-
-            if self.index > 1 then
-                BarberShopFrame:UpdateCharCustomizationFrame(); --Only call this when there is at least one saved appearance. Cause camera to stutter
-            end
-        
-            self.index = 1;
-        end
-    end
-end)
-
-function PortraitLoader:Load(sex)
-    self:Hide();
-    self.sex = sex;
-    if IS_PLAYER_WORGEN and not IS_HUMAN_FORM then
-        self.isWorgen = true;
-        if sex == 0 and not self.isWorgenMaleLoaded then
-            self.buttons = WorgenMaleButtons;
-            After(0, function()
-                self:Show();
-            end)
-            BarberShopFrame:UnregisterEvent("BARBER_SHOP_FORCE_CUSTOMIZATIONS_UPDATE");
-            BarberShopFrame:UpdateCharCustomizationFrame();
-        elseif sex == 1 and not self.isWorgenFemaleLoaded then
-            self.buttons = WorgenFemaleButtons;
-            After(0, function()
-                self:Show();
-            end)
-            BarberShopFrame:UnregisterEvent("BARBER_SHOP_FORCE_CUSTOMIZATIONS_UPDATE");
-            BarberShopFrame:UpdateCharCustomizationFrame();
-        end
-    else
-        self.isWorgen = false;
-        if sex == 0 and not self.isMaleLoaded then
-            self.buttons = MaleButtons;
-            After(0, function()
-                self:Show();
-            end)
-            BarberShopFrame:UnregisterEvent("BARBER_SHOP_FORCE_CUSTOMIZATIONS_UPDATE");
-            BarberShopFrame:UpdateCharCustomizationFrame();
-        elseif sex == 1 and not self.isFemaleLoaded then
-            self.buttons = FemaleButtons;
-            After(0, function()
-                self:Show();
-            end)
-            BarberShopFrame:UnregisterEvent("BARBER_SHOP_FORCE_CUSTOMIZATIONS_UPDATE");
-            BarberShopFrame:UpdateCharCustomizationFrame();
-        end
-    end
-end
-
 function NarciBarberShopMixin:ToggleSaves(visible)
     --For Shapeshifter
     if visible then
@@ -1863,13 +1902,13 @@ function NarciBarberShopMixin:UpdateGenderCategory(sex)
     
     DataProvider.currentSex = sex;
 
-    if IS_PLAYER_WORGEN then
-        IS_HUMAN_FORM = C_BarberShop.IsViewingAlteredForm();
-        if sex == self.lastSex and IS_HUMAN_FORM == self.lastFrom then
+    if HAS_ALTERNATE_FORM then
+        IN_ALTERNATE_FORM = C_BarberShop.IsViewingAlteredForm();
+        if sex == self.lastSex and IN_ALTERNATE_FORM == self.lastFrom then
             return
         else
             self.lastSex = sex;
-            self.lastFrom = IS_HUMAN_FORM;
+            self.lastFrom = IN_ALTERNATE_FORM;
         end
     else
         if sex == self.lastSex then
@@ -1881,23 +1920,23 @@ function NarciBarberShopMixin:UpdateGenderCategory(sex)
 
     local activeCategory;
     if sex == 0 then
-        if IS_PLAYER_WORGEN then
-            if IS_HUMAN_FORM then
-                activeCategory = self.SavedLooksFrame.CategoryMale;
-                self.SavedLooksFrame.CategoryFemale:Hide();
-                self.SavedLooksFrame.CategoryWorgenMale:Hide();
-                self.SavedLooksFrame.CategoryWorgenFemale:Hide();
-                ScrollButtonAlphaUpdater.activeButtons = MaleButtons;
-                NUM_ACTIVE_BUTTONS = DataProvider.numMales;
-                ACTIVE_CAMERA_PROFILE = CAMERA_PROFILES_BY_RACE.human.male;
-            else
-                activeCategory = self.SavedLooksFrame.CategoryWorgenMale;
+        if HAS_ALTERNATE_FORM then
+            if IN_ALTERNATE_FORM then
+                activeCategory = self.SavedLooksFrame.CategoryAlternateFormMale;
                 self.SavedLooksFrame.CategoryMale:Hide();
                 self.SavedLooksFrame.CategoryFemale:Hide();
-                self.SavedLooksFrame.CategoryWorgenFemale:Hide();
-                ScrollButtonAlphaUpdater.activeButtons = WorgenMaleButtons;
-                NUM_ACTIVE_BUTTONS = DataProvider.numWorgenMales;
-                ACTIVE_CAMERA_PROFILE = CAMERA_PROFILES_BY_RACE.worgen.male;
+                self.SavedLooksFrame.CategoryAlternateFormFemale:Hide();
+                ScrollButtonAlphaUpdater.activeButtons = AlternateMaleButtons;
+                NUM_ACTIVE_BUTTONS = DataProvider.numAlternateMales;
+                ACTIVE_CAMERA_PROFILE = CAMERA_PROFILES_BY_RACE[CAMEAR_KEY_ALTERNATE_FORM].male;
+            else
+                activeCategory = self.SavedLooksFrame.CategoryMale;
+                self.SavedLooksFrame.CategoryFemale:Hide();
+                self.SavedLooksFrame.CategoryAlternateFormMale:Hide();
+                self.SavedLooksFrame.CategoryAlternateFormFemale:Hide();
+                ScrollButtonAlphaUpdater.activeButtons = MaleButtons;
+                NUM_ACTIVE_BUTTONS = DataProvider.numMales;
+                ACTIVE_CAMERA_PROFILE = CAMERA_PROFILES_BY_RACE[CAMEAR_KEY_TRUE_FORM].male;
             end
         else
             activeCategory = self.SavedLooksFrame.CategoryMale;
@@ -1907,23 +1946,23 @@ function NarciBarberShopMixin:UpdateGenderCategory(sex)
             ACTIVE_CAMERA_PROFILE = CAMERA_PROFILE.male;
         end
     else
-        if IS_PLAYER_WORGEN then
-            if IS_HUMAN_FORM then
-                activeCategory = self.SavedLooksFrame.CategoryFemale;
-                self.SavedLooksFrame.CategoryMale:Hide();
-                self.SavedLooksFrame.CategoryWorgenMale:Hide();
-                self.SavedLooksFrame.CategoryWorgenFemale:Hide();
-                ScrollButtonAlphaUpdater.activeButtons = FemaleButtons;
-                NUM_ACTIVE_BUTTONS = DataProvider.numFemales;
-                ACTIVE_CAMERA_PROFILE = CAMERA_PROFILES_BY_RACE.human.female;
-            else
-                activeCategory = self.SavedLooksFrame.CategoryWorgenFemale;
+        if HAS_ALTERNATE_FORM then
+            if IN_ALTERNATE_FORM then
+                activeCategory = self.SavedLooksFrame.CategoryAlternateFormFemale;
                 self.SavedLooksFrame.CategoryMale:Hide();
                 self.SavedLooksFrame.CategoryFemale:Hide();
-                self.SavedLooksFrame.CategoryWorgenMale:Hide();
-                ScrollButtonAlphaUpdater.activeButtons = WorgenFemaleButtons;
-                NUM_ACTIVE_BUTTONS = DataProvider.numWorgenFemales;
-                ACTIVE_CAMERA_PROFILE = CAMERA_PROFILES_BY_RACE.worgen.female;
+                self.SavedLooksFrame.CategoryAlternateFormMale:Hide();
+                ScrollButtonAlphaUpdater.activeButtons = AlternateFemaleButtons;
+                NUM_ACTIVE_BUTTONS = DataProvider.numAlternateFemales;
+                ACTIVE_CAMERA_PROFILE = CAMERA_PROFILES_BY_RACE[CAMEAR_KEY_ALTERNATE_FORM].female;
+            else
+                activeCategory = self.SavedLooksFrame.CategoryFemale;
+                self.SavedLooksFrame.CategoryMale:Hide();
+                self.SavedLooksFrame.CategoryAlternateFormMale:Hide();
+                self.SavedLooksFrame.CategoryAlternateFormFemale:Hide();
+                ScrollButtonAlphaUpdater.activeButtons = FemaleButtons;
+                NUM_ACTIVE_BUTTONS = DataProvider.numFemales;
+                ACTIVE_CAMERA_PROFILE = CAMERA_PROFILES_BY_RACE[CAMEAR_KEY_TRUE_FORM].female;
             end
         else
             activeCategory = self.SavedLooksFrame.CategoryFemale;
@@ -1937,13 +1976,14 @@ function NarciBarberShopMixin:UpdateGenderCategory(sex)
     self.activeCategory = activeCategory;
     ACTIVE_BUTTON_POOL = ScrollButtonAlphaUpdater.activeButtons;
 
-    PortraitLoader:Load(sex);
     activeCategory:Show();
     ScrollBoundMarkUpdater:Hide();
     ScrollBoundMarkUpdater.object1 = activeCategory.BoundTop;
     ScrollBoundMarkUpdater.object2 = activeCategory.BoundBottom;
 
     UpdateScrollRange(activeCategory);
+
+    LoadingFrame:LoadPortraits();
 end
 
 -----------------------------------------------------------------
@@ -1963,11 +2003,7 @@ local function InitializeBarberShopFrame()
 end
 
 --/run TestPlayerModel:SetZoomDistance()
-local function RefreshModel()
-    After(0.1, function()
-        TestPlayerModel:RefreshUnit();
-    end)
-end
+
 
 local function HookMixin()
     --[[
@@ -1991,7 +2027,7 @@ local function HookMixin()
         end
     end);
 
-    if IS_PLAYER_WORGEN then
+    if HAS_ALTERNATE_FORM then
         hooksecurefunc(C_BarberShop, "SetViewingAlteredForm", function(viewingAlteredForm)
             MainFrame:UpdateGenderCategory();
         end);
@@ -2001,32 +2037,42 @@ local function HookMixin()
     --1. Add looks uniqueness check
     --Constantly monitor this mixin!!
 
-    function BarberShopFrame:UpdateCharCustomizationFrame(alsoReset)
-        local customizationCategoryData = C_BarberShop.GetAvailableCustomizations();
-        if not customizationCategoryData then
-            return;
+    if true then
+        function BarberShopFrame:UpdateCharCustomizationFrame(alsoReset)
+            local customizationCategoryData = C_BarberShop.GetAvailableCustomizations();
+            if not customizationCategoryData then
+                return;
+            end
+
+            DataProvider:IsCharacterDataUnique(customizationCategoryData);
+
+            if alsoReset then
+                CharCustomizeFrame:Reset();
+            end
+
+            CharCustomizeFrame:SetCustomizations(customizationCategoryData);
+
+            if self.UpdatePrice then
+                --TransitionAPI *barbershop is free in Dragonflight
+                self:UpdatePrice();
+            end
+
+            if self.UpdateButtons then
+                self:UpdateButtons();
+            end
+            --ExportEditBox.profileString = nil; --It'll be updated when that editbox becomes visible
         end
-
-        DataProvider:IsCharacterDataUnique(customizationCategoryData);
-
-        if alsoReset then
-            CharCustomizeFrame:Reset();
-        end
-
-        CharCustomizeFrame:SetCustomizations(customizationCategoryData);
-
-        self:UpdatePrice();
-        --ExportEditBox.profileString = nil; --It'll be updated when that editbox becomes visible
     end
 end
 
 
 
 local EventListener = CreateFrame("Frame");
-local events = {"BARBER_SHOP_COST_UPDATE", "BARBER_SHOP_FORCE_CUSTOMIZATIONS_UPDATE", "BARBER_SHOP_RESULT", "BARBER_SHOP_OPEN", "BARBER_SHOP_CLOSE", "BARBER_SHOP_APPEARANCE_APPLIED", "ADDON_LOADED"};    --"UNIT_MODEL_CHANGED"
-for i =  1, #events do
+local events = {"BARBER_SHOP_COST_UPDATE", "BARBER_SHOP_FORCE_CUSTOMIZATIONS_UPDATE", "BARBER_SHOP_RESULT", "BARBER_SHOP_OPEN", "BARBER_SHOP_CLOSE", "BARBER_SHOP_APPEARANCE_APPLIED", "ADDON_LOADED", "UNIT_MODEL_CHANGED"};    --"UNIT_MODEL_CHANGED"
+for i = 1, #events do
     EventListener:RegisterEvent(events[i])
 end
+
 
 EventListener:SetScript("OnEvent", function(self, event, ...)
     if event == "ADDON_LOADED" then
@@ -2059,10 +2105,13 @@ EventListener:SetScript("OnEvent", function(self, event, ...)
         StatManager:OnBarberShopOpen();
 
     elseif event == "BARBER_SHOP_CLOSE" then
-        PortraitLoader:Hide();
         StatManager:OnBarberShopClose();
+
     elseif event == "BARBER_SHOP_FORCE_CUSTOMIZATIONS_UPDATE" then
         --MainFrame:UpdateGenderCategory();
+        if BarberShopFrame.UpdateButtons then
+            BarberShopFrame:UpdateButtons();
+        end
     elseif event == "BARBER_SHOP_APPEARANCE_APPLIED" then
         if MainFrame.checkUniqueness and DataProvider:IsNewLooksUnique() then
             BarberShopFrame:UpdateCharCustomizationFrame();
@@ -2331,6 +2380,7 @@ function NarciBarberShopSettingsMixin:Initialize()
 end
 
 function NarciBarberShopSettingsMixin:OnEvent(event)
+    --GLOBAL_MOUSE_DOWN
     if not self:IsMouseOver() and not SettingButton:IsMouseOver() then
         self:Hide();
     end
@@ -2411,18 +2461,18 @@ end
 NarciDevToolPortraitMixin = {};
 
 function NarciDevToolPortraitMixin:OnLoad()
-    if true then return end;
+    if false then return end;
     
-    local Model = self.Model;
-    Model:SetUnit("player");
-    Model:SetKeepModelOnHide(true);
-    Model:SetDoBlend(true);
-    Model:SetFacing(0);
-    Model:SetLight(true, false, cos(pi/4)*sin(-pi/4) ,  cos(pi/4)*cos(-pi/4) , -cos(pi/4), 1, 0.5, 0.5, 0.5, 1, 0.9, 0.9, 0.9);
-    Model:SetCamera(0);
-    Model:SetPortraitZoom(1);
-    Model:SetAnimation(0, 0);
-    Model:SetPaused(true);
+    local model = self.Model;
+    model:SetUnit("player");
+    model:SetKeepModelOnHide(true);
+    model:SetDoBlend(true);
+    model:SetFacing(0);
+    TransitionAPI.SetModelLight(model, true, false, cos(pi/4)*sin(-pi/4) ,  cos(pi/4)*cos(-pi/4) , -cos(pi/4), 1, 0.5, 0.5, 0.5, 1, 0.9, 0.9, 0.9);
+    model:SetCamera(0);
+    model:SetPortraitZoom(1);
+    model:SetAnimation(0, 0);
+    model:SetPaused(true);
     self.facing = 0;
     self.cameraDistance = 1;
     self.cameraPitch = pi/2;
@@ -2436,8 +2486,8 @@ function NarciDevToolPortraitMixin:OnLoad()
         if IsShiftKeyDown() then
             delta = 4 * delta;
         end
-        self.facing = Model:GetFacing() + delta;
-        Model:SetFacing(self.facing);
+        self.facing = model:GetFacing() + delta;
+        model:SetFacing(self.facing);
         frame.Value:SetText( round(self.facing, 2) );
     end)
 
@@ -2449,7 +2499,7 @@ function NarciDevToolPortraitMixin:OnLoad()
         end
         local cameraPitch = self.cameraPitch + delta;
         self.cameraPitch = cameraPitch;
-        Model:SetCameraPosition( self.cameraDistance*sin(cameraPitch), 0, self.cameraDistance*cos(cameraPitch) + 0.8);
+        TransitionAPI.SetCameraPosition(model, self.cameraDistance*sin(cameraPitch), 0, self.cameraDistance*cos(cameraPitch) + 0.8);
         frame.Value:SetText(cameraPitch);
     end)
     --]]
@@ -2464,8 +2514,8 @@ function NarciDevToolPortraitMixin:OnLoad()
         if IsShiftKeyDown() then
             delta = 16 * delta;
         end
-        local x, y, z = Model:GetPosition();
-        Model:SetPosition(x + delta, y, z);
+        local x, y, z = model:GetPosition();
+        model:SetPosition(x + delta, y, z);
         frame.Value:SetText( round(x + delta, 2) );
     end)
 
@@ -2477,8 +2527,8 @@ function NarciDevToolPortraitMixin:OnLoad()
         if IsShiftKeyDown() then
             delta = 16 * delta;
         end
-        local x, y, z = Model:GetPosition();
-        Model:SetPosition(x, y + delta, z);
+        local x, y, z = model:GetPosition();
+        model:SetPosition(x, y + delta, z);
         frame.Value:SetText( round(y + delta, 2) );
     end)
 
@@ -2490,8 +2540,8 @@ function NarciDevToolPortraitMixin:OnLoad()
         if IsShiftKeyDown() then
             delta = 16 * delta;
         end
-        local x, y, z = Model:GetPosition();
-        Model:SetPosition(x, y, z + delta);
+        local x, y, z = model:GetPosition();
+        model:SetPosition(x, y, z + delta);
         frame.Value:SetText( round(z + delta, 2) );
     end)
 
@@ -2505,7 +2555,7 @@ function NarciDevToolPortraitMixin:OnLoad()
         end
         local cameraDistance = self.cameraDistance + delta;
         self.cameraDistance = cameraDistance;
-        Model:SetCameraPosition( cameraDistance*sin(self.cameraPitch), 0, cameraDistance*cos(self.cameraPitch) + 0.8);
+        TransitionAPI.SetCameraPosition(model, cameraDistance*sin(self.cameraPitch), 0, cameraDistance*cos(self.cameraPitch) + 0.8);
         frame.Value:SetText( round(cameraDistance, 4) );
     end)
 
@@ -2517,8 +2567,8 @@ function NarciDevToolPortraitMixin:OnLoad()
         if IsShiftKeyDown() then
             delta = 4 * delta;
         end
-        local x, y = Model:GetViewTranslation();
-        Model:SetViewTranslation(x + delta, y);
+        local x, y = model:GetViewTranslation();
+        model:SetViewTranslation(x + delta, y);
         frame.Value:SetText( round(x + delta) );
     end)
 
@@ -2530,8 +2580,8 @@ function NarciDevToolPortraitMixin:OnLoad()
         if IsShiftKeyDown() then
             delta = 4 * delta;
         end
-        local x, y = Model:GetViewTranslation();
-        Model:SetViewTranslation(x, y + delta);
+        local x, y = model:GetViewTranslation();
+        model:SetViewTranslation(x, y + delta);
         frame.Value:SetText( round(y + delta) );
     end)
 
@@ -2541,37 +2591,35 @@ function NarciDevToolPortraitMixin:OnLoad()
 end
 
 function NarciDevToolPortraitMixin:OnShow()
-    local Model = self.Model;
-    Model:MakeCurrentCameraCustom();
-    self.cameraDistance = Model:GetCameraDistance();
+    local model = self.Model;
+    model:MakeCurrentCameraCustom();
+    self.cameraDistance = model:GetCameraDistance();
     self.cameraPitch = pi/2;
-    --Model:SetCameraPosition( self.cameraDistance*sin(self.cameraPitch), 0, self.cameraDistance*cos(self.cameraPitch) + 0.8);
-    --Model:SetCameraTarget(0, 0, 0.8);
-    Model:SetPosition(0, 0, 0);
-    self.FacingButton.Value:SetText(Model:GetFacing());
+    model:SetPosition(0, 0, 0);
+    self.FacingButton.Value:SetText(model:GetFacing());
     self.DistanceButton.Value:SetText(self.cameraDistance);
-    local x, y = Model:GetViewTranslation();
+    local x, y = model:GetViewTranslation();
     self.OffsetXButton.Value:SetText(x);
     self.OffsetYButton.Value:SetText(y);
 end
 
 function NarciDevToolPortraitMixin:LoadProfile(race, sex)
-    local Model = self.Model;
-    Model:RefreshUnit();
-    Model:SetAnimation(0, 0);
-    Model:SetPaused(true);
-    Model:MakeCurrentCameraCustom();
-    if not UpdatePortraitCamera(Model) then
-        Model:SetFacing(0.52);
+    local model = self.Model;
+    model:RefreshUnit();
+    model:SetAnimation(0, 0);
+    model:SetPaused(true);
+    model:MakeCurrentCameraCustom();
+    if not UpdatePortraitCamera(model) then
+        model:SetFacing(0.52);
         local modelX, modelY, modelZ = 3.4, -0.07, -2.09;
-        Model:SetPosition(modelX, modelY, modelZ);
+        model:SetPosition(modelX, modelY, modelZ);
     end
-    local cameraX, cameraY, cameraZ = Model:TransformCameraSpaceToModelSpace(4, 0, 0);
-    local targetX, targetY, targetZ = Model:TransformCameraSpaceToModelSpace(0, 0, 0);
-    Model:SetCameraTarget(targetX, targetY, targetZ);
-    Model:SetCameraPosition(cameraX, cameraY, cameraZ);
-    local modelFacing = Model:GetFacing();
-    local modelPosX, modelPosY, modelPosZ = Model:GetPosition();
+    local cameraX, cameraY, cameraZ = TransitionAPI.TransformCameraSpaceToModelSpace(model, 4, 0, 0);
+    local targetX, targetY, targetZ = TransitionAPI.TransformCameraSpaceToModelSpace(model, 0, 0, 0);
+    TransitionAPI.SetCameraTarget(model, targetX, targetY, targetZ);
+    TransitionAPI.SetCameraPosition(model, cameraX, cameraY, cameraZ);
+    local modelFacing = model:GetFacing();
+    local modelPosX, modelPosY, modelPosZ = model:GetPosition();
     self.ModelXButton.Value:SetText(modelPosX);
     self.ModelYButton.Value:SetText(modelPosY);
     self.ModelZButton.Value:SetText(modelPosZ);
@@ -2583,5 +2631,100 @@ end
     Gold spent at barber shops GetStatistic(1147)
     C_MapExplorationInfo.GetExploredAreaIDsAtPosition(109, C_Map.GetPlayerMapPosition(109, "player"))
     C_Map.GetMapInfoAtPosition(109, C_Map.GetPlayerMapPosition(109, "player"):GetXY())
-
+New Look #10: Q.0.52k.i.5.c.1h.6.7.g.1.a.4.p.2.5.7.9.2.7.4.2.8.2g1.2.nD.J.9.B.16.7.7.c.f.w.3.5.4.5.C
+Dracthyr Male: Q.0.52E.3.d.1i.4.9.g.3.6.3.j.9.6.3.3.8.3.4.8.1.6.1Th.g.mw.1.3.nV.p.9.J.19.3.b.1.O.1.8.5.C.aQ
+Dracthyr Male: Q.0.52E.3.d.1i.4.9.g.3.6.3.j.9.6.3.3.8.3.4.8.1.6.1Th.h.P.lG.1.3.nV.p.9.J.19.3.b.1.O.1.8.5.C.aQ
 --]]
+
+local PORTRAIT_LOAD_DELAY = 0.1;
+NarciBarberShopLoadingFrameMixin = {};
+
+local function LoadingFrame_UpdatePortraitDelay(self, elapsed)
+    self.t = self.t + elapsed;
+    if self.t > PORTRAIT_LOAD_DELAY then
+        --self:SetScript("OnUpdate", nil);
+        self.t = 0;
+        self.button:RefreshPortrait(true);
+    end
+end
+
+local function LoadingFrame_InitiateLoadingDelay(self, elapsed)
+    self.t = self.t + elapsed;
+    if self.t > 0.2 then
+        self.t = 0;
+        self:LoadNextPortrait(self.current);
+    end
+end
+
+function NarciBarberShopLoadingFrameMixin:OnLoad()
+    LoadingFrame = self;
+
+    self.Name:SetText(Narci.L["Loading Portraits"] .."...");
+    self.Name:SetTextColor(1, 1, 1);
+    self.Progress:SetTextColor(0.67, 0.67, 0.67);
+end
+
+function NarciBarberShopLoadingFrameMixin:LoadPortraits()
+    local fromID;
+    local total = 0;
+    if ACTIVE_BUTTON_POOL then
+        for i = 1, #ACTIVE_BUTTON_POOL do
+            if (not ACTIVE_BUTTON_POOL[i].isPortraitLoaded) and ACTIVE_BUTTON_POOL[i].appearanceData then
+                total = total + 1;
+                if not fromID  then
+                    fromID = i;
+                end
+            end
+        end
+    end
+
+    if total == 0 then
+        self:Hide();
+        self:SetScript("OnUpdate", nil);
+        return
+    else
+        self.total = total;
+    end
+
+    self.Name:SetText(Narci.L["Loading Portraits"] .."...");
+    self.current = fromID - 1;
+    self.Ring.AnimSpin:Play();
+    self.t = 0;
+    self:SetScript("OnUpdate", LoadingFrame_InitiateLoadingDelay);
+
+    FadeFrame(self, 0.25, 1, 0);
+end
+
+function NarciBarberShopLoadingFrameMixin:OnHide()
+    self:SetScript("OnUpdate", nil);
+end
+
+function NarciBarberShopLoadingFrameMixin:LoadNextPortrait(buttonID)
+    if buttonID and buttonID ~= self.current then
+        return
+    end
+
+    self.current = self.current + 1;
+    if self.current > self.total then
+        --complete
+        self:OnLoadingComplete();
+    else
+        local button = ACTIVE_BUTTON_POOL[self.current];
+        if button then
+            button:UseCustomization(true);
+            self.t = 0;
+            self.button = button;
+            self:SetScript("OnUpdate", LoadingFrame_UpdatePortraitDelay);
+            self.Progress:SetText(self.current .. " / " ..self.total);
+        else
+            self:OnLoadingComplete();
+        end
+    end
+end
+
+function NarciBarberShopLoadingFrameMixin:OnLoadingComplete()
+    --self:StopAnimating();
+    self:SetScript("OnUpdate", nil);
+    --self:Hide();
+    FadeFrame(self, 0.5, 0);
+end

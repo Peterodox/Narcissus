@@ -1,3 +1,6 @@
+local _, addon = ...
+local SetModelLight = addon.TransitionAPI.SetModelLight;
+
 local PAGE_FORMAT = PAGED_LIST_PAGING_FORMAT or "Page %s / %s"; --PRODUCT_CHOICE_PAGE_NUMBER
 local MAX_PETS = (NUM_PET_STABLE_PAGES and NUM_PET_STABLE_SLOTS and NUM_PET_STABLE_PAGES * NUM_PET_STABLE_SLOTS) or 200;
 local MAX_ROW = 2;
@@ -20,12 +23,7 @@ local function SetPetModel(model, index)
 end
 
 --UI Animations
-local pow = math.pow;
-
-local function outQuart(t, b, e, d)
-    t = t / d - 1;
-    return (b - e) * (pow(t, 4) - 1) + b
-end
+local outQuart = addon.EasingFunctions.outQuart;
 
 local animExpand = NarciAPI_CreateAnimationFrame(0.25);
 animExpand:SetScript("OnUpdate", function(self, elapsed)
@@ -486,10 +484,10 @@ function NarciPetStableMixin:Init()
         model:SetPoint("BOTTOMRIGHT", self, "BOTTOMRIGHT", 0, 64);
     end
 
-    PetModel:SetLight(true, false, - 0.44699833180028 ,  0.72403680806459 , -0.52532198881773, 0.8, 172/255, 172/255, 172/255, 1, 0.8, 0.8, 0.8);    
+    SetModelLight(PetModel, true, false, - 0.44699833180028 ,  0.72403680806459 , -0.52532198881773, 0.8, 172/255, 172/255, 172/255, 1, 0.8, 0.8, 0.8);    
     local a = 0.1;
     ModelShadow:SetFogColor(a, a, a);
-    ModelShadow:SetLight(false, false);
+    SetModelLight(ModelShadow, false, false);
     ModelShadow:SetViewTranslation(6, 0);
 
     local backdrop = PetModel:CreateTexture(nil, "BACKGROUND");

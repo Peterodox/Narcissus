@@ -55,12 +55,7 @@
                         <Anchors>
                             <Anchor point="CENTER" relativeKey="$parent" relativePoint="LEFT" x="30"/>
                         </Anchors>
-                        <SwipeTexture file="Interface\AddOns\Narcissus\Art\Modules\MsgAlert\ProgressRing">
-                            <Size x="42" y="42"/>
-                            <Anchors>
-                                <Anchor point="CENTER"/>
-                            </Anchors>
-                        </SwipeTexture>
+                        <SwipeTexture file="Interface\AddOns\Narcissus\Art\Modules\MsgAlert\ProgressRing"/>
                         <Scripts>
                             <OnCooldownDone>
                                 self:GetParent():OnMsgPlayed();

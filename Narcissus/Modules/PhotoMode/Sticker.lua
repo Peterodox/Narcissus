@@ -33,6 +33,15 @@ local classFiles = {
     "WARRIOR", "PALADIN", "HUNTER", "ROGUE", "PRIEST", "DEATHKNIGHT", "SHAMAN", "MAGE", "WARLOCK", "MONK", "DRUID", "DEMONHUNTER",
 };
 
+do
+    local _, addon = ...
+
+    if addon.IsDragonflight() then
+        expansionLogo[9] = "Dragonflight";
+        expansionName[9] = "Dragonflight";
+        table.insert(classFiles, "EVOKER");
+    end
+end
 
 local InteractableWidgetSharedMixin = {}
 
@@ -163,13 +172,13 @@ function NarciStickerExpansionLogoMixin:OnClick()
         --Create Options
         self.isLoaded = true;
         local button;
-        local numExpansions = 8;
+        local numExpansions = #expansionName;
         local height = 16;
         local width;
         local maxWidth = 0;
         for i = 0, numExpansions, 1 do
             button = CreateFrame("Button", nil, option, "NarciExpansionSelectionButtonTemplate");
-            button:SetPoint("TOPLEFT", option, "TOPLEFT", 0, -height * i);
+            button:SetPoint("TOPLEFT", option, "TOPLEFT", 0, -height * i - height*0.25);
             width = button:Init(i) + 16;
             if width > maxWidth then
                 maxWidth = width;
@@ -178,7 +187,7 @@ function NarciStickerExpansionLogoMixin:OnClick()
         for k, b in pairs(option.ExpansionButtons) do
             b:SetWidth(maxWidth);
         end
-        option:SetHeight(height *(numExpansions + 1));
+        option:SetHeight(height *(numExpansions + 1.5));
         option:SetWidth(maxWidth);
     end
     option:Toggle();
@@ -593,7 +602,7 @@ function NarciStickerCharacterOptionMixin:ToggleColorOption()
         local size = 16;
         local numPerRow = 4;
         local row, col = 1, 1;
-        f:SetPoint("TOPLEFT", self.ColorToggle, "TOPRIGHT", 4, 0);
+        f:SetPoint("TOPLEFT", self.ColorToggle, "TOPRIGHT", 4, size);
         local button;
         local colorMixin;
         for i = 1, numButtons do

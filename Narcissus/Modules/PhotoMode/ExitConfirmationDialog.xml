@@ -198,7 +198,7 @@
 					</Layer>
 				</Layers>
 				<Animations>
-					<AnimationGroup parentKey="scaleIn" smoothing="OUT">
+					<AnimationGroup parentKey="scaleIn">
 						<Scale scaleX="0.5" scaleY="0.5" duration="0" order="1"/>
 						<Scale scaleX="2.1" scaleY="2.1" duration="0.15" order="2"/>
 						<Scale scaleX="0.952" scaleY="0.952" duration="0.15" order="3"/>
@@ -255,13 +255,13 @@
 				</Anchors>
 				<Layers>
 					<Layer level="OVERLAY">
-						<FontString inherits="NarciFontMedium12" justifyH="CENTER" justifyV="MIDDLE" parentKey="Label1" multiLine="false" text="">
+						<FontString inherits="NarciFontMedium12" justifyH="CENTER" justifyV="MIDDLE" parentKey="Label1" text="">
 							<Size x="100" y="0"/>
 							<Anchors>
 								<Anchor point="CENTER" relativeKey="$parent.$parent.Confirm" relativePoint="CENTER" x="0" y="0"/>
 							</Anchors>
 						</FontString>
-						<FontString inherits="NarciFontMedium12" justifyH="CENTER" justifyV="MIDDLE" parentKey="Label2" multiLine="false" text="">
+						<FontString inherits="NarciFontMedium12" justifyH="CENTER" justifyV="MIDDLE" parentKey="Label2" text="">
 							<Size x="100" y="0"/>
 							<Anchors>
 								<Anchor point="CENTER" relativeKey="$parent.$parent.Cancel" relativePoint="CENTER" x="0" y="0"/>
@@ -345,7 +345,7 @@
                 </Texture>
             </Layer>
             <Layer level="OVERLAY">
-                <FontString inherits="NarciFontMedium12" justifyH="LEFT" justifyV="MIDDLE" multiLine="true" text="What is this?" hidden="true" parentKey="VirtualText">
+                <FontString inherits="NarciFontMedium12" justifyH="LEFT" justifyV="MIDDLE" text="What is this?" hidden="true" parentKey="VirtualText">
                     <Size x="140" y="0"/>
                     <Anchors>
                         <Anchor point="LEFT" relativeKey="$parent" relativePoint="LEFT" x="10" y="0"/>
@@ -379,7 +379,7 @@
         </Scripts>
     </Button>
 
-	<FontString name="Narci_ECDConversationFontstring" inherits="NarciFontMedium12" justifyV="TOP" multiLine="true" virtual="true" hidden="true">
+	<FontString name="Narci_ECDConversationFontstring" inherits="NarciFontMedium12" justifyV="TOP" virtual="true" hidden="true">
 		<Size x="140" y="0"/>
 		<Color r="0.88" g="0.88" b="0.88"/>
 	</FontString>

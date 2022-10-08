@@ -3,13 +3,13 @@ local FadeFrame = NarciAPI_FadeFrame;
 --------------------------------------
 -----------Letterbox Filter-----------
 --------------------------------------
-function Narci_ScreenMask_Initialize()
+local function UpdateLetterboxSize()
     local frame = Narci_FullScreenMask;
 	local scale = UIParent:GetEffectiveScale();
 	local Width, Height = GetScreenWidth()*scale, GetScreenHeight()*scale;
 
     --Constant--
-    local ratio = NarcissusDB.LetterboxRatio or 2.35;
+    local ratio = NarcissusDB.LetterboxRatio or 2;
 	local croppedHeight = Width/ratio;	--2.35/2/1.8
 	local speed = 50;
 	------------
@@ -50,8 +50,6 @@ function Narci_ScreenMask_Initialize()
 	return true;
 end
 
-local Narci_ScreenMask_Initialize = Narci_ScreenMask_Initialize;
-
 function Narci_LetterboxButton_OnClick(self)
 	local value
     if NarcissusDB.LetterboxRatio == 2.35 then
@@ -59,14 +57,20 @@ function Narci_LetterboxButton_OnClick(self)
     else
 		value = 2.35;
     end
-	--Narci_ScreenMask_Initialize();
-	NarcissusDB.LetterboxRatio = value
-	Narci_LetterboxRatioSlider:SetValue(value);
+	NarcissusDB.LetterboxRatio = value;
+	UpdateLetterboxSize();
+
+	local settingsButton = NarciAPI.GetSettingsButtonByDBKey("LetterboxRatio");
+	if settingsButton then
+		settingsButton:SetValue(value);
+	end
 end
 
 
-local initialize = CreateFrame("Frame")
-initialize:RegisterEvent("VARIABLES_LOADED");
-initialize:SetScript("OnEvent",function(self,event,...)
-    Narci_ScreenMask_Initialize();
-end)
+do
+	local _, addon = ...
+
+	function addon.SettingFunctions.UpdateLetterboxSize(ratio, db)
+		UpdateLetterboxSize();
+    end
+end

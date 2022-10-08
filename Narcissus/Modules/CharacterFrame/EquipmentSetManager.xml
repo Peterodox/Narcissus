@@ -96,9 +96,7 @@
 						<AnimationGroup parentKey="Timer">
 							<Alpha fromAlpha="1" toAlpha="1" duration="0" order="1"/>
 							<Scale parentKey="scale" fromScaleX="1" toScaleX="1" fromScaleY="0" toScaleY="1" duration="0.8" order="1">
-								<Origin point="BOTTOM">
-									<Offset x="0" y="0"/>
-								</Origin>
+								<Origin point="BOTTOM"/>
 							</Scale>
 							<Scripts>
 							</Scripts>
@@ -575,7 +573,7 @@
 			</Anchors>
 		</ButtonText>
 		<PushedTextOffset>
-			<Offset x="1" y="-1"/>
+			<AbsDimension x="1" y="-1"/>
 		</PushedTextOffset>
 		<Scripts>
 			<OnHide>
@@ -715,7 +713,7 @@
 					<Anchor point="BOTTOMRIGHT" relativePoint="BOTTOMRIGHT" x="0"/>
 				</Anchors>
 				<Layers>
-					<Layer level="OVERLAY" textureSubLevel="30">
+					<Layer level="OVERLAY" textureSubLevel="4">
 						<Texture file="Interface\AddOns\Narcissus\Art\Widgets\EquipmentSetManager\Button-Shadow" parentKey="Shadow" Alpha="0">
 							<Size x="342.8" y="85.4"/>
 						</Texture>
@@ -753,7 +751,7 @@
 
 			<Frame parentKey="HighlightFrame" frameLevel="20">
 				<Layers>
-					<Layer level="OVERLAY" textureSubLevel="31">
+					<Layer level="OVERLAY" textureSubLevel="5">
 						<Texture setAllPoints="true" parentKey="Color" Alpha="1">
 							<Color r="1" g="1" b="1" a="1"/>
 							<Animations>
@@ -779,7 +777,7 @@
 
 			<Frame parentKey="BlingFrame" clipChildren="true" frameLevel="20">
 				<Layers>
-					<Layer level="OVERLAY" textureSubLevel="30">
+					<Layer level="OVERLAY" textureSubLevel="4">
 						<Texture file="Interface\AddOns\Narcissus\Art\Widgets\EquipmentSetManager\Button-Bling" parentKey="Bling" Alpha="1">
 							<Size x="96" y="48"/>
 							<Anchors>

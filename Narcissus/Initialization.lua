@@ -1,3 +1,22 @@
+NARCI_VERSION_INFO = "1.2.7";
+
+local VERSION_DATE = 1665241619;
+local CURRENT_VERSION = 10207;
+local PREVIOUS_VERSION = CURRENT_VERSION;
+local TIME_SINCE_LAST_UPDATE = 0;
+
+do
+    TIME_SINCE_LAST_UPDATE = ((time and time()) or (VERSION_DATE)) - VERSION_DATE;
+    if TIME_SINCE_LAST_UPDATE < 0 then
+        TIME_SINCE_LAST_UPDATE = 0;
+    end
+end
+
+
+local _, addon = ...
+local SettingFunctions = {};
+addon.SettingFunctions = SettingFunctions;
+
 --[[
 Saved Variables:
 1. NarcissusDB (primary)
@@ -9,28 +28,23 @@ Narci = {};
 NarciAPI = {};
 NarciViewUtil = {};
 
-local DefaultValue = {
+local DefaultValues = {
     ["DetailedIlvlInfo"] = true,
-    ["IsSortedByCategory"] = true,
-    ["EnableGrainEffect"] = false,
+    ["IsSortedByCategory"] = true,                  --Title Sorting
     ["FontHeightItemName"] = 10,
     ["GlobalScale"] = 0.8,
-    ["AutoColorTheme"] = true,
-    ["ColorChoice"] = 0,
     ["EnableDoubleTap"] = false,
     ["CameraOrbit"] = true,
     ["CameraSafeMode"] = true,
-    ["BorderTheme"] = "Dark",
     ["TooltipTheme"] = "Bright",
     ["TruncateText"] = false,
     ["ItemNameWidth"] = 180,
-    ["FadeButton"] = false,
     ["WeatherEffect"] = true,
     ["VignetteStrength"] = 0.5,
     ["LetterboxEffect"] = false,
     ["LetterboxRatio"] = 2,
     ["AFKScreen"] = false,
-    ["AFKAutoStand"] = false,                       --Do /stand emote now and then when you go AFK
+    ["AKFScreenDelay"] = false,                     --Ope Narcissus when you go afk with a delay. Move to cancel.
     ["GemManager"] = true,                          --Enable gem manager for Blizzard item socketing frame
     ["DressingRoom"] = true,                        --Enable dressing room module
     ["DressingRoomUseTargetModel"] = true,          --Replace the the dressing room room with your targeted player
@@ -41,12 +55,9 @@ local DefaultValue = {
     ["BaseLineOffset"] = 0,                         --Ultra-wide
     ["ShrinkArea"] = 0,                             --Reduce the width of the area where you can control the model
     ["AutoPlayAnimation"] = false,                  --Play recommended animation when clicking a spell visual entry
-    ["EyeColor"] = 1,                               --Corruption Indicator Orange
-    ["CorruptionBar"] = true,
-    ["CorruptionTooltip"] = false,
-    ["CorruptionTooltipModel"] = true,
     ["UseEscapeButton"] = true,                     --Use Escape button to exit
     ["ShowMinimapButton"] = true,
+    ["FadeButton"] = false,
     ["ShowModulePanelOnMouseOver"] = true,          --Mouseover to show Module panel while mouseover minimap button
     ["IndependentMinimapButton"] = false,           --Set Minimap Button Parent to Minimap or UIParent; Handle by other addons like MBB
     ["AnchorToMinimap"] = true,                     --Anchor the mini button to Minimap
@@ -56,14 +67,22 @@ local DefaultValue = {
     ["PaperDollWidget"] = true,                     --Show Domination/Class Set indicator on the Blizzard character pane
     ["OnlyShowOwnedUpgradeItem"] = true,            --Filter for gems/enchant scrolls
     ["ItemTooltipStyle"] = 1,
-    ["ShowItemID"] = false,
+    ["ShowItemID"] = false,                         --Show itemID on equipment tooltip
     ["OutfitSortMethod"] = "name",                  --Filter for sorting outfits: (name alphabet/recently visited)
     ["HideTextsWithUI"] = true,                     --Hide all texts when UI is hidden
+
+    --# NPC
+    ["SearchRelatives"] = false,                    --Search for NPCs with the same last name
+    ["TranslateName"] = false,                      --Show NPC localized name
+    ["NameTranslationPosition"] = 1,                --Show translated name on 1.tooltip 2.nameplate
+    ["NamePlateNameOffset"] = 0,                    --Y Offset
+    ["NamePlateLanguage"] = "enUS",                 --The localized name on NamePlate  (only one)
+    ["TooltipLanguages"] = {},                      --Enabled localized names on tooltip
 
     --# Internal Hotkey
     ["SearchRelativesHotkey"] = "TAB",              --The key you press to begin/cycle relative search
 
-    --# Initialized in other files
+    --# Initializationd in other files
     --["MinimapIconStyle"] = 1,                     --Change the icon of minimap button (Main.lua)
 
     --# Deprecated
@@ -72,20 +91,20 @@ local DefaultValue = {
     --["AlwaysShowModel"] = false,                  --Related to mog mode layout
     --["DefaultLayout"] = 2,                        --Related to mog mode layout
     --["FadeMusic"] = false,
+    --["AFKAutoStand"] = false,                     --Do /stand emote now and then when you go AFK. Cause player to stand/sit repeatedly
+    --["EyeColor"] = 1,                             --8.3 Corruption Indicator Orange
+    --["CorruptionBar"] = true,
+    --["CorruptionTooltip"] = false,
+    --["CorruptionTooltipModel"] = true,
+    --["BorderTheme"] = "Dark",                     --No longer update the bright border theme
+    --["EnableGrainEffect"] = false,
+    --["AutoColorTheme"] = true,
+    --["ColorChoice"] = 0,
 
     --# User Tag
     --"UserIsCurious" (user interacted with our item shop)
 };
 
-local CreatureDatabaseOptions = {
-    ["LoadOnDemand"] = true,                        --Don't load until database is required
-    ["SearchRelatives"] = false,                    --Search for NPCs with the same last name
-    ["TranslateName"] = false,                      --Show NPC localized name
-    ["ShowTranslatedNameOnNamePlate"] = false,      --Show translated name on tooltip
-    ["NamePlateNameOffset"] = 0,                    --Y Offset
-    ["NamePlateLanguage"] = nil,                    --The localized name on NamePlate  (only one)
-    ["Languages"] = {},                             --Enabled localized names on tooltip
-};
 
 local AchievementOptions = {
     ["UseAsDefault"] = false,
@@ -97,67 +116,53 @@ local AchievementOptions = {
 };
 
 
-local TutorialInclude = {
+local TutorialMarkers = {
     "SpellVisualBrowser", "Movement", "ExitConfirmation",    --"IndependentMinimapButton" , "EquipmentSetManager"
     "NPCBrowserEntance", "NPCBrowser",
     "WeaponBrowser",
-    "Domination",   --disabled in 9.2
 };
 
-local function Initialize_NarcissusDB()
+local function LoadDatabase()
     NarcissusDB = NarcissusDB or {};                            --Account-wide Variables
+    local db = NarcissusDB;
+
     NarciCreatureOptions = NarciCreatureOptions or {};          --Creature Database
     NarciAchievementOptions = NarciAchievementOptions or {};    --Achievement Settings
 
     NarcissusDB_PC = NarcissusDB_PC or {};                      --Character-specific Variables
     NarcissusDB_PC.EquipmentSetDB = NarcissusDB_PC.EquipmentSetDB or {};
 
-    NarcissusDB.MinimapButton = NarcissusDB.MinimapButton or {};
-    NarcissusDB.MinimapButton.Position = NarcissusDB.MinimapButton.Position or math.rad(150);
+    db.MinimapButton = db.MinimapButton or {};
+    db.MinimapButton.Position = db.MinimapButton.Position or math.rad(150);
 
-    if (not NarcissusDB.Version) or (type(NarcissusDB.Version) ~= "number") then    --Used for showing patch notes when opening Narcissus after an update
-        NarcissusDB.Version = 10000;
-    end
 
-    if NarcissusDB.HideTextsWithUI == nil then
-        if NarcissusDB.PhotoModeButton and NarcissusDB.PhotoModeButton.HideTexts ~= nil then
-            NarcissusDB.HideTextsWithUI = NarcissusDB.PhotoModeButton.HideTexts;
+    --Migrate deprecated variables
+    if db.HideTextsWithUI == nil then
+        if db.PhotoModeButton and db.PhotoModeButton.HideTexts ~= nil then
+            db.HideTextsWithUI = db.PhotoModeButton.HideTexts;
         end
     end
 
-    ---------------------
-    ------Preference-----
-    ---------------------    
-    for k, v in pairs(DefaultValue) do
-        if NarcissusDB[k] == nil then
-            NarcissusDB[k] = v;
+
+    ---- Preference ----
+    local type = type;
+
+    for k, v in pairs(DefaultValues) do
+        if db[k] == nil or type(db[k]) ~= type(v) then
+            db[k] = v;
         end
     end
-    DefaultValue = nil;
 
-    ---------------------
-    ----Creature Data----
-    ---------------------
-    for k, v in pairs(CreatureDatabaseOptions) do
-        if NarciCreatureOptions[k] == nil then
-            NarciCreatureOptions[k] = v;
-        end
-    end
-    CreatureDatabaseOptions = nil;
 
-    ---------------------
-    --Achievement Data---
-    ---------------------
+    ---- Achievement Data ----
     for k, v in pairs(AchievementOptions) do
         if NarciAchievementOptions[k] == nil then
             NarciAchievementOptions[k] = v;
         end
     end
-    AchievementOptions = nil;
 
-    ---------------------
-    ----Per Character----
-    ---------------------
+
+    ---- Per Character ----
     if NarcissusDB_PC.UseAlias == nil then
         NarcissusDB_PC.UseAlias = false;
     end
@@ -166,32 +171,115 @@ local function Initialize_NarcissusDB()
         NarcissusDB_PC.PlayerAlias = "";
     end
 
-    --
-    NarcissusDB.Tutorials = NarcissusDB.Tutorials or {};
-    local Tutorials = NarcissusDB.Tutorials;
-    for _, v in pairs(TutorialInclude) do
+
+    ---- Tutorial Markers ----
+    db.Tutorials = db.Tutorials or {};
+    local Tutorials = db.Tutorials;
+    for _, v in pairs(TutorialMarkers) do
         if Tutorials[v] == nil then
             Tutorials[v] = true;   --True ~ will show tutorial
         end
     end
+
+
+    ---- Addon Update Info ----
+    if (not db.Version) or (type(db.Version) ~= "number") then    --Used for showing patch notes when opening Narcissus after an update
+        db.Version = 10000;
+    end
+
+    if CURRENT_VERSION > db.Version then
+        PREVIOUS_VERSION = db.Version;
+        --wake SplashFrame
+    end
+
+    if not db.installTime or type(db.installTime) ~= "number" then
+        db.installTime = (time and time()) or VERSION_DATE;
+    end
+
+
+    wipe(DefaultValues);
+    wipe(AchievementOptions);
+    wipe(TutorialMarkers);
+    DefaultValues = nil;
+    AchievementOptions = nil;
+    TutorialMarkers = nil;
+
+
+    if db.SearchRelatives or db.TranslateName then
+        C_Timer.After(0, function()
+            LoadAddOn("Narcissus_Database_NPC");
+        end)
+    end
 end
 
-local initialize = CreateFrame("Frame");
-initialize:RegisterEvent("ADDON_LOADED");
---initialize:RegisterEvent("PLAYER_ENTERING_WORLD");
-initialize:SetScript("OnEvent",function(self,event,...)
+local function LoadSettings()
+    local db = NarcissusDB;
+
+    for _, func in pairs(SettingFunctions) do
+        func(nil, db);
+    end
+end
+
+
+local Initialization = CreateFrame("Frame");
+Initialization:RegisterEvent("ADDON_LOADED");
+Initialization:RegisterEvent("PLAYER_ENTERING_WORLD");
+
+Initialization:SetScript("OnEvent",function(self,event,...)
     if event == "ADDON_LOADED" then
         local name = ...
         if name == "Narcissus" then
-            self:UnregisterEvent("ADDON_LOADED");
-            Initialize_NarcissusDB();
-            if (not NarciCreatureOptions.LoadOnDemand) or NarciCreatureOptions.SearchRelatives or NarciCreatureOptions.TranslateName then
-                C_Timer.After(0, function()
-                    LoadAddOn("Narcissus_Database_NPC");
-                end)
-            end
+            self:UnregisterEvent(event);
+            LoadDatabase();
         end
+    elseif event == "PLAYER_ENTERING_WORLD" then
+        self:UnregisterEvent(event);
+        LoadSettings();
+        self:SetScript("OnEvent", nil);
     end
-end)
+end);
 
---Narci.timeLoadingStart = GetTimePreciseSec();
+
+local function GetAddOnVersionInfo()
+    local dateString;
+    local timeString = date("%d %m %y", VERSION_DATE);
+    local day, month, year = string.split(" ", timeString);
+
+    if day and month and year then
+        day = tonumber(day);
+        month = tonumber(month);
+        year = tonumber(year);
+        dateString = FormatShortDate(day, month, year);
+    end
+
+    -- time since last update
+    local timeDiff;
+    local days = math.floor(TIME_SINCE_LAST_UPDATE / 86400 + 0.5);
+    if days > 2 then
+        if days < 60 then
+            timeDiff = string.format(Narci.L["Format Days Ago"], days);
+        else
+            local months = math.floor(days / 30.5 + 0.5);
+            timeDiff = string.format(Narci.L["Format Months Ago"], months);
+        end
+    else
+        timeDiff = string.lower(KBASE_RECENTLY_UPDATED or "recently updated");
+    end
+
+    return NARCI_VERSION_INFO, dateString, timeDiff
+end
+
+NarciAPI.GetAddOnVersionInfo = GetAddOnVersionInfo;
+
+
+do
+    local version = GetBuildInfo();
+    local expansionID = string.match(version, "(%d+)%.");
+	local isDF = (tonumber(expansionID) or 1) >= 10;
+	
+    local function IsDragonflight()
+        return isDF
+    end
+
+    addon.IsDragonflight = IsDragonflight;
+end

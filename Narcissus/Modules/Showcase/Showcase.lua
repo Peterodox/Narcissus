@@ -1588,6 +1588,7 @@ function NarciOutfitShowcaseMixin:Init()
     PlayerActor:SetPosition(0, 0, 0);
     ActiveActor = PlayerActor;
     ModelScene.actor = PlayerActor;
+    self.actor = PlayerActor;
     ModelScene:SetCameraPosition(DEFAULT_CAM_DISTANCE, 0, 0);
     ModelScene:SetCameraOrientationByYawPitchRoll(PI, 0, 0);
     ModelScene:SetCameraFieldOfView(FOV_DIAGONAL);

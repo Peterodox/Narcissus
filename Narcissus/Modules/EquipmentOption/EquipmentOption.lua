@@ -1090,20 +1090,6 @@ local function ShouldAnchorToBlizzard()
     return NarcissusDB.GemManager and (not Narci_Character:IsShown()) and (not MainFrame:IsShown() or MainFrame.isNarcissusUI)
 end
 
-hooksecurefunc("SocketInventoryItem", function(slot)
-    MainFrame:SetItemPosition(slot);
-    if ShouldAnchorToBlizzard() then
-        MainFrame:SetGemListForBlizzardUI(slot);
-    end
-end)
-
-hooksecurefunc("SocketContainerItem", function(bag, slot)
-    MainFrame:SetItemPosition(bag, slot);
-    if ShouldAnchorToBlizzard() then
-        MainFrame:SetGemListForBlizzardUI(bag, slot);
-    end
-end)
-
 
 
 ----For GamePad----
@@ -1138,3 +1124,24 @@ function NarciEquipmentOptionItemListMixin:ClearActionButtons()
     NarciEquipmentEnchantActionButton:Clear();
     self.GemActionButton:Clear();
 end
+
+
+
+
+local function SocketInventoryItem_Callback(slot)
+    MainFrame:SetItemPosition(slot);
+    if ShouldAnchorToBlizzard() then
+        MainFrame:SetGemListForBlizzardUI(slot);
+    end
+end
+
+addon.TransitionAPI.HookSocketInventoryItem(SocketInventoryItem_Callback);
+
+local function SocketContainerItem_Callback(slot)
+    MainFrame:SetItemPosition(bag, slot);
+    if ShouldAnchorToBlizzard() then
+        MainFrame:SetGemListForBlizzardUI(bag, slot);
+    end
+end
+
+addon.TransitionAPI.HookSocketContainerItem(SocketContainerItem_Callback);

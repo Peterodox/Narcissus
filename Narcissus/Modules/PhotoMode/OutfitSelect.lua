@@ -1,5 +1,7 @@
 local _, addon = ...
 
+local TransitionAPI = addon.TransitionAPI;
+
 local CharacterProfile = addon.ProfileAPI;
 local TransmogDataProvider = addon.TransmogDataProvider;
 
@@ -41,8 +43,8 @@ local ModelFileIDxUICameraID = {
     [917116] = 1036,   --Orc/Mag'har M Hunched
     [1968587] = 1036,  --Mag'har Upright
 
-    [1630218] = 1039,  --Highmountain M
-    [1630402] = 1040,  --Highmountain F
+    [1630402] = 1039,  --Highmountain F
+    [1630218] = 1040,  --Highmountain M
 
     [940356] = 1029,   --Gnome F
     [900914] = 1030,   --Gnome M
@@ -103,6 +105,10 @@ local ModelFileIDxUICameraID = {
 
     [1810676] = 1112,  --Nightborne F
     [1814471] = 1034,  --Nightborne M
+
+    [4207724] = 1710,  --Dracthyr M/F
+    [4395382] = 1024,  --Dracthyr M Visage
+    [4220448] = 1023,  --Dracthyr F Visage
 };
 
 local function GetUICameraIDByModelFileID(fileID)
@@ -976,12 +982,13 @@ function NarciPhotoModeOutfitSelectMixin:AddPlayerActor(unit, model)
         m:SetModelDrawLayer("ARTWORK");
         m:SetFrameLevel(self:GetFrameLevel());
         m:SetScript("OnModelLoaded", PreviewModel_OnModelLoaded);
-        local x, y, z = m:TransformCameraSpaceToModelSpace(0, 0, -0.25);
-        m:SetPosition(x, y, z);
-        m:SetLight(true, false, -1, 1, -1, 0.8, 1, 1, 1, 0.5, 1, 1, 1);
+        local x, y, z = TransitionAPI.TransformCameraSpaceToModelSpace(m, 0, 0, -0.25);
+        TransitionAPI.SetModelPosition(m, x, y, z);
+        TransitionAPI.SetModelLight(m, true, false, -1, 1, -1, 0.8, 1, 1, 1, 0.5, 1, 1, 1);
         m:Hide();
     end
-    PreviewModels[index]:SetUnit(unit, index);
+    
+    TransitionAPI.SetModelByUnit(PreviewModels[index], unit);
 
     --Add outfit
     After(0.2, function()

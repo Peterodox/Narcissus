@@ -566,7 +566,7 @@ end
 
 
 local function LoadCustomizationFromEncodedString(encodedString)
-    --/run LoadCustomizationFromEncodedString("bl.g.18.Jq.12x.6j.l.p.j.n.8.6.7.8.B")
+    --/run LoadCustomizationFromEncodedString("NE: 4.0.bl.g.18.Jq.12x.6j.l.p.j.n.8.6.7.8.B")
 
     if not encodedString then return end
 
@@ -675,6 +675,7 @@ local function ExportBox_UpdateString(self)
     if not self.profileString then
         self.profileString = Coder:EncodeList(GetCustomizationOptions());
         self:SetText(self.profileString);
+        self:SetCursorPosition(0);
     end
 end
 
@@ -723,94 +724,114 @@ local function CanSaveNewLook()
     end
 end
 
-local function ImportEditBox_OnTextChanged(self, userInput)
-    if userInput then
-        local text = strtrim(self:GetText());
+local function ImportEditBox_Repeat(self, elapsed)
+    self.t = self.t + elapsed;
+    if self.t < 0.33 then return end;
+    self:SetScript("OnUpdate", nil);
 
-        if text == "" then
-            self.colorKey = nil;
-            self:HighlightBorder(true);
-            self.AlertText:SetText("");
-            self.SaveButton:Hide();
-            return
-        end
+    local alertText;
+    local fadeText, showSaveButton;
+    local result, var1, var2, var3 = LoadCustomizationFromEncodedString(self.encodedString);
+    self.encodedString = nil;
 
-        local alertText;
-        local fadeText, showSaveButton;
-        local result, var1, var2, var3 = LoadCustomizationFromEncodedString(text);
+    local totalImport, totalFound, totalOptions = var1, var2, var3;
 
-        if result then
-            --successfully decoded
-            local totalImport, totalFound, totalOptions = var1, var2, var3;
-
-            if totalImport > 0 and totalImport == totalFound then
-                if totalImport == totalOptions then
-                    --everything matched
-                    self.colorKey = "green";
-                    alertText = L["Decode Good"];
-                    showSaveButton = true;
-                    --fadeText = 1;
-                else
-                    --imported string doesn't cover all options
-                    self.colorKey = "yellow";
-                    alertText = format(L["Import Lack Option"], (totalOptions - totalImport));
-                    showSaveButton = true;
-                end
-            elseif totalFound == 0 then
-                --wrong character (race/sex);
-                self.colorKey = "red";
-                alertText = GetFailureReasonByID(1);
-            else
-                --failed to match some due to new options/choice not unlocked
-                self.colorKey = "yellow";
-                alertText = format(L["Import Lack Choice"], (totalOptions - totalFound));
-                showSaveButton = true;
-            end
-            self:HighlightBorder(true);
+    if totalImport > 0 and totalImport == totalFound then
+        if totalImport == totalOptions then
+            --everything matched
+            self.colorKey = "green";
+            alertText = L["Decode Good"];
+            showSaveButton = true;
+            --fadeText = 1;
         else
-            --failed to decode
-            local failedReasonID, case, subcase = var1, var2, var3;
-            self.colorKey = "red";
-            self:HighlightBorder(true);
-            if failedReasonID == 0 then
-                alertText = GetFailureReasonByID(0);
-            elseif failedReasonID == 1 then
-                --wrong race/gender
-                local sexName = (subcase == 0 and MALE) or FEMALE;
-                local raceInfo = case and C_CreatureInfo.GetRaceInfo(case);
-                local raceName;
-                if raceInfo then
-                    raceName = raceInfo.raceName;
-                    alertText = format(L["Wrong Character Format"], sexName, raceName);
-                else
-                    alertText = GetFailureReasonByID(1);
-                end
-            end
+            --imported string doesn't cover all options
+            self.colorKey = "yellow";
+            alertText = format(L["Import Lack Option"], (totalOptions - totalImport));
+            showSaveButton = true;
         end
-
-        self.AlertText.AnimFade:Stop();
-        self.AlertText:SetText(alertText);
-        self.AlertText:Show();
-
-        if fadeText then
-            self.AlertText.AnimFade.Anim1:SetStartDelay(fadeText);
-            self.AlertText.AnimFade:Play();
-        end
-
-        if showSaveButton then
-            local canSave, reason = CanSaveNewLook();
-            self.SaveButton:SetText(reason);
-            if canSave then
-                self.SaveButton:Enable();
-            else
-                self.SaveButton:Disable();
-            end
-            self.SaveButton:Show();
-        else
-            self.SaveButton:SetShown(showSaveButton);
-        end
-
+    elseif totalFound == 0 then
+        --wrong character (race/sex);
+        self.colorKey = "red";
+        alertText = GetFailureReasonByID(1);
+    else
+        --failed to match some due to new options/choice not unlocked
+        self.colorKey = "yellow";
+        alertText = format(L["Import Lack Choice"], (totalOptions - totalFound));
+        showSaveButton = true;
     end
+    self:HighlightBorder(true);
+
+    self.AlertText.AnimFade:Stop();
+    self.AlertText:SetText(alertText);
+    self.AlertText:Show();
+
+    if fadeText then
+        self.AlertText.AnimFade.Anim1:SetStartDelay(fadeText);
+        self.AlertText.AnimFade:Play();
+    end
+
+    if showSaveButton then
+        local canSave, reason = CanSaveNewLook();
+        self.SaveButton:SetText(reason);
+        if canSave then
+            self.SaveButton:Enable();
+        else
+            self.SaveButton:Disable();
+        end
+        self.SaveButton:Show();
+    else
+        self.SaveButton:SetShown(showSaveButton);
+    end
+end
+
+
+local function ImportEditBox_OnTextChanged(self, userInput)
+    if not userInput then return end;
+
+    local text = strtrim(self:GetText());
+
+    if text == "" then
+        self.colorKey = nil;
+        self:HighlightBorder(true);
+        self.AlertText:SetText("");
+        self.SaveButton:Hide();
+        return
+    end
+    self.encodedString = text;
+
+    local alertText;
+    local result, var1, var2, var3 = LoadCustomizationFromEncodedString(text);
+
+    if result then
+        --successfully decoded
+        self.t = 0;
+        self:SetScript("OnUpdate", ImportEditBox_Repeat);
+    else
+        --failed to decode
+        self:SetScript("OnUpdate", nil);
+        local failedReasonID, case, subcase = var1, var2, var3;
+        self.colorKey = "red";
+        self:HighlightBorder(true);
+        if failedReasonID == 0 then
+            alertText = GetFailureReasonByID(0);
+        elseif failedReasonID == 1 then
+            --wrong race/gender
+            local sexName = (subcase == 0 and MALE) or FEMALE;
+            local raceInfo = case and C_CreatureInfo.GetRaceInfo(case);
+            local raceName;
+            if raceInfo then
+                raceName = raceInfo.raceName;
+                alertText = format(L["Wrong Character Format"], sexName, raceName);
+            else
+                alertText = GetFailureReasonByID(1);
+            end
+        end
+    end
+
+    self.AlertText.AnimFade:Stop();
+    self.AlertText:SetText(alertText);
+    self.AlertText:Show();
+    self.SaveButton:Hide();
 end
 
 local function ImportEditBox_OnHide(self)
@@ -818,6 +839,7 @@ local function ImportEditBox_OnHide(self)
     self.BorderGlow:Hide();
     self.AlertText:Hide();
     self.SaveButton:Hide();
+    self:SetScript("OnUpdate", nil);
 
     if not self.DefaultText:IsShown() then
         self:SetText("");

@@ -2,9 +2,7 @@
 	<Script file="Sticker.lua"/>
 
 	<EditBox name="NarciStickerEditableTextTemplate" autoFocus="false" multiLine="false" mixin="NarciStickerEditableTextMixin" virtual="true">
-		<HighlightColor>
-			<Color r="0" g="0" b="0"/>
-		</HighlightColor>
+		<HighlightColor r="0" g="0" b="0"/>
 		<Scripts>
 			<OnHide method="OnHide"/>
 			<OnEditFocusGained method="OnEditFocusGained"/>

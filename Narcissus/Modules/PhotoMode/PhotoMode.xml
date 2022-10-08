@@ -645,7 +645,7 @@
 		</Layers>
 	</Frame>
 	
-	<Frame name="Narci_ModelContainer">
+	<Frame name="Narci_ModelContainer" mixin="NarciPhotoModeModelContainerMixin" hidden="true">
 		<Layers>
 			<Layer level="BACKGROUND" textureSubLevel="2">
 				<Texture setAllPoints="true" hidden="false" parentKey="Brightness" name="Narci_BackgroundDarkness" alpha="0">
@@ -756,6 +756,11 @@
 				</Scripts>
 			</DressUpModel>
 		</Frames>
+		<Scripts>
+			<OnLoad method="OnLoad"/>
+			<OnShow method="OnShow"/>
+			<OnHide method="OnHide"/>
+		</Scripts>
 	</Frame>
 
 	<Button name="Narci_Model_PlayAnimationTemplate" inherits="Narci_RoundButtonTemplate" virtual="true" hidden="true">
@@ -1067,11 +1072,20 @@
 		</Scripts>
 	</Button>
 
-	<Frame name="Narci_ViewTemplate" virtual="true">
+	<Frame name="NarciPhotoModeLightDirectionControllerTemplate" virtual="true" mixin="NarciPhotoModeLightDirectionControllerMixin">
 		<Size>
 			<AbsDimension x="92.0" y="92.0"/>
 		</Size>
 		<Layers>
+			<Layer level="BACKGROUND">
+				<Texture file="Interface\AddOns\Narcissus\Art\Widgets\LightSetup\UI" alpha="0.95" hidden="false" parentKey="Background">
+					<TexCoords left="0.375" right="0.75" top="0" bottom="0.75"/>
+					<Size x="102.0" y="102.0"/>
+					<Anchors>
+						<Anchor point="CENTER" relativeKey="$parent" relativePoint="CENTER" x="0" y="0"/>
+					</Anchors>
+				</Texture>
+			</Layer>
 			<Layer level="OVERLAY" textureSubLevel="2">
 				<Texture parentKey="AmbientColor" setAllPoints="true">
 					<Color r="1" g="1" b="1" a="0.5"/>
@@ -1138,46 +1152,12 @@
 						<Anchor point="CENTER" relativeKey="$parent" relativePoint="CENTER" x="0" y="0"/>
 					</Anchors>
 				</HighlightTexture>
-				<Scripts>
-					<OnLoad>
-						self:RegisterForDrag("LeftButton");
-					</OnLoad>
-					<OnEnter>
-
-					</OnEnter>
-					<OnMouseDown>
-						self:LockHighlight();
-						local UpdateFrame = self:GetParent().UpdateFrame;
-						local mx, my = self:GetCenter();
-						local px, py = GetCursorPosition();
-						local scale = self:GetEffectiveScale();
-						UpdateFrame.dx, UpdateFrame.dy = mx * scale - px, my * scale - py;
-						UpdateFrame:Show();
-					</OnMouseDown>
-					<OnMouseUp>
-						self:UnlockHighlight();
-						self:GetParent().UpdateFrame:Hide();
-					</OnMouseUp>
-					<OnDragStop>
-						self:UnlockHighlight();
-						self:GetParent().UpdateFrame:Hide();
-					</OnDragStop>
-				</Scripts>
 			</Button>
-			<Frame parentKey="UpdateFrame" hidden="true">
-				<Scripts>
-					<OnLoad>
-						self.dx, self.dy = 0, 0;
-						self.radian = -3*math.pi/4
-						LightButton_UpdateFrame_OnLoad(self);
-					</OnLoad>
-					<OnUpdate function="LightButton_UpdateFrame_OnUpdate"/>
-					<OnShow>
-						self.scale = self:GetParent():GetEffectiveScale() or 1;
-					</OnShow>
-				</Scripts>
-			</Frame>
+			<Frame parentKey="UpdateFrame" hidden="true"/>
 		</Frames>
+		<Scripts>
+			<OnLoad method="OnLoad"/>
+		</Scripts>
 	</Frame>
 
 	<Button name="Narci_LinkSettingTempalte" virtual="true">
@@ -2042,20 +2022,14 @@
 
 			<Frame parentKey="BasicPanel">
 				<Frames>
-					<Frame parentKey="LeftView" inherits="Narci_ViewTemplate">
+					<Frame parentKey="SideView" inherits="NarciPhotoModeLightDirectionControllerTemplate">
+						<KeyValues>
+							<KeyValue key="view" value="side" type="string"/>
+						</KeyValues>
 						<Anchors>
 							<Anchor point="TOPLEFT" relativeKey="$parent.$parent.ActorPanel" relativePoint="BOTTOMLEFT" x="4" y="-10"/>
 						</Anchors>
 						<Layers>
-							<Layer level="BACKGROUND">
-								<Texture file="Interface\AddOns\Narcissus\Art\Widgets\LightSetup\UI" alpha="0.95" hidden="false" parentKey="Background">
-									<TexCoords left="0.375" right="0.75" top="0" bottom="0.75"/>
-									<Size x="102.0" y="102.0"/>
-									<Anchors>
-										<Anchor point="CENTER" relativeKey="$parent" relativePoint="CENTER" x="0" y="0"/>
-									</Anchors>
-								</Texture>
-							</Layer>
 							<Layer level="ARTWORK">
 								<Texture parentKey="FaceRight" file="Interface\AddOns\Narcissus\Art\Widgets\LightSetup\UI" alpha="1" hidden="false">
 									<TexCoords left="0.8359375" right="1" top="0.171875" bottom="0.75"/>
@@ -2073,42 +2047,18 @@
 								</Texture>
 							</Layer>
 						</Layers>
-						<Frames>
-							<Frame parentKey="UpdateFrame" hidden="true">
-								<Scripts>
-									<OnLoad>
-										self.limit = true;
-										self.radian = math.pi/4
-										LightButton_UpdateFrame_OnLoad(self);
-									</OnLoad>
-									<OnUpdate function="LightButton_UpdateFrame_OnUpdate"/>
-									<OnShow>
-										self.scale = self:GetParent():GetEffectiveScale() or 1;
-									</OnShow>
-								</Scripts>
-							</Frame>
-						</Frames>
-						<Scripts>
-
-						</Scripts>
 					</Frame>
 
-					<Frame parentKey="TopView" inherits="Narci_ViewTemplate">
+					<Frame parentKey="TopView" inherits="NarciPhotoModeLightDirectionControllerTemplate">
+						<KeyValues>
+							<KeyValue key="view" value="top" type="string"/>
+						</KeyValues>
 						<Anchors>
-							<Anchor point="TOPLEFT" relativeKey="$parent.LeftView" relativePoint="TOPRIGHT" x="8"/>
+							<Anchor point="TOPLEFT" relativeKey="$parent.SideView" relativePoint="TOPRIGHT" x="8"/>
 						</Anchors>
 						<Layers>
-							<Layer level="BACKGROUND">
-								<Texture file="Interface\AddOns\Narcissus\Art\Widgets\LightSetup\UI" alpha="0.95" hidden="false">
-									<TexCoords left="0" right="0.375" top="0" bottom="0.75"/>
-									<Size x="102.0" y="102.0"/>
-									<Anchors>
-										<Anchor point="CENTER" relativeKey="$parent" relativePoint="CENTER" x="0" y="0"/>
-									</Anchors>
-								</Texture>
-							</Layer>
 							<Layer level="ARTWORK">
-								<Texture file="Interface\AddOns\Narcissus\Art\Widgets\LightSetup\UI" alpha="1" hidden="false">
+								<Texture file="Interface\AddOns\Narcissus\Art\Widgets\LightSetup\UI" alpha="1" hidden="false" parentKey="HeadTop">
 									<TexCoords left="0" right="0.375" top="0.75" bottom="0.953125"/>
 									<Size x="102" y="30"/>
 									<Anchors>
@@ -2129,7 +2079,7 @@
 							<KeyValue key="backgroundBrightness" value="0.5" type="number"/>
 						</KeyValues>
 						<Anchors>
-							<Anchor point="BOTTOMLEFT" relativeKey="$parent.LeftView" relativePoint="BOTTOMLEFT" x="0" y="0"/>
+							<Anchor point="BOTTOMLEFT" relativeKey="$parent.SideView" relativePoint="BOTTOMLEFT" x="0" y="0"/>
 						</Anchors>
 						<Layers>
 							<!--Layer level="OVERLAY">
@@ -2179,7 +2129,7 @@
 						<Frames>
 							<Button parentKey="Color1" inherits="Narci_ColorButton_Template" id="1">
 								<Anchors>
-									<Anchor point="TOPLEFT" relativeKey="$parent.$parent.LeftView" relativePoint="BOTTOMLEFT" x="0" y="-4"/>
+									<Anchor point="TOPLEFT" relativeKey="$parent.$parent.SideView" relativePoint="BOTTOMLEFT" x="0" y="-4"/>
 								</Anchors>
 							</Button>
 							<Button parentKey="Color2" inherits="Narci_ColorButton_Template" id="2">
@@ -3264,7 +3214,7 @@
 						</Scripts>
 					</Button>
 
-					<Button inherits="Narci_Model_PlayAnimation1x5Template" parentKey="CompactModeButton" name="Narci_Model_CompactModeButton">
+					<Button inherits="Narci_Model_PlayAnimation1x5Template" parentKey="CompactModeButton">
 						<Anchors>
 							<Anchor point="TOPLEFT" relativeKey="$parent.HidePlayerButton" relativePoint="BOTTOMLEFT" x="0" y="-4"/>
 						</Anchors>
@@ -3274,17 +3224,7 @@
 								self.tooltip = {Narci.L["Transmog Layout3"], Narci.L["Compact Mode Tooltip"]}
 								self.guideIndex = 5;
 							</OnLoad>
-							<OnShow>
-								self.isOn = false;
-								self:UnlockHighlight();
-								if NarcissusDB.DefaultLayout == 3 then
-									self:Click();
-								end
-							</OnShow>
 							<OnClick function="Narci_Model_UseCompactMode_OnClick"/>
-							<OnHide>
-								Narci_Xmog_UseCompactMode(false);
-							</OnHide>
 						</Scripts>
 					</Button>
 

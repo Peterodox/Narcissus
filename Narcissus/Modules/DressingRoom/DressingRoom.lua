@@ -1,7 +1,7 @@
-----------------------------------------------------------------------------------------
+local _, addon = ...
 
+local TransitionAPI = addon.TransitionAPI;
 
-----------------------------------------------------------------------------------------
 local _G = _G;
 local L = Narci.L;
 local After = C_Timer.After;
@@ -573,11 +573,11 @@ local function OutfitDropDownButton_OnEnterCallback(self)
             local m = OutfitPreviewModel;
             m:SetSize(129, 186);
             m:SetAutoDress(false);
-            m:SetUnit("player");
+            TransitionAPI.SetModelByUnit(m, "player");
             m:FreezeAnimation(0, 0, 0);
-            local x, y, z = m:TransformCameraSpaceToModelSpace(0, 0, -0.25);    ---0.25
-            m:SetPosition(x, y, z);
-            m:SetLight(true, false, -1, 1, -1, 0.8, 1, 1, 1, 0.5, 1, 1, 1);
+            local x, y, z = TransitionAPI.TransformCameraSpaceToModelSpace(m, 0, 0, -0.25);    ---0.25
+            TransitionAPI.SetModelPosition(m, x, y, z);
+            TransitionAPI.SetModelLight(m, true, false, -1, 1, -1, 0.8, 1, 1, 1, 0.5, 1, 1, 1);
             --NarciAPI.InitializeModelLight(m);
             m:SetViewTranslation(0, -57);
             m:SetScript("OnHide", function(f)
@@ -593,7 +593,7 @@ local function OutfitDropDownButton_OnEnterCallback(self)
         if OutfitPreviewModel.outfitID == self.outfitID then
             return
         end
-
+        TransitionAPI.SetModelByUnit(OutfitPreviewModel, "player");
         OutfitPreviewModel.outfitID = self.outfitID;
         OutfitPreviewModel:SetPoint("BOTTOMRIGHT", self, "BOTTOMRIGHT", -8, 0);
         OutfitPreviewModel.t = -0.2;
@@ -990,7 +990,7 @@ NarciDressingRoomOverlayMixin = {};
 
 function NarciDressingRoomOverlayMixin:OnLoad()
     DressingRoomOverlayFrame = self;
-    self.updateSize = true;
+    self.sizeChanged = true;
 end
 
 function NarciDressingRoomOverlayMixin:OnShow()
@@ -1000,9 +1000,8 @@ function NarciDressingRoomOverlayMixin:OnShow()
     self:RegisterEvent("PLAYER_TARGET_CHANGED");
     self:RegisterEvent("TRANSMOG_COLLECTION_UPDATED");
 
-    if self.updateSize then
-        self.updateSize = nil;
-        self:OnSizeChanged();
+    if self.sizeChanged then
+        self:UpdateLayout();
     end
 end
 
@@ -1064,8 +1063,7 @@ function NarciDressingRoomOverlayMixin:OnEvent(event, ...)
 end
 
 
-function NarciDressingRoomOverlayMixin:OnSizeChanged(width, height)
-    --print(width.." x "..height);
+function NarciDressingRoomOverlayMixin:UpdateLayout()
     local uiScale = UIParent:GetEffectiveScale();
     local frameScale = math.max(uiScale, 0.75);
     self.OptionFrame.SharedPopup:SetScale(frameScale);
@@ -1089,6 +1087,15 @@ function NarciDressingRoomOverlayMixin:OnSizeChanged(width, height)
     end
 
     UpdateDressingRoomExtraWdith();
+    self.sizeChanged = nil;
+end
+
+function NarciDressingRoomOverlayMixin:OnSizeChanged(width, height)
+    if self:IsVisible() then
+        self:UpdateLayout();
+    else
+        self.sizeChanged = true;
+    end
 end
 
 function NarciDressingRoomOverlayMixin:ShowItemList()
