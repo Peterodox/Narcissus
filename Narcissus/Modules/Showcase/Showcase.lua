@@ -2425,8 +2425,15 @@ function NarciShowcaseItemTextMixin:SetItemTextBySlotInfo(slotID, transmogInfo)
             self:SetText(name);
         end
     else
-        self:SetItemText(name);
         if slotID == 16 or slotID == 17 then
+            if TransmogDataProvider:IsLegionArtifactBySourceID(sourceID) then
+                local artifactAppearanceSetName = TransmogDataProvider:GetArtifactAppearanceSetName(sourceID);
+                if artifactAppearanceSetName and name ~= artifactAppearanceSetName then
+                    name = name .. " ("..artifactAppearanceSetName..")";
+                end
+            end
+            self:SetItemText(name);
+
             if TransmogDataProvider:IsSourceBow(sourceID) then
                 ModelScene.actor.bowData = transmogInfo;
                 ModelScene.actor:UndressSlot(16);
@@ -2450,6 +2457,8 @@ function NarciShowcaseItemTextMixin:SetItemTextBySlotInfo(slotID, transmogInfo)
                     SourceCacher:AddToQueue(fontString, sourceID);
                 end
             end
+        else
+            self:SetItemText(name);
         end
     end
 end

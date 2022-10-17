@@ -125,7 +125,7 @@ function TransitionAPI.SetModelPosition(model, x, y, z)     --#12
 end
 
 function TransitionAPI.SetModelByUnit(model, unit)      --#13
-	model:SetUnit(unit, true, false);
+	model:SetUnit(unit, true);
     model.unit = unit;
 end
 

@@ -18,7 +18,6 @@ local GetItemInfoInstant = GetItemInfoInstant;
 local GetDetailedItemLevelInfo = GetDetailedItemLevelInfo;
 local GetInventoryItemLink = GetInventoryItemLink;
 local GetInventoryItemDurability = GetInventoryItemDurability;
-
 local Model_ApplyUICamera = Model_ApplyUICamera;
 local C_TransmogCollection = C_TransmogCollection;
 local C_Item = C_Item;
@@ -69,6 +68,8 @@ local function VoidFunc(self)
 end
 
 local function AppendItemIDToGameTooltip(self)
+    if not self.GetItem then return end;
+
     local name, itemLink = self:GetItem();
     if itemLink then
         local itemID = match(itemLink, "item:(%d+)");
@@ -83,7 +84,7 @@ local function AppendItemIDToGameTooltip(self)
 end
 
 local GENERIC_SETUP_FUNC = VoidFunc;
-
+local GameTooltip_ClearMoney = GameTooltip_ClearMoney or VoidFunc;
 
 if addon.IsDragonflight() and TooltipDataHandlerMixin then
     NarciGameTooltipMixin = CreateFromMixins(TooltipDataHandlerMixin);
@@ -112,6 +113,7 @@ end
 function NarciGameTooltipMixin:OnHide()
     SharedTooltipDelay:Kill();
     self:SetScript("OnUpdate", nil);
+    GameTooltip_ClearMoney(self);
 end
 
 function NarciGameTooltipMixin:OnSizeChanged(w, h)

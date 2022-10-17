@@ -1,4 +1,5 @@
 local match = string.match;
+local floor = math.floor;
 
 local RemoveNumberBracket;
 
@@ -39,6 +40,27 @@ local function ConvertTextToSeconds(durationText)
 end
 
 NarciAPI.ConvertTextToSeconds = ConvertTextToSeconds;
+
+
+local function SecondsToCooldownAbbrev(seconds)
+    --e.g. 90 seconds - 1.5 min
+    if seconds == nil then
+        return ""
+    end
+
+    if seconds >= 86400 then
+        local hour = floor(10 * seconds/86400 + 0.5)*0.1
+        return hour.." hr"
+    elseif seconds >= 60 then
+        local miniute = floor(10 * seconds/60 + 0.5)*0.1
+        return miniute.." min"
+    else
+        seconds = floor(10 * seconds + 0.5)*0.1
+        return seconds.." sec"
+    end
+end
+
+NarciAPI.SecondsToCooldownAbbrev = SecondsToCooldownAbbrev;
 
 
 --[[

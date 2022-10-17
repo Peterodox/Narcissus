@@ -182,7 +182,7 @@ L["Fade Out Description"] = "Fades Out When Mouseout";
 L["Hotkey"] = "Hotkeys";
 L["Double Tap"] = "Open Narcissus By Double-tapping";
 L["Double Tap Description"] = "Double-tap the key bound to Character Pane to open Narcissus.";
-L["Show Detailed Stats"] = "Show Detailed Stats";
+L["Show Detailed Stats"] = "Detailed Stats";
 L["Tooltip Color"] = "Tooltip Color";
 L["Entrance Visual"] = "Entrance Visual";
 L["Entrance Visual Description"] = "Play spell visuals when your model shows up.";
@@ -252,6 +252,12 @@ L["Binding Name Open Narcissus"] = "Open Narcissus Character Panel";
 L["Developer Colon"] = "Developer: ";
 L["Project Page"] = "Project Page";
 L["Press Copy Yellow"] = "Press |cffffd100".. NARCI_SHORTCUTS_COPY .."|r to Copy";
+L["New Option"] = NARCI_NEW_ENTRY_PREFIX.." NEW".."|r"
+L["Mini Talent Tree"] = "Mini Talent Tree";
+L["Show Talent Tree When"] = "Show Talent Tree When You...";
+L["Show Talent Tree Paperdoll"] = "Open Paper Doll";
+L["Show Talent Tree Inspection"] = "Inspect Other Players";
+L["Truncate Talent Description"] = "Truncate Talent Description";
 
 --Model Control--
 NARCI_STAND_IDLY = "Stand Idly";
@@ -589,6 +595,8 @@ L["No Other Item For Slot"] = "No other item for %s";       --where %s is the sl
 L["In Bags"] = "In bags";
 L["Item Socketing Tooltip"] = "Click and hold to embed";
 L["No Available Gem"] = "|cffd8d8d8No available gem|r";
+L["Missing Enchant Alert"] = "Missing Enchant Alert";
+L["Missing Enchant"] = NARCI_COLOR_RED_MILD.."No Enchant".."|r";
 
 --Statistics--
 S["Narcissus Played"] = "Total time spent in Narcissus";

@@ -46,6 +46,20 @@ local function GetConduitItemQualityByRank(rank)
     end
 end
 
+local function SetTextColorByQuality(text, quality, darker)
+    local r, g, b = unpack(QUALITY_COLORS[quality]);
+
+    if not r then
+        r, g, b = 0.8, 0.8, 0.8;
+    end
+
+    if darker then
+        text:SetTextColor(r, g, b);
+    else
+        text:SetTextColor(r*0.66, g*0.66, b*0.66);
+    end
+end
+
 local function SetConduitItemQualityColorByItemLevel(widget, itemLevel, isCurrentSpec)
     local i;
     if itemLevel < 158 then
@@ -59,14 +73,14 @@ local function SetConduitItemQualityColorByItemLevel(widget, itemLevel, isCurren
     if isCurrentSpec then
         widget.Border:SetVertexColor(1, 1, 1);
         widget.Icon:SetVertexColor(1, 1, 1);
-        widget.Name:SetTextColor(unpack(QUALITY_COLORS[i + 2]));
+        SetTextColorByQuality(widget.Name, i+2);
     else
-        local r, g, b = unpack(QUALITY_COLORS[i + 2]);
-        widget.Name:SetTextColor(r * 0.66, g * 0.66, b * 0.66);
         widget.Border:SetVertexColor(0.66, 0.66, 0.66);
         widget.Icon:SetVertexColor(0.66, 0.66, 0.66);
+        SetTextColorByQuality(widget.Name, i+2, true);
     end
 end
+
 
 -----------------------------------------------------------------------------------
 local QueueFrame = NarciAPI.CreateProcessor();
@@ -616,7 +630,8 @@ function NarciSoulbindsConduitFrameMixin:SetUp(conduitID, rank, spellID, conduit
         self.spellID = spellID;
         self:SetNameAndIcon();
     end
-    self.Name:SetTextColor(unpack(QUALITY_COLORS[quality]));
+
+    SetTextColorByQuality(self.Name, quality);
     
     if not rank or rank == 0 then
         rank = "";

@@ -93,6 +93,14 @@ local TextureData = {
         pixelPerfect = true,
         useCenterForAlignment = true,
     },
+
+    classTalentTrait = {
+        file = "Modules\\TalentTree\\TraitTooltipNineSlice",
+        cornerSize = 32,
+        cornerCoord = 0.25,
+        pixelPerfect = true,
+        useCenterForAlignment = true,
+    },
 };
 
 function NineSliceUtil.SetUp(frame, textureKey, layer, shrink)

@@ -1197,6 +1197,23 @@ function NarciRayTracingToggleMixin:OnLoad()
 	self.OnLoad = nil;
 end
 
+
+
+do
+    local SettingFunctions = addon.SettingFunctions;
+
+    function SettingFunctions.UseEscapeKeyForExit(state, db)
+        if state == nil then
+            state = db["UseEscapeButton"];
+        end
+
+        if state then
+            MainFrame.KeyListener.escapeKey = "ESCAPE";
+        else
+            MainFrame.KeyListener.escapeKey = "HELLOWORLD";
+        end
+    end
+end
 --[[
 --Doolly Zoom:
 --d = width / (2*math.tan(0.5 * fov))    --fov ~ degree

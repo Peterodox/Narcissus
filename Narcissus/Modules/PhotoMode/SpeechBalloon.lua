@@ -117,7 +117,7 @@ local function SmartFontType(fontstring, text)
 	fontstring:SetText(text);
 	local Language = NarciAPI.LanguageDetector(text);
 	if Language and ActorNameFont[Language] then
-		fontstring:SetFont(ActorNameFont[Language][1] , ActorNameFont[Language][2]);
+		fontstring:SetFont(ActorNameFont[Language][1] , ActorNameFont[Language][2], "");
 	end
 end
 
@@ -429,7 +429,7 @@ function NarciSimpleSpeechBalloonMixin:UpdateText()
         self.ShownText:SetText(self.rawText);
     end
 
-    self.ShownText:SetFont(font, height);
+    self.ShownText:SetFont(font, height, "");
 end
 
 function NarciSimpleSpeechBalloonMixin:SetFontColor(r, g, b)
@@ -476,7 +476,7 @@ function LetteringSystem:GetLine(object, index)
     if not line then
         local font, height = object.fontPath, object.fontHeight;
         line = object:CreateFontString(nil, "OVERLAY");
-        line:SetFont(font, height);
+        line:SetFont(font, height, "");
         local r, g, b = object.ShownText:GetTextColor();
         line:SetTextColor(r, g, b);
         line:SetMaxLines(1);
@@ -499,7 +499,7 @@ function LetteringSystem:UpdateFont(object)
         local font, height = object.fontPath, object.fontHeight;
         for i = 1, #object.lines do
             line = object.lines[i];
-            line:SetFont(font, height);
+            line:SetFont(font, height, "");
             line:SetTextColor(r, g, b);
             line:SetHeight(round(height) + 0.10);
         end
@@ -1079,7 +1079,7 @@ function NarciAdjustableSpeechBalloonMixin:UpdateText()
             self.ShownText:SetText(self.rawText);
         end
     end
-    self.ShownText:SetFont(font, height);
+    self.ShownText:SetFont(font, height, "");
 end
 
 function NarciAdjustableSpeechBalloonMixin:SetBorderColor(r, g, b, a)
@@ -1822,7 +1822,7 @@ function NarciSpeechBalloonEditBoxMixin:SetParentObject(object)
     self:SetEnabled(true);
     
     local font, height = object.ShownText:GetFont();
-    self:SetFont(font, height);
+    self:SetFont(font, height, "");
     self:SetTextColor(object.ShownText:GetTextColor());
 
     object.ShownText:Hide();
@@ -2693,10 +2693,10 @@ function NarciTextOverlayGenericEditBoxMixin:SetParentObject(fontString)
     self:SetPoint("TOPLEFT", fontString.area, "TOPLEFT", 0, 0);
     self:SetPoint("BOTTOMRIGHT", fontString.area, "BOTTOMRIGHT", 0, 0);
     local font, height = fontString:GetFont();
-    self:SetFont(font, height);
+    self:SetFont(font, height, "");
     self:SetTextColor( fontString:GetTextColor() );
     self:Show();
-    self:SetText(fontString:GetText() or "")
+    self:SetText(fontString:GetText() or "");
     self:SetFocus();
     self:SetCursorPosition(999);
     self:SetScale(fontString:GetEffectiveScale());

@@ -3178,6 +3178,23 @@ end
 NarciAPI.AddPixelPerfectTexture = AddPixelPerfectTexture;
 
 
+local function IsPlayerAtMaxLevel()
+    local playerLevel = UnitLevel("player") or 0;
+
+    local maxPlayerLevel;
+    if GetMaxLevelForLatestExpansion then
+        maxPlayerLevel = GetMaxLevelForLatestExpansion();
+    else
+        local expansionLevel = GetExpansionLevel() or 0;
+        maxPlayerLevel = GetMaxLevelForExpansionLevel(expansionLevel);
+    end
+
+    return playerLevel >= maxPlayerLevel;
+end
+
+NarciAPI.IsPlayerAtMaxLevel = IsPlayerAtMaxLevel;
+
+
 --[[
     /script DEFAULT_CHAT_FRAME:AddMessage("\124Hitem:narcissus:0:\124h[Test Link]\124h\124r");
 function TestFX(modelFileID, zoomDistance, view)

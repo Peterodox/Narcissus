@@ -2068,7 +2068,7 @@ end
 
 
 local EventListener = CreateFrame("Frame");
-local events = {"BARBER_SHOP_COST_UPDATE", "BARBER_SHOP_FORCE_CUSTOMIZATIONS_UPDATE", "BARBER_SHOP_RESULT", "BARBER_SHOP_OPEN", "BARBER_SHOP_CLOSE", "BARBER_SHOP_APPEARANCE_APPLIED", "ADDON_LOADED", "UNIT_MODEL_CHANGED"};    --"UNIT_MODEL_CHANGED"
+local events = {"BARBER_SHOP_COST_UPDATE", "BARBER_SHOP_FORCE_CUSTOMIZATIONS_UPDATE", "BARBER_SHOP_RESULT", "BARBER_SHOP_OPEN", "BARBER_SHOP_CLOSE", "BARBER_SHOP_APPEARANCE_APPLIED", "ADDON_LOADED"};    --"UNIT_MODEL_CHANGED"
 for i = 1, #events do
     EventListener:RegisterEvent(events[i])
 end
@@ -2094,7 +2094,7 @@ EventListener:SetScript("OnEvent", function(self, event, ...)
             MainFrame:UpdateGenderCategory();
             StatManager:OnBarberShopOpen();
 
-            if false then
+            if true then
                 C_Timer.After(0.5 , function()
                     BarberShopFrame:SetPropagateKeyboardInput(true);    --DEBUG
                 end)
@@ -2107,7 +2107,7 @@ EventListener:SetScript("OnEvent", function(self, event, ...)
     elseif event == "BARBER_SHOP_CLOSE" then
         StatManager:OnBarberShopClose();
 
-    elseif event == "BARBER_SHOP_FORCE_CUSTOMIZATIONS_UPDATE" then
+    elseif event == "BARBER_SHOP_RESULT" then
         --MainFrame:UpdateGenderCategory();
         if BarberShopFrame.UpdateButtons then
             BarberShopFrame:UpdateButtons();

@@ -16,6 +16,12 @@ local BUTTON_LEVEL_OFFSET = 12;
 local CATE_OFFSET = 64;
 local WIDGET_GAP = 16;
 
+local IS_DRAGONFLIGHT = addon.IsDragonflight();
+
+local function IsDragonflightFeature()
+    return IS_DRAGONFLIGHT
+end
+
 
 local L = Narci.L;
 local BIND_ACTION_NARCISSUS = "CLICK Narci_MinimapButton:LeftButton";
@@ -285,6 +291,7 @@ local function SetCategory(id)
     end
 end
 
+local CREDIT_TAB_ID = 10;
 
 local function FindCurrentCategory(offset)
     offset = offset + 135;   --is height/3 a proper position?
@@ -300,7 +307,7 @@ local function FindCurrentCategory(offset)
     if matchID ~= CURRENT_CATE_ID then
         CURRENT_CATE_ID = matchID;
         SetCategory(matchID);
-        CreditList:OnFocused(matchID == 10);
+        CreditList:OnFocused(matchID == CREDIT_TAB_ID);
     end
 
     UpdateRenderArea(offset);
@@ -513,6 +520,10 @@ local function DoubleTap_OnValueChanged(self, state)
 
 end
 
+local function UseEscapeKey_OnValueChanged(self, state)
+    SettingFunctions.UseEscapeKeyForExit(state);
+end
+
 
 local function ItemTooltipStyle_OnEnter(self)
     self.slotID = 16;
@@ -578,6 +589,14 @@ end
 
 local function UltraWideOffset_OnValueChanged(self, value)
     SettingFunctions.SetUltraWideFrameOffset(value);
+end
+
+local function ShowMisingEnchantAlert_OnValueChanged(self, state)
+    SettingFunctions.EnableMissingEnchantAlert(state);
+end
+
+local function ShowMisingEnchantAlert_IsValid()
+    return NarciAPI.IsPlayerAtMaxLevel();
 end
 
 local function ShowDetailedStats_OnValueChanged(self, state)
@@ -1752,6 +1771,12 @@ local function CreateWidget(parent, anchorTo, offsetX, offsetY, widgetData)
         height = height + extraOffset;
     end
 
+    if widgetData.isNew then
+        if widgetData.text then
+            widgetData.text = NARCI_NEW_ENTRY_PREFIX..widgetData.text.."|r"
+        end
+    end
+
     if isTextObject then
         obj = parent:CreateFontString(nil, "OVERLAY", "NarciFontMedium13");
     
@@ -1926,6 +1951,7 @@ local Categories = {
             {type = "header", level = 0, text = L["Character Panel"]},
             {type = "slider", level = 1, key = "GlobalScale", text = UI_SCALE, onValueChangedFunc = CharacterUIScale_OnValueChanged, minValue = 0.7, maxValue = 1, valueStep = 0.1, },
             {type = "slider", level = 1, key = "BaseLineOffset", text = L["Baseline Offset"], validityCheckFunc = IsUsingUltraWideMonitor, onValueChangedFunc = UltraWideOffset_OnValueChanged, minValue = 0, maxValue = ULTRAWIDE_MAX_OFFSET, valueStep = ULTRAWIDE_STEP, },
+            {type = "checkbox", level = 1, key = "MissingEnchantAlert", text = L["Missing Enchant Alert"], onValueChangedFunc = ShowMisingEnchantAlert_OnValueChanged, validityCheckFunc = ShowMisingEnchantAlert_IsValid, isNew = true},
             {type = "checkbox", level = 1, key = "DetailedIlvlInfo", text = L["Show Detailed Stats"], onValueChangedFunc = ShowDetailedStats_OnValueChanged},
             {type = "checkbox", level = 1, key = "AFKScreen", text = L["AFK Screen Description"], onValueChangedFunc = AFKToggle_OnValueChanged, },
                 {type = "checkbox", level = 3, key = "AKFScreenDelay", text = L["AFK Screen Delay"], onValueChangedFunc = nil, isChild = true},
@@ -1941,7 +1967,7 @@ local Categories = {
             {type = "header", level = 0, text = L["Hotkey"]},
             {type = "keybinding", level = 1, text = L["Open Narcissus"], externalAction = BIND_ACTION_NARCISSUS},
             {type = "checkbox", level = 1, key = "EnableDoubleTap", extraTopPadding = 1, text = L["Double Tap"], description = L["Double Tap Description"], onValueChangedFunc = DoubleTap_OnValueChanged, setupFunc = DoubleTap_Setup},
-            {type = "checkbox", level = 1, key = "UseEscapeButton", text = L["Use Escape Button"], description = L["Use Escape Button Description"], },
+            {type = "checkbox", level = 1, key = "UseEscapeButton", text = L["Use Escape Button"], description = L["Use Escape Button Description"], onValueChangedFunc = UseEscapeKey_OnValueChanged},
         },
     },
 
@@ -2020,6 +2046,8 @@ local Categories = {
         },
     },
 
+
+
     {name = L["Credits"], level = 0, },
     {name = L["About"], level = 0,
         widgets = {
@@ -2027,6 +2055,35 @@ local Categories = {
         },
     },
 };
+
+
+if IS_DRAGONFLIGHT then
+    local function ShowTreeCase1(self, state)
+        SettingFunctions.ShowMiniTalentTreeForPaperDoll(state);
+    end
+
+    local function ShowTreeCase2(self, state)
+        SettingFunctions.ShowMiniTalentTreeForInspection(state);
+    end
+
+    local function TruncateTalentDescription(self, state)
+        SettingFunctions.TruncateTalentTreeTooltip(state);
+    end
+
+    local talentCategory = {name = TALENTS or "Talents", level = 1,
+    widgets = {
+        {type = "header", level = 0, text = L["Mini Talent Tree"]},
+        {type = "subheader", level = 1, text = L["Show Talent Tree When"]},
+        {type = "checkbox", level = 1, key = "TalentTreeForPaperDoll",text = L["Show Talent Tree Paperdoll"], onValueChangedFunc = ShowTreeCase1},
+        {type = "checkbox", level = 1, key = "TalentTreeForInspection", text = L["Show Talent Tree Inspection"],  onValueChangedFunc = ShowTreeCase2},
+        {type = "subheader", level = 1, text = L["Tooltip"], extraTopPadding = 1},
+        {type = "checkbox", level = 1, key = "TalentTreeShortTooltip", text = L["Truncate Talent Description"],  onValueChangedFunc = TruncateTalentDescription},
+    }};
+
+    table.insert(Categories, #Categories -1, talentCategory);
+end
+
+CREDIT_TAB_ID = #Categories - 1;
 
 local function SetupFrame()
     if CategoryButtons then return end;
@@ -2200,7 +2257,7 @@ function NarciSettingsFrameMixin:OnLoad()
         MainFrame:CloseUI();
     end);
 
-    if addon.IsDragonflight() and SettingsPanel then
+    if IS_DRAGONFLIGHT and SettingsPanel then
         self.Background = CreateFrame("Frame", nil, SettingsPanel);
         self.Background:SetFrameStrata("LOW");
         self.Background:SetFixedFrameStrata(true);

@@ -1,0 +1,45 @@
+<Ui xsi:schemaLocation="http://www.blizzard.com/wow/ui/..\FrameXML\UI.xsd">
+	<Script file="ItemAlertOverlay.lua"/>
+
+    <Frame name="NarciSlotButtonAlertOverlayTemplate" virtual="true">
+        <Size x="64" y="64"/>
+        <Layers>
+            <Layer level="OVERLAY" textureSubLevel="5">
+                <Texture parentKey="SwipeTexture" file="Interface\AddOns\Narcissus\Art\ItemBorder-Dark\AlertOverlay\Red">
+                    <Size x="128" y="128"/>
+                    <TexCoords left="0.5" right="1" top="0" bottom="1"/>
+                    <Anchors>
+                        <Anchor point="CENTER"/>
+                    </Anchors>
+                </Texture>
+				<MaskTexture parentKey="SwipeMask" hWrapMode="CLAMPTOBLACKADDITIVE" vWrapMode="CLAMPTOBLACKADDITIVE" file="Interface\AddOns\Narcissus\Art\Masks\Cicle-Dispersive">
+					<Size x="36" y="36"/>
+					<Anchors>
+						<Anchor point="CENTER"/>
+					</Anchors>
+					<MaskedTextures>
+						<MaskedTexture childKey="SwipeTexture"/>
+					</MaskedTextures>
+				</MaskTexture>
+            </Layer>
+            <Layer level="OVERLAY" textureSubLevel="3">
+                <Texture parentKey="BlinkTexture" file="Interface\AddOns\Narcissus\Art\ItemBorder-Dark\AlertOverlay\Red">
+                    <Size x="128" y="128"/>
+                    <TexCoords left="0.25" right="0.5" top="0" bottom="0.5"/>
+                    <Anchors>
+                        <Anchor point="CENTER"/>
+                    </Anchors>
+                </Texture>
+            </Layer>
+            <Layer level="OVERLAY" textureSubLevel="2">
+                <Texture parentKey="InnerShadow" file="Interface\AddOns\Narcissus\Art\ItemBorder-Dark\AlertOverlay\Red">
+                    <Size x="128" y="128"/>
+                    <TexCoords left="0" right="0.25" top="0" bottom="0.5"/>
+                    <Anchors>
+                        <Anchor point="CENTER"/>
+                    </Anchors>
+                </Texture>
+            </Layer>
+        </Layers>
+    </Frame>
+</Ui>

@@ -1146,7 +1146,7 @@
 							<Color r="0.4" g="0.4" b="1" a="0.6"/>
 						</Texture>
 					</Layer>
-					<Layer level="OVERLAY">
+					<Layer level="OVERLAY" textureSubLevel="6">
 						<Texture parentKey="Arrow" file="Interface\AddOns\Narcissus\Art\Widgets\Arrows\UnequipArrow-Yellow.tga" hidden="true"> 
 							<Size x="36" y="36" />
 							<Anchors>

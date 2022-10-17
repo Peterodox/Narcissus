@@ -1,3 +1,5 @@
+local _, addon = ...
+
 local ceil = math.ceil;
 local sin = math.sin;
 local cos = math.cos;
@@ -72,6 +74,12 @@ local function SwipeTrail_Circle(radius, progress)
     local radian = 2 * pi * progress;
     return radius * sin(radian), radius * cos(radian), radian
 end
+
+
+local SwipeTrailFunctions = {};
+addon.SwipeTrailFunctions = SwipeTrailFunctions;
+SwipeTrailFunctions.Polygon = SwipeTrail_PolygonAlignment;
+SwipeTrailFunctions.Circle = SwipeTrail_Circle;
 
 
 local function ClockFrame_OnUpdate(f, elapsed)

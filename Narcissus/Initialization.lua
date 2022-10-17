@@ -1,6 +1,6 @@
 NARCI_VERSION_INFO = "1.2.7";
 
-local VERSION_DATE = 1665241619;
+local VERSION_DATE = 1665937313;
 local CURRENT_VERSION = 10207;
 local PREVIOUS_VERSION = CURRENT_VERSION;
 local TIME_SINCE_LAST_UPDATE = 0;
@@ -70,6 +70,11 @@ local DefaultValues = {
     ["ShowItemID"] = false,                         --Show itemID on equipment tooltip
     ["OutfitSortMethod"] = "name",                  --Filter for sorting outfits: (name alphabet/recently visited)
     ["HideTextsWithUI"] = true,                     --Hide all texts when UI is hidden
+
+    ["MissingEnchantAlert"] = false,                --Show alert if the item isn't enchanted
+    ["TalentTreeShortTooltip"] = true,              --Set the MaxLines of the description to 2 lines
+    ["TalentTreeForInspection"] = true,
+    ["TalentTreeForPaperDoll"] = true,              --True on Beta for testing
 
     --# NPC
     ["SearchRelatives"] = false,                    --Search for NPCs with the same last name

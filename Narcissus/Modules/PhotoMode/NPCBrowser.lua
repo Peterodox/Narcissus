@@ -2303,12 +2303,11 @@ end
 --------------------
 local VirtualTooltipName = "Narci_CreatureNameRetriever";
 local NPCTooltipName = "Narci_NPCSearchBoxTooltip";
-
+local UIParent = UIParent;
 local VirtualTooltip = CreateFrame("GameTooltip", VirtualTooltipName, UIParent, "GameTooltipTemplate");
 local lineName = _G[VirtualTooltipName.. "TextLeft1"];
 local lineTitle = _G[VirtualTooltipName.. "TextLeft2"];
 
-local TOOLTIP_UNIT_LEVEL = "%?";                    --"Level %d"
 local NARCI_NPC_BROWSER_TITLE_LEVEL = NARCI_NPC_BROWSER_TITLE_LEVEL;      --"Level ??"
 
 local find = string.find;
@@ -2316,7 +2315,7 @@ local function IsTooltipLineTitle(text)
     if not text then
         return false
     else
-        return not (find(text, TOOLTIP_UNIT_LEVEL) or find(text, NARCI_NPC_BROWSER_TITLE_LEVEL))
+        return not (find(text, "%?") or find(text, NARCI_NPC_BROWSER_TITLE_LEVEL))--"Level %d"
     end
 end
 
@@ -2356,15 +2355,20 @@ local function GetNPCTitle(creatureID)
     end
 end
 
-local tempName;
+local TEMP_NAME;
 local function GetNPCNameAndTitle(creatureID)
     VirtualTooltip:SetOwner(UIParent, "ANCHOR_NONE");
     VirtualTooltip:SetHyperlink(format("unit:Creature-0-0-0-0-%d", creatureID));
-    tempName = lineName:GetText() or "";
+    TEMP_NAME = lineName:GetText() or "";
+
+    if find(TEMP_NAME, "%?") then
+        return {creatureID}, false
+    end
+
     if IsTooltipLineTitle(lineTitle:GetText()) then
-        return {tempName, lineTitle:GetText()}, (tempName == "")
+        return {TEMP_NAME, lineTitle:GetText()}, (TEMP_NAME == "")
     else
-        return {tempName, nil}, (tempName == "")
+        return {TEMP_NAME, nil}, (TEMP_NAME == "")
     end
 end
 
@@ -3720,6 +3724,7 @@ local function CreateVirtualTooltip(index)
         return VirtualTooltip.lineName:GetText() or ""
     end
     
+    C_TooltipInfo.GetHyperlink(format("unit:Creature-0-0-0-0-%d", 1748))
     VirtualTooltip.GetName = GetName;
 
     return VirtualTooltip

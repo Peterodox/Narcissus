@@ -1,4 +1,4 @@
-## Interface: 90207
+## Interface: 100200
 ## Plain Title: Narcissus
 ## Version: 1.2.7
 
@@ -47,12 +47,13 @@ Modules\CharacterFrame\ItemSocketing.xml
 Modules\EquipmentOption\EquipmentOption.xml
 Modules\CharacterFrame\ItemCooldown.xml
 Modules\CharacterFrame\Attributes.xml
+Modules\CharacterFrame\ItemAlertOverlay.xml
 Modules\MsgAlert\Alert.xml
 Modules\ScreenshotTool\ScreenshotTool.xml
 Modules\MinimapButton\MinimapButton.xml
+Modules\TalentTree\TalentTree.xml
 
 Narcissus.xml
-#Preference.xml
 SettingsFrame.xml
 
 Modules\CharacterFrame\Powers.xml
