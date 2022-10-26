@@ -19,27 +19,6 @@ function NarciEquipmentTooltipGemFrameMixin:SetFrameWidth(width)
     self:SetWidth(width);
 end
 
-function NarciEquipmentTooltipGemFrameMixin:SetItemLink(link)
-    self:Clear();
-    local socketInfo = NarciAPI.GetTooltipSocketInfo(link);
-    local numGems;
-    if socketInfo then
-        numGems = #socketInfo;
-        self.numGems = numGems;
-        for i = 1, numGems do
-            self:SetGemEffect(i, unpack(socketInfo[i]))
-        end
-    end
-    if numGems and numGems > 0 then
-        self:Show();
-        self:UpdateAnchor();
-        local frameHeight = self:GetTop() - self.texts[numGems]:GetBottom();
-        self:SetHeight(frameHeight);
-        return true, frameHeight
-    end
-    return false, 0
-end
-
 function NarciEquipmentTooltipGemFrameMixin:SetSocketInfo(socketInfo)
     self:Clear();
     if socketInfo then

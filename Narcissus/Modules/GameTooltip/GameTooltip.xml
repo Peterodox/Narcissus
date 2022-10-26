@@ -105,6 +105,12 @@
                         <FontString parentKey="ItemLevel" inherits="NarciFontNumber24" justifyH="LEFT" text="200"/>
                         <FontString parentKey="ItemType" inherits="NarciFontNormal10" justifyH="LEFT" text="Head"/>
                         <FontString parentKey="LevelSubText" inherits="NarciFontNormal10" justifyH="LEFT" text="0/0"/>
+                        <Texture parentKey="CraftingQualityIcon" hidden="true">
+                            <Size x="24" y="24"/>
+                            <Anchors>
+                                <Anchor point="TOPLEFT" relativeKey="$parent.ItemLevel" relativePoint="TOPRIGHT" x="4"/>
+                            </Anchors>
+                        </Texture>
                     </Layer>
                 </Layers>
             </Frame>

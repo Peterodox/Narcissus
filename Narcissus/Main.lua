@@ -27,9 +27,6 @@ local SmartFontType = NarciAPI.SmartFontType;
 local IsItemSocketable = NarciAPI.IsItemSocketable;
 local SetBorderTexture = NarciAPI.SetBorderTexture;
 local GetBorderArtByItemID = NarciAPI.GetBorderArtByItemID;
-local DoesItemHaveDomationSocket = NarciAPI.DoesItemHaveDomationSocket;
-local GetDominationBorderTexture = NarciAPI.GetDominationBorderTexture;
-local GetItemDominationGem = NarciAPI.GetItemDominationGem;
 local GetVerticalRunicLetters = NarciAPI.GetVerticalRunicLetters;
 local FadeFrame = NarciFadeUI.Fade;
 
@@ -51,10 +48,9 @@ local ItemLocation = ItemLocation;
 local IsPlayerInAlteredForm = TransitionAPI.IsPlayerInAlteredForm;
 local InCombatLockdown = InCombatLockdown;
 local GetItemInfoInstant = GetItemInfoInstant;
+local GetInventoryItemTexture = GetInventoryItemTexture;
 
 local floor = math.floor;
-local sin = math.sin;
-local cos = math.cos;
 local max = math.max;
 
 local UIParent = _G.UIParent;
@@ -1114,7 +1110,7 @@ function NarciItemButtonSharedMixin:ShowAlphaChannel()
 end
 
 -----------------------------------------------------------------------
-local validForTempEnchant = {
+local ValidForTempEnchant = {
 	[16] = true,
 	[17] = true,
 	[5] = true,
@@ -1318,7 +1314,6 @@ function NarciEquipmentSlotMixin:Refresh(forceRefresh)
 	local borderTexKey;
 	local isAzeriteEmpoweredItem = false;		--3 Pieces	**likely to be changed in patch 8.2
 	local isAzeriteItem = false;				--Heart of Azeroth
-	local isDominationItem;
 	--local isCorruptedItem = false;
 	local bR, bG, bB;		--Item Name Color
 	if C_Item.DoesItemExist(itemLocation) then
@@ -1401,9 +1396,10 @@ function NarciEquipmentSlotMixin:Refresh(forceRefresh)
 				self.durability = (current / maximum);
 			end
 			--]]
+
 			itemLink = C_Item.GetItemLink(itemLocation);
-			
-			if validForTempEnchant[slotID] then
+
+			if ValidForTempEnchant[slotID] then
 				local hasTempEnchant = NarciTempEnchantIndicatorController:InitFromSlotButton(self);
 				if hasTempEnchant ~= self.hasTempEnchant then
 					self.hasTempEnchant = hasTempEnchant;
@@ -1417,7 +1413,7 @@ function NarciEquipmentSlotMixin:Refresh(forceRefresh)
 					return
 				end
 			end
-			
+
 			local itemVFX;
 			local itemID = GetItemInfoInstant(itemLink);
 			borderTexKey, itemVFX, bR, bG, bB = GetBorderArtByItemID(itemID);
@@ -1432,7 +1428,7 @@ function NarciEquipmentSlotMixin:Refresh(forceRefresh)
 			--if effectiveLvl and effectiveLvl > 1 then
 			--	NarciDebug:CalculateAverage(effectiveLvl);
 			--end
-			isDominationItem = DoesItemHaveDomationSocket(itemID);
+
 			if slotID == 13 or slotID == 14 then
 				if itemID == 167555 then	--Pocket-Sized Computation Device
 					gemName, gemLink = IsItemSocketable(itemLink, 2);
@@ -1440,10 +1436,9 @@ function NarciEquipmentSlotMixin:Refresh(forceRefresh)
 					gemName, gemLink = IsItemSocketable(itemLink);
 				end
 			else
-				if isDominationItem then
-					gemName, gemID = GetItemDominationGem(itemLink);
-				else
-					gemName, gemLink = IsItemSocketable(itemLink);
+				gemName, gemLink = IsItemSocketable(itemLink);
+				if slotID == 11 then
+					GN = gemName;
 				end
 			end
 			
@@ -1465,7 +1460,7 @@ function NarciEquipmentSlotMixin:Refresh(forceRefresh)
 			if slotID == 15 then
 				--Backslot
 				if itemID == 169223 then 	--Ashjra'kamas, Shroud of Resolve Legendary Cloak
-					local rank, corruptionResistance = NarciAPI.GetItemRank(itemLink, "ITEM_MOD_CORRUPTION_RESISTANCE");
+					local rank, corruptionResistance = NarciAPI.GetItemRankText(itemLink, "ITEM_MOD_CORRUPTION_RESISTANCE");
 					effectiveLvl = effectiveLvl.."  "..rank.."  |cFFFFD100"..corruptionResistance.."|r";
 					borderTexKey = "BlackDragon";
 					itemVFX = "DragonFire";
@@ -1482,7 +1477,7 @@ function NarciEquipmentSlotMixin:Refresh(forceRefresh)
 			end
 	
 
-			local enchantText = GetItemEnchantText(itemLink, true);
+			local enchantText = GetItemEnchantText(itemLink, true, self.isRight);
 			if enchantText then
 				if self.isRight then
 					effectiveLvl = enchantText.."  "..effectiveLvl;
@@ -1539,7 +1534,7 @@ function NarciEquipmentSlotMixin:Refresh(forceRefresh)
 		effectiveLvl = "";
 		DisplayRuneSlot(self, slotID, 0);
 	end
-	self.isDominationItem = isDominationItem;
+
 	self.itemQuality = itemQuality;
 	
 	if itemQuality and not bR then --itemQuality sometimes return nil. This is a temporary solution
@@ -1622,23 +1617,15 @@ function NarciEquipmentSlotMixin:Refresh(forceRefresh)
 	--Gem Slot--
 	if gemName ~= nil then
 		local gemBorder, gemIcon, itemSubClassID;
-		if isDominationItem then
-			if gemID then
-				_, _, _, _, gemIcon = GetItemInfoInstant(gemID);
-				gemBorder = GetDominationBorderTexture(gemID);
-			else
-				gemBorder = GetDominationBorderTexture(nil);
-			end
-			self.GemSlot.GemBorder:SetTexture(gemBorder);
+
+		--regular gems
+		if gemLink then
+			gemID, _, _, _, gemIcon, _, itemSubClassID = GetItemInfoInstant(gemLink);
+			gemBorder = GetGemBorderTexture(itemSubClassID, gemID);
 		else
-			--regular gems
-			if gemLink then
-				gemID, _, _, _, gemIcon, _, itemSubClassID = GetItemInfoInstant(gemLink);
-				gemBorder = GetGemBorderTexture(itemSubClassID, gemID);
-			else
-				gemBorder = GetGemBorderTexture(nil);
-			end
+			gemBorder = GetGemBorderTexture(nil);
 		end
+
 		self.GemSlot.GemBorder:SetTexture(gemBorder);
 		self.GemSlot.GemIcon:SetTexture(gemIcon);
 		self.GemSlot.GemIcon:Show();
@@ -1648,7 +1635,6 @@ function NarciEquipmentSlotMixin:Refresh(forceRefresh)
 		else
 			self.GemSlot:ShowSlot();
 		end
-		self.GemSlot.isDomiationSocket = isDominationItem;
 	else
 		if self:IsVisible() then
 			self.GemSlot:FadeOut();
@@ -2093,7 +2079,7 @@ SlotController.refreshSequence = {
 
 SlotController.tempEnchantSequence = {};
 
-for slotID in pairs(validForTempEnchant) do
+for slotID in pairs(ValidForTempEnchant) do
 	tinsert(SlotController.tempEnchantSequence, slotID);
 end
 
@@ -2375,7 +2361,7 @@ function NarciEquipmentFlyoutFrameMixin:SetItemSlot(slotButton, showArrow)
     	Tooltip:SetPoint("TOPLEFT", self, "BOTTOMLEFT", 8, -12);
 	end
 	Narci_Comparison_SetComparison(self.BaseItem, slotButton);
-	Tooltip:Show();
+	Narci_ShowComparisonTooltip(Tooltip);
 end
 
 function NarciEquipmentFlyoutFrameMixin:CreateItemButton()

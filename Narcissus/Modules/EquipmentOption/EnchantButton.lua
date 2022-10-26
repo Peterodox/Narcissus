@@ -10,8 +10,8 @@ local GetShardBonus = NarciAPI.GetDominationShardBonus;
 local GetItemBagPosition = NarciAPI.GetItemBagPosition;
 local GetItemTempEnchantType = NarciAPI.GetItemTempEnchantType;
 local IsWeaponValidForEnchant = NarciAPI.IsWeaponValidForEnchant;
-local GetCachedItemTooltipTextByLine = NarciAPI.GetCachedItemTooltipTextByLine;
 
+local C_Item = C_Item;
 local GetSpellInfo = GetSpellInfo;
 local GetSpellDescription = GetSpellDescription;
 local GetItemCount = GetItemCount;
@@ -549,6 +549,7 @@ function NarciEquipmentEnchantButtonMixin:SetGemData(itemID)
         end
         return
     end
+
     self.spellID = nil;
     self.socketType = 1;
     self.enchantID = nil;
@@ -635,7 +636,6 @@ function NarciEquipmentEnchantButtonMixin:SetCrystallicData(itemID, forceUpdate)
         self.Icon:SetTexture(icon);
         local quality = 2;
         self:SetUsed(itemID == InUseIDs.gemID, itemID == InUseIDs.newGemID);
-        --local gemBonus, isCached = GetCachedItemTooltipTextByLine(itemID, 4);
         local r, g, b = GetItemQualityColor(quality);
         self.Text2:SetTextColor(r, g, b, 1);
         if name and name ~= "" and gemBonus and gemBonus ~= "" then

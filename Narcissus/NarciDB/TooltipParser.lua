@@ -1,21 +1,35 @@
+local _, addon = ...
+if not (C_TooltipInfo and addon.IsDragonflight()) then return end;
+
+local C_TooltipInfo = C_TooltipInfo;
+local GetInfoByHyperlink = C_TooltipInfo.GetHyperlink;
+local GetInfoByItemID = C_TooltipInfo.GetItemByID;
+local GetInfoByBagItem = C_TooltipInfo.GetBagItem;
+local GetInfoByInventoryItem = C_TooltipInfo.GetInventoryItem;
+
 local strtrim = strtrim;
+local strsub = string.sub;
 local gsub = string.gsub;
 local match = string.match;
 local find = string.find;
 local format = string.format;
 local split = string.split;
-
+local tonumber = tonumber;
+local type = type;
+local select = select;
 local tinsert = table.insert;
 
 local floor = math.floor;
 local max = math.max;
 
 local _G = _G;
+local L = Narci.L;
 local TEXT_LOCALE = GetLocale();
 
 local GetItemInfoInstant = GetItemInfoInstant;
 local GetItemGem = GetItemGem;
 local GetItemStats = GetItemStats;
+local GetInventoryItemLink = GetInventoryItemLink;
 
 local function IsArtifactRelic(item)
     --an alternative to IsArtifactRelicItem()
@@ -39,14 +53,45 @@ local function RoundColor(a)
     return tonumber(format("%.2f", floor(a*100+0.5)*0.01 ))
 end
 
-local function IsTextColorColor(fontstring, r, g, b)
-    local textR, textG, textB = fontstring:GetTextColor();
-    return (RoundColor(textR) == r) and (RoundColor(textG) == g) and (RoundColor(textB) == b)
+local function IsTextColorColor(colorVal, r, g, b)
+    if not colorVal then return false end;
+    return (RoundColor(colorVal.r) == r) and (RoundColor(colorVal.g) == g) and (RoundColor(colorVal.b) == b)
+end
+
+local function IsTextColorRed(colorVal)
+    --1, 0.13, 0.13
+    if not colorVal then return false end;
+    local r, g, b = colorVal.r, colorVal.g, colorVal.b;
+    return (r > 0.99) and (g > 0.12 and g < 0.14) and (b > 0.12 and b < 0.14)
+end
+
+local function IsTextColorYellow(colorVal)
+    --1, 0.82, 0
+    if not colorVal then return false end;
+    local r, g, b = colorVal.r, colorVal.g, colorVal.b;
+    return (r > 0.99) and (g > 0.83 and g < 0.81) and (b < 0.01)
+end
+
+local function IsTextColorWhite(colorVal)
+    if not colorVal then return false end;
+    local r, g, b = colorVal.r, colorVal.g, colorVal.b;
+    return (r > 0.99) and (g > 0.99) and (b > 0.99)
+end
+
+local function IsTextColor50Grey(colorVal)
+    --0.5, 0.5, 0.5
+    if not colorVal then return false end;
+    local r, g, b = colorVal.r, colorVal.g, colorVal.b;
+    return (r > 0.49 and r < 0.51) and (g > 0.49 and g < 0.51) and (b > 0.49 and b < 0.51)
 end
 
 
-local function trimComma(text)
+local function TrimColon(text)
     return strtrim(text, ":：");
+end
+
+local function TrimWhiteSpace(text)
+    return gsub(text, "%%s", "");
 end
 
 local function Pattern_WrapBrace(text)
@@ -71,25 +116,38 @@ local RIGHT_BRACE = "%)";
 local ON_USE = ITEM_SPELL_TRIGGER_ONUSE;
 local ON_EQUIP = ITEM_SPELL_TRIGGER_ONEQUIP;
 local ON_PROC = ITEM_SPELL_TRIGGER_ONPROC;
-local ITEM_BONUS = Narci.L["Item Bonus"];   --Bonus: (used by Domination Shard)     --ITEM_SOCKET_BONUS
-local NO_COMMA_ON_USE = trimComma(ON_USE);
-local NO_COMMA_ON_EQUIP = trimComma(ON_EQUIP);
-local NO_COMMA_ON_PROC = trimComma(ON_PROC);
-local NO_COMMA_SET_BONUS = trimComma(ITEM_BONUS);
-local GEM_MIN_LEVEL = SOCKETING_ITEM_MIN_LEVEL_I;
+local ITEM_BONUS = L["Item Bonus"];   --Bonus: (used by Domination Shard)     --ITEM_SOCKET_BONUS
+local NO_COMMA_ON_USE = TrimColon(ON_USE);
+local NO_COMMA_ON_EQUIP = TrimColon(ON_EQUIP);
+local NO_COMMA_ON_PROC = TrimColon(ON_PROC);
+local NO_COMMA_SET_BONUS = TrimColon(ITEM_BONUS);
+local GEM_MIN_LEVEL = SOCKETING_ITEM_MIN_LEVEL_I;   --Requires Item Level:
 local GREY_FONT = "|cff959595";
 local SOURCE_KNOWN = TRANSMOGRIFY_TOOLTIP_APPEARANCE_KNOWN;
 local APPEARANCE_KNOWN = TRANSMOGRIFY_TOOLTIP_ITEM_UNKNOWN_APPEARANCE_KNOWN;
 local APPEARANCE_UNKNOWN = TRANSMOGRIFY_TOOLTIP_APPEARANCE_UNKNOWN;
 
-local SET_BONUS = gsub(ITEM_SET_BONUS, "%%s", "");          --"Set: %s"     --SET_BONUS_GRAY
-local SOCKET_BONUS = gsub(ITEM_SOCKET_BONUS, "%%s", "");    --Socket Bonus: %s
+local TEXT_SPELL_RANGE = TrimWhiteSpace(SPELL_RANGE or "%s yd range");
+local TEXT_SPELL_RANGE_UNLIMITED = SPELL_RANGE_UNLIMITED or "Unlimited range";
+local TEXT_SPELL_RANGE_MELEE = MELEE_RANGE or "Melee Range";
+local TEXT_SPELL_CAST_TIME_INSTANT = SPELL_CAST_TIME_INSTANT or "Instant";
+local TEXT_SPELL_CAST_TIME_SEC = gsub(SPELL_CAST_TIME_SEC or "%.2g sec cast", "%%.2g", "");
+local TEXT_SPELL_CAST_CHANNELED = SPELL_CAST_CHANNELED or "Channeled";
+local TEXT_SPELL_PASSIVE = SPELL_PASSIVE or "Passive";
+local TEXT_SPELL_COOLDOWN = L["Find Cooldown"];
+local TEXT_SPELL_RECHARGE = L["Find Recharge"];
+local TEXT_REPLACES_SPELL = TrimWhiteSpace(REPLACES_SPELL or "Replaces %s");
+
+local SET_BONUS = TrimWhiteSpace(ITEM_SET_BONUS);          --"Set: %s"     --SET_BONUS_GRAY
+local SOCKET_BONUS = TrimWhiteSpace(ITEM_SOCKET_BONUS);    --Socket Bonus: %s
 
 local PATTERN_COOLDOWN_TIME = "%((%d.+) Cooldown%)$";
 local PATTERN_UPGRADE_LEVEL = gsub(ITEM_UPGRADE_TOOLTIP_FORMAT, "%%d+", "(%%d+)");
 local PATTERN_ITEM_SET_NAME = "(.+) %((%d+)/(%d+)%)";   --Pattern_WrapNumber( Pattern_WrapSpace( Pattern_WrapBrace( ITEM_SET_NAME) ) );
 local PATTERN_CLASS_REQUIREMENT = Pattern_WrapSpace(ITEM_CLASSES_ALLOWED);
 local PATTERN_AMMO_DPS = gsub(AMMO_DAMAGE_TEMPLATE, "%%s", "([%%d.]+)");
+local PATTERN_PROFESSION_QUALITY = Pattern_WrapSpace(PROFESSIONS_CRAFTING_QUALITY or "Quality: %s");
+
 
 do
     if TEXT_LOCALE == "zhCN" then
@@ -118,7 +176,7 @@ end
 local function FormatString(text, removedText, keepFormat)
     if not keepFormat then
         text = strtrim(text, removedText);
-        text = trimComma(text);
+        text = TrimColon(text);
         text = strtrim(text);                               --remove space
         text = gsub(text, LEFT_BRACE, "\n\n"..GREY_FONT)
         text = gsub(text, RIGHT_BRACE, "|r")
@@ -127,7 +185,7 @@ local function FormatString(text, removedText, keepFormat)
 end
 
 local function TrimCooldownText(text)
-    text = trimComma(text);
+    text = TrimColon(text);
     local cooldownText = match(text, PATTERN_COOLDOWN_TIME);
     text = gsub(text, LEFT_BRACE..".+"..RIGHT_BRACE.."$", "");
     text = strtrim(text);
@@ -138,134 +196,195 @@ local function ReplacePureGreenText(text)
     return gsub(text, "cFF.0FF.0", "cFF00E700");
 end
 
----- Advanced Tooltip Parser with callback ----
-local Tooltip;
-local TOOLTIP_NAME = "NarciUtilityTooltip";
-local IS_ITEM_CACHED = {};
-local IS_LINE_HOOKED = {};
 
-local pinnedObjects, lastItem, lastText, onTextChangedCallback;
+local function GetLineText(lines, index)
+    if lines[index] and lines[index].args then
+        return lines[index].args[2].stringVal;
+    end
+end
+
+local function GetLineRightText(lines, index)
+    if lines[index] and lines[index].args and lines[index].args[4] then
+        return lines[index].args[4].stringVal;
+    end
+end
+
+local function GetCraftingQualityFromText(text)
+    --escape sequence: "|A:Professions-Icon-Quality-Tier1-Small:26:26:0:-1|a"
+    local quality = match(text, "[Pp]rofessions%-[Ii]con%-[Qq]uality%-[Tt]ier(%d)", 1);
+    if quality then
+        return tonumber(quality)
+    end
+end
+
+local function ReformatCraftingQualityText(text, addTierTextToRight)
+    local quality = match(text, "[Pp]rofessions%-[Ii]con%-[Qq]uality%-[Tt]ier(%d)", 1);
+    if quality then
+        local tempText = gsub(text, "%s?|A[^|]+|a", "");
+        if tempText then
+            local color;
+            quality = tonumber(quality);
+            if quality == 1 then
+                color = "|cffd8b093";
+            elseif quality == 2 then
+                color = "|cffbbbbbb";
+            elseif quality == 3 then
+                color = "|cffdeb630";
+            elseif quality == 4 then
+                color = "|cff50c7a6";
+            elseif quality == 5 then
+                color = "|cffffa04c";
+            else
+                color = "|cffffffff";
+            end
+
+            if addTierTextToRight then
+                return tempText .."  "..color.."T"..quality.."|r";
+            else
+                return color.."T"..quality.."|r  "..tempText
+            end
+            
+        end
+    end
+    return text
+end
+
+---- Advanced Tooltip Parser with callback ----
+local TooltipUpdateFrame;
+local IS_ITEM_CACHED = {};
+local ON_TEXT_CHANGED_CALLBACK;
+local PINNED_LINES, LAST_ITEM, LAST_TEXT;
 
 local function OnTextChanged(object, text)
     print(object.lineIndex);
     print(text);
 end
 
-local function SetTooltipItem(item)
-    if not item then return end;
-
-    if type(item) == "number" then
-        Tooltip:SetItemByID(item);
-    else
-        Tooltip:SetHyperlink(item);
-    end
-
-    if IS_ITEM_CACHED[item] then
-        return true
-    else
-        IS_ITEM_CACHED[item] = true;
-        return false
-    end
-end
-
 local function GetPinnedLineText()
-    if pinnedObjects then
+    if PINNED_LINES and LAST_ITEM then
+        local tooltipData;
+        if type(LAST_ITEM) == "number" then
+            tooltipData = GetInfoByItemID(LAST_ITEM);
+        else
+            tooltipData = GetInfoByHyperlink(LAST_ITEM);
+        end
+        if not tooltipData then return end;
+    
+        local lines = tooltipData.lines;
+        local numLines = #lines;
+        local lineText;
         local output;
-        local text;
-        for i = 1, #pinnedObjects do
-            text = pinnedObjects[i]:GetText() or "";
-            text = strtrim(text);
-            if text and text ~= "" then
-                if output then
-                    output = output.."\n"..text;
-                else
-                    output = text;
+
+        for i = 1, #PINNED_LINES do
+            if PINNED_LINES[i] <= numLines then
+                lineText = GetLineText(lines, PINNED_LINES[i]);
+                if lineText and lineText ~= "" then
+                    if output then
+                        output = output.."\n"..lineText;
+                    else
+                        output = lineText;
+                    end
                 end
             end
         end
-        if output ~= lastText then
-            lastText = output;
-            if onTextChangedCallback then
-                onTextChangedCallback(output);
+        if output ~= LAST_TEXT then
+            LAST_TEXT = output;
+            if ON_TEXT_CHANGED_CALLBACK then
+                ON_TEXT_CHANGED_CALLBACK(output);
             end
             return true
         end
     end
 end
 
-local function Tooltip_OnUpdate(self, elapsed)
+local function TooltipUpdateFrame_OnUpdate(self, elapsed)
     self.t = self.t + elapsed;
     if self.t > 0.25 then
         self.t = 0;
         self.iteration = self.iteration + 1;
-        if self.iteration > 3 then
+        if self.iteration >= 3 then
             self:SetScript("OnUpdate", nil);
         end
-        SetTooltipItem(lastItem);
-        GetPinnedLineText()
+        GetPinnedLineText();
     end
 end
 
 local function GetCachedItemTooltipTextByLine(item, line, callbackFunc)
-    if not Tooltip then
-        Tooltip = CreateFrame("GameTooltip", TOOLTIP_NAME, nil, "GameTooltipTemplate");
-        Tooltip:SetOwner(UIParent, "ANCHOR_NONE");
+    if not TooltipUpdateFrame then
+        TooltipUpdateFrame = CreateFrame("Frame");
     end
 
-    onTextChangedCallback = callbackFunc;
-    local isCached = SetTooltipItem(item);
+    ON_TEXT_CHANGED_CALLBACK = callbackFunc;
 
-    if item ~= lastItem then
-        lastItem = item;
-        lastText = nil;
-        Tooltip.t = 0;
-        Tooltip.iteration = 0;
-        Tooltip:SetScript("OnUpdate", Tooltip_OnUpdate);
-    end
-
-    local object;
-    local text;
-
-    if pinnedObjects then
-        wipe(pinnedObjects);
+    local isCached;
+    if IS_ITEM_CACHED[item] then
+        isCached = true
     else
-        pinnedObjects = {};
+        IS_ITEM_CACHED[item] = true;
+        isCached = false
     end
+
+    local tooltipData;
+    if type(item) == "number" then
+        tooltipData = GetInfoByItemID(item);
+    else
+        tooltipData = GetInfoByHyperlink(item);
+    end
+    if not tooltipData then return end;
+
+    local lines = tooltipData.lines;
+    local numLines = #lines;
+    local lineText;
+
+    if item ~= LAST_ITEM then
+        LAST_ITEM = item;
+        LAST_TEXT = nil;
+        TooltipUpdateFrame.t = 0;
+        TooltipUpdateFrame.iteration = 0;
+        TooltipUpdateFrame:SetScript("OnUpdate", TooltipUpdateFrame_OnUpdate);
+    end
+
+    if isCached then
+        if PINNED_LINES then
+            PINNED_LINES = nil;
+        end
+    end
+
+
     if type(line) == "table" then
         local output;
         local _l;
         for i = 1, #line do
             _l = line[i];
-            object = _G[TOOLTIP_NAME.."TextLeft".._l];
-            if object then
-                tinsert(pinnedObjects, object);
-                if not IS_LINE_HOOKED[_l] then
-                    IS_LINE_HOOKED[_l] = true;
-                    object.lineIndex = _l;
-                end
-                text = object:GetText() or "";
-                text = strtrim(text);
-                if text and text ~= "" then
+            if _l <= numLines then
+                lineText = GetLineText(lines, _l);
+                if lineText and lineText ~= "" then
                     if output then
-                        output = output.."\n"..text;
+                        output = output.."\n"..lineText;
                     else
-                        output = text;
+                        output = lineText;
                     end
                 end
             end
         end
-        return output, isCached
-    else
-        object = _G[TOOLTIP_NAME.."TextLeft"..line];
-        pinnedObjects = {object};
-        if object then
-            if not IS_LINE_HOOKED[line] then
-                IS_LINE_HOOKED[line] = true;
-                object.lineIndex = line;
-            end
-            text = object:GetText();
+
+        if not isCached then
+            PINNED_LINES = line;
+            LAST_TEXT = output;
         end
-        return text, isCached
+
+        return output, isCached or (output ~= nil);
+    else
+        if line <= numLines then
+            lineText = GetLineText(lines, line);
+        end
+
+        if not isCached then
+            PINNED_LINES = {line};
+            LAST_TEXT = lineText;
+        end
+
+        return lineText, isCached or (lineText ~= nil);
     end
 end
 
@@ -274,25 +393,18 @@ NarciAPI.GetCachedItemTooltipTextByLine = GetCachedItemTooltipTextByLine;
 
 
 
-----Generic Tooltip Scan----
-
-local TP = CreateFrame("GameTooltip", "NarciVirtualTooltip", nil, "GameTooltipTemplate");
-TP:SetOwner(UIParent, 'ANCHOR_NONE');
-
-local LEFT_FONT_STRINGS = {
-    TP.TextLeft1, TP.TextLeft2
-};
-
-
-local function GetItemRank(itemLink, statName)
+local function GetItemRankText(itemLink, statName)
     --Items that can get upgraded
     if not itemLink then return; end
 
-    TP:SetHyperlink(itemLink);
-    local fontstring = _G["NarciVirtualTooltip".."TextLeft"..2];
-    fontstring = fontstring:GetText() or "";
-    fontstring = strtrim(fontstring, "|r");
-    local rank = match(fontstring, "%d+", -2) or "";
+    local tooltipData = GetInfoByHyperlink(itemLink);
+    if not tooltipData then return end;
+
+    local dataText = GetLineText(tooltipData.lines, 2);
+    if not dataText then return end;
+
+    local rank = match(dataText, "%d+", -2) or "";
+    if not rank then return end;
 
     if statName then
         local stats = GetItemStats(itemLink) or {};
@@ -302,23 +414,24 @@ local function GetItemRank(itemLink, statName)
     end
 end
 
-NarciAPI.GetItemRank = GetItemRank;
+NarciAPI.GetItemRankText = GetItemRankText;
 
 
-local function GetItemTooltipTextByLine(item, line, keepColor)
+local function GetItemTooltipTextByLine(item, lineIndex, keepColor)
     --It's possible that item description hasn't been cached yet
     --See TooltipParser.lua for more advanced functionalities
+    local tooltipData;
     if type(item) == "number" then
-        TP:SetItemByID(item);
+        tooltipData = GetInfoByItemID(item);
     else
-        TP:SetHyperlink(item);
+        tooltipData = GetInfoByHyperlink(item);
     end
-    local object = _G["NarciVirtualTooltipTextLeft"..line];
-    if object then
+
+    if tooltipData and tooltipData.lines then
         if keepColor then
-            return object:GetText();
+            return GetLineText(tooltipData.lines, lineIndex)
         else
-            return RemoveColorString(object:GetText());
+            return RemoveColorString( GetLineText(tooltipData.lines, lineIndex) );
         end
     end
 end
@@ -331,16 +444,18 @@ local ITEM_ENCHANT_FORMAT = gsub(ENCHANTED_TOOLTIP_LINE, "%%s", "(.+)");
 local function GetItemEnchantText(itemLink, colorized)
     if not itemLink then return; end
 
-    TP:SetHyperlink(itemLink);
-    local numLines = TP:NumLines();
-    local str;
+    local tooltipData = GetInfoByHyperlink(itemLink);
+    if not tooltipData then return end;
+
+    local lines = tooltipData.lines;
+    local numLines = #lines;
+    local lineText;
     local enchantText;
     local enchantFormat = ITEM_ENCHANT_FORMAT;
     for i = 5, numLines do
-        str = _G["NarciVirtualTooltip".."TextLeft"..i];
-        if str then
-            str = str:GetText();
-            enchantText = match(str, enchantFormat);
+        lineText = GetLineText(lines, i);
+        if lineText then
+            enchantText = match(lineText, enchantFormat);
             if enchantText then
                 enchantText = strtrim(enchantText);
                 if enchantText ~= "" then
@@ -368,32 +483,27 @@ NarciAPI.GetItemEnchantText = GetItemEnchantText;
 NarciAPI.GetEnchantTextByEnchantID = GetEnchantTextByEnchantID;
 
 
-local function GetEnchantTextByItemLink(itemLink, colorized)
+local function GetEnchantTextByItemLink(itemLink, colorized, isRight)
     if not itemLink then return end;
 
     local _, _, _, linkType, linkID, enchantID = split(":|H", itemLink);
 
     if enchantID then
-        TP:SetHyperlink("item:2092:"..enchantID);
+        local tooltipData = GetInfoByHyperlink("item:2092:"..enchantID);
+        if not tooltipData then return end;
 
-        if not LEFT_FONT_STRINGS[7] then
-            LEFT_FONT_STRINGS[7] = _G["NarciVirtualTooltipTextLeft7"];
-        end
-
-        if LEFT_FONT_STRINGS[7] then
-            local enchantText = LEFT_FONT_STRINGS[7]:GetText();
-
-            if enchantText and enchantText ~= "" then
-                --remove "Enchanted:"
-                local effect = match(enchantText, ITEM_ENCHANT_FORMAT);
-                if not effect then
-                    effect = enchantText;
-                end
-                if colorized then
-                    effect = "|cff5fbd6b"..effect.."|r";
-                end
-                return effect
+        local enchantText = GetLineText(tooltipData.lines, 7);
+        if enchantText and enchantText ~= "" then
+            --remove "Enchanted:"
+            local effect = match(enchantText, ITEM_ENCHANT_FORMAT);
+            if not effect then
+                effect = enchantText;
             end
+            if colorized then
+                effect = "|cff5fbd6b"..effect.."|r";
+            end
+            effect = ReformatCraftingQualityText(effect, isRight);
+            return effect
         end
     end
 end
@@ -413,21 +523,24 @@ end
 
 local function GetTemporaryItemBuff(location1, location2)
     if not location1 then return; end
+
+    local tooltipData;
     if location2 then
-        TP:SetBagItem(location1, location2);
+        tooltipData = GetInfoByBagItem(location1, location2);
     else
-        TP:SetInventoryItem("player", location1, nil, true);
+        tooltipData = GetInfoByInventoryItem("player", location1, true);
     end
-    local numLines = TP:NumLines();
-    local str;
-    local r, g, b;
+    if not tooltipData then return end;
+
+    local lines = tooltipData.lines;
+    local numLines = #lines;
+    local lineText;
     local buffText, durationText;
     for i = 5, numLines do
-        str = _G["NarciVirtualTooltip".."TextLeft"..i];
-        if str then
-            str = str:GetText();
-            if not match(str, FORMAT_COLON) then
-                buffText, durationText = match(str, TEMP_ENCHANT_FORMAT);
+        lineText = GetLineText(lines, i);
+        if lineText then
+            if not match(lineText, FORMAT_COLON) then
+                buffText, durationText = match(lineText, TEMP_ENCHANT_FORMAT);
                 if buffText and durationText then
                     break
                 end
@@ -451,24 +564,20 @@ local function GetWeaponDamageAndSpeed(itemLink)
     end
     itemEquipLoc = _G[itemEquipLoc];
 
-    TP:SetHyperlink(itemLink);
-    local numLines = TP:NumLines();
-    local fontString, leftText, rightText;
+    local tooltipData = GetInfoByHyperlink(itemLink);
+    if not tooltipData then return end;
+
+    local lines = tooltipData.lines;
+    local numLines = #lines;
+    local lineText, leftText, rightText;
 
     for i = 3, numLines do
-        fontString = _G["NarciVirtualTooltip".."TextLeft"..i];
-        if fontString then
-            leftText = fontString:GetText();
-            if leftText == itemEquipLoc then
+        lineText = GetLineText(lines, i);
+        if lineText then
+            if lineText == itemEquipLoc then
                 local n = i + 1;
-                fontString = _G["NarciVirtualTooltip".."TextLeft"..n];
-                if fontString then
-                    leftText = fontString:GetText();
-                end
-                fontString = _G["NarciVirtualTooltip".."TextRight"..n];
-                if fontString then
-                    rightText = fontString:GetText();
-                end
+                leftText = GetLineText(lines, n);
+                rightText = GetLineRightText(lines, n);
                 return leftText, rightText
             end
         else
@@ -482,15 +591,18 @@ NarciAPI.GetWeaponDamageAndSpeed = GetWeaponDamageAndSpeed;
 
 local function GetItemFlavorText(itemLink)
     if not itemLink then return; end
-    TP:SetHyperlink(itemLink);
-    local numLines = TP:NumLines();
-    local fontString, text;
+
+    local tooltipData = GetInfoByHyperlink(itemLink);
+    if not tooltipData then return end;
+
+    local lines = tooltipData.lines;
+    local numLines = #lines;
+    local lineText, text;
 
     for i = numLines, numLines - 1, -1 do
-        fontString = _G["NarciVirtualTooltip".."TextLeft"..i];
-        if fontString then
-            text = fontString:GetText();
-            if match(text, "^[\"“]") then
+        lineText = GetLineText(lines, i);
+        if lineText then
+            if match(lineText, "^[\"“]") then
                 return text
             end
         else
@@ -502,113 +614,76 @@ end
 NarciAPI.GetItemFlavorText = GetItemFlavorText;
 
 
-local function GetTooltipSocketInfo(itemLink)
+
+local function IsAppearanceKnown(itemLink)
+    --Need to correspond with C_TransmogCollection.PlayerHasTransmog
     if not itemLink then return; end
 
-    local tex, texID;
+    local tooltipData = GetInfoByHyperlink(itemLink);
+    if not tooltipData then return end;
 
-    for i = 1, 3 do
-        tex = _G["NarciVirtualTooltipTexture"..i];
-        if tex then
-            tex = tex:SetTexture(nil);
-        end
-    end
+    local lines = tooltipData.lines;
+    local numLines = #lines;
+    local lineText;
 
-    TP:SetHyperlink(itemLink);
-
-    local _, relativeFontString;
-    local socketInfo, gemName, gemLink, effect;
-
-    for i = 1, 3 do
-        tex = _G["NarciVirtualTooltipTexture"..i];
-        texID = tex and tex:GetTexture();
-        if texID then
-            if not socketInfo then
-                socketInfo = {};
-            end
-            gemName, gemLink = GetItemGem(itemLink, i);
-            _, relativeFontString = tex:GetPoint();
-            if relativeFontString then
-                effect = relativeFontString:GetText();
-                effect = RemoveColorString(effect);
-            else
-                effect = nil;
-            end
-            socketInfo[i] = {texID, gemName, gemLink, effect};
-        end
-    end
-
-    return socketInfo
-end
-
-NarciAPI.GetTooltipSocketInfo = GetTooltipSocketInfo;
-
-
-local function NarciAPI_IsAppearanceKnown(itemLink)
-    --Need to correspond with C_TransmogCollection.PlayerHasTransmog
-    if not itemLink then    return; end
-    TP:SetHyperlink(itemLink);
-    local str;
-    local num = TP:NumLines();
-    for i = num, num - 2, -1 do
-        str = nil;
-        str = _G["NarciVirtualTooltip".."TextLeft"..i]
-        if not str then
+    for i = numLines, numLines - 2, -1 do
+        lineText = GetLineText(lines, i);
+        if not lineText then
             return false;
-        else
-            str = str:GetText();
         end
-        if str == SOURCE_KNOWN or str == APPEARANCE_KNOWN then
+        if lineText == SOURCE_KNOWN or lineText == APPEARANCE_KNOWN then
             return true;
-        elseif str == APPEARANCE_UNKNOWN then
+        elseif lineText == APPEARANCE_UNKNOWN then
             return false;
         end
     end
+
     return false;
 end
 
-NarciAPI.IsAppearanceKnown = NarciAPI_IsAppearanceKnown;
+NarciAPI.IsAppearanceKnown = IsAppearanceKnown;
 
 
 local function GetItemExtraEffect(itemLink, checkBonus, keepFormat)
     if not itemLink then return; end
 
-    TP:SetHyperlink(itemLink);
-    local num = TP:NumLines();
-    local begin = max(num - 6, 3);
-    local output = "";
-    local category, str;
+    local tooltipData = GetInfoByHyperlink(itemLink);
+    if not tooltipData then return end;
 
-    for i = begin, num, 1 do
-        str = nil;
-        str = _G["NarciVirtualTooltip".."TextLeft"..i];
-        if not str then
+    local lines = tooltipData.lines;
+    local numLines = #lines;
+    local fromLine = max(numLines - 6, 3);
+    local output = "";
+    local category, lineText;
+
+    for i = fromLine, numLines, 1 do
+        lineText = GetLineText(lines, i);
+        if not lineText then
             break;
-        else
-            str = str:GetText();
         end
 
-        if find(str, ON_USE) then
-            str = FormatString(str, NO_COMMA_ON_USE, keepFormat);
+        if find(lineText, ON_USE) then
+            lineText = FormatString(lineText, NO_COMMA_ON_USE, keepFormat);
             if not category then    category = NO_COMMA_ON_USE; end
-            output = output..str.."\n"
-        elseif find(str, ON_EQUIP) then
-            str = FormatString(str, NO_COMMA_ON_EQUIP, keepFormat);
+            output = output..lineText.."\n";
+        elseif find(lineText, ON_EQUIP) then
+            lineText = FormatString(lineText, NO_COMMA_ON_EQUIP, keepFormat);
             if not category then    category = NO_COMMA_ON_EQUIP; end
-            output = output..str.."\n"
-        elseif find(str, ON_PROC) then
-            str = FormatString(str, NO_COMMA_ON_PROC, keepFormat);
+            output = output..lineText.."\n";
+        elseif find(lineText, ON_PROC) then
+            lineText = FormatString(lineText, NO_COMMA_ON_PROC, keepFormat);
             if not category then    category = NO_COMMA_ON_PROC; end
-            output = output..str.."\n"
+            output = output..lineText.."\n";
         elseif checkBonus then
-            if find(str, ITEM_BONUS) then
-                str = FormatString(str, NO_COMMA_SET_BONUS, keepFormat);
+            if find(lineText, ITEM_BONUS) then
+                lineText = FormatString(lineText, NO_COMMA_SET_BONUS, keepFormat);
                 if not category then    category = NO_COMMA_SET_BONUS; end
-                output = output..str.."\n"
+                output = output..lineText.."\n";
                 break
             end
         end
     end
+
     return category, output;
 end
 
@@ -624,21 +699,33 @@ local SpecialGemData = {
     [32410] = 4,        --Meta Chance to Increase Melee/Ranged Attack Speed
 };
 
-local function NarciAPI_GetGemBonus(item)
-    --item: Gem's Item ID or hyperlink
-    if not item then return; end
-    local itemID;
-    if type(item) == "number" then
-        TP:SetItemByID(item);
-        itemID = item;
-    else
-        TP:SetHyperlink(item);
-        itemID = GetItemInfoInstant(item);
+local GEM_BONUS_CACHE = {};
+
+local function GetGemBonusFromGem(gem)
+    --gem: Gem's itemID or hyperlink
+    if not gem then return; end
+
+    if GEM_BONUS_CACHE[gem] then
+        return GEM_BONUS_CACHE[gem][1], GEM_BONUS_CACHE[gem][2]
     end
-    local num = TP:NumLines();
+
+    local tooltipData;
+    local itemID;
+    if type(gem) == "number" then
+        tooltipData = GetInfoByItemID(gem);
+        itemID = gem;
+    else
+        tooltipData = GetInfoByHyperlink(gem);
+        itemID = GetItemInfoInstant(gem);
+    end
+
+    if not tooltipData then return end;
+
+    local lines = tooltipData.lines;
+    local numLines = #lines;
     local bonusText;
-    local str;
-    local level = 0;
+    local lineText;
+    local requiredItemLevel = 0;
 
     local bonusID = SpecialGemData[itemID];
     if bonusID then
@@ -653,64 +740,67 @@ local function NarciAPI_GetGemBonus(item)
         end
     end
 
-    for i = 1, num do
-        str = _G["NarciVirtualTooltip".."TextLeft"..i]
-        if not str then
+    for i = 2, numLines do
+        lineText = GetLineText(lines, i);
+        if not lineText then
             return;
-        else
-            str = str:GetText();
-            if not str then
-                return;
-            end
         end
 
-        if not bonusText and string.sub(str, 1, 1) == "+" then
-            bonusText = str;
+        if not bonusText and strsub(lineText, 1, 1) == "+" then
+            bonusText = lineText;
         end
 
-        if find(str, GEM_MIN_LEVEL) then
-            level = FormatString(str, GEM_MIN_LEVEL);
+        if find(lineText, GEM_MIN_LEVEL) then
+            requiredItemLevel = FormatString(lineText, GEM_MIN_LEVEL);
         end
 
-        if level and bonusText then return bonusText, tonumber(level); end
+        if requiredItemLevel and bonusText then break end;
     end
-    return bonusText, tonumber(level);
+
+    requiredItemLevel = tonumber(requiredItemLevel);
+
+    if bonusText then
+        GEM_BONUS_CACHE[gem] = {bonusText, requiredItemLevel};
+    end
+
+    return bonusText, requiredItemLevel;
 end
 
-NarciAPI.GetGemBonus = NarciAPI_GetGemBonus;
+NarciAPI.GetGemBonus = GetGemBonusFromGem;
 
 
 local function GetItemEquipEffect(itemLink)
     if not itemLink then return; end
 
-    TP:SetHyperlink(itemLink);
-    local total = TP:NumLines();
-    local begin = max(total - 4, 0);
-    local fontString, text;
+    local tooltipData = GetInfoByHyperlink(itemLink);
+    if not tooltipData then return end;
+
+    local lines = tooltipData.lines;
+    local numLines = #lines;
+    local fromLine = max(numLines - 4, 0);
+    local lineText;
     local effects, effectType, effectText, cooldownText;
     local numEffects;
 
-    for i = begin, total do
-        fontString = _G["NarciVirtualTooltip".."TextLeft"..i];
-        if not fontString then
+    for i = fromLine, numLines do
+        lineText = GetLineText(lines, i);
+        if not lineText then
             break;
-        else
-            text = fontString:GetText();
         end
         effectType = nil;
         effectText = nil;
         cooldownText = nil;
-        if find(text, ON_USE) then
-            effectText, cooldownText = TrimCooldownText( strtrim(text, NO_COMMA_ON_USE) );
+        if find(lineText, ON_USE) then
+            effectText, cooldownText = TrimCooldownText( strtrim(lineText, NO_COMMA_ON_USE) );
             effectType = "use";
-        elseif find(text, ON_EQUIP) then
-            effectText = RemoveColorString(text);
+        elseif find(lineText, ON_EQUIP) then
+            effectText = RemoveColorString(lineText);
             effectType = "equip";
-        elseif find(text, ON_PROC) then
-            effectText = text;
+        elseif find(lineText, ON_PROC) then
+            effectText = lineText;
             effectType = "proc";
-        elseif find(text, ITEM_BONUS) then
-            effectText = text;
+        elseif find(lineText, ITEM_BONUS) then
+            effectText = lineText;
             effectType = "set";
         end
         if effectType then
@@ -731,14 +821,17 @@ NarciAPI.GetItemEquipEffect = GetItemEquipEffect;
 local function GetItemUpgradeLevel(itemLink)
     if not itemLink then return; end
 
-    TP:SetHyperlink(itemLink);
-    local fontString, text;
+    local tooltipData = GetInfoByHyperlink(itemLink);
+    if not tooltipData then return end;
+
+    local lines = tooltipData.lines;
+    local numLines = #lines;
+    local lineText;
     local currentLevel, maxLevel;
     for i = 2, 3 do
-        fontString = _G["NarciVirtualTooltip".."TextLeft"..i];
-        if fontString then
-            text = fontString:GetText();
-            currentLevel, maxLevel = match(text, PATTERN_UPGRADE_LEVEL);
+        lineText = GetLineText(lines, i);
+        if lineText then
+            currentLevel, maxLevel = match(lineText, PATTERN_UPGRADE_LEVEL);
             if maxLevel then
                 return currentLevel, maxLevel
             end
@@ -751,18 +844,13 @@ end
 NarciAPI.GetItemUpgradeLevel = GetItemUpgradeLevel;
 
 
-local function GetCompleteItemData(itemLink)
+local function GetCompleteItemData(tooltipData, itemLink)
     --return a table of data obtained by scanning tooltip
     --upgrade level (current/max), equipmentEffects(onEquip, onUse, onProc, bonus), socket info(socket1, socket2, socket3), enchant
     --reset socket textures
-    local _;
-    if not itemLink then
-        _, itemLink = TP:GetItem();
-        itemLink = FormatItemLink(itemLink);
-        if not itemLink then
-            return
-        end
-    end
+    if not (tooltipData and itemLink) then return end;
+
+    itemLink = FormatItemLink(itemLink);
 
     local _, _, _, itemEquipLoc, _, classID, subclassID = GetItemInfoInstant(itemLink);
     local matchWeapon;
@@ -773,67 +861,35 @@ local function GetCompleteItemData(itemLink)
     end
 
     local processed = {};   --process each line once
-
-    local numLines = TP:NumLines();
-    local fontString, text;
+    local lines = tooltipData.lines;
+    local numLines = #lines;
+    local lineText;
     local match1, match2;
     local enchantText;
     local effectText, effectType, numEffects, isActive, cooldownText;
     local data, anyMatch;
-    local tex, texID;
-    local gemName, gemLink, gemEffect, lineIndex;
-
-    for i = 1, 3 do
-        tex = _G["NarciVirtualTooltipTexture"..i];
-        texID = tex and tex:GetTexture();
-        if texID then
-            gemName, gemLink = GetItemGem(itemLink, i);
-            _, fontString = tex:GetPoint();
-            if fontString then
-                gemEffect = fontString:GetText();
-                gemEffect = RemoveColorString(gemEffect);
-                lineIndex = tonumber(match(fontString:GetName(), "Left(%d+)$"));
-                processed[lineIndex] = true;
-                if lineIndex and not LEFT_FONT_STRINGS[lineIndex] then
-                    LEFT_FONT_STRINGS[lineIndex] = fontString;
-                end
-            else
-                gemEffect = nil;
-            end
-            if not data then
-                data = {};
-            end
-            if not data.socketInfo then
-                data.socketInfo = {};
-            end
-            data.socketInfo[i] = {texID, gemName, gemLink, gemEffect};
-        end
-    end
+    local socketOrderID = 0;
+    local qualityFound;
 
     for i = 2, numLines do
         if not processed[i] then
-            if not LEFT_FONT_STRINGS[i] then
-                LEFT_FONT_STRINGS[i] = _G["NarciVirtualTooltipTextLeft"..i];
-            end
-            fontString = LEFT_FONT_STRINGS[i];
-            if fontString then
-                text = fontString:GetText();
+            lineText = GetLineText(lines, i);
+            if lineText then
                 anyMatch = nil;
                 if i == 2 then
                     --the second line is usually item level
                     --or a special item category: difficuty, Cypher Equipment
-                    if not match(text, "%d$") then
+                    if not match(lineText, "%d$") then
                         if not data then
                             data = {};
                         end
-                        data.context = ReplacePureGreenText(text);
-                        GT = data.context
+                        data.context = ReplacePureGreenText(lineText);
                         anyMatch = true;
                     end
                 else
                     if i < 5 and not match2 then
                         --upgrade level
-                        match1, match2 = match(text, PATTERN_UPGRADE_LEVEL);
+                        match1, match2 = match(lineText, PATTERN_UPGRADE_LEVEL);
                         if match2 then
                             if not data then
                                 data = {};
@@ -847,44 +903,33 @@ local function GetCompleteItemData(itemLink)
 
                 if i >= 4 and not anyMatch then
                     --effects
-                    if find(text, ON_USE) then
-                        effectText, cooldownText = TrimCooldownText( strtrim(text, NO_COMMA_ON_USE) );
+                    if find(lineText, ON_USE) then
+                        effectText, cooldownText = TrimCooldownText( strtrim(lineText, NO_COMMA_ON_USE) );
                         effectType = "use";
-                    elseif find(text, ON_EQUIP) then
-                        effectText = RemoveColorString(text);
+                    elseif find(lineText, ON_EQUIP) then
+                        effectText = RemoveColorString(lineText);
                         effectType = "equip";
-                    elseif find(text, ON_PROC) then
-                        effectText = text;
+                    elseif find(lineText, ON_PROC) then
+                        effectText = lineText;
                         effectType = "proc";
-                    elseif find(text, ITEM_BONUS) or find(text, SOCKET_BONUS) then
-                        effectText = text;
+                    elseif find(lineText, ITEM_BONUS) or find(lineText, SOCKET_BONUS) then
+                        effectText = lineText;
                         effectType = "set";
                     elseif matchWeapon then
-                        if text == itemEquipLoc then
+                        if lineText == itemEquipLoc then
                             matchWeapon = nil;
-                            local leftText, rightText;
-                            fontString = _G["NarciVirtualTooltipTextRight"..i];
-                            if fontString then
-                                rightText = fontString:GetText();   --weapon type singular
-                                if rightText then
-                                    if not data then
-                                        data = {};
-                                    end
-                                    data.itemType = rightText;
+                            local leftText;
+                            local rightText = GetLineRightText(lines, i);
+                            if rightText then
+                                if not data then
+                                    data = {};
                                 end
+                                data.itemType = rightText;
                             end
                             local n = i + 1;
-                            if not LEFT_FONT_STRINGS[n] then
-                                LEFT_FONT_STRINGS[n] = _G["NarciVirtualTooltipTextLeft"..n]
-                            end
-                            fontString = LEFT_FONT_STRINGS[n];
-                            if fontString then
-                                leftText = fontString:GetText();        --damage (x - y Damage)
-                            end
-                            fontString = _G["NarciVirtualTooltipTextRight"..n];
-                            if fontString then
-                                rightText = fontString:GetText();       --speed 0.00
-                            end
+                            
+                            leftText = GetLineText(lines, n);
+                            rightText = GetLineRightText(lines, n);
                             if leftText and rightText then
                                 if not data then
                                     data = {};
@@ -896,13 +941,14 @@ local function GetCompleteItemData(itemLink)
                     else
                         --enchant
                         if not enchantText then
-                            enchantText = match(text, ITEM_ENCHANT_FORMAT);
+                            enchantText = match(lineText, ITEM_ENCHANT_FORMAT);
                             if enchantText then
                                 enchantText = strtrim(enchantText);
                                 if enchantText ~= "" then
                                     if not data then
                                         data = {};
                                     end
+                                    enchantText = ReformatCraftingQualityText(enchantText, true);
                                     data.enchant = enchantText;
                                     anyMatch = true;
                                 end
@@ -918,7 +964,7 @@ local function GetCompleteItemData(itemLink)
                             data.effects = {};
                             numEffects = 0;
                         end
-                        isActive = not (IsTextColorColor(fontString, 1, 0.13, 0.13) or IsTextColorColor(fontString, 0.5, 0.5, 0.5));
+                        isActive = not (IsTextColorRed(lines[i].args[3].colorVal) or IsTextColor50Grey(lines[i].args[3].colorVal));
                         numEffects = numEffects + 1;
                         data.effects[numEffects] = {effectType, effectText, isActive, cooldownText};
                         effectType = nil;
@@ -927,82 +973,120 @@ local function GetCompleteItemData(itemLink)
                         isActive = nil;
                         anyMatch = true;
                     end
+
+                    if not anyMatch then
+                        --socket
+                        if lines[i].args[4] and (lines[i].args[4].field == "socketType" or lines[i].args[4].field == "gemIcon") then
+                            if not data then
+                                data = {};
+                            end
+                            if not data.socketInfo then
+                                data.socketInfo = {};
+                            end
+                            local socketType = lines[i].args[4].stringVal;
+                            local icon, gemName, gemLink, gemEffect;
+                            if lines[i].args[4].field == "gemIcon" then
+                                icon = lines[i].args[4].intVal;
+                            end
+                            socketOrderID = socketOrderID + 1;
+                            gemName, gemLink = GetItemGem(itemLink, socketOrderID);
+                            if gemLink then --has a gem
+                                if not icon then
+                                    icon = select(5, GetItemInfoInstant(gemLink));
+                                end
+                                gemEffect = lines[i].args[2].stringVal;
+                                gemEffect = RemoveColorString(gemEffect);
+                                gemEffect = ReformatCraftingQualityText(gemEffect, true);
+                            else
+                                icon = "Interface\\ItemSocketingFrame\\UI-EmptySocket-"..socketType;
+                                gemName = lines[i].args[2].stringVal;   --Empty X Socket
+                                gemEffect = gemName;
+                            end
+                            data.socketInfo[socketOrderID] = {icon, gemName, gemLink, gemEffect};
+                        end
+                    end
                 end
                 if i >= numLines - 2 and not anyMatch then
                     --flavor texts, class restrictions
-                    match1 = match(text, PATTERN_CLASS_REQUIREMENT);
+                    match1 = match(lineText, PATTERN_CLASS_REQUIREMENT);
                     if match1 then
-                        isActive = IsTextColorColor(fontString, 1, 1, 1);
+                        isActive = IsTextColorWhite(lines[i].args[3].colorVal);
                         if not data then
                             data = {};
                         end
                         data.classesAllowed = {match1, isActive};
                         anyMatch = true;
-                    elseif match(text, "^[\"“]") then
+                    elseif match(lineText, "^[\"“]") then
                         if not data then
                             data = {};
                         end
-                        data.flavorText = text;
+                        data.flavorText = lineText;
                         anyMatch = true;
                     end
                 end
-                --print(i.." "..tostring(anyMatch).." "..text)
+                --print(i.." "..tostring(anyMatch).." "..lineText)
                 if i > 8 and not anyMatch then
-                    --match item sets
-                    match1, match2, _ = match(text, PATTERN_ITEM_SET_NAME);    --string.match("Test Set (1/9)", PATTERN_ITEM_SET_NAME)
-                    if match1 and match2 and _ then
-                        --found setName, numOwned, total
-                        if not data then
-                            data = {};
+                    if not qualityFound then
+                        match1 = match(lineText, PATTERN_PROFESSION_QUALITY);
+                        if match1 then
+                            PP = match1
+                            qualityFound = true;
+                            anyMatch = true;
+                            if not data then
+                                data = {};
+                            end
+                            data.craftingQuality = GetCraftingQualityFromText(match1);
                         end
-                        if not data.itemSet then
-                            data.itemSet = {};
-                            data.itemSet.itemNames = {};
-                            data.itemSet.bonuses = {};
-                        end
-                        anyMatch = true;
-                        local total = tonumber(_);
-                        data.itemSet.rawName = text;
-                        data.itemSet.name = match1;
-                        data.itemSet.numOwned = tonumber(match2);
-                        data.itemSet.total = total;
+                    end
 
-                        for j = 1 + i, total + i do
-                            if not LEFT_FONT_STRINGS[j] then
-                                LEFT_FONT_STRINGS[j] = _G["NarciVirtualTooltipTextLeft"..j]
+                    --match item sets
+                    if not anyMatch then
+                        match1, match2, _ = match(lineText, PATTERN_ITEM_SET_NAME);    --string.match("Test Set (1/9)", PATTERN_ITEM_SET_NAME)
+                        if match1 and match2 and _ then
+                            --found setName, numOwned, total
+                            if not data then
+                                data = {};
                             end
-                            fontString = LEFT_FONT_STRINGS[j];
-                            if fontString then
-                                text = fontString:GetText();
-                                isActive = not IsTextColorColor(fontString, 0.5, 0.5, 0.5);
-                                --print(fontString:GetTextColor());
-                                tinsert(data.itemSet.itemNames, {text, isActive});
-                                processed[j] = true;
-                            else
-                                break
+                            if not data.itemSet then
+                                data.itemSet = {};
+                                data.itemSet.itemNames = {};
+                                data.itemSet.bonuses = {};
                             end
-                        end
-                        for j = i + total + 2, numLines do
-                            if not LEFT_FONT_STRINGS[j] then
-                                LEFT_FONT_STRINGS[j] = _G["NarciVirtualTooltipTextLeft"..j]
-                            end
-                            fontString = LEFT_FONT_STRINGS[j];
-                            if fontString then
-                                text = fontString:GetText();
-                                if find(text, SET_BONUS, 1) then
-                                    --found set bonus
-                                    isActive = not IsTextColorColor(fontString, 0.5, 0.5, 0.5);
-                                    tinsert(data.itemSet.bonuses, {text, isActive});
+                            anyMatch = true;
+                            local total = tonumber(_);
+                            data.itemSet.rawName = lineText;
+                            data.itemSet.name = match1;
+                            data.itemSet.numOwned = tonumber(match2);
+                            data.itemSet.total = total;
+
+                            for j = 1 + i, total + i do
+                                lineText = GetLineText(lines, j);
+                                if lineText then
+                                    isActive = not IsTextColor50Grey(lines[j].args[3].colorVal);
+                                    --print(fontString:GetTextColor());
+                                    tinsert(data.itemSet.itemNames, {lineText, isActive});
                                     processed[j] = true;
+                                else
+                                    break
                                 end
-                            else
-                                break
+                            end
+                            for j = i + total + 2, numLines do
+                                lineText = GetLineText(lines, j);
+                                if lineText then
+                                    if find(lineText, SET_BONUS, 1) then
+                                        --found set bonus
+                                        isActive = not IsTextColor50Grey(lines[j].args[3].colorVal);
+                                        tinsert(data.itemSet.bonuses, {lineText, isActive});
+                                        processed[j] = true;
+                                    end
+                                else
+                                    break
+                                end
                             end
                         end
                     end
                 end
             else
-                --No FontString
                 break
             end
         end
@@ -1021,30 +1105,26 @@ local function ClearTooltipTexture()
             break
         end
     end
-    for i = 1, #LEFT_FONT_STRINGS do
-        LEFT_FONT_STRINGS[i]:SetText(nil);
-        LEFT_FONT_STRINGS[i]:SetTextColor(1, 1, 1); --this should fix some coloring issue caused by using escape sequence: |cff
-    end
 end
 
-local function GetCompleteItemDataFromSlot(slotID)
-    ClearTooltipTexture();
-    TP:SetInventoryItem("player", slotID, false, true);
-    return GetCompleteItemData();
+local function GetCompleteItemDataFromSlot(slotID, itemLink)
+    local tooltipData = GetInfoByInventoryItem("player", slotID, true);
+    if not itemLink then
+        itemLink = GetInventoryItemLink("player", slotID);
+    end
+    return GetCompleteItemData(tooltipData, itemLink);
 end
 
 local function GetCompleteItemDataByItemLink(itemLink)
     if not itemLink then return end
-    ClearTooltipTexture();
-    TP:SetHyperlink(itemLink);
-    return GetCompleteItemData(itemLink);
+    local tooltipData = GetInfoByHyperlink(itemLink);
+    return GetCompleteItemData(tooltipData, itemLink);
 end
 
 local function GetCompleteItemDataFromGameTooltip()
     --for debug
     local name, itemLink = GameTooltip:GetItem();
     if itemLink then
-        ClearTooltipTexture();
         TP:SetHyperlink(itemLink);
         return GetCompleteItemData(itemLink);
     end
@@ -1114,63 +1194,86 @@ local function IsItemSocketable(itemLink, socketID)
         return
     end
 
-    local tex, texID;
-    for i = 1, 3 do
-        tex = _G["NarciVirtualTooltipTexture"..i];
-        if tex then
-            tex = tex:SetTexture(nil);
+    local tooltipData = GetInfoByHyperlink(itemLink);
+    if not tooltipData then return end;
+
+    local lines = tooltipData.lines;
+    local numLines = #lines;
+
+    for i = 4, numLines do     --max 10
+        if lines[i].args and lines[i].args[4] and lines[i].args[4].field == "socketType" then
+            return lines[i].args[4].field, nil
         end
     end
 
-    TP:SetHyperlink(itemLink);
-
-    for i = 1, 3 do     --max 10
-        tex = _G["NarciVirtualTooltipTexture"..i]
-        texID = tex and tex:GetTexture();
-        --print(texID)
-        if SocketTypes[texID] then     --458977: Regular empty socket texture  --Doesn't include domination socket
-            return "Empty", nil;
-        end
-    end
     return nil, nil;
 end
 NarciAPI.IsItemSocketable = IsItemSocketable;
+
+--[[
+    --Interface / SharedXML / Tooltip / TooltipDataRules.lua
+
+    function TooltipDataRules.GemSocket(tooltip, lineData)
+		local asset;
+		local gemIcon = lineData.gemIcon;
+		if gemIcon then
+			asset = gemIcon;
+		else
+			local socketType = lineData.socketType;
+			if socketType then
+				asset = string.format("Interface\\ItemSocketingFrame\\UI-EmptySocket-%s", socketType);
+			end
+		end
+		if asset then
+			tooltip:AddTexture(asset);
+		end
+	end
+--]]
 
 local function GetItemSocketInfo(itemLink)
     --gemData = { {socketType, icon, gemLink(nillable) } }
 
     if not itemLink then return end
-    ClearTooltipTexture();
-    TP:SetHyperlink(itemLink);
 
-    local tex, texID;
-    local gemName, gemLink;
+    local tooltipData = GetInfoByHyperlink(itemLink);
+    if not tooltipData then return end;
+
+    local icon;
+    local gemName, gemLink, socketType, socketName;
     local socektInfo;
-    local numSocket = 0;
+    local gemOrderID = 0;
+
     for i = 1, 3 do
         gemName, gemLink = GetItemGem(itemLink, i);
         if gemLink then
             if not socektInfo then
                 socektInfo = {};
             end
-            texID = select(5, GetItemInfoInstant(gemLink));
-            numSocket = numSocket + 1;
-            socektInfo[numSocket] = {gemName, texID, gemLink};
-        else
-            tex = _G["NarciVirtualTooltipTexture"..i];
-            texID = tex and tex:GetTexture();
-            if SocketTypes[texID] then
-                if not socektInfo then
-                    socektInfo = {};
-                end
-                numSocket = numSocket + 1;
-                socektInfo[numSocket] = {SocketTypes[texID], texID, };
+            gemOrderID = gemOrderID + 1;
+            icon = select(5, GetItemInfoInstant(gemLink));
+            socektInfo[gemOrderID] = {gemName, icon, gemLink};
+        end
+    end
+
+    local lines = tooltipData.lines;
+    local numLines = #lines;
+
+    gemOrderID = 0;
+
+    for i = 4, numLines do     --max 10
+        if lines[i].args and lines[i].args[4] and lines[i].args[4].field == "socketType" then
+            gemOrderID = gemOrderID + 1;
+            if not socektInfo then
+                socektInfo = {};
+            end
+            if not socektInfo[gemOrderID] then
+                socketType = lines[i].args[4].stringVal;
+                socketName = lines[i].args[2].stringVal;
+                socektInfo[gemOrderID] = {socketName, "Interface\\ItemSocketingFrame\\UI-EmptySocket-"..socketType};
             end
         end
     end
 
-    --socektInfo = { {SocketTypes[458977], 458977}, {SocketTypes[4095404], 4095404}, {SocketTypes[136257], 136257} };   --debug SL
-    --socektInfo = { {SocketTypes[136257], 136257}, {SocketTypes[136259], 136259}, {SocketTypes[136256], 136256} };   --debug TBC
     return socektInfo
 end
 
@@ -1220,81 +1323,173 @@ end);
 
 local function GetAmmoDps(itemID)
     if not itemID then return end;
-
-    TP:SetItemByID(itemID);
-    if not LEFT_FONT_STRINGS[3] then
-        LEFT_FONT_STRINGS[3] = _G["NarciVirtualTooltipTextLeft3"];
-    end
-    if LEFT_FONT_STRINGS[3] then
-        return tonumber(match(LEFT_FONT_STRINGS[3]:GetText(), PATTERN_AMMO_DPS) or 0);
-    end
+    return 0
 end
 
 NarciAPI.GetAmmoDps = GetAmmoDps;
 
 
---[[
-itemName, itemLink, itemQuality, itemLevel, itemMinLevel, itemType, itemSubType, itemStackCount,
-itemEquipLoc, itemTexture, sellPrice, classID, subclassID, bindType, expacID, (setID), isCraftingReagent
-= GetItemInfo
 
-GetItemSetInfo(setID)
-GetItemSpecInfo
+local function FormatSpellData(tooltipData, fromLine)
+    local lines = tooltipData.lines;
+    local numLines = #lines;
+    local leftText, rightText;
+    local anyMatch;
+    local data = {};
+    local rangeText, castText, cdText, costText, replaceSpell;
+    local isPassive;
+    fromLine = fromLine or 1;
+    local first2Lines = fromLine + 1;
 
-ITEM_SET_BONUS = "Set: %s";
-ITEM_SET_BONUS_GRAY = "(%d) Set: %s";
-ITEM_SET_BONUS_NO_VALID_SPEC = "Bonus effects vary based on the player's specialization.";
-ITEM_SET_LEGACY_INACTIVE_BONUS = "Legacy Set: Bonus is inactive";
-ITEM_SET_NAME = "%s (%d/%d)";
+    --castText: instant, x sec cast, channel
+    --cdText: cooldown or recharge time
+    for i = fromLine, numLines do
+        anyMatch = false;
+        leftText = GetLineText(lines, i);
+        rightText = GetLineRightText(lines, i);
+
+        if i <= first2Lines then
+            if leftText then
+                if not rangeText then
+                    if find(leftText, TEXT_SPELL_RANGE) or find(leftText, TEXT_SPELL_RANGE_MELEE) or find(leftText, TEXT_SPELL_RANGE_UNLIMITED) then
+                        anyMatch = true;
+                        rangeText = leftText;
+                        data.rangeText = rangeText;
+                    end
+                end
+
+                if not anyMatch and not castText then
+                    if find(leftText, TEXT_SPELL_PASSIVE) then
+                        isPassive = true;
+                        anyMatch = true;
+                        castText = leftText;
+                        data.castText = castText;
+                    elseif find(leftText, TEXT_SPELL_CAST_TIME_INSTANT) or find(leftText, TEXT_SPELL_CAST_TIME_SEC) or find(leftText, TEXT_SPELL_CAST_CHANNELED) then
+                        anyMatch = true;
+                        castText = leftText;
+                        data.castText = castText;
+                    end
+                end
+
+                if not anyMatch and not isPassive and not cdText then
+                    if find(leftText, TEXT_SPELL_COOLDOWN) or find(leftText, TEXT_SPELL_RECHARGE) then
+                        anyMatch = true;
+                        cdText = leftText;
+                        data.cdText = cdText;
+                    end
+                end
+
+                if not anyMatch and find(leftText, "%d") then
+                    anyMatch = true;
+                    costText = gsub(leftText, "\n", " ");   --!Druid: Energy + ComboPoint
+                    data.costText = costText;
+                end
+
+                if not anyMatch and find(leftText, TEXT_REPLACES_SPELL) then
+                    anyMatch = true;
+                    replaceSpell = leftText;
+                    data.replaceSpell = replaceSpell;
+                end
+            end
+
+            if rightText and not anyMatch then
+                if not rangeText then
+                    if find(rightText, TEXT_SPELL_RANGE) or find(rightText, TEXT_SPELL_RANGE_MELEE) or find(rightText, TEXT_SPELL_RANGE_UNLIMITED) then
+                        anyMatch = true;
+                        rangeText = rightText;
+                        data.rangeText = rangeText;
+                    end
+                end
+
+                if not anyMatch and not castText then
+                    if find(rightText, TEXT_SPELL_PASSIVE) then
+                        isPassive = true;
+                        anyMatch = true;
+                        castText = rightText;
+                        data.castText = castText;
+                    elseif find(rightText, TEXT_SPELL_CAST_TIME_INSTANT) or find(rightText, TEXT_SPELL_CAST_TIME_SEC) or find(rightText, TEXT_SPELL_CAST_CHANNELED) then
+                        anyMatch = true;
+                        castText = rightText;
+                        data.castText = castText;
+                    end
+                end
+
+                if not anyMatch and not isPassive and not cdText then
+                    if find(rightText, TEXT_SPELL_COOLDOWN) or find(rightText, TEXT_SPELL_RECHARGE) then
+                        anyMatch = true;
+                        cdText = rightText;
+                        data.cdText = cdText;
+                    end
+                end
+            end
+        end
+
+        if not anyMatch then
+            if leftText then
+                leftText = strtrim(leftText);
+                if leftText ~= "" then
+                    if not data.descriptions then
+                        data.descriptions = {};
+                    end
+                    tinsert(data.descriptions, leftText);
+                end
+            end
+        end
+    end
+
+    return data
+end
+
+local function GetTraitEntryTooltip(entryID, rank)
+    if not (entryID and rank) then return end;
+
+    local tooltipData = C_TooltipInfo.GetTraitEntry(entryID, rank);
+    if not tooltipData then return end;
+
+    return FormatSpellData(tooltipData)
+end
+
+NarciAPI.GetTraitEntryTooltip = GetTraitEntryTooltip;
+
+
+local function GetPvpTalentTooltip(talentID, isInspecting, specGroupIndex, slotIndex)
+    if not (talentID and specGroupIndex and slotIndex) then return end;
+
+    local tooltipData = C_TooltipInfo.GetPvpTalent(talentID, isInspecting, specGroupIndex, slotIndex);
+    if not tooltipData then return end;
+
+    return FormatSpellData(tooltipData, 2)
+end
+
+NarciAPI.GetPvpTalentTooltip = GetPvpTalentTooltip;
+
+
 --]]
 
 --[[
-local function TestItemLinkAffix(from, to)
-    local TP = TP;
-    local max = max;
-    local total = 0;
-    local s = from  --6500;
-    local e = to    --6600;
-    local output;
-    local itemLink;
-    local function GetExtraInfo()
-        itemLink = "\124cffa335ee\124Hitem:174954::::::::120::::2:1477:".. s ..":\124h[]\124h\124r";
-        TP:SetHyperlink(itemLink);
-        local num = TP:NumLines();
-        local begin = max(num - 3, 0);
-        local str;
-    
-        for i = begin, num, 1 do
-            str = nil;
-            str = _G["NarciVirtualTooltip".."TextLeft"..i]
-            if not str then
-                break;
-            else
-                str = str:GetText();
-            end
-            
-            if find(str, ON_EQUIP) then
-                print("|cFFFFD100"..s.."|r "..str);
-                break
-            end
-        end
+Dragflight: C_TooltipInfo Performance Test
 
-        s = s + 1;
-        total = total + 1;
-        if s < e and total < 1000 then
-            After(0, GetExtraInfo);
-        else
-            print("Search Complete")
-        end
+function Professions.GetIconForQuality(quality, small)
+    if small then
+        return ("Professions-Icon-Quality-Tier%d-Small"):format(quality);
     end
-
-    print("Search from "..s.." to "..e);
-    for i = s, e do
-        --Cache
-        itemLink = "\124cffa335ee\124Hitem:174954::::::::120::::2:1477:".. i ..":\124h[]\124h\124r";
-        TP:SetHyperlink(itemLink);
-    end
-    After(1, GetExtraInfo);
+    return ("Professions-Icon-Quality-Tier%d"):format(quality);
 end
 
+function TestSetProfessionQuality(quality, small)
+    if not TT then
+        local f = CreateFrame("Frame");
+        TT = f:CreateTexture();
+        TT:SetPoint("CENTER", UIParent, "CENTER", 0, 0);
+    end
+
+    local atlas;
+    if small then
+        atlas = ("Professions-Icon-Quality-Tier%d-Small"):format(quality);
+    else
+        atlas = ("Professions-Icon-Quality-Tier%d"):format(quality);
+    end
+    
+    TT:SetAtlas(atlas, true);
+end
 --]]

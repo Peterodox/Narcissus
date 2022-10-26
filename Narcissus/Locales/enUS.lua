@@ -253,11 +253,6 @@ L["Developer Colon"] = "Developer: ";
 L["Project Page"] = "Project Page";
 L["Press Copy Yellow"] = "Press |cffffd100".. NARCI_SHORTCUTS_COPY .."|r to Copy";
 L["New Option"] = NARCI_NEW_ENTRY_PREFIX.." NEW".."|r"
-L["Mini Talent Tree"] = "Mini Talent Tree";
-L["Show Talent Tree When"] = "Show Talent Tree When You...";
-L["Show Talent Tree Paperdoll"] = "Open Paper Doll";
-L["Show Talent Tree Inspection"] = "Inspect Other Players";
-L["Truncate Talent Description"] = "Truncate Talent Description";
 
 --Model Control--
 NARCI_STAND_IDLY = "Stand Idly";
@@ -648,3 +643,20 @@ L["Origin Outfits"] = "Original outfits";
 L["Outfit Owner Format"] = "%s's outfits";
 L["SortMethod Recent"] = "Recent";
 L["SortMethod Name"] = "Name";
+
+--Tooltip Match Format--
+L["Find Cooldown"] = " cooldown";
+L["Find Recharge"] = " recharge";
+
+
+--Talent Tree--
+L["Mini Talent Tree"] = "Mini Talent Tree";
+L["Show Talent Tree When"] = "Show Talent Tree When You...";
+L["Show Talent Tree Paperdoll"] = "Open Paper Doll";
+L["Show Talent Tree Inspection"] = "Inspect Other Players";
+L["Truncate Talent Description"] = "Truncate Talent Description";
+L["Appearance"] = "Appearance";
+L["Use Class Background"] = "Use Class Background";
+L["Empty Loadout Name"] = "Name";
+L["No Save Slot Red"] = NARCI_COLOR_RED_MILD.. "No Save Slot" .."|r";
+L["Save"] = "Save";

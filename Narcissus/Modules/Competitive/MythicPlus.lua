@@ -503,7 +503,7 @@ function NarciMythicPlusDisplayMixin:OnEvent(event)
     elseif event == "PLAYER_ENTERING_WORLD" then
         self:UnregisterEvent(event);
         if UnitLevel("player") ~= GetMaxLevelForPlayerExpansion() and HIDE_MYTHIC_TAB_ON_LOW_LEVELS then
-            Narci_NavBar:ToggleTabButtonByIndex(4, false);
+            Narci_NavBar:HideMythicPlusButton();
         end
     end
 end

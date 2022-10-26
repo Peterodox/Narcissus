@@ -9,10 +9,12 @@
     <Script file="Color.lua"/>
     <Script file="ScrollFrame.lua"/>
     <Script file="TooltipParser.lua"/>
+    <Script file="TooltipParser_Old.lua"/>
     <Script file="TransmogDataProvider.lua"/>
     <Script file="CypherEquipment.lua"/>
     <Script file="CharacterProfile.lua"/>
     <Script file="CustomChatLink.lua"/>
+    <Script file="UniversalFont.lua"/>
 
     <!--Script file="Utilities.lua"/-->
 </Ui>

@@ -748,7 +748,7 @@ function NarciConduitFlatButtonMixin:OnEnter()
         tooltip:Show();
     end
 
-    Narci_NavBar:PlayTimer(false);
+    Narci_NavBar:PauseTimer(true);
 end
 
 function NarciConduitFlatButtonMixin:OnLeave()
@@ -756,7 +756,7 @@ function NarciConduitFlatButtonMixin:OnLeave()
     local tooltip = NarciGameTooltip;
     tooltip:Hide();
 
-    Narci_NavBar:PlayTimer(true);
+    Narci_NavBar:PauseTimer(false);
 end
 
 function NarciConduitFlatButtonMixin:SetConduit(nodeData)

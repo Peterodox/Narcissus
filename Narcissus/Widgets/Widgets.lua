@@ -636,6 +636,12 @@ function NarciProgressTimerMixin:Play()
     end
 end
 
+function NarciProgressTimerMixin:Resume()
+    if self:IsShown() then
+        self:Play();
+    end
+end
+
 function NarciProgressTimerMixin:SetAlign(widget, offsetY)
     self:ClearAllPoints();
     offsetY = offsetY or 0;

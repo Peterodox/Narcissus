@@ -15,9 +15,9 @@ local tinsert = table.insert;
 local UnitIsPlayer = UnitIsPlayer;
 local UnitIsOtherPlayersPet = UnitIsOtherPlayersPet;
 
-local textLocale = GetLocale();
-if textLocale == "enGB" then
-    textLocale = "enUS";
+local CLIENT_TEXT_LOCALE = GetLocale();
+if CLIENT_TEXT_LOCALE == "enGB" then
+    CLIENT_TEXT_LOCALE = "enUS";
 end
 
 local function SplitBySpace(str)
@@ -35,7 +35,7 @@ local function GetCreatureLocalizedNameByID(id, language)
 end
 
 local GetCreatureEnglishNameByID = GetCreatureNameByID;
-if textLocale ~= "enUS" then
+if CLIENT_TEXT_LOCALE ~= "enUS" then
     function GetCreatureEnglishNameByID(id)
         if NarciCreatureInfo["enUS"] and id then
             return NarciCreatureInfo["enUS"][id]
@@ -57,8 +57,8 @@ local function IgnoreDatabase(databaseLanguage)
         return false
     end
 
-    if GetLocale() == databaseLanguage then
-        return true
+    if CLIENT_TEXT_LOCALE == databaseLanguage then
+        return false
     else
         local Settings = NarcissusDB;
         if not Settings.TranslateName then
@@ -106,14 +106,14 @@ local SearchTable_English;
 SearchTable_English = {};
 
 
-local OMISSIONS_EXTRA = OMISSIONS_LOCALE[textLocale];
+local OMISSIONS_EXTRA = OMISSIONS_LOCALE[CLIENT_TEXT_LOCALE];
 
 local GetInitial;
-if textLocale == "zhCN" or textLocale == "zhTW" or textLocale == "koKR" then
+if CLIENT_TEXT_LOCALE == "zhCN" or CLIENT_TEXT_LOCALE == "zhTW" or CLIENT_TEXT_LOCALE == "koKR" then
     function GetInitial(str)
         return lower(sub(str, 1, 3))
     end
-elseif textLocale == "ruRU" then
+elseif CLIENT_TEXT_LOCALE == "ruRU" then
     function GetInitial(str)
         return lower(sub(str, 1, 2))
     end
@@ -146,11 +146,11 @@ local function DivideListByInitials(enableEnglish)
         end 
     else
         TargetTable = SearchTable;
-        if textLocale == "zhCN" then
+        if CLIENT_TEXT_LOCALE == "zhCN" then
             function NormalizeString(str)
                 return gsub(str, "·", " ");
             end
-        elseif textLocale == "zhTW" then
+        elseif CLIENT_TEXT_LOCALE == "zhTW" then
             function NormalizeString(str)
                 return gsub(str, "‧", " ");
             end
@@ -341,7 +341,7 @@ local function SearchRelativesByName(fullName, useEnglish)
     local SubTable;
     local GetCreatureNameByID = GetCreatureNameByID;
     local GetCreatureEnglishNameByID = GetCreatureEnglishNameByID;
-    if textLocale == "enUS" then
+    if CLIENT_TEXT_LOCALE == "enUS" then
         SubTable = SearchTable[initial];
     else
         SubTable = SearchTable_English[initial];
@@ -351,7 +351,7 @@ local function SearchRelativesByName(fullName, useEnglish)
         return {}, 0
     end
 
-    useEnglish = (textLocale == "enUS")
+    useEnglish = (CLIENT_TEXT_LOCALE == "enUS")
 
     local name, id;
     local nameTemp;
@@ -552,7 +552,7 @@ local function UpdateEnabledLanguages()
             local Languages = NarcissusDB.TooltipLanguages;
             if Languages then
                 for language, isEnabled in pairs(Languages) do
-                    if isEnabled and language ~= textLocale then
+                    if isEnabled and language ~= CLIENT_TEXT_LOCALE then
                         tinsert(EnabledLanguages, language);
                         NUM_ENABLED_LOCALES = NUM_ENABLED_LOCALES + 1;
                     end
@@ -850,7 +850,7 @@ Initialize:SetScript("OnEvent", function(self, event, ...)
             end
 
             DivideListByInitials();
-            if textLocale ~= "enUS" then
+            if CLIENT_TEXT_LOCALE ~= "enUS" then
                 DivideListByInitials("enUS");
             end
 

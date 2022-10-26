@@ -37,6 +37,11 @@ local RemoveColorString = NarciAPI.RemoveColorString;
 local GetCachedItemTooltipTextByLine = NarciAPI.GetCachedItemTooltipTextByLine;
 local GetItemTempEnchantRequirement = NarciAPI.GetItemTempEnchantRequirement;
 local GetSocketTypes = GetSocketTypes;
+local C_Item = C_Item;
+
+local GetContainerItemLink = (C_Container and C_Container.GetContainerItemLink) or GetContainerItemLink;    --Dragonflight
+local GetInventoryItemLink = GetInventoryItemLink;
+
 
 local pow = math.pow;
 local floor = math.floor;
@@ -1137,7 +1142,7 @@ end
 
 addon.TransitionAPI.HookSocketInventoryItem(SocketInventoryItem_Callback);
 
-local function SocketContainerItem_Callback(slot)
+local function SocketContainerItem_Callback(bag, slot)
     MainFrame:SetItemPosition(bag, slot);
     if ShouldAnchorToBlizzard() then
         MainFrame:SetGemListForBlizzardUI(bag, slot);

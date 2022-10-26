@@ -41,7 +41,7 @@ function NarciTalentFlatButtonMixin:OnEnter()
         tooltip:Show();
     end
 
-    Narci_NavBar:PlayTimer(false);
+    Narci_NavBar:PauseTimer(true);
 end
 
 function NarciTalentFlatButtonMixin:OnLeave()
@@ -50,7 +50,7 @@ function NarciTalentFlatButtonMixin:OnLeave()
     local tooltip = NarciGameTooltip;
     tooltip:Hide();
 
-    Narci_NavBar:PlayTimer(true);
+    Narci_NavBar:PauseTimer(false);
 end
 
 ------------------------------------------------------------------------

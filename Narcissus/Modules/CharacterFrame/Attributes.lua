@@ -145,7 +145,7 @@ local function MasteryFrame_OnEnter(object)
 
 	local masteryRating = GetCombatRating(CR_MASTERY);
 	local primaryTalentTree = GetSpecialization();
-	if (primaryTalentTree) then
+	if (primaryTalentTree) and false then	--dragonflight
 		local masterySpell, masterySpell2 = GetSpecializationMasterySpells(primaryTalentTree);
 		if (masterySpell) then
 			DefaultTooltip:AddSpellByID(masterySpell);
@@ -645,7 +645,7 @@ function UpdateFunc:Regen(object)
 		return;
 	end
 	if labelText then
-		object.tooltip = "|cffffffff".. labelText .." "..regenRateText.."|r";
+		object.tooltip = "|cffffffff".. labelText .." "..regenRatePerSec.."|r";
 	end
 	object:SetLabelAndValue(labelText, regenRatePerSec);
 end

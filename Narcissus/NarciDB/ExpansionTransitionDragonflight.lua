@@ -39,7 +39,11 @@ function TransitionAPI.IsRTXSupported()
 end
 
 function TransitionAPI.HookSocketContainerItem(callback)     --#3
-    hooksecurefunc(C_Container, "SocketContainerItem", callback);
+    if C_Container and C_Container.SocketContainerItem then
+        hooksecurefunc(C_Container, "SocketContainerItem", callback);
+    elseif SocketContainerItem then
+        hooksecurefunc("SocketContainerItem", callback);
+    end
 end
 
 function TransitionAPI.HookSocketInventoryItem(callback)     --#4
@@ -169,6 +173,7 @@ Misc Experiments:
 
 --]]
 
+--[[
 local SHOW_EXPERIEMENT_FEATURE = false;
 
 if not SHOW_EXPERIEMENT_FEATURE then
@@ -243,3 +248,4 @@ local function EditModeManagerFrame_OnShow(self)
 end
 
 EditFrame:HookScript("OnShow", EditModeManagerFrame_OnShow);
+--]]

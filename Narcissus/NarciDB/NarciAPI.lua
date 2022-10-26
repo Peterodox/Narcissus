@@ -3172,6 +3172,14 @@ local function AddPixelPerfectTexture(frame, texture, pixelWidth, pixelHeight)
     end
     texture.w = pixelWidth;
     texture.h = pixelHeight;
+
+    --[[
+    for i, obj in ipairs(frame.pixelDriver.textures) do
+        if obj == texture then
+            return
+        end
+    end
+    --]]
     tinsert(frame.pixelDriver.textures, texture);
 end
 

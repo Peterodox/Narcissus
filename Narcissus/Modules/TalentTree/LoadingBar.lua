@@ -46,7 +46,7 @@ function TalentTreeLoadingBarUtil:IsBarVisible()
 end
 
 function TalentTreeLoadingBarUtil:HideBar()
-    if LoadingBar then
+    if LoadingBar and not LoadingBar.isHidding then
         LoadingBar:Hide();
     end
 end
@@ -139,21 +139,23 @@ function NarciTalentTreeLoadingBarMixin:OnHide()
     self:ListenEvents(false);
     self:Hide();
     self:SetScript("OnUpdate", nil);
-end
-
-function NarciTalentTreeLoadingBarMixin:OnInitiateCasting()
-    self:ListenEvents(true);
-    self:SetAlpha(0);
-    self:SetScript("OnUpdate", nil);
-    self:Show();
-    self.ClipFrame.Background:SetTexture("Interface\\AddOns\\Narcissus\\Art\\Modules\\TalentTree\\ProgressBarBackground");
+    self.isHidding = nil;
 end
 
 local function SetBarTexCoord(texture, progress, translationRange, barPixelWidth, coordTop)
     texture:SetTexCoord(translationRange*(1-progress)/256, (256*(1-progress) + progress * barPixelWidth)/256, coordTop, 1-coordTop);
 end
 
-local function LoadingBar_OnUpdate(self, elapsed)
+local function LoadingBar_OnHold_OnUpdate(self, elapsed)
+    --prevent frame from being shown indefinitely when something unexpected happens (connection issue, failed to use loadout, etc.)
+    self.t = self.t + elapsed;
+    if self.t > 1 then
+        self:Hide();
+        self:SetScript("OnUpdate", nil);
+    end
+end
+
+local function LoadingBar_Loading_Update(self, elapsed)
     self.t = self.t + elapsed;
     self.p = self.t / self.d;
     if self.p > 1 then
@@ -185,13 +187,29 @@ local function LoadingBar_Interrupted_OnUpdate(self, elapsed)
     end
 end
 
+function NarciTalentTreeLoadingBarMixin:OnInitiateCasting()
+    self:ListenEvents(true);
+    self:SetAlpha(0);
+    self:Show();
+    self.t = 0;
+    self.isHidding = nil;
+    self:SetScript("OnUpdate", LoadingBar_OnHold_OnUpdate);
+    self.ClipFrame.Background:SetTexture("Interface\\AddOns\\Narcissus\\Art\\Modules\\TalentTree\\ProgressBarBackground");
+end
+
 function NarciTalentTreeLoadingBarMixin:OnInterrupted()
     self.ClipFrame.Background:SetTexture("Interface\\AddOns\\Narcissus\\Art\\Modules\\TalentTree\\ProgressBarBackgroundRed");
     SetBarTexCoord(self.ClipFrame.Background, 1, 0, self.barPixelWidth, self.coordTop);
     self.ClipFrame:SetWidth(self.fullWidth);
     self.ClipFrame.Name:SetText(INTERRUPTED);
     self.t = -0.5;
-    self:SetScript("OnUpdate", LoadingBar_Interrupted_OnUpdate);
+    if (not self.p) or self.p == 0 then
+        self:SetScript("OnUpdate", nil);
+        self:Hide();
+    else
+        self:SetScript("OnUpdate", LoadingBar_Interrupted_OnUpdate);
+        self.isHidding = true;
+    end
 end
 
 
@@ -206,7 +224,7 @@ function NarciTalentTreeLoadingBarMixin:OnEvent(event, ...)
                 self.t = 0;
                 self.d = duration;
                 self:SetAlpha(1);
-                self:SetScript("OnUpdate", LoadingBar_OnUpdate);
+                self:SetScript("OnUpdate", LoadingBar_Loading_Update);
             end
         end
 

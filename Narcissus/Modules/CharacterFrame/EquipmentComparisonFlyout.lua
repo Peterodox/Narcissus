@@ -4,6 +4,7 @@ local hasGapAdjusted = false;
 local STAMINA_STRING = SPELL_STAT3_NAME;
 local COMPARISON_HEIGHT = 160;
 local FORMAT_DIGIT = "%.2f";
+local floor = math.floor;
 
 local FormatLargeNumbers = NarciAPI.FormatLargeNumbers --BreakUpLargeNumbers;
 local GetItemExtraEffect = NarciAPI.GetItemExtraEffect;
@@ -85,10 +86,10 @@ local function SetCombatRatingRatio()
 
     CR_ConvertRatio.stamina = Health / stamina;
     --[[
-    print(STAT_CRITICAL_STRIKE.." "..math.floor(1/CR_ConvertRatio.crit + 0.5))
-    print(STAT_HASTE.." "..math.floor(1/CR_ConvertRatio.haste + 0.5))
-    print(STAT_MASTERY.." "..math.floor(1/CR_ConvertRatio.mastery + 0.5))
-    print(STAT_VERSATILITY.." "..math.floor(1/CR_ConvertRatio.versatility + 0.5))
+    print(STAT_CRITICAL_STRIKE.." "..floor(1/CR_ConvertRatio.crit + 0.5))
+    print(STAT_HASTE.." "..floor(1/CR_ConvertRatio.haste + 0.5))
+    print(STAT_MASTERY.." "..floor(1/CR_ConvertRatio.mastery + 0.5))
+    print(STAT_VERSATILITY.." "..floor(1/CR_ConvertRatio.versatility + 0.5))
     --]]
 
     -----------------------
@@ -124,12 +125,12 @@ local function Narci_Comparison_AdjustGap()
     end
     
     local ajustedV1 = maxStringWidth + 30;
-    local ajustedV2 = math.floor(defaultV2 -(ajustedV1 - defaultV1));
+    local ajustedV2 = floor(defaultV2 -(ajustedV1 - defaultV1));
     local extraWidth = 0;
     local minimumGap = 60;
 
     if ajustedV2 < minimumGap then
-        extraWidth = math.floor(minimumGap - ajustedV2);
+        extraWidth = floor(minimumGap - ajustedV2);
         ajustedV2 = minimumGap;
         frame:SetWidth(frame:GetWidth() + extraWidth)
     end
@@ -450,7 +451,7 @@ function Narci_Comparison_SetComparison(itemLocation, itemButton)
     DisplayComparison("mastery", STAT_MASTERY, stats.mastery, baseStats.mastery, CR_ConvertRatio.mastery);
     DisplayComparison("versatility", STAT_VERSATILITY, stats.versatility, baseStats.versatility, CR_ConvertRatio.versatility);
 
-    NarciRefVirtualTooltip:SetHyperlink(itemLink)    --Used to hook the Pawn upgrade notification (if supported)
+    --NarciRefVirtualTooltip:SetHyperlink(itemLink)    --Used to hook the Pawn upgrade notification (if supported)
 
     local iconPos;
     if stats.GemIcon and stats.GemPos then
@@ -635,11 +636,12 @@ NT:SetScript("OnEvent",function(self,event,...)
 end)
 
 
-function Narci_Comparison_Resize()
-    local frame = Narci_Comparison;
-    local extraHeight = math.floor(frame.PawnText:GetHeight() + frame.ItemName:GetHeight() + 0.5)
-    frame:SetHeight(COMPARISON_HEIGHT + extraHeight)
-    frame.Icon:SetWidth(frame:GetHeight());
+function Narci_ShowComparisonTooltip(tooltip)
+    --local extraHeight = floor(tooltip.PawnText:GetHeight() + tooltip.ItemName:GetHeight() + 0.5)
+    local extraHeight = floor(tooltip.ItemName:GetHeight() + 0.5)
+    tooltip:SetHeight(COMPARISON_HEIGHT + extraHeight);
+    tooltip.Icon:SetWidth(COMPARISON_HEIGHT + extraHeight);
+    tooltip:Show();
 end
 
 
@@ -663,10 +665,10 @@ function Narci:GetCombatRatings()
     local haste = CR_ConvertRatio.haste;
     local mastery = CR_ConvertRatio.mastery;
     local versatility = CR_ConvertRatio.versatility;
-    crit = math.floor( (1 / crit*100 + 0.5)) / 100 or NA;
-    haste = math.floor( (1 / haste*100 + 0.5)) / 100 or NA;
-    mastery = math.floor( (1 / mastery*100 + 0.5)) / 100 or NA;
-    versatility = math.floor( (1 / versatility*100 + 0.5)) / 100 or NA;
+    crit = floor( (1 / crit*100 + 0.5)) / 100 or NA;
+    haste = floor( (1 / haste*100 + 0.5)) / 100 or NA;
+    mastery = floor( (1 / mastery*100 + 0.5)) / 100 or NA;
+    versatility = floor( (1 / versatility*100 + 0.5)) / 100 or NA;
 
     local YELLOW = "|cFFFFD100";
     local GREY = "|cffa6a6a6";
@@ -684,7 +686,7 @@ end
 
 local function ConvertRatingToPercentage(name, value)
     if CR_ConvertRatio[name] then
-        return  string.format(" (%.2f%%)", math.floor( 100 * CR_ConvertRatio[name] * value )/100);
+        return  string.format(" (%.2f%%)", floor( 100 * CR_ConvertRatio[name] * value )/100);
     else
         return ""
     end

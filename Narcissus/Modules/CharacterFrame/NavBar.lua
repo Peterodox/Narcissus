@@ -2,7 +2,6 @@ local MAX_CONDUITS = NarciConstants.Soulbinds.MaxRow or 8 --12;
 
 local sin = math.sin;
 local pi = math.pi;
-local After = C_Timer.After;
 
 local function outSine(t, b, e, d)
 	return (e - b) * sin(t / d * (pi / 2)) + b
@@ -155,14 +154,16 @@ end
 
 ----------------------------------------------------------------------------
 local NavButtonController = {};
+NavButtonController.navButtons = {};
+NavButtonController.navButtonByKey = {};
 
-function NavButtonController:CreateAndAcquireButton(container)
-    if not self.navButtons then
-        self.navButtons = {};
-    end
-
+function NavButtonController:CreateAndAcquireButton(container, buttonKey)
     local button = CreateFrame("Button", nil, container, "NarciNavBarTabButtonTemplate")
     tinsert(self.navButtons, button);
+
+    if buttonKey and not self.navButtonByKey[buttonKey] then
+        self.navButtonByKey[buttonKey] = button;
+    end
 
     return button;
 end
@@ -185,9 +186,23 @@ function NavButtonController:SetHighlightColor(r, g, b)
     end
 end
 
-function NavButtonController:SetButtonVisibilityByIndex(buttonIndex, state)
-    if buttonIndex and self.navButtons then
-        self.navButtons[buttonIndex]:SetShown(state);
+function NavButtonController:SetButtonVisibility(buttonKey, state)
+    if buttonKey and self.navButtonByKey[buttonKey] then
+        self.navButtonByKey[buttonKey]:SetShown(state);
+        self:UpdateButtonPosition();
+    end
+end
+
+function NavButtonController:UpdateButtonPosition()
+    local totalWidth = 0;
+    local container = NavigationBar.TabButtonContainer;
+
+    for i, b in ipairs(self.navButtons) do
+        if b:IsShown() then
+            b:ClearAllPoints();
+            b:SetPoint("TOPLEFT", container, "TOPLEFT", totalWidth, 0);
+            totalWidth = totalWidth + b.buttonWidth;
+        end
     end
 end
 
@@ -244,7 +259,8 @@ function NarciNavBarTabButtonMixin:SetUp(labelText, tabIndex)
         textWidth = MAX_WIDTH;
         self.Label:SetWidth(textWidth);
     end
-    self:SetWidth(textWidth + 20);
+    self.buttonWidth = textWidth + 20;
+    self:SetWidth(self.buttonWidth);
     self.tabIndex = tabIndex;
 end
 
@@ -316,31 +332,30 @@ function NarciNavBarMixin:OnLoad()
 
     --Create tab buttons
     local GAP = 0;
+
     local tabInfo = {
-        PRIMARY,      --Primary
-        WARDROBE_SETS,     --Sets
-        COVENANT_PREVIEW_SOULBINDS,    --Seelenbande Soulbinds
-        Narci.L["Mythic Plus Abbrev"],      --Mythic Plus
+        --{LocalizedName, buttonKey}
+        {PRIMARY, "primary"},
+        {WARDROBE_SETS, "equipmentsets"},
+        {COVENANT_PREVIEW_SOULBINDS, "covenant"},
+        {Narci.L["Mythic Plus Abbrev"], "mythicplus"},
     };
 
-    local lastButton;
+    local navButton;
     local container = self.TabButtonContainer;
     for i = 1, #tabInfo do
-        local button = NavButtonController:CreateAndAcquireButton(container);
+        navButton = NavButtonController:CreateAndAcquireButton(container, tabInfo[i][2]);
+        navButton:SetPoint("TOPLEFT", container, "TOPLEFT", GAP, 0);
         if i == 1 then
-            button:SetPoint("TOPLEFT", container, "TOPLEFT", GAP, 0);
-            button:SetSelect(true);
-            ProgressTimer = CreateFrame("Frame", nil, button, "NarciProgressTimerTemplate");
+            navButton:SetSelect(true);
+            ProgressTimer = CreateFrame("Frame", nil, navButton, "NarciProgressTimerTemplate");
             ProgressTimer:SetParent(self.PrimaryFrame);
-            ProgressTimer:SetAlign(button, 0);
+            ProgressTimer:SetAlign(navButton, 0);
             ProgressTimer:SetOnFinishedFunc(HideLastTab, ShowNextTab);
             ProgressTimer:SetTimer(8, true);
-        else
-            button:SetPoint("LEFT", lastButton, "RIGHT", GAP, 0);
         end
-        button:SetUp(tabInfo[i], i);
-        button.tabFrame = self;
-        lastButton = button;
+        navButton:SetUp(tabInfo[i][1], i);
+        navButton.tabFrame = self;
     end
 
     --Create conduit butons;
@@ -373,8 +388,8 @@ function NarciNavBarMixin:OnLoad()
             button:SetButtonSize(butonWidth, 24);
         end
     end
-    
-    ------------------------------
+
+    NavButtonController:UpdateButtonPosition();
 
     ------------------------------
     self:SetScript("OnLoad", nil);
@@ -472,18 +487,19 @@ function NarciNavBarMixin:SetSkipCovenant(state)
     if state == self.skipCovenant then
         return
     end
-    self.skipCovenant = state
+    self.skipCovenant = state;
     if state then
         ProgressTimer:Stop();
     else
         ProgressTimer:Start();
     end
-    NavButtonController:SetButtonVisibilityByIndex(3, not state);
+    NavButtonController:SetButtonVisibility("covenant", not state);
 end
 
-function NarciNavBarMixin:ToggleTabButtonByIndex(index, visible)
-    NavButtonController:SetButtonVisibilityByIndex(index, visible);
+function NarciNavBarMixin:HideMythicPlusButton()
+    NavButtonController:SetButtonVisibility("mythicplus", false);
 end
+
 
 function NarciNavBarMixin:ShowCovenant()
     if not self.covenantID then
@@ -680,11 +696,11 @@ function NarciNavBarMixin:SetMaximizedMode(state)
     UpdateButtonGroupWidth(self.PrimaryFrame.TalentContainer.talentButtons, 7, effectiveWidth, state);
 end
 
-function NarciNavBarMixin:PlayTimer(state)
+function NarciNavBarMixin:PauseTimer(state)
     if state then
-        ProgressTimer:Play();
-    else
         ProgressTimer:Pause();
+    else
+        ProgressTimer:Resume();
     end
 end
 

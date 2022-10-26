@@ -1,7 +1,7 @@
-NARCI_VERSION_INFO = "1.2.7";
+NARCI_VERSION_INFO = "1.2.9";
 
-local VERSION_DATE = 1665937313;
-local CURRENT_VERSION = 10207;
+local VERSION_DATE = 1666713639;
+local CURRENT_VERSION = 10209;
 local PREVIOUS_VERSION = CURRENT_VERSION;
 local TIME_SINCE_LAST_UPDATE = 0;
 
@@ -72,9 +72,9 @@ local DefaultValues = {
     ["HideTextsWithUI"] = true,                     --Hide all texts when UI is hidden
 
     ["MissingEnchantAlert"] = false,                --Show alert if the item isn't enchanted
-    ["TalentTreeShortTooltip"] = true,              --Set the MaxLines of the description to 2 lines
     ["TalentTreeForInspection"] = true,
-    ["TalentTreeForPaperDoll"] = true,              --True on Beta for testing
+    ["TalentTreeForPaperDoll"] = false,              --True on Beta for testing
+    ["TalentTreeUseClassBackground"] = false,
 
     --# NPC
     ["SearchRelatives"] = false,                    --Search for NPCs with the same last name
@@ -241,6 +241,7 @@ Initialization:SetScript("OnEvent",function(self,event,...)
         self:UnregisterEvent(event);
         LoadSettings();
         self:SetScript("OnEvent", nil);
+        collectgarbage("collect");
     end
 end);
 

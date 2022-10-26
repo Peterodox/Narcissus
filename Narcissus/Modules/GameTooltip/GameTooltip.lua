@@ -35,6 +35,7 @@ local PT_EQUIPMENT_SETS = gsub(EQUIPMENT_SETS, ".cFF.+", "");
 local PT_ITEM_SOULBOUND = ITEM_SOULBOUND;
 local PT_DURABILITY = "|TInterface\\AddOns\\Narcissus\\Art\\GameTooltip\\ExclamationMark:14:14:2:-2:32:32:0:32:0:32:255:109:15|t   "..(DURABILITY_TEMPLATE or "Durability %d / % d");
 local PT_DPS_TEMPLATE = gsub(DPS_TEMPLATE, "%%s", "%%.1f");
+local ENCHANTED_TOOLTIP_LINE = ENCHANTED_TOOLTIP_LINE or "Enchanted: %s";
 
 local GenericTooltip, EquipmentTooltip;
 
@@ -615,13 +616,36 @@ function NarciEquipmentTooltipMixin:DisplayItemData(link, itemData, slotID, visu
     end
     if itemData then
         local levelSubtext;
+
         if itemData.context then
             levelSubtext = itemData.context;
         end
+
         if itemData.upgradeLevel then
             levelSubtext = format("%s/%s", itemData.upgradeLevel[1], itemData.upgradeLevel[2]);
         end
         self.HeaderFrame.LevelSubText:SetText(levelSubtext);
+
+        if itemData.craftingQuality then
+            local craftingQuality = itemData.craftingQuality;
+            local qualityAtlas = format("Professions-Icon-Quality-Tier%d-Small", craftingQuality);
+            self.HeaderFrame.CraftingQualityIcon:ClearAllPoints();
+            if craftingQuality == 2 then
+                self.HeaderFrame.CraftingQualityIcon:SetSize(18, 18);
+                self.HeaderFrame.CraftingQualityIcon:SetPoint("TOPLEFT", self.HeaderFrame.ItemLevel, "TOPRIGHT", 4, 2);
+            elseif craftingQuality == 3 then
+                self.HeaderFrame.CraftingQualityIcon:SetSize(16, 16);
+                self.HeaderFrame.CraftingQualityIcon:SetPoint("TOPLEFT", self.HeaderFrame.ItemLevel, "TOPRIGHT", 4, -1);
+            else
+                self.HeaderFrame.CraftingQualityIcon:SetSize(12, 12);
+                self.HeaderFrame.CraftingQualityIcon:SetPoint("TOPLEFT", self.HeaderFrame.ItemLevel, "TOPRIGHT", 4, -1);
+            end
+            self.HeaderFrame.CraftingQualityIcon:SetAtlas(qualityAtlas, false);
+            self.HeaderFrame.CraftingQualityIcon:Show();
+        else
+            self.HeaderFrame.CraftingQualityIcon:Hide();
+        end
+
         if itemData.weaponInfo then
             self:AddDoubleLine(itemData.weaponInfo[1], itemData.weaponInfo[2], GetColorByIndex(1));
         end
@@ -1042,7 +1066,7 @@ function NarciEquipmentTooltipMixin:UpdateSize()
     local modelHeight = headerHeight - 10;
     local modelWidth = MODEL_SIZE_RATIO * modelHeight;
     self.ItemModel:SetSize(modelWidth, modelHeight);
-    local headerWidth = math.max(self.HeaderFrame.ItemName:GetWrappedWidth(), self.HeaderFrame.ItemType:GetWrappedWidth()) + ((self.showItemModel and (modelWidth + 16) or 0));
+    local headerWidth = math.max(self.HeaderFrame.ItemName:GetWrappedWidth() + (self.showItemModel and 0 or 52), self.HeaderFrame.ItemType:GetWrappedWidth()) + ((self.showItemModel and (modelWidth + 16) or 0));
     local maxWidth = self.maxWidth;
     if headerWidth > maxWidth then
         maxWidth = headerWidth;
@@ -1172,11 +1196,6 @@ function NarciEquipmentTooltipMixin:FadeIn()
     self.AnimIn:Play();
 end
 
-
---For Preferences--
-function Narci:ShowAdditionalInfoOnTooltip(state)
-
-end
 
 do
     local SettingFunctions = addon.SettingFunctions;

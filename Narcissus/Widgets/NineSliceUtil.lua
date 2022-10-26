@@ -94,6 +94,14 @@ local TextureData = {
         useCenterForAlignment = true,
     },
 
+    blackChamfer8 = {
+        file = "Frames\\NineSliceChamfer8",
+        cornerSize = 32,
+        cornerCoord = 0.25,
+        pixelPerfect = true,
+        useCenterForAlignment = true,
+    },
+
     classTalentTrait = {
         file = "Modules\\TalentTree\\TraitTooltipNineSlice",
         cornerSize = 32,
@@ -101,11 +109,20 @@ local TextureData = {
         pixelPerfect = true,
         useCenterForAlignment = true,
     },
+
+    classTalentTraitTransparent = {
+        file = "Modules\\TalentTree\\TraitTooltipStrokeOnlyNineSlice",
+        cornerSize = 32,
+        cornerCoord = 0.25,
+        pixelPerfect = true,
+        useCenterForAlignment = true,
+    },
 };
 
-function NineSliceUtil.SetUp(frame, textureKey, layer, shrink)
+function NineSliceUtil.SetUp(frame, textureKey, layer, shrink, customLayerSubLevel)
     shrink = shrink or 0;
     local group, subLevel;
+
     if layer == "backdrop" then
         if not frame.backdropTextures then
             frame.backdropTextures = {};
@@ -122,6 +139,10 @@ function NineSliceUtil.SetUp(frame, textureKey, layer, shrink)
         return
     end
 
+    if customLayerSubLevel then
+        subLevel = customLayerSubLevel;
+    end
+
     local data = TextureData[textureKey];
 
     local file = PATH_PREFIX .. data.file;
@@ -132,12 +153,15 @@ function NineSliceUtil.SetUp(frame, textureKey, layer, shrink)
     local offset = size * (data.offsetRatio or 0);
     local ORDER = {1, 3, 7, 9, 2, 4, 6, 8, 5};
     local tex, key;
-
+    local isNewTexture;
 
     for i = 1, 9 do
         key = ORDER[i];
         if not group[key] then
             group[key] = frame:CreateTexture(nil, "BACKGROUND", nil, subLevel);
+            isNewTexture = true;
+        else
+            isNewTexture = false;
         end
         tex = group[key];
         tex:SetTexture(file, nil, nil, "LINEAR"); --NEAREST LINEAR
@@ -201,10 +225,14 @@ function NineSliceUtil.SetUp(frame, textureKey, layer, shrink)
                 end
             end
 
-            if pixelMode then
+            if pixelMode and isNewTexture then
                 AddPixelPerfectTexture(frame, tex, size, size);
             end
         end
+    end
+
+    if frame.pixelDriver then
+        frame.pixelDriver.scale = 0;    --reset scale so it can update on next OnShow
     end
 end
 
@@ -224,15 +252,15 @@ function NineSliceUtil.SetBorderColor(frame, r, g, b)
     end
 end
 
-function NineSliceUtil.SetUpBackdrop(frame, textureKey, shrink, r, g, b)
-    NineSliceUtil.SetUp(frame, textureKey, "backdrop", shrink);
+function NineSliceUtil.SetUpBackdrop(frame, textureKey, shrink, r, g, b, customLayerSubLevel)
+    NineSliceUtil.SetUp(frame, textureKey, "backdrop", shrink, customLayerSubLevel);
     if r and g and b then
         NineSliceUtil.SetBackdropColor(frame, r, g, b);
     end
 end
 
-function NineSliceUtil.SetUpBorder(frame, textureKey, shrink, r, g, b)
-    NineSliceUtil.SetUp(frame, textureKey, "border", shrink);
+function NineSliceUtil.SetUpBorder(frame, textureKey, shrink, r, g, b, customLayerSubLevel)
+    NineSliceUtil.SetUp(frame, textureKey, "border", shrink, customLayerSubLevel);
     if r and g and b then
         NineSliceUtil.SetBorderColor(frame, r, g, b);
     end

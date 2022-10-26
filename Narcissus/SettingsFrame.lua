@@ -328,15 +328,18 @@ local function CategoryButton_SetLabel(self, text)
     end
 end
 
-local function CategoryButton_OnClick(self)
-    SetCategory(self.id);
-
-    if true then
-        MainFrame.ScrollFrame:ScrollToOffset(CategoryOffsets[self.id]);
-        UpdateRenderArea(CategoryOffsets[self.id]);
+local function SetScrollByCategoryID(id, smoothScroll)
+    SetCategory(id);
+    if smoothScroll then
+        MainFrame.ScrollFrame:ScrollToOffset(CategoryOffsets[id]);
     else
-        MainFrame.ScrollFrame:SetOffset(CategoryOffsets[self.id]);
+        MainFrame.ScrollFrame:SetOffset(CategoryOffsets[id]);
     end
+    UpdateRenderArea(CategoryOffsets[id]);
+end
+
+local function CategoryButton_OnClick(self)
+    SetScrollByCategoryID(self.id, true);
 end
 
 local function CategoryButton_OnEnter(self)
@@ -1830,7 +1833,9 @@ local function CreateWidget(parent, anchorTo, offsetX, offsetY, widgetData)
             SetTextColorByID(obj.Label, 2);
             WidgetGroups[groupID][i] = obj;
             obj.onValueChangedFunc = widgetData.onValueChangedFunc;
-            AddObjectAsChild(obj);
+            if widgetData.isChild then
+                AddObjectAsChild(obj);
+            end
             obj.onEnterFunc = widgetData.onEnterFunc;
             obj.onLeaveFunc = widgetData.onLeaveFunc;
 
@@ -1946,7 +1951,7 @@ end
 
 local Categories = {
     --{ CategoryName }
-    {name = L["Character Panel"], level = 0,
+    {name = L["Character Panel"], level = 0, key = "characterPanel",
         widgets = {
             {type = "header", level = 0, text = L["Character Panel"]},
             {type = "slider", level = 1, key = "GlobalScale", text = UI_SCALE, onValueChangedFunc = CharacterUIScale_OnValueChanged, minValue = 0.7, maxValue = 1, valueStep = 0.1, },
@@ -1962,7 +1967,7 @@ local Categories = {
         },
     },
 
-    {name = L["Hotkey"], level = 1,
+    {name = L["Hotkey"], level = 1, key = "hotkey",
         widgets = {
             {type = "header", level = 0, text = L["Hotkey"]},
             {type = "keybinding", level = 1, text = L["Open Narcissus"], externalAction = BIND_ACTION_NARCISSUS},
@@ -1971,7 +1976,7 @@ local Categories = {
         },
     },
 
-    {name = L["Item Tooltip"], level = 1,
+    {name = L["Item Tooltip"], level = 1, key = "itemTooltip",
         widgets = {
             {type = "header", level = 0, text = L["Item Tooltip"]},
             {type = "subheader", level = 1, text= L["Style"]},
@@ -1981,7 +1986,7 @@ local Categories = {
         },
     },
 
-    {name = L["Screen Effects"], level = 1,
+    {name = L["Screen Effects"], level = 1, key = "screenEffects",
         widgets = {
             {type = "header", level = 0, text = L["Screen Effects"]},
             {type = "slider", level = 1, key = "VignetteStrength", text =  L["Vignette Strength"], valueFormatFunc = Round1, convertionFunc = Round1, onValueChangedFunc = VignetteStrength_OnValueChanged, minValue = 0, maxValue = 1, valueStep = nil, },
@@ -1991,7 +1996,7 @@ local Categories = {
         },
     },
 
-    {name = L["Camera"], level = 1,
+    {name = L["Camera"], level = 1, key = "camera",
         widgets = {
             {type = "header", level = 0, text = L["Camera"]},
             {type = "checkbox", level = 1, key = "CameraTransition", text = L["Camera Transition"], onValueChangedFunc = CameraTransition_OnValueChanged, description = L["Camera Transition Description Off"], setupFunc = CameraTransition_SetupDescription},
@@ -2001,7 +2006,7 @@ local Categories = {
         },
     },
 
-    {name = L["Minimap Button"], level = 0,    --#6
+    {name = L["Minimap Button"], level = 0, key = "minimapButton",
         widgets = {
             {type = "header", level = 0, text = L["Minimap Button"]},
             {type = "checkbox", level = 1, key = "ShowMinimapButton", text = ENABLE, onValueChangedFunc = MinimapButtonToggle_OnValueChanged},
@@ -2013,7 +2018,7 @@ local Categories = {
         },
     },
 
-    {name = L["Photo Mode"], level = 0,
+    {name = L["Photo Mode"], level = 0, key = "photoMode",
         widgets = {
             {type = "header", level = 0, text = L["Photo Mode"]},
             {type = "slider", level = 1, key = "screenshotQuality", text = L["Sceenshot Quality"], onValueChangedFunc = ScreenshotQuality_OnValueChanged, minValue = 3, maxValue = 10, getValueFunc = ScreenshotQuality_GetValue, valueFormatFunc = Round0, convertionFunc = Round0},
@@ -2023,7 +2028,7 @@ local Categories = {
         },
     },
 
-    {name = "NPC", level = 0,
+    {name = "NPC", level = 0,  key = "npc",
         widgets = {
             {type = "header", level = 0, text = L["Creature Tooltip"]},
             {type = "checkbox", level = 1, key = "SearchRelatives", text = L["Find Relatives"], onValueChangedFunc = SearchRelativesToggle_OnValueChanged, },
@@ -2035,7 +2040,7 @@ local Categories = {
         },
     },
 
-    {name = L["Extensions"], level = 0,
+    {name = L["Extensions"], level = 0, key = "extensions",
         widgets = {
             {type = "header", level = 0, text = "Extensions"},
             {type = "checkbox", level = 1, key = "GemManager", text = L["Gem Manager"], onValueChangedFunc = GemManagerToggle_OnValueChanged, description = L["Gemma Description"]},
@@ -2048,8 +2053,8 @@ local Categories = {
 
 
 
-    {name = L["Credits"], level = 0, },
-    {name = L["About"], level = 0,
+    {name = L["Credits"], level = 0, key = "credits",},
+    {name = L["About"], level = 0, key = "about",
         widgets = {
             {type = "header", level = 0, text = L["About"]},
         },
@@ -2066,18 +2071,18 @@ if IS_DRAGONFLIGHT then
         SettingFunctions.ShowMiniTalentTreeForInspection(state);
     end
 
-    local function TruncateTalentDescription(self, state)
-        SettingFunctions.TruncateTalentTreeTooltip(state);
+    local function TalentTreeUseClassBackground(self, state)
+        SettingFunctions.SetUseClassBackground(state);
     end
 
-    local talentCategory = {name = TALENTS or "Talents", level = 1,
+    local talentCategory = {name = TALENTS or "Talents", level = 1, key = "talents",
     widgets = {
         {type = "header", level = 0, text = L["Mini Talent Tree"]},
         {type = "subheader", level = 1, text = L["Show Talent Tree When"]},
         {type = "checkbox", level = 1, key = "TalentTreeForPaperDoll",text = L["Show Talent Tree Paperdoll"], onValueChangedFunc = ShowTreeCase1},
         {type = "checkbox", level = 1, key = "TalentTreeForInspection", text = L["Show Talent Tree Inspection"],  onValueChangedFunc = ShowTreeCase2},
-        {type = "subheader", level = 1, text = L["Tooltip"], extraTopPadding = 1},
-        {type = "checkbox", level = 1, key = "TalentTreeShortTooltip", text = L["Truncate Talent Description"],  onValueChangedFunc = TruncateTalentDescription},
+        {type = "subheader", level = 1, text = L["Appearance"], extraTopPadding = 1},
+        {type = "checkbox", level = 1, key = "TalentTreeUseClassBackground", text = L["Use Class Background"],  onValueChangedFunc = TalentTreeUseClassBackground},
     }};
 
     table.insert(Categories, #Categories -1, talentCategory);
@@ -2131,7 +2136,7 @@ local function SetupFrame()
 
         obj.id = i;
         obj.level = cateData.level;
-
+        obj.key = cateData.key;
 
         obj:SetScript("OnClick", CategoryButton_OnClick);
         obj:SetScript("OnEnter", CategoryButton_OnEnter);
@@ -2258,6 +2263,13 @@ function NarciSettingsFrameMixin:OnLoad()
     end);
 
     if IS_DRAGONFLIGHT and SettingsPanel then
+        if true then
+            --don't create our tab on the SettingsPanel until the tain issue being resolved.
+            self.Background = self:CreateTexture(nil, "BACKGROUND", nil, -1);
+            self.Background:Hide();
+            return
+        end
+    
         self.Background = CreateFrame("Frame", nil, SettingsPanel);
         self.Background:SetFrameStrata("LOW");
         self.Background:SetFixedFrameStrata(true);
@@ -2291,7 +2303,7 @@ end
 
 
 
-function NarciSettingsFrameMixin:ShowUI(mode)
+function NarciSettingsFrameMixin:ShowUI(mode, alignToCenter, navigateTo)
     SetupFrame();
 
     mode = mode or "default";
@@ -2300,24 +2312,30 @@ function NarciSettingsFrameMixin:ShowUI(mode)
         if mode == "blizzard" then
             self:AnchorToInterfaceOptions();
         else
-            self:AnchorToDefault();
+            self:AnchorToDefault(alignToCenter);
         end
     end
 
     CreditList:StopAnimation();
 
-    if mode == "default" then
-        self.FlyIn:Play();
-        self:SetFrameStrata("HIGH");
-        self.Background:Hide();
-    else
+    if mode == "blizzard" then
         self.FlyIn:Stop();
         self.Background:Show();
+    else
+        self.FlyIn:Play();
+        self:SetFrameStrata("DIALOG");
+        self.Background:Hide();
     end
 
     RENDER_RANGE = Round0(self.ScrollFrame:GetHeight() + 4 + CATE_OFFSET);
 
     self:Show();
+
+    if navigateTo then
+        C_Timer.After(0, function()
+            self:NavigateToCategory(navigateTo);
+        end)
+    end
 end
 
 function NarciSettingsFrameMixin:CloseUI()
@@ -2345,6 +2363,16 @@ function NarciSettingsFrameMixin:OnEvent(event, ...)
         self.mode = nil;    --to recalculate scale
     end
 end
+
+function NarciSettingsFrameMixin:NavigateToCategory(categoryKey)
+    for i, b in ipairs(CategoryButtons) do
+        if b.key == categoryKey then
+            SetScrollByCategoryID(b.id, false);
+            return
+        end
+    end
+end
+
 
 local CollapsibleCategory = {
     onUpdate = function(self, elapsed)
@@ -2454,12 +2482,17 @@ function NarciSettingsFrameMixin:AnchorToInterfaceOptions()
     UpdateAlignment();
 end
 
-function NarciSettingsFrameMixin:AnchorToDefault()
+function NarciSettingsFrameMixin:AnchorToDefault(alignToCenter)
     self:ClearAllPoints();
     self:SetParent(nil);
     local x, y = Narci_VirtualLineCenter:GetCenter();
     local scale = self:GetEffectiveScale();
-    self:SetPoint("CENTER", UIParent, "LEFT", x/scale, 0);
+    if alignToCenter then
+        self:SetPoint("CENTER", UIParent, "CENTER", 0, 0);
+    else
+        self:SetPoint("CENTER", UIParent, "LEFT", x/scale, 0);
+    end
+
     self:SetSize(DEFAULT_FRAME_WIDTH, DEFAULT_FRAME_HEIGHT);
     self.CategoryFrame:SetWidth(DEFAULT_LEFT_WIDTH);
     self.ScrollFrame.ScrollChild:SetWidth(DEFAULT_FRAME_WIDTH - DEFAULT_LEFT_WIDTH);

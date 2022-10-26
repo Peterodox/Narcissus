@@ -8,7 +8,7 @@
 	<FontString name="NarciNumberAlignedtoLeft" inherits="NarciFontNormal10White" justifyH="LEFT" justifyV="TOP" virtual="true"/>
 	<FontString name="NarciNumberAlignedtoRight" inherits="NarciFontNormal10White" justifyH="RIGHT" justifyV="TOP" virtual="true"/>
 
-	<GameTooltip name="NarciRefVirtualTooltip" inherits="GameTooltipTemplate" parent="UIParent" enableMouse="false" toplevel="false" movable="false" frameStrata="LOW" scale="0.001" hidden="true" Alpha="0">
+	<!--GameTooltip name="NarciRefVirtualTooltip" inherits="GameTooltipTemplate" parent="UIParent" enableMouse="false" toplevel="false" movable="false" frameStrata="LOW" scale="0.001" hidden="true" Alpha="0">
 		<Size>
 			<AbsDimension x="10" y="10"/>
 		</Size>
@@ -17,9 +17,8 @@
 		</Anchors>
 		<Scripts>
 			<OnLoad function="GameTooltip_OnLoad"/>
-			<OnTooltipSetItem function="Narci_Comparison_Resize"/>
 		</Scripts>
-	</GameTooltip>
+	</GameTooltip-->
 
 	<Frame name="NarciStatsComparisonTemplate" virtual="true">
 		<Size y="12"/>
