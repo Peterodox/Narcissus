@@ -374,7 +374,7 @@
         <Layers>
             <Layer level="BACKGROUND">
                 <Texture parentKey="Background">
-                    <Color r="0.12" g="0.12" b="0.12" a="1"/>
+                    <Color r="0.1" g="0.1" b="0.1" a="1"/>
                     <!--Color r="1" g="1" b="1" a="1"/>
                     <Gradient orientation="VERTICAL">
                         <MaxColor r="0.10" g="0.10" b="0.10" a="1"/>

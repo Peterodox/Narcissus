@@ -387,7 +387,7 @@ function ReadQuest:GetQuestlineLength(questComplete)
     end
 
     --tempText = gsub(tempText, "[\r\n]", " ");
-    local numWords = CountWords(tempText);
+    numWords = CountWords(tempText);
     
     if not questComplete then
         tempText = GetObjectiveText();

@@ -25,6 +25,8 @@ local function SetNodeIcon(node, definitionInfo, overrideSpellID)
 
         node.Icon:SetTexture(overrideIcon);
         node.Icon:SetTexCoord(0.0625, 0.9375, 0.0625, 0.9375);
+    else
+        node.Icon:SetTexture(nil);
     end
 end
 
@@ -45,6 +47,7 @@ function NarciTalentTreeNodeMixin:SetNodeType(typeID, ranksPurchased)
         else
             self.IconMask:SetTexture("Interface\\AddOns\\Narcissus\\Art\\Modules\\TalentTree\\NodeMaskOctagon");
             self.Symbol:SetTexCoord(0.75, 1, 0, 0.25);
+            self.IconBorder:SetTexCoord(0, 0.25, 0.5, 1);
         end
     end
 

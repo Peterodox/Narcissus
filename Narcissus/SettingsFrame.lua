@@ -2263,7 +2263,7 @@ function NarciSettingsFrameMixin:OnLoad()
     end);
 
     if IS_DRAGONFLIGHT and SettingsPanel then
-        if true then
+        if false then
             --don't create our tab on the SettingsPanel until the tain issue being resolved.
             self.Background = self:CreateTexture(nil, "BACKGROUND", nil, -1);
             self.Background:Hide();

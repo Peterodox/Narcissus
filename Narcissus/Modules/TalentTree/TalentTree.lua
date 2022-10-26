@@ -535,6 +535,7 @@ function NarciMiniTalentTreeMixin:ShowConfig(configID, isPreviewing)
                         node:SetNodeType(2, 2);
                     else
                         node:SetNodeType(2, 0);
+                        node.Icon:SetTexture(nil);
                     end
                 else
                     node.entryIDs = nil;
@@ -1860,7 +1861,8 @@ function HookUtil:HookInpsectFrame()
     end
 end
 
-UnitLevel = UnitLevel;
+local UnitLevel = UnitLevel;
+
 function HookUtil:HookPaperDoll()
     if self.paperdollHooked then return end;
     self.paperdollHooked = true;
