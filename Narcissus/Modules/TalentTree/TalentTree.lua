@@ -1728,6 +1728,7 @@ EventCenter:RegisterEvent("ACTIVE_PLAYER_SPECIALIZATION_CHANGED");
 EventCenter:RegisterEvent("TRAIT_CONFIG_UPDATED");
 EventCenter:RegisterEvent("TRAIT_CONFIG_LIST_UPDATED");
 EventCenter:RegisterEvent("TRAIT_CONFIG_DELETED");
+EventCenter:RegisterEvent("TRAIT_CONFIG_CREATED");
 EventCenter:RegisterEvent("CONFIG_COMMIT_FAILED");
 
 EventCenter.dynamicEvents = {
@@ -1759,7 +1760,7 @@ function EventCenter:RegisterDynamicEvents(state)
 end
 
 EventCenter.onEvent = function(self, event, ...)
-    if event == "TRAIT_CONFIG_UPDATED" or event == "TRAIT_CONFIG_LIST_UPDATED" or event == "TRAIT_CONFIG_DELETED" then
+    if event == "TRAIT_CONFIG_UPDATED" or event == "TRAIT_CONFIG_LIST_UPDATED" or event == "TRAIT_CONFIG_DELETED" or event == "TRAIT_CONFIG_CREATED" then
         local configID = ...
         DataProvider:RefreshConfigIDs();
         self.onUpdateCallback = MainFrame.RequestUpdate;

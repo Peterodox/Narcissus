@@ -255,10 +255,18 @@ function NarciTalentTreeNodeMixin:SetComparison(typeID, targetRank, playerRank)
                 else    --right
                     self.IconBorder:SetTexCoord(0.125, 0.25, 0.25, 0.5);
                 end
-            elseif targetRank == 1 then --left,right
-                self.IconBorder:SetTexCoord(0.5, 0.625, 0.25, 0.5);
-            else    --right,left
-                self.IconBorder:SetTexCoord(0.625, 0.75, 0.25, 0.5);
+            elseif targetRank == 1 then
+                if playerRank == 0 then
+                    self.IconBorder:SetTexCoord(0.125, 0.25, 0.75, 1);
+                else --left,right
+                    self.IconBorder:SetTexCoord(0.5, 0.625, 0.25, 0.5);
+                end
+            else
+                if playerRank == 0 then
+                    self.IconBorder:SetTexCoord(0.25, 0.375, 0.75, 1);
+                else --left,right
+                    self.IconBorder:SetTexCoord(0.625, 0.75, 0.25, 0.5);
+                end
             end
         end
     end

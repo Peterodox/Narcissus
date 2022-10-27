@@ -366,7 +366,7 @@
         </Scripts>
     </EditBox>
 
-    <Frame name="NarciMiniTalentTree" mixin="NarciMiniTalentTreeMixin" frameStrata="MEDIUM" enableMouse="true" hidden="true" topLevel="true">
+    <Frame name="NarciMiniTalentTree" mixin="NarciMiniTalentTreeMixin" frameStrata="HIGH" enableMouse="true" hidden="true" topLevel="true">
         <Size x="32" y="32"/>
         <Anchors>
             <Anchor point="CENTER" y="200"/>
