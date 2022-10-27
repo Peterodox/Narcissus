@@ -1807,16 +1807,6 @@ local function CreateWidget(parent, anchorTo, offsetX, offsetY, widgetData)
         local preview;
         local sectorHeight;
 
-        if widgetData.previewImage then
-            preview = parent:CreateTexture(nil, "ARTWORK");
-            preview:SetSize(widgetData.previewWidth, widgetData.previewHeight);
-            preview:SetPoint("TOPRIGHT", anchorTo, "TOPRIGHT", -24, offsetY + (widgetData.previewOffsetY or 0));
-            preview:SetTexture("Interface\\AddOns\\Pitcher\\Art\\Settings\\"..widgetData.previewImage);
-            sectorHeight = widgetData.previewHeight - (widgetData.previewOffsetY or 0);
-            AddObjectAsChild(preview);
-        end
-
-
         local groupID = #WidgetGroups + 1;
         WidgetGroups[groupID] = {};
 
@@ -1829,6 +1819,14 @@ local function CreateWidget(parent, anchorTo, offsetX, offsetY, widgetData)
             obj.id = i;
             obj.key = widgetData.key;
             obj:SetLabelText(widgetData.texts[i]);
+
+            if widgetData.previewImage and not preview then
+                preview = obj:CreateTexture(nil, "ARTWORK");
+                preview:SetSize(widgetData.previewWidth, widgetData.previewHeight);
+                preview:SetPoint("TOPRIGHT", anchorTo, "TOPRIGHT", -24, offsetY + (widgetData.previewOffsetY or 0));
+                preview:SetTexture("Interface\\AddOns\\Narcissus\\Art\\SettingsFrame\\"..widgetData.previewImage);
+                sectorHeight = widgetData.previewHeight - (widgetData.previewOffsetY or 0);
+            end
             obj.preview = preview;
             SetTextColorByID(obj.Label, 2);
             WidgetGroups[groupID][i] = obj;
@@ -1956,7 +1954,7 @@ local Categories = {
             {type = "header", level = 0, text = L["Character Panel"]},
             {type = "slider", level = 1, key = "GlobalScale", text = UI_SCALE, onValueChangedFunc = CharacterUIScale_OnValueChanged, minValue = 0.7, maxValue = 1, valueStep = 0.1, },
             {type = "slider", level = 1, key = "BaseLineOffset", text = L["Baseline Offset"], validityCheckFunc = IsUsingUltraWideMonitor, onValueChangedFunc = UltraWideOffset_OnValueChanged, minValue = 0, maxValue = ULTRAWIDE_MAX_OFFSET, valueStep = ULTRAWIDE_STEP, },
-            {type = "checkbox", level = 1, key = "MissingEnchantAlert", text = L["Missing Enchant Alert"], onValueChangedFunc = ShowMisingEnchantAlert_OnValueChanged, validityCheckFunc = ShowMisingEnchantAlert_IsValid, isNew = true},
+            {type = "checkbox", level = 1, key = "MissingEnchantAlert", text = L["Missing Enchant Alert"], onValueChangedFunc = ShowMisingEnchantAlert_OnValueChanged, validityCheckFunc = ShowMisingEnchantAlert_IsValid, isNew = false},
             {type = "checkbox", level = 1, key = "DetailedIlvlInfo", text = L["Show Detailed Stats"], onValueChangedFunc = ShowDetailedStats_OnValueChanged},
             {type = "checkbox", level = 1, key = "AFKScreen", text = L["AFK Screen Description"], onValueChangedFunc = AFKToggle_OnValueChanged, },
                 {type = "checkbox", level = 3, key = "AKFScreenDelay", text = L["AFK Screen Delay"], onValueChangedFunc = nil, isChild = true},
@@ -2053,8 +2051,8 @@ local Categories = {
 
 
 
-    {name = L["Credits"], level = 0, key = "credits",},
-    {name = L["About"], level = 0, key = "about",
+    {name = L["Credits"], level = 0, key = "credits", isBottom = true},
+    {name = L["About"], level = 0, key = "about",  isBottom = true,
         widgets = {
             {type = "header", level = 0, text = L["About"]},
         },
@@ -2086,9 +2084,65 @@ if IS_DRAGONFLIGHT then
     }};
 
     table.insert(Categories, #Categories -1, talentCategory);
+
+    
+
+    local function ItemSearchToggle_OnValueChanged(self, state)
+        NarciBagItemFilterSettings.SetEnableSearchSuggestion(state);
+    end
+    
+    local function ItemSearchDirectionButton_OnValueChanged(self, id)
+        NarciBagItemFilterSettings.SetItemSearchPopupDirection(id);
+        if id == 1 then
+            self.preview:SetTexCoord(0, 0.5, 0, 0.8125);
+        else
+            self.preview:SetTexCoord(0.5, 1, 0, 0.8125);
+        end
+    end
+    
+    local function ItemSearchDirection_Setup(radioButton)
+        if radioButton.preview then
+            if DB and DB.SearchSuggestDirection == 2 then
+                radioButton.preview:SetTexCoord(0.5, 1, 0, 0.8125);
+            else
+                radioButton.preview:SetTexCoord(0, 0.5, 0, 0.8125);
+            end
+        end
+    end
+
+    local function AutoFilterMail_OnValueChanged(self, state)
+        NarciBagItemFilterSettings.AutoFilterMail(state);
+    end
+    
+    local function AutoFilterAuction_OnValueChanged(self, state)
+        NarciBagItemFilterSettings.AutoFilterAuction(state);
+    end
+    
+    local function AutoFilterGem_OnValueChanged(self, state)
+        NarciBagItemFilterSettings.AutoFilterGem(state);
+    end
+
+    local function IsBagItemFilterAddOnLoaded()
+        return NarciBagItemFilterSettings ~= nil
+    end
+
+    local bagCategory = {name = "Bag Item Filter", level = 1, key = "bagitemfilter", validityCheckFunc = IsBagItemFilterAddOnLoaded,
+    widgets = {
+        {type = "header", level = 0, text = "Bag Item Filter"},
+        {type = "checkbox", level = 1, key = "SearchSuggestEnable", text = "Enable Search Suggetion and Auto Filter", onValueChangedFunc = ItemSearchToggle_OnValueChanged},
+        {type = "subheader", level = 3, text = "Place the window...", extraTopPadding = 1, isChild = true},
+        {type = "radio", level = 3, key = "SearchSuggestDirection", texts = {"Below Search Box", "Above Search Box"}, onValueChangedFunc = ItemSearchDirectionButton_OnValueChanged, setupFunc = ItemSearchDirection_Setup,
+            previewImage = "PopupPositionPreview", previewWidth = 200, previewHeight = 162, previewOffsetY = 28, isChild = true
+        },
+        {type = "subheader", level = 3, text = "Automatically filters items when you...", extraTopPadding = 1, isChild = true},
+        {type = "checkbox", level = 3, key = "AutoFilterMail", text = "Send Mails", onValueChangedFunc = AutoFilterMail_OnValueChanged, isChild = true},
+        {type = "checkbox", level = 3, key = "AutoFilterAuction", text = "Create Auctions", onValueChangedFunc = AutoFilterAuction_OnValueChanged, isChild = true},
+        {type = "checkbox", level = 3, key = "AutoFilterGem", text = "Socket Items", onValueChangedFunc = AutoFilterGem_OnValueChanged, isChild = true},
+    }};
+
+    table.insert(Categories, #Categories -1, bagCategory);
 end
 
-CREDIT_TAB_ID = #Categories - 1;
 
 local function SetupFrame()
     if CategoryButtons then return end;
@@ -2113,7 +2167,8 @@ local function SetupFrame()
 
     local cateButtonHeight = 24;
     local numCate = #Categories;
-    local bottomCateIndex = numCate - 2;
+    local bottomIndex = 0;
+    local p = 0;    --numEffectiveCate
     local frameHeight = Round0(f.ScrollFrame:GetHeight());
 
     CategoryButtons = {};
@@ -2126,67 +2181,72 @@ local function SetupFrame()
     local height;
     local totalScrollHeight = PADDING_H;
 
-    local tab;
     local cateHeight, totalCateHeight = 0, 0;
 
     for i, cateData in ipairs(Categories) do
-        obj = CreateFrame("Button", nil, f.CategoryFrame, "NarciSettingsCategoryButtonTemplate");
-        CategoryButtons[i] = obj;
-        CategoryOffsets[i] = totalScrollHeight - PADDING_H;
-
-        obj.id = i;
-        obj.level = cateData.level;
-        obj.key = cateData.key;
-
-        obj:SetScript("OnClick", CategoryButton_OnClick);
-        obj:SetScript("OnEnter", CategoryButton_OnEnter);
-        obj:SetScript("OnLeave", CategoryButton_OnLeave);
-
-        obj:SetWidth(DEFAULT_LEFT_WIDTH);
-        obj:SetHitRectInsets(0, 8, 0, 0);
-        obj.ButtonText:SetPoint("LEFT", obj, "LEFT", PADDING_H + CATE_LEVEL_OFFSET*cateData.level, 0);
-
-        SetTextColorByID(obj.ButtonText, 1);
-
-        CategoryTabs[i] = CreateFrame("Frame", nil, f.ScrollFrame.ScrollChild);
-
-        if i > bottomCateIndex then
-            obj:SetPoint("BOTTOMLEFT", f.CategoryFrame, "BOTTOMLEFT", 0, PADDING_V + (numCate - i) * cateButtonHeight);
-            if i == numCate then
-                --About Tab
+        if (not cateData.validityCheckFunc) or (cateData.validityCheckFunc and cateData.validityCheckFunc()) then
+            p = p + 1;
+            obj = CreateFrame("Button", nil, f.CategoryFrame, "NarciSettingsCategoryButtonTemplate");
+            CategoryButtons[p] = obj;
+            CategoryOffsets[p] = totalScrollHeight - PADDING_H;
+    
+            obj.id = p;
+            obj.level = cateData.level;
+            obj.key = cateData.key;
+    
+            obj:SetScript("OnClick", CategoryButton_OnClick);
+            obj:SetScript("OnEnter", CategoryButton_OnEnter);
+            obj:SetScript("OnLeave", CategoryButton_OnLeave);
+    
+            obj:SetWidth(DEFAULT_LEFT_WIDTH);
+            obj:SetHitRectInsets(0, 8, 0, 0);
+            obj.ButtonText:SetPoint("LEFT", obj, "LEFT", PADDING_H + CATE_LEVEL_OFFSET*cateData.level, 0);
+    
+            SetTextColorByID(obj.ButtonText, 1);
+    
+            CategoryTabs[p] = CreateFrame("Frame", nil, f.ScrollFrame.ScrollChild);
+    
+            if cateData.isBottom then
+                bottomIndex = bottomIndex + 1;
+                obj:SetPoint("BOTTOMLEFT", f.CategoryFrame, "BOTTOMLEFT", 0, PADDING_V + (2 - bottomIndex) * cateButtonHeight);
+                if cateData.key == "about" then
+                    --About Tab
+                else
+                    --Credit List
+                    totalScrollHeight = math.ceil(totalScrollHeight/frameHeight) * frameHeight;
+                    totalScrollHeight = totalScrollHeight + WIDGET_GAP;
+                    CategoryOffsets[p] = totalScrollHeight - PADDING_H;
+    
+                    height = CreditList:CreateList(CategoryTabs[p], f.ScrollFrame.ScrollChild, -totalScrollHeight);
+                    totalScrollHeight = totalScrollHeight + height;
+                end
             else
-                --Credit List
-                totalScrollHeight = math.ceil(totalScrollHeight/frameHeight) * frameHeight;
-                totalScrollHeight = totalScrollHeight + WIDGET_GAP;
-                CategoryOffsets[i] = totalScrollHeight - PADDING_H;
-
-                height = CreditList:CreateList(CategoryTabs[i], f.ScrollFrame.ScrollChild, -totalScrollHeight);
-                totalScrollHeight = totalScrollHeight + height;
+                obj:SetPoint("TOPLEFT", f.CategoryFrame, "TOPLEFT", 0, -PADDING_V -totalCateHeight);
             end
-        else
-            obj:SetPoint("TOPLEFT", f.CategoryFrame, "TOPLEFT", 0, -PADDING_V -totalCateHeight);
-        end
-
-        cateHeight = CategoryButton_SetLabel(obj, cateData.name);
-        totalCateHeight = totalCateHeight + cateHeight;
-
-        if cateData.widgets then
-            for j = 1, #cateData.widgets do
-                obj, height = CreateWidget(CategoryTabs[i], f.ScrollFrame.ScrollChild, PADDING_H, -totalScrollHeight, cateData.widgets[j]);
-                totalScrollHeight =  totalScrollHeight + height;
-                if obj then
-                    obj.categoryID = i;
+    
+            cateHeight = CategoryButton_SetLabel(obj, cateData.name);
+            totalCateHeight = totalCateHeight + cateHeight;
+    
+            if cateData.widgets then
+                for j = 1, #cateData.widgets do
+                    obj, height = CreateWidget(CategoryTabs[p], f.ScrollFrame.ScrollChild, PADDING_H, -totalScrollHeight, cateData.widgets[j]);
+                    totalScrollHeight =  totalScrollHeight + height;
+                    if obj then
+                        obj.categoryID = p;
+                    end
                 end
             end
+    
+            if i == numCate then
+                --About List
+                AboutTab:CreateTab(CategoryTabs[p], f.ScrollFrame.ScrollChild, -totalScrollHeight);
+            end
+    
+            totalScrollHeight = totalScrollHeight + CATE_OFFSET;
         end
-
-        if i == numCate then
-            --About List
-            AboutTab:CreateTab(CategoryTabs[i], f.ScrollFrame.ScrollChild, -totalScrollHeight);
-        end
-
-        totalScrollHeight = totalScrollHeight + CATE_OFFSET;
     end
+
+    CREDIT_TAB_ID = p - 1;
 
     --Close Button;
     local CloseButton = CreateFrame("Button", nil, f.OverlayFrame);

@@ -402,12 +402,6 @@
                                     <Anchors>
                                         <Anchor point="RIGHT" relativeKey="$parent.Square" relativePoint="LEFT" x="-4" y="0"/>
                                     </Anchors>
-                                    <Animations>
-                                        <AnimationGroup parentKey="FadeIn">
-                                            <Alpha fromAlpha="0" toAlpha="0" duration="0" order="1"/>
-                                            <Alpha fromAlpha="0" toAlpha="1" duration="0.15" startDelay="0.15" order="2"/>
-                                        </AnimationGroup>
-                                    </Animations>
                                 </FontString>
                             </Layer>
                             <Layer level="BACKGROUND">
@@ -421,10 +415,18 @@
                         </Layers>
                         <Animations>
                             <AnimationGroup parentKey="FlyUp">
-                                <Translation offsetY="-12" duration="0" order="1"/>
-                                <Alpha fromAlpha="0" toAlpha="0" duration="0" order="1"/>
-                                <Translation offsetY="12" duration="0.15" order="2" smoothing="OUT"/>
-                                <Alpha fromAlpha="0" toAlpha="1" duration="0.12" order="2"/>
+                                <Translation childKey="Square" offsetY="-12" duration="0" order="1"/>
+                                <Translation childKey="Check" offsetY="-12" duration="0" order="1"/>
+                                <Alpha childKey="Square" fromAlpha="0" toAlpha="0" duration="0" order="1"/>
+                                <Alpha childKey="Check" fromAlpha="0" toAlpha="0" duration="0" order="1"/>
+                                <Alpha childKey="Label" fromAlpha="0" toAlpha="0" duration="0" order="1"/>
+                                <Alpha childKey="Shadow" fromAlpha="0" toAlpha="0" duration="0" order="1"/>
+                                <Translation childKey="Square" offsetY="12" duration="0.15" order="2" smoothing="OUT"/>
+                                <Translation childKey="Check" offsetY="12" duration="0.15" order="2" smoothing="OUT"/>
+                                <Alpha childKey="Square" fromAlpha="0" toAlpha="1" duration="0.12" order="2"/>
+                                <Alpha childKey="Check" fromAlpha="0" toAlpha="1" duration="0.12" order="2"/>
+                                <Alpha childKey="Label" fromAlpha="0" toAlpha="1" duration="0.15" startDelay="0" order="3"/>
+                                <Alpha childKey="Shadow" fromAlpha="0" toAlpha="1" duration="0.15" startDelay="0" order="3"/>
                             </AnimationGroup>
                         </Animations>
                         <Scripts>

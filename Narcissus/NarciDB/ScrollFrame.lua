@@ -57,7 +57,17 @@ local function Driver_OnUpdate(self, elapsed)
 
     if self.t and self.onValueChangedFunc then
         self.t = self.t + elapsed;
-        if self.t > 0.2 then
+        if self.t > self.updateIntervel then
+            self.t = 0;
+            self.onValueChangedFunc(self.bar:GetValue());
+        end
+    end
+end
+
+local function Driver_RunValueChangedFunc(self, elapsed)
+    if self.t and self.onValueChangedFunc then
+        self.t = self.t + elapsed;
+        if self.t > self.updateIntervel then
             self.t = 0;
             self.onValueChangedFunc(self.bar:GetValue());
         end
@@ -106,6 +116,7 @@ local function ScrollFrame_OnMouseWheel(self, delta)
         if d.onScrollStartedFunc then
             d.onScrollStartedFunc();
         end
+        d:SetScript("OnUpdate", Driver_OnUpdate);
         d:Show();
 	end
 	
@@ -210,6 +221,10 @@ function ScrollFrameMixin:SetOnValueChangedFunc(onValueChangedFunc)
     self.Driver.onValueChangedFunc = onValueChangedFunc;
 end
 
+function ScrollFrameMixin:SetUpdateInterval(interval)
+    self.Driver.updateIntervel = interval or 0.2;
+end
+
 function ScrollFrameMixin:SetOnScrollStartedFunc(onScrollStartedFunc)
     self.Driver.onScrollStartedFunc = onScrollStartedFunc;
 end
@@ -277,6 +292,7 @@ function ScrollFrameMixin:ScrollToOffset(offset)
 
     d.isScrolling = true;
     d.t = nil;
+    d:SetScript("OnUpdate", Driver_OnUpdate);
     d:Show();
 end
 
@@ -339,6 +355,13 @@ function ScrollFrameMixin:IsScrollLocked()
 end
 
 ---------------------------------------------------------------------
+local function VirtualScrollBar_OnValueChanged(self, value, userInput)
+    scrollFrame:SetVerticalScroll(value);
+    if userInput then
+        d.toValue = value;
+    end
+end
+
 local function ApplySmoothScrollToScrollFrame(scrollFrame, enableSwipe, useReachLimitAnimation)
     if not scrollFrame.Driver then
         for k, v in pairs(ScrollFrameMixin) do
@@ -358,20 +381,27 @@ local function ApplySmoothScrollToScrollFrame(scrollFrame, enableSwipe, useReach
         end
         bar:SetValue(0);
         bar:SetValueStep(0.001);
+
         bar:SetScript("OnValueChanged", function(self, value, userInput)
             scrollFrame:SetVerticalScroll(value);
             if userInput then
                 d.toValue = value;
             end
-            --[[
-             --run at a different frequency
-            if self.onValueChangedFunc then
-                self.onValueChangedFunc(value);
-            end
-            --]]
-        end)
+        end);
+
+        bar:SetScript("OnMouseDown", function()
+            d.t = 0;
+            d:SetScript("OnUpdate", Driver_RunValueChangedFunc);
+            d:Show();
+        end);
+
+        bar:SetScript("OnMouseUp", function()
+            d:SetScript("OnUpdate", nil)
+            d:Hide();
+        end);
 
         d.toValue = 0;
+        d.updateIntervel = 0.2;
         d:Hide();
         d:SetScript("OnUpdate", Driver_OnUpdate);
         d:SetScript("OnHide", Driver_OnHide);

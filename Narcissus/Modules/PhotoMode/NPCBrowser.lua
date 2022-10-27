@@ -2305,6 +2305,9 @@ local VirtualTooltipName = "Narci_CreatureNameRetriever";
 local NPCTooltipName = "Narci_NPCSearchBoxTooltip";
 local UIParent = UIParent;
 local VirtualTooltip = CreateFrame("GameTooltip", VirtualTooltipName, UIParent, "GameTooltipTemplate");
+VirtualTooltip:SetScript("OnTooltipAddMoney", nil);
+VirtualTooltip:SetScript("OnTooltipCleared", nil);
+
 local lineName = _G[VirtualTooltipName.. "TextLeft1"];
 local lineTitle = _G[VirtualTooltipName.. "TextLeft2"];
 

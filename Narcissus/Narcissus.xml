@@ -2832,18 +2832,6 @@
 		</Scripts>
 	</Frame-->
 
-	<GameTooltip name="NarciCacheTooltip" inherits="GameTooltipTemplate" parent="UIParent" enableMouse="false" movable="false" frameStrata="LOW" scale="0.001" hidden="true" Alpha="0">
-		<Size>
-			<AbsDimension x="10" y="10"/>
-		</Size>
-		<Anchors>
-			<Anchor point="BOTTOM"/>
-		</Anchors>
-		<Scripts>
-			<OnLoad function="GameTooltip_OnLoad"/>
-		</Scripts>
-	</GameTooltip>
-
 	<!--Frame name="VisualCenterGuideLine" hidden="false" setAllPoints="true">
 		<Anchors>
 			<Anchor point="TOPLEFT" relativeTo="Narci_ChestSlot" relativePoint="TOP" x="0" y="0"/>

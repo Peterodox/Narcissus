@@ -1,0 +1,362 @@
+<Ui xsi:schemaLocation="http://www.blizzard.com/wow/ui/..\FrameXML\UI.xsd">
+    <GameTooltip name="NarciItemSubTextUtilityTooltip" hidden="true">
+        <Layers>
+            <Layer level="OVERLAY">
+                <FontString name="$parentTextLeft1" parentKey="TextLeft1" inherits="GameTooltipText" />
+                <FontString name="$parentTextRight1" parentKey="TextRight1" inherits="GameTooltipText"/>
+                <FontString name="$parentTextLeft2" parentKey="TextLeft2" inherits="GameTooltipText" />
+                <FontString name="$parentTextRight2" parentKey="TextRight2" inherits="GameTooltipText"/>
+            </Layer>
+        </Layers>
+    </GameTooltip>
+
+    <Script file="ItemDatabase.lua"/>
+    <Script file="ItemDataProvider.lua"/>
+    <Script file="ItemFilter.lua"/>
+    <Script file="BagProcessor.lua"/>
+    <Script file="Automation.lua"/>
+
+    <Script file="ItemSearchPopup.lua"/>
+
+    <Button name="NarciBagItemSearchPopupButtonTemplate" virtual="true" mixin="NarciBagItemSearchPopupButtonMixin" registerForClicks="LeftButtonUp, RightButtonUp">
+        <Size x="240" y="20"/>
+        <Layers>
+            <Layer level="ARTWORK">
+                <Texture parentKey="Icon" file="Interface\AddOns\Narcissus\Art\Modules\BagItemSearchSuggest\UI" hidden="true">
+                    <Size x="24" y="24"/>
+                    <Anchors>
+                        <Anchor point="RIGHT" relativeKey="$parent" relativePoint="RIGHT" x="-6"/>
+                    </Anchors>
+                    <TexCoords left="0" right="0.125" top="0.875" bottom="1"/>
+                </Texture>
+            </Layer>
+            <Layer level="OVERLAY">
+                <FontString parentKey="Name" inherits="GameFontHighlight" justifyH="LEFT">
+                    <Anchors>
+                        <Anchor point="LEFT" relativeKey="$parent" relativePoint="LEFT" x="10"/>
+                    </Anchors>
+                </FontString>
+                <FontString parentKey="Count" inherits="GameFontHighlight" justifyH="CENTER">
+                    <Anchors>
+                        <Anchor point="RIGHT" relativeKey="$parent" relativePoint="RIGHT" x="-10"/>
+                    </Anchors>
+                </FontString>
+            </Layer>
+        </Layers>
+        <Scripts>
+            <OnLoad method="OnLoad"/>
+            <OnEnter method="OnEnter"/>
+            <OnLeave method="OnLeave"/>
+            <OnMouseDown method="OnMouseDown"/>
+            <OnMouseUp method="OnMouseUp"/>
+            <OnClick method="OnClick"/>
+        </Scripts>
+    </Button>
+
+    <Button name="NarciBagItemSearchPopupCategoryButtonTemplate" mixin="NarciBagItemSearchTradeskillCategoryButtonMixin" virtual="true" registerForClicks="LeftButtonUp, RightButtonUp">
+        <Size x="36" y="36"/>
+        <Layers>
+            <Layer level="ARTWORK">
+                <Texture parentKey="Icon">
+                    <Size x="28" y="28"/>
+                    <TexCoords left="0.0625" right="0.9375" top="0.0625" bottom="0.9375"/>
+                    <Anchors>
+                        <Anchor point="CENTER"/>
+                    </Anchors>
+                </Texture>
+                <MaskTexture parentKey="IconMask" file="Interface\AddOns\Narcissus\Art\Masks\Circle" hWrapMode="CLAMPTOBLACKADDITIVE" vWrapMode="CLAMPTOBLACKADDITIVE" nounload="true">
+                    <Anchors>
+                        <Anchor point="TOPLEFT" relativeKey="$parent.Icon" relativePoint="TOPLEFT"/>
+                        <Anchor point="BOTTOMRIGHT" relativeKey="$parent.Icon" relativePoint="BOTTOMRIGHT"/>
+                    </Anchors>
+                    <MaskedTextures>
+                        <MaskedTexture childKey="Icon"/>
+                    </MaskedTextures>
+                </MaskTexture>
+            </Layer>
+            <Layer level="OVERLAY">
+                <Texture parentKey="Border" file="Interface\AddOns\Narcissus\Art\Modules\BagItemSearchSuggest\UI">
+                    <Size x="48" y="48"/>
+                    <TexCoords left="0" right="0.25" top="0" bottom="0.25"/>
+                    <Anchors>
+                        <Anchor point="CENTER"/>
+                    </Anchors>
+                </Texture>
+            </Layer>
+        </Layers>
+        <Scripts>
+            <OnEnter method="OnEnter"/>
+            <OnLeave method="OnLeave"/>
+            <OnMouseDown method="OnMouseDown"/>
+            <OnMouseUp method="OnMouseUp"/>
+            <OnClick method="OnClick"/>
+        </Scripts>
+    </Button>
+
+    <Frame name="NarciBagItemSearchBoxLabel" mixin="NarciBagItemSearchBoxLabelMixin" hidden="true">
+        <Size x="8" y="12"/>
+        <Layers>
+            <Layer level="OVERLAY">
+                <FontString parentKey="Text" inherits="GameFontHighlightSmall" justifyH="Left" maxLines="1">
+                    <Size x="72"/>
+                    <Anchors>
+                        <Anchor point="LEFT" relativeKey="$parent" relativePoint="LEFT" x="0"/>
+                        <Anchor point="RIGHT" relativeKey="$parent" relativePoint="RIGHT" x="-4"/>
+                    </Anchors>
+                </FontString>
+            </Layer>
+        </Layers>
+        <Scripts>
+            <OnLoad method="OnLoad"/>
+        </Scripts>
+    </Frame>
+
+    <Frame name="NarciBagItemSearchPopupFrame" mixin="NarciBagItemSearchPopupMixin" enableMouse="true" frameStrata="DIALOG">
+        <Size x="240" y="48"/>
+        <Layers>
+            <Layer level="BACKGROUND">
+                <Texture parentKey="Background">
+                    <Color r="0.13" g="0.1" b="0.09"/>
+                </Texture>
+            </Layer>
+            <Layer level="BACKGROUND" textureSubLevel="1">
+                <Texture parentKey="TopGlow" file="Interface\AddOns\Narcissus\Art\Modules\BagItemSearchSuggest\UI" alphaMode="ADD">
+                    <Size x="48" y="16"/>
+                    <TexCoords left="0.5625" right="1" top="0.1875" bottom="0.25"/>
+                    <Anchors>
+                        <Anchor point="TOPLEFT" relativeKey="$parent" relativePoint="TOPLEFT" x="0" y="0"/>
+                        <Anchor point="TOPRIGHT" relativeKey="$parent" relativePoint="TOPRIGHT" x="0" y="0"/>
+                    </Anchors>
+                </Texture>
+            </Layer>
+        </Layers>
+        <Frames>
+            <Frame parentKey="SuggestionTab" clipChildren="true">
+                <Size x="8" y="8"/>
+                <Anchors>
+                    <Anchor point="TOPLEFT" relativeKey="$parent" relativePoint="TOPLEFT"/>
+                    <Anchor point="BOTTOMRIGHT" relativeKey="$parent" relativePoint="BOTTOMRIGHT"/>
+                </Anchors>
+                <Animations>
+                    <AnimationGroup parentKey="AnimIn">
+                        <Alpha fromAlpha="0" toAlpha="1" duration="0.15" order="1"/>
+                    </AnimationGroup>
+                </Animations>
+                <Frames>
+                    <Frame parentKey="ButtonContainer">
+                        <Size x="8" y="8"/>
+                        <Anchors>
+                            <Anchor point="TOPLEFT" relativeKey="$parent" relativePoint="TOPLEFT"/>
+                        </Anchors>
+                        <Animations>
+                            <AnimationGroup parentKey="FadeInUp">
+                                <Translation offsetY="-10" duration="0" order="1"/>
+                                <Alpha fromAlpha="0" toAlpha="0" duration="0" order="1"/>
+                                <Translation offsetY="10" duration="0.15" order="2" smoothing="OUT"/>
+                                <Alpha fromAlpha="0" toAlpha="1" duration="0.15" order="2"/>
+                            </AnimationGroup>
+                            <AnimationGroup parentKey="FadeInDown">
+                                <Translation offsetY="10" duration="0" order="1"/>
+                                <Alpha fromAlpha="0" toAlpha="0" duration="0" order="1"/>
+                                <Translation offsetY="-10" duration="0.15" order="2" smoothing="OUT"/>
+                                <Alpha fromAlpha="0" toAlpha="1" duration="0.15" order="2"/>
+                            </AnimationGroup>
+                            <AnimationGroup parentKey="FadeOutUp">
+                                <Alpha fromAlpha="1" toAlpha="0" duration="0.1" order="1"/>
+                                <Translation offsetY="10" duration="0.1" order="1" smoothing="IN"/>
+                            </AnimationGroup>
+                            <AnimationGroup parentKey="FadeOutDown">
+                                <Alpha fromAlpha="1" toAlpha="0" duration="0.1" order="1"/>
+                                <Translation offsetY="-10" duration="0.1" order="1" smoothing="IN"/>
+                            </AnimationGroup>
+                        </Animations>
+                    </Frame>
+                    <Frame parentKey="Header" frameLevel="6" hidden="true">
+                        <Size y="24"/>
+                        <Anchors>
+                            <Anchor point="BOTTOMLEFT" relativeKey="$parent.$parent" relativePoint="BOTTOMLEFT" x="0" y="0"/>
+                            <Anchor point="BOTTOMRIGHT" relativeKey="$parent.$parent" relativePoint="BOTTOMRIGHT" x="0" y="0"/>
+                        </Anchors>
+                        <Layers>
+                            <Layer level="BACKGROUND">
+                                <Texture parentKey="Background" file="Interface\AddOns\Narcissus\Art\Modules\BagItemSearchSuggest\UI">
+                                    <Size x="48" y="24"/>
+                                    <TexCoords left="0.5625" right="1" top="0" bottom="0.09375"/>
+                                    <Anchors>
+                                        <Anchor point="TOPLEFT" relativeKey="$parent" relativePoint="TOPLEFT" x="0" y="0"/>
+                                        <Anchor point="TOPRIGHT" relativeKey="$parent" relativePoint="TOPRIGHT" x="0" y="0"/>
+                                    </Anchors>
+                                </Texture>
+                                <Texture parentKey="Shadow" file="Interface\AddOns\Narcissus\Art\Modules\BagItemSearchSuggest\UI">
+                                    <Size x="48" y="8"/>
+                                    <TexCoords left="0.5625" right="1" top="0.125" bottom="0.09375"/>
+                                    <Anchors>
+                                        <Anchor point="BOTTOMLEFT" relativeKey="$parent.Background" relativePoint="TOPLEFT" x="0" y="0"/>
+                                        <Anchor point="BOTTOMRIGHT" relativeKey="$parent.Background" relativePoint="TOPRIGHT" x="0" y="0"/>
+                                    </Anchors>
+                                </Texture>
+                            </Layer>
+                            <Layer level="OVERLAY">
+                                <FontString parentKey="PageText" inherits="GameFontHighlight" justifyH="CENTER" maxLines="1">
+                                    <Size x="144"/>
+                                    <Anchors>
+                                        <Anchor point="CENTER" relativeKey="$parent" relativePoint="TOP" y="-11.5"/>
+                                    </Anchors>
+                                    <Color r="0.77" g="0.76" b="0.62"/>
+                                </FontString>
+                            </Layer>
+                        </Layers>
+                    </Frame>
+                </Frames>
+            </Frame>
+
+            <Frame parentKey="TradeskillTab" hidden="true" clipChildren="true">
+                <Size x="240" y="240"/>
+                <Anchors>
+                    <Anchor point="TOPLEFT" relativeKey="$parent" relativePoint="TOPLEFT"/>
+                    <Anchor point="BOTTOMRIGHT" relativeKey="$parent" relativePoint="BOTTOMRIGHT"/>
+                </Anchors>
+                <Frames>
+                    <Frame parentKey="Header">
+                        <Size y="24"/>
+                        <Anchors>
+                            <Anchor point="TOPLEFT" relativeKey="$parent.$parent" relativePoint="TOPLEFT" x="0" y="0"/>
+                            <Anchor point="TOPRIGHT" relativeKey="$parent.$parent" relativePoint="TOPRIGHT" x="0" y="0"/>
+                        </Anchors>
+                        <Layers>
+                            <Layer level="BACKGROUND">
+                                <Texture parentKey="Background" file="Interface\AddOns\Narcissus\Art\Modules\BagItemSearchSuggest\UI">
+                                    <Size x="48" y="24"/>
+                                    <TexCoords left="0.5625" right="1" top="0" bottom="0.09375"/>
+                                    <Anchors>
+                                        <Anchor point="TOPLEFT" relativeKey="$parent" relativePoint="TOPLEFT" x="0" y="0"/>
+                                        <Anchor point="TOPRIGHT" relativeKey="$parent" relativePoint="TOPRIGHT" x="0" y="0"/>
+                                    </Anchors>
+                                </Texture>
+                                <Texture parentKey="Shadow" file="Interface\AddOns\Narcissus\Art\Modules\BagItemSearchSuggest\UI">
+                                    <Size x="48" y="8"/>
+                                    <TexCoords left="0.5625" right="1" top="0.09375" bottom="0.125"/>
+                                    <Anchors>
+                                        <Anchor point="TOPLEFT" relativeKey="$parent.Background" relativePoint="BOTTOMLEFT" x="0" y="0"/>
+                                        <Anchor point="TOPRIGHT" relativeKey="$parent.Background" relativePoint="BOTTOMRIGHT" x="0" y="0"/>
+                                    </Anchors>
+                                </Texture>
+                            </Layer>
+                            <Layer level="OVERLAY">
+                                <FontString parentKey="HeaderText" inherits="GameFontHighlight" justifyH="CENTER" maxLines="1">
+                                    <Size x="144"/>
+                                    <Anchors>
+                                        <Anchor point="CENTER" relativeKey="$parent" relativePoint="TOP" y="-12.5"/>
+                                    </Anchors>
+                                    <Color r="0.77" g="0.76" b="0.62"/>
+                                </FontString>
+                            </Layer>
+                        </Layers>
+                    </Frame>
+                    <Button parentKey="ReturnButton">
+                        <Size x="24" y="24"/>
+                        <Anchors>
+                            <Anchor point="TOPLEFT"/>
+                        </Anchors>
+                        <HitRectInsets>
+                            <AbsInset left="0" right="-24" top="0" bottom="0"/>
+                        </HitRectInsets>
+                        <Layers>
+                            <Layer level="ARTWORK">
+                                <Texture parentKey="Texture" file="Interface\AddOns\Narcissus\Art\Modules\BagItemSearchSuggest\UI">
+                                    <Size x="18" y="18"/>
+                                    <TexCoords left="0" right="0.09375" top="0.25" bottom="0.34375"/>
+                                    <Anchors>
+                                        <Anchor point="CENTER" relativeKey="$parent" relativePoint="CENTER" x="0" y="0"/>
+                                    </Anchors>
+                                </Texture>
+                            </Layer>
+                            <Layer level="HIGHLIGHT">
+                                <Texture parentKey="Highlight" file="Interface\AddOns\Narcissus\Art\Modules\BagItemSearchSuggest\UI">
+                                    <Size x="18" y="18"/>
+                                    <TexCoords left="0.09375" right="0.1875" top="0.25" bottom="0.34375"/>
+                                    <Anchors>
+                                        <Anchor point="CENTER" relativeKey="$parent" relativePoint="CENTER" x="0" y="0"/>
+                                    </Anchors>
+                                </Texture>
+                            </Layer>
+                        </Layers>
+                    </Button>
+                    <Frame parentKey="ButtonHighlight" hidden="true">
+                        <Size x="48" y="48"/>
+                        <Anchors>
+                            <Anchor point="TOPLEFT"/>
+                        </Anchors>
+                        <Layers>
+                            <Layer level="OVERLAY">
+                                <Texture parentKey="Highlight" file="Interface\AddOns\Narcissus\Art\Modules\BagItemSearchSuggest\UI" alphaMode="ADD">
+                                    <TexCoords left="0.25" right="0.5" top="0" bottom="0.25"/>
+                                </Texture>
+                            </Layer>
+                        </Layers>
+                    </Frame>
+                </Frames>
+
+                <Animations>
+                    <AnimationGroup parentKey="AnimIn">
+                        <!--Translation childKey="Header" offsetY="24" duration="0" order="1"/>
+                        <Translation childKey="Header" offsetY="-24" duration="0.2" order="1" smoothing="OUT"/-->
+                        <Alpha fromAlpha="0" toAlpha="1" duration="0.15" order="1"/>
+                        <Rotation childKey="ReturnButton" degrees="60" duration="0" order="1"/>
+                        <Rotation childKey="ReturnButton" degrees="-60" duration="0.2" order="1" smoothing="IN_OUT"/>
+                    </AnimationGroup>
+                </Animations>
+            </Frame>
+
+            <Frame parentKey="FrameBorder" frameLevel="10">
+                <Anchors>
+                    <Anchor point="TOPLEFT"/>
+                    <Anchor point="BOTTOMRIGHT"/>
+                </Anchors>
+            </Frame>
+
+            <Frame parentKey="ButtonHighlight" hidden="true" useParentLevel="true">
+                <Size x="240" y="20"/>
+                <Anchors>
+                    <Anchor point="TOPLEFT"/>
+                </Anchors>
+                <Layers>
+                    <Layer level="BORDER">
+                        <Texture parentKey="ButtonHighlight">
+                            <Color r="0.22" g="0.22" b="0.22"/>
+                        </Texture>
+                    </Layer>
+                </Layers>
+            </Frame>
+
+            <Frame parentKey="LoadingOverlay" hidden="true" frameLevel="6">
+                <Anchors>
+                    <Anchor point="TOPLEFT" relativeKey="$parent" relativePoint="TOPLEFT"/>
+                    <Anchor point="BOTTOMRIGHT" relativeKey="$parent" relativePoint="BOTTOMRIGHT"/>
+                </Anchors>
+                <Layers>
+                    <Layer level="BACKGROUND">
+                        <Texture parentKey="Background">
+                            <Color r="0.13" g="0.1" b="0.09"/>
+                        </Texture>
+                    </Layer>
+                    <Layer level="OVERLAY">
+                        <FontString parentKey="Text" inherits="GameFontHighlight" justifyH="CENTER" text="SEARCH_LOADING_TEXT">
+                            <Anchors>
+                                <Anchor point="CENTER" relativeKey="$parent" relativePoint="CENTER" x="0"/>
+                            </Anchors>
+                            <Color r="0.77" g="0.76" b="0.62"/>
+                        </FontString>
+                    </Layer>
+                </Layers>
+            </Frame>
+        </Frames>
+        <Scripts>
+            <OnLoad method="OnLoad"/>
+            <OnEvent method="OnEvent"/>
+            <OnShow method="OnShow"/>
+            <OnHide method="OnHide"/>
+            <OnMouseWheel method="OnMouseWheel"/>
+        </Scripts>
+    </Frame>
+</Ui>

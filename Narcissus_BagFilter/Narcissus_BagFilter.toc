@@ -1,0 +1,13 @@
+## Interface: 100000
+## Version: 1.0.0
+## LoadOnDemand: 0
+## RequiredDeps: Narcissus
+
+## Author: Peterodox
+## Title: |cffA236EFN|cff9448F1a|cff865BF2r|cff786DF4c|cff6A80F6i|cff5D92F7s|cff4FA4F9s|cff41B7FAu|cff33C9FCs|r |cffc4c29eBag Filter|r
+## Notes: Bag item search suggest and auto-filter.
+## SavedVariables: NarcissusBagFilterDB
+
+Code\SavedVariables.lua
+Code\API.lua
+Code\ItemSearch.xml

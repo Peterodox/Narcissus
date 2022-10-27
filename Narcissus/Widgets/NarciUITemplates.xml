@@ -1928,7 +1928,7 @@
 		</Layers>
 	</Frame>
 
-    <Frame name="Narci_ItemParser" frameStrata="HIGH" movable="true" enableMouse="true" clampedToScreen="true" hidden="true" Alpha="1">
+    <!--Frame name="Narci_ItemParser" frameStrata="HIGH" movable="true" enableMouse="true" clampedToScreen="true" hidden="true" Alpha="1">
         <Size x="300" y="400"/>
         <Anchors>
             <Anchor point="CENTER" relativeTo="UIParent" relativePoint="CENTER"/>
@@ -2052,7 +2052,7 @@
 				self:StopMovingOrSizing();
 			</OnDragStop>
         </Scripts>
-    </Frame>
+    </Frame-->
 
 	<!--DevTool-->
 	<Frame name="Narci_OutPutFrameTemplate" virtual="true" movable="true" enableMouse="true" hidden="true">

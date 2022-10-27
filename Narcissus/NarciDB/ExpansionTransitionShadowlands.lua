@@ -44,12 +44,18 @@ function TransitionAPI.HookSocketInventoryItem(callback)     --#4
     hooksecurefunc("SocketInventoryItem", callback);
 end
 
-function TransitionAPI.GetTrackingInfo(id)      --#5
-    return GetTrackingInfo(id);
+function TransitionAPI.IsTrackingPets()      --#5
+    local id = 1;
+    local state = GetTrackingInfo(id);
+    return state
 end
 
-function TransitionAPI.SetTracking(id, enabled)      --#6
-    SetTracking(id, enabled)
+function TransitionAPI.SetTrackingPets(enabled)      --#6
+    local id = 1;
+    local state = GetTrackingInfo(id);
+    if state ~= enabled then
+        SetTracking(id, enabled);
+    end
 end
 
 function TransitionAPI.SetModelLight(model, enabled, omni, dirX, dirY, dirZ, ambIntensity, ambR, ambG, ambB, dirIntensity, dirR, dirG, dirB)        --#7

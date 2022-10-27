@@ -38,8 +38,6 @@ MapShapeUtil.shapes = {
 	["TRICORNER-BOTTOMRIGHT"] = {true, true, true, false},
 };
 
-cornerRadius =10;		--Minimap Button Offset
-
 function MapShapeUtil:IsAnchoredToMinimap(x, y)
 	local shape = GetMinimapShape and GetMinimapShape() or "ROUND";
 

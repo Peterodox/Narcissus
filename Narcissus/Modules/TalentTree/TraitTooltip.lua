@@ -102,7 +102,7 @@ local function CreateTooltip()
     tooltip:SetFixedFrameStrata(true);
     tooltip:SetFrameStrata("TOOLTIP");
     tooltip:SetFrameLevel(80);
-    tooltip.Description:SetMaxLines(DESC_MAX_LINES);
+    --tooltip.Description:SetMaxLines(DESC_MAX_LINES);
 
     --test
     tooltip.BlurBackground:ClearAllPoints();
@@ -768,6 +768,7 @@ function ClassTalentTooltipUtil:SetTooltipBackground(file, texCoordLeft, texCoor
 end
 
 
+--[[
 do
     local SettingFunctions = addon.SettingFunctions;
 
@@ -783,3 +784,4 @@ do
         ClassTalentTooltipUtil.UpdateMaxLines();
     end
 end
+--]]

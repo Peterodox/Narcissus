@@ -1794,6 +1794,7 @@ function NarciEquipmentSlotMixin:OnEnter(motion, isGamepad)
 
 	if IsAltKeyDown() and not MOG_MODE then
 		EquipmentFlyoutFrame:SetItemSlot(self, true);
+		return
 	end
 
 	if EquipmentFlyoutFrame:IsShown() then
@@ -2400,6 +2401,7 @@ function NarciEquipmentFlyoutFrameMixin:DisplayItemsBySlotID(slotID, playFlyUpAn
 	--Get the items from bags;
 	local itemTable = {};
 	local sortedItems = {};
+	local numItems = 0;
 	GetInventoryItemsForSlot(id, itemTable);
 	local itemLocation, itemLevel, itemInfo;
 	local invLocationPlayer = ITEM_INVENTORY_LOCATION_PLAYER;
@@ -2411,10 +2413,10 @@ function NarciEquipmentFlyoutFrameMixin:DisplayItemsBySlotID(slotID, playFlyUpAn
 			if bags then
 				itemLocation = ItemLocation:CreateFromBagAndSlot(bag, slot);
 				itemLevel = C_Item.GetCurrentItemLevel(itemLocation);
-				NarciCacheTooltip:SetHyperlink(hyperlink);
 				LoadItemData(itemLocation);
 				itemInfo = {level = itemLevel, itemLocation = itemLocation, location = location};
-				tinsert(sortedItems, itemInfo);
+				numItems = numItems + 1;
+				sortedItems[numItems] = itemInfo;
 			end
 		end
 	end

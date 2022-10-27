@@ -114,7 +114,7 @@ end
 function NarciGameTooltipMixin:OnHide()
     SharedTooltipDelay:Kill();
     self:SetScript("OnUpdate", nil);
-    GameTooltip_ClearMoney(self);
+    --GameTooltip_ClearMoney(self);
 end
 
 function NarciGameTooltipMixin:OnSizeChanged(w, h)

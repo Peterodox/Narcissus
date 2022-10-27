@@ -127,6 +127,8 @@ local NUM_OWNED = 0;
 local OWNED_SLOTS;
 
 local function GetEquippedSet(recount)
+    if true then return 0 end;
+
     if recount then
         local itemID;
         local numValid = 0;

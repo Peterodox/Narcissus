@@ -160,9 +160,9 @@ local function ReplacePureGreenText(text)
     return gsub(text, "cFF.0FF.0", "cFF00E700");
 end
 
----- Advanced Tooltip Parser with callback ----
-local Tooltip;
-local TOOLTIP_NAME = "NarciUtilityTooltip";
+---- Advanced UtilityTooltip Parser with callback ----
+local UtilityTooltip;
+local UTIL_TOOLTIP_NAME = "NarciUtilityTooltip";
 local IS_ITEM_CACHED = {};
 local IS_LINE_HOOKED = {};
 
@@ -177,9 +177,9 @@ local function SetTooltipItem(item)
     if not item then return end;
 
     if type(item) == "number" then
-        Tooltip:SetItemByID(item);
+        UtilityTooltip:SetItemByID(item);
     else
-        Tooltip:SetHyperlink(item);
+        UtilityTooltip:SetHyperlink(item);
     end
 
     if IS_ITEM_CACHED[item] then
@@ -229,9 +229,11 @@ local function Tooltip_OnUpdate(self, elapsed)
 end
 
 local function GetCachedItemTooltipTextByLine(item, line, callbackFunc)
-    if not Tooltip then
-        Tooltip = CreateFrame("GameTooltip", TOOLTIP_NAME, nil, "GameTooltipTemplate");
-        Tooltip:SetOwner(UIParent, "ANCHOR_NONE");
+    if not UtilityTooltip then
+        UtilityTooltip = CreateFrame("GameTooltip", UTIL_TOOLTIP_NAME, nil, "GameTooltipTemplate");
+        UtilityTooltip:SetOwner(UIParent, "ANCHOR_NONE");
+        UtilityTooltip:SetScript("OnTooltipAddMoney", nil);
+        UtilityTooltip:SetScript("OnTooltipCleared", nil);
     end
 
     onTextChangedCallback = callbackFunc;
@@ -240,9 +242,9 @@ local function GetCachedItemTooltipTextByLine(item, line, callbackFunc)
     if item ~= lastItem then
         lastItem = item;
         lastText = nil;
-        Tooltip.t = 0;
-        Tooltip.iteration = 0;
-        Tooltip:SetScript("OnUpdate", Tooltip_OnUpdate);
+        UtilityTooltip.t = 0;
+        UtilityTooltip.iteration = 0;
+        UtilityTooltip:SetScript("OnUpdate", Tooltip_OnUpdate);
     end
 
     local object;
@@ -258,7 +260,7 @@ local function GetCachedItemTooltipTextByLine(item, line, callbackFunc)
         local _l;
         for i = 1, #line do
             _l = line[i];
-            object = _G[TOOLTIP_NAME.."TextLeft".._l];
+            object = _G[UTIL_TOOLTIP_NAME.."TextLeft".._l];
             if object then
                 tinsert(pinnedObjects, object);
                 if not IS_LINE_HOOKED[_l] then
@@ -278,7 +280,7 @@ local function GetCachedItemTooltipTextByLine(item, line, callbackFunc)
         end
         return output, isCached
     else
-        object = _G[TOOLTIP_NAME.."TextLeft"..line];
+        object = _G[UTIL_TOOLTIP_NAME.."TextLeft"..line];
         pinnedObjects = {object};
         if object then
             if not IS_LINE_HOOKED[line] then
@@ -296,10 +298,13 @@ NarciAPI.GetCachedItemTooltipTextByLine = GetCachedItemTooltipTextByLine;
 
 
 
-----Generic Tooltip Scan----
+----Generic UtilityTooltip Scan----
 
 local TP = CreateFrame("GameTooltip", "NarciVirtualTooltip", nil, "GameTooltipTemplate");
 TP:SetOwner(UIParent, 'ANCHOR_NONE');
+TP:SetScript("OnTooltipAddMoney", nil);
+TP:SetScript("OnTooltipCleared", nil);
+
 --TP:SetPoint("TOP", UIParent, "TOP", 0, 0)
 local LEFT_FONT_STRINGS = {
     TP.TextLeft1, TP.TextLeft2

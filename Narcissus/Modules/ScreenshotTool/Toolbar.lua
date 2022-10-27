@@ -3,8 +3,8 @@ local _, addon = ...
 local EXPANDED_BAR_LEFT_OFFSET = 68;    --Constant
 local COLLAPSED_BAR_LEFT_OFFSET = -120; --Variable
 
-local GetTrackingInfo = addon.TransitionAPI.GetTrackingInfo;
-local SetTracking = addon.TransitionAPI.SetTracking;
+local IsTrackingPets = addon.TransitionAPI.IsTrackingPets;
+local SetTrackingPets = addon.TransitionAPI.SetTrackingPets;
 
 local outSine = addon.EasingFunctions.outSine;
 
@@ -145,8 +145,8 @@ local CVAR_CAMERA_VALUES = {
 }
 
 
-local SetCVar = SetCVar;
-local GetCVar = GetCVar;
+local SetCVar = (C_CVar and C_CVar.SetCVar) or SetCVar;
+local GetCVar = (C_CVar and C_CVar.GetCVar) or GetCVar;
 local ConsoleExec = ConsoleExec;
 
 local CVarUtil = {};
@@ -190,12 +190,11 @@ function CVarUtil:RestoreAll()
 end
 
 function CVarUtil:SaveTrackingStatus()
-	local _;
-	_, _, self.isTrackingBattlePet = GetTrackingInfo(1);
+	self.isTrackingBattlePet = IsTrackingPets();
 end
 
 function CVarUtil:SetTrackingStatus(state)
-	SetTracking(1, state);
+	SetTrackingPets(state);
 end
 
 function CVarUtil:RestoreTrackingStatus()
@@ -214,6 +213,7 @@ end
 
 
 function CVarUtil:SetHideTextStatus(state)
+    --causes "Interface action failed" when used in combat programmatically, still functioning, no workaround
     if state then
         if not self:IsCVarChanged("HideTexts") then
             CVarUtil:Backup(CVAR_UNIT_NAME_VALUES, CVAR_UNIT_NAME_BACKUP);
@@ -225,7 +225,7 @@ function CVarUtil:SetHideTextStatus(state)
     else
         if self:IsCVarChanged("HideTexts") then
             CVarUtil:RestoreTrackingStatus();
-            CVarUtil:Restore(CVAR_UNIT_NAME_BACKUP);	--causes "Interface action failed" when used in combat programmatically, still functioning, no workaround
+            CVarUtil:Restore(CVAR_UNIT_NAME_BACKUP);
             self:MarkCVarChanged("HideTexts", false)
         end
     end

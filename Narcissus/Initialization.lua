@@ -1,7 +1,7 @@
-NARCI_VERSION_INFO = "1.3.0";
+NARCI_VERSION_INFO = "1.3.1";
 
-local VERSION_DATE = 1666757524;
-local CURRENT_VERSION = 10209;
+local VERSION_DATE = 1666856017;
+local CURRENT_VERSION = 10301;
 local PREVIOUS_VERSION = CURRENT_VERSION;
 local TIME_SINCE_LAST_UPDATE = 0;
 
@@ -29,82 +29,90 @@ NarciAPI = {};
 NarciViewUtil = {};
 
 local DefaultValues = {
-    ["DetailedIlvlInfo"] = true,
-    ["IsSortedByCategory"] = true,                  --Title Sorting
-    ["FontHeightItemName"] = 10,
-    ["GlobalScale"] = 0.8,
-    ["EnableDoubleTap"] = false,
-    ["CameraOrbit"] = true,
-    ["CameraSafeMode"] = true,
-    ["TooltipTheme"] = "Bright",
-    ["TruncateText"] = false,
-    ["ItemNameWidth"] = 180,
-    ["WeatherEffect"] = true,
-    ["VignetteStrength"] = 0.5,
-    ["LetterboxEffect"] = false,
-    ["LetterboxRatio"] = 2,
-    ["AFKScreen"] = false,
-    ["AKFScreenDelay"] = false,                     --Ope Narcissus when you go afk with a delay. Move to cancel.
-    ["GemManager"] = true,                          --Enable gem manager for Blizzard item socketing frame
-    ["DressingRoom"] = true,                        --Enable dressing room module
-    ["DressingRoomUseTargetModel"] = true,          --Replace the the dressing room room with your targeted player
-    ["DressingRoomIncludeItemID"] = false,          --Show Item ID in the clipboard
-    ["DressingRoomShowIconSelect"] = false,         --Display a list of icons when saving a new outfit
-    ["UseEntranceVisual"] = true,
-    ["ModelPanelScale"] = 1,
-    ["BaseLineOffset"] = 0,                         --Ultra-wide
-    ["ShrinkArea"] = 0,                             --Reduce the width of the area where you can control the model
-    ["AutoPlayAnimation"] = false,                  --Play recommended animation when clicking a spell visual entry
-    ["UseEscapeButton"] = true,                     --Use Escape button to exit
-    ["ShowMinimapButton"] = true,
-    ["FadeButton"] = false,
-    ["ShowModulePanelOnMouseOver"] = true,          --Mouseover to show Module panel while mouseover minimap button
-    ["IndependentMinimapButton"] = false,           --Set Minimap Button Parent to Minimap or UIParent; Handle by other addons like MBB
-    ["AnchorToMinimap"] = true,                     --Anchor the mini button to Minimap
-    ["CameraTransition"] = true,                    --(2nd you use the Character Pane) Camera moves smoothly bewtween presets
-    ["UseBustShot"] = true,                         --Zoom in to the upper torso
-    ["ConduitTooltip"] = false,                     --Show conduit effects of higher ranks
-    ["PaperDollWidget"] = true,                     --Show Domination/Class Set indicator on the Blizzard character pane
-    ["OnlyShowOwnedUpgradeItem"] = true,            --Filter for gems/enchant scrolls
-    ["ItemTooltipStyle"] = 1,
-    ["ShowItemID"] = false,                         --Show itemID on equipment tooltip
-    ["OutfitSortMethod"] = "name",                  --Filter for sorting outfits: (name alphabet/recently visited)
-    ["HideTextsWithUI"] = true,                     --Hide all texts when UI is hidden
+    DetailedIlvlInfo = true,
+    IsSortedByCategory = true,                  --Title Sorting
+    FontHeightItemName = 10,
+    GlobalScale = 0.8,
+    EnableDoubleTap = false,
+    CameraOrbit = true,
+    CameraSafeMode = true,
+    TooltipTheme = "Bright",
+    TruncateText = false,
+    ItemNameWidth = 180,
+    WeatherEffect = true,
+    VignetteStrength = 0.5,
+    LetterboxEffect = false,
+    LetterboxRatio = 2,
+    AFKScreen = false,
+    AKFScreenDelay = false,                     --Ope Narcissus when you go afk with a delay. Move to cancel.
+    GemManager = true,                          --Enable gem manager for Blizzard item socketing frame
+    DressingRoom = true,                        --Enable dressing room module
+    DressingRoomUseTargetModel = true,          --Replace the the dressing room room with your targeted player
+    DressingRoomIncludeItemID = false,          --Show Item ID in the clipboard
+    DressingRoomShowIconSelect = false,         --Display a list of icons when saving a new outfit
+    UseEntranceVisual = true,
+    ModelPanelScale = 1,
+    BaseLineOffset = 0,                         --Ultra-wide
+    ShrinkArea = 0,                             --Reduce the width of the area where you can control the model
+    AutoPlayAnimation = false,                  --Play recommended animation when clicking a spell visual entry
+    UseEscapeButton = true,                     --Use Escape button to exit
+    ShowMinimapButton = true,
+    FadeButton = false,
+    ShowModulePanelOnMouseOver = true,          --Mouseover to show Module panel while mouseover minimap button
+    IndependentMinimapButton = false,           --Set Minimap Button Parent to Minimap or UIParent; Handle by other addons like MBB
+    AnchorToMinimap = true,                     --Anchor the mini button to Minimap
+    CameraTransition = true,                    --(2nd you use the Character Pane) Camera moves smoothly bewtween presets
+    UseBustShot = true,                         --Zoom in to the upper torso
+    ConduitTooltip = false,                     --Show conduit effects of higher ranks
+    PaperDollWidget = true,                     --Show Domination/Class Set indicator on the Blizzard character pane
+    OnlyShowOwnedUpgradeItem = true,            --Filter for gems/enchant scrolls
+    ItemTooltipStyle = 1,
+    ShowItemID = false,                         --Show itemID on equipment tooltip
+    OutfitSortMethod = "name",                  --Filter for sorting outfits: (name alphabet/recently visited)
+    HideTextsWithUI = true,                     --Hide all texts when UI is hidden
 
-    ["MissingEnchantAlert"] = false,                --Show alert if the item isn't enchanted
-    ["TalentTreeForInspection"] = true,
-    ["TalentTreeForPaperDoll"] = false,              --True on Beta for testing
-    ["TalentTreeUseClassBackground"] = false,
+    MissingEnchantAlert = false,                --Show alert if the item isn't enchanted
+    TalentTreeForInspection = true,
+    TalentTreeForPaperDoll = false,              --True on Beta for testing
+    TalentTreeUseClassBackground = false,
 
     --# NPC
-    ["SearchRelatives"] = false,                    --Search for NPCs with the same last name
-    ["TranslateName"] = false,                      --Show NPC localized name
-    ["NameTranslationPosition"] = 1,                --Show translated name on 1.tooltip 2.nameplate
-    ["NamePlateNameOffset"] = 0,                    --Y Offset
-    ["NamePlateLanguage"] = "enUS",                 --The localized name on NamePlate  (only one)
-    ["TooltipLanguages"] = {},                      --Enabled localized names on tooltip
+    SearchRelatives = false,                    --Search for NPCs with the same last name
+    TranslateName = false,                      --Show NPC localized name
+    NameTranslationPosition = 1,                --Show translated name on 1.tooltip 2.nameplate
+    NamePlateNameOffset = 0,                    --Y Offset
+    NamePlateLanguage = "enUS",                 --The localized name on NamePlate  (only one)
+    TooltipLanguages = {},                      --Enabled localized names on tooltip
 
     --# Internal Hotkey
-    ["SearchRelativesHotkey"] = "TAB",              --The key you press to begin/cycle relative search
+    SearchRelativesHotkey = "TAB",              --The key you press to begin/cycle relative search
+
+
+    --Search Suggestion
+    SearchSuggestEnable = true,
+    SearchSuggestDirection = 1;                 --Below Item Search Box
+    AutoFilterMail = false,
+    AutoFilterAuction = false,
+    AutoFilterGem = false,
 
     --# Initializationd in other files
-    --["MinimapIconStyle"] = 1,                     --Change the icon of minimap button (Main.lua)
+    --["MinimapIconStyle = 1,                     --Change the icon of minimap button (Main.lua)
 
     --# Deprecated
-    --["UseExitConfirmation"] = true,               --Show exit confirmation dialog upon leaving group photo mode
-    --["ShowFullBody"] = true,                      --Show entire body in Xmog Mode
-    --["AlwaysShowModel"] = false,                  --Related to mog mode layout
-    --["DefaultLayout"] = 2,                        --Related to mog mode layout
-    --["FadeMusic"] = false,
-    --["AFKAutoStand"] = false,                     --Do /stand emote now and then when you go AFK. Cause player to stand/sit repeatedly
-    --["EyeColor"] = 1,                             --8.3 Corruption Indicator Orange
-    --["CorruptionBar"] = true,
-    --["CorruptionTooltip"] = false,
-    --["CorruptionTooltipModel"] = true,
-    --["BorderTheme"] = "Dark",                     --No longer update the bright border theme
-    --["EnableGrainEffect"] = false,
-    --["AutoColorTheme"] = true,
-    --["ColorChoice"] = 0,
+    --["UseExitConfirmation = true,               --Show exit confirmation dialog upon leaving group photo mode
+    --["ShowFullBody = true,                      --Show entire body in Xmog Mode
+    --["AlwaysShowModel = false,                  --Related to mog mode layout
+    --["DefaultLayout = 2,                        --Related to mog mode layout
+    --["FadeMusic = false,
+    --["AFKAutoStand = false,                     --Do /stand emote now and then when you go AFK. Cause player to stand/sit repeatedly
+    --["EyeColor = 1,                             --8.3 Corruption Indicator Orange
+    --["CorruptionBar = true,
+    --["CorruptionTooltip = false,
+    --["CorruptionTooltipModel = true,
+    --["BorderTheme = "Dark",                     --No longer update the bright border theme
+    --["EnableGrainEffect = false,
+    --["AutoColorTheme = true,
+    --["ColorChoice = 0,
 
     --# User Tag
     --"UserIsCurious" (user interacted with our item shop)
@@ -112,12 +120,12 @@ local DefaultValues = {
 
 
 local AchievementOptions = {
-    ["UseAsDefault"] = false,
-    ["Scale"] = 1,
-    ["Theme"] = 1,
-    ["IncompleteFirst"] = true,
-    ["ShowRedMark"] = false,                        --Mark achievement that was not earned by me with a red cross
-    ["ReplaceToast"] = true,                        --Replace the original achievement toast
+    UseAsDefault = false,
+    Scale = 1,
+    Theme = 1,
+    IncompleteFirst = true,
+    ShowRedMark = false,                        --Mark achievement that was not earned by me with a red cross
+    ReplaceToast = true,                        --Replace the original achievement toast
 };
 
 
@@ -201,14 +209,9 @@ local function LoadDatabase()
         db.installTime = (time and time()) or VERSION_DATE;
     end
 
-
-    wipe(DefaultValues);
-    wipe(AchievementOptions);
-    wipe(TutorialMarkers);
     DefaultValues = nil;
     AchievementOptions = nil;
     TutorialMarkers = nil;
-
 
     if db.SearchRelatives or db.TranslateName then
         C_Timer.After(0, function()
@@ -223,6 +226,10 @@ local function LoadSettings()
     for _, func in pairs(SettingFunctions) do
         func(nil, db);
     end
+
+    C_Timer.After(0, function()
+        collectgarbage("collect");
+    end)
 end
 
 
@@ -239,9 +246,8 @@ Initialization:SetScript("OnEvent",function(self,event,...)
         end
     elseif event == "PLAYER_ENTERING_WORLD" then
         self:UnregisterEvent(event);
-        LoadSettings();
         self:SetScript("OnEvent", nil);
-        collectgarbage("collect");
+        LoadSettings();
     end
 end);
 

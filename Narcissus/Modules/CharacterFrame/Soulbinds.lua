@@ -86,6 +86,8 @@ end
 local QueueFrame = NarciAPI.CreateProcessor();
 
 local ReferenceTooltip = CreateFrame("GameTooltip", "NarciSoulbindsConduitReferenceTooltip", UIParent, "GameTooltipTemplate");
+ReferenceTooltip:SetScript("OnTooltipAddMoney", nil);
+ReferenceTooltip:SetScript("OnTooltipCleared", nil);
 
 local DataProvider = {};
 DataProvider.conduitItemIDs = {};

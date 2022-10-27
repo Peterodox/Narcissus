@@ -520,8 +520,8 @@ EventListener:SetScript("OnEvent", function(self, event, ...)
     if event == "PLAYER_ENTERING_WORLD" then
         self:UnregisterEvent(event);
         DataManager:LoadData();
-        CovenantChoice:Load();
-        ReadQuest:Load();
+        --CovenantChoice:Load();    --Disabled Dragonflight
+        --ReadQuest:Load();
     end
     --print(event);
     --print(...)

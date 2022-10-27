@@ -117,6 +117,12 @@ local TextureData = {
         pixelPerfect = true,
         useCenterForAlignment = true,
     },
+
+    brownBorder = {
+        file = "Modules\\BagItemSearchSuggest\\BorderNineSlice",
+        cornerSize = 24,
+        cornerCoord = 0.25,
+    },
 };
 
 function NineSliceUtil.SetUp(frame, textureKey, layer, shrink, customLayerSubLevel)

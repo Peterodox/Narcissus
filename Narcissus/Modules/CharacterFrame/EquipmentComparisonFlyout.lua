@@ -16,7 +16,10 @@ local GetItemID = C_Item.GetItemID;
 local GetItemIcon = C_Item.GetItemIcon;
 local GetItemName = C_Item.GetItemName;
 local GetItemQuality = C_Item.GetItemQuality;
+local IsItemDataCached = C_Item.IsItemDataCached;
+local RequestLoadItemData = C_Item.RequestLoadItemData;
 local GetCombatRating = GetCombatRating;
+local GetItemInfoInstant = GetItemInfoInstant;
 
 local GetGemBorderTexture = NarciAPI.GetGemBorderTexture;
 local DoesItemHaveDomationSocket = NarciAPI.DoesItemHaveDomationSocket;
@@ -155,10 +158,6 @@ local function GetItemEnchant(itemLink)
 end
 --]]
 
-
-local function CacheTooltip(itemLink)
-    NarciCacheTooltip:SetHyperlink(itemLink)
-end
 
 local ItemStats = NarciAPI_GetItemStats;
 
@@ -399,7 +398,18 @@ local function BuildAzeiteTraitsFrame(TraitsFrame, itemLocation, itemButton)
     wipe(TraitsCache);
 end
 
-local RequestLoadItemData = C_Item.RequestLoadItemData  --Cache Item info
+
+local function ComparisonFrame_OnEvent(self, event, ...)
+    local itemID, result = ...
+    if itemID == self.watchID then
+        self.watchID = nil;
+        if self.itemButton then
+            Narci_Comparison_SetComparison(self.itemButton.itemLocation, self.itemButton);
+            self.itemButton = nil;
+        end
+    end
+    self:SetScript("OnEvent", nil);
+end
 
 function Narci_Comparison_SetComparison(itemLocation, itemButton)
     local frame = Narci_Comparison;
@@ -417,15 +427,26 @@ function Narci_Comparison_SetComparison(itemLocation, itemButton)
         return;
     end
 
-    RequestLoadItemData(itemLocation)
     --print("location"..C_Item.GetItemInventoryType(itemLocation))
     local itemLink = GetItemLink(itemLocation);
     local itemID = GetItemID(itemLocation);
-    CacheTooltip(itemLink)
     local itemIcon = GetItemIcon(itemLocation);
     local name = GetItemName(itemLocation);
     local quality = GetItemQuality(itemLocation);
     local r, g, b = GetItemQualityColor(quality);
+
+    if not IsItemDataCached(itemLocation) then
+        frame.watchID = itemID;
+        frame.itemButton = itemButton;
+        frame:RegisterEvent("ITEM_DATA_LOAD_RESULT");
+        frame:SetScript("OnEvent", ComparisonFrame_OnEvent);
+        RequestLoadItemData(itemLocation);
+    elseif frame.watchID then
+        frame.watchID = nil;
+        frame.itemButton = nil;
+        frame:UnregisterEvent("ITEM_DATA_LOAD_RESULT");
+        frame:SetScript("OnEvent", nil);
+    end
 
     local stats = ItemStats(itemLocation);
     local baseStats = ItemStats(FlyOut.BaseItem);

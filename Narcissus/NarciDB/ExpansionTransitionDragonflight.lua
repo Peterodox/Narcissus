@@ -54,12 +54,31 @@ function TransitionAPI.HookSocketInventoryItem(callback)     --#4
     end
 end
 
-function TransitionAPI.GetTrackingInfo(id)      --#5
-    return C_Minimap.GetTrackingInfo(id);
+function TransitionAPI.IsTrackingPets()      --#5
+    local GetTrackingInfo = C_Minimap.GetTrackingInfo;
+    local numTypes = C_Minimap.GetNumTrackingTypes();
+    local _, active, spellID;
+    for i = 1, numTypes do
+        _, _, active, _, _, spellID = GetTrackingInfo(i);
+        if spellID == 122026 then
+            return active
+        end
+    end
 end
 
-function TransitionAPI.SetTracking(id, enabled)      --#6
-    C_Minimap.SetTracking(id, enabled)
+function TransitionAPI.SetTrackingPets(state)      --#6
+    local GetTrackingInfo = C_Minimap.GetTrackingInfo;
+    local numTypes = C_Minimap.GetNumTrackingTypes();
+    local _, active, spellID;
+    for i = 1, numTypes do
+        _, _, active, _, _, spellID = GetTrackingInfo(i);
+        if spellID == 122026 then
+            if active ~= state then
+                C_Minimap.SetTracking(i, state);
+            end
+            return active
+        end
+    end
 end
 
 function TransitionAPI.SetModelLight(model, enabled, omni, dirX, dirY, dirZ, ambIntensity, ambR, ambG, ambB, dirIntensity, dirR, dirG, dirB)        --#7

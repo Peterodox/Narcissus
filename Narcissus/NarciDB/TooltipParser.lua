@@ -1123,11 +1123,7 @@ end
 
 local function GetCompleteItemDataFromGameTooltip()
     --for debug
-    local name, itemLink = GameTooltip:GetItem();
-    if itemLink then
-        TP:SetHyperlink(itemLink);
-        return GetCompleteItemData(itemLink);
-    end
+    return
 end
 
 NarciAPI.GetCompleteItemDataFromSlot = GetCompleteItemDataFromSlot;

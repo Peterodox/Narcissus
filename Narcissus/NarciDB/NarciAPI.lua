@@ -29,7 +29,7 @@ local TEXT_LOCALE = GetLocale();
 local Narci = Narci;
 local NarciAPI = NarciAPI;
 
---local NarciGameTooltip = CreateFrame("GameTooltip", "NarciGameTooltip", UIParent, "GameTooltipTemplate");
+
 local SecureContainer = CreateFrame("Frame", "NarciSecureFrameContainer");
 SecureContainer:Hide();
 ------------------------
@@ -2043,7 +2043,7 @@ local function ParserButton_GetCursor(self)
 end
 
 
-
+--[[
 function Narci_ItemParser_OnLoad(self)
     self:SetUserPlaced(false)
     self:ClearAllPoints();
@@ -2068,6 +2068,7 @@ function Narci_ItemParser_OnLoad(self)
     self:SetScale(0.8);
     tooltip:SetScale(tooltipScale);
 end
+--]]
 
 
 ----------------------------
