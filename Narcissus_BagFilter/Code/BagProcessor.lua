@@ -3,7 +3,7 @@ local _, addon = ...
 local DataProvider = addon.BagItemSearchDataProvider;
 
 
-local GetContainerNumSlots = GetContainerNumSlots;
+local GetContainerNumSlots = (C_Container and C_Container.GetContainerNumSlots) or GetContainerNumSlots;
 local NUM_BAG_SLOTS = 4;
 
 local PopupFrame;

@@ -1747,7 +1747,7 @@
 										<Scripts>
 											<OnLoad>
 												self.isOn = false;
-												self.Label:SetText(NARCI_LINK_MODEL_SCALE);
+												self.Label:SetText(Narci.L["Link Model Scales"]);
 											</OnLoad>
 											<OnClick function="Narci_LinkScaleButton_OnClick"/>
 										</Scripts>
@@ -1760,7 +1760,7 @@
 										<Scripts>
 											<OnLoad>
 												self.isOn = true;
-												self.Label:SetText(NARCI_LINK_LIGHT_SETTINGS);
+												self.Label:SetText(Narci.L["Link Light Sources"]);
 												self.Highlight:Show();
 												self.Label:SetTextColor(0.88, 0.88, 0.88);
 											</OnLoad>
@@ -2103,7 +2103,7 @@
 						</Layers>
 						<Scripts>
 							<OnLoad>
-								self.tooltip = {NARCI_DIRECTIONAL_AMBIENT_LIGHT, NARCI_DIRECTIONAL_AMBIENT_LIGHT_TOOLTIP};
+								self.tooltip = {Narci.L["Light Types"], Narci.L["Light Types Tooltip"]};
 								self.guideIndex = 7;
 								NarciPhotoModeButton_OnLoad(self);
 							</OnLoad>

@@ -52,7 +52,7 @@ L["Toolbar Preferences Button Tooltip"] = "打开偏好设定。";
 L["Heritage Armor"] = "传承护甲";
 L["Secret Finding"] = "解密活动";
 
-HEART_QUOTE_1 = "最本质的东西，是无法用肉眼看见的";
+L["Heart Azerite Quote"] = "最本质的东西，是无法用肉眼看见的";
 
 --Title Manager--
 L["Open Title Manager"] = "展开头衔列表";
@@ -75,7 +75,6 @@ L["Minimap Tooltip Set Scale"] = "设置缩放: |cffffffff/narci [有效范围 0
 L["Corrupted Item Parser"] = "|cffffffff打开腐蚀物品链接解析器|r";
 L["Toggle Dressing Room"] = "|cffffffff打开"..DRESSUP_FRAME.."|r";
 
-NARCI_CLIPBOARD = "剪切板";
 L["Layout"] = "布局";
 L["Symmetry"] = "对称";
 L["Asymmetry"] = "非对称";
@@ -85,10 +84,9 @@ L["Plain Text"] = "纯文本";
 L["BB Code"] = "BB Code";
 L["Markdown"] = "Markdown";
 L["Export Includes"] = "在导出中包含...";
-NARCI_ITEM_ID = "物品ID";
 
 L["3D Model"] = "3D模型";
-NARCI_EQUIPMENTSLOTS = "装备栏位";
+L["Equipment Slots"] = "装备栏位";
 
 --偏好设定--
 L["Interface"] = "界面";
@@ -108,8 +106,8 @@ L["Text Width"] = "文本宽度";
 L["Hotkey"] = "快捷键";
 L["Double Tap"] = "启用双击";
 L["Double Tap Description"] = "连按两下打开角色面板的快捷键来打开此插件。"
-NARCI_OVERRIDE = "是否覆盖";
-NARCI_INVALID_KEY = "无效的组合键";
+L["Override"] = "是否覆盖";
+L["Invalid Key"] = "无效的组合键";
 L["Minimap Button"] = "小地图按钮";
 L["Shortcuts"] = "快捷方式";
 L["Image Filter"] = "滤镜";
@@ -145,7 +143,6 @@ L["Gemma"] = "\"Gemma\"";
 L["Gemma Description"] = "在你为一件物品镶嵌宝石时，显示可用的宝石列表。"
 L["Dressing Room"] = "试衣间"
 L["Dressing Room Description"] = "增大试衣间窗口大小，并使你能够通过试衣间浏览、复制其他玩家的幻化调料包。";
-NARCI_REQUIRE_RELOAD = "|cffff5050需要重载UI才能使设置生效。|r";
 L["Show Detailed Stats"] = "显示详尽的属性信息";
 L["Tooltip Color"] = "小提示颜色";
 L["Entrance Visual"] = "登场效果";
@@ -210,18 +207,14 @@ L["Item ID"] = "物品ID";
 
 
 --模型控制面板--
-NARCI_STAND_IDLY = "普通站姿";
-NARCI_RANGED_WEAPON = "远程武器";
-NARCI_MELEE_WEAPON = "近战武器";
-NARCI_SPELLCASTING = "施法动作";
-NARCI_ANIMATION_ID = "动画ID";
-NARCI_LINK_LIGHT_SETTINGS = "关联灯光设置";
-NARCI_LINK_MODEL_SCALE = "关联模型比例";
-NARCI_GROUP_PHOTO_AVAILABLE = "现已加入Narcissus插件";
-NARCI_GROUP_PHOTO_NOTIFICATION = "请选择一个目标。";
-NARCI_GROUP_PHOTO_STATUS_HIDDEN = "隐藏";
-NARCI_DIRECTIONAL_AMBIENT_LIGHT = "平行光/环境光";
-NARCI_DIRECTIONAL_AMBIENT_LIGHT_TOOLTIP = "在以下两种灯光间切换：\n- 可以被模型遮挡并投射阴影的平行光\n- 影响整个模型表面的环境光";
+L["Ranged Weapon"] = "远程武器";
+L["Melee Animation"] = "近战武器";
+L["Spellcasting"] = "施法动作";
+L["Link Light Sources"] = "关联灯光设置";
+L["Link Model Scales"] = "关联模型比例";
+L["Hidden"] = "隐藏";
+L["Light Types"] = "平行光/环境光";
+L["Light Types Tooltip"] = "在以下两种灯光间切换：\n- 可以被模型遮挡并投射阴影的平行光\n- 影响整个模型表面的环境光";
 
 L["Group Photo"] = "合影模式";
 L["Reset"] = "重置";
@@ -335,8 +328,8 @@ L["Don't Update Talents"] = "不要更新天赋";
 L["Old Icon"] = "旧图标";
 L["NavBar Saved Sets"] = "已保存";
 L["NavBar Incomplete Sets"] = "不完整";
-NARCI_ICON_SELECTOR = "图标列表";
-NARCI_DELETE_SET_WITH_LONG_CLICK = "删除此套装\n|cff808080(按住左键)|r";
+L["Icon Selector"] = "图标列表";
+L["Delete Equipment Set Tooltip"] = "删除此套装\n|cff808080(按住左键)|r";
 
 --Corruption System
 L["Corruption System"] = "腐蚀模块";
@@ -444,7 +437,7 @@ L["Guide Minimap Button Headline"] = "小地图按钮";
 L["Guide Minimap Button Line1"] = "此按钮现在可以被其他插件控制。\n你可以在偏好设定中更改这一选项，改动可能需要重载界面才能生效。"
 
 --Splash--
-NARCI_SPLASH_WHATS_NEW_FORMAT = "Narcissus %s ".."更新内容";
+L["Splash Whats New Format"] = "Narcissus %s ".."更新内容";
 L["Splash Category1"] = L["Photo Mode"];
 L["Splash Content1 Name"] = "武器浏览器";
 L["Splash Content1 Description"] = "-浏览并使用所有存在于数据库内（包括那些玩家无法获取）的武器。";
@@ -463,10 +456,7 @@ L["Splash Content7 Name"] = "外观";
 L["Splash Content7 Description"] = "-六边形装备边框有了新的外观。特定物品具有独特的皮肤。";
 
 --Project Details--
-NARCI_ALL_PROJECTS = "全部项目";
-NARCI_PROJECT_DETAILS = "|cFFFFD100插件作者: Peterodox\n更新日期: 2022.8.18|r\n\n感谢你使用此插件！如果你遇到任何问题，或者有任何想法或建议，请在CurseForge项目主页上留言，或者在以下网站上联系我。";
-NARCI_PROJECT_AAA_SUMMARY = "探索艾泽拉斯上的不同景点，并收集各种故事和照片。";
-NARCI_PROJECT_NARCISSUS_SUMMARY = "沉浸式角色面板；你最好的截图助手。"
+L["AboutTab Developer Note"] = "感谢你使用此插件！如果你遇到任何问题，或者有任何想法或建议，请在CurseForge项目主页上留言，或者在以下网站上联系我。";
 
 --Conversation--
 L["Q1"] = "这是个啥？";

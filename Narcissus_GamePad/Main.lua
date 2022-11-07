@@ -183,6 +183,7 @@ KeyListener:SetScript("OnGamePadButtonDown", function(self, key)
     else
         Repeater:Stop();
     end
+
     self:SetPropagateKeyboardInput(propagate);
     if SIGNAL_PRESS[key] then
         GamePadButtonPool:SignalPress(key);
@@ -216,6 +217,10 @@ function KeyListener:ProcessKeyDown(key, isRepeated)
         end
     else
         hold, propagate = ActiveGroup:KeyDown(key);
+    end
+
+    if propagate == nil then
+        propagate = false;
     end
 
     return hold, propagate

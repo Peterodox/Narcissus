@@ -492,6 +492,7 @@
 			</OnShow>
 			<OnHide>
 				self:Hide();
+				self:SetScript("OnUpdate", nil);
 			</OnHide>
 		</Scripts>
     </Frame>

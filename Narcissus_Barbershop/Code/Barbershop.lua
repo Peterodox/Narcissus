@@ -55,6 +55,7 @@ local L = Narci.L;
 
 local MainFrame, MaleButtons, FemaleButtons, AlternateMaleButtons, AlternateFemaleButtons, EditButton, EditBox, DeleteButton, PlusButton, SettingFrame, SettingButton, LoadingFrame;
 local BarbershopModel, ExportEditBox;
+local BarberShopUI; --Blizzard BarberShopUI
 local ACTIVE_BUTTON_POOL;
 
 --[[
@@ -279,6 +280,9 @@ local function UpdateScrollButtonAlpha(buttons)
                 button:Hide();
             else
                 button:Show();
+                if alpha > 1 then
+                    alpha = 1;
+                end
             end
         end
         button:SetButtonAlpha(alpha);
@@ -307,6 +311,12 @@ end
 
 function ScrollButtonAlphaUpdater:Refresh()
     UpdateScrollButtonAlpha(self.activeButtons);
+end
+
+function ScrollButtonAlphaUpdater:SetActiveButtonAlpha(alpha)
+    for i = 1, NUM_ACTIVE_BUTTONS do
+        self.activeButtons[i]:SetButtonAlpha(alpha);
+    end
 end
 
 local ScrollBoundMarkUpdater = CreateFrame("Frame");
@@ -1109,7 +1119,7 @@ local function RandomizeApperance()
         local optionID, choiceID = unpack(data[i]);
         SetCustomizationChoice(optionID, choiceID);
     end
-    BarberShopFrame:UpdateCharCustomizationFrame()
+    BarberShopUI:UpdateCharCustomizationFrame()
 end
 
 local function SetFontStringShadow(fontString)
@@ -1136,11 +1146,12 @@ function CustomizationUtil.repeater_OnUpdate(f, elapsed)
             local optionID, choiceID = unpack(CustomizationUtil.appearanceData[i]);
             SetCustomizationChoice(optionID, choiceID);
         end
-        BarberShopFrame:UpdateCharCustomizationFrame();
+        BarberShopUI:UpdateCharCustomizationFrame();
     end
 end
 
 function CustomizationUtil:UseCustomization(appearanceData)
+    --appearanceData consisted of formated optionID-choiceID pairs
     if not appearanceData then return end;
 
     self.f:SetScript("OnUpdate", nil);
@@ -1156,6 +1167,26 @@ function CustomizationUtil:UseCustomization(appearanceData)
     self.f:SetScript("OnUpdate", self.repeater_OnUpdate);
 end
 
+function CustomizationUtil:ApplyCustomizationCategoryData(customizationCategoryData, firstCall)
+    --customizationCategoryData is the raw payload from C_BarberShop.GetAvailableCustomizations()
+    local optionID, cuurentChoiceIndex, choice, choiceID;
+    for i, data in ipairs(customizationCategoryData) do
+        for j, option in ipairs(data.options) do
+            optionID = option.id;
+            cuurentChoiceIndex = option.currentChoiceIndex or 1;
+            choice = option.choices[cuurentChoiceIndex];
+            choiceID = choice.id;
+            SetCustomizationChoice(optionID, choiceID);
+        end
+    end
+
+    if firstCall then
+        After(0.033, function()
+            self:ApplyCustomizationCategoryData(customizationCategoryData);
+            DataProvider:IsCharacterDataUnique(customizationCategoryData);
+        end);
+    end
+end
 
 
 NarciBarberShopSavedLooksMixin = {};
@@ -1168,7 +1199,7 @@ local function PortaitModel_OnModelLoaded(self)
     p:SetPortraitZoom(0.975);
     p:SetPortraitZoom(1);
     p.isPortraitLoaded = true;
-
+    self:SetIgnoreParentAlpha(true);
     LoadingFrame:LoadNextPortrait(p.order);
 end
 
@@ -1274,7 +1305,7 @@ end
 function NarciBarberShopSavedLooksMixin:UseCustomization(dontUpdateButton)
     if not self.appearanceData then return end
 
-    local BarberShopFrame = BarberShopFrame;
+    local BarberShopUI = BarberShopUI;
     for i = 1, #self.appearanceData do
         local optionID, choiceID = unpack(self.appearanceData[i]);
         SetCustomizationChoice(optionID, choiceID);
@@ -1283,7 +1314,7 @@ function NarciBarberShopSavedLooksMixin:UseCustomization(dontUpdateButton)
 
     if not dontUpdateButton then
         --determine if it should update the option buttons on the right side of the screen
-        BarberShopFrame:UpdateCharCustomizationFrame();
+        BarberShopUI:UpdateCharCustomizationFrame();
     end
 end
 
@@ -1305,12 +1336,9 @@ if addon.IsDragonflight() then
     function NarciBarberShopSavedLooksMixin:SetButtonAlpha(alpha)
         --Dragonflight Beta: Model no longer inherts parent alpha.
         --Probably a driver issue that only took place in beta but still
-        if not self.modelIgnoreAlpha then
-            self.modelIgnoreAlpha = true;
-            self.Model:SetIgnoreParentAlpha(true);
-        end
         self:SetAlpha(alpha);
-        self.Model:SetModelAlpha(alpha);
+        self.Model:SetModelAlpha(alpha); --SetAlpha caused the model to flicker
+        self.buttonAlpha = alpha;
     end
 else
     function NarciBarberShopSavedLooksMixin:SetButtonAlpha(alpha)
@@ -1819,8 +1847,47 @@ NarciBarberShopMixin = {};
 
 function NarciBarberShopMixin:OnLoad()
     MainFrame = self;
-    
-    NarciAPI_CreateFadingFrame(self);
+    self.fadeController = CreateFrame("Frame", nil, self);
+end
+
+local function FadeController_OnUpdate(self, elapsed)
+    self.alpha = self.alpha + self.fadeSpeed*elapsed;
+    if self.alpha >= 1 then
+        self.alpha = 1;
+        self:SetScript("OnUpdate", nil);
+    elseif self.alpha <= 0 then
+        self.alpha = 0;
+        self:SetScript("OnUpdate", nil);
+    end
+    MainFrame:SetFrameAlpha(self.alpha);
+end
+
+function NarciBarberShopMixin:SetFrameAlpha(alpha)
+    --temp fix for "Model Widgets Not Inherit Parent's Alpha"
+    self:SetAlpha(alpha);
+    ScrollButtonAlphaUpdater:SetActiveButtonAlpha(alpha);
+end
+
+function NarciBarberShopMixin:FadeIn(fullDuration)
+    local alpha = self:GetAlpha();
+    if alpha == 1 then
+        self.fadeController:SetScript("OnUpdate", nil);
+        return
+    end
+    self.fadeController.fadeSpeed = 1/fullDuration;
+    self.fadeController.alpha = alpha;
+    self.fadeController:SetScript("OnUpdate", FadeController_OnUpdate);
+end
+
+function NarciBarberShopMixin:FadeOut(fullDuration)
+    local alpha = self:GetAlpha();
+    if alpha == 0 then
+        self.fadeController:SetScript("OnUpdate", nil);
+        return
+    end
+    self.fadeController.fadeSpeed = -1/fullDuration;
+    self.fadeController.alpha = alpha;
+    self.fadeController:SetScript("OnUpdate", FadeController_OnUpdate);
 end
 
 function NarciBarberShopMixin:OnKeyDown(key)
@@ -1899,7 +1966,7 @@ function NarciBarberShopMixin:UpdateGenderCategory(sex)
             return
         end
     end
-    
+
     DataProvider.currentSex = sex;
 
     if HAS_ALTERNATE_FORM then
@@ -1986,18 +2053,58 @@ function NarciBarberShopMixin:UpdateGenderCategory(sex)
     LoadingFrame:LoadPortraits();
 end
 
+function NarciBarberShopMixin:OnBarberShopOpen()
+    local currentCharacterData = C_BarberShop.GetCurrentCharacterData();
+    local sex;
+    if currentCharacterData then
+        sex = currentCharacterData.sex;
+        self.initialIconAtlas = currentCharacterData.raceData and currentCharacterData.raceData.createScreenIconAtlas;
+    end
+    self:UpdateGenderCategory(sex);
+    StatManager:OnBarberShopOpen();
+
+    self.initialCustomizationData = C_BarberShop.GetAvailableCustomizations();
+end
+
+function NarciBarberShopMixin:OnBarberShopClose()
+    self.initialIconAtlas = nil;
+    self.initialCustomizationData = nil;
+    self.fadeController:SetScript("OnUpdate", nil);
+    StatManager:OnBarberShopClose();
+end
+
+function NarciBarberShopMixin:ResetCustomizationInternally()
+    if self.initialCustomizationData then
+        CustomizationUtil:ApplyCustomizationCategoryData(self.initialCustomizationData, true);
+    end
+end
+
+function NarciBarberShopMixin:IsCharacterCategoryChanged()
+    --true if player is viewing a different category - i.g. was type1 but currently viewing type2
+    local currentCharacterData = C_BarberShop.GetCurrentCharacterData();
+    if currentCharacterData then
+        if currentCharacterData.raceData then
+            return self.initialIconAtlas ~= currentCharacterData.raceData.createScreenIconAtlas;
+        else
+            return true
+        end
+    else
+        return true
+    end
+end
+
 -----------------------------------------------------------------
 local function InitializeBarberShopFrame()
     local frame = Narci_BarbershopFrame;
     frame:ClearAllPoints();
-    frame:SetParent(BarberShopFrame);
-    frame:SetPoint("TOPLEFT", BarberShopFrame, "TOPLEFT", 0, -95);
+    frame:SetParent(BarberShopUI);
+    frame:SetPoint("TOPLEFT", BarberShopUI, "TOPLEFT", 0, -95);
     frame:ToggleRandomizeAppearanceButton(true);
     frame:Show();
 
-    --The WoW default action is automatically closing the BarberShopFrame
+    --The WoW default action is automatically closing the BarberShopUI
     --But here we want to check if the newly applied appearance is unique and notifiy user to save it
-    BarberShopFrame:UnregisterEvent("BARBER_SHOP_APPEARANCE_APPLIED");
+    BarberShopUI:UnregisterEvent("BARBER_SHOP_APPEARANCE_APPLIED");
 
     SettingFrame:Initialize();
 end
@@ -2038,7 +2145,7 @@ local function HookMixin()
     --Constantly monitor this mixin!!
 
     if true then
-        function BarberShopFrame:UpdateCharCustomizationFrame(alsoReset)
+        function BarberShopUI:UpdateCharCustomizationFrame(alsoReset)
             local customizationCategoryData = C_BarberShop.GetAvailableCustomizations();
             if not customizationCategoryData then
                 return;
@@ -2081,43 +2188,45 @@ EventListener:SetScript("OnEvent", function(self, event, ...)
         --Blizzard_BarbershopUI
         if name == "Narcissus_Barbershop" then --Narcissus_Barbershop
             self:UnregisterEvent(event);
-            if not IsAddOnLoaded("Blizzard_BarbershopUI") then
+            if not (IsAddOnLoaded("Blizzard_BarbershopUI") and BarberShopFrame) then
                 print("Narcissus Error: Blizzard_BarbershopUI not loaded!");
                 self:UnregisterAllEvents();
                 return
             end
+            BarberShopUI = BarberShopFrame;
             DataProvider:LoadData();
             HotkeyManager:LoadHotkeys();
             StatManager:LoadData();
             HookMixin();
             InitializeBarberShopFrame();
             MainFrame:UpdateGenderCategory();
-            StatManager:OnBarberShopOpen();
+            MainFrame:OnBarberShopOpen();
 
+            --[[
             if true then
                 C_Timer.After(0.5 , function()
-                    BarberShopFrame:SetPropagateKeyboardInput(true);    --DEBUG
+                    BarberShopUI:SetPropagateKeyboardInput(true);    --DEBUG
                 end)
             end
+            --]]
         end
     elseif event == "BARBER_SHOP_OPEN" then
-        MainFrame:UpdateGenderCategory();
-        StatManager:OnBarberShopOpen();
+        MainFrame:OnBarberShopOpen();
 
     elseif event == "BARBER_SHOP_CLOSE" then
-        StatManager:OnBarberShopClose();
+        MainFrame:OnBarberShopClose();
 
     elseif event == "BARBER_SHOP_RESULT" then
         --MainFrame:UpdateGenderCategory();
-        if BarberShopFrame.UpdateButtons then
-            BarberShopFrame:UpdateButtons();
+        if BarberShopUI.UpdateButtons then
+            BarberShopUI:UpdateButtons();
         end
     elseif event == "BARBER_SHOP_APPEARANCE_APPLIED" then
         if MainFrame.checkUniqueness and DataProvider:IsNewLooksUnique() then
-            BarberShopFrame:UpdateCharCustomizationFrame();
+            BarberShopUI:UpdateCharCustomizationFrame();
             PlusButton:Glow();
         else
-            BarberShopFrame:Cancel();
+            BarberShopUI:Cancel();
         end
         StatManager:UpdateMoney();
     end
@@ -2727,4 +2836,11 @@ function NarciBarberShopLoadingFrameMixin:OnLoadingComplete()
     self:SetScript("OnUpdate", nil);
     --self:Hide();
     FadeFrame(self, 0.5, 0);
+
+    if MainFrame:IsCharacterCategoryChanged() then
+        local customizationCategoryData = C_BarberShop.GetAvailableCustomizations();
+        DataProvider:IsCharacterDataUnique(customizationCategoryData);
+    else
+        MainFrame:ResetCustomizationInternally();
+    end
 end

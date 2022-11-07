@@ -13,7 +13,7 @@ local IsBound = C_Item.IsBound;
 local IsCosmeticItem = IsCosmeticItem;
 local IsSellItemValid = C_AuctionHouse.IsSellItemValid;
 local GetItemInfoInstant = GetItemInfoInstant;
-local SetItemSearch = SetItemSearch;
+local SetItemSearch = (C_Container and C_Container.SetItemSearch) or SetItemSearch;
 
 local GetContainerItemInfo = (C_Container and C_Container.GetContainerItemInfo) or GetContainerItemInfo;
 local GetContainerItemID = (C_Container and C_Container.GetContainerItemID) or GetContainerItemID;

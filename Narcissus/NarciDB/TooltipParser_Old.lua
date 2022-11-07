@@ -767,6 +767,7 @@ local function GetCompleteItemData(itemLink)
     local data, anyMatch;
     local tex, texID;
     local gemName, gemLink, gemEffect, lineIndex;
+    local requestSubData;
 
     for i = 1, 3 do
         tex = _G["NarciVirtualTooltipTexture"..i];
@@ -792,6 +793,11 @@ local function GetCompleteItemData(itemLink)
                 data.socketInfo = {};
             end
             data.socketInfo[i] = {texID, gemName, gemLink, gemEffect};
+            if gemLink and not requestSubData then
+                if gemEffect and gemEffect == "" then
+                    requestSubData = true;
+                end
+            end
         end
     end
 
@@ -992,7 +998,7 @@ local function GetCompleteItemData(itemLink)
         end
     end
 
-    return data
+    return data, requestSubData
 end
 
 local function ClearTooltipTexture()

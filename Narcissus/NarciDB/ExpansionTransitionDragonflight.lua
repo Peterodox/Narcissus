@@ -55,15 +55,7 @@ function TransitionAPI.HookSocketInventoryItem(callback)     --#4
 end
 
 function TransitionAPI.IsTrackingPets()      --#5
-    local GetTrackingInfo = C_Minimap.GetTrackingInfo;
-    local numTypes = C_Minimap.GetNumTrackingTypes();
-    local _, active, spellID;
-    for i = 1, numTypes do
-        _, _, active, _, _, spellID = GetTrackingInfo(i);
-        if spellID == 122026 then
-            return active
-        end
-    end
+    return C_Minimap.IsTrackingBattlePets();
 end
 
 function TransitionAPI.SetTrackingPets(state)      --#6

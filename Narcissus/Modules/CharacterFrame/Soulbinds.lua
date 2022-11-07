@@ -86,8 +86,12 @@ end
 local QueueFrame = NarciAPI.CreateProcessor();
 
 local ReferenceTooltip = CreateFrame("GameTooltip", "NarciSoulbindsConduitReferenceTooltip", UIParent, "GameTooltipTemplate");
-ReferenceTooltip:SetScript("OnTooltipAddMoney", nil);
-ReferenceTooltip:SetScript("OnTooltipCleared", nil);
+if ReferenceTooltip:HasScript("OnTooltipAddMoney") then --dragonflight
+    ReferenceTooltip:SetScript("OnTooltipAddMoney", nil);
+end
+if ReferenceTooltip:HasScript("OnTooltipCleared") then
+    ReferenceTooltip:SetScript("OnTooltipCleared", nil);
+end
 
 local DataProvider = {};
 DataProvider.conduitItemIDs = {};

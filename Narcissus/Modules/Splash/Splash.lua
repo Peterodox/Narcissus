@@ -22,7 +22,6 @@ local cos = math.cos;
 local pow = math.pow;
 local L = Narci.L;
 
-
 local function outSine(t, b, e, d)
 	return (e - b) * sin(t / d * (pi / 2)) + b
 end
@@ -584,7 +583,8 @@ local function FlyOutModel()
 
         --button visual
         FadeFrame(f.LogoButton, 0.2, "Forced_IN");
-        f.LogoButton.Text:SetText(string.format("|cff"..NARCI_COLOR_CYAN_DARK.. NARCI_SPLASH_WHATS_NEW_FORMAT, NARCI_VERSION_INFO));
+        local version = NarciAPI.GetAddOnVersionInfo(true);
+        f.LogoButton.Text:SetText(string.format("|cff"..NARCI_COLOR_CYAN_DARK.. L["Splash Whats New Format"], version));
         f.LogoButton.Text.Bling:Stop();
     end 
     f.IsExpanded = not f.IsExpanded;
@@ -916,7 +916,8 @@ function NarciSplashNavButtonMixin:OnLoad()
         self.SelectionMarkRight:SetVertexColor(4/255, 30/255, 60/255);
         self.Logo:SetTexture("Interface\\AddOns\\Narcissus\\ART\\Logos\\NarcissusLogoFlatMono128");
         self.Logo:SetVertexColor(4/255, 30/255, 60/255);
-        self.Title:SetText( string.format(NARCI_SPLASH_WHATS_NEW_FORMAT, NARCI_VERSION_INFO) );
+        local version = NarciAPI.GetAddOnVersionInfo(true);
+        self.Title:SetText( string.format(L["Splash Whats New Format"], version) );
         self.Title:SetTextColor(4/255, 30/255, 60/255);
         --self.SelectionMarkLeft:Hide();
     else

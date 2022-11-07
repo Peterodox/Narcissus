@@ -1,6 +1,6 @@
-NARCI_VERSION_INFO = "1.3.1";
+local NARCI_VERSION_INFO = "1.3.2";
 
-local VERSION_DATE = 1666856017;
+local VERSION_DATE = 1667748142;
 local CURRENT_VERSION = 10301;
 local PREVIOUS_VERSION = CURRENT_VERSION;
 local TIME_SINCE_LAST_UPDATE = 0;
@@ -74,6 +74,7 @@ local DefaultValues = {
     MissingEnchantAlert = false,                --Show alert if the item isn't enchanted
     TalentTreeForInspection = true,
     TalentTreeForPaperDoll = false,              --True on Beta for testing
+    TalentTreeForEquipmentManager = true,
     TalentTreeUseClassBackground = false,
 
     --# NPC
@@ -252,7 +253,11 @@ Initialization:SetScript("OnEvent",function(self,event,...)
 end);
 
 
-local function GetAddOnVersionInfo()
+local function GetAddOnVersionInfo(versionOnly)
+    if versionOnly then
+        return NARCI_VERSION_INFO
+    end
+
     local dateString;
     local timeString = date("%d %m %y", VERSION_DATE);
     local day, month, year = string.split(" ", timeString);

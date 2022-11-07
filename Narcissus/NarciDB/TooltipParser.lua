@@ -870,6 +870,7 @@ local function GetCompleteItemData(tooltipData, itemLink)
     local data, anyMatch;
     local socketOrderID = 0;
     local qualityFound;
+    local requestSubData;
 
     for i = 2, numLines do
         if not processed[i] then
@@ -899,7 +900,6 @@ local function GetCompleteItemData(tooltipData, itemLink)
                         end
                     end
                 end
-
 
                 if i >= 4 and not anyMatch then
                     --effects
@@ -997,6 +997,11 @@ local function GetCompleteItemData(tooltipData, itemLink)
                                 gemEffect = lines[i].args[2].stringVal;
                                 gemEffect = RemoveColorString(gemEffect);
                                 gemEffect = ReformatCraftingQualityText(gemEffect, true);
+                                if not requestSubData then
+                                    if gemEffect and gemEffect == "" then
+                                        requestSubData = true;
+                                    end
+                                end
                             else
                                 icon = "Interface\\ItemSocketingFrame\\UI-EmptySocket-"..socketType;
                                 gemName = lines[i].args[2].stringVal;   --Empty X Socket
@@ -1092,7 +1097,7 @@ local function GetCompleteItemData(tooltipData, itemLink)
         end
     end
 
-    return data
+    return data, requestSubData
 end
 
 local function ClearTooltipTexture()
@@ -1459,6 +1464,17 @@ end
 
 NarciAPI.GetPvpTalentTooltip = GetPvpTalentTooltip;
 
+
+local function GetBagItemSubText(bag, slot)
+    if not (bag and slot) then return end;
+
+    local tooltipData = GetInfoByBagItem(bag, slot);
+    if tooltipData then
+        return GetLineText(tooltipData.lines, 2);
+    end
+end
+
+NarciAPI.GetBagItemSubText = GetBagItemSubText;
 
 --]]
 

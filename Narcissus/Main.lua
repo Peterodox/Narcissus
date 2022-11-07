@@ -9,6 +9,8 @@ local Narci = Narci;
 Narci.refreshCombatRatings = true;
 
 local SLOT_TABLE = {};
+Narci.slotTable = SLOT_TABLE;
+
 local STAT_STABLE = {};
 local SHORT_STAT_TABLE = {};
 local L = Narci.L;
@@ -73,6 +75,12 @@ end)
 local EL = CreateFrame("Frame");	--Event Listener
 EL:Hide();
 
+EL.EVENTS_DYNAMIC = {"PLAYER_TARGET_CHANGED", "COMBAT_RATING_UPDATE", "PLAYER_MOUNT_DISPLAY_CHANGED",
+	"PLAYER_STARTED_MOVING", "PLAYER_REGEN_DISABLED", "UNIT_MAXPOWER", "PLAYER_STARTED_TURNING", "PLAYER_STOPPED_TURNING",
+	"BAG_UPDATE_COOLDOWN", "UNIT_STATS", "BAG_UPDATE", "PLAYER_EQUIPMENT_CHANGED", "AZERITE_ESSENCE_ACTIVATED",
+};
+
+EL.EVENTS_UNIT = {"UNIT_DAMAGE", "UNIT_ATTACK_SPEED", "UNIT_MAXHEALTH", "UNIT_AURA", "UNIT_INVENTORY_CHANGED"};
 
 --[[
 local TakenOutFrames = {
@@ -310,8 +318,8 @@ local ZoomValuebyRaceID = {
 				 [5] = {4.8, 0.1707, -0.04, 5},			--Bear
 				 [31] = {4.61, 0.1947, -0.02, 5},		--Moonkin
 				 [4] = {4.61, 0.1307, -0.04, 5},		--Swim
-				 [27] = {3.61, 0.1067, -0.02, 5},		--Fly Swift
-				 [29] = {3.61, 0.1067, -0.02, 5},		--Fly
+				 [27] = {4.61, 0.1067, -0.02, 5},		--Fly Swift
+				 [29] = {4.61, 0.1067, -0.02, 5},		--Fly
 				 [3] = {4.91, 0.184, -0.02, 5},			--Travel Form
 				 [36] = {4.2, 0.1707, -0.04, 5},		--Treant
 				 [2] = {5.4, 0.1707, -0.04, 5},			--Tree of Life
@@ -347,14 +355,14 @@ local _, _, PLAYER_CLASS_ID = UnitClass("player");
 local CAM_DISTANCE_INDEX = 1;
 local ZOOM_IN_VALUE = ZoomValuebyRaceID[0][1];
 local ZOOM_IN_VALUE_MOG = 3.8;
-local SHOULDER_FACTOR_1 = ZoomValuebyRaceID[0][2];
-local SHOULDER_FACTOR_2 = ZoomValuebyRaceID[0][3];
+local SHOULDER_FACTOR_1 = ZoomValuebyRaceID[0][2][2];
+local SHOULDER_FACTOR_2 = ZoomValuebyRaceID[0][2][3];
 
 
 local CameraMover = {};
 local CameraUtil = {};
 
-function CameraUtil:UpdateParameters()
+function CameraUtil:UpdateParametersDefault()
 	local raceKey;
 	if IsMounted() then
 		raceKey = "Mounted";
@@ -367,6 +375,8 @@ function CameraUtil:UpdateParameters()
 	SHOULDER_FACTOR_2 = ZoomValuebyRaceID[raceKey][PLAYER_GENDER_ID][3];
 	ZOOM_IN_VALUE_MOG = ZoomValuebyRaceID[raceKey][PLAYER_GENDER_ID][4];
 end
+
+CameraUtil.UpdateParameters = CameraUtil.UpdateParametersDefault;
 
 function CameraUtil:GetRaceKey()
 	return PLAYER_RACE_ID
@@ -396,6 +406,28 @@ function CameraUtil:GetRaceKey_Dracthyr()
 	return raceKey
 end
 
+function CameraUtil:UpdateParameters_Druid()
+	local formID = GetShapeshiftFormID();
+
+	if formID then
+		if formID == 31 then
+			local _, glyphID = GetCurrentGlyphNameForSpell(24858);		--Moonkin form with Glyph of Stars use regular configuration
+			if glyphID and glyphID == 114301 then
+				self:UpdateParametersDefault();
+				return
+			end
+		end
+
+		local raceKey = "Druid";
+		ZOOM_IN_VALUE = ZoomValuebyRaceID[raceKey][formID][CAM_DISTANCE_INDEX];
+		SHOULDER_FACTOR_1 = ZoomValuebyRaceID[raceKey][formID][2];
+		SHOULDER_FACTOR_2 = ZoomValuebyRaceID[raceKey][formID][3];
+		ZOOM_IN_VALUE_MOG = ZoomValuebyRaceID[raceKey][formID][4];
+	else
+		self:UpdateParametersDefault();
+	end
+end
+
 
 do
 	if PLAYER_RACE_ID == 25 or PLAYER_RACE_ID == 26 then	--Pandaren A|H
@@ -409,10 +441,16 @@ do
 	elseif PLAYER_RACE_ID == 37 then						--Mechagnome
 		PLAYER_RACE_ID = 7;
 	elseif PLAYER_RACE_ID == 22 then
-		CameraUtil["GetRaceKey"] = CameraUtil["GetRaceKey_Worgen"];
+		CameraUtil.GetRaceKey = CameraUtil.GetRaceKey_Worgen;
 	elseif PLAYER_RACE_ID == 52 or PLAYER_RACE_ID == 70 then
 		PLAYER_RACE_ID = 52;								--Dracthyr Horde -> Alliance
-		CameraUtil["GetRaceKey"] = CameraUtil["GetRaceKey_Dracthyr"];
+		CameraUtil.GetRaceKey = CameraUtil.GetRaceKey_Dracthyr;
+	end
+
+	local _, _, playerClassID = UnitClass("player");
+	if playerClassID == 11 then
+		CameraUtil.UpdateParameters = CameraUtil.UpdateParameters_Druid;
+		table.insert(EL.EVENTS_DYNAMIC, "UPDATE_SHAPESHIFT_FORM");
 	end
 end
 
@@ -431,18 +469,17 @@ function CameraUtil:OnPlayerFormChanged(pauseDuration)
 			f.t = f.t + elapsed;
 			if f.t > 0 then
 				f:Hide();
-				self.pauseUpdate = nil;
+				self:UpdateParameters();
+				CameraMover:OnCameraChanged();
 			end
 		end);
 	end
 
 	if not self.pauseUpdate then
-		self.pauseUpdate = true;
+		--self.pauseUpdate = true;
 		pauseDuration = pauseDuration or 0;
 		self.frame.t = -pauseDuration;
 		self.frame:Show();
-		self:UpdateParameters();
-		CameraMover:OnCameraChanged();
 	end
 end
 
@@ -571,8 +608,14 @@ end
 function CameraMover:OnCameraChanged()
 	if not self.pauseUpdate then
 		self.pauseUpdate = true;
-		After(0.05, function()
-			self:ZoomIn(ZOOM_IN_VALUE);
+		After(0.0, function()
+			--self:ZoomIn(ZOOM_IN_VALUE);
+			local zoom = GetCameraZoom();
+			if zoom < ZOOM_IN_VALUE then
+				self:ZoomIn(ZOOM_IN_VALUE);
+			else
+				CameraZoomIn(0);
+			end
 			self.pauseUpdate = nil;
 		end);
 	end
@@ -791,7 +834,7 @@ local function ExitFunc()
 
 	UIErrorsFrame:Clear();
 
-	Narci_ModelContainer:Hide();
+	Narci_ModelContainer:HideAndClearModel();
 	Narci_ModelSettings:Hide();
 	Narci_XmogNameFrame:Hide();
 	NarciSettingsFrame:CloseUI();
@@ -825,7 +868,7 @@ function Narci:EmergencyStop()
 	SetCVar("test_cameraOverShoulder", 0);
 	SetCVar("cameraViewBlendStyle", 1);
 	ConsoleExec( "actioncam off" );
-	Narci_ModelContainer:Hide();
+	Narci_ModelContainer:HideAndClearModel();
 	Narci_ModelSettings:Hide();
 	Narci_Character:Hide();
 	Narci_Attribute:Hide();
@@ -2961,9 +3004,7 @@ local function ShowAttributeButton(bool)
 	ItemLevelFrame:SetShown(true);
 end
 
-local function AssignFrame()
-	Narci.slotTable = SLOT_TABLE;
-
+function AssignFrame()
 	local statFrame = Narci_DetailedStatFrame;
 	local radar = RadarChart;
 	STAT_STABLE[1] = statFrame.Primary;
@@ -3200,20 +3241,17 @@ end
 ------------------------------------------------------
 ------------------Photo Mode Controller---------------
 ------------------------------------------------------
-function Narci_KeyListener_OnEscapePressed()
+function Narci_KeyListener_OnEscapePressed(self)
 	if IS_OPENED then
 		MiniButton:Click();
+		if self then
+			self:SetPropagateKeyboardInput(false);
+			After(0, function()
+				self:SetPropagateKeyboardInput(true);
+			end);
+		end
 	end
 end
-
-function Narci_ExitButton_OnClick(self)
-	if IS_OPENED then
-		Narci_Open();
-		SetUIVisibility(true);
-	end
-end
-
-
 
 local function UseXmogLayout()
 	MOG_MODE_OFFSET = 0.2;
@@ -3558,34 +3596,35 @@ hooksecurefunc("SetUIVisibility", function(state)
 	end
 end)
 
-SLASH_NARCI1 = "/narci";
-SLASH_NARCI2 = "/narcissus";
-SlashCmdList["NARCI"] = function(msg)
-	msg = string.lower(msg);
-	if msg == "" then
-		MiniButton:Click();
-	elseif msg == "minimap" then
-		MiniButton:EnableButton();
-		print("Minimap button has been re-enabled.");
-	elseif msg == "itemlist" then
-		DressUpFrame_Show(DressUpFrame);
-		if NarciDressingRoomOverlay then
-			NarciDressingRoomOverlay:ShowItemList();
+do
+	--Slash Command
+	local command = "narci";
+	local commandAlias = "narcissus";
+	local function callback(msg)
+		msg = string.lower(msg);
+		if msg == "" then
+			MiniButton:Click();
+		elseif msg == "minimap" then
+			MiniButton:EnableButton();
+			print("Minimap button has been re-enabled.");
+		elseif msg == "itemlist" then
+			DressUpFrame_Show(DressUpFrame);
+			if NarciDressingRoomOverlay then
+				NarciDressingRoomOverlay:ShowItemList();
+			end
+		elseif msg == "resetposition" then
+			MiniButton:ResetPosition();
+		else
+			local color = "|cff40C7EB";
+			print(color.."Show Minimap Button:|r /narci minimap");
+			print(color.."Reset Minimap Button Position:|r /narci resetposition");
+			print(color.."Copy Item List:|r /narci itemlist");
 		end
-	elseif msg == "parser" then
-		NDT_ItemParser:ShowFrame();
-	elseif msg == "resetposition" then
-		MiniButton:ResetPosition();
-	else
-		local color = "|cff40C7EB";
-		print(color.."Show Minimap Button:|r /narci minimap");
-		print(color.."Reset Minimap Button Position:|r /narci resetposition");
-		print(color.."Copy Item List:|r /narci itemlist");
-		print(color.."DevTool Item Parser:|r /narci parser");
 	end
+
+	RegisterNewSlashCommand(callback, command, commandAlias);
+	--securecallfunction(RegisterNewSlashCommand, callback, command, commandAlias)
 end
-
-
 
 ----------------
 --3D Animation--
@@ -3839,7 +3878,6 @@ function Narci_PortraitPieces_OnLoad(self)
 end
 
 --Static Events
-EL:RegisterEvent("ADDON_LOADED");
 EL:RegisterEvent("PLAYER_ENTERING_WORLD");
 EL:RegisterEvent("UNIT_NAME_UPDATE");
 EL:RegisterEvent("PLAYER_AVG_ITEM_LEVEL_UPDATE");
@@ -3852,15 +3890,8 @@ EL:RegisterEvent("COVENANT_SANCTUM_RENOWN_LEVEL_CHANGED");
 
 EL:SetScript("OnEvent",function(self, event, ...)
 	--print(event)
-	if event == "ADDON_LOADED" then
-		local name = ...;
-		if name ~= "Narcissus" then
-			return;
-		end
+	if event == "PLAYER_ENTERING_WORLD" then
 		self:UnregisterEvent(event);
-
-		AssignFrame();
-		AssignFrame = nil;
 
 		After(2, function()
 			Narci_AliasButton_SetState();
@@ -3873,14 +3904,7 @@ EL:SetScript("OnEvent",function(self, event, ...)
 		InitializeAnimationContainer(ASC2, AnimSequenceInfo["Heart"], Narci_HeartofAzeroth_AnimFrame.Sequence)
 		local HeartSerialNumber = strsub(UnitGUID("player"), 8, 15);
 		Narci_HeartofAzeroth_AnimFrame.SN:SetText("No."..HeartSerialNumber);
-
-		--[[
-		local timeStart = Narci.timeLoadingStart;
-		local timeFinished = GetTimePreciseSec();
-		print("Loading Time: "..(timeFinished - timeStart))
-		--]]
-	elseif event == "PLAYER_ENTERING_WORLD" then
-		self:UnregisterEvent(event);
+		Narci_HeartofAzeroth_AnimFrame.Quote:SetText(L["Heart Azerite Quote"]);
 
 		UpdateXmogName();
 		SetCVar("CameraKeepCharacterCentered", 0);
@@ -3944,11 +3968,20 @@ EL:SetScript("OnEvent",function(self, event, ...)
 		local slotID, isItem = ...;
 		USE_DELAY = false;
 		SlotController:Refresh(slotID);
+
 		if EquipmentFlyoutFrame:IsShown() and EquipmentFlyoutFrame.slotID then
 			EquipmentFlyoutFrame:DisplayItemsBySlotID(EquipmentFlyoutFrame.slotID, false);
 		end
+
 		USE_DELAY = true;
 		ItemLevelFrame:AsyncUpdate();
+		local slot = SLOT_TABLE[slotID];
+		if slot and slot:IsMouseOver() then
+			slot:Disable();
+			After(0, function()
+				slot:Enable();
+			end);
+		end
 
 	elseif event == "AZERITE_ESSENCE_ACTIVATED" then
 		local neckSlotID = 2;
@@ -4006,8 +4039,7 @@ EL:SetScript("OnEvent",function(self, event, ...)
 			local inAlteredForm = IsPlayerInAlteredForm();
 			if self.wasAlteredForm ~= inAlteredForm then
 				self.wasAlteredForm = inAlteredForm;
-				CameraUtil:OnPlayerFormChanged(0.5);
-				--print("Form Changed")
+				CameraUtil:OnPlayerFormChanged(0.0);
 			end
 		end
 
@@ -4016,10 +4048,10 @@ EL:SetScript("OnEvent",function(self, event, ...)
 		RefreshStats(9); 		--Damage Reduction
 
 	elseif event == "UPDATE_SHAPESHIFT_FORM" then
-		CameraUtil:OnPlayerFormChanged(0.5);
+		CameraUtil:OnPlayerFormChanged(0.1);
 
 	elseif event == "PLAYER_MOUNT_DISPLAY_CHANGED" then
-		CameraUtil:OnPlayerFormChanged(0.1);
+		CameraUtil:OnPlayerFormChanged(0.0);
 
 	elseif event == "PLAYER_REGEN_DISABLED" then
 		if Narci.isAFK and Narci.isActive then
@@ -4064,12 +4096,6 @@ EL:SetScript("OnEvent",function(self, event, ...)
 	end
 end)
 
-EL.EVENTS_DYNAMIC = {"PLAYER_TARGET_CHANGED", "COMBAT_RATING_UPDATE", "PLAYER_MOUNT_DISPLAY_CHANGED",
-	"PLAYER_STARTED_MOVING", "PLAYER_REGEN_DISABLED", "UNIT_MAXPOWER", "PLAYER_STARTED_TURNING", "PLAYER_STOPPED_TURNING",
-	"BAG_UPDATE_COOLDOWN", "UNIT_STATS", "BAG_UPDATE", "PLAYER_EQUIPMENT_CHANGED", "AZERITE_ESSENCE_ACTIVATED",
-};
-
-EL.EVENTS_UNIT = {"UNIT_DAMAGE", "UNIT_ATTACK_SPEED", "UNIT_MAXHEALTH", "UNIT_AURA", "UNIT_INVENTORY_CHANGED"};
 
 function EL:ToggleDynamicEvents(state)
 	if state then
@@ -4098,7 +4124,6 @@ end)
 
 EL:SetScript("OnHide",function(self)
 	self:ToggleDynamicEvents(false);
-	self:UnregisterEvent("UPDATE_SHAPESHIFT_FORM");
 	if NarciAR then
 		NarciAR:Hide();
 	end
@@ -4118,6 +4143,9 @@ end
 
 function NarciPaperDollDoubleClickTriggerMixin:OnLoad()
 	self.t = 0;
+
+	AssignFrame();
+	AssignFrame = nil;
 
 	self:SetScript("OnLoad", nil);
 	self.OnLoad = nil;

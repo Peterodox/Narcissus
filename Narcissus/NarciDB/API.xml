@@ -8,6 +8,7 @@
     <Script file="Processor.lua"/>
     <Script file="Color.lua"/>
     <Script file="ScrollFrame.lua"/>
+    <Script file="ItemCache.lua"/>
     <Script file="TooltipParser.lua"/>
     <Script file="TooltipParser_Old.lua"/>
     <Script file="TransmogDataProvider.lua"/>

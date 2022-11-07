@@ -97,7 +97,7 @@ local function Tooltip_UpdatePixel(tooltip)
 end
 
 local function CreateTooltip()
-    local tooltip = CreateFrame("Frame", "TT", NarciMiniTalentTree, "NarciTalentTreeTraitTooltipTemplate");
+    local tooltip = CreateFrame("Frame", nil, NarciMiniTalentTree, "NarciTalentTreeTraitTooltipTemplate");
     Tooltip_UpdatePixel(tooltip);
     tooltip:SetFixedFrameStrata(true);
     tooltip:SetFrameStrata("TOOLTIP");

@@ -741,8 +741,8 @@
 						self.escapeKey = "ESCAPE";
 					</OnLoad>
 					<OnKeyDown>
-						if (key == self.escapeKey or key == "F5") and (not Narci.UserIsInputing) then		--ConsolePort "Back"
-							Narci_KeyListener_OnEscapePressed();
+						if (key == self.escapeKey) and (not Narci.UserIsInputing) then
+							Narci_KeyListener_OnEscapePressed(self);
 						end
 					</OnKeyDown>
 				</Scripts>

@@ -27,6 +27,7 @@ end
 
 function NarciScreenshotToolbarTransmogListMixin:OnHide()
     self:SetScript("OnUpdate", nil);
+    self:SetSize(COLLAPSED_WIDTH, COLLAPSED_HEIGHT);
 end
 
 function NarciScreenshotToolbarTransmogListMixin:OnEvent()

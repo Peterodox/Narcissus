@@ -5,10 +5,9 @@ end
 local L = Narci.L
 local S = Narci.L.S;
 
-NARCI_GRADIENT = "|cffA236EFN|r|cff9448F1a|r|cff865BF2r|r|cff786DF4c|r|cff6A80F6i|r|cff5D92F7s|r|cff4FA4F9s|r|cff41B7FAu|r|cff33C9FCs|r"
-MYMOG_GRADIENT = "|cffA236EFM|cff9448F1y |cff865BF2T|cff786DF4r|cff6A80F6a|cff5D92F7n|cff4FA4F9s|cff41B7FAm|cff33C9FCo|cff32c9fbg|r"
+NARCI_GRADIENT = "|cffA236EFN|r|cff9448F1a|r|cff865BF2r|r|cff786DF4c|r|cff6A80F6i|r|cff5D92F7s|r|cff4FA4F9s|r|cff41B7FAu|r|cff33C9FCs|r";
 
-NARCI_DEVELOPER_INFO = "Diseñado por Peterodox";
+L["Developer Info"] = "Diseñado por Peterodox";
 
 NARCI_NEW_ENTRY_PREFIX = "|cff40C7EB";
 NARCI_COLOR_GREY_85 = "|cffd8d8d8";
@@ -82,7 +81,7 @@ L["TopQuality Button Tooltip Close"] = "Restaurar la configuración de gráficos
 L["Heritage Armor"] = "Armadura dinástica";
 L["Secret Finding"] = "Hallazgo secreto";
 
-NARCI_HEART_QUOTE_1 = "Lo esencial es invisible a los ojos.";
+L["Heart Azerite Quote"] = "Lo esencial es invisible a los ojos.";
 
 --Title Manager--
 L["Open Title Manager"] = "Abir administrador de titulos";
@@ -105,7 +104,6 @@ L["Minimap Tooltip Set Scale"] = "Set Scale: |cffffffff/narci [scale 0.8~1.2]";
 L["Corrupted Item Parser"] = "|cffffffffToggle Corrupted Item Parser|r";
 L["Toggle Dressing Room"] = "|cffffffffToggle "..DRESSUP_FRAME.."|r";
 
-NARCI_CLIPBOARD = "Portapapeles";
 L["Layout"] = "Diseño";
 L["Symmetry"] = "Simetrico";
 L["Asymmetry"] = "Asimetrico";
@@ -115,17 +113,13 @@ L["Plain Text"] = "Texto sin formato";
 L["BB Code"] = "BB Code";
 L["Markdown"] = "Markdown";
 L["Export Includes"] = "Exportación incluye...";
-NARCI_ITEM_ID = "Item ID";
 
 L["3D Model"] = "Modelo 3D";
-NARCI_EQUIPMENTSLOTS = "Ranuras de equipo";
+L["Equipment Slots"] = "Ranuras de equipo";
 
 --Preferences--
-
-NARCI_PHOTO_MODE = L["Modo foto"];
-NARCI_OVERRIDE = "Anular";
-NARCI_INVALID_KEY = "Combinación de teclas no válida.";
-NARCI_REQUIRE_RELOAD = NARCI_COLOR_RED_MILD.. "Es necesario recargar la UI.|r";
+L["Override"] = "Anular";
+L["Invalid Key"] = "Combinación de teclas no válida.";
 
 L["Preferences"] = "Preferencias";
 L["Preferences Tooltip"] = "Click para abrir el panel de preferencias.";
@@ -242,18 +236,14 @@ L["Addtional Info"] = "Información adicional";
 L["Item ID"] = "Item ID";
 
 --Model Control--
-NARCI_STAND_IDLY = "Permanecer inactivo";
-NARCI_RANGED_WEAPON = "Arma a distancia";
-NARCI_MELEE_WEAPON = "Arma cuerpo a cuerpo";
-NARCI_SPELLCASTING = "Lanzamiento de hechizos";
-NARCI_ANIMATION_ID = "Animation ID";
-NARCI_LINK_LIGHT_SETTINGS = "Link fuentes de luz";
-NARCI_LINK_MODEL_SCALE = "Link escalas de modelo";
-NARCI_GROUP_PHOTO_AVAILABLE = "Ahora disponible en Narcissus";
-NARCI_GROUP_PHOTO_NOTIFICATION = "Por favor, selecciona un objetivo.";
-NARCI_GROUP_PHOTO_STATUS_HIDDEN = "Oculto";
-NARCI_DIRECTIONAL_AMBIENT_LIGHT = "Luz direccional/ambiental";
-NARCI_DIRECTIONAL_AMBIENT_LIGHT_TOOLTIP = "Cambia entre:\n- luz direccional que puede ser bloqueada por un objeto y proyectar sombras\n- luz ambiental que influye en todo el modelo";
+L["Ranged Weapon"] = "Arma a distancia";
+L["Melee Animation"] = "Arma cuerpo a cuerpo";
+L["Spellcasting"] = "Lanzamiento de hechizos";
+L["Link Light Sources"] = "Link fuentes de luz";
+L["Link Model Scales"] = "Link escalas de modelo";
+L["Hidden"] = "Oculto";
+L["Light Types"] = "Luz direccional/ambiental";
+L["Light Types Tooltip"] = "Cambia entre:\n- luz direccional que puede ser bloqueada por un objeto y proyectar sombras\n- luz ambiental que influye en todo el modelo";
 
 L["Group Photo"] = "Foto de grupo";
 L["Reset"] = "Reiniciar";
@@ -379,8 +369,8 @@ L["Don't Update Talents"] = "No actualizar talentos";
 L["Old Icon"] = "Icono antiguo";
 L["NavBar Saved Sets"] = "Guardado:";   --A Saved Equipment Set
 L["NavBar Incomplete Sets"] = INCOMPLETE;
-NARCI_ICON_SELECTOR = "Selector de iconos";
-NARCI_DELETE_SET_WITH_LONG_CLICK = "Eliminar conjunto\n|cff808080(click and hold)|r";
+L["Icon Selector"] = "Selector de iconos";
+L["Delete Equipment Set Tooltip"] = "Eliminar conjunto\n|cff808080(click and hold)|r";
 
 --Corruption System
 L["Corruption System"] = "Corruption";
@@ -474,7 +464,7 @@ L["Guide NPC Browser Line1"] = "Notable NPCs are listed in the catalog below.\nY
 
     
 --Splash--
-NARCI_SPLASH_WHATS_NEW_FORMAT = "Novedades en Narcissus %s";
+L["Splash Whats New Format"] = "Novedades en Narcissus %s";
 L["See Ads"] = "Ver los anuncios de nuestro auténtico patrocinador";    --Not real ads!
 L["Splash Category1"] = L["Modo foto"];
 L["Splash Content1 Name"] = "Buscador de armas";
@@ -492,14 +482,6 @@ L["Splash Content6 Name"] = "Nexo de almas";
 L["Splash Content6 Description"] = "-Se ha actualizado la interfaz de usuario de los nexos de almas. Puedes comprobar los efectos de los conductos de los rangos superiores.";
 L["Splash Content7 Name"] = "Visuals";
 L["Splash Content7 Description"] = "-El borde del elemento hexagonal adquiere un nuevo aspecto. Ciertos items tienen apariencias únicas.";
-
---Project Details--
-NARCI_ALL_PROJECTS = "Todos los proyectos:";
-NARCI_PROJECT_DETAILS = "|cFFFFD100Desarrollador: Peterodox\nFecha de lanzamiento: Junio 2, 2022|r\n\n¡Gracias por probar este complemento! Si tienes algún problema, sugerencia o idea, deja un comentario en la página de Curseforge o contáctame en...";
-NARCI_PROJECT_AAA_TITLE = "|cff008affA|cff0d8ef2z|cff1a92e5e|cff2696d9r|cff339acco|cff409ebft|cff4da1b2h |cff59a5a6A|cff66a999d|cff73ad8cv|cff7fb180e|cff8cb573n|cff99b966t|cffa6bd59u|cffb2c14dr|cffbfc440e |cffccc833A|cffd9cc26l|cffe5d01ab|cfff2d40du|cffffd800m|r";
-NARCI_PROJECT_AAA_SUMMARY = "Explora lugares de interés, recopila historias y fotos de todo Azeroth.|cff636363";
-NARCI_PROJECT_NARCISSUS_SUMMARY = "Un panel de personajes inmersivo y tu herramienta de captura de pantalla definitiva.";
-
 
 --Credits--
 L["Credit List Extra"] = "Marlamin | WoW.tools\nKeyboardturner | Avid Bug Finder(Generator)\nHubbotu | Translator - Russian\nRomanv  | Translator - Spanish\nMeorawr | Wondrous Wisdomball";

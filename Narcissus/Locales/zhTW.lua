@@ -48,15 +48,15 @@ L["TopQuality Button Tooltip Close"] = "點一下恢復畫面設定。";
 L["Heritage Armor"] = "經典護甲";
 L["Secret Finding"] = "秘密發現"
 
-HEART_QUOTE_1 = "眼睛看不到的也非常重要。";
+L["Heart Azerite Quote"] = "眼睛看不到的也非常重要。";
 
 --Title Manager--
 L["Open Title Manager"] = "開啟頭銜管理員";
 L["Close Title Manager"] = "關閉頭銜管理員";
 
 --Alias--
-NARCI_ALIAS_USE_ALIAS = "切換成暱稱"
-NARCI_ALIAS_USE_PLAYER_NAME = "切換成"..CALENDAR_PLAYER_NAME;
+L["Use Alias"] = "切換成暱稱"
+L["Use Player Name"] = "切換成玩家名稱";
 
 L["Minimap Tooltip Double Click"] = "按兩下";
 L["Minimap Tooltip Left Click"] = "左鍵|r";
@@ -70,7 +70,6 @@ L["Minimap Tooltip Set Scale"] = "設定縮放大小: |cffffffff/narci [大小�
 L["Corrupted Item Parser"] = "|cffffffff開啟腐化物品鏈接解析器|r";
 L["Toggle Dressing Room"] = "|cffffffff開啟"..DRESSUP_FRAME.."|r";
 
-NARCI_CLIPBOARD = "剪貼板";
 L["Layout"] = "版面配置";
 L["Symmetry"] = "對稱";
 L["Asymmetry"] = "不對稱";
@@ -78,10 +77,9 @@ L["Copy Texts"] = "複製文字";
 L["Syntax"] = "句法";
 L["Plain Text"] = "純文字";
 L["Export Includes"] = "同時導出...";
-NARCI_ITEM_ID = "物品ID";
 
 L["3D Model"] = "3D模組";
-NARCI_EQUIPMENTSLOTS = "裝備欄";
+L["Equipment Slots"] = "裝備欄";
 
 --Preferences--
 L["Interface"] = "介面";
@@ -99,8 +97,8 @@ L["Text Width"] = "文字寬度";
 L["Hotkey"] = "快捷鍵";
 L["Double Tap"] = "按兩下打開";
 L["Double Tap Description"] = "連按兩下打開角色面板的快捷鍵來打開此模組。"
-NARCI_OVERRIDE = "是否覆蓋";
-NARCI_INVALID_KEY = "無效的值";
+L["Override"] = "是否覆蓋";
+L["Invalid Key"] = "無效的值";
 L["Minimap Button"] = "小地圖按鈕";
 L["Shortcuts"] = "快捷方式";
 L["Image Filter"] = "濾鏡";
@@ -136,7 +134,6 @@ L["Gemma"] = "\"Gemma\"";
 L["Gemma Description"] = "在妳為壹件物品鑲嵌寶石時，顯示可用的寶石列表。";
 L["Dressing Room"] = "試衣間";
 L["Dressing Room Description"] = "增大試衣間窗口大小，並使妳能夠通過試衣間瀏覽、復制其他玩家的幻化調料包。";
-NARCI_REQUIRE_RELOAD = "|cffff5050需要重載UI才能使設置生效。|r";
 L["Show Detailed Stats"] = "顯示詳盡的屬性信息";
 L["Tooltip Color"] = "小提示顏色";
 L["Entrance Visual"] = "登場效果";
@@ -195,20 +192,14 @@ L["Conduit Tooltip"] = "顯示更高級別的靈印效果";
 L["Domination Indicator"] = "統御裂片指示器";
 
 --Model Control--
-NARCI_STAND_IDLY = "站立狀態";
-NARCI_RANGED_WEAPON = "遠程武器";
-NARCI_MELEE_WEAPON = "近戰武器";
-NARCI_SPELLCASTING = "施法動作";
-NARCI_ANIMATION_ID = "動畫ID";
-NARCI_GROUND_SHADOW = "模擬地面陰影";
-NARCI_HIDE_PLAYER = "隱藏玩家自身";
-NARCI_LINK_LIGHT_SETTINGS = "關聯燈光設定";
-NARCI_LINK_MODEL_SCALE = "關聯模組比例";
-NARCI_GROUP_PHOTO_AVAILABLE = "現已加入Narcissus模組";
-NARCI_GROUP_PHOTO_NOTIFICATION = "請選擇壹個目標。";
-NARCI_GROUP_PHOTO_STATUS_HIDDEN = "隱藏";
-NARCI_DIRECTIONAL_AMBIENT_LIGHT = "平行光/環境光";
-NARCI_DIRECTIONAL_AMBIENT_LIGHT_TOOLTIP = "在以下兩種燈光間切換：\n- 可以被模組遮擋並投射陰影的平行光\n- 影響整個模組表面的環境光";
+L["Ranged Weapon"] = "遠程武器";
+L["Melee Animation"] = "近戰武器";
+L["Spellcasting"] = "施法動作";
+L["Link Light Sources"] = "關聯燈光設定";
+L["Link Model Scales"] = "關聯模組比例";
+L["Hidden"] = "隱藏";
+L["Light Types"] = "平行光/環境光";
+L["Light Types Tooltip"] = "在以下兩種燈光間切換：\n- 可以被模組遮擋並投射陰影的平行光\n- 影響整個模組表面的環境光";
 
 L["Group Photo"] = "合影模式";
 L["Reset"] = "重置";
@@ -316,8 +307,8 @@ L["Don't Update Talents"] = "不要更新天賦";
 L["Old Icon"] = "舊圖示";
 L["NavBar Saved Sets"] = "已保存";
 L["NavBar Incomplete Sets"] = "不完整";
-NARCI_ICON_SELECTOR = "圖示清單";
-NARCI_DELETE_SET_WITH_LONG_CLICK = "刪除此套裝\n|cff808080(按住左鍵)|r";
+L["Icon Selector"] = "圖示清單";
+L["Delete Equipment Set Tooltip"] = "刪除此套裝\n|cff808080(按住左鍵)|r";
 
 --Corruption System
 L["Corruption System"] = "腐化裝備";
@@ -413,7 +404,7 @@ L["Minimap button has been hidden. You may type /Narci minimap to re-enable it."
 L["Minimap button has been re-enabled."] = "小地圖按鈕已經重新啟用。"
 
 --Splash--
-NARCI_SPLASH_WHATS_NEW_FORMAT = "Narcissus %s ".."更新内容";
+L["Splash Whats New Format"] = "Narcissus %s ".."更新内容";
 L["Splash Category1"] = "照片模式";
 L["Splash Content1 Name"] = "添加文字";
 L["Splash Content1 Description"] = "-妳可以在合影模式中創建聊天氣泡，talking heads和字幕。";
@@ -436,10 +427,7 @@ L["Splash Content8 Name"] = "小地圖按鈕";
 L["Splash Content8 Description"] = "按住Shift並拖動此按鈕可使其脫離小地圖。";
 
 --Project Details--
-NARCI_ALL_PROJECTS = "全部項目";
-NARCI_PROJECT_DETAILS = "|cFFFFD100模組作者: Peterodox\n更新日期: 2022.6.26|r\n\n感謝妳使用此模組！如果妳遇到任何問題，或者有任何想法或建議，請在CurseForge項目主頁上留言，或者在以下網站上聯系我。";
-NARCI_PROJECT_AAA_SUMMARY = "探索艾澤拉斯上的不同景點，並收集各種故事和照片。";
-NARCI_PROJECT_NARCISSUS_SUMMARY = "沈浸式角色面板；妳最好的截圖助手。"
+L["AboutTab Developer Note"] = "感謝妳使用此模組！如果妳遇到任何問題，或者有任何想法或建議，請在CurseForge項目主頁上留言，或者在以下網站上聯系我。";
 
 --Conversation--
 L["Q1"] = "這是什麽？";

@@ -1,4 +1,4 @@
---Coutesy of ZamestoTV. Thank you!    --Translator: ZamestoTV as of 1.2.7
+--Coutesy of ZamestoTV. Thank you!    --Translator: ZamestoTV as of 1.3.1
 
 if not (GetLocale() == "ruRU") then
     return;
@@ -7,10 +7,9 @@ end
 local L = Narci.L;
 local S = Narci.L.S;
 
-NARCI_GRADIENT = "|cffA236EFN|r|cff9448F1a|r|cff865BF2r|r|cff786DF4c|r|cff6A80F6i|r|cff5D92F7s|r|cff4FA4F9s|r|cff41B7FAu|r|cff33C9FCs|r"
-MYMOG_GRADIENT = "|cffA236EFM|cff9448F1y |cff865BF2T|cff786DF4r|cff6A80F6a|cff5D92F7n|cff4FA4F9s|cff41B7FAm|cff33C9FCo|cff32c9fbg|r"
+NARCI_GRADIENT = "|cffA236EFN|r|cff9448F1a|r|cff865BF2r|r|cff786DF4c|r|cff6A80F6i|r|cff5D92F7s|r|cff4FA4F9s|r|cff41B7FAu|r|cff33C9FCs|r";
 
-NARCI_DEVELOPER_INFO = "Developed by Peterodox";
+L["Developer Info"] = "Developed by Peterodox";
 
 NARCI_NEW_ENTRY_PREFIX = "|cff40C7EB";
 NARCI_COLOR_GREY_85 = "|cffd8d8d8";
@@ -36,7 +35,7 @@ if IsMacClient() then
     NARCI_SHORTCUTS_COPY = "Команда+C";
 end
 
-NARCI_WORDBREAK_COMMA = ", ";		
+NARCI_WORDBREAK_COMMA = ", ";
 					 
 --Date--
 L["Today"] = COMMUNITIES_CHAT_FRAME_TODAY_NOTIFICATION;
@@ -88,7 +87,7 @@ L["Toolbar Preferences Button Tooltip"] = "Открыть панель наст�
 L["Heritage Armor"] = "Традиционные Доспехи";
 L["Secret Finding"] = "Секретная Находка"
 
-NARCI_HEART_QUOTE_1 = "то, что существенно, невидимо для глаза.";
+L["Heart Azerite Quote"] = "то, что существенно, невидимо для глаза.";
 
 --Title Manager--
 L["Open Title Manager"] = "Открыть Меню Титулов";
@@ -111,7 +110,6 @@ L["Minimap Tooltip Set Scale"] = "Установите Масштаб: |cfffffff
 L["Corrupted Item Parser"] = "|cffffffffПереключить парсер порченого предмета|r";
 L["Toggle Dressing Room"] = "|cffffffffПереключить на "..DRESSUP_FRAME.."|r";
 
-NARCI_CLIPBOARD = "Буфер Обмена";
 L["Layout"] = "Место";
 L["Symmetry"] = "Симметрия";
 L["Asymmetry"] = "Асимметрия";
@@ -121,17 +119,13 @@ L["Plain Text"] = "Обычный Текст";
 L["BB Code"] = "BB Code";
 L["Markdown"] = "Снижение";
 L["Export Includes"] = "Экспорт Включает В Себя...";
-NARCI_ITEM_ID = "ID Предмета";
 
 L["3D Model"] = "3D Модель";
-NARCI_EQUIPMENTSLOTS = "Слоты Экипировки";
+L["Equipment Slots"] = "Слоты Экипировки";
 
 --Preferences--
-
-NARCI_PHOTO_MODE = L["Фото Режим"];
-NARCI_OVERRIDE = "Переопределение";
-NARCI_INVALID_KEY = "Недопустимая комбинация клавиш.";
-NARCI_REQUIRE_RELOAD = NARCI_COLOR_RED_MILD.. "Требуется перезагрузка пользовательского интерфейса.|r";
+L["Override"] = "Переопределение";
+L["Invalid Key"] = "Недопустимая комбинация клавиш.";
 
 L["Preferences"] = "Предпочтения";
 L["Preferences Tooltip"] = "Нажмите, чтобы открыть рамку предпочтений.";
@@ -217,17 +211,17 @@ L["Find Relatives"] = "Найти Родственников";
 L["Find Related Creatures Description"] = "Поиск НПС с одной и той же фамилией.";
 L["Find Relatives Hotkey Format"] = "Нажмите %s чтобы найти родственников.";
 L["Translate Names"] = "Перевод Имен";
-L["Translate Names Description On"] = "Показать переведенное название НПС на...";
-L["Translate Names Description Off"] = "";
-L["Select Language Single"] = "Выбранный язык:";
-L["Select Multiple Languages"] = "Выбранные языки:";
+L["Translate Names Description"] = "Показывать переведенные имена вкл.";
+L["Translate Names Languages"] = "Перевести на";
+L["Select Language Single"] = "Выберите один язык для отображения на табличках с именами";
+L["Select Language Multiple"] = "Выберите языки для отображения во всплывающей подсказке";
 L["Load on Demand"] = "Загрузка по требованию";
 L["Load on Demand Description On"] = "Не загружайте базу данных до тех пор, пока не воспользуетесь функциями поиска.";
 L["Load on Demand Description Off"] = "Загрузите базу данных существ при входе в систему.";
 L["Load on Demand Description Disabled"] = NARCI_COLOR_YELLOW.. "Этот переключатель заблокирован, потому что вы включили всплывающую подсказку существа.";
 L["Tooltip"] = "Подсказка";
 L["Name Plate"] = "Табличка с именем";
-L["Y Offset"] = "Смещение Y";
+L["Offset Y"] = "Смещение Y";
 L["Sceenshot Quality"] = "Качество Скриншота";
 L["Screenshot Quality Description"] = "Более высокое качество приводит к большему размеру файла.";
 L["Camera Movement"] = "Движение камеры";
@@ -257,18 +251,14 @@ L["Project Page"] = "Страница проекта";
 L["Press Copy Yellow"] = "Нажмите |cffffd100".. NARCI_SHORTCUTS_COPY .."|r для копирования";
 
 --Model Control--
-NARCI_STAND_IDLY = "Без Оружия";
-NARCI_RANGED_WEAPON = "Дальний бой";
-NARCI_MELEE_WEAPON = "Ближний бой";
-NARCI_SPELLCASTING = "Заклинание";
-NARCI_ANIMATION_ID = "ID Анимации";
-NARCI_LINK_LIGHT_SETTINGS = "Настройки Освещения";
-NARCI_LINK_MODEL_SCALE = "Масштаб Модели";
-NARCI_GROUP_PHOTO_AVAILABLE = "Теперь доступен в Narcissus";
-NARCI_GROUP_PHOTO_NOTIFICATION = "Пожалуйста, выберите цель.";
-NARCI_GROUP_PHOTO_STATUS_HIDDEN = "Скрыть";
-NARCI_DIRECTIONAL_AMBIENT_LIGHT = "Направленный/Рассеянный Свет";
-NARCI_DIRECTIONAL_AMBIENT_LIGHT_TOOLTIP = "Переключение между ними\n- Направленный свет, который может быть заблокирован объектом и отбрасывать тень\n- Рассеянный свет, который влияет на всю модель";
+L["Ranged Weapon"] = "Дальний бой";
+L["Melee Animation"] = "Ближний бой";
+L["Spellcasting"] = "Заклинание";
+L["Link Light Sources"] = "Настройки Освещения";
+L["Link Model Scales"] = "Масштаб Модели";
+L["Hidden"] = "Скрыть";
+L["Light Types"] = "Направленный/Рассеянный Свет";
+L["Light Types Tooltip"] = "Переключение между ними\n- Направленный свет, который может быть заблокирован объектом и отбрасывать тень\n- Рассеянный свет, который влияет на всю модель";
 
 L["Group Photo"] = "Групповое фото";
 L["Reset"] = "Сброс";
@@ -394,8 +384,8 @@ L["Don't Update Talents"] = "Не обновляйте таланты";
 L["Old Icon"] = "Старая Иконка";
 L["NavBar Saved Sets"] = "Сохранено";   --A Saved Equipment Set
 L["NavBar Incomplete Sets"] = INCOMPLETE;
-NARCI_ICON_SELECTOR = "Переключатель Иконок";
-NARCI_DELETE_SET_WITH_LONG_CLICK = "Удалить Набор\n|cff808080(нажмите и удерживайте кнопку)|r";
+L["Icon Selector"] = "Переключатель Иконок";
+L["Delete Equipment Set Tooltip"] = "Удалить Набор\n|cff808080(нажмите и удерживайте кнопку)|r";
 
 --Corruption System
 L["Corruption System"] = "Порча";
@@ -507,7 +497,7 @@ L["Guide NPC Browser Line1"] = "Известные НПС перечислены
 
 
 --Splash--
-NARCI_SPLASH_WHATS_NEW_FORMAT = "Что нового в Narcissus %s";
+L["Splash Whats New Format"] = "Что нового в Narcissus %s";
 L["See Ads"] = "Смотрите рекламу от нашего подлинного спонсора";    --Not real ads!
 L["Splash Category1"] = L["Фото Режим"];
 L["Splash Content1 Name"] = "Оружие";
@@ -527,11 +517,6 @@ L["Splash Content7 Name"] = "Визуальные эффекты";
 L["Splash Content7 Description"] = "-Граница шестиугольника приобретает новый вид. Некоторые предметы имеют уникальный внешний вид.";
 
 --Project Details--
-NARCI_ALL_PROJECTS = "Все проекты";
-NARCI_PROJECT_AAA_TITLE = "|cff008affA|cff0d8ef2z|cff1a92e5e|cff2696d9r|cff339acco|cff409ebft|cff4da1b2h |cff59a5a6A|cff66a999d|cff73ad8cv|cff7fb180e|cff8cb573n|cff99b966t|cffa6bd59u|cffb2c14dr|cffbfc440e |cffccc833A|cffd9cc26l|cffe5d01ab|cfff2d40du|cffffd800m|r";
-NARCI_PROJECT_AAA_SUMMARY = "Исследуйте достопримечательности и собирайте знания и фотографии со всего Азерота.|cff636363";
-NARCI_PROJECT_NARCISSUS_SUMMARY = "Захватывающая панель персонажа и ваш лучший скриншот.";
-
 L["AboutTab Developer Note"] = "Спасибо, что попробовали этот аддон! Если у вас есть какие-либо вопросы, предложения, идеи, оставьте комментарий на странице curseforge или свяжитесь со мной по...";
 
 
@@ -592,7 +577,8 @@ L["No Other Item For Slot"] = "Нет другого предмета для %s"
 L["In Bags"] = "В сумках";
 L["Item Socketing Tooltip"] = "Нажмите и удерживайте, чтобы вставить";
 L["No Available Gem"] = "|cffd8d8d8Нет доступных камней|r";
-
+L["Missing Enchant Alert"] = "Предупреждение об отсутствии чар";
+L["Missing Enchant"] = NARCI_COLOR_RED_MILD.."Без чар".."|r";													 
 --Statistics--
 S["Narcissus Played"] = "Общее время, проведенное в Narcissus";
 S["Format Since"] = "(на %s)";
@@ -643,3 +629,20 @@ L["Origin Outfits"] = "Оригинальные наряды";
 L["Outfit Owner Format"] = "%s's наряды";
 L["SortMethod Recent"] = "Недавний";
 L["SortMethod Name"] = "Название";
+
+--Tooltip Match Format--
+--L["Find Cooldown"] = " перезарядка";
+--L["Find Recharge"] = " перезарядка";
+
+
+--Talent Tree--
+L["Mini Talent Tree"] = "Мини-дерево талантов";
+L["Show Talent Tree When"] = "Показать дерево талантов, когда вы...";
+L["Show Talent Tree Paperdoll"] = "Открыть бумажную куклу";
+L["Show Talent Tree Inspection"] = "Осмотреть других игроков";
+L["Truncate Talent Description"] = "Сокращенное описание таланта";
+L["Appearance"] = "вид";
+L["Use Class Background"] = "Использовать фон класса";
+L["Empty Loadout Name"] = "Имя";
+L["No Save Slot Red"] = NARCI_COLOR_RED_MILD.. "Нет слота для сохранения" .."|r";
+L["Save"] = "Сохранить";		

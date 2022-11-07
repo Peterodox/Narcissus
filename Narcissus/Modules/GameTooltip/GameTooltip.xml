@@ -192,7 +192,7 @@
                 </Layers>
             </Frame>
             <Frame parentKey="FlavorTextFrame" hidden="true"/>
-            <DressUpModel parentKey="ItemModel" hidden="true" useParentLevel="true" ignoreParentAlpha="false">
+            <DressUpModel parentKey="ItemModel" hidden="true" useParentLevel="true" ignoreParentAlpha="true">
                 <Size x="78" y="102"/>
                 <Anchors>
                     <Anchor point="BOTTOMRIGHT" relativeKey="$parent.HeaderFrame" relativePoint="BOTTOMRIGHT" x="-24" y="1"/>
@@ -206,8 +206,8 @@
                 </Layers>
                 <Animations>
                     <AnimationGroup parentKey="FadeIn">
-                        <Alpha fromAlpha="0" toAlpha="0" duration="1" order="1" parentKey="Hold"/>
-                        <Alpha fromAlpha="0" toAlpha="1" duration="0.25" order="2"/>
+                        <Alpha fromAlpha="0" toAlpha="0" duration="0" order="1"/>
+                        <Alpha startDelay="0.1" fromAlpha="0" toAlpha="1" duration="0.2" order="2"/>
                     </AnimationGroup>
                 </Animations>
             </DressUpModel>

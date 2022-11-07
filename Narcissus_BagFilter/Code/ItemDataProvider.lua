@@ -10,7 +10,7 @@ local gsub = string.gsub;
 local match = string.match;
 local find = string.find;
 
-local GetContainerItemID = GetContainerItemID;
+local GetContainerItemID = (C_Container and C_Container.GetContainerItemID) or GetContainerItemID;
 local GetItemSpell = GetItemSpell;
 
 local IsCosmeticItem = IsCosmeticItem;
@@ -34,12 +34,25 @@ local ANY_COSMETIC = false;
 local ANY_TELE = false;
 
 
-local TP, KeyLine;
+local GetBagItemSubText;
+
 do
-    local tooltipName = "NarciItemSubTextUtilityTooltip";
-    TP = _G[tooltipName];
-    TP:SetOwner(UIParent, "ANCHOR_NONE");
-    KeyLine = _G[tooltipName.."TextLeft2"];
+    if C_TooltipInfo then
+        GetBagItemSubText = NarciAPI.GetBagItemSubText;
+
+    else
+        local tooltipName = "NarciItemSubTextUtilityTooltip";
+        local TP = _G[tooltipName];
+        TP:SetOwner(UIParent, "ANCHOR_NONE");
+        local KeyLine = _G[tooltipName.."TextLeft2"];
+
+        local function GetSubText(bag, slot)
+            TP:SetBagItem(bag, slot);
+            return KeyLine:GetText();
+        end
+
+        GetBagItemSubText = GetSubText;
+    end
 end
 
 
@@ -105,15 +118,13 @@ function DataProvider:CacheBagItem(bag, slot)
         end
 
         if not ItemIDXTypeID[itemID] then
-            TP:SetBagItem(bag, slot);
-            local text = KeyLine:GetText();
-            local typeID;
-
+            local text = GetBagItemSubText(bag, slot);
             if text then
                 if text == "" then
                     --print("Not Cached", bag, slot)
                     return false
                 else
+                    local typeID;
                     if not IGNORED_ITEMS[itemID] then
                         if KNOWN_TYPES[text] then
                             if not SubTextXTypeID[text] then

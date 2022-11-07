@@ -333,12 +333,13 @@ NarciEquipmentSetIconSelectorMixin = {};
 
 function NarciEquipmentSetIconSelectorMixin:OnLoad()
     ESM.IconSelector = self;
+    self.Header:SetText(Narci.L["Icon Selector"]);
 end
 
 function NarciEquipmentSetIconSelectorMixin:OnHide()
     self:Hide();
     self:SetAlpha(0);
-    self.Header:SetText(NARCI_ICON_SELECTOR);
+    self.Header:SetText(Narci.L["Icon Selector"]);
 end
 
 function NarciEquipmentSetIconSelectorMixin:Load()

@@ -2301,77 +2301,135 @@ end
 --------------------
 --Build Name Table--
 --------------------
-local VirtualTooltipName = "Narci_CreatureNameRetriever";
-local NPCTooltipName = "Narci_NPCSearchBoxTooltip";
-local UIParent = UIParent;
-local VirtualTooltip = CreateFrame("GameTooltip", VirtualTooltipName, UIParent, "GameTooltipTemplate");
-VirtualTooltip:SetScript("OnTooltipAddMoney", nil);
-VirtualTooltip:SetScript("OnTooltipCleared", nil);
-
-local lineName = _G[VirtualTooltipName.. "TextLeft1"];
-local lineTitle = _G[VirtualTooltipName.. "TextLeft2"];
-
-local NARCI_NPC_BROWSER_TITLE_LEVEL = NARCI_NPC_BROWSER_TITLE_LEVEL;      --"Level ??"
-
 local find = string.find;
-local function IsTooltipLineTitle(text)
-    if not text then
-        return false
+local NARCI_NPC_BROWSER_TITLE_LEVEL = NARCI_NPC_BROWSER_TITLE_LEVEL;      --"Level ??"
+local EMBEDED_TOOLTIP_NAME = "Narci_NPCSearchBoxTooltip";
+
+local CreatureInfoUtil = {};
+
+do
+    if C_TooltipInfo and C_TooltipInfo.GetHyperlink then
+        local GetInfoByHyperlink = C_TooltipInfo.GetHyperlink;
+
+        local function GetLineText(lines, index)
+            if lines[index] and lines[index].args then
+                return lines[index].args[2].stringVal;
+            end
+        end
+
+        function CreatureInfoUtil:RequestInfo(creatureID)
+            if not creatureID then return end;
+            GetInfoByHyperlink("unit:Creature-0-0-0-0-"..creatureID);
+        end
+
+        function CreatureInfoUtil:RequestInfoFromList(list)
+            local func = GetInfoByHyperlink;
+            for creatureID, v in pairs(list) do
+                func("unit:Creature-0-0-0-0-"..creatureID);
+            end
+        end
+
+        function CreatureInfoUtil:GetName(creatureID)
+            if not creatureID then return end;
+            local tooltipData = GetInfoByHyperlink("unit:Creature-0-0-0-0-"..creatureID);
+            if tooltipData then
+                return GetLineText(tooltipData.lines, 1);
+            end
+        end
+
+        function CreatureInfoUtil:GetTitle(creatureID)
+            if not creatureID then return end;
+            local tooltipData = GetInfoByHyperlink("unit:Creature-0-0-0-0-"..creatureID);
+            if tooltipData then
+                local text = GetLineText(tooltipData.lines, 2);
+                if text and (not (find(text, "%?") or find(text, NARCI_NPC_BROWSER_TITLE_LEVEL))) then
+                    return text
+                end
+            end
+        end
+
+        function CreatureInfoUtil:GetNameAndTitle(creatureID)
+            if not creatureID then return end;
+            local tooltipData = GetInfoByHyperlink("unit:Creature-0-0-0-0-"..creatureID);
+            if tooltipData then
+                local nameText = GetLineText(tooltipData.lines, 1);
+                if find(nameText, "%?") then
+                    return {nameText}, false
+                end
+                local titleText = GetLineText(tooltipData.lines, 2);
+                if titleText and (find(titleText, "%?") or find(titleText, NARCI_NPC_BROWSER_TITLE_LEVEL)) then
+                    titleText = nil;
+                end
+                return {nameText, titleText}, nameText == ""
+            else
+                return {""}, true
+            end
+        end
+
     else
-        return not (find(text, "%?") or find(text, NARCI_NPC_BROWSER_TITLE_LEVEL))--"Level %d"
-    end
-end
+        --Old Method
+        local VirtualTooltipName = "Narci_CreatureNameRetriever";
+        local UIParent = UIParent;
+        local VirtualTooltip = CreateFrame("GameTooltip", VirtualTooltipName, UIParent, "GameTooltipTemplate");
+        if VirtualTooltip:HasScript("OnTooltipAddMoney") then --dragonflight
+            VirtualTooltip:SetScript("OnTooltipAddMoney", nil);
+        end
+        if VirtualTooltip:HasScript("OnTooltipCleared") then
+            VirtualTooltip:SetScript("OnTooltipCleared", nil);
+        end
+        local lineName = _G[VirtualTooltipName.. "TextLeft1"];
+        local lineTitle = _G[VirtualTooltipName.. "TextLeft2"];
+        
+        local function IsTooltipLineTitle(text)
+            if not text then
+                return false
+            else
+                return not (find(text, "%?") or find(text, NARCI_NPC_BROWSER_TITLE_LEVEL))--"Level %d"
+            end
+        end
+        
+        function CreatureInfoUtil:RequestInfo(creatureID)
+            VirtualTooltip:SetHyperlink("unit:Creature-0-0-0-0-"..creatureID);
+        end
 
-local function GetKeyTable(table)
-    local keys = {};
-    for k, v in pairs(table) do
-        tinsert(keys, k);
-        NUM_NPC_TOTAL = NUM_NPC_TOTAL + 1;
-    end
-    return keys;
-end
-
-local function RequestCreatureInfo(id)
-    VirtualTooltip:SetHyperlink(format("unit:Creature-0-0-0-0-%d", id));
-end
-
-local function RequestAllCreatureInfo(list)
-    for k, v in pairs(list) do
-        VirtualTooltip:SetHyperlink(format("unit:Creature-0-0-0-0-%d", k));
-    end
-end
-
-
-local function GetNPCName(creatureID)
-    VirtualTooltip:SetOwner(UIParent, "ANCHOR_NONE");
-    VirtualTooltip:SetHyperlink(format("unit:Creature-0-0-0-0-%d", creatureID));
-    return lineName:GetText()
-end
-
-local function GetNPCTitle(creatureID)
-    VirtualTooltip:SetOwner(UIParent, "ANCHOR_NONE");
-    VirtualTooltip:SetHyperlink(format("unit:Creature-0-0-0-0-%d", creatureID));
-    if IsTooltipLineTitle(lineTitle:GetText()) then
-        return lineTitle:GetText()
-    else
-        return false
-    end
-end
-
-local TEMP_NAME;
-local function GetNPCNameAndTitle(creatureID)
-    VirtualTooltip:SetOwner(UIParent, "ANCHOR_NONE");
-    VirtualTooltip:SetHyperlink(format("unit:Creature-0-0-0-0-%d", creatureID));
-    TEMP_NAME = lineName:GetText() or "";
-
-    if find(TEMP_NAME, "%?") then
-        return {creatureID}, false
-    end
-
-    if IsTooltipLineTitle(lineTitle:GetText()) then
-        return {TEMP_NAME, lineTitle:GetText()}, (TEMP_NAME == "")
-    else
-        return {TEMP_NAME, nil}, (TEMP_NAME == "")
+        function CreatureInfoUtil:RequestInfoFromList(list)
+            for creatureID, v in pairs(list) do
+                VirtualTooltip:SetHyperlink("unit:Creature-0-0-0-0-"..creatureID);
+            end
+        end
+        
+        function CreatureInfoUtil:GetName(creatureID)
+            VirtualTooltip:SetOwner(UIParent, "ANCHOR_NONE");
+            VirtualTooltip:SetHyperlink("unit:Creature-0-0-0-0-"..creatureID);
+            return lineName:GetText()
+        end
+        
+        function CreatureInfoUtil:GetTitle(creatureID)
+            VirtualTooltip:SetOwner(UIParent, "ANCHOR_NONE");
+            VirtualTooltip:SetHyperlink("unit:Creature-0-0-0-0-"..creatureID);
+            if IsTooltipLineTitle(lineTitle:GetText()) then
+                return lineTitle:GetText()
+            else
+                return false
+            end
+        end
+        
+        local TEMP_NAME;
+        function CreatureInfoUtil:GetNameAndTitle(creatureID)
+            VirtualTooltip:SetOwner(UIParent, "ANCHOR_NONE");
+            VirtualTooltip:SetHyperlink(format("unit:Creature-0-0-0-0-%d", creatureID));
+            TEMP_NAME = lineName:GetText() or "";
+        
+            if find(TEMP_NAME, "%?") then
+                return {creatureID}, false
+            end
+        
+            if IsTooltipLineTitle(lineTitle:GetText()) then
+                return {TEMP_NAME, lineTitle:GetText()}, (TEMP_NAME == "")
+            else
+                return {TEMP_NAME, nil}, (TEMP_NAME == "")
+            end
+        end
     end
 end
 
@@ -2396,7 +2454,7 @@ function FavUtil:Load()
         if isFav then
             self.favNPCs[npcID] = true;
             numFavs = numFavs +1;
-            RequestCreatureInfo(npcID);
+            CreatureInfoUtil:RequestInfo(npcID);
         end
     end
     self.numFavs = numFavs;
@@ -2866,7 +2924,7 @@ local function SetUpMatchButton(button, creatureData, keyword)
             if id ~= button.creatureID then
                 button.creatureID = id;
                 name = creatureData[1];
-                title = GetNPCTitle(id);
+                title = CreatureInfoUtil:GetTitle(id);
                 if title then
                     button.hasTitle = true;
                     button.Name:Show();
@@ -3016,7 +3074,7 @@ local function CreateFavoritesButton()
     local name;
     for npcID, isFav in pairs( FavUtil:GetFavoriteNPCs() ) do
         if isFav then
-            name = GetNPCName(npcID) or "";
+            name = CreatureInfoUtil:GetName(npcID) or "";
             tinsert(matchedIDs, {name, npcID});
         end
     end
@@ -3392,7 +3450,7 @@ local function SearchByName(str)
 
     if numMacthes > 0 then
         for i = 1, numMacthes do
-            GetNPCTitle(matchedIDs[i][2])
+            CreatureInfoUtil:GetTitle(matchedIDs[i][2]);
         end
     end
 
@@ -3446,18 +3504,24 @@ function NarciNPCSearchBoxMixin:OnLoad()
     self.DefaultText:SetText(L["Name or ID"]);
 
     local Tab = Narci_NPCBrowser_MatchTab;
-    local TP = CreateFrame("GameTooltip", NPCTooltipName, Tab, "GameTooltipTemplate");
-    TP.lineName = _G[NPCTooltipName.."TextLeft1"];
+    local TP = CreateFrame("GameTooltip", EMBEDED_TOOLTIP_NAME, Tab, "GameTooltipTemplate");
+    TP.lineName = _G[EMBEDED_TOOLTIP_NAME.."TextLeft1"];
     Tab.NPCTooltip = TP;
     if TP.NiceSlice then
         TP.NiceSlice:Hide();
     elseif TP.SetBackdrop then
         TP:SetBackdrop(nil);
     end
+    if TP:HasScript("OnTooltipAddMoney") then --dragonflight
+        TP:SetScript("OnTooltipAddMoney", nil);
+    end
+    if TP:HasScript("OnTooltipCleared") then
+        TP:SetScript("OnTooltipCleared", nil);
+    end
 
     ---Font
-    TP.TextLeft1 = _G[NPCTooltipName.."TextLeft1"];
-    TP.TextLeft2 = _G[NPCTooltipName.."TextLeft2"];
+    TP.TextLeft1 = _G[EMBEDED_TOOLTIP_NAME.."TextLeft1"];
+    TP.TextLeft2 = _G[EMBEDED_TOOLTIP_NAME.."TextLeft2"];
 end
 
 function NarciNPCSearchBoxMixin:OnMouseWheel(delta)
@@ -3489,7 +3553,7 @@ function NarciNPCSearchBoxMixin:OnTextChanged(isUserInput)
         local id = str;
         if id <= 999999 then
             SearchDelay.creatureID = id;
-            RequestCreatureInfo(id);
+            CreatureInfoUtil:RequestInfo(id);
             DoesCreatureDisplayIDExist(id);     --Query
             StartSearching();
         end
@@ -3528,8 +3592,17 @@ end
 
 ------------------------------------------------------
 local function BuildNPCList()
-    RequestAllCreatureInfo(NPCInfo);
+    CreatureInfoUtil:RequestInfoFromList(NPCInfo);
     CreateButtonsForScrollFrame(BrowserFrame.Container.EntryTab, NUM_MAX_ENTRY_BUTTONS, "NarciNPCButtonWithPortaitTemplate", NPCCard_OnEnter);
+
+    local function GetKeyTable(table)
+        local keys = {};
+        for k, v in pairs(table) do
+            tinsert(keys, k);
+            NUM_NPC_TOTAL = NUM_NPC_TOTAL + 1;
+        end
+        return keys;
+    end
 
     local npcIDList = GetKeyTable(NPCInfo);
     local Loader = CreateFrame("Frame");
@@ -3551,7 +3624,7 @@ local function BuildNPCList()
             end
         end
         id = npcIDList[numLeft];
-        NPCInfo[id][1], shouldQueue = GetNPCNameAndTitle(id);
+        NPCInfo[id][1], shouldQueue = CreatureInfoUtil:GetNameAndTitle(id);
         if shouldQueue then
             if idQueued[id] then
                 numLeft = numLeft - 1;
@@ -3854,7 +3927,7 @@ Utility:SetScript("OnEvent", function(self, event)
     end)
     if event == "PLAYER_ENTERING_WORLD" then
         After(1, function()
-            RequestAllCreatureInfo(AllNPCID);
+            CreatureInfoUtil:RequestInfoFromList(AllNPCID);
         end)
     end
 end)

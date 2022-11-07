@@ -44,7 +44,7 @@ local Structure = {
                 if state then
                     self.Description:SetText(L["Use Achievement Panel Description"]);
                 else
-                    self.Description:SetText(NARCI_REQUIRE_RELOAD);
+                    self.Description:SetText(REQUIRES_RELOAD);
                 end
                 ShowChildren(self, state);
             end,

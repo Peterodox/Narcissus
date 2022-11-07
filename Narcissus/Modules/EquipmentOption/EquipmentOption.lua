@@ -1116,10 +1116,11 @@ function NarciEquipmentOptionItemListMixin:GetItemButtons()
 end
 
 function NarciEquipmentOptionItemListMixin:ScrollByOneButton(delta)
+    --for GamePad
     if delta > 0 then
-        self:ScrollByValue(-BUTTON_HEIGHT);
+        self:SmoothScrollByValue(-BUTTON_HEIGHT);
     elseif delta < 0 then
-        self:ScrollByValue(BUTTON_HEIGHT);
+        self:SmoothScrollByValue(BUTTON_HEIGHT);
     end
 end
 

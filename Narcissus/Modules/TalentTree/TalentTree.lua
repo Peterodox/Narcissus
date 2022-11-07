@@ -11,6 +11,8 @@ local OnEnterDelay = addon.TalentTreeOnEnterDelay;
 local TextButtonUtil = addon.TalentTreeTextButtonUtil;
 local TextureUtil = addon.TalentTreeTextureUtil;
 local UniversalFont = addon.UniversalFontUtil.Create();
+local NodeUtil = addon.TalentTreeNodeUtil;
+local ActionBarUtil = addon.TalentTreeActionBarUtil;
 
 local L = Narci.L;
 
@@ -30,6 +32,7 @@ local C_Traits = C_Traits;
 local C_ClassTalents = C_ClassTalents;
 local C_SpecializationInfo = C_SpecializationInfo;
 local C_PvP = C_PvP;
+local UnitLevel = UnitLevel;
 
 local GetSpecializationInfoByID = GetSpecializationInfoByID;
 local GetInspectSpecialization = GetInspectSpecialization;
@@ -60,10 +63,9 @@ local PIXEL = 1;
 local MainFrame;
 local Nodes = {};
 local Branches = {};
-
 local NodeIDxNode = {};
 
-
+local EventCenter = CreateFrame("Frame");
 
 local LoadoutUtil = {};
 local LayoutUtil = {};
@@ -176,6 +178,7 @@ function LayoutUtil:UpdatePixel()
     LayoutUtil:UpdateFrameSize();
     TextButtonUtil:UpdatePixel(px, FONT_PIXEL_SIZE);
     f.SideTab:UpdatePixel(px);
+    f.MacroForge:UpdatePixel(px);
 
     if f.LoadoutToggle then
         f.LoadoutToggle:ClearAllPoints();
@@ -365,7 +368,7 @@ function NarciMiniTalentTreeMixin:OnLoad()
     self.SideTabToggle:SetScript("OnClick", function(f)
         self.SideTab:ShowFrame();
     end);
-    self.MotionBlocker:SetFrameLevel(frameLevel + 16);
+    self.MotionBlocker:SetFrameLevel(frameLevel + 19);
 
     self.PvPTalentToggle = TextButtonUtil:CreateButton(self, "right", "right", "horizontal", nil, "arrowRight");
     self.PvPTalentToggle:SetFrameLevel(frameLevel + 14);
@@ -726,7 +729,7 @@ function NarciMiniTalentTreeMixin:ShowConfig(configID, isPreviewing)
     if not isPreviewing and not isInspecting then
         UniversalFont:SetText(self.LoadoutToggle.ButtonText, DataProvider:GetActiveLoadoutName());
         self.SideTab:SetSelectedSpec(specID);
-        LoadoutUtil:SetActiveConfigID(DataProvider:GetSelecetdConfigID());
+        LoadoutUtil:SetSelectedConfigID(DataProvider:GetSelecetdConfigID());
         LoadingBarUtil:HideBar();
         self:SetSpecBackground(specID);
     end
@@ -823,6 +826,8 @@ function NarciMiniTalentTreeMixin:SetInspectMode(state)
         self.ShareToggle:Show();
         TextButtonUtil:SetButtonIcon(self.SideTabToggle, "arrowRight");
     end
+
+    self.MacroForge:HideFrame();
 end
 
 function NarciMiniTalentTreeMixin:ReleaseAllNodes()
@@ -1056,9 +1061,15 @@ end
 
 function NarciMiniTalentTreeMixin:RequestUpdate()
     self.isDirty = true;
-    if (self:IsVisible()) and (not self:IsInspecting()) then
-        self:ShowActiveBuild();
+    if not self:IsInspecting() then
+        if self:IsVisible() then
+            self:ShowActiveBuild();
+        else
+            local configID = DataProvider:GetSelecetdConfigID();
+            DataProvider:SetPlayerActiveConfigID(configID);
+        end
     end
+    ActionBarUtil:RequestUpdate();
 end
 
 function NarciMiniTalentTreeMixin:OnShow()
@@ -1066,10 +1077,12 @@ function NarciMiniTalentTreeMixin:OnShow()
         self:Init();
     end
     DataProvider:StopCacheWipingCountdown();
+    EventCenter:RegisterEvent("CURSOR_CHANGED");
 end
 
 function NarciMiniTalentTreeMixin:OnHide()
     DataProvider:StartCacheWipingCountdown();
+    EventCenter:UnregisterEvent("CURSOR_CHANGED");
 end
 
 function NarciMiniTalentTreeMixin:IsInspecting()
@@ -1080,14 +1093,27 @@ function NarciMiniTalentTreeMixin:GetInspectUnit()
     return self.inspectUnit;
 end
 
-local function SetPixelPerfectPosition(frame, relativeTo, direction, offsetX, offsetY)
+
+local function SetPixelPerfectPosition(frame, relativeTo)
     if relativeTo then
         frame:ClearAllPoints();
-        local right0 = relativeTo:GetRight();
-        local right1 = floor( (right0 + 4) * PIXEL + 0.5) / PIXEL;
-        local top0 = relativeTo:GetTop();
-        local top1 = floor( (top0 + 0) * PIXEL) / PIXEL;
-        if direction == "right" then
+        local position = frame.position;
+        if position == "bottom" then
+            local offsetV = frame.offsetH or 32;
+            local bottom0 = relativeTo:GetBottom();
+            local bottom1 = floor( (bottom0 - offsetV) * PIXEL) / PIXEL;
+            frame:SetPoint("TOPLEFT", relativeTo, "BOTTOMLEFT", 0, bottom1 - bottom0);
+        else
+            local offsetH;
+            if frame.offsetH then
+                offsetH = frame.offsetH * UIParent:GetEffectiveScale();
+            else
+                offsetH = 4;
+            end
+            local right0 = relativeTo:GetRight();
+            local right1 = floor( (right0 + offsetH) * PIXEL + 0.5) / PIXEL;
+            local top0 = relativeTo:GetTop();
+            local top1 = floor( (top0 + 0) * PIXEL) / PIXEL;
             frame:SetPoint("TOPLEFT", relativeTo, "TOPRIGHT", right1 - right0, top1 - top0);
         end
     end
@@ -1097,9 +1123,11 @@ function NarciMiniTalentTreeMixin:AnchorToInspectFrame()
     self.anchor = "inspectframe";
     local f = InspectFrame;
     if f and f:IsShown() and f.unit then
-        SetPixelPerfectPosition(self, f, "right", 4, 0);
-        MainFrame:Show();
-        MainFrame:ShowInspecting(f.unit);
+        SetPixelPerfectPosition(self, f);
+        self:Show();
+        self:ShowInspecting(f.unit);
+        self:SetFrameStrata("HIGH");
+        self:SetToplevel(false);
     else
         self:Hide();
     end
@@ -1107,9 +1135,11 @@ end
 
 function NarciMiniTalentTreeMixin:AnchorToPaperDoll()
     self.anchor = "paperdoll";
+    self:SetFrameStrata("MEDIUM");
+    self:SetToplevel(true);
     local f = PaperDollFrame;
     if f and f:IsShown() then
-        SetPixelPerfectPosition(self, f, "right", 4, 0);
+        SetPixelPerfectPosition(self, f);
     else
         self:Hide();
     end
@@ -1157,6 +1187,49 @@ function NarciMiniTalentTreeMixin:SetUseClassBackground(state)
     end
 end
 
+function NarciMiniTalentTreeMixin:RaiseActiveNodesFrameLevel(state)
+    if not state then state = nil end;
+    if state == self.isNodeRaised then
+        return
+    else
+        self.isNodeRaised  = state
+    end
+
+    local baseLevel = self:GetFrameLevel() + 1;
+    local activeLevel;
+
+    if state then
+        activeLevel = self.MacroForge.MotionBlocker:GetFrameLevel() + 1;
+        NodeUtil:SetModePickIcon();
+    else
+        activeLevel = baseLevel;
+        NodeUtil:SetModeNormal();
+    end
+
+    for i, node in ipairs(Nodes) do
+        if node.isActive then
+            node:SetFrameLevel(activeLevel);
+        else
+            node:SetFrameLevel(baseLevel);
+        end
+    end
+end
+
+function NarciMiniTalentTreeMixin:SetFramePosition(position)
+    if position == "bottom" then
+        self.position = "bottom";
+    else
+        self.position = "right";
+    end
+
+    if self:IsShown() then
+        if self.anchor == "inspectframe" then
+            self:AnchorToInspectFrame();
+        elseif self.anchor == "paperdoll" then
+            self:AnchorToPaperDoll();
+        end
+    end
+end
 
 
 NarciTalentTreeLoadoutButtonMixin = {};
@@ -1184,22 +1257,35 @@ function NarciTalentTreeLoadoutButtonMixin:OnLeave()
     OnEnterDelay:ClearWatch();
 end
 
+local function AttemptToApplyConfig(configID)
+    if not configID then return end;
+
+    MainFrame.lastConfigID = DataProvider:GetSelecetdConfigID();
+    local autoApply = true;
+    local result = C_ClassTalents.LoadConfig(configID, autoApply);
+    if result ~= 0 then
+        local currentSpecID = DataProvider:GetCurrentSpecID();
+        C_ClassTalents.UpdateLastSelectedSavedConfigID(currentSpecID, configID);
+    end
+    return result
+end
+
+Narci.AC = AttemptToApplyConfig;    --Name Shorten to be used in macro 
+
+
 function NarciTalentTreeLoadoutButtonMixin:OnClick()
     if self.selected then
 
     else
         if self.configID then
             MainFrame.lastConfigID = DataProvider:GetSelecetdConfigID();
-    
-            local autoApply = true;
-            local result = C_ClassTalents.LoadConfig(self.configID, autoApply);
+
+            local result = AttemptToApplyConfig(self.configID);
             if result ~= 0 then
                 --print(MainFrame.lastConfigID, self.configID)
                 if result ~= 1 then
                     LoadingBarUtil:SetFromLoadoutToggle(MainFrame.LoadoutToggle);
                 end
-                local currentSpecID = DataProvider:GetCurrentSpecID();
-                C_ClassTalents.UpdateLastSelectedSavedConfigID(currentSpecID, self.configID);
             end
         end
     end
@@ -1284,8 +1370,9 @@ function LoadoutUtil:UpdateList()
         local bottom = button:GetBottom();
         self.container:SetHeight(top - bottom + 8);
 
-        if self.activeConfigID then
-            self:SetActiveConfigID(self.activeConfigID);
+        local selectedConfigID = DataProvider:GetSelecetdConfigID();
+        if selectedConfigID then
+            self:SetSelectedConfigID(selectedConfigID);
         end
 
         return true
@@ -1351,7 +1438,7 @@ function LoadoutUtil:ToggleList()
     end
 end
 
-function LoadoutUtil:SetActiveConfigID(configID)
+function LoadoutUtil:SetSelectedConfigID(configID)
     self.activeButton = nil;
     self.activeConfigID = configID;
     if self.buttons then
@@ -1720,8 +1807,6 @@ function NarciTalentTreeSharedEditBoxMixin:ResetState()
 end
 
 
-local EventCenter = CreateFrame("Frame");
-
 EventCenter:RegisterEvent("PLAYER_ENTERING_WORLD");
 EventCenter:RegisterEvent("PLAYER_PVP_TALENT_UPDATE");
 EventCenter:RegisterEvent("ACTIVE_PLAYER_SPECIALIZATION_CHANGED");
@@ -1730,6 +1815,7 @@ EventCenter:RegisterEvent("TRAIT_CONFIG_LIST_UPDATED");
 EventCenter:RegisterEvent("TRAIT_CONFIG_DELETED");
 EventCenter:RegisterEvent("TRAIT_CONFIG_CREATED");
 EventCenter:RegisterEvent("CONFIG_COMMIT_FAILED");
+EventCenter:RegisterEvent("ACTIVE_COMBAT_CONFIG_CHANGED");
 
 EventCenter.dynamicEvents = {
     "TRAIT_TREE_CHANGED", "TRAIT_NODE_CHANGED", "TRAIT_NODE_CHANGED_PARTIAL", "TRAIT_NODE_ENTRY_UPDATED", "TRAIT_CONFIG_UPDATED", "ACTIVE_PLAYER_SPECIALIZATION_CHANGED", "CONFIG_COMMIT_FAILED",
@@ -1761,16 +1847,34 @@ end
 
 EventCenter.onEvent = function(self, event, ...)
     if event == "TRAIT_CONFIG_UPDATED" or event == "TRAIT_CONFIG_LIST_UPDATED" or event == "TRAIT_CONFIG_DELETED" or event == "TRAIT_CONFIG_CREATED" then
-        local configID = ...
         DataProvider:RefreshConfigIDs();
         self.onUpdateCallback = MainFrame.RequestUpdate;
         self:SetScript("OnUpdate", self.onUpdate);
 
+        if event == "TRAIT_CONFIG_CREATED" then
+            local configInfo = ...;
+            if configInfo and configInfo.type == 1 then
+                --Enum.TraitConfigType.Combat
+                DataProvider:MarkConfigIDValid(configInfo.ID, true);
+            end
+        elseif event == "TRAIT_CONFIG_DELETED" then
+            local configID = ...;
+            DataProvider:MarkConfigIDValid(configID, false);
+        end
+
     elseif event == "CONFIG_COMMIT_FAILED" then
-        local currentSpecID = DataProvider:GetCurrentSpecID();
-        C_ClassTalents.UpdateLastSelectedSavedConfigID(currentSpecID, MainFrame.lastConfigID);
+        if MainFrame.lastConfigID then
+            local currentSpecID = DataProvider:GetCurrentSpecID();
+            local result = C_ClassTalents.LoadConfig( MainFrame.lastConfigID, true);
+            C_ClassTalents.UpdateLastSelectedSavedConfigID(currentSpecID, MainFrame.lastConfigID);
+            MainFrame.lastConfigID = nil;
+        end
         self.onUpdateCallback = MainFrame.RequestUpdate;
         self:SetScript("OnUpdate", self.onUpdate);
+
+    elseif event == "ACTIVE_COMBAT_CONFIG_CHANGED" then
+        local configID = ...;
+        --print(event, configID);
 
     elseif event == "ACTIVE_PLAYER_SPECIALIZATION_CHANGED" then
         if MainFrame.SideTab:IsShown() then
@@ -1788,11 +1892,19 @@ EventCenter.onEvent = function(self, event, ...)
         self.onEvent(self, "ACTIVE_PLAYER_SPECIALIZATION_CHANGED");
         LayoutUtil:UpdatePixel();
 
+        --AddOn Compatibility
+        if IsAddOnLoaded("TinyInspect") then
+            MainFrame.offsetH = 328 + 2;
+        end
+
     elseif event == "UI_SCALE_CHANGED" then
         LayoutUtil:UpdatePixel();
 
     elseif event == "PLAYER_PVP_TALENT_UPDATE" then
         MainFrame.PvPTalentFrame:RequestUpdate();
+
+    elseif event == "CURSOR_CHANGED" then
+        MainFrame.MacroForge:OnCursorChanged(...);
     end
 
     --[[
@@ -1819,6 +1931,7 @@ if not addon.IsDragonflight() then return end;
 
 local ENABLE_INSPECT = false;
 local ENABLE_PAPERDOLL = false;
+local ENABLE_EQUIPMENT_MANAGER = false;
 local HookUtil = {};
 
 function HookUtil:HookInpsectFrame()
@@ -1829,7 +1942,7 @@ function HookUtil:HookInpsectFrame()
     if InspectFrame then
         self.inspectFrameHooked = true;
         InspectFrame:HookScript("OnShow", function()
-            if ENABLE_INSPECT and InspectFrame.unit then
+            if ENABLE_INSPECT and InspectFrame.unit and UnitLevel(InspectFrame.unit) >= 10 then
                 MainFrame:AnchorToInspectFrame();
                 MainFrame:Show();
                 MainFrame:ShowInspecting(InspectFrame.unit);
@@ -1849,7 +1962,7 @@ function HookUtil:HookInpsectFrame()
                 if not InspectFrame then return end;
 
                 InspectFrame:HookScript("OnShow", function()
-                    if ENABLE_INSPECT and InspectFrame.unit then
+                    if ENABLE_INSPECT and InspectFrame.unit and UnitLevel(InspectFrame.unit) >= 10 then
                         MainFrame:AnchorToInspectFrame();
                     end
                 end);
@@ -1862,7 +1975,7 @@ function HookUtil:HookInpsectFrame()
     end
 end
 
-local UnitLevel = UnitLevel;
+
 
 function HookUtil:HookPaperDoll()
     if self.paperdollHooked then return end;
@@ -1882,6 +1995,34 @@ function HookUtil:HookPaperDoll()
     PaperDoll:HookScript("OnHide", function()
         if ENABLE_INSPECT then
             MainFrame:AnchorToInspectFrame();
+        else
+            MainFrame:Hide();
+        end
+    end);
+end
+
+function HookUtil:HookEquipmentManager()
+    if self.equipmentManageHooked then return end;
+    self.equipmentManageHooked = true;
+    local f = PaperDollFrame and PaperDollFrame.EquipmentManagerPane;
+    if not f then return end;
+
+    f:HookScript("OnShow", function()
+        if ENABLE_EQUIPMENT_MANAGER then
+            if UnitLevel("player") < 10 then return end;
+            MainFrame:AnchorToPaperDoll();
+            MainFrame:SetInspectMode(false);
+            MainFrame:Show();
+            MainFrame:ShowActiveBuild();
+        end
+    end);
+
+    f:HookScript("OnHide", function()
+        if ENABLE_PAPERDOLL and UnitLevel("player") >= 10 then
+            MainFrame:AnchorToPaperDoll();
+            MainFrame:SetInspectMode(false);
+            MainFrame:Show();
+            MainFrame:ShowActiveBuild();
         else
             MainFrame:Hide();
         end
@@ -1922,6 +2063,21 @@ do
         end
     end
 
+    function SettingFunctions.ShowMiniTalentTreeForEquipmentManager(state, db)
+        if state == nil then
+            state = db["TalentTreeForEquipmentManager"];
+        end
+        if state then
+            ENABLE_EQUIPMENT_MANAGER = true;
+            HookUtil:HookEquipmentManager();
+        else
+            ENABLE_EQUIPMENT_MANAGER = false;
+            if MainFrame.anchor == "paperdoll" then
+                MainFrame:Hide();
+            end
+        end
+    end
+
     function SettingFunctions.SetUseClassBackground(state, db)
         if state == nil then
             state = db["TalentTreeUseClassBackground"];
@@ -1929,3 +2085,18 @@ do
         MainFrame:SetUseClassBackground(state);
     end
 end
+
+--[[
+local gsub = string.gsub;
+function TestEmojiEditBox_OnTextChanged(self, isUserInput)
+    if isUserInput then
+        local text = self:GetText();
+        text = gsub(text, " 1", "|cffa05548 1|r");
+        text = gsub(text, " 2", "|cffa6c7dd 2|r");
+        text = gsub(text, " 3", "|cffffd655 3|r");
+        text = gsub(text, " 4", "|cff33ffcc 4|r");
+        text = gsub(text, " 5", "|cffff931e 5|r");
+        self:SetText(text);
+    end
+end
+--]]

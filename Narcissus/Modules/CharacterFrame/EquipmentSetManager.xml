@@ -108,7 +108,7 @@
 		<Scripts>
 			<OnLoad>
 				self.Icon:SetTexture("Interface\\AddOns\\Narcissus\\Art\\Widgets\\Arrows\\Cross-Red");
-				self.tooltip1 = NARCI_DELETE_SET_WITH_LONG_CLICK;
+				self.tooltip1 = Narci.L["Delete Equipment Set Tooltip"];
 				self.Highlight:SetColorTexture(1, 0, 0, 0.5);
 			</OnLoad>
 			<OnMouseDown>
@@ -822,7 +822,7 @@
 				</Texture>			
 			</Layer>
 			<Layer level="OVERLAY">
-				<FontString inherits="NarciFontMedium12" justifyH="CENTER" justifyV="MIDDLE" parentKey="Header" text="NARCI_ICON_SELECTOR">
+				<FontString inherits="NarciFontMedium12" justifyH="CENTER" justifyV="MIDDLE" parentKey="Header">
 					<Color r="0.4" g="0.4" b="0.4"/>
 					<Anchors>
 						<Anchor point="LEFT" relativeKey="$parent.Background" relativePoint="LEFT" x="4"/>

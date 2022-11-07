@@ -253,10 +253,10 @@ function NarciTalentTreeSideTabMixin:ShowFrame()
         self.t = 0;
         self.d = 0.35;
         self.buttonLocked = true;
-        self:LockSpecButtons(true);
         self:SetScript("OnUpdate", ShowFrame_OnUpdate);
         self:Show();
         self:RegisterEvent("GLOBAL_MOUSE_DOWN");
+        self:LockSpecButtons(true);
 
         if self.activeButton then
             self.activeButton.Underline.AnimIn:Stop();

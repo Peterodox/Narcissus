@@ -268,8 +268,9 @@ local function outQuad(t, b, c, d)
 end
 -----------------------------------
 local ACTIVE_MODEL_INDEX = 1;
-local ModelFrames = {};
-local playerInfo = {};
+local ModelFrames = {};	--active models (max: 8);
+local ModelPool = {};	--all models created, including DressUpModel and CinematicModel (max: 8*2);
+local PlayerInfo = {};
 
 local function SetGenderIcon(genderID)
 	local button = Narci_GenderButton;
@@ -297,13 +298,13 @@ local function InitializePlayerInfo(index, unit)
 	local name = UnitName(unit);
 	local _, className = UnitClass(unit);
 	local race, gender =  GetUnitRaceIDAndSex(unit);
-	playerInfo[index] = playerInfo[index] or {};
-	playerInfo[index].raceID_Original, playerInfo[index].gender_Original = race, gender;
-	playerInfo[index].raceID = playerInfo[index].raceID_Original;
-	playerInfo[index].gender = playerInfo[index].gender_Original;
-	playerInfo[index].name = name;
-	playerInfo[index].class = className;
-	SetGenderIcon(playerInfo[index].gender_Original);
+	PlayerInfo[index] = PlayerInfo[index] or {};
+	PlayerInfo[index].raceID_Original, PlayerInfo[index].gender_Original = race, gender;
+	PlayerInfo[index].raceID = PlayerInfo[index].raceID_Original;
+	PlayerInfo[index].gender = PlayerInfo[index].gender_Original;
+	PlayerInfo[index].name = name;
+	PlayerInfo[index].class = className;
+	SetGenderIcon(PlayerInfo[index].gender_Original);
 	local r, g, b = GetClassColor(className);
 	local fontstring = ActorPanel.ExtraPanel.buttons[index].Label;	--name tooltip
 	SmartSetActorName(fontstring, name);
@@ -313,22 +314,22 @@ local function InitializePlayerInfo(index, unit)
 end
 
 local function RestorePlayerInfo(index)
-	if not playerInfo[index] then return; end;
-	playerInfo[index].raceID = playerInfo[index].raceID_Original;
-	playerInfo[index].gender = playerInfo[index].gender_Original;
-	SetGenderIcon(playerInfo[index].gender_Original);
+	if not PlayerInfo[index] then return; end;
+	PlayerInfo[index].raceID = PlayerInfo[index].raceID_Original;
+	PlayerInfo[index].gender = PlayerInfo[index].gender_Original;
+	SetGenderIcon(PlayerInfo[index].gender_Original);
 end
 
 local function UpdateActorName(index)
 	local str = ActorPanel.ActorButton.ActorName;
 
-	local className = playerInfo[index].class;
+	local className = PlayerInfo[index].class;
 	local r, g, b = GetClassColor(className);
 	if className == "DEATHKNIGHT" or className == "DEMONHUNTER" or className == "SHAMAN" then
 		r, g, b = r + 0.05, g + 0.05, b + 0.05;
 	end
 
-	SmartSetActorName(str, playerInfo[index].name or "Unnamed");
+	SmartSetActorName(str, PlayerInfo[index].name or "Unnamed");
 	str:SetTextColor(r, g, b);
 end
 
@@ -849,22 +850,8 @@ local function PlayerModelAnimOut_Update(self, elapsed)
 end
 
 local function HideAllModels()
-	local _G = _G;
-	local player;
-	local npc = _G["NarciNPCModelFrame"..1];
-	if npc then
-		npc:Hide();
-	end
-	for i = 2, NUM_MAX_ACTORS do
-		player = _G["NarciPlayerModelFrame"..i];
-		npc = _G["NarciNPCModelFrame"..i];
-		if player then
-			player:Hide();
-			player.customTransmogList = nil;
-		end
-		if npc then
-			npc:Hide();
-		end
+	for i, model in ipairs(ModelPool) do
+		model:ClearModel();
 	end
 end
 
@@ -1241,7 +1228,7 @@ function Narci_LayerButton_OnLoad(self)
 	AlphaButton.isOn = false;
 	if ID == 1 then
 		--Equipment Slots Visibility
-		self.Label:SetText(NARCI_EQUIPMENTSLOTS);
+		self.Label:SetText(L["Equipment Slots"]);
 		self.Icon:SetTexCoord(0.5, 0.703125, 0.703125, 0.890625);
 		self:SetScript("OnClick", SlotLayerButton_OnClick);
 		self:SetScript("OnShow", SlotLayerButton_OnShow);
@@ -1380,9 +1367,9 @@ end
 
 local animationIDPresets = {
 	--from right to left
-	[1] = {110, 48, 109, 29, ["name"] = NARCI_RANGED_WEAPON,},
-	[2] = {962, 1242, 1240, 1076, ["name"] = "Melee Animation",},	--NARCI_MELEE_WEAPON
-	[3] = {124, 51, 874, 940, ["name"] = NARCI_SPELLCASTING,},
+	[1] = {110, 48, 109, 29, ["name"] = L["Ranged Weapon"],},
+	[2] = {962, 1242, 1240, 1076, ["name"] = L["Melee Animation"],},	--NARCI_MELEE_WEAPON
+	[3] = {124, 51, 874, 940, ["name"] = L["Spellcasting"],},
 }
 
 function Narci_AnimationOptionFrame_OnLoad(self)
@@ -2580,7 +2567,7 @@ function Narci_ModelIndexButton_OnClick(self, button)
 
 	SwitchPortrait(ID);
 	UpdateActorName(ID);
-	SetGenderIcon(playerInfo[ID].gender);
+	SetGenderIcon(PlayerInfo[ID].gender);
 
 	if model then
 		if button == "LeftButton" then
@@ -2605,7 +2592,7 @@ function Narci_ModelIndexButton_OnClick(self, button)
 				self.ID:Hide();
 				self.Icon:SetTexCoord(0.5, 0.75, 0, 1);
 				self.isModelHidden = true;
-				self.Status:SetText(NARCI_GROUP_PHOTO_STATUS_HIDDEN);
+				self.Status:SetText(L["Hidden"]);
 				self:SetModelType("hidden");
 			else
 				state = true;
@@ -2643,24 +2630,19 @@ function NarciGenericModelMixin:SetWidgetType()
 end
 
 function NarciGenericModelMixin:OnLoad()
+	table.insert(ModelPool, self);
 	self.isModelLoaded = false;
 	self:SetKeepModelOnHide(true);
 	self.cameraPitch = pi/2;
 	self.t = 0;
 	self.cameraDistance = self:GetCameraDistance();
-
 	self.rotation = 0.61;
 	self:SetRotation(self.rotation);
-
 	local W = self:GetWidth()
 	self:SetHitRectInsets(2*W/3 + HIT_RECT_OFFSET, 0, 0, 32.0);
-
-	--AddNewModelFrame(self);
-
 	self.AppliedVisuals = {};
 	self.variationID = 0;
 	self.animationID = 0;
-
 	self:SetWidgetType();
 end
 
@@ -3042,6 +3024,8 @@ end
 NarciMainModelMixin = CreateFromMixins(NarciGenericModelMixin);
 
 function NarciMainModelMixin:OnLoad()
+	table.insert(ModelPool, self);
+
 	self.isVirtual = false;
 	self.isModelLoaded = false;
 	SetModelByUnit(self, "player");
@@ -3126,7 +3110,7 @@ local function CreateEmptyModelForNPCBrowser(actorIndex, isPet)
 	model.race, model.gender = InitializePlayerInfo(ID, "player");
 
 	UpdateActorName(ID);
-	SetGenderIcon(playerInfo[ID].gender);
+	SetGenderIcon(PlayerInfo[ID].gender);
 
 	IndexButton.hasModel = true;
 	IndexButton.ID:Show();
@@ -3160,16 +3144,16 @@ end
 NarciPhotoModeAPI.CreateEmptyModelForNPCBrowser = CreateEmptyModelForNPCBrowser;
 
 local function OverrideActorInfo(actorIndex, name, hasWeapon, portraitFile)
-	if not playerInfo[actorIndex] then
-		playerInfo[actorIndex] = {};
-		local info = playerInfo[actorIndex];
+	if not PlayerInfo[actorIndex] then
+		PlayerInfo[actorIndex] = {};
+		local info = PlayerInfo[actorIndex];
 		info.raceID_Original = 1;
 		info.raceID = 1;
 		info.gender_Original = 2;
 		info.gender = 2;
 		info.class = "PRIEST";
 	end
-	playerInfo[actorIndex].name = name;
+	PlayerInfo[actorIndex].name = name;
 	--ActorPanel.ExtraPanel.buttons[actorIndex].Label:SetText(name);
 	--ActorPanel.ActorButton.ActorName:SetText(name);
 	SmartSetActorName(ActorPanel.ExtraPanel.buttons[actorIndex].Label, name);
@@ -3251,7 +3235,7 @@ local function CreateAndSelectNewActor(actorIndex, unit, isVirtual)
 	SwitchPortrait(ID, unit);	--Use diffrent portrait for virtual actor?
 	model.race, model.gender = InitializePlayerInfo(ID, unit);
 	UpdateActorName(ID);
-	SetGenderIcon(playerInfo[ID].gender);
+	SetGenderIcon(PlayerInfo[ID].gender);
 
 	--Update index button
 
@@ -3264,7 +3248,7 @@ local function CreateAndSelectNewActor(actorIndex, unit, isVirtual)
 		model:SetModelAlpha(0)
 		model.isVirtual = true;
 
-		playerInfo[ID].name = "|cff0081a9"..VIRTUAL_ACTOR.."|r";
+		PlayerInfo[ID].name = "|cff0081a9"..VIRTUAL_ACTOR.."|r";
 		IndexButton.Label:SetText(VIRTUAL_ACTOR);
 		IndexButton.Label:SetTextColor(0, 0.505, 0.663);
 	else
@@ -3617,8 +3601,8 @@ end
 function Narci_GenderButton_OnClick(self)
 	local index = ACTIVE_MODEL_INDEX;
 	local model = ModelFrames[ACTIVE_MODEL_INDEX];
-	local genderID = playerInfo[index].gender or 2;
-	local raceID = playerInfo[index].raceID;
+	local genderID = PlayerInfo[index].gender or 2;
+	local raceID = PlayerInfo[index].raceID;
 	local _, _, dirX, dirY, dirZ, _, ambR, ambG, ambB, _, dirR, dirG, dirB = GetModelLight(model);
 	model:SetBarberShopAlternateForm();
 	if genderID == 2 then
@@ -3628,8 +3612,8 @@ function Narci_GenderButton_OnClick(self)
 		model:SetCustomRace(raceID, 0);
 		genderID = 2;
 	end
-	playerInfo[index].gender = genderID;
-	SetGenderIcon(playerInfo[index].gender);
+	PlayerInfo[index].gender = genderID;
+	SetGenderIcon(PlayerInfo[index].gender);
 	model:SetModelAlpha(0);
 	After(0, function()
 		CustomModelPosition(model, raceID, genderID);
@@ -3664,9 +3648,9 @@ end
 function Narci_RaceOptionButton_OnClick(self)
 	AutoCloseTimer2:Cancel();
 	local model = ModelFrames[ACTIVE_MODEL_INDEX];
-	local genderID = playerInfo[ACTIVE_MODEL_INDEX].gender;
+	local genderID = PlayerInfo[ACTIVE_MODEL_INDEX].gender;
 	local raceID = self:GetID() or 1;
-	playerInfo[ACTIVE_MODEL_INDEX].raceID = raceID;
+	PlayerInfo[ACTIVE_MODEL_INDEX].raceID = raceID;
 	local _, _, dirX, dirY, dirZ, _, ambR, ambG, ambB, _, dirR, dirG, dirB = GetModelLight(model);
 	model:SetBarberShopAlternateForm();
 	if genderID == 2 then
@@ -4222,7 +4206,7 @@ function NarciModelIndexButtonMixin:OnEnter()
 	if self:GetParent().UpdateFrame:IsShown() then return; end;
 	if self.hasModel then
 		if self.isModelHidden then
-			self.Status:SetText(NARCI_GROUP_PHOTO_STATUS_HIDDEN);
+			self.Status:SetText(L["Hidden"]);
 		else
 			self.Status:SetText(nil);
 		end
@@ -4575,20 +4559,22 @@ function NarciPhotoModeModelContainerMixin:OnLoad()
 end
 
 function NarciPhotoModeModelContainerMixin:OnShow()
-	self.newCanvas = true;
+
 end
 
 function NarciPhotoModeModelContainerMixin:OnHide()
-	self:ClearOtherActors();
+
 end
 
 function NarciPhotoModeModelContainerMixin:ClearOtherActors()
 	--excepet the player
-	if self.newCanvas then
-		HideAllModels();
-	end
+	HideAllModels();
 end
 
+function NarciPhotoModeModelContainerMixin:HideAndClearModel()
+	self:Hide();
+	HideAllModels();
+end
 
 NarciPhotoModeLightDirectionControllerMixin = {
 	thumb_OnMouseDown = function(self)

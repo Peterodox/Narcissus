@@ -9,6 +9,7 @@ local GetNodeInfo = C_Traits and C_Traits.GetNodeInfo;
 local GetEntryInfo = C_Traits and C_Traits.GetEntryInfo;
 local GetSpecialization = GetSpecialization;
 local GetSpecializationInfo = GetSpecializationInfo;
+local GetNumSpecializations = GetNumSpecializations;
 
 
 -- Should use C_Traits.GetConditionInfo, conditionInfo.ranksGranted and conditionInfo.isMet to check if the talent is granted for free
@@ -99,6 +100,13 @@ function DataProvider:UpdateSpecInfo()
     self.autoGrantedNodes = AUTO_GRANTED_NODES[specID] or {};
 end
 
+function DataProvider:GetCurrentSpecIndex()
+    if not self.specIndex then
+        self:UpdateSpecInfo();
+    end
+    return self.specIndex
+end
+
 function DataProvider:GetCurrentSpecID()
     if not self.specID then
         self:UpdateSpecInfo();
@@ -177,7 +185,7 @@ function DataProvider:GetConfigName(configID)
     return self.configNames[configID]
 end
 
-function DataProvider:IsConfigIDValid(configID)
+function DataProvider:IsConfigIDValidForCurrentSpec(configID)
     if not self.configIDs then
         self:RefreshConfigIDs();
     end
@@ -195,10 +203,47 @@ function DataProvider:GetSelecetdConfigID()
     local specID = self:GetCurrentSpecID();
     local selectedID = C_ClassTalents.GetLastSelectedSavedConfigID(specID);
     
-    if self:IsConfigIDValid(selectedID) then
+    if self:IsConfigIDValidForCurrentSpec(selectedID) then
         return selectedID
     else
         return C_ClassTalents.GetActiveConfigID();
+    end
+end
+
+function DataProvider:IsConfigIDValid(configID)
+    if not self.validConfigIDs then
+        if not self.specIDs then
+            self.specIDs = {};
+            local numSpec = GetNumSpecializations();
+            local specID;
+            local n = 0;
+            for i = 1, numSpec do
+                specID = GetSpecializationInfo(i);
+                if specID then
+                    n = n + 1;
+                    self.specIDs[n] = specID;
+                end
+            end
+        end
+
+        self.validConfigIDs = {};
+        local configIDs;
+        for i = 1, #self.specIDs do
+            configIDs = C_ClassTalents.GetConfigIDsBySpecID(self.specIDs[i]);
+            if configIDs then
+                for j = 1, #configIDs do
+                    self.validConfigIDs[configIDs[j]] = true;
+                end
+            end
+        end
+    end
+
+    return self.validConfigIDs[configID]
+end
+
+function DataProvider:MarkConfigIDValid(configID, isValid)
+    if self.validConfigIDs and configID then
+        self.validConfigIDs[configID] = isValid;
     end
 end
 
@@ -218,6 +263,13 @@ function DataProvider:SetPlayerActiveConfigID(configID)
         PLAYER_ACTIVE_CONFIG_ID = configID;
         self:ClearPlayerCache();
     end
+end
+
+function DataProvider:GetPlayerActiveConfigID()
+    if not PLAYER_ACTIVE_CONFIG_ID then
+        self:SetPlayerActiveConfigID();
+    end
+    return PLAYER_ACTIVE_CONFIG_ID;
 end
 
 function DataProvider.GetPlayerNodeInfo(nodeID)

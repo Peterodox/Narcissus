@@ -1390,7 +1390,7 @@
 								</Texture>
 							</Layer>
 							<Layer level="ARTWORK">
-								<FontString parentKey="Quote" inherits="NarciFontNormal10White" justifyH="CENTER" justifyV="MIDDLE" text="NARCI_HEART_QUOTE_1" Alpha="0">
+								<FontString parentKey="Quote" inherits="NarciFontNormal10White" justifyH="CENTER" justifyV="MIDDLE" text=" " Alpha="0">
 									<Size x="86" y="0"/>
 									<Color r="0.8" g="0.8" b="0.8" a="1"/>
 									<Anchors>
@@ -2690,41 +2690,6 @@
 					</Frame>
 				</Frames>
 			</Frame>
-
-			<!--Button parentKey="ScrollButton">
-				<Size>
-					<AbsDimension x="46" y="46"/>
-				</Size>
-				<Anchors>
-					<Anchor point="CENTER" x="0"/>
-					<Anchor point="BOTTOM" relativeTo="Narci_Finger0Slot" relativePoint="CENTER" y="-300"/>
-				</Anchors>
-				<Layers>
-					<Layer level="ARTWORK">
-						<Texture parentKey="Arrow" file="Interface\AddOns\Narcissus\Art\Widgets\Arrows\DownArrow-Obtuse"> 
-							<TexCoords left="0" right="0.5" top="0" bottom="1"/>
-							<Size x="36" y="36" />
-							<Anchors>
-								<Anchor point="CENTER"/>
-							</Anchors>
-						</Texture>
-					</Layer>
-				</Layers>
-				<Scripts>
-					<OnLoad function="PlaceHolderFeature_OnLoad"/>
-					<OnEnter>
-						self.Arrow:SetTexCoord(0.5, 1, 0, 1);
-						Narci_ShowButtonTooltip(self);
-					</OnEnter>
-					<OnLeave>
-						self.Arrow:SetTexCoord(0, 0.5, 0, 1);
-						Narci:HideButtonTooltip();
-					</OnLeave>
-					<OnClick>
-
-					</OnClick>
-				</Scripts>
-			</Button-->
 		</Frames>
 		<Animations>
 			<AnimationGroup parentKey="animOut">

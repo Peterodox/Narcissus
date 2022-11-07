@@ -4,10 +4,9 @@ Narci.L.S = {};     --Statistics;
 local L = Narci.L;
 local S = Narci.L.S;
 
-NARCI_GRADIENT = "|cffA236EFN|r|cff9448F1a|r|cff865BF2r|r|cff786DF4c|r|cff6A80F6i|r|cff5D92F7s|r|cff4FA4F9s|r|cff41B7FAu|r|cff33C9FCs|r"
-MYMOG_GRADIENT = "|cffA236EFM|cff9448F1y |cff865BF2T|cff786DF4r|cff6A80F6a|cff5D92F7n|cff4FA4F9s|cff41B7FAm|cff33C9FCo|cff32c9fbg|r"
+NARCI_GRADIENT = "|cffA236EFN|r|cff9448F1a|r|cff865BF2r|r|cff786DF4c|r|cff6A80F6i|r|cff5D92F7s|r|cff4FA4F9s|r|cff41B7FAu|r|cff33C9FCs|r";
 
-NARCI_DEVELOPER_INFO = "Developed by Peterodox";
+L["Developer Info"] = "Developed by Peterodox";
 
 NARCI_NEW_ENTRY_PREFIX = "|cff40C7EB";
 NARCI_COLOR_GREY_85 = "|cffd8d8d8";
@@ -85,7 +84,7 @@ L["Toolbar Preferences Button Tooltip"] = "Open Preferences panel.";
 L["Heritage Armor"] = "Heritage Armor";
 L["Secret Finding"] = "Secret Finding";
 
-NARCI_HEART_QUOTE_1 = "what is essential is invisible to the eye.";
+L["Heart Azerite Quote"] = "what is essential is invisible to the eye.";
 
 --Title Manager--
 L["Open Title Manager"] = "Open Title Manager";
@@ -108,7 +107,6 @@ L["Minimap Tooltip Set Scale"] = "Set Scale: |cffffffff/narci [scale 0.8~1.2]";
 L["Corrupted Item Parser"] = "|cffffffffToggle Corrupted Item Parser|r";
 L["Toggle Dressing Room"] = "|cffffffffToggle "..DRESSUP_FRAME.."|r";
 
-NARCI_CLIPBOARD = "Clipboard";
 L["Layout"] = "Layout";
 L["Symmetry"] = "Symmetry";
 L["Asymmetry"] = "Asymmetry";
@@ -118,17 +116,13 @@ L["Plain Text"] = "Plain Text";
 L["BB Code"] = "BB Code";
 L["Markdown"] = "Markdown";
 L["Export Includes"] = "Export Includes...";
-NARCI_ITEM_ID = "Item ID";
 
 L["3D Model"] = "3D Model";
-NARCI_EQUIPMENTSLOTS = "Equipment Slots";
+L["Equipment Slots"] = "Equipment Slots";
 
 --Preferences--
-
-NARCI_PHOTO_MODE = L["Photo Mode"];
-NARCI_OVERRIDE = "Override";
-NARCI_INVALID_KEY = "Invalid key combination.";
-NARCI_REQUIRE_RELOAD = NARCI_COLOR_RED_MILD.. "UI reload is required.|r";
+L["Override"] = "Override";
+L["Invalid Key"] = "Invalid key combination.";
 
 L["Preferences"] = "Preferences";
 L["Preferences Tooltip"] = "Click to open Preferences Panel.";
@@ -255,18 +249,14 @@ L["Press Copy Yellow"] = "Press |cffffd100".. NARCI_SHORTCUTS_COPY .."|r to Copy
 L["New Option"] = NARCI_NEW_ENTRY_PREFIX.." NEW".."|r"
 
 --Model Control--
-NARCI_STAND_IDLY = "Stand Idly";
-NARCI_RANGED_WEAPON = "Ranged Weapon";
-NARCI_MELEE_WEAPON = "Melee Weapon";
-NARCI_SPELLCASTING = "Spellcasting";
-NARCI_ANIMATION_ID = "Animation ID";
-NARCI_LINK_LIGHT_SETTINGS = "Link Light Sources";
-NARCI_LINK_MODEL_SCALE = "Link Model Scales";
-NARCI_GROUP_PHOTO_AVAILABLE = "Now available in Narcissus";
-NARCI_GROUP_PHOTO_NOTIFICATION = "Please select a target.";
-NARCI_GROUP_PHOTO_STATUS_HIDDEN = "Hidden";
-NARCI_DIRECTIONAL_AMBIENT_LIGHT = "Directional/Ambient Light";
-NARCI_DIRECTIONAL_AMBIENT_LIGHT_TOOLTIP = "Switch between\n- Directional light that can be blocked by object and cast shadow\n- Ambient light that influences the entire model";
+L["Ranged Weapon"] = "Ranged Weapon";
+L["Melee Animation"] = "Melee Animation";
+L["Spellcasting"] = "Spellcasting";
+L["Link Light Sources"] = "Link Light Sources";
+L["Link Model Scales"] = "Link Model Scales";
+L["Hidden"] = "Hidden";
+L["Light Types"] = "Directional/Ambient Light";
+L["Light Types Tooltip"] = "Switch between\n- Directional light that can be blocked by object and cast shadow\n- Ambient light that influences the entire model";
 
 L["Group Photo"] = "Group Photo";
 L["Reset"] = "Reset";
@@ -392,8 +382,8 @@ L["Don't Update Talents"] = "Don't Update Talents";
 L["Old Icon"] = "Old Icon";
 L["NavBar Saved Sets"] = "Saved";   --A Saved Equipment Set
 L["NavBar Incomplete Sets"] = INCOMPLETE;
-NARCI_ICON_SELECTOR = "Icon Selector";
-NARCI_DELETE_SET_WITH_LONG_CLICK = "Delete Set\n|cff808080(click and hold)|r";
+L["Icon Selector"] = "Icon Selector";
+L["Delete Equipment Set Tooltip"] = "Delete Set\n|cff808080(click and hold)|r";
 
 --Corruption System
 L["Corruption System"] = "Corruption";
@@ -503,9 +493,8 @@ L["Guide Minimap Button Line1"] = "Narcissus minimap button can now be handled b
 L["Guide NPC Entrance Line1"] = "You can add any NPC into your scene."
 L["Guide NPC Browser Line1"] = "Notable NPCs are listed in the catalog below.\nYou can also search for ANY creatures by name or ID.\nNotice that the first time you use the search function this login, it could take a few seconds to build the search table and your screen might freeze as well.\nYou may untoggle the \"Load on Demand\" option in the Preference Pane so that the database will be constructed right after you log in.";
 
-
 --Splash--
-NARCI_SPLASH_WHATS_NEW_FORMAT = "What's New in Narcissus %s";
+L["Splash Whats New Format"] = "What's New in Narcissus %s";
 L["See Ads"] = "See ads from our authentic sponsor";    --Not real ads!
 L["Splash Category1"] = L["Photo Mode"];
 L["Splash Content1 Name"] = "Weapon Browser";
@@ -525,14 +514,7 @@ L["Splash Content7 Name"] = "Visuals";
 L["Splash Content7 Description"] = "-The hexagon item border gets a new look. Certain items have unique appearances.";
 
 --Project Details--
-NARCI_ALL_PROJECTS = "All Projects";
-NARCI_PROJECT_AAA_TITLE = "|cff008affA|cff0d8ef2z|cff1a92e5e|cff2696d9r|cff339acco|cff409ebft|cff4da1b2h |cff59a5a6A|cff66a999d|cff73ad8cv|cff7fb180e|cff8cb573n|cff99b966t|cffa6bd59u|cffb2c14dr|cffbfc440e |cffccc833A|cffd9cc26l|cffe5d01ab|cfff2d40du|cffffd800m|r";
-NARCI_PROJECT_AAA_SUMMARY = "Explore places of interest and collect lores and photos from all across Azeroth.|cff636363";
-NARCI_PROJECT_NARCISSUS_SUMMARY = "An immersive character pane and your ultimate screenshot tool.";
-
 L["AboutTab Developer Note"] = "Thank you for trying this add-on! If you have any issues, suggestions, ideas, please leave a comment on the curseforge page or contact me on...";
-
-
 
 --Conversation--
 L["Q1"] = "What is this?";
@@ -654,9 +636,30 @@ L["Mini Talent Tree"] = "Mini Talent Tree";
 L["Show Talent Tree When"] = "Show Talent Tree When You...";
 L["Show Talent Tree Paperdoll"] = "Open Paper Doll";
 L["Show Talent Tree Inspection"] = "Inspect Other Players";
-L["Truncate Talent Description"] = "Truncate Talent Description";
+L["Show Talent Tree Equipment Manager"] = "Access Equipment Manager";
 L["Appearance"] = "Appearance";
 L["Use Class Background"] = "Use Class Background";
 L["Empty Loadout Name"] = "Name";
 L["No Save Slot Red"] = NARCI_COLOR_RED_MILD.. "No Save Slot" .."|r";
 L["Save"] = "Save";
+L["Create Macro Wrong Spec"] = "This set has been assigned to another specialization!";
+L["Create Marco No Slot"] = "Cannot create more character specific macros.";
+L["Create Macro Instruction 1"] = "Drop the set in the box below to combine it with \n|cffebebeb%s|r";
+L["Create Macro Instruction Edit"] = "Drop the set in the box below to edit macro\n|cffebebeb%s|r";
+L["Create Macro Instruction 2"] = "Select a |cff53a9ffsecondary icon|r for this macro.";
+L["Create Macro Instruction 3"] = "Name this macro\n ";
+L["Create Macro Instruction 4"] = "Drag this macro onto your action bar.";
+L["Create Macro In Combat"] = "Cannot Create macro during combat.";
+L["Create Macro Next"] = "NEXT";
+L["Create Marco Created"] = "CREATED";
+
+--Bag Item Filter--
+L["Bag Item Filter"] = "Bag Item Filter";
+L["Bag Item Filter Enable"] = "Enable Search Suggestion and Auto Filter";
+L["Place Window"] = "Place the window...";
+L["Below Search Box"] = "Below Search Box";
+L["Above Search Box"] = "Above Search Box";
+L["Auto Filter Case"] = "Automatically filters items when you...";
+L["Send Mails"] = "Send Mails";
+L["Create Auctions"] = "Create Auctions";
+L["Socket Items"] = "Socket Items";

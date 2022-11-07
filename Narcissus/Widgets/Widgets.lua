@@ -1728,7 +1728,7 @@ function NarciGenericKeyBindingButtonMixin:VerifyKey(override)
     else
         local action = GetBindingAction(key);
         if (action and action ~= "" and action ~= self.actionName) and not override then
-            AnchorOverlayToBindingButton(self, 2, NARCI_OVERRIDE.." "..GetBindingName(action).." ?");
+            AnchorOverlayToBindingButton(self, 2, Narci.L["Override"].." "..GetBindingName(action).." ?");
             return true
         else
             ClearBindingKey(self.actionName);

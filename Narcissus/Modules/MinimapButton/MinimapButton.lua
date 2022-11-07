@@ -302,6 +302,7 @@ function NarciMinimapButtonMixin:CreatePanel()
 	end
 	self.buttons = buttons;
 
+	Panel.Version:SetText(NarciAPI.GetAddOnVersionInfo(true));
 	self.CreatePanel = nil;
 end
 
@@ -571,7 +572,7 @@ function NarciMinimapButtonMixin:OnEnter()
 			tooltip:AddLine(L["Minimap Tooltip Shift Right Click"].." "..L["Minimap Tooltip Hide Button"], nil, nil, nil, true);
 			tooltip:AddLine(L["Minimap Tooltip Middle Button"], nil, nil, nil, true);
 			tooltip:AddLine(" ", nil, nil, nil, true);
-			tooltip:AddDoubleLine(NARCI_VERSION_INFO, NARCI_DEVELOPER_INFO, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8);
+			tooltip:AddDoubleLine(NarciAPI.GetAddOnVersionInfo(true), L["Developer Info"], 0.8, 0.8, 0.8, 0.8, 0.8, 0.8);
 			tooltip:AddLine("https://wow.curseforge.com/projects/narcissus", 0.5, 0.5, 0.5, false);
 
 			tooltip:Show();

@@ -130,6 +130,7 @@ end
 
 
 --Temporary
+--[[
 SLASH_PLAYERSTATS1 = "/playerstats";
 SlashCmdList["PLAYERSTATS"] = function(msg)
     msg = strlower(msg);
@@ -144,6 +145,7 @@ SlashCmdList["PLAYERSTATS"] = function(msg)
         end
     end
 end
+--]]
 
 -------------------------------------------------------------------
 local SharedTrackerMixin = {};

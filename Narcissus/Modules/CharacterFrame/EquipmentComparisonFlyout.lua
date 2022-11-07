@@ -1,10 +1,14 @@
 --Parent: Narci_EquipmentFlyoutFrame (Narcissus.xml)
+local _, addon = ...
+
 local EquipmentFlyoutFrame;
 local hasGapAdjusted = false;
 local STAMINA_STRING = SPELL_STAT3_NAME;
 local COMPARISON_HEIGHT = 160;
 local FORMAT_DIGIT = "%.2f";
 local floor = math.floor;
+
+local ItemCacheUtil = addon.ItemCacheUtil;
 
 local FormatLargeNumbers = NarciAPI.FormatLargeNumbers --BreakUpLargeNumbers;
 local GetItemExtraEffect = NarciAPI.GetItemExtraEffect;
@@ -16,7 +20,6 @@ local GetItemID = C_Item.GetItemID;
 local GetItemIcon = C_Item.GetItemIcon;
 local GetItemName = C_Item.GetItemName;
 local GetItemQuality = C_Item.GetItemQuality;
-local IsItemDataCached = C_Item.IsItemDataCached;
 local RequestLoadItemData = C_Item.RequestLoadItemData;
 local GetCombatRating = GetCombatRating;
 local GetItemInfoInstant = GetItemInfoInstant;
@@ -399,6 +402,20 @@ local function BuildAzeiteTraitsFrame(TraitsFrame, itemLocation, itemButton)
 end
 
 
+local function ComparisonFrame_OnUpdate(self, elapsed)
+    self.t = self.t + elapsed;
+    if self.t > 0.1 then
+        self:SetScript("OnUpdate", nil);
+        if self.watchID then
+            self.watchID = nil;
+            if self.itemButton then
+                Narci_Comparison_SetComparison(self.itemButton.itemLocation, self.itemButton);
+                self.itemButton = nil;
+            end
+        end
+    end
+end
+
 local function ComparisonFrame_OnEvent(self, event, ...)
     local itemID, result = ...
     if itemID == self.watchID then
@@ -412,6 +429,8 @@ local function ComparisonFrame_OnEvent(self, event, ...)
 end
 
 function Narci_Comparison_SetComparison(itemLocation, itemButton)
+    if not itemLocation then return end;
+
     local frame = Narci_Comparison;
     local FlyOut = EquipmentFlyoutFrame;
     local slotName, slotTexture = GetSlotNameAndTexture(FlyOut.slotID);
@@ -423,11 +442,11 @@ function Narci_Comparison_SetComparison(itemLocation, itemButton)
         frame.Icon:SetTexture(slotTexture);
         frame.BonusButton1:Hide();
         frame.BonusButton2:Hide();
+        frame.SubTooltip:Hide();
         EmptyComparison();
         return;
     end
 
-    --print("location"..C_Item.GetItemInventoryType(itemLocation))
     local itemLink = GetItemLink(itemLocation);
     local itemID = GetItemID(itemLocation);
     local itemIcon = GetItemIcon(itemLocation);
@@ -435,17 +454,20 @@ function Narci_Comparison_SetComparison(itemLocation, itemButton)
     local quality = GetItemQuality(itemLocation);
     local r, g, b = GetItemQualityColor(quality);
 
-    if not IsItemDataCached(itemLocation) then
+    if not ItemCacheUtil:IsItemDataCached(itemLocation) then
         frame.watchID = itemID;
         frame.itemButton = itemButton;
         frame:RegisterEvent("ITEM_DATA_LOAD_RESULT");
-        frame:SetScript("OnEvent", ComparisonFrame_OnEvent);
+        --frame:SetScript("OnEvent", ComparisonFrame_OnEvent);
+        frame.t = 0;
+        frame:SetScript("OnUpdate", ComparisonFrame_OnUpdate);
         RequestLoadItemData(itemLocation);
     elseif frame.watchID then
         frame.watchID = nil;
         frame.itemButton = nil;
         frame:UnregisterEvent("ITEM_DATA_LOAD_RESULT");
-        frame:SetScript("OnEvent", nil);
+        --frame:SetScript("OnEvent", nil);
+        frame:SetScript("OnUpdate", nil);
     end
 
     local stats = ItemStats(itemLocation);

@@ -10,6 +10,26 @@ local IsPassiveSpell = IsPassiveSpell;
 
 local select = select;
 
+local Handler;
+
+local NodeUtil = {};
+addon.TalentTreeNodeUtil = NodeUtil;
+
+function NodeUtil:SetModeNormal()
+    self.clickable = false;
+end
+
+NodeUtil:SetModeNormal();
+
+function NodeUtil:SetModePickIcon()
+    self.clickable = true;
+end
+
+function NodeUtil:AssignHandler(frame)
+    Handler = frame;
+end
+
+
 NarciTalentTreeNodeMixin = {};
 
 local function SetNodeIcon(node, definitionInfo, overrideSpellID)
@@ -131,6 +151,11 @@ end
 
 function NarciTalentTreeNodeMixin:OnEnter()
     --print("definitionID: "..self.definitionID)
+    if NodeUtil.clickable then
+        Handler:HighlightButton(self);
+        return
+    end
+
     OnEnterDelay:WatchButton(self);
     ClassTalentTooltipUtil:UpdateCursorDelta();
 end
@@ -144,8 +169,18 @@ function NarciTalentTreeNodeMixin:OnEnterCallback()
 end
 
 function NarciTalentTreeNodeMixin:OnLeave()
+    if NodeUtil.clickable then
+        Handler:HighlightButton();
+    end
+
     OnEnterDelay:ClearWatch();
     ClassTalentTooltipUtil.HideTooltip();
+end
+
+function NarciTalentTreeNodeMixin:OnMouseDown()
+    if NodeUtil.clickable then
+        Handler:SetSecondaryIcon(self.Icon:GetTexture(), true);
+    end
 end
 
 function NarciTalentTreeNodeMixin:SetPvPTalent(talentID)

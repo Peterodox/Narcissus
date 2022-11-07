@@ -8,7 +8,6 @@ L["Heritage Armor"] = "Armure Ancestrale";
 
 --Model Control--
 NARCI_GROUP_PHOTO = "Photo de Groupe";
-NARCI_GROUP_PHOTO_NOTIFICATION = "S'il vous plaît sélectionner un joueur.";
 
 --NPC Browser--
 NARCI_NPC_BROWSER_TITLE_LEVEL = ".iveau.*"
