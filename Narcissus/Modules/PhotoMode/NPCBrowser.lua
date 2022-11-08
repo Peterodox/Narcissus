@@ -3400,16 +3400,11 @@ end
 local function SearchByID(id)
     if IsKeyDown("BACKSPACE") then return end
 
-    local Tooltip = MatchTab.NPCTooltip;
     ScrollMatch:HideButtons();
-
-    Tooltip:SetOwner(UIParent, "ANCHOR_NONE");
-    Tooltip:SetHyperlink(format("unit:Creature-0-0-0-0-%d", id));
-
 
     local result;
 
-    local name = Tooltip.lineName:GetText();
+    local name = CreatureInfoUtil:GetName(id);
     if name and name ~= "" then
         SetCreaturePreview(id);
         result = {
@@ -3502,26 +3497,6 @@ function NarciNPCSearchBoxMixin:OnLoad()
     self.delayedSearch = SearchDelay;
     self.onKeyDownFunc = SearchBoxOnKeydownFunc;
     self.DefaultText:SetText(L["Name or ID"]);
-
-    local Tab = Narci_NPCBrowser_MatchTab;
-    local TP = CreateFrame("GameTooltip", EMBEDED_TOOLTIP_NAME, Tab, "GameTooltipTemplate");
-    TP.lineName = _G[EMBEDED_TOOLTIP_NAME.."TextLeft1"];
-    Tab.NPCTooltip = TP;
-    if TP.NiceSlice then
-        TP.NiceSlice:Hide();
-    elseif TP.SetBackdrop then
-        TP:SetBackdrop(nil);
-    end
-    if TP:HasScript("OnTooltipAddMoney") then --dragonflight
-        TP:SetScript("OnTooltipAddMoney", nil);
-    end
-    if TP:HasScript("OnTooltipCleared") then
-        TP:SetScript("OnTooltipCleared", nil);
-    end
-
-    ---Font
-    TP.TextLeft1 = _G[EMBEDED_TOOLTIP_NAME.."TextLeft1"];
-    TP.TextLeft2 = _G[EMBEDED_TOOLTIP_NAME.."TextLeft2"];
 end
 
 function NarciNPCSearchBoxMixin:OnMouseWheel(delta)
@@ -3576,8 +3551,6 @@ function NarciNPCSearchBoxMixin:OnTextChanged(isUserInput)
                 StartSearching();
             end
         end
-
-        MatchTab.NPCTooltip:Hide();
     end
 end
 

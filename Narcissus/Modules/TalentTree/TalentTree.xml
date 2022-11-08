@@ -42,13 +42,9 @@
     <Frame name="NarciTalentTreeTraitTooltipTemplate" frameStrata="TOOTLIP" hidden="true" virtual="true">
         <Size x="96" y="96"/>
         <Frames>
-            <Frame parentKey="Background" useParentLevel="true" setAllPoints="true"/>
             <Frame parentKey="Border" useParentLevel="true" setAllPoints="true"/>
         </Frames>
         <Layers>
-            <Layer level="BACKGROUND" textureSubLevel="-2">
-                <Texture parentKey="BlurBackground"/>
-            </Layer>
             <Layer level="OVERLAY">
                 <Texture parentKey="Icon">
                     <TexCoords left="0.0625" right="0.9375" top="0.0625" bottom="0.9375"/>
@@ -98,6 +94,18 @@
         </Layers>
     </Frame>
 
+    <Texture name="NarciTalentTreeNodeHighlightTemplate" virtual="true" file="Interface\AddOns\Narcissus\Art\Modules\TalentTree\NodeBorderHighlightYellow" alpha="0">
+        <TexCoords left="0" right="0.5" top="0" bottom="0.5"/>
+        <Animations>
+            <AnimationGroup parentKey="Glow" setToFinalAlpha="true">
+                <Alpha startDelay="0" parentKey="AnimDelay" order="1" duration="0" fromAlpha="0" toAlpha="0"/>
+                <Alpha startDelay="0" smoothing="OUT" order="2" duration="0.12" fromAlpha="0" toAlpha="1"/>
+                <Scale startDelay="0" smoothing="OUT" order="2" duration="0.3" fromScaleX="1.6" fromScaleY="1.6" toScaleX="1" toScaleY="1"/>
+                <Alpha smoothing="OUT" order="3" startDelay="0.25" duration="0.5" fromAlpha="1" toAlpha="0"/>
+            </AnimationGroup>
+        </Animations>
+    </Texture>
+
     <Frame name="NarciTalentTreeNodeTemplate" virtual="true" mixin="NarciTalentTreeNodeMixin">
         <Size x="32" y="32"/>
         <Layers>
@@ -131,6 +139,14 @@
                 </Texture>
             </Layer>
         </Layers>
+        <!--Animations>
+            <AnimationGroup parentKey="AnimPush">
+                <Scale startDelay="0" parentKey="Anim1" smoothing="OUT" order="1" duration="0.1" fromScaleX="1" fromScaleY="1" toScaleX="0.75" toScaleY="0.75"/>
+                <Scale smoothing="IN_OUT" order="2" duration="0.2" fromScaleX="1" fromScaleY="1" toScaleX="1.467" toScaleY="1.467"/>
+                <Scale smoothing="IN_OUT" order="3" duration="0.15" fromScaleX="1" fromScaleY="1" toScaleX="0.818" toScaleY="0.818"/>
+                <Scale smoothing="IN_OUT" order="4" duration="0.15" fromScaleX="1" fromScaleY="1" toScaleX="1.111" toScaleY="1.111"/>
+            </AnimationGroup>
+        </Animations-->
         <Scripts>
             <OnEnter method="OnEnter"/>
             <OnLeave method="OnLeave"/>
@@ -776,8 +792,6 @@
                                             <Alpha smoothing="OUT" order="1" duration="0.12" fromAlpha="0" toAlpha="1"/>
                                             <Scale smoothing="OUT" order="1" duration="0.3" fromScaleX="1.6" fromScaleY="1.6" toScaleX="1" toScaleY="1"/>
                                             <Alpha smoothing="OUT" order="2" startDelay="0.25" duration="0.5" fromAlpha="1" toAlpha="0"/>
-                                            <Scripts>
-                                            </Scripts>
                                         </AnimationGroup>
                                     </Animations>
                                 </Texture>
@@ -907,6 +921,35 @@
                     <OnHide method="OnHide"/>
                     <OnEvent method="OnEvent"/>
                 </Scripts>
+            </Frame>
+
+            <Frame parentKey="AnimationFrame" frameLevel="6" hidden="true" setAllPoints="true">
+                <Layers>
+                    <Layer level="ARTWORK">
+                        <Texture parentKey="ActivationShockwave" file="Interface\AddOns\Narcissus\Art\Modules\TalentTree\ActivationShockwave" alphaMode="ADD" hidden="true" alpha="0">
+                            <Size x="72" y="72"/>
+                            <Anchors>
+                                <Anchor point="CENTER" relativeKey="$parent.Icon" relativePoint="CENTER"/>
+                            </Anchors>
+                            <Animations>
+                                <AnimationGroup parentKey="AnimIn">
+                                    <Alpha order="1" duration="0.1" fromAlpha="0" toAlpha="1"/>
+                                    <Scale order="1" duration="1" fromScaleX="0.1" fromScaleY="0.1" toScaleX="14" toScaleY="14"/>
+                                    <Alpha order="1" startDelay="0.4" duration="0.5" fromAlpha="1" toAlpha="0"/>
+                                </AnimationGroup>
+                            </Animations>
+                        </Texture>
+                        <MaskTexture parentKey="ShockwaveMask" hWrapMode="CLAMPTOBLACKADDITIVE" vWrapMode="CLAMPTOBLACKADDITIVE">
+                            <Anchors>
+                                <Anchor point="TOPLEFT" relativeKey="$parent" relativePoint="TOPLEFT"/>
+                                <Anchor point="BOTTOMRIGHT" relativeKey="$parent" relativePoint="BOTTOMRIGHT"/>
+                            </Anchors>
+                            <MaskedTextures>
+                                <MaskedTexture childKey="ActivationShockwave"/>
+                            </MaskedTextures>
+                        </MaskTexture>
+                    </Layer>
+                </Layers>
             </Frame>
         </Frames>
         <Scripts>

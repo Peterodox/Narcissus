@@ -742,7 +742,7 @@ function NarciUIMixin:SetColor(r, g, b)
     end
 end
 
-local SCREEN_WIDTH, SCREEN_HEIGHT = GetPhysicalScreenSize();
+local SCREEN_WIDTH, SCREEN_HEIGHT = GetPhysicalScreenSize();    --Assume players don't change screen resolution (triggers DISPLAY_SIZE_CHANGED)
 
 local function GetPixelForWidget(widget, pixelSize)
     local scale = widget:GetEffectiveScale();

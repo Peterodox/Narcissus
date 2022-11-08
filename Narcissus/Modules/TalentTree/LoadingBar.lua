@@ -2,7 +2,7 @@ local _, addon = ...
 
 local IsSpecializationActivateSpell = IsSpecializationActivateSpell;
 
-local function IsTalentChaningSpell(spellID)
+local function IsTalentChangingSpell(spellID)
     return spellID and IsSpecializationActivateSpell(spellID) or (spellID == 384255);   --COMMIT_COMBAT_TRAIT_CONFIG_CHANGES_SPELL_ID
 end
 
@@ -216,7 +216,7 @@ end
 function NarciTalentTreeLoadingBarMixin:OnEvent(event, ...)
     if event == "UNIT_SPELLCAST_START" then
         local spellID = select(3, ...);
-        if IsTalentChaningSpell(spellID) then
+        if IsTalentChangingSpell(spellID) then
             self:UnregisterEvent(event);
             local _, _, _, startTime, endTime = UnitCastingInfo("player");
             local duration = (endTime - startTime)/1000;
@@ -230,7 +230,7 @@ function NarciTalentTreeLoadingBarMixin:OnEvent(event, ...)
 
     elseif event == "UNIT_SPELLCAST_FAILED" or event == "UNIT_SPELLCAST_INTERRUPTED" then
         local cancelledSpellID = select(3, ...);
-        if IsTalentChaningSpell(cancelledSpellID) then
+        if IsTalentChangingSpell(cancelledSpellID) then
             self:OnInterrupted();
         end
     end

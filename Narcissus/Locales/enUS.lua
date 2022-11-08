@@ -612,6 +612,8 @@ L["Showcase Splash 1"] = "Create turntable animations to showcase your transmog 
 L["Showcase Splash 2"] = "Click the button below to copy items from the Dressing Room.";
 L["Showcase Splash 3"] = "Click the button below to spin your character.";
 L["Showcase Splash 4"] = "Record the screen with video recording software then convert it to GIF.";
+L["Loop Animation Alert Kultiran"] = "Loop - currently broken on Kultiran male";
+
 
 --Item Sets--
 L["Cycle Spec"] = "Press Tab to cycle through specs";

@@ -64,7 +64,7 @@ function NarciTalentTreeNodeMixin:SetNodeType(typeID, ranksPurchased)
             self.IconMask:SetTexture("Interface\\AddOns\\Narcissus\\Art\\Modules\\TalentTree\\NodeMaskCircle");
             self.IconBorder:SetTexCoord(0.25, 0.5, 0, 0.5);
             self.Symbol:SetTexCoord(0, 0.25, 0.25, 0.5);
-        else
+        else    --2
             self.IconMask:SetTexture("Interface\\AddOns\\Narcissus\\Art\\Modules\\TalentTree\\NodeMaskOctagon");
             self.Symbol:SetTexCoord(0.75, 1, 0, 0.25);
             self.IconBorder:SetTexCoord(0, 0.25, 0.5, 1);
@@ -150,7 +150,6 @@ end
 
 
 function NarciTalentTreeNodeMixin:OnEnter()
-    --print("definitionID: "..self.definitionID)
     if NodeUtil.clickable then
         Handler:HighlightButton(self);
         return

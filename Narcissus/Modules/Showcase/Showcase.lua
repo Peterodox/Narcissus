@@ -2727,12 +2727,19 @@ NarciShowcaseLoopToggleMixin = {};
 
 function NarciShowcaseLoopToggleMixin:OnLoad()
     LoopToggle = self;
+
+    local _, _, raceID = UnitRace("player");
+    local sex = UnitSex("player");
+    self.isKultiran = (sex == 2 and raceID == 32) or nil;
 end
 
 function NarciShowcaseLoopToggleMixin:OnEnter()
     self.Icon:SetVertexColor(1, 1, 1);
-    local tooltipText = L["Loop Animation On"];
-    SetUpTooltipText(self, tooltipText, 8);
+    if self.isKultiran then
+        SetUpTooltipText(self, L["Loop Animation Alert Kultiran"], 8);
+    else
+        SetUpTooltipText(self, L["Loop Animation On"], 8);
+    end
 end
 
 function NarciShowcaseLoopToggleMixin:OnLeave()

@@ -38,6 +38,8 @@ local GetSpecializationInfoByID = GetSpecializationInfoByID;
 local GetInspectSpecialization = GetInspectSpecialization;
 local UnitClass = UnitClass;
 local UnitSex = UnitSex;
+local IsSpecializationActivateSpell = IsSpecializationActivateSpell;
+
 --local INSPECT_TRAIT_CONFIG_ID = -1;
 
 local sqrt = math.sqrt;
@@ -64,6 +66,7 @@ local MainFrame;
 local Nodes = {};
 local Branches = {};
 local NodeIDxNode = {};
+local NodeHighlights = {};
 
 local EventCenter = CreateFrame("Frame");
 
@@ -341,6 +344,7 @@ NarciMiniTalentTreeMixin = {};
 
 function NarciMiniTalentTreeMixin:OnLoad()
     MainFrame = self;
+    ClassTalentTooltipUtil:AssignMainFrame(self);
 
     LayoutUtil:UpdatePixel();
 
@@ -441,6 +445,16 @@ function NarciMiniTalentTreeMixin:OnLoad()
         else
             f:Disable();
             f.ButtonText:SetText(errorString);
+        end
+    end);
+
+    self.AnimationFrame.ShockwaveMask:SetTexture("Interface\\AddOns\\Narcissus\\Art\\Masks\\Full", "CLAMPTOBLACKADDITIVE", "CLAMPTOBLACKADDITIVE", "NEAREST");
+    self.AnimationFrame:Hide();
+    self.AnimationFrame:SetScript("OnUpdate", function(f, elapsed)
+        f.t = f.t + elapsed;
+        if f.t > 2 then
+            f:Hide();
+            f.t = nil;
         end
     end);
 end
@@ -743,7 +757,6 @@ function NarciMiniTalentTreeMixin:SetSpecBackground(specID)
         local bgFile, blurFile = TextureUtil:GetSpecBackground(specID);
         self.SpecArt:SetTexture(bgFile);
         self.SideTab.ClipFrame.SpecArt:SetTexture(blurFile);
-        ClassTalentTooltipUtil:SetTooltipBackground(blurFile);
     end
 end
 
@@ -853,10 +866,10 @@ function NarciMiniTalentTreeMixin:AcquireNode()
 end
 
 
-
+--[[
 local BranchUpdater = CreateFrame("Frame");
 
-local MAX_PROCESS_PER_FRAME = 400;    --20
+local MAX_PROCESS_PER_FRAME = 400;
 
 local function BranchUpdater_OnUpdate(self, elapsed)
     local processedThisFrame = 0;
@@ -976,8 +989,25 @@ local function BranchUpdater_OnUpdate(self, elapsed)
     end
 end
 
+--]]
+
+local function PlayActivationAnimationAfterDelay(self, elapsed)
+    self.animT = self.animT + elapsed;
+    if self.activationAnimDelay then
+        if self.animT >= self.activationAnimDelay then
+            self:SetScript("OnUpdate", nil);
+            self.activationAnimDelay = nil;
+            self.animT = nil;
+            MainFrame:PlayActivationAnimation();
+        end
+    else
+        self:SetScript("OnUpdate", nil);
+    end
+
+end
+
 local function BranchUpdater_OnUpdate_OneFrame(self, elapsed)
-    self:SetScript("OnUpdate", nil);
+    self:SetScript("OnUpdate", self.nextOnUpdateFunc);
     for i = 1, #Branches do
         Branches[i]:Hide();
         Branches[i]:ClearAllPoints();
@@ -1047,6 +1077,14 @@ end
 
 function NarciMiniTalentTreeMixin:CreateBranches(nodeIDs)
     self.nodeIDs = nodeIDs;
+
+    if self.activationAnimDelay then
+        self.animT = 0;
+        self.nextOnUpdateFunc = PlayActivationAnimationAfterDelay;
+    else
+        self.nextOnUpdateFunc = nil;
+    end
+
     self:SetScript("OnUpdate", BranchUpdater_OnUpdate_OneFrame);
 end
 
@@ -1078,11 +1116,14 @@ function NarciMiniTalentTreeMixin:OnShow()
     end
     DataProvider:StopCacheWipingCountdown();
     EventCenter:RegisterEvent("CURSOR_CHANGED");
+    EventCenter:RegisterUnitEvent("UNIT_SPELLCAST_SUCCEEDED", "player");
 end
 
 function NarciMiniTalentTreeMixin:OnHide()
+    self.activationAnimDelay = nil;
     DataProvider:StartCacheWipingCountdown();
     EventCenter:UnregisterEvent("CURSOR_CHANGED");
+    EventCenter:UnregisterEvent("UNIT_SPELLCAST_SUCCEEDED");
 end
 
 function NarciMiniTalentTreeMixin:IsInspecting()
@@ -1230,6 +1271,51 @@ function NarciMiniTalentTreeMixin:SetFramePosition(position)
         end
     end
 end
+
+function NarciMiniTalentTreeMixin:PlayActivationAnimation()
+    self.AnimationFrame:StopAnimating();
+    if not self:IsVisible() then
+        self.AnimationFrame:Hide();
+        return
+    end
+    self.AnimationFrame.t = 0;
+    self.AnimationFrame:Show();
+
+    local sqrt = sqrt;
+    local node, highlight;
+    local n = 0;
+    for i = 1, self.numAcitveNodes do
+        node = Nodes[i];
+        if node.isActive then
+            n = n + 1;
+            highlight = NodeHighlights[n];
+            if not highlight then
+                highlight = self.AnimationFrame:CreateTexture(nil, "OVERLAY", "NarciTalentTreeNodeHighlightTemplate");
+                highlight:SetSize(2*BUTTON_SIZE, 2*BUTTON_SIZE);
+                NodeHighlights[n] = highlight;
+            end
+            if node.typeID == 0 then
+                highlight:SetTexCoord(0.5, 1, 0, 0.5); --square
+            elseif node.typeID == 2 then
+                highlight:SetTexCoord(0, 0.5, 0.5, 1); --octagon
+            else
+                highlight:SetTexCoord(0, 0.5, 0, 0.5); --circle
+            end
+            highlight:ClearAllPoints();
+            highlight:SetPoint("CENTER", node, "CENTER", 0, 0);
+            highlight.Glow.AnimDelay:SetStartDelay(sqrt( (node.iX - 9)*(node.iX - 9) + (node.iY - 5)*(node.iY - 5)) * 0.05);
+            highlight.Glow:Play();
+            highlight:Show();
+        end
+    end
+    self.AnimationFrame.ActivationShockwave.AnimIn:Play();
+    self.AnimationFrame.ActivationShockwave:Show();
+
+    for i = n + 1, #NodeHighlights do
+        NodeHighlights[i]:Hide();
+    end
+end
+
 
 
 NarciTalentTreeLoadoutButtonMixin = {};
@@ -1874,7 +1960,6 @@ EventCenter.onEvent = function(self, event, ...)
 
     elseif event == "ACTIVE_COMBAT_CONFIG_CHANGED" then
         local configID = ...;
-        --print(event, configID);
 
     elseif event == "ACTIVE_PLAYER_SPECIALIZATION_CHANGED" then
         if MainFrame.SideTab:IsShown() then
@@ -1905,6 +1990,16 @@ EventCenter.onEvent = function(self, event, ...)
 
     elseif event == "CURSOR_CHANGED" then
         MainFrame.MacroForge:OnCursorChanged(...);
+
+    elseif event == "UNIT_SPELLCAST_SUCCEEDED" then
+        local spellID = select(3, ...);
+        if spellID then
+            if IsSpecializationActivateSpell(spellID) then
+                MainFrame.activationAnimDelay = 0.4;    --use delay for spec change coz game freezes shortly
+            elseif spellID == 384255 then
+                MainFrame.activationAnimDelay = 0;
+            end
+        end
     end
 
     --[[
