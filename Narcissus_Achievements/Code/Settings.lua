@@ -30,6 +30,7 @@ local function ShowChildren(self, state)
 end
 
 local Structure = {
+    --[[
     [1] = {
         name = L["Use Achievement Panel"],
         type = "checkbox",
@@ -102,8 +103,9 @@ local Structure = {
             end
         },
     },
+    --]]
 
-    [3] = {
+    {
         name = UI_SCALE,
         type = "slider",
         key = "Scale",
@@ -112,7 +114,7 @@ local Structure = {
         },
     },
 
-    [4] = {
+    {
         name = L["Themes"],
         type = "radio",
         key = "Theme",
@@ -124,7 +126,7 @@ local Structure = {
         },
     },
 
-    [5] = {
+    {
         name = L["Hotkey"],
         type = "keybind",
         data = {
@@ -132,7 +134,7 @@ local Structure = {
         },
     },
 
-    [6] = {
+    {
         name = L["Show Unearned Mark"],
         type = "checkbox",
         key = "ShowRedMark",

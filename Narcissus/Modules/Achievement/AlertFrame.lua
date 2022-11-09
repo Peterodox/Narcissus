@@ -129,30 +129,47 @@ end
 
 
 ---- Alert System ----
-local EventListener = CreateFrame("Frame");
-local NarciCriteriaAlertSystem = AlertFrame:AddQueuedAlertFrameSubSystem("NarciCriteriaAlertFrameTemplate", CriteriaAlertFrame_SetUp, 2, 0);
-NarciAchievementAlertSystem = AlertFrame:AddQueuedAlertFrameSubSystem("NarciAchievementAlertFrameTemplate", AchievementAlertFrame_SetUp, 2, 6);
+local AchievementAlertUtil = {};
+addon.AchievementAlertUtil = AchievementAlertUtil;
 
-function NarciAchievementAlertSystem:Enable()
-    EventListener:RegisterEvent("ACHIEVEMENT_EARNED");
-    EventListener:RegisterEvent("CRITERIA_EARNED");
-    if AlertFrame then
-        AlertFrame:UnregisterEvent("ACHIEVEMENT_EARNED");
-        AlertFrame:UnregisterEvent("CRITERIA_EARNED");
+function AchievementAlertUtil:Enable()
+    if not AlertFrame then return end;
+
+    if not self.achievementAlertSystem then
+        self.achievementAlertSystem = AlertFrame:AddQueuedAlertFrameSubSystem("NarciAchievementAlertFrameTemplate", AchievementAlertFrame_SetUp, 2, 6);
     end
+    if not self.criteriaAlertSystem then
+        self.criteriaAlertSystem = AlertFrame:AddQueuedAlertFrameSubSystem("NarciCriteriaAlertFrameTemplate", CriteriaAlertFrame_SetUp, 2, 0);
+    end
+
+    if not self.listener then
+        self.listener = CreateFrame("Frame");
+        self.listener:SetScript("OnEvent", function(self, event, ...)
+            if event == "ACHIEVEMENT_EARNED" then
+                self.achievementAlertSystem:AddAlert(...);
+            elseif event == "CRITERIA_EARNED" then
+                self.criteriaAlertSystem:AddAlert(...);
+            end
+        end)
+    end
+
+    self.listener:RegisterEvent("ACHIEVEMENT_EARNED");
+    self.listener:RegisterEvent("CRITERIA_EARNED");
+
+    AlertFrame:UnregisterEvent("ACHIEVEMENT_EARNED");
+    AlertFrame:UnregisterEvent("CRITERIA_EARNED");
 end
 
-function NarciAchievementAlertSystem:Disable()
-    EventListener:UnregisterEvent("ACHIEVEMENT_EARNED");
-    EventListener:UnregisterEvent("CRITERIA_EARNED");
-    if AlertFrame then
+function AchievementAlertUtil:Disable()
+    if self.listener then
+        self.listener:UnregisterEvent("ACHIEVEMENT_EARNED");
+        self.listener:UnregisterEvent("CRITERIA_EARNED");
         AlertFrame:RegisterEvent("ACHIEVEMENT_EARNED");
         AlertFrame:RegisterEvent("CRITERIA_EARNED");
     end
 end
 
-
-function NarciAchievementAlertFrame_OnClick(self, button, down)
+function AchievementAlertUtil.AlertFrame_OnClick(self, button, down)
     if button == "RightButton" then
         self:StopAnimating();
         self:Hide();
@@ -167,14 +184,6 @@ function NarciAchievementAlertFrame_OnClick(self, button, down)
         Narci.LoadAchievementPanel(self.id);
     end
 end
-
-EventListener:SetScript("OnEvent", function(self, event, ...)
-    if event == "ACHIEVEMENT_EARNED" then
-        NarciAchievementAlertSystem:AddAlert(...);
-    elseif event == "CRITERIA_EARNED" then
-        NarciCriteriaAlertSystem:AddAlert(...);
-    end
-end)
 
 ------------------------------------------------------------------------------------------------------
 --/run NarciAchievementAlertSystem:AddAlert(13699)

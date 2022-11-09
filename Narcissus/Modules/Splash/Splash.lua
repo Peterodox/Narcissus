@@ -733,15 +733,17 @@ function EventListener:AttempToOpenSplash()
     if (CinematicFrame and CinematicFrame:IsShown()) or (MovieFrame and MovieFrame:IsShown()) then
         self:RegisterEvent("CINEMATIC_STOP");
     elseif (SplashFrame and SplashFrame:IsShown()) then
+        return
+        --[[
         if not self.splashFrameHooked then
             self.splashFrameHooked = true;
-            --There might be a quest/talking head so our splash window can be an interruption
             SplashFrame:HookScript("OnHide", function()
                 After(1, function()
                     ShowSplash();
                 end)
             end);
         end
+        --]]
     else
         ShowSplash();
     end

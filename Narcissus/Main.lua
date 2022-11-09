@@ -3004,7 +3004,7 @@ local function ShowAttributeButton(bool)
 	ItemLevelFrame:SetShown(true);
 end
 
-function AssignFrame()
+local function AssignFrame()
 	local statFrame = Narci_DetailedStatFrame;
 	local radar = RadarChart;
 	STAT_STABLE[1] = statFrame.Primary;
@@ -3623,7 +3623,6 @@ do
 	end
 
 	RegisterNewSlashCommand(callback, command, commandAlias);
-	--securecallfunction(RegisterNewSlashCommand, callback, command, commandAlias)
 end
 
 ----------------

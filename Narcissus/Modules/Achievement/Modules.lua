@@ -1,3 +1,6 @@
+local _, addon = ...
+local AchievementAlertUtil = addon.AchievementAlertUtil;
+
 local GetAchievementInfo = GetAchievementInfo;
 local GetParentAchievementID = NarciAPI.GetParentAchievementID;
 
@@ -127,6 +130,9 @@ end
 
 -------------------------------------------------------------------------------------
 --Redirect Blizzard Achievement to Narcissus Achievement Frame
+--Temporarily disabled due to taint in Dragonflight
+
+--[[
 local Original_OnBlockHeaderClick = ACHIEVEMENT_TRACKER_MODULE.OnBlockHeaderClick;
 local Original_OpenAchievementFrameToAchievement = OpenAchievementFrameToAchievement;
 local Original_AchievementAlertFrame_OnClick = AchievementAlertFrame_OnClick;
@@ -177,16 +183,21 @@ local function UpdateAchievementSettings()
         HookAchievementTooltip()
         ENABLE_TOOLTIP = true;
         if NarciAchievementOptions.ReplaceToast then
-            NarciAchievementAlertSystem:Enable();
+            AchievementAlertUtil:Enable();
+            AchievementAlertFrame_OnClick = AchievementAlertUtil.AlertFrame_OnClick;
         else
-            NarciAchievementAlertSystem:Disable();
-            AchievementAlertFrame_OnClick = NarciAchievementAlertFrame_OnClick;
+            AchievementAlertUtil:Disable();
+            AchievementAlertFrame_OnClick = Original_AchievementAlertFrame_OnClick;
         end
     else
         RedirectFrame:RestoreFunctions();
         ENABLE_TOOLTIP = false;
-        NarciAchievementAlertSystem:Disable();
+        AchievementAlertUtil:Disable();
     end
+end
+--]]
+
+local function UpdateAchievementSettings()
 end
 
 Narci.UpdateAchievementSettings = UpdateAchievementSettings;

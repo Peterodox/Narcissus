@@ -83,8 +83,8 @@ Modules\Showcase\Showcase.xml
 
 Modules\AFKScreen\AFKScreen.xml
 Modules\AR\AR.xml
-Modules\Splash\FakeMail.xml
-Modules\Splash\Splash.xml
+#Modules\Splash\FakeMail.xml
+#Modules\Splash\Splash.xml
 
 Modules\Achievement\Core.xml
 Modules\Statistics\Core.lua

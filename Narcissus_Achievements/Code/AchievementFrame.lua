@@ -3319,9 +3319,6 @@ local function InitializeFrame(frame)
     CreateTabButtons();
     NarciAchievement_SelectTheme(NarciAchievementOptions.Theme or 1);
 
-    --
-    tinsert(UISpecialFrames, frame:GetName());
-
     frame:Show();
     UpdateSummaryFrame();
 
@@ -3365,6 +3362,15 @@ function NarciAchievementFrameMixin:OnLoad()
     self:SetAttribute("nodeignore", true);  --ConsolePort: Ignore this frame
 end
 
+local function AchievementFrame_OnKeyDown(self, key)
+    if key == "ESCAPE" then
+        self:SetPropagateKeyboardInput(false);
+        self:Hide();
+    else
+        self:SetPropagateKeyboardInput(true);
+    end
+end
+
 function NarciAchievementFrameMixin:OnShow()
     if self.pendingCategoryID then
         SelectCategory(self.pendingCategoryID);
@@ -3376,10 +3382,12 @@ function NarciAchievementFrameMixin:OnShow()
     self:RegisterDynamicEvent(true);
     RefreshInspection();
     StatCardController:UpdateList();
+    self:SetScript("OnKeyDown", AchievementFrame_OnKeyDown);
 end
 
 function NarciAchievementFrameMixin:OnHide()
     self:RegisterDynamicEvent(false);
+    self:SetScript("OnKeyDown", nil);
 end
 
 function NarciAchievementFrameMixin:RegisterDynamicEvent(state)
@@ -3684,6 +3692,12 @@ function NarciAchievement_SelectTheme(index)
     local CloseButton = MainFrame.CloseButton;
     CloseButton:ClearAllPoints();
     CloseButton:SetPoint("TOPRIGHT", MainFrame, "TOPRIGHT", -11, -11 + offsetY);
+    CloseButton.texture:SetTexture(texturePrefix.."CloseButton");
+    if index == 2 then
+        CloseButton:SetSize(39, 26);
+    else
+        CloseButton:SetSize(36, 26);
+    end
 
     local SearchBox = HeaderFrame.SearchBox
     SearchBox:ClearAllPoints();
@@ -3698,14 +3712,6 @@ function NarciAchievement_SelectTheme(index)
         reference:SetHeight(35);
     else
         reference:SetHeight(32);
-    end
-
-    local CloseButton = MainFrame.CloseButton;
-    CloseButton.texture:SetTexture(texturePrefix.."CloseButton");
-    if index == 2 then
-        CloseButton:SetSize(39, 26);
-    else
-        CloseButton:SetSize(36, 26);
     end
 
     SummaryButton:ClearAllPoints();
