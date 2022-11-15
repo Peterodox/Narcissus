@@ -44,8 +44,21 @@ if BackdropTemplateMixin then
 end
 
 --GetSlotVisualID
+local IGNORED_MOG_SLOT = {
+    [11] = true,
+    [12] = true,
+    [13] = true,
+    [14] = true,
+};
+
+local function IsSlotValidForTransmog(slotID)
+    return (slotID) and (not IGNORED_MOG_SLOT[slotID])
+end
+NarciAPI.IsSlotValidForTransmog = IsSlotValidForTransmog;
+
+
 local function NarciAPI_GetSlotVisualID(slotID)
-    if (slotID > 10 and slotID < 15) then
+    if IGNORED_MOG_SLOT[slotID] then
         --slotID = 2 ~ Use neck to show right shoulder
         return 0, 0;
     end
@@ -1578,17 +1591,31 @@ end
 --------------------
 -----Play Voice-----
 --------------------
-local _, _, raceID = UnitRace("player");
-local genderID = UnitSex("player") or 2;
-raceID = raceID or 1;
-genderID = genderID - 1;    --(2→1) Male (3→2) Female
-if raceID == 25 or raceID == 26 then
-    --Pandaren faction
-    raceID = 24;
-end
 
-local VOICE_BY_RACE = {
-    --[raceID] = { [gender] = {Error_NoTarget, } }
+local ERROR_NOTARGET, ALERT_INCOMING;
+
+do
+    local _, _, raceID = UnitRace("player");
+    local genderID = UnitSex("player") or 2;
+    raceID = raceID or 1;
+    genderID = genderID - 1;    --(2→1) Male (3→2) Female
+    if raceID == 25 or raceID == 26 then
+        --Pandaren faction
+        raceID = 24;
+    elseif raceID == 52 or raceID == 70 then
+        raceID = 52;
+    end
+
+    if raceID == 37 then    --Mechagnome
+        IGNORED_MOG_SLOT[8] = true;     --feet
+        IGNORED_MOG_SLOT[9] = true;     --wrist
+        IGNORED_MOG_SLOT[10] = true;    --hands
+    elseif raceID == 52 then    --Dracthyr
+
+    end
+
+    local VOICE_BY_RACE = {
+    --[raceID] = { [gender] = {Error_NoTarget, ALERT_INCOMING} }
 	[1] = {[1] = {1906, 2669, },
 				[2] = {2030, 2681, }},		            --1 Human 
 
@@ -1657,16 +1684,22 @@ local VOICE_BY_RACE = {
                 
 	[37] = {[1] = {143863, 143892, },
 				[2] = {144223, 144275, }},		        --37 Mechagnome!!!!
-}
 
-local ERROR_NOTARGET, ALERT_INCOMING;
-if VOICE_BY_RACE[raceID] then
-    ERROR_NOTARGET = VOICE_BY_RACE[raceID][genderID][1];
-    ALERT_INCOMING = VOICE_BY_RACE[raceID][genderID][2];
+    [52] = {[1] = {212644, 212598, },
+        [2] = {212644, 212688, }},		                --52 Dracthyr
+    };
 
+    if VOICE_BY_RACE[raceID] then
+        ERROR_NOTARGET = VOICE_BY_RACE[raceID][genderID][1];
+        ALERT_INCOMING = VOICE_BY_RACE[raceID][genderID][2];
+    end
+
+    ERROR_NOTARGET = ERROR_NOTARGET or 2030;
+    ALERT_INCOMING = ALERT_INCOMING or 2669;
+
+    wipe(VOICE_BY_RACE);
 end
-ERROR_NOTARGET = ERROR_NOTARGET or 2030;
-ALERT_INCOMING = ALERT_INCOMING or 2669;
+
 
 function Narci:PlayVoice(name)
     if name == "ERROR" then

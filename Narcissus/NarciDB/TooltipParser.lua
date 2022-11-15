@@ -1476,6 +1476,18 @@ end
 
 NarciAPI.GetBagItemSubText = GetBagItemSubText;
 
+
+local function GetCreatureName(creatureID)
+    if not creatureID then return end;
+    local tooltipData = GetInfoByHyperlink("unit:Creature-0-0-0-0-"..creatureID);
+    if tooltipData then
+        return GetLineText(tooltipData.lines, 1);
+    end
+end
+
+NarciAPI.GetCreatureName = GetCreatureName;
+
+
 --]]
 
 --[[

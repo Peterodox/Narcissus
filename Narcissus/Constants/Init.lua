@@ -15,7 +15,7 @@ function Loader:Init()
     local _, _, _, tocVersion = GetBuildInfo();
     tocVersion = tonumber(tocVersion);
 
-    if tocVersion ~= self.dbVersion then
+    if tocVersion and tocVersion > self.dbVersion then
         self.requireUpdate = true;
         self:NewMsg("New Game Version: %s |cff808080(DB version %s)|r", tocVersion, self.dbVersion);
     end

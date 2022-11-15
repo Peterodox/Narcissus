@@ -74,9 +74,11 @@ function DataManager:LoadData()
         NarciStatisticsDB.InstalledDate = time();
     end
 
+    --[[
     for id, data in pairs(self.List) do
         self.ListByName[data.name] = id;
     end
+    --]]
 end
 
 function DataManager:SaveAccountData(field, value)
@@ -117,6 +119,8 @@ function DataManager:GetDataByID(id)
     end
 end
 
+--Temporary
+--[[
 function DataManager:GetDataByName(name)
     self:GetDataByID(self.ListByName[name]);
 end
@@ -128,9 +132,6 @@ function DataManager:PrintList()
     end
 end
 
-
---Temporary
---[[
 SLASH_PLAYERSTATS1 = "/playerstats";
 SlashCmdList["PLAYERSTATS"] = function(msg)
     msg = strlower(msg);
@@ -187,7 +188,7 @@ function SharedTrackerMixin:Load()
 end
 
 -------------------------------------------------------------------
-
+--[[
 local CovenantChoice = CreateFromMixins(SharedTrackerMixin);
 
 function CovenantChoice:Load()
@@ -263,149 +264,12 @@ function CovenantChoice:HandleEvent(event, ...)
     end
     return killEvent
 end
-
+--]]
 
 --------------------------------------------------------------------------------
-local GetQuestExpansion = GetQuestExpansion;
-local IsQuestTask = C_QuestLog.IsQuestTask; --World Quest / Bonus Objectives
-local GetQuestID = GetQuestID;
-local GetQuestText = GetQuestText;
-local GetObjectiveText = GetObjectiveText;
-local gsub = string.gsub;
-local strlenutf8 = strlenutf8;
-
 --Track how much time does player spend on reading quests
-
-local ReadQuest = CreateFromMixins(SharedTrackerMixin);
-
-local function CountWords(text)
-    text = gsub(text, "%s+", " ");
-    local numWords = strlenutf8(text);
-    text = gsub(text, "%s+", "");
-    numWords = numWords - strlenutf8(text) + 1;
-    return numWords or 0
-end
-
-function ReadQuest:Load()
-    self.name = "ReadQuest";
-    EventListener:HookScript("OnEvent", function(frame, event, ...)
-        self:OnEvent(event, ...);
-    end);
-
-    local events = {"QUEST_ACCEPTED", "QUEST_TURNED_IN",
-    "QUEST_DETAIL", "QUEST_COMPLETE",
-    }
-    for i = 1, #events do
-        self:RegisterEvent(events[i]);
-    end
-
-    local textLocale = GetLocale();
-    if textLocale == "zhCN" or textLocale == "zhTW" or textLocale == "koKR" then
-        function CountWords(text)
-            text = gsub(text, "%s+", "");
-            local numWords = strlenutf8(text);
-            return numWords;
-        end
-    end
-
-    if not NarciStatisticsDB.questReadingTime then
-        NarciStatisticsDB.questReadingTime = {};
-    end
-    if not NarciStatisticsDB.questReadingTime[textLocale] then
-        NarciStatisticsDB.questReadingTime[textLocale] = {};
-    end
-    self.db = NarciStatisticsDB.questReadingTime[textLocale];
-end
-
-function ReadQuest:HandleEvent(event, ...)
-    --print(event);
-    if event == "QUEST_ACCEPTED" or event == "QUEST_TURNED_IN" then
-        local questID = ...;
-        local isRelevant = self:IsQuestRelevant(questID);
-        --print("QuestID: "..questID);
-        --print("isRelevant: "..tostring(isRelevant));
-        if isRelevant and questID == self.activeQuestID then
-            self:SaveReadingTime(questID, event == "QUEST_TURNED_IN");
-        end
-    elseif event == "QUEST_DETAIL" then
-        self:UpdateActiveQuestData();
-    elseif event == "QUEST_COMPLETE" then
-        local questID = GetQuestID();
-        local isRelevant = self:IsQuestRelevant(questID);
-        if isRelevant then
-            self:UpdateActiveQuestData(true);
-        end
-    end
-end
-
-function ReadQuest:IsQuestRelevant(questID)
-    if questID then
-        return (GetQuestExpansion(questID) == 8) and (not IsQuestTask(questID)) --Shadowlands
-    else
-        return false
-    end
-end
-
-function ReadQuest:UpdateActiveQuestData(questComplete)
-    self.questlineLength = self:GetQuestlineLength(questComplete);
-    self.timeStartReading = time();
-    self.activeQuestID = GetQuestID();
-    self.cache = nil;
-end
-
-function ReadQuest:SaveReadingTime(questID, questComplete)
-    local timeReading = self.timeStartReading;
-    local questlineLength = self.questlineLength;
-    if questID and timeReading and questlineLength then
-        timeReading = time() - timeReading;
-    else
-        return
-    end
-    --print("Quest: "..questID);
-    --print("Reading Time: "..timeReading);
-
-    if self.db[questID] then
-        if questComplete and not self.db[questID][3] then
-            local v1 = self.db[questID][1] or 0;
-            local v2 = self.db[questID][2] or 0;
-            self.db[questID] = {v1 + questlineLength, v2 + timeReading, true};
-        end
-    else
-        self.db[questID] = {questlineLength, timeReading, questComplete};
-    end
-end
-
-function ReadQuest:GetQuestlineLength(questComplete)
-    local numWords = 0;
-    local tempText;
-    if questComplete then
-        tempText = GetRewardText();
-    else
-        tempText = GetQuestText();
-    end
-    
-    if not tempText or tempText == "" then
-        return numWords
-    end
-
-    --tempText = gsub(tempText, "[\r\n]", " ");
-    numWords = CountWords(tempText);
-    
-    if not questComplete then
-        tempText = GetObjectiveText();
-        if not tempText or tempText == "" then
-            return numWords
-        end
-        numWords = numWords + CountWords(tempText);
-    end
-    --print(numWords);
-    return numWords
-end
-
-function ReadQuest:GetStatistics()
-    --use cache
-    if not self.cache then
-        self.cache = {};
+local function ReadQuest_CompressOldData()
+    if NarciStatisticsDB.questReadingTime then
         for locale, questData in pairs(NarciStatisticsDB.questReadingTime) do
             local numQuests = 0;
             local numWords = 0;
@@ -421,47 +285,39 @@ function ReadQuest:GetStatistics()
                     speed = math.floor(numWords / timeReading * 60 + 0.5);
                     timeReading = FormatTime(timeReading);
                 end
-                self.cache = {locale, numQuests, numWords, timeReading, speed};
-                --just get one locale for now
+                NarciStatisticsDB.SLQuestReadingTime = {locale, numQuests, numWords, timeReading, speed};
                 break
             end
         end
-    end
-    return unpack(self.cache)
-end
-
-NarciAPI.GetQuestStatistics = function()
-    return ReadQuest:GetStatistics()
-end
-
-function ReadQuest:PrintResult()
-    print(" ");
-    local Y = "|CFFFFD100";
-
-    for locale, questData in pairs(NarciStatisticsDB.questReadingTime) do
-        local numQuests = 0;
-        local numWords = 0;
-        local timeReading = 0;
-        for questID, data in pairs(questData) do
-            numQuests = numQuests + 1;
-            numWords = numWords + (data[1] or 0);
-            timeReading = timeReading + (data[2] or 0);
-        end
-        if timeReading > 0 then
-            local wpm = math.floor(numWords / timeReading * 60 + 0.5);
-            print(Y.."Language:|r "..locale);
-            print(Y.."Quest:|r "..numQuests);
-            print(Y.."Words:|r "..numWords);
-            print(Y.."Duration:|r "..FormatTime(timeReading));
-            print(Y.."Speed:|r "..wpm.." wpm")
-            print(" ");
-        end
+        NarciStatisticsDB.questReadingTime = nil;
     end
 end
 
-local function PrintReadingSpeed()
-    ReadQuest:PrintResult();
+local function ReadQuest_GetStatistics()
+    if NarciStatisticsDB.SLQuestReadingTime then
+        return unpack(NarciStatisticsDB.SLQuestReadingTime)
+    end
 end
+
+NarciAPI.GetQuestStatistics = ReadQuest_GetStatistics;
+
+------------------------------------------------------------------------------------------------------------
+
+
+do
+    local _, addon = ...
+    local function PlayerEnteringWorld_OneTime()
+        DataManager:LoadData();
+        ReadQuest_CompressOldData();
+    end
+    addon.AddInitializationCallback(PlayerEnteringWorld_OneTime);
+end
+
+--[[
+hooksecurefunc("StaticPopup_Show", function(name)
+    print(name)
+end)
+
 
 local function PrintAddOnUsage()
     local timeSpent = NarciStatisticsDB.TimeSpentInNarcissus or 0;
@@ -486,7 +342,6 @@ local function PrintScreenshotsTaken()
     print(string.format("|cFFFFD100Screenshots Taken In Narcissus:|r %s", numTaken));
 end
 
-------------------------------------------------------------------------------------------------------------
 DataManager.List ={
     [1] = {
         name = "TimeSpentInNarcissus",
@@ -507,30 +362,6 @@ DataManager.List ={
             {name = "CovenantDecision", format = "|cFFFFD100Made the final decision:|r %s"},
         },
     },
-
-    [4] = {
-        name = "ReadingSpeed",
-        printFunc = PrintReadingSpeed,
-    },
 };
 
---local events = {"GOSSIP_SHOW", "GOSSIP_CLOSED", "QUEST_ACCEPTED", "QUEST_TURNED_IN", "ADDON_LOADED", "PLAYER_CHOICE_UPDATE", "PLAYER_CHOICE_CLOSE"}
-EventListener:RegisterEvent("PLAYER_ENTERING_WORLD");
-
-
-EventListener:SetScript("OnEvent", function(self, event, ...)
-    if event == "PLAYER_ENTERING_WORLD" then
-        self:UnregisterEvent(event);
-        DataManager:LoadData();
-        --CovenantChoice:Load();    --Disabled Dragonflight
-        --ReadQuest:Load();
-    end
-    --print(event);
-    --print(...)
-end)
-
---[[
-hooksecurefunc("StaticPopup_Show", function(name)
-    print(name)
-end)
 --]]

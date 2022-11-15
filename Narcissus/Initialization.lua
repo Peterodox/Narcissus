@@ -1,7 +1,7 @@
-local NARCI_VERSION_INFO = "1.3.3";
+local NARCI_VERSION_INFO = "1.3.4";
 
-local VERSION_DATE = 1668008247;
-local CURRENT_VERSION = 10303;
+local VERSION_DATE = 1668528336;
+local CURRENT_VERSION = 10304;
 local PREVIOUS_VERSION = CURRENT_VERSION;
 local TIME_SINCE_LAST_UPDATE = 0;
 
@@ -234,6 +234,13 @@ local function LoadSettings()
 end
 
 
+local CallbackList = {};
+local function AddFunctionToCallbackList(callback)
+    table.insert(CallbackList, callback);
+end
+addon.AddInitializationCallback = AddFunctionToCallbackList;
+
+
 local Initialization = CreateFrame("Frame");
 Initialization:RegisterEvent("ADDON_LOADED");
 Initialization:RegisterEvent("PLAYER_ENTERING_WORLD");
@@ -249,6 +256,11 @@ Initialization:SetScript("OnEvent",function(self,event,...)
         self:UnregisterEvent(event);
         self:SetScript("OnEvent", nil);
         LoadSettings();
+
+        for i, callback in ipairs(CallbackList) do
+            callback();
+        end
+        CallbackList = nil;
     end
 end);
 

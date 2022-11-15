@@ -1,4 +1,4 @@
-## Interface: 100000
+## Interface: 100002
 ## Plain Title: Narcissus GamePad
 ## Version: 1.0
 ## LoadOnDemand: 1

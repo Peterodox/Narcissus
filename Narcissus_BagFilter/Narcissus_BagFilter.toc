@@ -1,4 +1,4 @@
-## Interface: 100000
+## Interface: 100002
 ## Version: 1.0.0
 ## LoadOnDemand: 0
 ## RequiredDeps: Narcissus

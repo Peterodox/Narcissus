@@ -1,6 +1,6 @@
-## Interface: 100000
+## Interface: 100002
 ## Plain Title: Narcissus
-## Version: 1.3.2
+## Version: 1.3.4
 
 ## Title: |cffA236EFN|cff9448F1a|cff865BF2r|cff786DF4c|cff6A80F6i|cff5D92F7s|cff4FA4F9s|cff41B7FAu|cff33C9FCs|r
 
@@ -104,3 +104,4 @@ Guide\Guide.xml
 # Modules\AnimKit\AnimKit.xml
 
 #Experimental Features
+#Modules\DragonflightQoL\Main.xml

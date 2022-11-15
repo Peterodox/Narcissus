@@ -2816,7 +2816,9 @@ function NarciBarberShopLoadingFrameMixin:LoadNextPortrait(buttonID)
     self.current = self.current + 1;
     if self.current > self.total then
         --complete
-        self:OnLoadingComplete();
+        if self.isLoading then
+            self:OnLoadingComplete();
+        end
     else
         local button = ACTIVE_BUTTON_POOL[self.current];
         if button then
@@ -2824,6 +2826,7 @@ function NarciBarberShopLoadingFrameMixin:LoadNextPortrait(buttonID)
             self.t = 0;
             self.button = button;
             self:SetScript("OnUpdate", LoadingFrame_UpdatePortraitDelay);
+            self.isLoading = true;
             self.Progress:SetText(self.current .. " / " ..self.total);
         else
             self:OnLoadingComplete();
@@ -2834,6 +2837,7 @@ end
 function NarciBarberShopLoadingFrameMixin:OnLoadingComplete()
     --self:StopAnimating();
     self:SetScript("OnUpdate", nil);
+    self.isLoading = false;
     --self:Hide();
     FadeFrame(self, 0.5, 0);
 

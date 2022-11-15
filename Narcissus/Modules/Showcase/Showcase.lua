@@ -9,6 +9,7 @@ local UseModelBackgroundImage = addon.UseModelBackgroundImage;
 
 local FadeFrame = NarciFadeUI.Fade;
 local GetAnimationName = NarciAnimationInfo.GetOfficialName;
+local IsSlotValidForTransmog = NarciAPI.IsSlotValidForTransmog;
 
 local IsShiftKeyDown = IsShiftKeyDown;
 local GetCursorPosition = GetCursorPosition;
@@ -1822,7 +1823,9 @@ function NarciOutfitShowcaseMixin:SyncModel()
 end
 
 local function IsValidTransmogInfo(slotID, info)
-    return (info.appearanceID > 0) and ((slotID ~= 5 and slotID ~= 19) or ( not IsHiddenVisual(info.appearanceID) ));  --skip hidden tabard/shirt
+    if IsSlotValidForTransmog(slotID) then
+        return (info.appearanceID > 0) and ((slotID ~= 5 and slotID ~= 19) or ( not IsHiddenVisual(info.appearanceID) ));  --skip hidden tabard/shirt
+    end
 end
 
 function NarciOutfitShowcaseMixin:UpdateItemText(transmogInfoList)

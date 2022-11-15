@@ -1370,6 +1370,12 @@ end
 NarciAPI.GetPvpTalentTooltip = GetPvpTalentTooltip;
 
 
+local function VoidFunc()
+end
+
+NarciAPI.GetBagItemSubText = VoidFunc;
+NarciAPI.GetBagItemSubText = VoidFunc;
+
 --[[
 itemName, itemLink, itemQuality, itemLevel, itemMinLevel, itemType, itemSubType, itemStackCount,
 itemEquipLoc, itemTexture, sellPrice, classID, subclassID, bindType, expacID, (setID), isCraftingReagent
