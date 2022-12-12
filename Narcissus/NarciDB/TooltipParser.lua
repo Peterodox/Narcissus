@@ -148,6 +148,21 @@ local PATTERN_CLASS_REQUIREMENT = Pattern_WrapSpace(ITEM_CLASSES_ALLOWED);
 local PATTERN_AMMO_DPS = gsub(AMMO_DAMAGE_TEMPLATE, "%%s", "([%%d.]+)");
 local PATTERN_PROFESSION_QUALITY = Pattern_WrapSpace(PROFESSIONS_CRAFTING_QUALITY or "Quality: %s");
 
+local SOCKET_TYPE_TEXTURE =	{
+    Yellow = "Yellow",
+    Red = "Red",
+    Blue = "Blue",
+    Hydraulic = "HYDRAULIC",
+    Cogwheel = "COGWHEEL",
+    Meta = "meta",
+    Prismatic = "prismatic",
+    PunchcardRed = "PunchcardRed",
+    PunchcardYellow = "PunchcardYellow",
+    PunchcardBlue = "PunchcardBlue",
+    Domination = "Domination",
+    Cypher = "META",
+    Tinker = "PunchcardRed",
+};
 
 do
     if TEXT_LOCALE == "zhCN" then
@@ -463,7 +478,7 @@ local function GetItemEnchantText(itemLink, colorized)
                     if colorized then
                         enchantText = "|cff5fbd6b"..enchantText.."|r";
                     end
-                    return enchantText
+                    return ReformatCraftingQualityText(enchantText)
                 end
             end
         else
@@ -760,6 +775,7 @@ local function GetGemBonusFromGem(gem)
     requiredItemLevel = tonumber(requiredItemLevel);
 
     if bonusText then
+        bonusText = ReformatCraftingQualityText(bonusText);
         GEM_BONUS_CACHE[gem] = {bonusText, requiredItemLevel};
     end
 
@@ -1003,11 +1019,14 @@ local function GetCompleteItemData(tooltipData, itemLink)
                                     end
                                 end
                             else
-                                icon = "Interface\\ItemSocketingFrame\\UI-EmptySocket-"..socketType;
+                                local textureKit = SOCKET_TYPE_TEXTURE[socketType] or "Prismatic";
+                                icon = "Interface\\ItemSocketingFrame\\UI-EmptySocket-"..textureKit;
                                 gemName = lines[i].args[2].stringVal;   --Empty X Socket
                                 gemEffect = gemName;
                             end
                             data.socketInfo[socketOrderID] = {icon, gemName, gemLink, gemEffect};
+
+                            DT = lines[i]
                         end
                     end
                 end
@@ -1267,10 +1286,12 @@ local function GetItemSocketInfo(itemLink)
             if not socektInfo then
                 socektInfo = {};
             end
+            socketType = lines[i].args[4].stringVal;
             if not socektInfo[gemOrderID] then
-                socketType = lines[i].args[4].stringVal;
                 socketName = lines[i].args[2].stringVal;
-                socektInfo[gemOrderID] = {socketName, "Interface\\ItemSocketingFrame\\UI-EmptySocket-"..socketType};
+                socektInfo[gemOrderID] = {socketName, "Interface\\ItemSocketingFrame\\UI-EmptySocket-"..socketType, nil, socketType};
+            else
+                socektInfo[gemOrderID][4] = socketType;
             end
         end
     end
@@ -1470,7 +1491,7 @@ local function GetBagItemSubText(bag, slot)
 
     local tooltipData = GetInfoByBagItem(bag, slot);
     if tooltipData then
-        return GetLineText(tooltipData.lines, 2);
+        return GetLineText(tooltipData.lines, 2) or ""
     end
 end
 
@@ -1486,6 +1507,23 @@ local function GetCreatureName(creatureID)
 end
 
 NarciAPI.GetCreatureName = GetCreatureName;
+
+local function GetDominationShardEffect(item)
+    if not item then return end;
+
+    local tooltipData;
+    if type(item) == "number" then
+        tooltipData = GetInfoByItemID(item);
+    else
+        tooltipData = GetInfoByHyperlink(item);
+    end
+    DT = tooltipData
+    if tooltipData then
+        return GetLineText(tooltipData.lines, 5);
+    end
+end
+
+NarciAPI.GetDominationShardEffect = GetDominationShardEffect;
 
 
 --]]

@@ -30,12 +30,12 @@ local SLOT_PRIORITY = {
 local SLOT_PRIORITY_STR = {
     --primary stats: Strengh
     [5] = 1,
+    [7] = 1,
     [8] = 0,
     [9] = 0,
-    [10] = 1,
     [11] = 1,
     [12] = 1,
-    [15] = 1,
+    [15] = 0,
     [16] = 1,
     [17] = 1,
 };
@@ -43,12 +43,12 @@ local SLOT_PRIORITY_STR = {
 local SLOT_PRIORITY_AGI = {
     --primary stats: Agility
     [5] = 1,
-    [8] = 1,
+    [7] = 1,
+    [8] = 0,
     [9] = 0,
-    [10] = 0,
     [11] = 1,
     [12] = 1,
-    [15] = 1,
+    [15] = 0,
     [16] = 1,
     [17] = 1,
 };
@@ -56,12 +56,12 @@ local SLOT_PRIORITY_AGI = {
 local SLOT_PRIORITY_INT = {
     --primary stats: Intellect
     [5] = 1,
+    [7] = 1,
     [8] = 0,
-    [9] = 1,
-    [10] = 0,
+    [9] = 0,
     [11] = 1,
     [12] = 1,
-    [15] = 1,
+    [15] = 0,
     [16] = 1,
     [17] = 1,
 };

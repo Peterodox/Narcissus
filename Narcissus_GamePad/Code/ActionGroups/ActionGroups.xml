@@ -8,6 +8,6 @@
     <Script file="EquipmentEnhancementList.lua"/>
     <Script file="EquipmentFlyout.lua"/>
     <Script file="EquipmentSet.lua"/>
-    <Script file="Soulbind.lua"/>
+    <!--Script file="Soulbind.lua"/-->
     <Script file="MythicPlus.lua"/>
 </Ui>

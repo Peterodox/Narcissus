@@ -200,7 +200,7 @@ end
 function NarciGemSlotMixin:LoadGemList()
     self:CountGems();
     SOCKETED_ITEM_LEVEL = self.ItemLevel;
-    if self.numGems == 0 and not self.isDomiationSocket then return; end;
+    --if self.numGems == 0 and not self.isDomiationSocket then return; end;
     Narci_EquipmentOption:SetGemListFromSlotButton(self:GetParent());
     FadeFrame(Narci_GearEnhancement_Tooltip, 0.15, 0);
 end

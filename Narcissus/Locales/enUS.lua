@@ -154,7 +154,7 @@ L["Screen Effects"] ="Screen Effects";
 L["Gemma"] = "\"Gemma\"";   --Don't translate
 L["Gemma Description"] = "Show a list of gems when socketing an item.";
 L["Gem Manager"] = "Gem Manager";
-L["Dressing Room"] = "Dressing Room"
+L["Dressing Room"] = "Dressing Room";
 L["Dressing Room Description"] = "Bigger dressing room with the abilities to view and copy other players' item lists and generate Wowhead dressing room links.";
 L["General"] = "General";   --General options
 L["Interface"] = "Interface";
@@ -247,6 +247,7 @@ L["Developer Colon"] = "Developer: ";
 L["Project Page"] = "Project Page";
 L["Press Copy Yellow"] = "Press |cffffd100".. NARCI_SHORTCUTS_COPY .."|r to Copy";
 L["New Option"] = NARCI_NEW_ENTRY_PREFIX.." NEW".."|r"
+L["Expansion Features"] = "Expansion Features";
 
 --Model Control--
 L["Ranged Weapon"] = "Ranged Weapon";
@@ -291,7 +292,7 @@ L["Shadow"] = "Shadow";
 L["Light Source"] = "Light Source";
 L["Light Source Independent"] = "Independent";
 L["Light Source Interconnected"] = "Interconnected";
-
+L["Adjustment"] = "Adjustment";
 
 --Animation Browser--
 L["Animation"] = "Animation";
@@ -341,6 +342,11 @@ L["Add to MogIt Wishlist"] = "Add to MogIt Wishlist";
 L["Show Taint Solution"] = "How to solve this issue?";
 L["Taint Solution Step1"] = "1. Reload your UI.";
 L["Taint Solution Step2"] = "2. "..NARCI_MODIFIER_CONTROL.." + Left-click on an item to open the dressing room.";
+L["Switch Form To Visage"] = "Switch to|cffffffff Visage|r form";
+L["Switch Form To Dracthyr"] = "Switch to|cffffffff Dracthyr|r form";
+L["Switch Form To Worgen"] = "Switch to|cffffffff Worgen|r form";
+L["Switch Form To Human"] = "Switch to|cffffffff Human|r form";
+L["InGame Command"] = "In-Game Command";
 
 --NPC Browser--
 NARCI_NPC_BROWSER_TITLE_LEVEL = ".*%?%?.?";      --Level ?? --Use this to check if the second line of the tooltip is NPC's title or unit type
@@ -414,12 +420,14 @@ L["Corruption Effect Format4"] = "Struck by the Thing From Beyond triggers other
 L["Corruption Effect Format5"] = "|cffffffff%s%%|r damage\\healing taken modified";
 
 --Text Overlay Frame
+L["Text Overlay"] = "Text Overlay";
 L["Text Overlay Button Tooltip1"] = "Simple Speech Balloon";
 L["Text Overlay Button Tooltip2"] = "Advanced Speech Balloon";
 L["Text Overlay Button Tooltip3"] = "Talking Head";
 L["Text Overlay Button Tooltip4"] = "Floating Subtitle";
 L["Text Overlay Button Tooltip5"] = "Black Bar Subtitle";
 L["Visibility"] = "Visibility";
+L["Photo Mode Frame"] = "Frame";    --Frame for photo
 
 --Achievement Frame--
 L["Use Achievement Panel"] = "Use As Primary Achievement Panel";
@@ -435,7 +443,18 @@ L["Show Dates"] = "Show Dates";
 L["Hide Dates"] = "Hide Dates";
 L["Pinned Entries"] = "Pinned Entries";
 L["Pinned Entry Format"] = "Pinned  %d/%d";
-
+L["Create A New Entry"] = "Create A New Entry";
+L["Custom Achievement"] = "Custom Achievement";
+L["Custom Achievement Description"] = "This is the description.";
+L["Custom Achievement Select And Edit"] = "Select an entry to edit.";
+L["Cancel"] = "Cancel";
+L["Color"] = "Color";
+L["Icon"] = "Icon";
+L["Description"] = "Description";
+L["Points"] = "Points";
+L["Reward"] = "Reward";
+L["Date"] = "Date";
+L["Click And Hold"] = "Click and Hold";
 
 --Barbershop--
 L["Save New Look"] = "Save New Look";
@@ -640,7 +659,8 @@ L["Show Talent Tree Paperdoll"] = "Open Paper Doll";
 L["Show Talent Tree Inspection"] = "Inspect Other Players";
 L["Show Talent Tree Equipment Manager"] = "Access Equipment Manager";
 L["Appearance"] = "Appearance";
-L["Use Class Background"] = "Use Class Background";
+L["Use Class Background"] = "Class Background";
+L["Use Bigger UI"] = "Bigger UI";
 L["Empty Loadout Name"] = "Name";
 L["No Save Slot Red"] = NARCI_COLOR_RED_MILD.. "No Save Slot" .."|r";
 L["Save"] = "Save";
@@ -654,6 +674,13 @@ L["Create Macro Instruction 4"] = "Drag this macro onto your action bar.";
 L["Create Macro In Combat"] = "Cannot Create macro during combat.";
 L["Create Macro Next"] = "NEXT";
 L["Create Marco Created"] = "CREATED";
+L["Place UI"] = "Place the UI...";
+L["Place Talent UI Right"] = "to the Right of Paper Doll";
+L["Place Talent UI Bottom"] = "Below Paper Doll";
+L["Loadout"] = "Loadout";
+L["No Loadout"] = "No Loadout";
+L["PvP"] = "PvP";
+
 
 --Bag Item Filter--
 L["Bag Item Filter"] = "Bag Item Filter";

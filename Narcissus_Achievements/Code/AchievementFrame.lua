@@ -257,9 +257,9 @@ animFlyIn:SetScript("OnUpdate", function(self, elapsed)
         scale = 1;
         local textAlpha = outQuart(self.total - 0.2, 0, 1, 0.2);
         if textAlpha > 1 then
-            --textAlpha = 1;
+            textAlpha = 1;
         elseif textAlpha < 0 then
-            --textAlpha = 0;
+            textAlpha = 0;
         end
         self.header:SetAlpha(textAlpha);
         self.description:SetAlpha(textAlpha);
@@ -280,9 +280,9 @@ animFlyIn:SetScript("OnUpdate", function(self, elapsed)
     end
 
     if alpha > 1 then
-        --alpha = 1;
+        alpha = 1;
     elseif alpha < 0 then
-        --alpha = 0;
+        alpha = 0;
     end
     self.background:SetAlpha(alpha);
     self.ObjectiveFrame:SetAlpha(alpha);

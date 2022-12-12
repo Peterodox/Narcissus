@@ -18,6 +18,14 @@ function NarciRectRedButtonMixin:SetButtonText(text, resize)
     end
 end
 
+function NarciRectRedButtonMixin:SetButtonWidth(width)
+    if width > 96 then
+        self.Center:SetWidth(width - 64);
+        self.HighlightCenter:SetWidth(width - 64);
+        self:SetWidth(width);
+    end
+end
+
 function NarciRectRedButtonMixin:ToggleHighlight(state)
     self.HighlightCenter:SetShown(state);
     self.HighlightLeft:SetShown(state);
@@ -45,8 +53,10 @@ function NarciRectRedButtonMixin:OnLeave()
 end
 
 function NarciRectRedButtonMixin:OnMouseDown()
-    self:SetTexOffsetY(0.25);
-    self.ButtonText:SetPoint("CENTER", self, "CENTER", -2, -2);
+    if self:IsEnabled() then
+        self:SetTexOffsetY(0.25);
+        self.ButtonText:SetPoint("CENTER", self, "CENTER", -2, -2);
+    end
 end
 
 function NarciRectRedButtonMixin:OnMouseUp()
@@ -56,6 +66,30 @@ end
 
 function NarciRectRedButtonMixin:OnLoad()
     self:OnLeave();
+end
+
+function NarciRectRedButtonMixin:OnDisable()
+    self.Left:SetDesaturated(true);
+    self.Right:SetDesaturated(true);
+    self.Center:SetDesaturated(true);
+    self.Left:SetVertexColor(0.8, 0.8, 0.8);
+    self.Right:SetVertexColor(0.8, 0.8, 0.8);
+    self.Center:SetVertexColor(0.8, 0.8, 0.8); 
+    self.ButtonText:SetTextColor(0.5, 0.5, 0.5);
+end
+
+function NarciRectRedButtonMixin:OnEnable()
+    self.Left:SetDesaturated(false);
+    self.Right:SetDesaturated(false);
+    self.Center:SetDesaturated(false);
+    self.Left:SetVertexColor(1, 1, 1);
+    self.Right:SetVertexColor(1, 1, 1);
+    self.Center:SetVertexColor(1, 1, 1);
+    if self:IsMouseOver() then
+        self:OnEnter();
+    else
+        self:OnLeave();
+    end
 end
 
 

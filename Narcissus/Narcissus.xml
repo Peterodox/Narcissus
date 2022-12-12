@@ -2013,24 +2013,6 @@
 								</FontString>
 							</Layer>
 						</Layers>
-						<Scripts>
-							<OnLoad>
-								self.tooltipFormat = Narci.L["Equipped Item Level Format"];
-								self.tooltipLine1 = STAT_AVERAGE_ITEM_LEVEL_TOOLTIP;
-							</OnLoad>
-							<!--OnEnter>
-								self.tooltipHeadline = format(self.tooltipFormat, self.Level:GetText());
-								Narci_ShowButtonTooltip(self);
-								UIFrameFadeIn(self.Highlight, 0.15, self.Highlight:GetAlpha(), 1);
-							</OnEnter-->
-							<OnLeave>
-								Narci:HideButtonTooltip();
-								UIFrameFadeOut(self.Highlight, 0.25, self.Highlight:GetAlpha(), 0);
-							</OnLeave>
-							<OnHide>
-								self.Highlight:SetAlpha(0);
-							</OnHide>
-						</Scripts>
 					</Button>
 
 					<Button parentKey="RightButton" hidden="true">
@@ -2071,22 +2053,6 @@
 								</FontString>
 							</Layer>
 						</Layers>
-						<Scripts>
-							<OnLoad>
-								self.tooltipHeadline = LANDING_PAGE_RENOWN_LABEL;
-							</OnLoad>
-							<OnEnter>
-								Narci_ShowButtonTooltip(self);
-								UIFrameFadeIn(self.Highlight, 0.15, self.Highlight:GetAlpha(), 1);
-							</OnEnter>
-							<OnLeave>
-								Narci:HideButtonTooltip();
-								UIFrameFadeOut(self.Highlight, 0.25, self.Highlight:GetAlpha(), 0);
-							</OnLeave>
-							<OnHide>
-								self.Highlight:SetAlpha(0);
-							</OnHide>
-						</Scripts>
 					</Button>
 
 					<Frame parentKey="DominationOverlay" hidden="true" id="1" frameLevel="12">
@@ -2118,7 +2084,7 @@
 						</Layers>
 					</Frame>
 
-					<Frame parentKey="ProgenitorOverlay" hidden="true" frameLevel="12">
+					<Frame parentKey="ClassSetOverlay" hidden="true" frameLevel="12">
 						<Size x="104.0" y="104.0"/>
 						<Anchors>
 							<Anchor point="CENTER"/>

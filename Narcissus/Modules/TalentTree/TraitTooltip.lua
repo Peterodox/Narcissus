@@ -25,9 +25,9 @@ local type = type;
 
 local PADDING_PIXEL_SIZE = 16;
 local ICON_PIXEL_SIZE = 36;
-local HEADER_PIXEL_SIZE = 16;
-local TEXT_PIEXL_SIZE = 15;
-local DESC_PIXEL_SIZE = 288;
+local HEADER_TEXT_PIXEL_SIZE = 16;
+local DESC_TEXT_PIXEL_SIZE = 15;
+local DESC_WIDTH_PIXEL_SIZE = 288;
 
 local PIXEL = 1;
 local PADDING = 16;
@@ -37,6 +37,14 @@ local DESC_MAX_WIDTH = 288;
 
 local USE_CLASS_BACKGROUND = false;
 
+do
+    local function ChangePixelSize(sizeInfo)
+        PADDING_PIXEL_SIZE = sizeInfo.fontHeight;
+        HEADER_TEXT_PIXEL_SIZE = sizeInfo.fontHeight;
+        DESC_TEXT_PIXEL_SIZE = sizeInfo.smallFontHeight;
+    end
+    addon.TalentTreeTextureUtil:AddSizeChangedCallback(ChangePixelSize);
+end
 
 local function AppendText(originalText, ...)
     local seg;
@@ -63,11 +71,11 @@ local function Tooltip_UpdatePixel(tooltip)
    tooltip.IconBorder:SetSize(64*px, 64*px);
 
    local font, _, flag = tooltip.Header:GetFont();
-   tooltip.Header:SetFont(font, HEADER_PIXEL_SIZE*px, flag);
+   tooltip.Header:SetFont(font, HEADER_TEXT_PIXEL_SIZE*px, flag);
 
    font, _, flag = tooltip.Subtext:GetFont();
-   tooltip.Subtext:SetFont(font, TEXT_PIEXL_SIZE*px, flag);
-   tooltip.Description:SetFont(font, TEXT_PIEXL_SIZE*px, flag);
+   tooltip.Subtext:SetFont(font, DESC_TEXT_PIXEL_SIZE*px, flag);
+   tooltip.Description:SetFont(font, DESC_TEXT_PIXEL_SIZE*px, flag);
 
    tooltip.Icon:ClearAllPoints();
    tooltip.Header:ClearAllPoints();
@@ -82,7 +90,7 @@ local function Tooltip_UpdatePixel(tooltip)
    tooltip.Description:ClearAllPoints();
    tooltip.Description:SetPoint("TOPLEFT", tooltip.Icon, "BOTTOMLEFT", 0, -8*px);
    
-   DESC_MAX_WIDTH = DESC_PIXEL_SIZE * px;
+   DESC_MAX_WIDTH = DESC_WIDTH_PIXEL_SIZE * px;
    tooltip.Description:SetWidth(DESC_MAX_WIDTH);
 end
 
@@ -518,6 +526,8 @@ local function Tooltip_SetPvpTalent(tooltip, talentID, isInspecting, slotIndex)
     if not tooltip:IsShown() then
         Tooltip_FadeIn(tooltip);
     end
+
+    Tooltip_SetActive(tooltip, true);
     tooltip:Show();
 end
 
@@ -590,6 +600,15 @@ end
 
 function ClassTalentTooltipUtil:AssignMainFrame(frame)
     MainFrame = frame;
+end
+
+function ClassTalentTooltipUtil:UpdatePixel()
+    if PrimaryTooltip then
+        Tooltip_UpdatePixel(PrimaryTooltip);
+    end
+    if SecondaryTooltip then
+        Tooltip_UpdatePixel(SecondaryTooltip);
+    end
 end
 
 --[[

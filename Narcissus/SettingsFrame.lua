@@ -846,7 +846,7 @@ function CreditList:CreateList(parent, anchorTo, fromOffsetY)
     local active = {"Albator S.", "Solanya", "Erik Shafer", "Celierra&Darvian", "Pierre-Yves Bertolus", "Terradon", "Alex Boehm", "Miroslav Kovac", "Ryan Zerbin", "Nisutec"};
     local inactive = {"Elexys", "Ben Ashley", "Knightlord", "Brian Haberer", "Andrew Phoenix", "Nantangitan", "Blastflight", "Lars Norberg", "Valnoressa", "Nimrodan", "Brux",
         "Karl", "Webb", "acein", "Christian Williamson", "Tzutzu", "Anthony Cordeiro", "Nina Recchia", "heiteo", "Psyloken", "Jesse Blick", "Victor Torres"};
-    local special = {"Marlamin | WoW.tools", "Keyboardturner | Avid Bug Finder(Generator)", "Meorawr | Wondrous Wisdomball", "Hubbotu | Translator - Russian", "Romanv | Translator - Spanish"};
+    local special = {"Marlamin | WoW.tools", "Keyboardturner | Avid Bug Finder(Generator)", "Meorawr | Wondrous Wisdomball", "Hubbotu | Translator - Russian", "Romanv | Translator - Spanish", "Onizenos | Translator - Portuguese"};
 
     local numTotal = #active;
     local mergedList = active;
@@ -2040,10 +2040,10 @@ local Categories = {
 
     {name = L["Extensions"], level = 0, key = "extensions",
         widgets = {
-            {type = "header", level = 0, text = "Extensions"},
+            {type = "header", level = 0, text = L["Extensions"]},
             {type = "checkbox", level = 1, key = "GemManager", text = L["Gem Manager"], onValueChangedFunc = GemManagerToggle_OnValueChanged, description = L["Gemma Description"]},
             {type = "checkbox", level = 1, key = "DressingRoom", text = L["Dressing Room"], onValueChangedFunc = DressingRoomToggle_OnValueChanged, description = L["Dressing Room Description"]},
-            {type = "subheader", level = 1, text = "Expansion Features", extraTopPadding = 1},
+            {type = "subheader", level = 1, text = L["Expansion Features"], extraTopPadding = 1},
             {type = "checkbox", level = 1, key = "PaperDollWidget", text = L["Paperdoll Widget"], onValueChangedFunc = PaperDollWidgetToggle_OnValueChanged, showFeaturePreview = true, onEnterFunc = FeaturePreview.ShowPreview, onLeaveFunc = FeaturePreview.HidePreview},
             {type = "checkbox", level = 1, key = "ConduitTooltip", text = L["Conduit Tooltip"], onValueChangedFunc = ConduitTooltipToggle_OnValueChanged, showFeaturePreview = true, onEnterFunc = FeaturePreview.ShowPreview, onLeaveFunc = FeaturePreview.HidePreview},
         },
@@ -2073,20 +2073,34 @@ if IS_DRAGONFLIGHT then
         SettingFunctions.ShowMiniTalentTreeForEquipmentManager(state);
     end
 
+    local function TalentTreeSetPosition(self, id)
+        SettingFunctions.SetTalentTreePosition(id);
+    end
+
     local function TalentTreeUseClassBackground(self, state)
         SettingFunctions.SetUseClassBackground(state);
     end
 
+    local function TalentTreeUseBiggerUI(self, state)
+        SettingFunctions.SetUseBiggerUI(state);
+    end
+
     local talentCategory = {name = TALENTS or "Talents", level = 1, key = "talents",
-    widgets = {
-        {type = "header", level = 0, text = L["Mini Talent Tree"]},
-        {type = "subheader", level = 1, text = L["Show Talent Tree When"]},
-        {type = "checkbox", level = 1, key = "TalentTreeForPaperDoll",text = L["Show Talent Tree Paperdoll"], onValueChangedFunc = ShowTreeCase1},
-        {type = "checkbox", level = 1, key = "TalentTreeForInspection", text = L["Show Talent Tree Inspection"],  onValueChangedFunc = ShowTreeCase2},
-        {type = "checkbox", level = 1, key = "TalentTreeForEquipmentManager", text = L["Show Talent Tree Equipment Manager"],  onValueChangedFunc = ShowTreeCase3},
-        {type = "subheader", level = 1, text = L["Appearance"], extraTopPadding = 1},
-        {type = "checkbox", level = 1, key = "TalentTreeUseClassBackground", text = L["Use Class Background"],  onValueChangedFunc = TalentTreeUseClassBackground},
-    }};
+        widgets = {
+            {type = "header", level = 0, text = L["Mini Talent Tree"]},
+            {type = "subheader", level = 1, text = L["Show Talent Tree When"]},
+            {type = "checkbox", level = 1, key = "TalentTreeForPaperDoll",text = L["Show Talent Tree Paperdoll"], onValueChangedFunc = ShowTreeCase1},
+            {type = "checkbox", level = 1, key = "TalentTreeForInspection", text = L["Show Talent Tree Inspection"],  onValueChangedFunc = ShowTreeCase2},
+            {type = "checkbox", level = 1, key = "TalentTreeForEquipmentManager", text = L["Show Talent Tree Equipment Manager"],  onValueChangedFunc = ShowTreeCase3},
+
+            {type = "subheader", level = 1, text = L["Place UI"], extraTopPadding = 1},
+            {type = "radio", level = 1, key = "TalentTreeAnchor", texts = {L["Place Talent UI Right"], L["Place Talent UI Bottom"]},  onValueChangedFunc = TalentTreeSetPosition},
+
+            {type = "subheader", level = 1, text = L["Appearance"], extraTopPadding = 1},
+            {type = "checkbox", level = 1, key = "TalentTreeUseClassBackground", text = L["Use Class Background"],  onValueChangedFunc = TalentTreeUseClassBackground},
+            {type = "checkbox", level = 1, key = "TalentTreeBiggerUI", text = L["Use Bigger UI"],  onValueChangedFunc = TalentTreeUseBiggerUI},
+        }
+    };
 
     table.insert(Categories, #Categories -1, talentCategory);
 

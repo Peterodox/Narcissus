@@ -1,7 +1,6 @@
 local HIDE_INACTIVE_NODE = false;
 local USE_CLASS_BACKGROUND = false;
 
-
 local _, addon = ...
 
 local LoadingBarUtil = addon.TalentTreeLoadingBarUtil;
@@ -32,15 +31,16 @@ local C_Traits = C_Traits;
 local C_ClassTalents = C_ClassTalents;
 local C_SpecializationInfo = C_SpecializationInfo;
 local C_PvP = C_PvP;
-local UnitLevel = UnitLevel;
+
+local CAN_USE_TALENT_UI = true;
+local CanPlayerUseTalentSpecUI = C_SpecializationInfo.CanPlayerUseTalentSpecUI;
 
 local GetSpecializationInfoByID = GetSpecializationInfoByID;
 local GetInspectSpecialization = GetInspectSpecialization;
 local UnitClass = UnitClass;
 local UnitSex = UnitSex;
+local UnitLevel = UnitLevel;
 local IsSpecializationActivateSpell = IsSpecializationActivateSpell;
-
---local INSPECT_TRAIT_CONFIG_ID = -1;
 
 local sqrt = math.sqrt;
 local atan2 = math.atan2;
@@ -50,6 +50,16 @@ local floor = math.floor;
 local BUTTON_PIXEL_SIZE = 32;
 local ICON_PIXEL_SIZE = 24;
 local FONT_PIXEL_SIZE = 16;
+
+do
+    local function ChangePixelSize(sizeInfo)
+        BUTTON_PIXEL_SIZE = sizeInfo.buttonSize;
+        ICON_PIXEL_SIZE = sizeInfo.iconSize;
+        FONT_PIXEL_SIZE = sizeInfo.fontHeight;
+    end
+    addon.TalentTreeTextureUtil:AddSizeChangedCallback(ChangePixelSize);
+end
+
 local DISTANCE_UNIT = 300;  --600    --neighboring node distance 600
 local PADDING = 1;
 local HEADER_SIZE;
@@ -169,6 +179,7 @@ end
 function LayoutUtil:UpdatePixel()
     local f = MainFrame;
     local px = NarciAPI.GetPixelForWidget(f, 1);
+
     PIXEL = px;
     BRANCH_WEIGHT = 2 * px;
     BUTTON_SIZE = px * BUTTON_PIXEL_SIZE;
@@ -180,8 +191,15 @@ function LayoutUtil:UpdatePixel()
     UniversalFont:SetFontHeight(FONT_HEIGHT);
     LayoutUtil:UpdateFrameSize();
     TextButtonUtil:UpdatePixel(px, FONT_PIXEL_SIZE);
+    ClassTalentTooltipUtil:UpdatePixel();
+
+    f.PvPTalentFrame:UpdatePixel();
     f.SideTab:UpdatePixel(px);
     f.MacroForge:UpdatePixel(px);
+
+    f.Divider:ClearAllPoints();
+    f.Divider:SetPoint("TOPLEFT", f, "TOPLEFT", SECTOR_WIDTH * BUTTON_SIZE, -BUTTON_SIZE/2 -HEADER_SIZE);
+    f.Divider:SetPoint("BOTTOMLEFT", f, "BOTTOM", 0, BUTTON_SIZE/2);
 
     if f.LoadoutToggle then
         f.LoadoutToggle:ClearAllPoints();
@@ -200,6 +218,17 @@ function LayoutUtil:UpdatePixel()
         f.ShareToggle:SetPoint("BOTTOMLEFT", f.SideTab, "BOTTOMLEFT", 20*px, (20 + 16*4)*px);
         f.SaveButton:ClearAllPoints();
         f.SaveButton:SetPoint("TOP", f.SaveButton.anchor, "BOTTOM", 0, -16*px);
+    end
+
+    for _, node in ipairs(Nodes) do
+        node.Icon:SetSize(ICON_SIZE, ICON_SIZE);
+        node:SetSize(BUTTON_SIZE, BUTTON_SIZE);
+    end
+
+    local highlightSize = 2*px*BUTTON_PIXEL_SIZE;
+
+    for _, hl in ipairs(NodeHighlights) do
+        hl:SetSize(highlightSize, highlightSize);
     end
 end
 
@@ -261,7 +290,9 @@ end
 
 local SetBranchColor = SetBranchColorYellow;
 
-
+local function ShouldHideBackground()
+    return IsPlayerMoving() or IsMouselooking()
+end
 
 local InspectDisplayModeUtil = {};
 InspectDisplayModeUtil.buttons = {};
@@ -361,7 +392,7 @@ function NarciMiniTalentTreeMixin:OnLoad()
 
     self.LoadoutToggle = TextButtonUtil:CreateButton(self, "right", "center", "vertical", 96, "arrowDown");
     self.LoadoutToggle:SetFrameLevel(frameLevel + 18);
-    self.LoadoutToggle.ButtonText:SetText("Loadout");
+    self.LoadoutToggle.ButtonText:SetText(L["Loadout"]);
     self.LoadoutToggle:SetScript("OnClick", function()
         LoadoutUtil:ToggleList();
     end);
@@ -376,7 +407,7 @@ function NarciMiniTalentTreeMixin:OnLoad()
 
     self.PvPTalentToggle = TextButtonUtil:CreateButton(self, "right", "right", "horizontal", nil, "arrowRight");
     self.PvPTalentToggle:SetFrameLevel(frameLevel + 14);
-    self.PvPTalentToggle.ButtonText:SetText("PvP");
+    self.PvPTalentToggle.ButtonText:SetText(L["PvP"]);
     self.PvPTalentToggle:SetScript("OnClick", function(f)
         self.PvPTalentFrame:Toggle();
     end);
@@ -805,6 +836,8 @@ function NarciMiniTalentTreeMixin:SetInspectMode(state)
         local playerName = UnitName(unit);
         local specID = GetInspectSpecialization(unit);
 		local classDisplayName, class = UnitClass(unit);
+        playerName = playerName or "Unknown Player";
+
 		if specID then
             local sex = UnitSex(unit);
 			local _, specName = GetSpecializationInfoByID(specID, sex);
@@ -864,7 +897,6 @@ function NarciMiniTalentTreeMixin:AcquireNode()
     Nodes[self.numAcitveNodes]:Show();
     return Nodes[self.numAcitveNodes];
 end
-
 
 --[[
 local BranchUpdater = CreateFrame("Frame");
@@ -1117,6 +1149,21 @@ function NarciMiniTalentTreeMixin:OnShow()
     DataProvider:StopCacheWipingCountdown();
     EventCenter:RegisterEvent("CURSOR_CHANGED");
     EventCenter:RegisterUnitEvent("UNIT_SPELLCAST_SUCCEEDED", "player");
+
+    self:RegisterEvent("PLAYER_STARTED_MOVING");
+    self:RegisterEvent("PLAYER_STOPPED_MOVING");
+    self:RegisterEvent("PLAYER_STARTED_LOOKING");
+    self:RegisterEvent("PLAYER_STOPPED_LOOKING");
+    self:RegisterEvent("PLAYER_STARTED_TURNING");
+    self:RegisterEvent("PLAYER_STOPPED_TURNING");
+    
+    if ShouldHideBackground() then
+        self:SetBackgroundAlpha(0);
+        self:EnableMouse(false);
+    else
+        self:SetBackgroundAlpha(1);
+        self:EnableMouse(true);
+    end
 end
 
 function NarciMiniTalentTreeMixin:OnHide()
@@ -1124,6 +1171,14 @@ function NarciMiniTalentTreeMixin:OnHide()
     DataProvider:StartCacheWipingCountdown();
     EventCenter:UnregisterEvent("CURSOR_CHANGED");
     EventCenter:UnregisterEvent("UNIT_SPELLCAST_SUCCEEDED");
+
+    self:UnregisterEvent("PLAYER_STARTED_MOVING");
+    self:UnregisterEvent("PLAYER_STOPPED_MOVING");
+    self:RegisterEvent("PLAYER_STARTED_LOOKING");
+    self:RegisterEvent("PLAYER_STOPPED_LOOKING");
+    self:RegisterEvent("PLAYER_STARTED_TURNING");
+    self:RegisterEvent("PLAYER_STOPPED_TURNING");
+    self:SetFading(false);
 end
 
 function NarciMiniTalentTreeMixin:IsInspecting()
@@ -1140,7 +1195,7 @@ local function SetPixelPerfectPosition(frame, relativeTo)
         frame:ClearAllPoints();
         local position = frame.position;
         if position == "bottom" then
-            local offsetV = frame.offsetH or 32;
+            local offsetV = 32;
             local bottom0 = relativeTo:GetBottom();
             local bottom1 = floor( (bottom0 - offsetV) * PIXEL) / PIXEL;
             frame:SetPoint("TOPLEFT", relativeTo, "BOTTOMLEFT", 0, bottom1 - bottom0);
@@ -1177,7 +1232,7 @@ end
 function NarciMiniTalentTreeMixin:AnchorToPaperDoll()
     self.anchor = "paperdoll";
     self:SetFrameStrata("MEDIUM");
-    self:SetToplevel(true);
+    self:SetToplevel(false);
     local f = PaperDollFrame;
     if f and f:IsShown() then
         SetPixelPerfectPosition(self, f);
@@ -1226,6 +1281,8 @@ function NarciMiniTalentTreeMixin:SetUseClassBackground(state)
 
         ClassTalentTooltipUtil:SetUseClassBackground(state);
     end
+
+    self.Background:SetShown(not state);
 end
 
 function NarciMiniTalentTreeMixin:RaiseActiveNodesFrameLevel(state)
@@ -1316,6 +1373,65 @@ function NarciMiniTalentTreeMixin:PlayActivationAnimation()
     end
 end
 
+
+function NarciMiniTalentTreeMixin:SetUseBiggerUI(larger)
+    TextureUtil:UpdateWidgetSize(larger);
+    LayoutUtil:UpdatePixel();
+    if self:IsVisible() then
+        self:RequestUpdate();
+    else
+        self.isDirty = true;
+    end
+end
+
+function NarciMiniTalentTreeMixin:OnEvent(event, ...)
+    if event == "PLAYER_STARTED_MOVING" or event == "PLAYER_STARTED_LOOKING" or event == "PLAYER_STARTED_TURNING" then
+        self:SetFading(-4);
+    elseif event == "PLAYER_STOPPED_MOVING" or event == "PLAYER_STOPPED_LOOKING" or event == "PLAYER_STOPPED_TURNING" then
+        if not ShouldHideBackground() then
+            self:SetFading(4);
+        end
+    end
+end
+
+local FadingFrame = CreateFrame("Frame");
+FadingFrame:Hide();
+FadingFrame:SetScript("OnUpdate", function(self, elapsed)
+    self.alpha = self.alpha + self.delta * elapsed;
+    if self.alpha >= 1 then
+        self.alpha = 1;
+        self:Hide();
+    elseif self.alpha <= 0 then
+        self.alpha = 0;
+        self:Hide();
+    end
+    MainFrame:SetBackgroundAlpha(self.alpha);
+end);
+
+function NarciMiniTalentTreeMixin:SetFading(delta)
+    if delta then
+        if delta > 0 then
+            FadingFrame.delta = 4;
+            self:EnableMouse(true);
+        elseif delta < 0 then
+            FadingFrame.delta = -4;
+            self:EnableMouse(false);
+        else
+            return
+        end
+        FadingFrame.alpha = self.Background:GetAlpha();
+        FadingFrame:Show();
+    else
+        FadingFrame:Hide();
+        self:SetBackgroundAlpha(1);
+        self:EnableMouse(true);
+    end
+end
+
+function NarciMiniTalentTreeMixin:SetBackgroundAlpha(alpha)
+    self.Background:SetAlpha(alpha);
+    self.SpecArt:SetAlpha(alpha);
+end
 
 
 NarciTalentTreeLoadoutButtonMixin = {};
@@ -1499,9 +1615,9 @@ function LoadoutUtil:ShowList()
     self.container:SetScript("OnUpdate", self.ShowFrame_OnUpdate);
 
     if anyLoadout then
-        MainFrame.LoadoutToggle.ButtonText:SetText("Loadout");
+        MainFrame.LoadoutToggle.ButtonText:SetText(L["Loadout"]);
     else
-        MainFrame.LoadoutToggle.ButtonText:SetText("No Loadout");
+        MainFrame.LoadoutToggle.ButtonText:SetText(L["No Loadout"]);
     end
     MainFrame.LoadoutToggle.Icon:SetTexCoord(0.25, 0.5, 0.25, 0);
 end
@@ -1646,6 +1762,23 @@ function NarciTalentTreePvPFrameMixin:Toggle()
     LayoutUtil:UpdateFrameSize();
 end
 
+function NarciTalentTreePvPFrameMixin:UpdatePixel()
+    if self.slots then
+        for i, slot in ipairs(self.slots) do
+            slot.Icon:SetSize(ICON_SIZE, ICON_SIZE);
+            slot:SetSize(BUTTON_SIZE, BUTTON_SIZE);
+            if i <= 3 then
+                slot:SetPoint("TOP", self, "TOP", 0, -HEADER_SIZE -(i + 1) * BUTTON_SIZE);
+            else
+                slot:SetPoint("TOP", self, "TOP", 0, -HEADER_SIZE -(i + 3) * BUTTON_SIZE);
+            end
+        end
+    end
+    self:SetWidth(BUTTON_SIZE * 3);
+    self.Divider:ClearAllPoints();
+    self.Divider:SetPoint("TOPLEFT", self, "TOPLEFT", 0, -BUTTON_SIZE/2 -HEADER_SIZE);
+    self.Divider:SetPoint("BOTTOMLEFT", self, "BOTTOMLEFT", 0, BUTTON_SIZE/2);
+end
 
 
 
@@ -1970,6 +2103,7 @@ EventCenter.onEvent = function(self, event, ...)
         MainFrame:RequestUpdate();
         MainFrame.PvPTalentFrame:RequestUpdate();
         MainFrame.SideTabToggle.ButtonText:SetText(DataProvider:GetCurrentSpecName());
+        CAN_USE_TALENT_UI = CanPlayerUseTalentSpecUI();
 
     elseif event == "PLAYER_ENTERING_WORLD" then
         self:UnregisterEvent(event);
@@ -1978,7 +2112,7 @@ EventCenter.onEvent = function(self, event, ...)
         LayoutUtil:UpdatePixel();
 
         --AddOn Compatibility
-        if IsAddOnLoaded("TinyInspect") then
+        if IsAddOnLoaded("TinyInspect") or IsAddOnLoaded("TinyInspect-Reforged") then
             MainFrame.offsetH = 328 + 2;
         end
 
@@ -2023,6 +2157,7 @@ EventCenter:SetScript("OnEvent", EventCenter.onEvent);
 
 
 if not addon.IsDragonflight() then return end;
+
 
 local ENABLE_INSPECT = false;
 local ENABLE_PAPERDOLL = false;
@@ -2078,8 +2213,7 @@ function HookUtil:HookPaperDoll()
 
     local PaperDoll = _G["PaperDollFrame"];
     PaperDoll:HookScript("OnShow", function()
-        if ENABLE_PAPERDOLL then
-            if UnitLevel("player") < 10 then return end;
+        if ENABLE_PAPERDOLL and CAN_USE_TALENT_UI then
             MainFrame:AnchorToPaperDoll();
             MainFrame:SetInspectMode(false);
             MainFrame:Show();
@@ -2103,8 +2237,7 @@ function HookUtil:HookEquipmentManager()
     if not f then return end;
 
     f:HookScript("OnShow", function()
-        if ENABLE_EQUIPMENT_MANAGER then
-            if UnitLevel("player") < 10 then return end;
+        if ENABLE_EQUIPMENT_MANAGER and CAN_USE_TALENT_UI then
             MainFrame:AnchorToPaperDoll();
             MainFrame:SetInspectMode(false);
             MainFrame:Show();
@@ -2113,7 +2246,7 @@ function HookUtil:HookEquipmentManager()
     end);
 
     f:HookScript("OnHide", function()
-        if ENABLE_PAPERDOLL and UnitLevel("player") >= 10 then
+        if ENABLE_PAPERDOLL and CAN_USE_TALENT_UI then
             MainFrame:AnchorToPaperDoll();
             MainFrame:SetInspectMode(false);
             MainFrame:Show();
@@ -2178,6 +2311,26 @@ do
             state = db["TalentTreeUseClassBackground"];
         end
         MainFrame:SetUseClassBackground(state);
+    end
+
+    function SettingFunctions.SetUseBiggerUI(state, db)
+        if state == nil then
+            state = db["TalentTreeBiggerUI"];
+        end
+        MainFrame:SetUseBiggerUI(state);
+    end
+
+    function SettingFunctions.SetTalentTreePosition(id, db)
+        if id == nil then
+            id = db["TalentTreeAnchor"];
+        end
+        local anchor;
+        if id == 2 then
+            anchor = "bottom";
+        else
+            anchor = "right";
+        end
+        MainFrame:SetFramePosition(anchor);
     end
 end
 

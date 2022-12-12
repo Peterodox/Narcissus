@@ -2040,31 +2040,120 @@ end
 function NarciItemLevelFrameMixin:OnLoad()
 	--Declared in Modules\CharacterFrame\ItemLevelFrame.lua
 	ItemLevelFrame = self;
-	if NarciDominationIndicatorMixin then
-		local inhertMethods = {
-			"IsNarcissusUI", "Update", "CheckSetBonus", "SetNodeLayout", "ShowTooltip",
-		};
-		for k, v in pairs(inhertMethods) do
-			self.DominationOverlay[v] = NarciDominationIndicatorMixin[v];
+
+	local function SideButton_OnEnter(f)
+		if f.onEnterFunc then
+			f.onEnterFunc(f);
+			FadeFrame(f.Highlight, 0.15, 1);
 		end
-		self.checkDomination = true;
 	end
 
-	local LeftButton = self.LeftButton;
-	LeftButton:SetScript("OnEnter", function(f)
+	local function SideButton_OnLeave(f)
+		Narci:HideButtonTooltip();
+		FadeFrame(f.Highlight, 0.25, 0);
+	end
+
+	local function SideButton_ShowDetailedItemLevel(f)
 		if f.isSameLevel then
-			f.tooltipHeadline = format(f.tooltipFormat, f.Level:GetText());
+			f.tooltipHeadline = string.format(f.tooltipFormat, f.Level:GetText());
 		else
-			f.tooltipHeadline = format(f.tooltipFormat, f.Level:GetText()) .. format("  (max %s)", f.avgItemLevel);
+			f.tooltipHeadline = string.format(f.tooltipFormat, f.Level:GetText()) .. string.format("  (max %s)", f.avgItemLevel);
 		end
 		if f.avgItemLevelPvp and f.avgItemLevelPvp ~= 0 then
-			f.tooltipSpecial = format(STAT_AVERAGE_PVP_ITEM_LEVEL, f.avgItemLevelPvp);
+			f.tooltipSpecial = string.format(STAT_AVERAGE_PVP_ITEM_LEVEL, f.avgItemLevelPvp);
 		else
 			f.tooltipSpecial = nil;
 		end
 		Narci_ShowButtonTooltip(f);
-		FadeFrame(f.Highlight, 0.15, 1);
-	end);
+	end
+
+	local function SideButton_ShowMajorFactionInfo(f)
+		DefaultTooltip:HideTooltip();
+		DefaultTooltip:SetOwner(f, "ANCHOR_NONE");
+		DefaultTooltip:SetPoint("BOTTOM", f, "TOP", 0, 2);
+		DefaultTooltip:SetText(DRAGONFLIGHT_LANDING_PAGE_TITLE);
+	
+		local factionIDs = C_MajorFactions.GetMajorFactionIDs();
+		local factionList = {};
+		if factionIDs and #factionIDs > 0 then
+			local factionData;
+			for _, majorFactionID in ipairs(factionIDs) do
+				factionData = C_MajorFactions.GetMajorFactionData(majorFactionID);
+				if factionData then
+					table.insert(factionList, factionData);
+				end
+			end
+
+			local function UnlockOrderSort(faction1, faction2)
+				return faction1.unlockOrder < faction2.unlockOrder;
+			end
+			table.sort(factionList, UnlockOrderSort);
+
+			--Embedded Frame
+			if not f.FactionListFrame then
+				f.FactionListFrame = CreateFrame("Frame", nil, f);
+				f.factionButtons = {};
+				f.FactionListFrame:SetWidth(154);
+			end
+
+			for i = 1, #f.factionButtons do
+				f.factionButtons[i]:Hide();
+			end
+
+			local maxTextWidth = 0;
+			local description, level, textWidth;
+			for i, data in ipairs(factionList) do
+				if not f.factionButtons[i] then
+					f.factionButtons[i] = CreateFrame("Frame", nil, f.FactionListFrame, "NarciGameTooltipEmbeddedIconTextFrame");
+					if i == 1 then
+						f.factionButtons[i]:SetPoint("TOPLEFT", f.FactionListFrame, "TOPLEFT", 0, 0);
+					else
+						f.factionButtons[i]:SetPoint("TOPLEFT", f.factionButtons[i - 1], "BOTTOMLEFT", 0, -6);
+					end
+				end
+				level = data.renownLevel or 0;
+				if level < 10 then
+					level = level.."  ";
+				end
+				if not data.isUnlocked then
+					description = MAJOR_FACTION_BUTTON_FACTION_LOCKED;
+				elseif C_MajorFactions.HasMaximumRenown(data.factionID) then
+					description = MAJOR_FACTION_MAX_RENOWN_REACHED;
+				else
+					description = string.format("|cffffd100%s|r  %d/%d", level, data.renownReputationEarned, data.renownLevelThreshold);
+				end
+				f.factionButtons[i].Icon:SetAtlas(string.format("majorFactions_icons_%s512", data.textureKit), false);
+				f.factionButtons[i].Text:SetText(string.format("|cffffffff%s|r\n%s", data.name, description));
+				f.factionButtons[i].Text:SetTextColor(0.5, 0.5, 0.5);
+				f.factionButtons[i]:Show();
+
+				textWidth = f.factionButtons[i].Text:GetWrappedWidth();
+				if textWidth and textWidth > maxTextWidth then
+					maxTextWidth = textWidth;
+				end
+			end
+			local numButtons = #factionList;
+			f.FactionListFrame:SetHeight((28 + 6)*numButtons - 12);
+			f.FactionListFrame:SetWidth(floor(maxTextWidth + 0.5) + 28 + 6);
+			GameTooltip_InsertFrame(DefaultTooltip, f.FactionListFrame, 6);
+		else
+			DefaultTooltip:AddLine(MAJOR_FACTION_BUTTON_FACTION_LOCKED, 0.5, 0.5, 0.5, true);
+		end
+		DefaultTooltip:Show();
+		DefaultTooltip:FadeIn();
+	end
+
+	local LeftButton = self.LeftButton;
+	LeftButton:SetScript("OnEnter", SideButton_OnEnter);
+	LeftButton:SetScript("OnLeave", SideButton_OnLeave);
+	LeftButton.onEnterFunc = SideButton_ShowDetailedItemLevel;
+	LeftButton.tooltipFormat = L["Equipped Item Level Format"];
+	LeftButton.tooltipLine1 = STAT_AVERAGE_ITEM_LEVEL_TOOLTIP;
+
+	local RightButton = self.RightButton;
+	RightButton:SetScript("OnEnter", SideButton_OnEnter);
+	RightButton:SetScript("OnLeave", SideButton_OnLeave);
+	RightButton.onEnterFunc = SideButton_ShowMajorFactionInfo;
 end
 
 
@@ -3885,7 +3974,6 @@ EL:RegisterEvent("PLAYER_LEVEL_CHANGED");
 
 --These events might become deprecated in future expansions
 EL:RegisterEvent("COVENANT_CHOSEN");
-EL:RegisterEvent("COVENANT_SANCTUM_RENOWN_LEVEL_CHANGED");
 
 EL:SetScript("OnEvent",function(self, event, ...)
 	--print(event)

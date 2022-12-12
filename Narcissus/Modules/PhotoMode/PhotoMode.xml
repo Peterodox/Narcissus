@@ -750,6 +750,11 @@
 						</Scripts>
 					</Frame>
 				</Frames>
+				<Animations>
+					<AnimationGroup parentKey="AnimModelFadeIn">
+						<Alpha order="1" fromalpha="0" toalpha="1" duration="0.6"/>
+					</AnimationGroup>
+				</Animations>
 				<Scripts>
 					<OnMouseUp method="OnMouseUpModified"/>
 					<OnMouseDown method="OnMouseDownModified"/>

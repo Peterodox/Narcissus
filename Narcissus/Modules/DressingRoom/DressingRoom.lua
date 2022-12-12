@@ -10,6 +10,7 @@ local IsFavorite = C_TransmogCollection.GetIsAppearanceFavorite;
 local IsHiddenVisual = C_TransmogCollection.IsAppearanceHiddenVisual;
 local GetOutfitInfo = C_TransmogCollection.GetOutfitInfo;
 local InCombatLockdown = InCombatLockdown;
+local UnitRace = UnitRace;
 
 local DressUpFrame = DressUpFrame;
 
@@ -24,19 +25,25 @@ end
 local HEIGHT_MULTIPLIER = 0.8;  --/dump DressUpFrame:SetAttribute("UIPanelLayout-extraWidth", -500) /dump GetUIPanelWidth(DressUpFrame)
 local OVERRIDE_HEIGHT = math.floor(GetScreenHeight()*HEIGHT_MULTIPLIER + 0.5);
 local OVERRIDE_WIDTH = math.floor(WIDTH_HEIGHT_RATIO * OVERRIDE_HEIGHT + 0.5);
-
 --print(OVERRIDE_HEIGHT, OVERRIDE_WIDTH)
+
+--Interface/SharedXML/ModelSceneCameras/CameraBaseMixin.lua
+local CAMERA_TRANSITION_TYPE_IMMEDIATE = 1;
+local CAMERA_MODIFICATION_TYPE_DISCARD = 1;
+local DRESSING_ROOM_SCENE_ID = 596;
 
 local SLOT_FRAME_ENABLED = true;              --If DressUp addon is loaded, hide our slot frame
 local USE_TARGET_MODEL = true;                --Replace your model with target's
 
-local GetActorInfoByUnit = NarciAPI_GetActorInfoByUnit;
+local GetActorInfoByFileID = addon.GetActorInfoByFileID;
 
 
 --Frames:
 local DressingRoomOverlayFrame;
 local DressingRoomItemButtons = {};
 local OutfitIconSelect;
+local AlteredFormButton;
+local OLD_PLAYER_ACTOR;
 
 local function CreateSlotButton(frame)
     local container = frame.SlotFrame;
@@ -60,7 +67,7 @@ local function CreateSlotButton(frame)
             fullWidth = fullWidth + 12;
         end
         for i = 1, #slotArrangement[sectorIndex] do
-            button = CreateFrame("Button", nil, container, "NarciRectangularItemButtonTemplate");
+            button = CreateFrame("Button", nil, container, "NarciDressingRoomItemButtonTemplate");
             slotID = button:Init(slotArrangement[sectorIndex][i]);
             buttons[slotID] = button;
             button:SetPoint("BOTTOMLEFT", container, "BOTTOMLEFT", fullWidth, offsetY);
@@ -137,12 +144,7 @@ end
 
 -------Create Mogit List-------
 local newSet = {items = {}}
--------------------------------
-local UnitInfo = {
-    raceID = nil,
-    genderID = nil,
-    classID = nil,
-};
+
 
 --Background Transition Animation--
 local function Narci_SetDressUpBackground(unit, instant)
@@ -238,7 +240,8 @@ local function InitializeActor(actor, actorInfo)
 	actor:UpdateScale();
 end
 
-local function UpdateDressingRoomModelByUnit(unit)
+
+local function UpdateDressingRoomModelByUnit(unit, transmogInfoList)
     if not DressingRoomOverlayFrame then
         return
     end
@@ -266,48 +269,67 @@ local function UpdateDressingRoomModelByUnit(unit)
 
     Narci_SetDressUpBackground(unit);
     local ModelScene = DressUpFrame.ModelScene;
+    
     local actor = ModelScene:GetPlayerActor();
-    if not actor then return; end;
+    OLD_PLAYER_ACTOR = actor;
 
     --Acquire target's gears
-    overlay:RegisterEvent("INSPECT_READY");
-    DataProvider:SetInspectedUnit(unit);
-    NotifyInspect(unit);
+    local autoDress = not transmogInfoList;
+    if autoDress then
+        overlay:RegisterEvent("INSPECT_READY");
+        DataProvider:SetInspectedUnit(unit);
+        NotifyInspect(unit);
+    end
 
-    local _;
-    _, _, UnitInfo.raceID = UnitRace(unit);
-    UnitInfo.genderID = UnitSex(unit);
-    _, _, UnitInfo.classID = UnitClass(unit);
 
-    local modelUnit;
+    local modelUnit = (USE_TARGET_MODEL and unit) or "player";
+    local _, raceFile = UnitRace(modelUnit);
+
     local updateScale;
     local sheatheWeapons = actor:GetSheathed() or false;
+    local nativeForm;
+    if (raceFile == "Dracthyr" or raceFile == "Worgen") then
+        nativeForm = C_UnitAuras.WantsAlteredForm(modelUnit);
+        if modelUnit == "player" then
+            if AlteredFormButton.reverse then
+                nativeForm = not nativeForm;
+            end
+            AlteredFormButton:Update();
+            AlteredFormButton:Show();
+        else
+            AlteredFormButton:Hide();
+        end
+    else
+        nativeForm = nil;
+        AlteredFormButton:Hide();
+    end
 
     if USE_TARGET_MODEL then
-        modelUnit = unit;
-        actor:SetModelByUnit(modelUnit, sheatheWeapons, true);
+        actor:SetModelByUnit(modelUnit, sheatheWeapons, autoDress, false, nativeForm);
         updateScale = true;
         DataProvider.isCurrentModelPlayer = false;
     else
-        modelUnit = "player";
-        if not DataProvider.isCurrentModelPlayer then
-            DataProvider.isCurrentModelPlayer = true;
-            actor:SetModelByUnit(modelUnit, sheatheWeapons, true);
-            updateScale = true;
-        end
+        DataProvider.isCurrentModelPlayer = true;
+        actor:SetModelByUnit(modelUnit, sheatheWeapons, autoDress, false, nativeForm);
+        updateScale = true;
     end
+
 
     if updateScale then
-        local modelInfo;
-        modelInfo = GetActorInfoByUnit(modelUnit);
-        if modelInfo then
-            After(0.0,function()
-                --InitializeActor(actor, modelInfo)
-                actor:ApplyFromModelSceneActorInfo(modelInfo)
-            end);
-        end
-    end
+        After(0.0,function()
+            --InitializeActor(actor, modelInfo)
+            local modelInfo = GetActorInfoByFileID(actor:GetModelFileID());
+            if modelInfo then
+                actor:ApplyFromModelSceneActorInfo(modelInfo);
+            end
 
+            if transmogInfoList then
+                for slotID, transmogInfo in ipairs(transmogInfoList) do
+                    actor:SetItemTransmogInfo(transmogInfo, slotID);
+                end
+            end
+        end);
+    end
     return true
 end
 
@@ -468,7 +490,7 @@ function Narci_ShowDressingRoom()
             frame.MaximizeMinimizeFrame:Maximize(true);
             frame.ModelScene:ClearScene();
             frame.ModelScene:SetViewInsets(0, 0, 0, 0);
-            TransitionToModelSceneID(frame.ModelScene, 290, CAMERA_TRANSITION_TYPE_IMMEDIATE, CAMERA_MODIFICATION_TYPE_DISCARD, true);  --Taint
+            TransitionToModelSceneID(frame.ModelScene, DRESSING_ROOM_SCENE_ID, CAMERA_TRANSITION_TYPE_IMMEDIATE, CAMERA_MODIFICATION_TYPE_DISCARD, true);  --Taint
             local sheatheWeapons = false;
             local autoDress = true;
             local itemModifiedAppearanceIDs = nil;
@@ -634,6 +656,8 @@ local function DressingRoomOverlayFrame_Initialize()
         print("Narcissus failed to initialize Advanced Dressing Room");
         return;
     end
+
+    DressUpFrame.ModelScene:SetLightDiffuseColor(0.78, 0.78, 0.78);
 
     local frame = CreateFrame("Frame", "NarciDressingRoomOverlay", parentFrame, "NarciDressingRoomOverlayTemplate")
     CreateSlotButton(frame)
@@ -1026,6 +1050,7 @@ function NarciDressingRoomOverlayMixin:OnHide()
     self:UnregisterEvent("TRANSMOG_COLLECTION_UPDATED");
     self:UnregisterEvent("INSPECT_READY");
     self:ListenEscapeKey(false);
+    AlteredFormButton.reverse = nil;
 end
 
 function NarciDressingRoomOverlayMixin:InspectTarget()
@@ -1074,10 +1099,12 @@ function NarciDressingRoomOverlayMixin:UpdateLayout()
             self.SlotFrame:SetInvisible(false);
             self.OptionFrame:SetScale(frameScale);
             self.UndressButton:Show();
+            AlteredFormButton:SetScale(1);
         else
             self.SlotFrame:SetInvisible(true);
             self.OptionFrame:SetScale(0.5);
             self.UndressButton:Hide();
+            AlteredFormButton:SetScale(0.75);
         end
     else
         self.SlotFrame:Hide();
@@ -1280,138 +1307,130 @@ function NarciStaticPopupOutfitIconSelectMixin:SelectButton(button)
     end
 end
 
---[[
-hooksecurefunc("PanelTemplates_TabResize", function(tab, padding, absoluteSize, minWidth, maxWidth, absoluteTextSize)
-    print(tab:GetName())
-    print(padding)
-    print(absoluteSize)
-    print(minWidth)
-    print(maxWidth)
-end)
 
-/run A1=DressUpFrame.ModelScene:GetPlayerActor()
-/run DressUpFrame.ModelScene:SetLightDirection(- 0.44699833180028 ,  0.72403680806459 , -0.52532198881773)
-/dump A1:GetScale();    SetModelByUnit  SetModelByFileID GetModelFileID()
-/dump A1:GetModelFileID()   1100258 BE female
-/run A1:SetAnimation()  48 CrossBow/Rifle 
-/dump A1:SetCustomRace(1,1)
-/dump A1.OnModelLoaded
-/run A1:TryOn(105951)   105951 Renowned Explorer's Versatile Vest 105950 104948 105946 105945 105949 105947 105944 Cap    105952 Cloak 105959 Tabard  105953 Rucksack     1287 Explorer's Jungle Hopper
-/script local a=DressUpFrame.ModelScene:GetPlayerActor();a:Undress();for i=105945,105951 do a:TryOn(i);end;a:TryOn(105953);
 
-Wooly Wendigo
-/script local a=DressUpFrame.ModelScene:GetPlayerActor();a:Undress();for i=105954,105958 do a:TryOn(i);end;
+NarciDressingRoomAlteredFormButtonMixin = {};
 
-/script local a=NarciPlayerModelFrame1;a:Undress();for i=105945,105951 do a:TryOn(i);end;a:TryOn(105953);
-/run NarciPlayerModelFrame1:TryOn(66602)
-/dump DressUpFrame.ModelScene:GetCameraPosition()
-/dump DressUpFrame.ModelScene:GetActiveCamera():GetZoomDistance()
-:GetZoomDistance()
-local modelSceneType, cameraIDs, actorIDs = C_ModelInfo.GetModelSceneInfoByID(modelSceneID);
-playerActor:SetRequestedScale()
-/run A1:SetRequestedScale(0.65)
-C_ModelInfo.GetModelSceneActorInfoByID(486)
-ModelScene:AcquireActor()
-/run DressUpFrame.ModelScene:InitializeActor(DressUpFrame.ModelScene:GetPlayerActor(), C_ModelInfo.GetModelSceneActorInfoByID(438))
-/run local a = C_ModelInfo.GetModelSceneActorInfoByID(438);print(a.scriptTag)
-/run DressUpFrame.ModelScene:CreateActorFromScene(486)
-/run DressUpFrame.ModelScene:AcquireAndInitializeActor(C_ModelInfo.GetModelSceneActorInfoByID(486))
-/dump DressUpFrame.ModelScene.actorTemplate ModelSceneActorTemplate
-ApplyFromModelSceneActorInfo
-ReleaseAllActors()
-
-/dump C_TransmogCollection.GetItemInfo(itemID)  171324 118559 Shovel 66602 (return appearanceID, sourceID)
-2921871 Gillvanas ModelFileID 93312(DisplayID)  Finduin 2924741/93311 animation 217
-A1:SetAnimation(217,1,0.5,0)
-9331 Gnome
-/run DressingRoomOverlayFrame.SlotFrame:Hide();
-
-function DressUpMountLink(link)
-	if( link ) then
-		local mountID = 0;
-
-		local _, _, _, linkType, linkID = strsplit(":|H", link);
-		if linkType == "item" then
-			mountID = C_MountJournal.GetMountFromItem(tonumber(linkID));
-		elseif linkType == "spell" then
-			mountID = C_MountJournal.GetMountFromSpell(tonumber(linkID));
-		end
-
-		if ( mountID ) then
-			return DressUpMount(mountID);
-		end
-	end
-	return false
+function NarciDressingRoomAlteredFormButtonMixin:OnLoad()
+    AlteredFormButton = self;
+    self:Init();
 end
-local speciesID, customName, level, xp, maxXp, displayID, isFavorite, name, icon, petType = C_PetJournal.GetPetInfoByPetID(petID)
-SpeciesID = C_PetJournal.GetPetInfoByIndex()
-speciesName, speciesIcon, petType, companionID, tooltipSource, tooltipDescription, isWild, canBattle, isTradeable, isUnique, obtainable, creatureDisplayID = C_PetJournal.GetPetInfoBySpeciesID(speciesID)
-C_PetJournal.FindPetIDByName()
 
-local creatureDisplayID, _, _, isSelfMount, _, modelSceneID, animID, spellVisualKitID, disablePlayerMountPreview = C_MountJournal.GetMountInfoExtraByID(mountID);   --93202 Hopper
-	local mountActor = frame.ModelScene:GetActorByTag("unwrapped");
-	if mountActor then
-        mountActor:SetModelByCreatureDisplayID(creatureDisplayID);  --93202
-DressUpFrame.ModelScene:AttachPlayerToMount(A2, 91, false, false);       
-DressUpFrame.ModelScene:AttachPlayerToMount(mountActor, animID, isSelfMount, disablePlayerMountPreview);   
+function NarciDressingRoomAlteredFormButtonMixin:FadeIn()
+    self:SetScript("OnUpdate", nil);
+    FadeFrame(self, 0.2, 1);
+end
 
-				local calcMountScale = mountActor:CalculateMountScale(playerActor);
-				local inverseScale = 1 / calcMountScale; 
-				playerActor:SetRequestedScale( inverseScale );
-                mountActor:AttachToMount(playerActor, animID, spellVisualKitID);
-                
-actorIDs:
-[486] = troll-female 0.65   (expected:0.8526)
-[487] = undead-female
-[488] = lightforgeddraenei-male
-[489] = lightforgeddraenei-female
-[490] = highmountaintauren-male
-[491] = highmountaintauren-female
-[492] = zandalaritroll
-[495] = magharorc-male
-[497] = kultiran-female
-[498] = magharorc-female
-[499] = darkirondwarf-male
-[500] = worgen-female
-[501] = draenei-female
-[494] = kultiran-male
-[438]   player!!!!
-[449] = tauren-male
-[450] = gnome
-[471] = dwarf-male
-[472] = undead-male
-[473] = pandaren
-[474] = worgen-male
-[475] = draenei-male
-[484] = tauren-female
-[483] = orc
-[477] = goblin-female
-[476] = goblin-male
-[485] = troll-male
+local function FormButtonFadeOutDelay(self, elapsed)
+    self.t = self.t + elapsed;
+    if self.t >= 0 then
+        self:SetScript("OnUpdate", nil);
+        FadeFrame(self, 0.5, 0.25);
+    end
+end
+
+function NarciDressingRoomAlteredFormButtonMixin:FadeOut(delay)
+    self.t = (delay and -delay) or 0;
+    self:SetScript("OnUpdate", FormButtonFadeOutDelay);
+end
+
+function NarciDressingRoomAlteredFormButtonMixin:ShowTooltip()
+    local tooltip = GameTooltip;
+    tooltip:SetOwner(self, "ANCHOR_NONE");
+    tooltip:SetPoint("LEFT", self, "RIGHT", 4, 0);
+    if self.isTrueForm then
+        GameTooltip_SetTitle(tooltip, self.trueFormTooltip, NORMAL_FONT_COLOR);
+    else
+        GameTooltip_SetTitle(tooltip, self.alteredFormTooltip, NORMAL_FONT_COLOR);
+    end
+    tooltip:Show();
+end
+
+function NarciDressingRoomAlteredFormButtonMixin:OnEnter()
+    --FadeFrame(self.InnerHighlight, 0.12, 1);
+    self:FadeIn();
+    self:ShowTooltip();
+end
+
+function NarciDressingRoomAlteredFormButtonMixin:OnLeave()
+    --FadeFrame(self.InnerHighlight, 0.2, 0);
+    self:FadeOut(2);
+    GameTooltip_Hide();
+end
+
+function NarciDressingRoomAlteredFormButtonMixin:OnClick()
+    self.reverse = not self.reverse;
+    local actor = OLD_PLAYER_ACTOR or DressUpFrame.ModelScene:GetPlayerActor();
+    local transmogInfoList;
+    if actor then
+        local tempInfoList = actor:GetItemTransmogInfoList();
+        transmogInfoList = CopyTable(tempInfoList);     --the original infolist will be wiped when players swtich form
+    end
+    DressUpFrame.ModelScene:ClearScene();
+    DressUpFrame.ModelScene:SetViewInsets(0, 0, 0, 0);
+    TransitionToModelSceneID(DressUpFrame.ModelScene, DRESSING_ROOM_SCENE_ID, CAMERA_TRANSITION_TYPE_IMMEDIATE, CAMERA_MODIFICATION_TYPE_DISCARD, true);  --Taint
+    UpdateDressingRoomModelByUnit("player", transmogInfoList);
+    self:ShowTooltip();
+end
+
+function NarciDressingRoomAlteredFormButtonMixin:OnDoubleClick()
+    --prevent accidental double-click
+end
+
+function NarciDressingRoomAlteredFormButtonMixin:OnMouseDown()
+    self.Portrait:SetPoint("BOTTOM", 0, -1);
+end
+
+function NarciDressingRoomAlteredFormButtonMixin:OnMouseUp()
+    self.Portrait:SetPoint("BOTTOM", 0, 0);
+end
+
+function NarciDressingRoomAlteredFormButtonMixin:Update()
+
+end
+
+function NarciDressingRoomAlteredFormButtonMixin:UpdateShapeshifter()
+    local isTrueForm = C_UnitAuras.WantsAlteredForm("player");
+    if self.reverse then
+        isTrueForm = not isTrueForm;
+    end
+    self.isTrueForm = isTrueForm;
+
+    if UnitSex("player") == 3 then
+        if isTrueForm then
+            self.Portrait:SetTexCoord(0.5, 0.75, 0.375, 1);
+        else
+            self.Portrait:SetTexCoord(0, 0.25, 0.375, 1);
+        end
+    else
+        if isTrueForm then
+            self.Portrait:SetTexCoord(0.75, 1, 0.375, 1);
+        else
+            self.Portrait:SetTexCoord(0.25, 0.5, 0.375, 1);
+        end
+    end
+
+    if not self:IsMouseOver() then
+        self:FadeIn();
+        self:FadeOut(4);
+    end
+end
 
 
-normalizeScaleAggressiveness
-A1:CalculateNormalizedScale(0.65)
-/run MountDressingRoom(307256)
-
---Unlisted APIs:
-ModelSceneActor:
-SetModelByFileID(fileID [, enableMips])
-SetModelByCreatureDisplayID()
-SetAnimation(animation[, variation, animSpeed, timeOffsetSecs])
-SetSpellVisualKit(spellVisualKitID[, oneShot])
-
-
-local Test = CreateFrame("Button", "TestButton", DressUpFrame, "SecureActionButtonTemplate");
-Test:SetFrameStrata("FULLSCREEN")
-Test:SetSize(64, 64);
-Test:SetPoint("CENTER", DressUpFrame, "CENTER", 0, 0);
-Test.tex = Test:CreateTexture(nil, "ARTWORK");
-Test.tex:SetAllPoints(true);
-Test.tex:SetColorTexture(1, 0, 0);
-Test:SetAttribute("type1", "test")
-Test:SetAttribute("_test", function()
-    --DressUpVisual("item:2092");
-    securecall("DressUpVisual", "item:2092");
-end)
---]]
+function NarciDressingRoomAlteredFormButtonMixin:Init()
+    local _, raceFile = UnitRace("player");
+    if raceFile == "Dracthyr" then
+        self.Update = self.UpdateShapeshifter;
+        self.Portrait:SetTexture("Interface\\AddOns\\Narcissus\\Art\\Modules\\DressingRoom\\FormButton-Dracthyr");
+        self.trueFormTooltip = L["Switch Form To Visage"];
+        self.alteredFormTooltip = L["Switch Form To Dracthyr"];
+    elseif raceFile == "Worgen" then
+        self.Update = self.UpdateShapeshifter;
+        self:SetHeight(34);
+        self.Portrait:SetTexture("Interface\\AddOns\\Narcissus\\Art\\Modules\\DressingRoom\\FormButton-Worgen");
+        self.trueFormTooltip = L["Switch Form To Human"];
+        self.alteredFormTooltip = L["Switch Form To Worgen"];
+    else
+        self:Hide();
+    end
+end

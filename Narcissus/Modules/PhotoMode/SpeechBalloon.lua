@@ -2521,6 +2521,7 @@ NarciTextOverlayFrameMixin = {};
 
 function NarciTextOverlayFrameMixin:OnLoad()
     Narci_ModelSettings:AddSubFrame(self, "TextOverlayMenu");
+    self.Label:SetText(Narci.L["Text Overlay"]);
 end
 
 function NarciTextOverlayFrameMixin:OnShow()

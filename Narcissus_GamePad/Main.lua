@@ -368,9 +368,9 @@ function Loader:Init()
         elseif tabID == 2 then
             SelectActionGroup("SetManager");
         elseif tabID == 3 then
-            SelectActionGroup("Soulbind");
-        elseif tabID == 4 then
             SelectActionGroup("MythicPlus");
+        elseif tabID == 4 then
+            --SelectActionGroup("Soulbind");
         end
     end);
 

@@ -37,9 +37,9 @@ local GuideLineScripts = {
     end,
 }
 
-NarciTaintAlertFrameMixin = {};
+NarciDressingRoomTaintAlertFrameMixin = {};
 
-function NarciTaintAlertFrameMixin:OnLoad()
+function NarciDressingRoomTaintAlertFrameMixin:OnLoad()
     AlertFrame = self;
     self.Text1:SetText(L["Press Copy"]);
     self.fixedHeight = self.Text1:GetHeight() + 97;
@@ -57,7 +57,7 @@ function NarciTaintAlertFrameMixin:OnLoad()
     end);
 end
 
-function NarciTaintAlertFrameMixin:ShowFrame()
+function NarciDressingRoomTaintAlertFrameMixin:ShowFrame()
     self:ClearAllPoints();
     if StaticPopup1:IsShown() then
         self:SetPoint("TOP", StaticPopup1, "BOTTOM", 0, -24);
@@ -76,19 +76,19 @@ function NarciTaintAlertFrameMixin:ShowFrame()
     end
 end
 
-function NarciTaintAlertFrameMixin:UpdateEditBox()
+function NarciDressingRoomTaintAlertFrameMixin:UpdateEditBox()
     self.Clipboard:SetText( NarciAPI.GetOutfitSlashCommand() );
     self.Clipboard:SetFocus();
     self.Clipboard:HighlightText();
     self.Clipboard:SetDefaultCursorPosition(0);
 end
 
-function NarciTaintAlertFrameMixin:UpdateSize(extraHeight)
+function NarciDressingRoomTaintAlertFrameMixin:UpdateSize(extraHeight)
     local height= self.fixedHeight + (extraHeight or 0);
     self:SetHeight(height);
 end
 
-function NarciTaintAlertFrameMixin:ShowSolution()
+function NarciDressingRoomTaintAlertFrameMixin:ShowSolution()
     if not GuideLineScripts.frameHeight then
         local buttons = {};
         local button, fontString, textHeight;
@@ -132,7 +132,7 @@ function NarciTaintAlertFrameMixin:ShowSolution()
     self:UpdateSize(GuideLineScripts.frameHeight);
 end
 
-function NarciTaintAlertFrameMixin:OnHide()
+function NarciDressingRoomTaintAlertFrameMixin:OnHide()
     self:ClearAllPoints();
     self.TutorialFrame:Hide();
     self.ShowMoreButton:Show();

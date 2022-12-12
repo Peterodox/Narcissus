@@ -15,28 +15,28 @@ local function RoundLevel(lvl)
 end
 
 
-local function Progenitor_OnEnter(self)
+local function ClassSet_OnEnter(self)
 	local p = self:GetParent();
-	local nodes = p.ProgenitorOverlay.Nodes;
+	local nodes = p.ClassSetOverlay.Nodes;
 	for _, node in pairs(nodes) do
 		node.HighlightTexture.FadeIn:Play();
 	end
 
-	local f = NarciProgenitorTooltip;
+	local f = NarciClassSetTooltip;
 	f:ClearAllPoints();
-	f:SetParent(p.ProgenitorOverlay);
+	f:SetParent(p.ClassSetOverlay);
 	f:SetPoint("TOP", p, "BOTTOM", 0, -8);
 	f:SetFrameStrata("TOOLTIP");
 	f:FadeIn(true);
 end
 
-local function Progenitor_OnLeave(self)
-	local nodes = self:GetParent().ProgenitorOverlay.Nodes;
+local function ClassSet_OnLeave(self)
+	local nodes = self:GetParent().ClassSetOverlay.Nodes;
 	if nodes then
 		for _, node in pairs(nodes) do
 			node.HighlightTexture.FadeOut:Play();
 		end
-		NarciProgenitorTooltip:FadeOut();
+		NarciClassSetTooltip:FadeOut();
 	end
 end
 
@@ -113,14 +113,14 @@ local Themes = {
 		onEnterFunc = Domination_OnEnter,
     },
 
-    progenitor = {
+    classSet = {
         frameTex = "Progenitor",
         highlightTex = "ProgenitorHighlight",
         highlightSize = 104,
         highlightBlend = "ADD",
         highlightLevel = 4,
-		onEnterFunc = Progenitor_OnEnter,
-		onLeaveFunc = Progenitor_OnLeave,
+		onEnterFunc = ClassSet_OnEnter,
+		onLeaveFunc = ClassSet_OnLeave,
     },
 };
 
@@ -155,24 +155,34 @@ function NarciItemLevelFrameMixin:UpdateItemLevel(playerLevel)
 	self.CenterButton.tooltipHeadline = STAT_AVERAGE_ITEM_LEVEL .." "..avgItemLevel;
 end
 
-function NarciItemLevelFrameMixin:UpdateRenownLevel(newLevel)
+function NarciItemLevelFrameMixin:UpdateCovenantRenownLevel(newLevel)
 	local renownLevel = newLevel or C_CovenantSanctumUI.GetRenownLevel() or 0;
 	local headerText = string.format(COVENANT_SANCTUM_LEVEL, renownLevel);
 	if C_CovenantSanctumUI.HasMaximumRenown() then
 		headerText = headerText.. "  (maxed)";
-	else
-		--to-do: get max level: C_CovenantSanctumUI.GetRenownLevels is too much
 	end
 	local frame = self.RightButton;
 	frame.Header:SetText("RN");
 	frame.tooltipHeadline = headerText;
 	frame.Number:SetText(renownLevel);
+	frame.tooltipLine1 = COVENANT_RENOWN_TUTORIAL_PROGRESS;
+end
 
-	if renownLevel == 0 then
-		frame.tooltipLine1 = "You will be able to join a Covenant and progress Renown level once you reach 60.";
-	else
-		frame.tooltipLine1 = COVENANT_RENOWN_TUTORIAL_PROGRESS;
+function NarciItemLevelFrameMixin:UpdateRenownLevel()
+	local factionIDs = C_MajorFactions.GetMajorFactionIDs();
+	local level, primaryFactionID;
+	local maxLevel = 0;
+	for _, majorFactionID in ipairs(factionIDs) do
+		level = C_MajorFactions.GetCurrentRenownLevel(majorFactionID);
+		if level > maxLevel then
+			primaryFactionID = majorFactionID;
+			maxLevel = level;
+		end
 	end
+
+	local frame = self.RightButton;
+	frame.Header:SetText("RN");
+	frame.Number:SetText(maxLevel);
 end
 
 function NarciItemLevelFrameMixin:SetThemeByName(themeName)
@@ -209,7 +219,7 @@ function NarciItemLevelFrameMixin:SetThemeByName(themeName)
 
 		self.CenterButton.onEnterFunc = asset.onEnterFunc or GenericItemLevel_OnEnter;
 		self.CenterButton.onLeaveFunc = asset.onLeaveFunc;
-		self.ProgenitorOverlay:SetShown(themeName == "progenitor");
+		self.ClassSetOverlay:SetShown(themeName == "classSet");
 	end
 end
 
@@ -227,9 +237,9 @@ function NarciItemLevelFrameMixin:UpdateDomination()
 	end
 end
 
-function NarciItemLevelFrameMixin:UpdateProgenitor(numSetItems)
+function NarciItemLevelFrameMixin:UpdateClassSet(numSetItems)
 	local node;
-	local f = self.ProgenitorOverlay;
+	local f = self.ClassSetOverlay;
 	if not f.Nodes then
 		f.Nodes = {};
 		local _, _, classID = UnitClass("player");
@@ -243,7 +253,7 @@ function NarciItemLevelFrameMixin:UpdateProgenitor(numSetItems)
 	for i = 1, 4 do
 		node = f.Nodes[i];
 		if not node then
-			node = CreateFrame("Frame", nil, f, "NarciProgenitorNodeTemplate");
+			node = CreateFrame("Frame", nil, f, "NarciClassSetIndicatorNodeTemplate");
 			if i == 1 then
 				node:SetPoint("TOPRIGHT", f, "CENTER", 0, 0);
 				node.NormalTexture:SetTexCoord(0, 0.25, 0.25, 0.5);
@@ -293,29 +303,24 @@ end
 
 function NarciItemLevelFrameMixin:InstantUpdate()
 	local themeName;
-	local isDomination = self.DominationOverlay:Update();
-	if isDomination then
-		themeName = "domination";
+	local numSetItems = GetNumClassSetItems(true);
+	if numSetItems > 0 then
+		themeName = "classSet";
+		self:UpdateClassSet(numSetItems);	--numSetItems
 	else
-		local numSetItems = GetNumClassSetItems(true);
-		if numSetItems > 0 then
-			themeName = "progenitor";
-			self:UpdateProgenitor(numSetItems);	--numSetItems
-		else
-			local covenantID = C_Covenants.GetActiveCovenantID();
-			if covenantID and covenantID ~= 0 then
-				if covenantID == 1 then
-					themeName = "kyrian";
-				elseif covenantID == 2 then
-					themeName = "venthyr";
-				elseif covenantID == 3 then
-					themeName = "fae";
-				elseif covenantID == 4 then
-					themeName = "necrolord";
-				end
-			else
-				themeName = "grey";
+		local covenantID = C_Covenants.GetActiveCovenantID();
+		if covenantID and covenantID ~= 0 then
+			if covenantID == 1 then
+				themeName = "kyrian";
+			elseif covenantID == 2 then
+				themeName = "venthyr";
+			elseif covenantID == 3 then
+				themeName = "fae";
+			elseif covenantID == 4 then
+				themeName = "necrolord";
 			end
+		else
+			themeName = "grey";
 		end
 	end
 	self:SetThemeByName(themeName);

@@ -1,3 +1,5 @@
+local MAX_BAG_ID = 6;	--Reagent Bag 
+
 local _, addon = ...
 
 local ItemDataProvider = addon.BagItemSearchDataProvider;
@@ -65,7 +67,7 @@ local function IterateItemButtons(mode, conditionFunc, arg1, arg2)
 
 	if mode == 1 then
 		local itemLocation = ItemLocation:CreateEmpty();
-		for i = 1, 5 do
+		for i = 1, MAX_BAG_ID do
 			frameName = "ContainerFrame"..i;
 			frame = _G[frameName];
 			if isCombinedBagShown or (frame and frame:IsShown()) then
@@ -90,7 +92,7 @@ local function IterateItemButtons(mode, conditionFunc, arg1, arg2)
 		end
 	else
 		local itemID;
-		for i = 1, 5 do
+		for i = 1, MAX_BAG_ID do
 			frameName = "ContainerFrame"..i;
 			frame = _G[frameName];
 			if isCombinedBagShown or (frame and frame:IsShown()) then
@@ -218,7 +220,9 @@ local DelayFilter = CreateFrame("Frame");
 
 local function DelayFilter_OnUpdate(self, elapsed)
 	self:SetScript("OnUpdate", nil);
-	LAST_METHOD(LAST_ARG1);
+	if LAST_METHOD then
+		LAST_METHOD(LAST_ARG1);
+	end
 	PAUSE_UPDATE = nil;
 end
 
@@ -374,7 +378,7 @@ function ItemFilter.ReverseMatch(additionalCondition)
 
 	if additionalCondition then
 		local itemID;
-		for i = 1, 5 do
+		for i = 1, MAX_BAG_ID do
 			frameName = "ContainerFrame"..i;
 			frame = _G[frameName];
 			if frame and frame:IsShown() then
@@ -398,7 +402,7 @@ function ItemFilter.ReverseMatch(additionalCondition)
 			end
 		end
 	else
-		for i = 1, 5 do
+		for i = 1, MAX_BAG_ID do
 			frameName = "ContainerFrame"..i;
 			frame = _G[frameName];
 			if frame and frame:IsShown() then

@@ -1510,7 +1510,233 @@ local officialAnimationName = {
 	"FlyMountSummon",	-- [1497]
 	"EmoteSelfie",	--[1498]
 	"FlyEmoteSelfie", --[1499]
-
+	"CustomSpell11",		--1500
+	"FlyCustomSpell11",
+	"CustomSpell12",
+	"FlyCustomSpell12",
+	"CustomSpell13",
+	"FlyCustomSpell13",		--1505
+	"CustomSpell14",
+	"FlyCustomSpell14",
+	"CustomSpell15",
+	"FlyCustomSpell15",
+	"CustomSpell16",		--1510
+	"FlyCustomSpell16",
+	"CustomSpell17",
+	"FlyCustomSpell17",
+	"CustomSpell18",
+	"FlyCustomSpell18",		--1515
+	"CustomSpell19",
+	"FlyCustomSpell19",
+	"CustomSpell20",
+	"FlyCustomSpell20",
+	"AdvFlyLeft",			--1520
+	"FlyAdvFlyLeft",
+	"AdvFlyRight",
+	"FlyAdvFlyRight",
+	"AdvFlyForward",
+	"FlyAdvFlyForward",		--1525
+	"AdvFlyBackward",
+	"FlyAdvFlyBackward",
+	"AdvFlyUp",
+	"FlyAdvFlyUp",
+	"AdvFlyDown",			--1530
+	"FlyAdvFlyDown",
+	"AdvFlyForwardGlide",
+	"FlyAdvFlyForwardGlide",
+	"AdvFlyRoll",
+	"FlyAdvFlyRoll",		--1535
+	"ProfCookingLoop",
+	"FlyProfCookingLoop",
+	"ProfCookingStart",
+	"FlyProfCookingStart",
+	"ProfCookingEnd",		--1540
+	"FlyProfCookingEnd",
+	"WACurious",
+	"FlyWACurious",
+	"WAAlert",
+	"FlyWAAlert",			--1545
+	"WAInvestigate",
+	"FlyWAInvestigate",
+	"WAInteraction",
+	"FlyWAInteraction",
+	"WAThreaten",			--1550
+	"FlyWAThreaten",
+	"WAReact01",
+	"FlyWAReact01",
+	"WAReact02",
+	"FlyWAReact02",			--1555
+	"AdvFlyRollStart",
+	"FlyAdvFlyRollStart",
+	"AdvFlyRollEnd",
+	"FlyAdvFlyRollEnd",
+	"EmpBreathPrecast",		--1560
+	"FlyEmpBreathPrecast",
+	"EmpBreathPrecastChannel",
+	"FlyEmpBreathPrecastChannel",
+	"EmpBreathSpellCast",
+	"FlyEmpBreathSpellCast",	--1565
+	"EmpBreathSpellCastChannel",
+	"FlyEmpBreathSpellCastChannel",
+	"DracFlyBreathTakeoffStart",
+	"FlyDracFlyBreathTakeoffStart",
+	"DracFlyBreathTakeoffFinish",	--1570
+	"FlyDracFlyBreathTakeoffFinish",
+	"DracFlyBreath",
+	"FlyDracFlyBreath",
+	"DracFlyBreathLandStart",
+	"FlyDracFlyBreathLandStart",	--1575
+	"DracFlyBreathLandFinish",
+	"FlyDracFlyBreathLandFinish",
+	"DracAirDashLeft",
+	"FlyDracAirDashLeft",
+	"DracAirDashForward",		--1580
+	"FlyDracAirDashForward",
+	"DracAirDashBackward",
+	"FlyDracAirDashBackward",
+	"DracAirDashRight",
+	"FlyDracAirDashRight",		--1585
+	"LivingWorldProximityEnter",
+	"FlyLivingWorldProximityEnter",
+	"AdvFlyDownEnd",
+	"FlyAdvFlyDownEnd",
+	"LivingWorldProximityLoop",	--1590
+	"FlyLivingWorldProximityLoop",
+	"LivingWorldProximityLeave",
+	"FlyLivingWorldProximityLeave",
+	"EmpAirBarragePrecast",
+	"FlyEmpAirBarragePrecast",	--1595
+	"EmpAirBarragePrecastChannel",
+	"FlyEmpAirBarragePrecastChannel",
+	"EmpAirBarrageSpellCast",
+	"FlyEmpAirBarrageSpellCast",
+	"DracClawSwipeLeft",		--1600
+	"FlyDracClawSwipeLeft",
+	"DracClawSwipeRight",
+	"FlyDracClawSwipeRight",
+	"DracHoverIdle",
+	"FlyDracHoverIdle",			--1605
+	"DracHoverLeft",
+	"FlyDracHoverLeft",
+	"DracHoverRight",
+	"FlyDracHoverRight",
+	"DracHoverBackward",		--1610
+	"FlyDracHoverBackward",
+	"DracHoverForward",
+	"FlyDracHoverForward",
+	"DracAttackWings",
+	"FlyDracAttackWings",		--1615
+	"DracAttackTail",
+	"FlyDracAttackTail",
+	"AdvFlyStart",
+	"FlyAdvFlyStart",
+	"AdvFlyLand",				--1620
+	"FlyAdvFlyLand",
+	"AdvFlyLandRun",
+	"FlyAdvFlyLandRun",
+	"AdvFlyStrafeLeft",
+	"FlyAdvFlyStrafeLeft",		--1625
+	"AdvFlyStrafeRight",
+	"FlyAdvFlyStrafeRight",
+	"AdvFlyIdle",
+	"FlyAdvFlyIdle",
+	"AdvFlyRollRight",			--1630
+	"FlyAdvFlyRollRight",
+	"AdvFlyRollRightEnd",
+	"FlyAdvFlyRollRightEnd",
+	"AdvFlyRollLeft",
+	"FlyAdvFlyRollLeft",		--1635
+	"AdvFlyRollLeftEnd",
+	"FlyAdvFlyRollLeftEnd",
+	"AdvFlyFlap",
+	"FlyAdvFlyFlap",
+	"DracHoverDracClawSwipeLeft",	--1640
+	"FlyDracHoverDracClawSwipeLeft",
+	"DracHoverDracClawSwipeRight",
+	"FlyDracHoverDracClawSwipeRight",
+	"DracHoverDracAttackWings",
+	"FlyDracHoverDracAttackWings",	--1645
+	"DracHoverReadySpellOmni",
+	"FlyDracHoverReadySpellOmni",
+	"DracHoverSpellCastOmni",
+	"FlyDracHoverSpellCastOmni",
+	"DracHoverChannelSpellOmni",	--1650
+	"FlyDracHoverChannelSpellOmni",
+	"DracHoverReadySpellDirected",
+	"FlyDracHoverReadySpellDirected",
+	"DracHoverChannelSpellDirected",
+	"FlyDracHoverChannelSpellDirected",	--1655
+	"DracHoverSpellCastDirected",
+	"FlyDracHoverSpellCastDirected",
+	"DracHoverCastOutStrong",
+	"FlyDracHoverCastOutStrong",
+	"DracHoverBattleRoar",				--1660
+	"FlyDracHoverBattleRoar",
+	"DracHoverEmpBreathSpellCast",
+	"FlyDracHoverEmpBreathSpellCast",
+	"DracHoverEmpBreathSpellCastChannel",
+	"FlyDracHoverEmpBreathSpellCastChannel",	--1665
+	"LivingWorldTimeOfDayEnter",
+	"FlyLivingWorldTimeOfDayEnter",
+	"LivingWorldTimeOfDayLoop",
+	"FlyLivingWorldTimeOfDayLoop",
+	"LivingWorldTimeOfDayLeave",		--1670
+	"FlyLivingWorldTimeOfDayLeave",
+	"LivingWorldWeatherEnter",
+	"FlyLivingWorldWeatherEnter",
+	"LivingWorldWeatherLoop",
+	"FlyLivingWorldWeatherLoop",		--1675
+	"LivingWorldWeatherLeave",
+	"FlyLivingWorldWeatherLeave",
+	"AdvFlyDownStart",
+	"FlyAdvFlyDownStart",
+	"AdvFlyFlapBig",					--1680
+	"FlyAdvFlyFlapBig",
+	"DracHoverReadyUnarmed",
+	"FlyDracHoverReadyUnarmed",
+	"DracHoverAttackUnarmed",
+	"FlyDracHoverAttackUnarmed",		--1685
+	"DracHoverParryUnarmed",
+	"FlyDracHoverParryUnarmed",
+	"DracHoverCombatWound",
+	"FlyDracHoverCombatWound",
+	"DracHoverCombatCritical",			--1690
+	"FlyDracHoverCombatCritical",
+	"DracHoverAttackTail",
+	"FlyDracHoverAttackTail",
+	"Glide",
+	"FlyGlide",							--1695
+	"GlideEnd",
+	"FlyGlideEnd",
+	"DracClawSwipe",
+	"FlyDracClawSwipe",
+	"DracHoverDracClawSwipe",			--1700
+	"FlyDracHoverDracClawSwipe",
+	"AdvFlyFlapUp",
+	"FlyAdvFlyFlapUp",
+	"AdvFlySlowFall",
+	"FlyAdvFlySlowFall",				--1705
+	"AdvFlyFlapFoward",
+	"FlyAdvFlyFlapFoward",
+	"DracSpellCastWings",
+	"FlyDracSpellCastWings",
+	"DracHoverDracSpellCastWings",		--1710
+	"FlyDracHoverDracSpellCastWings",
+	"DracAirDashVertical",
+	"FlyDracAirDashVertical",
+	"DracAirDashRefresh",
+	"FlyDracAirDashRefresh",			--1715
+	"SkinningLoop",
+	"FlySkinningLoop",
+	"SkinningStart",
+	"FlySkinningStart",
+	"SkinningEnd",						--1720
+	"FlySkinningEnd",
+	"AdvFlyForwardGlideSlow",
+	"FlyAdvFlyForwardGlideSlow",
+	"AdvFlyForwardGlideFast",
+	"FlyAdvFlyForwardGlideFast",		--1725
+	"Soar",	--1726
 	[0] = "Stand",
 };
 

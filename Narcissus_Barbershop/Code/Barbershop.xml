@@ -192,7 +192,7 @@
 					</Anchors>
 				</FontString>
 			</Layer>
-			<Layer level="ARTWORK">
+			<Layer level="ARTWORK" textureSubLevel="4">
 				<Texture parentKey="Portrait" desaturated="false">
 					<Size x="60" y="60"/>
 					<Anchors>
@@ -228,19 +228,6 @@
 				</FontString>
 			</Layer>
 		</Layers>
-		<Frames>
-			<PlayerModel parentKey="Model" useParentLevel="true" hidden="true">
-				<Size x="56" y="56"/>
-				<Anchors>
-					<Anchor point="CENTER" relativeKey="$parent.Border" relativePoint="CENTER" x="0" y="0"/>
-				</Anchors>
-				<Layers>
-					<Layer level="OVERLAY">
-
-					</Layer>
-				</Layers>
-			</PlayerModel>
-		</Frames>
 		<Scripts>
 			<OnLoad method="OnLoad"/>
 			<OnEnter method="OnEnter"/>
@@ -248,8 +235,8 @@
 			<OnClick method="OnClick"/>
 		</Scripts>
 	</Button>
-
-	<ScrollFrame name="NarciBarberShopScrollFrameTemplate" virtual="true" hidden="true">
+		
+	<ScrollFrame name="NarciBarberShopScrollFrameTemplate" virtual="true">
 		<Size x="256" y="256"/>
 		<Anchors>
 			<Anchor point="TOPLEFT" relativeKey="$parent.$parent.PlusButton" relativePoint="BOTTOMLEFT" x="1" y="-24"/>
@@ -385,14 +372,17 @@
 					</Anchors>
 				</FontString>
 			</Layer>
+			<Layer level="HIGHLIGHT">
+				<Texture file="Interface\AddOns\Narcissus\Art\Modules\BarberShop\RingButton" parentKey="Ring">
+					<Size x="20" y="20"/>
+					<Anchors>
+						<Anchor point="CENTER"/>
+					</Anchors>
+					<TexCoords left="0" right="0.25" top="0" bottom="1"/>
+				</Texture>
+			</Layer>
 		</Layers>
-		<HighlightTexture file="Interface\AddOns\Narcissus\Art\Modules\BarberShop\RingButton" parentKey="Ring">
-			<Size x="20" y="20"/>
-			<Anchors>
-				<Anchor point="CENTER"/>
-			</Anchors>
-			<TexCoords left="0" right="0.25" top="0" bottom="1"/>
-		</HighlightTexture>
+
 		<Scripts>
 			<OnLoad method="OnLoad"/>
 			<OnClick method="OnClick"/>
@@ -658,11 +648,7 @@
 					<Anchor point="TOPLEFT" relativeKey="$parent" relativePoint="TOPLEFT" x="0" y="0"/>
 				</Anchors>
 				<Frames>
-
-					<ScrollFrame inherits="NarciBarberShopScrollFrameTemplate" parentKey="CategoryMale"/>
-					<ScrollFrame inherits="NarciBarberShopScrollFrameTemplate" parentKey="CategoryFemale"/>
-					<ScrollFrame inherits="NarciBarberShopScrollFrameTemplate" parentKey="CategoryAlternateFormMale" hidden="true"/>
-					<ScrollFrame inherits="NarciBarberShopScrollFrameTemplate" parentKey="CategoryAlternateFormFemale" hidden="true"/>
+					<ScrollFrame inherits="NarciBarberShopScrollFrameTemplate" parentKey="ScrollModelFrame"/>
 
 					<EditBox parentKey="EditBox" multiLine="false" autoFocus="false" mixin="NarciBarberShopEditBoxMixin" frameLevel="8" hidden="true" letters="36">
 						<Size x="200" y="16"/>
@@ -701,7 +687,7 @@
 							<Anchor point="TOP" relativeKey="$parent.EditButton" relativePoint="BOTTOM" x="0"/>
 						</Anchors>
 						<Layers>
-							<Layer level="OVERLAY" textureSubLevel="1">
+							<Layer level="HIGHLIGHT" textureSubLevel="5">
 								<Texture file="Interface\AddOns\Narcissus\Art\Modules\BarberShop\RingButton" parentKey="SemiCircleLeft" hidden="true">
 									<Size x="20" y="20"/>
 									<Anchors>
@@ -992,28 +978,6 @@
 					</OnMouseWheel>
 				</Scripts>
 			</Frame>
-
-			<!--PlayerModel name="TestPlayerModel" frameStrata="LOW" hidden="true" mixin="NarciBarberShopModelMixin">
-				<Anchors>
-					<Anchor point="TOPLEFT" relativePoint="TOPLEFT"/>
-					<Anchor point="BOTTOMRIGHT" relativePoint="BOTTOMRIGHT"/>
-				</Anchors>
-				<Layers>
-					<Layer>
-						<Texture>
-							<Color r="0.05" g="0.05" b="0.05" a="0"/>
-						</Texture>
-					</Layer>
-				</Layers>
-				<Anchors>
-					<Anchor point="LEFT"/>
-				</Anchors>
-				<Scripts>
-					<OnLoad method="OnLoad"/>
-					<OnModelLoaded method="OnModelLoaded"/>
-					<OnShow method="OnShow"/>
-				</Scripts>
-			</PlayerModel-->
 		</Frames>
 		<Scripts>
 			<OnLoad method="OnLoad"/>

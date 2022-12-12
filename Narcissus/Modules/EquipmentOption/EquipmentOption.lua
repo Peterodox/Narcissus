@@ -913,10 +913,6 @@ function NarciEquipmentListTooltipMixin:OnHide()
     self:SetAlpha(0);
 end
 
-function NarciEquipmentListTooltipMixin:OnEvent()
-
-end
-
 function NarciEquipmentListTooltipMixin:SetSpell(spellID)
     self.spellID = spellID;
     self.itemID = nil;
@@ -993,7 +989,7 @@ function NarciEquipmentListTooltipMixin:SetItem(itemID)
             if IsItemDominationShard(itemID) then
                 line = 5;
             else
-                line = {3, 4};
+                line = {3, 4, 5};
             end
             self.ClipFrame.Description:SetSize(0, 0);
             local tooltipText, isCached = GetCachedItemTooltipTextByLine(itemID, line, function(newText)

@@ -1248,6 +1248,13 @@ function NarciScrollEditBoxMixin:PostLoad()
     NarciAPI_SmoothScroll_Initialization(self.ScrollFrame, nil, nil, 2, 0.14);
 end
 
+function NarciScrollEditBoxMixin:SetFontObject(fontObject)
+    self.ScrollFrame.EditBox:SetFontObject(fontObject);
+end
+
+function NarciScrollEditBoxMixin:SetFontColor(r, g, b)
+    self.ScrollFrame.EditBox:SetTextColor(r, g, b);
+end
 
 --------------------------------------------------------------------------------------------------
 --Notes: Hide the frame if user clicks anywhere other than the frame itself or the switch used to open that frame.

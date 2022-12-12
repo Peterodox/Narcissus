@@ -4,16 +4,19 @@ NarciCreatureInfo.isLanguageLoaded = {};
 local L = Narci.L;
 local sub = string.sub;
 local gsub = string.gsub;
-local find = string.find;
 local lower = string.lower;
 local upper = string.upper;
 local format = string.format;
-local After = C_Timer.After;
 local strsplit = strsplit;
 local tinsert = table.insert;
+local After = C_Timer.After;
 
+local UnitGUID = UnitGUID;
 local UnitIsPlayer = UnitIsPlayer;
 local UnitIsOtherPlayersPet = UnitIsOtherPlayersPet;
+local InCombatLockdown = InCombatLockdown;
+local IsKeyDown = IsKeyDown;
+local IsShiftKeyDown = IsShiftKeyDown;
 
 local CLIENT_TEXT_LOCALE = GetLocale();
 if CLIENT_TEXT_LOCALE == "enGB" then
@@ -528,15 +531,10 @@ local FORMAT_FIND_RELATIVES_HOTKEY = L["Find Relatives Hotkey Format"];
 local CREATURE_TOOLTIP_ENABLED, FIND_RELATIVES, TRANSLATE_NAME_TOOLTIP;     --Load it later
 local NPCModel;
 local UnitData = {};
-local lastUnitName = "";
-local hasRequested = {};
+local LAST_UNIT_NAME = "";
+local CACHED_NPC = {};
 local EnabledLanguages = {};
 local NUM_ENABLED_LOCALES = 0;
-local strsplit = strsplit;
-
-local function split(str)
-    return strsplit(" ", str)
-end
 
 local function UpdateEnabledLanguages()
     wipe(EnabledLanguages);
@@ -574,7 +572,8 @@ local function EnableLanguage(language, state)
     UpdateEnabledLanguages();
 end
 
-local OnTooltipSetUnit;     --function Create Later
+local TooltipSetUnitCallback;     --function Create Later (Pre 10.0.2)
+
 local function SetIsCreatureTooltipEnabled()
     FIND_RELATIVES = NarcissusDB.SearchRelatives;
     TRANSLATE_NAME_TOOLTIP = NarcissusDB.TranslateName and NarcissusDB.NameTranslationPosition == 1;
@@ -582,7 +581,15 @@ local function SetIsCreatureTooltipEnabled()
 
     if CREATURE_TOOLTIP_ENABLED and (not ETP.hasHooked) then
         ETP.hasHooked = true;
-        GTP:HookScript("OnTooltipSetUnit", OnTooltipSetUnit);
+        GTP:HookScript("OnHide", function()
+            LAST_UNIT_NAME = "";
+        end);
+
+        if GTP:HasScript("OnTooltipSetUnit") then
+            GTP:HookScript("OnTooltipSetUnit", TooltipSetUnitCallback);
+        elseif TooltipDataProcessor and GTP.SetUnit then
+            TooltipDataProcessor.AddTooltipPostCall(Enum.TooltipDataType.Unit, TooltipSetUnitCallback);
+        end
     else
         ETP:Hide();
     end
@@ -596,17 +603,7 @@ local function DisableTranslator()
 end
 
 local function UpdateNPCSettings()
-    FIND_RELATIVES = NarcissusDB.SearchRelatives;
-    TRANSLATE_NAME_TOOLTIP = NarcissusDB.TranslateName and NarcissusDB.NameTranslationPosition == 1;
-    CREATURE_TOOLTIP_ENABLED = FIND_RELATIVES or TRANSLATE_NAME_TOOLTIP;
-
-    if CREATURE_TOOLTIP_ENABLED and (not ETP.hasHooked) then
-        ETP.hasHooked = true;
-        GTP:HookScript("OnTooltipSetUnit", OnTooltipSetUnit);
-    else
-        ETP:Hide();
-    end
-    
+    SetIsCreatureTooltipEnabled();
     ShowTranslationOnNameplate(NarcissusDB.TranslateName and NarcissusDB.NameTranslationPosition == 2);
 end
 
@@ -617,7 +614,7 @@ NarciCreatureInfo.UpdateNPCSettings = UpdateNPCSettings;
 
 local function RequestNPCInfo(id)
     ETP2:SetHyperlink(format("unit:Creature-0-0-0-0-%d", id));
-    hasRequested[id] = true;
+    CACHED_NPC[id] = true;
 end
 
 local function RemoveLevel(fontString)
@@ -649,9 +646,8 @@ local function SetRelatedNPCTooltip(id)
     --Model
     After(0, function()
         NPCModel:SetCreature(id);
-        NPCModel:SetLight(true, false, - 0.44699833180028 ,  0.72403680806459 , -0.52532198881773, 0.8, 172/255, 172/255, 172/255, 1, 0.8, 0.8, 0.8);
+        NPCModel:SetViewTranslation(NPCModel:GetWidth() * 0.5, 0);
         NPCModel:Show();
-        NPCModel:SetViewTranslation(NPCModel:GetWidth()/2, 0);
     end)
 end
 
@@ -677,6 +673,7 @@ end
 
 local function UpdateNPCTooltip(name, unit, showRelatives)
     if not ( UnitIsPlayer(unit) or UnitIsOtherPlayersPet(unit) ) then
+        ETP:ClearLines();
         --Translate Name
         local creatureID = { strsplit("-", UnitGUID(unit) ) };
         creatureID = tonumber(creatureID[6]);
@@ -727,13 +724,12 @@ local function UpdateNPCTooltip(name, unit, showRelatives)
 
                     local line = 0;
                     local delayTooltip;
-
+                    local id;
                     for _, v in pairs(relatives) do
                         name = v[1];
                         id = v[2];
                         line = line + 1;
-
-                        if not hasRequested[id] then
+                        if not CACHED_NPC[id] then
                             delayTooltip = true;
                             RequestNPCInfo(id);
                         end
@@ -793,21 +789,24 @@ local function UpdateNPCTooltip(name, unit, showRelatives)
     end
 end
 
-function OnTooltipSetUnit()
+function TooltipSetUnitCallback()
     if not CREATURE_TOOLTIP_ENABLED then return end;
     local name, unit = GTP:GetUnit();
-
-    if name and unit and (name ~= lastUnitName or not ETP:IsVisible()) then
+    if unit then
+        if name and (name ~= LAST_UNIT_NAME) then
+            ETP:Hide();
+            LAST_UNIT_NAME = name;
+            ETP.tooltipCycle = nil;
+            ETP.creatureIndex = 1;
+            UpdateNPCTooltip(name, unit);
+        end
+    else
         ETP:Hide();
-        lastUnitName = name;
-        ETP.tooltipCycle = nil;
-        ETP.creatureIndex = 1;
-        UpdateNPCTooltip(name, unit);
     end
 end
 
 local function Tooltip_OnKeyDown(self, key)
-    if not InCombatLockdown() and key == "Tab" then
+    if not InCombatLockdown() and key == "TAB" then
         if self.tooltipCycle then
             if not IsShiftKeyDown() then
                 if self.creatureIndex < self.tooltipCycle then
@@ -827,9 +826,10 @@ local function Tooltip_OnKeyDown(self, key)
         local name, unit = GTP:GetUnit();
         if name and unit then
             UpdateNPCTooltip(name, unit, true);
+            self:SetPropagateKeyboardInput(false);
+        else
+            self:SetPropagateKeyboardInput(true);
         end
-
-        self:SetPropagateKeyboardInput(false);
     else
         self:SetPropagateKeyboardInput(true);
     end
@@ -886,6 +886,7 @@ Initialize:SetScript("OnEvent", function(self, event, ...)
             NPCModel:SetPoint("BOTTOMLEFT", ETP2, "TOPLEFT", 0, 0);
             NPCModel:SetPoint("BOTTOMRIGHT", ETP2, "TOPRIGHT", 0, 0);
             NPCModel:SetHeight(200);
+            NarciAPI.TransitionAPI.SetModelLight(NPCModel, true, false, - 0.44699833180028 ,  0.72403680806459 , -0.52532198881773, 0.8, 172/255, 172/255, 172/255, 1, 0.8, 0.8, 0.8);
 
             UpdateEnabledLanguages();
 

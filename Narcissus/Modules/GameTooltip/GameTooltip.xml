@@ -23,7 +23,7 @@
                         <Anchor point="RIGHT" relativeKey="$parent.TextLeft1" relativePoint="LEFT" x="40" y="0"/>
                     </Anchors>
                 </FontString>
-                <FontString name="$parentTextLeft2" parentKey="TextLeft2" inherits="NarciFontNormal10"  justifyH="LEFT"/>
+                <FontString name="$parentTextLeft2" parentKey="TextLeft2" inherits="NarciFontNormal10" justifyH="LEFT"/>
                 <FontString name="$parentTextRight2" parentKey="TextRight2" inherits="NarciFontNormal10" justifyH="RIGHT">
                     <Anchors>
                         <Anchor point="RIGHT" relativeKey="$parent.TextLeft2" relativePoint="LEFT" x="40" y="0"/>
@@ -54,6 +54,7 @@
             <OnShow method="OnShow"/>
             <OnHide method="OnHide"/>
             <OnSizeChanged method="OnSizeChanged"/>
+            <OnTooltipCleared function="SharedTooltip_ClearInsertedFrames"/>
         </Scripts>
     </GameTooltip>
  
@@ -222,5 +223,25 @@
             <OnLoad method="OnLoad"/>
             <OnShow method="OnShow"/>
         </Scripts>
+    </Frame>
+
+    <Frame name="NarciGameTooltipEmbeddedIconTextFrame" virtual="true">
+        <Size x="154" y="28"/>
+        <Layers>
+            <Layer level="OVERLAY">
+                <Texture parentKey="Icon">
+                    <Size x="24" y="24"/>
+                    <Anchors>
+                        <Anchor point="LEFT"/>
+                    </Anchors>
+                </Texture>
+                <FontString parentKey="Text" inherits="NarciFontNormal10" justifyH="LEFT" justifyV="MIDDLE" spacing="2">
+                    <Size x="0" y="0"/>
+                    <Anchors>
+                        <Anchor point="LEFT" relativeKey="$parent.Icon" relativePoint="RIGHT" x="6"/>
+                    </Anchors>
+                </FontString>
+            </Layer>
+        </Layers>
     </Frame>
 </Ui>

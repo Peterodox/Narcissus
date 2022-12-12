@@ -1,4 +1,4 @@
---Coutesy of ZamestoTV. Thank you!    --Translator: ZamestoTV as of 1.3.1
+--Coutesy of ZamestoTV. Thank you!    --Translator: ZamestoTV as of 1.3.3
 
 if not (GetLocale() == "ruRU") then
     return;
@@ -249,6 +249,7 @@ L["Binding Name Open Narcissus"] = "Открыть панель персонаж
 L["Developer Colon"] = "Разработчик: ";
 L["Project Page"] = "Страница проекта";
 L["Press Copy Yellow"] = "Нажмите |cffffd100".. NARCI_SHORTCUTS_COPY .."|r для копирования";
+L["New Option"] = NARCI_NEW_ENTRY_PREFIX.." НОВЫЙ".."|r"												  
 
 --Model Control--
 L["Ranged Weapon"] = "Дальний бой";
@@ -616,6 +617,7 @@ L["Showcase Splash 1"] = "Создайте анимацию поворотног
 L["Showcase Splash 2"] = "Нажмите кнопку ниже, чтобы скопировать предметы из Гардеробной.";
 L["Showcase Splash 3"] = "Нажмите кнопку ниже, чтобы вращать своего персонажа.";
 L["Showcase Splash 4"] = "Запишите свой экран с помощью программного обеспечения для записи видео, а затем конвертируйте его в GIF.";
+L["Loop Animation Alert Kultiran"] = "Виток - в настоящее время сломана на Культирасце мужчине.";																				
 
 --Item Sets--
 L["Cycle Spec"] = "Нажмите Tab, чтобы посмотреть специализацию";
@@ -646,3 +648,24 @@ L["Use Class Background"] = "Использовать фон класса";
 L["Empty Loadout Name"] = "Имя";
 L["No Save Slot Red"] = NARCI_COLOR_RED_MILD.. "Нет слота для сохранения" .."|r";
 L["Save"] = "Сохранить";		
+L["Create Macro Wrong Spec"] = "Этот набор был закреплен за другой специализацией!";
+L["Create Marco No Slot"] = "Невозможно создать больше макросов для персонажей.";
+L["Create Macro Instruction 1"] = "Поместите набор в поле ниже, чтобы объединить его с \n|cffebebeb%s|r";
+L["Create Macro Instruction Edit"] = "Перетащите набор в поле ниже, чтобы изменить макрос\n|cffebebeb%s|r";
+L["Create Macro Instruction 2"] = "Выберите |cff53a9ffвторичный значок|r для этого макроса.";
+L["Create Macro Instruction 3"] = "Назовите этот макрос\n ";
+L["Create Macro Instruction 4"] = "Перетащите этот макрос на панель действий.";
+L["Create Macro In Combat"] = "Невозможно создать макрос во время боя.";
+L["Create Macro Next"] = "СЛЕДУЮЩИЙ";
+L["Create Marco Created"] = "СОЗДАННЫЙ";
+
+--Bag Item Filter--
+L["Bag Item Filter"] = "Фильтр предметов сумки";
+L["Bag Item Filter Enable"] = "Включить предложение поиска и автоматический фильтр";
+L["Place Window"] = "Поместите окно...";
+L["Below Search Box"] = "Ниже окна поиска";
+L["Above Search Box"] = "Над окном поиска";
+L["Auto Filter Case"] = "Автоматически фильтрует предметы, когда вы...";
+L["Send Mails"] = "Отправляете почту";
+L["Create Auctions"] = "Создаете аукцион";
+L["Socket Items"] = "Сокеты";

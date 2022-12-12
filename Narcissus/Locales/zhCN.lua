@@ -139,8 +139,15 @@ L["Border Theme Dark"] = "灰暗";
 L["Always Show Model"] = "在使用对称布局时显示3D模型";
 L["AFK Screen Description"] = "在你的人物暂离后自动打开Narcissus。";
 L["AFK Screen Description Extra"] = "勾选此选项将覆盖ElvUI的AFK模式。";
+L["AFK Screen Delay"] = "在倒计时结束后打开";
+L["Item Names"] = "装备名字";
+L["Open Narcissus"] = "Narcissus角色界面";
+L["Character Panel"] = "角色界面";
+L["Screen Effects"] ="屏幕效果";
+
 L["Gemma"] = "\"Gemma\"";
 L["Gemma Description"] = "在你为一件物品镶嵌宝石时，显示可用的宝石列表。"
+L["Gem Manager"] = "宝石助手";
 L["Dressing Room"] = "试衣间"
 L["Dressing Room Description"] = "增大试衣间窗口大小，并使你能够通过试衣间浏览、复制其他玩家的幻化调料包。";
 L["Show Detailed Stats"] = "显示详尽的属性信息";
@@ -157,12 +164,9 @@ L["Ultra-wide Optimization"] = "超宽屏优化";
 L["Baseline Offset"] = "基准线偏移";
 L["Ultra-wide Tooltip"] = "你能看到此选项是因为你正在使用一台%s:9显示器。";
 L["Interactive Area"] = "交互区域";
-L["Item Socketing Tooltip"] = "双击左键进行镶嵌";
-L["No Available Gem"] = "|cffd8d8d8没有可镶嵌的宝石|r";
 L["Use Bust Shot"] = "使用半身像";
-L["Use Escape Button"] = "Esc键";
-L["Use Escape Button Description1"] = "按下Esc键来退出插件。";
-L["Use Escape Button Description2"] = "点击屏幕右上角的X按钮来退出插件。";
+L["Use Escape Button"] = "按下|cffffdd10(Esc)|r键来退出角色界面。";
+L["Use Escape Button Description"] = "你也可以点击隐藏在屏幕右上角的X按钮来退出。";
 L["Show Module Panel Gesture"] = "鼠标悬停时显示模块面板";
 L["Independent Minimap Button"] = "不受其他插件控制";
 L["AFK Screen"] = "AFK画面";
@@ -204,6 +208,13 @@ L["Tooltip Style 1"] = "下一代";
 L["Tooltip Style 2"] = "经典";
 L["Addtional Info"] = "额外信息";
 L["Item ID"] = "物品ID";
+L["Camera Reset Notification"] = "镜头水平偏移已重置为零。如果你想关闭这个功能，请打开“设置-镜头”然后关闭“镜头安全模式”。";
+L["Binding Name Open Narcissus"] = "Narcissus角色面板";
+L["Developer Colon"] = "开发者: ";
+L["Project Page"] = "项目主页";
+L["Press Copy Yellow"] = "按下|cffffd100".. NARCI_SHORTCUTS_COPY .."|r复制";
+L["New Option"] = NARCI_NEW_ENTRY_PREFIX.." 新".."|r"
+L["Expansion Features"] = "资料片特色";
 
 
 --模型控制面板--
@@ -249,7 +260,7 @@ L["Shadow"] = "阴影";
 L["Light Source"] = "光源";
 L["Light Source Independent"] = "独立";
 L["Light Source Interconnected"] = "关联";
-
+L["Adjustment"] = "调整";
 
 --Animation Browser--
 L["Animation"] = "角色动画";
@@ -276,7 +287,7 @@ L["Next And Previous"] = "左键：下一个\n右键：上一个";
 L["New Favorite"] = "新的收藏";
 L["Favorites Add"] = "添加到收藏夹";
 L["Favorites Remove"] = "从收藏夹中移除";
-L["Auto-play"] = "Auto-play";   --Auto-play suggested animation
+L["Auto-play"] = "自动播放";   --Auto-play suggested animation
 L["Auto-play Tooltip"] = "如果存在与选中的效果相关的动画，自动播放它";
 L["Delete Entry Plural"] = "即将删除%s个条目";
 L["Delete Entry Singular"] = "即将删除%s个条目";
@@ -297,6 +308,7 @@ L["Add to MogIt Wishlist"] = "加入MogIt愿望清单";
 L["Show Taint Solution"] = "如何避免此问题？";
 L["Taint Solution Step1"] = "1.重载界面。";
 L["Taint Solution Step2"] = "2."..NARCI_MODIFIER_CONTROL.."+左键点击物品来打开试衣间。";
+L["InGame Command"] = "游戏内命令";
 
 --NPC Browser--
 NARCI_NPC_BROWSER_TITLE_LEVEL = ".*%?%?.?";      --Level ?? --Use this to check if the second line of the tooltip is NPC's title or unit type
@@ -316,6 +328,7 @@ L["Gem Tooltip Format1"] = "%s和%s";
 L["Gem Tooltip Format2"] = "%s、%s和另外%s种...";
 
 --Equipment Set Manager
+L["Equipped Item Level Format"] = "已装备%s";
 L["Toggle Equipment Set Manager"] = "点击以打开/关闭套装管理器";
 L["Duplicated Set"] = "重复的套装";
 L["Low Item Level"] = "物品等级过低";
@@ -360,12 +373,14 @@ L["Corruption Effect Format4"] = "被彼岸之物击中会立刻触发其余效�
 L["Corruption Effect Format5"] = "|cffffffff%s%%|r 受到的伤害和治疗改变";
 
 --Text Overlay Frame
+L["Text Overlay"] = "文字覆盖";
 L["Text Overlay Button Tooltip1"] = "简易聊天气泡";
 L["Text Overlay Button Tooltip2"] = "高级聊天气泡";
 L["Text Overlay Button Tooltip3"] = "Talking Head";
 L["Text Overlay Button Tooltip4"] = "悬浮字幕";
 L["Text Overlay Button Tooltip5"] = "黑条字幕";
 L["Visibility"] = "可见性";
+L["Photo Mode Frame"] = "边框";
 
 --Achievement Frame--
 L["Use Achievement Panel"] = "设为首选成就面板";
@@ -381,6 +396,18 @@ L["Show Dates"] = "显示日期";
 L["Hide Dates"] = "隐藏日期";
 L["Pinned Entries"] = "置顶条目";
 L["Pinned Entry Format"] = "已置顶  %d/%d";
+L["Create A New Entry"] = "创建一个新条目";
+L["Custom Achievement"] = "自定义成就";
+L["Custom Achievement Description"] = "这里是说明。";
+L["Custom Achievement Select And Edit"] = "选择右侧的一个条目进行修改";
+L["Cancel"] = "取消";
+L["Color"] = "颜色";
+L["Icon"] = "图标";
+L["Description"] = "说明";
+L["Points"] = "点数";
+L["Reward"] = "奖励";
+L["Date"] = "日期";
+L["Click And Hold"] = "按住鼠标左键";
 
 --Barbershop--
 L["Save New Look"] = "保存外观";
@@ -510,6 +537,10 @@ L["Click to Insert"] = "左键点击以镶嵌";
 L["No Socket"] = "这件物品不带孔";
 L["No Other Item For Slot"] = "没有其他的%s装备";
 L["In Bags"] = "背包内";
+L["Item Socketing Tooltip"] = "双击左键进行镶嵌";
+L["No Available Gem"] = "|cffd8d8d8没有可镶嵌的宝石|r";
+L["Missing Enchant Alert"] = "附魔提示";
+L["Missing Enchant"] = NARCI_COLOR_RED_MILD.."缺失附魔".."|r";
 
 --Statistics--
 S["Narcissus Played"] = "Narcissus使用时长";
@@ -554,8 +585,54 @@ L["Paperdoll Splash 1"] = "使用套装指示器？";
 L["Paperdoll Splash 2"] = "选择主题色";
 
 --Outfit Select--
+L["Outfit"] = "外观方案";
 L["Models"] = "模型";
 L["Origin Outfits"] = "原始外观";
 L["Outfit Owner Format"] = "%s的外观方案";
 L["SortMethod Recent"] = "最近登录";
 L["SortMethod Name"] = "角色姓名";
+
+--Tooltip Match Format--
+L["Find Cooldown"] = "冷却时间";
+L["Find Recharge"] = "充能时间";
+
+
+--Talent Tree--
+L["Mini Talent Tree"] = "迷你天赋树";
+L["Show Talent Tree When"] = "在以下情形显示天赋树：";
+L["Show Talent Tree Paperdoll"] = "打开角色信息";
+L["Show Talent Tree Inspection"] = "观察其他玩家";
+L["Show Talent Tree Equipment Manager"] = "使用装备管理";
+L["Appearance"] = "外观";
+L["Use Class Background"] = "专精背景";
+L["Use Bigger UI"] = "更大的界面";
+L["Empty Loadout Name"] = "配置名字";
+L["No Save Slot Red"] = NARCI_COLOR_RED_MILD.. "存档已满" .."|r";
+L["Save"] = "保存";
+L["Create Macro Wrong Spec"] = "这个装备方案被指定为另一个专精所用！";
+L["Create Marco No Slot"] = "无法创建更多角色专用宏。";
+L["Create Macro Instruction 1"] = "将装备方案放入下面的方框中，与以下天赋方案结合\n|cffebebeb%s|r";
+L["Create Macro Instruction Edit"] = "将装备方案放入下面的方框中以修改宏\n|cffebebeb%s|r";
+L["Create Macro Instruction 2"] = "为这个符合宏选择一个|cff53a9ff副图标|r。";
+L["Create Macro Instruction 3"] = "给宏命名\n ";
+L["Create Macro Instruction 4"] = "将这个宏拖拽到你的技能栏。";
+L["Create Macro In Combat"] = "无法在战斗中创建宏。";
+L["Create Macro Next"] = "下一步";
+L["Create Marco Created"] = "创建成功";
+L["Place UI"] = "把界面放在角色信息的...";
+L["Place Talent UI Right"] = "右侧";
+L["Place Talent UI Bottom"] = "下方";
+L["Loadout"] = "配置方案";
+L["No Loadout"] = "无配置方案";
+L["PvP"] = "PvP";
+
+--Bag Item Filter--
+L["Bag Item Filter"] = "背包物品过滤器";
+L["Bag Item Filter Enable"] = "启用搜索建议和自动过滤";
+L["Place Window"] = "将窗口放在搜索栏的...";
+L["Below Search Box"] = "下方";
+L["Above Search Box"] = "上方";
+L["Auto Filter Case"] = "在以下情形自动过滤物品：";
+L["Send Mails"] = "发送右键";
+L["Create Auctions"] = "拍卖物品";
+L["Socket Items"] = "镶嵌宝石";

@@ -731,8 +731,12 @@ local function InitializeModel(model)
 	end)
 end
 
-local _, _, classID = UnitClass("player");
-local EntranceAnimation = Narci.ClassEntranceVisuals[classID];
+local EntranceAnimation;
+do
+	local _, _, classID = UnitClass("player");
+	EntranceAnimation = Narci.ClassEntranceVisuals[classID];
+end
+
 PMAI:SetScript("OnShow", function(self)		--PlayerModelAnimIn
 	local model = PrimaryPlayerModel;
 	--model:RefreshUnit();
@@ -783,11 +787,12 @@ PMAI:SetScript("OnShow", function(self)		--PlayerModelAnimIn
 		self:SetScript("OnUpdate", EntranceAnimation[5]);
 	end
 	model:Show();
-	model:SetAlpha(1);
-	model:SetModelAlpha(1);
+	model:SetModelAlpha(0);
+	model:SetAlpha(0);
 	model.isVirtual = false;
 	model:ResetCameraPosition();
-	FadeIn(Narci_ModelContainer, 0.6);
+	FadeFrame(model, 0.6, 1);
+	--FadeFrame(ModelContainer, 0, 1);
 
 	if self.init then	--Initialize settings
 		self.init = nil;
@@ -1019,7 +1024,7 @@ local function ShowTextAlphaChannel(state, doNotShowModel)
 				slot:ShowAlphaChannel();
 			end
 		end
-		Narci_ModelContainer:Hide();
+		ModelContainer:Hide();
 		Narci_XmogNameFrame:Hide();
 		Narci_Character:SetAlpha(1);
 		Narci_Character:Show();
@@ -1040,8 +1045,8 @@ local function ShowTextAlphaChannel(state, doNotShowModel)
 		end
 
 		if not doNotShowModel then
-			Narci_ModelContainer:Show();
-			Narci_ModelContainer:SetAlpha(1);
+			ModelContainer:Show();
+			ModelContainer:SetAlpha(1);
 			Narci_XmogNameFrame:Show();
 			Narci_XmogNameFrame:SetAlpha(1);
 		end
@@ -1118,7 +1123,7 @@ end
 
 local function PlayerModelLayerButton_OnClick(self)
 	LayerButton_OnClick(self);
-	local model = Narci_ModelContainer;
+	local model = ModelContainer;
 	model:SetShown(self.isOn);
 end
 
@@ -1244,7 +1249,7 @@ function Narci_LayerButton_OnLoad(self)
 		self:SetScript("OnClick", PlayerModelLayerButton_OnClick);
 		self:SetScript("OnShow", function(f)
 			HighlightButton(f, true);
-			f.isOn = Narci_ModelContainer:IsShown();
+			f.isOn = ModelContainer:IsShown();
 		end)
 		self.tooltip = L["Toggle 3D Model"];
 
@@ -1269,13 +1274,13 @@ function Narci_LayerButton_OnLoad(self)
 
 		local function ChromakeyButton_OnClick(button)
 			SelectButton(button);
-			Narci_ModelContainer.ChromaKey:SetColorTexture(button.r, button.g, button.b);
+			ModelContainer.ChromaKey:SetColorTexture(button.r, button.g, button.b);
 			LightsOut(false);
 		end
 
 		local function LightsOutButton_OnClick(button)
 			SelectButton(button);
-			Narci_ModelContainer.ChromaKey:SetColorTexture(0, 0, 0);
+			ModelContainer.ChromaKey:SetColorTexture(0, 0, 0);
 			button.isOn = true;
 			LightsOut(true);
 		end
@@ -1331,7 +1336,7 @@ function Narci_LayerButton_OnLoad(self)
 end
 
 function Narci_BackgroundColorButton_OnClick(self)
-	Narci_ModelContainer.ChromaKey:SetColorTexture(self.r, self.g, self.b);
+	ModelContainer.ChromaKey:SetColorTexture(self.r, self.g, self.b);
 	self.Border:Show();
 	self.Border:SetTexCoord(0.5, 1, 0, 1);
 	local parent = self:GetParent();
@@ -1644,7 +1649,7 @@ local function PauseAllModel(bool)
 end
 
 local function StartAutoCapture()
-	local model = Narci_ModelContainer;
+	local model = ModelContainer;
 	local r1, g1, b1 = 0, 177/255, 64/255;
 	local r2, g2, b2 = 0, 71/255, 187/255;
 
@@ -2517,9 +2522,9 @@ function Narci_ModelIndexButton_OnClick(self, button)
 		
 			if not model then
 				if isPlayer and not alternateMode then
-					model = CreateFrame("DressUpModel", "NarciPlayerModelFrame"..ID, Narci_ModelContainer, "Narci_CharacterModelFrame_Template");
+					model = CreateFrame("DressUpModel", "NarciPlayerModelFrame"..ID, ModelContainer, "Narci_CharacterModelFrame_Template");
 				else
-					model = CreateFrame("CinematicModel", "NarciNPCModelFrame"..ID, Narci_ModelContainer, "Narci_NPCModelFrame_Template");
+					model = CreateFrame("CinematicModel", "NarciNPCModelFrame"..ID, ModelContainer, "Narci_NPCModelFrame_Template");
 				end
 				model:SetID(ID);
 				NarciModelControl_AnimationSlider:ResetValueVisual();
@@ -3091,7 +3096,7 @@ local function CreateEmptyModelForNPCBrowser(actorIndex, isPet)
 
 	local model = _G["NarciNPCModelFrame"..ID];
 	if not model then
-		model = CreateFrame("CinematicModel", "NarciNPCModelFrame"..ID, Narci_ModelContainer, "Narci_NPCModelFrame_Template");
+		model = CreateFrame("CinematicModel", "NarciNPCModelFrame"..ID, ModelContainer, "Narci_NPCModelFrame_Template");
 		model:SetID(ID);
 	end
 	--model:SetModel(124640);
@@ -3196,9 +3201,9 @@ local function CreateAndSelectNewActor(actorIndex, unit, isVirtual)
 
 		if not model then
 			if alternateMode and not isVirtual then
-				model = CreateFrame("CinematicModel", "NarciNPCModelFrame"..ID, Narci_ModelContainer, "Narci_NPCModelFrame_Template");
+				model = CreateFrame("CinematicModel", "NarciNPCModelFrame"..ID, ModelContainer, "Narci_NPCModelFrame_Template");
 			else
-				model = CreateFrame("DressUpModel", "NarciPlayerModelFrame"..ID, Narci_ModelContainer, "Narci_CharacterModelFrame_Template");
+				model = CreateFrame("DressUpModel", "NarciPlayerModelFrame"..ID, ModelContainer, "Narci_CharacterModelFrame_Template");
 			end
 			model:SetID(ID);
 			NarciModelControl_AnimationSlider:ResetValueVisual();
@@ -3212,7 +3217,7 @@ local function CreateAndSelectNewActor(actorIndex, unit, isVirtual)
 		--Create from displayID
 		model = _G["NarciNPCModelFrame"..ID];
 		if not model then
-			model = CreateFrame("CinematicModel", "NarciNPCModelFrame"..ID, Narci_ModelContainer, "Narci_NPCModelFrame_Template");
+			model = CreateFrame("CinematicModel", "NarciNPCModelFrame"..ID, ModelContainer, "Narci_NPCModelFrame_Template");
 			model:SetID(ID);
 		end
 		alternateMode = true;
@@ -4801,4 +4806,6 @@ end
 
 
 /script local m=Narci.ActiveModel;local v=m.variationID;v=(v<15 and v+1)or(0);m.variationID=v;m:PlayAnimation(m.animationID);print(v);
+/script local f=function(s)	s:SetAnimation(s.animationID or 0,s.variationID or 0) end;local m;for i=1,8 do m=_G["NarciPlayerModelFrame"..i] if m then m:SetScript("OnAnimFinished", f) end end
+/script local f=function(s) if s then s:SetScript("OnAnimFinished",function() s:SetAnimation(s.animationID or 0,s.variationID or 0) end) end end;for i=1,8 do f(_G["NarciPlayerModelFrame"..i]) f(_G["NarciNPCModelFrame"..i]) end
 --]]

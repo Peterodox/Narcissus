@@ -2,6 +2,45 @@ local _, addon = ...;
 local GetItemCount = GetItemCount;
 
 local PrismaticGems = {
+    ----10 DF---- itemID order: better-lower quality
+    --Unique-Equipped: Primalist Gem (1) BoP
+    192982, 192981, 192980,     --Inscribed Illimited Diamond Primary + Crit
+    192985, 192984, 192983,     --Fierce Illimited Diamond Primary + Haste
+    192991, 192990, 192989,     --Resplendent Illimited Diamond Primary + Versa
+    192988, 192987, 192986,     --Skillful Illimited Diamond Primary + Mastery
+
+    192928, 192927, 192926,     --Deadly Alexstraszite Crit
+    192919, 192918, 192917,     --Crafty Alexstraszite Crit + Haste
+    192925, 192924, 192923,     --Radiant Alexstraszite Crit + Versa
+    192922, 192921, 192920,     --Sensei's Alexstraszite Crit + Mastery
+
+    192945, 192944, 192943,     --Crafty Ysemerald Haste + Crit
+    192955, 192954, 192953,     --Quick Ysemerald Haste
+    192952, 192951, 192950,     --Energized Ysemerald Haste + Versa
+    192948, 192947, 192946,     --Keen Ysemerald Haste + Mastery
+
+    192932, 192931, 192929,     --Radiant Malygite Versa + Crit
+    192935, 192934, 192933,     --Energized Malygite Versa + Haste
+    192942, 192941, 192940,     --Stormy Malygite Versa
+    192938, 192937, 192936,     --Zen Malygite Versa + Mastery
+
+    192958, 192957, 192956,     --Sensei's Neltharite Mastery + Crit
+    192961, 192960, 192959,     --Keen Neltharite Mastery + Haste
+    192964, 192963, 192962,     --Zen Neltharite Mastery + Versa
+    192967, 192966, 192965,     --Fractured Neltharite Mastery
+
+    192970, 192969, 192968,     --Jagged Nozdorite Stamina + Crit
+    192973, 192972, 192971,     --Forceful Nozdorite Stamina + Haste
+    192979, 192978, 192977,     --Steady Nozdorite Stamina + Versa
+    192976, 192975, 192974,     --Puissant Nozdorite Stamina + Mastery
+
+    192902, 192901, 192900,     --Crafty Queen's Ruby Crit + Haste
+    192908, 192907, 192906,     --Energized Vibrant Emerald Haste + Versa
+    192905, 192904, 192903,     --Zen Mystic Sapphire Versa + Mastery
+    192912, 192911, 192910,     --Sensei's Sundered Onyx Mastery + Crit
+    192916, 192914, 192913,     --Solid Eternity Amber Stamina
+
+    ----9 SL----
     173127,     --Deadly Jewel Cluster
     173128,     --Quick Jewel Cluster
     173129,     --Versatile Jewel Cluster
@@ -21,9 +60,9 @@ local PrismaticGems = {
     168638,     --Leviathan's Eye of Intellect
 
     168639,     --Deadly Lava Lazuli
-    168640,     --Masterful Sea Currant
     168641,     --Quick Sand Spinel
     168642,     --Versatile Dark Opal
+    168640,     --Masterful Sea Currant
     169220,     --***Straddling Sage Agate
 
     154126,     --Deadly Amberblaze
@@ -169,6 +208,16 @@ local MetaGems = {
     32409, 25901, 34220, 25893, 25896, 25897, 32641, 28557, 25894, 25898, 35503, 35501, 28556, 32410, 25895, 25899, 25890, 32640,
 };
 
+local TinkerModules = {
+    198291, 198290, 198289,     --Tinker: Alarm-O-Turret
+    201409, 201408, 201407,     --Tinker: Arclight Vital Correctors
+    199190, 199189, 199188,     --Tinker: Polarity Amplifier
+    198303, 198302, 198301,     --Tinker: Supercollide-O-Tron
+    198297, 198296, 198295,     --Tinker: Breath of Neltharion
+    198306, 198305, 198304,     --Tinker: Grounded Circuitry
+    198300, 198299, 198298,     --Tinker: Plane Displacer
+};
+
 
 local SocketTypeNameID = {
     PRISMATIC = 1,
@@ -187,27 +236,28 @@ addon.GemDataProvider = DataProvider;
 
 DataProvider.filteredData = {};
 
-local subset = {};
+local SUB_SET = {};
 
 function DataProvider:SetSubset(dataSetID)
     self.isDominationItem = dataSetID == 2;
     if dataSetID == 1 then
-        subset = PrismaticGems or {};
+        SUB_SET = PrismaticGems;
     elseif dataSetID == 2 then
-        subset = DominationGems or {};
+        SUB_SET = DominationGems;
     elseif dataSetID == 3 then
-        subset = CypherGems or {};
-
+        SUB_SET = CypherGems;
     elseif dataSetID == 4 then
-        subset = RedGems or {};
+        SUB_SET = RedGems;
     elseif dataSetID == 5 then
-        subset = YellowGems or {};
+        SUB_SET = YellowGems;
     elseif dataSetID == 6 then
-        subset = BlueGems or {};
+        SUB_SET = BlueGems;
     elseif dataSetID == 7 then
-        subset = MetaGems or {};
+        SUB_SET = MetaGems;
+    elseif dataSetID == 8 then
+        SUB_SET = TinkerModules;
     else
-        subset = {};
+        SUB_SET = {};
     end
 end
 
@@ -231,16 +281,16 @@ function DataProvider:ApplyFilter(ownedOnly)
                 startIndex = startIndex + 5;
             end
         else
-            for i = 1, #subset do
-                if GetItemCount(subset[i]) > 0 then
+            for i = 1, #SUB_SET do
+                if GetItemCount(SUB_SET[i]) > 0 then
                     numData = numData + 1;
-                    self.filteredData[numData] = subset[i];
+                    self.filteredData[numData] = SUB_SET[i];
                 end
             end
         end
         return numData
     else
-        self.filteredData = subset;
+        self.filteredData = SUB_SET;
         return #self.filteredData
     end
 end

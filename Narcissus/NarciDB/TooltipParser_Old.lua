@@ -1376,6 +1376,25 @@ end
 NarciAPI.GetBagItemSubText = VoidFunc;
 NarciAPI.GetBagItemSubText = VoidFunc;
 
+
+local function GetDominationShardEffect(item)
+    if not item then return end;
+
+    if type(item) == "number" then
+        TP:SetItemByID(item);
+    else
+        TP:SetHyperlink(item);
+    end
+
+    local line = _G["NarciVirtualTooltipTextLeft5"];
+    if line then
+        return line:GetText();
+    end
+end
+
+NarciAPI.GetDominationShardEffect = GetDominationShardEffect;
+
+
 --[[
 itemName, itemLink, itemQuality, itemLevel, itemMinLevel, itemType, itemSubType, itemStackCount,
 itemEquipLoc, itemTexture, sellPrice, classID, subclassID, bindType, expacID, (setID), isCraftingReagent

@@ -75,8 +75,18 @@ local function GetRGBColorFromHex(hexColor)
 end
 
 local IGNORED_ITEMS = {
-    [127829] = true,
-}
+};
+
+do
+    local legionArtifact = {
+        120978, 127829, 127857, 128289, 128292, 128306, 128402, 128403, 128479, 128476, 128808, 128819, 128820,
+        128821, 128823,128825, 128826, 128827, 128832, 128858, 128860, 128861, 128862, 128866, 128868, 128870
+    };
+
+    for _, itemID in ipairs(legionArtifact) do
+        IGNORED_ITEMS[itemID] = true;
+    end
+end
 
 local KNOWN_TYPES = {
     --These item names don't contain color code, so it can't be detected by our algo 
@@ -121,8 +131,8 @@ function DataProvider:CacheBagItem(bag, slot)
             local text = GetBagItemSubText(bag, slot);
             if text then
                 if text == "" then
-                    --print("Not Cached", bag, slot)
-                    return false
+                    ItemIDXTypeID[itemID] = 0;
+                    return true
                 else
                     local typeID;
                     if not IGNORED_ITEMS[itemID] then
@@ -163,6 +173,9 @@ function DataProvider:CacheBagItem(bag, slot)
                         ItemIDXTypeID[itemID] = 0;
                     end
                 end
+            else
+                --print("Not Cached", bag, slot)
+                return false
             end
         end
     else

@@ -2933,7 +2933,7 @@
 						<Color r="0" g="0" b="0"/>
 					</Shadow>
 					<Anchors>
-						<Anchor point="CENTER" relativeKey="$parent" relativePoint="CENTER"/>
+						<Anchor point="CENTER" relativeKey="$parent" relativePoint="CENTER" y="0"/>
 					</Anchors>
 				</FontString>
 			</Layer>
@@ -2944,6 +2944,8 @@
 			<OnLeave method="OnLeave"/>
 			<OnMouseUp method="OnMouseUp"/>
 			<OnMouseDown method="OnMouseDown"/>
+			<OnEnable method="OnEnable"/>
+			<OnDisable method="OnDisable"/>
 		</Scripts>
 	</Button>
 

@@ -2244,6 +2244,7 @@
 						<Scripts>
 							<OnLoad>
 								self:RegisterForDrag("LeftButton");
+								self.label:SetText(Narci.L["Create A New Entry"]);
 							</OnLoad>	
 							<OnMouseDown>
 								self.AnimPushed:Stop();

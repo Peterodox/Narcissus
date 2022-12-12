@@ -7,6 +7,7 @@ local FadeFrame = NarciFadeUI.Fade;
 local GetSlotNameByID = NarciAPI.GetSlotButtonNameBySlotID;
 local GetGemBonus = NarciAPI.GetGemBonus;
 local GetItemBagPosition = NarciAPI.GetItemBagPosition;
+local PickupContainerItem = (C_Container and C_Container.PickupContainerItem) or PickupContainerItem;
 
 local MainFrame, SelectionOverlay, EnchantActionButton, GemActionButton;
 

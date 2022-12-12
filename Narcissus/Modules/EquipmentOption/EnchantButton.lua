@@ -19,6 +19,10 @@ local GetItemIcon = GetItemIcon;
 local GetItemInfo = GetItemInfo;
 local IsMouseButtonDown = IsMouseButtonDown;
 
+local PickupContainerItem = (C_Container and C_Container.PickupContainerItem) or PickupContainerItem;
+local GetContainerItemLink = (C_Container and C_Container.GetContainerItemLink) or GetContainerItemLink;
+local GetInventoryItemLink = GetInventoryItemLink;
+
 local InUseIDs = {
     gemID = nil,
     enchantID = nil,

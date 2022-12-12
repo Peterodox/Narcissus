@@ -940,12 +940,14 @@ local function PrintItemList()
 
     local popup = NarciDressingRoomSharedPopup;
     popup.GearTextContainer:SetText(itemText);
+    popup.GearTextContainer.Header:SetText(Narci.L["Item List"]);
 
     popup.ExternalLink:SetText( NarciAPI.EncodeItemlist(formatedItemList) );
     popup.ExternalLink:SetDefaultCursorPosition(0);
 
     popup.SlashCommand:SetText( NarciAPI.GetOutfitSlashCommand() );
     popup.SlashCommand:SetDefaultCursorPosition(0);
+    popup.SlashCommand.Header:SetText(Narci.L["InGame Command"])
 end
 
 NarciDressingRoomAPI.PrintItemList = PrintItemList;

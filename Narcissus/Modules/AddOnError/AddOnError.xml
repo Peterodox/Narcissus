@@ -1,0 +1,112 @@
+<Ui xsi:schemaLocation="http://www.blizzard.com/wow/ui/..\FrameXML\UI.xsd">
+	<Script file="AddOnError.lua"/>
+
+	<Frame name="NarciGenericTaintAlertFrameTemplate" mixin="NarciGenericTaintAlertFrameMixin" frameStrata="DIALOG" hidden="true" virtual="true" parent="UIParent" enableMouse="true">
+		<Size x="320" y="72"/>
+		<Anchors>
+			<Anchor point="TOP" relativeKey="$parent" relativePoint="TOP" y="-135"/>
+		</Anchors>
+		<Layers>
+			<Layer level="OVERLAY">
+				<FontString parentKey="FontStringDays" inherits="SystemFont_Shadow_Huge1" text="    DAYS" justifyH="CENTER" justifyV="MIDDLE">
+					<Size x="0" y="0"/>
+					<Color r="1" g='1' b="1"/>
+					<Anchors>
+						<Anchor point="TOP" y="-26"/>
+					</Anchors>
+				</FontString>
+				<FontString parentKey="FontStringSinceLastError" inherits="GameFontBlackSmall" text="SINCE LAST ERROR" justifyH="CENTER" justifyV="TOP">
+					<Size x="274" y="0"/>
+					<Color r="0.50" g="0.50" b="0.50"/>
+					<Anchors>
+						<Anchor point="TOP" relativeKey="$Parent.FontStringDays" relativePoint="BOTTOM" y="-4"/>
+					</Anchors>
+				</FontString>
+			</Layer>
+		</Layers>
+		<Frames>
+			<Frame parentKey="Border" inherits="DialogBorderDarkTemplate" useParentLevel="true"/>
+
+			<Frame parentKey="DayFrame" clipChildren="true">
+				<Size x="80" y="26"/>
+				<Anchors>
+					<Anchor point="RIGHT" relativeKey="$parent.FontStringDays" relativePoint="LEFT" x="14" y="0"/>
+				</Anchors>
+				<Layers>
+					<Layer level="OVERLAY">
+						<FontString parentKey="FontStringNumber" inherits="SystemFont_Shadow_Huge1" text="0" justifyH="RIGHT" justifyV="TOP">
+							<Size x="0" y="0"/>
+							<Color r="1" g='1' b="1"/>
+							<Anchors>
+								<Anchor point="RIGHT" relativeKey="$parent" relativePoint="RIGHT"/>
+							</Anchors>
+							<Animations>
+								<AnimationGroup parentKey="FlyDown">
+									<Translation offsetY="26" duration="0" order="1"/>
+									<Translation offsetY="-26" duration="0.8" startDelay="1" order="2" smoothing="IN_OUT"/>
+								</AnimationGroup>
+							</Animations>
+						</FontString>
+						<FontString parentKey="FontStringOldNumber" inherits="SystemFont_Shadow_Huge1" text="7" justifyH="RIGHT" justifyV="TOP">
+							<Size x="0" y="0"/>
+							<Color r="1" g='1' b="1"/>
+							<Anchors>
+								<Anchor point="RIGHT" relativeKey="$parent" relativePoint="RIGHT" y="-26"/>
+							</Anchors>
+							<Animations>
+								<AnimationGroup parentKey="FlyDown">
+									<Translation offsetY="26" duration="0" order="1"/>
+									<Translation offsetY="-26" duration="0.8" startDelay="1" order="2" smoothing="IN_OUT"/>
+								</AnimationGroup>
+							</Animations>
+						</FontString>
+					</Layer>
+				</Layers>
+			</Frame>
+
+			<Button inherits="NarciSquareRedButtonTemplate" parentKey="CloseButton">
+				<Anchors>
+					<Anchor point="TOPRIGHT" relativeKey="$parent" relativePoint="TOPRIGHT" x="-7" y="-7"/>
+				</Anchors>
+				<KeyValues>
+					<KeyValue key="iconFile" value="Interface\AddOns\Narcissus\Art\RedButtons\Icon-X" type="string"/>
+				</KeyValues>
+			</Button>
+	
+			<Button inherits="NarciRectRedButtonTemplate" parentKey="ReloadButton">
+				<Anchors>
+					<Anchor point="TOP" relativeKey="$parent.FontStringSinceLastError" relativePoint="BOTTOM" y="-8"/>
+				</Anchors>
+				<KeyValues>
+					<KeyValue key="maxWidth" value="384" type="number"/>
+				</KeyValues>
+			</Button>
+
+			<Button inherits="NarciSquareRedButtonTemplate" parentKey="ShowMoreButton">
+				<Anchors>
+					<Anchor point="LEFT" relativeKey="$parent.ReloadButton" relativePoint="RIGHT" x="12" y="0"/>
+				</Anchors>
+				<KeyValues>
+					<KeyValue key="iconFile" value="Interface\AddOns\Narcissus\Art\RedButtons\Icon-Down" type="string"/>
+				</KeyValues>
+			</Button>
+
+			<Button inherits="NarciRectRedButtonTemplate" parentKey="LeaderboardButton" hidden="true">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeKey="$parent.ReloadButton" relativePoint="BOTTOMLEFT" y="-12"/>
+				</Anchors>
+			</Button>
+			<Button inherits="NarciRectRedButtonTemplate" parentKey="ReportButton" hidden="true">
+				<Anchors>
+					<Anchor point="TOPRIGHT" relativeKey="$parent.ShowMoreButton" relativePoint="BOTTOMRIGHT" y="-12"/>
+				</Anchors>
+			</Button>
+		</Frames>
+		<Scripts>
+			<OnLoad method="OnLoad"/>
+			<OnShow method="OnShow"/>
+			<OnHide method="OnHide"/>
+			<OnEvent method="OnEvent"/>
+		</Scripts>
+	</Frame>
+</Ui>

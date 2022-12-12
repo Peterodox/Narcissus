@@ -777,6 +777,7 @@ function NarciPhotoModeStickerToggleMixin:OnLoad()
     Narci_ModelSettings:AddSubFrame(self, "StickerToggle");
     self:ClearAllPoints();
     self:SetPoint("LEFT", Narci_TextOverlay, "RIGHT", 4, 0);
+    self.Label:SetText(Narci.L["Photo Mode Frame"]);
 end
 
 function NarciPhotoModeStickerToggleMixin:OnEnter()

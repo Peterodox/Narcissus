@@ -144,7 +144,7 @@ function NarciSocketSelectMixin:SetupFromItemLink(itemLink)
     local numSockets = (socektInfo and #socektInfo) or 0;
 
     if numSockets > 0 then
-        local socketType, icon, gemLink;
+        local socketName, icon, gemLink, socketType;
 
         for i = 1, numSockets do
             if not SocketButtons[i] then
@@ -152,11 +152,11 @@ function NarciSocketSelectMixin:SetupFromItemLink(itemLink)
                 SocketButtons[i].id = i;
                 SocketButtons[i]:SetPoint("CENTER", self, "LEFT", 8 + 24 * (i - 1), 0);
             end
-            socketType, icon, gemLink = unpack(socektInfo[i]);
+            socketName, icon, gemLink, socketType = unpack(socektInfo[i]);
             SocketButtons[i].Icon:SetTexture(icon);
             if gemLink then
                 SocketButtons[i].Icon:SetTexCoord(0.075, 0.925, 0.075, 0.925);
-                SocketButtons[i].gemName = socketType;
+                SocketButtons[i].gemName = socketName;
                 SocketButtons[i].gemLink = gemLink;
                 anyPending = true;
             else

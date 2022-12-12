@@ -31,11 +31,41 @@ local enchantData = {
     --Shadowlands and on
 
     [5] = {     --Chest
+        ----SL----
         {324068, 172347, 6225},     --Heavy Desolate Armor Kit
         {324064, 172346, 6224},     --Desolate Armor Kit
     },
 
     [16] = {    --Weapon
+        {385327, 194823, 6514},     --Buzzing Rune T3 Crit (Melee)
+        {385326, 194822, 6513},     --Buzzing Rune T2
+        {385325, 194821, 6512},     --Buzzing Rune T1
+
+        {385577, 194820, 6518},     --Howling Rune T3 Haste (Melee)
+        {385576, 194819, 6517},     --Howling Rune T2
+        {385575, 194817, 6516},     --Howling Rune T1
+
+        {396148, 194826, 6695},     --Chirping Rune T3 Heal (Melee)
+        {396147, 194825, 6694},     --Chirping Rune T2
+        {385330, 194824, 6515},     --Chirping Rune T1
+
+        {396157, 191940, 6381, 1},     --Primal Whetstone T3 (Bladed)
+        {396156, 191939, 6380, 1},     --Primal Whetstone T2
+        {396155, 191933, 6379, 1},     --Primal Whetstone T1
+
+        {371678, 191945, 6698, 2},     --Primal Whetstone T3 (Blunt)
+        {371677, 191944, 6697, 2},     --Primal Whetstone T2
+        {371676, 191943, 6696, 2},     --Primal Whetstone T1
+
+        {386246, 198162, 6531, 3},     --Completely Safe Rockets T3 (Ranged)
+        {386245, 198161, 6530, 3},     --Completely Safe Rockets T2
+        {386243, 198160, 6529, 3},     --Completely Safe Rockets T1
+
+        {386255, 198165, 6534, 3},     --Endless Stack of Needles T3 (Ranged)
+        {386254, 198164, 6533, 3},     --Endless Stack of Needles T2
+        {386252, 198163, 6532, 3},     --Endless Stack of Needles T1
+
+        ----SL----
         {320798, 171285, 6188},     --Shadowcore Oil
         {321389, 171286, 6190},     --Embalmer's Oil    --Heal
         {322762, 171437, 6200, 1},     --Shaded Sharpening Stone

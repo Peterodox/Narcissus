@@ -1,5 +1,5 @@
 local pi = math.pi;
-local endFacing = -pi/8;
+local TO_FACING = -pi/8;
 local sin = math.sin;
 local After = C_Timer.After;
 local PlaySound = PlaySound;
@@ -20,7 +20,6 @@ end
 local function Entrance_DH(self, elapsed)
 	local ModelFrame = NarciPlayerModelFrame1
 	self.t = self.t + elapsed
-	local turnTime = 0.1
 	local t = 0.25;
 	local offset = outQuad(self.t, 2, self.defaultZ - 2, t)
 
@@ -51,7 +50,6 @@ end
 local function Entrance_Mage(self, elapsed)
 	local ModelFrame = NarciPlayerModelFrame1
 	self.t = self.t + elapsed
-	local turnTime = 0.1
 	local t = 0.25;
 	if self.t >= t then
 		self.t = 0;
@@ -76,7 +74,6 @@ end
 local function Entrance_Warlock(self, elapsed)
 	local ModelFrame = NarciPlayerModelFrame1
 	self.t = self.t + elapsed
-	local turnTime = 0.1
 	local t = 0.25;
 	if self.t >= t then
 		self.t = 0;
@@ -113,7 +110,6 @@ end
 local function Entrance_Rogue(self, elapsed)
 	local ModelFrame = NarciPlayerModelFrame1
 	self.t = self.t + elapsed
-	local turnTime = 0.1
 	local t = 0.25;
 	if self.t >= t then
 		self.t = 0;
@@ -142,7 +138,6 @@ end
 local function Entrance_Priest(self, elapsed)
 	local ModelFrame = NarciPlayerModelFrame1
 	self.t = self.t + elapsed
-	local turnTime = 0.1
 	local t = 0.25;
 	if self.t >= t then
 		self.t = 0;
@@ -167,7 +162,6 @@ end
 local function Entrance_DK(self, elapsed)
 	local ModelFrame = NarciPlayerModelFrame1
 	self.t = self.t + elapsed
-	local turnTime = 0.1
 	local t = 0.25;
 	if self.t >= t then
 		self.t = 0;
@@ -233,7 +227,6 @@ end
 local function Entrance_Warrior(self, elapsed)
 	local ModelFrame = NarciPlayerModelFrame1
 	self.t = self.t + elapsed
-	local turnTime = 0.1
 	local t = 0.25;
 	local offset = outQuad(self.t, 6, self.defaultZ - 6, t)
 
@@ -297,7 +290,6 @@ end
 local function Entrance_Druid(self, elapsed)
 	local ModelFrame = NarciPlayerModelFrame1;
 	self.t = self.t + elapsed;
-	local turnTime = 0.1;
 	local t = 0.25;
 	if self.t >= t then
 		self.t = 0;
@@ -325,7 +317,6 @@ end
 local function Entrance_Paladin(self, elapsed)
 	local ModelFrame = NarciPlayerModelFrame1
 	self.t = self.t + elapsed
-	local turnTime = 0.1
 	local t = 0.25;
 	if self.t >= t then
 		self.t = 0;
@@ -359,7 +350,7 @@ local function Entrance_Hunter(self, elapsed)
 
 	if self.t > turnTime then
 		self.faceTime= self.faceTime + elapsed;
-		local radian = outSine(self.faceTime, -pi/2, endFacing + pi/2, 0.8) --0.11 NE
+		local radian = outSine(self.faceTime, -pi/2, TO_FACING + pi/2, 0.8) --0.11 NE
 		ModelFrame:SetFacing(radian)
 		ModelFrame.rotation = radian
 	end
@@ -376,7 +367,7 @@ local function Entrance_Hunter(self, elapsed)
 		return;
 	elseif self.trigger then
 		self.trigger = false;
-		ModelFrame:ApplySpellVisualKit(11212, true);	
+		ModelFrame:ApplySpellVisualKit(11212, true);
 		After(0.2, function()
 			ModelFrame:SetAnimation(113);
 		end)
@@ -384,6 +375,103 @@ local function Entrance_Hunter(self, elapsed)
 			ModelFrame:SetAnimation(804, 1);
 		end)
 		ModelFrame:MakeCurrentCameraCustom();
+	end
+end
+
+
+local function Entrance_Evoker_VisageForm(self, elapsed)
+	local ModelFrame = NarciPlayerModelFrame1
+	self.t = self.t + elapsed
+	local turnTime = 0.36
+	local t = 1;
+	local offsetX = outQuad(self.t, -3, 3, t)
+	local offsetY = outQuad(self.t, self.startY, self.defaultY - self.startY, t)
+
+	ModelFrame:SetPosition(offsetX, offsetY, ModelFrame.posZ)
+	ModelFrame.posY = offsetY;
+	if self.t >= t then
+		ModelFrame.posX = 0;
+		self.t = 0;
+		self:Hide();
+	end
+	
+	if self.t <=0 then
+		return;
+	elseif self.trigger then
+		self.trigger = false;
+		ModelFrame:MakeCurrentCameraCustom();
+		local id = math.random(0, 4);
+		local visualID;
+		if id == 0 then
+			visualID = 162625;
+		elseif id == 1 then
+			visualID = 172117;
+		elseif id == 2 then
+			visualID = 162707;
+		elseif id == 3 then
+			visualID = 162709;
+		elseif id == 4 then
+			visualID = 162713;
+		end
+		ModelFrame:ApplySpellVisualKit(visualID, true);
+		--[[
+		After(0.2, function()
+            ModelFrame:SetAnimation(142, 1);
+        end);
+		--]]
+		After(1.08, function()
+			ModelFrame:SetAnimation(804, 1);
+		end);
+	end
+end
+
+
+local function Entrance_Evoker_Dragonform(self, elapsed)
+	local ModelFrame = NarciPlayerModelFrame1
+	self.t = self.t + elapsed
+	local t = 1;
+	local offsetX = outSine(self.t, -20, 20, t)
+	local offsetY = outSine(self.t, self.startY, self.defaultY - self.startY, t)
+
+	ModelFrame:SetPosition(offsetX, offsetY, ModelFrame.posZ)
+	ModelFrame.posY = offsetY;
+	if self.t >= t then
+		ModelFrame.posX = 0;
+		self.t = 0;
+		self:Hide();
+	end
+	
+	if self.t <=0 then
+		return;
+	elseif self.trigger then
+		self.trigger = false;
+		ModelFrame:MakeCurrentCameraCustom();
+		After(0.15, function()
+			ModelFrame:ApplySpellVisualKit(172235, true);
+		end);
+		After(0.5, function()
+			ModelFrame:SetAnimation(1610, 1);	--1694
+		end);
+		After(1.0, function()
+			ModelFrame:SetAnimation(1478, 1);	--1694
+		end);
+		After(1.6, function()
+			ModelFrame:SetAnimation(804, 1);	--1694
+		end);
+	end
+end
+
+local function Entrance_Evoker(self, elapsed)
+	local ModelFrame = NarciPlayerModelFrame1;
+	local modelFileID = ModelFrame:GetModelFileID();
+	if modelFileID == 4207724 then
+		self:SetScript("OnUpdate", Entrance_Evoker_Dragonform);
+		self.startY = 8;
+		ModelFrame:SetAnimation(1580);
+	else
+		self:SetScript("OnUpdate", Entrance_Evoker_VisageForm);
+		self.startY = 2.5;
+		ModelFrame:SetAnimation(4);
 	end
 end
 
@@ -427,7 +515,8 @@ Narci.ClassEntranceVisuals = {
 	[10]  = {2.5, false, -pi/2, 732, Entrance_Monk, 32860},
 	[11]  = {false, false, false, 141, Entrance_Druid, 86938},
     [12] = {false, 2, false, 38, Entrance_DH, 119406},	--62730 Spell_DH_ImmolationAura_Cast
-
+	[13] = {2.5, false, false, 4, Entrance_Evoker, false},
+	--[13] = {8, false, false, 1580, Entrance_Evoker_Dragonform, false},
 	--Test Override
 	--[4]  = {false, false, false, 55, Entrance_Warlock, 116927},
 };

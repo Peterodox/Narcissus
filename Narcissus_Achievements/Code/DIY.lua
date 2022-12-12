@@ -1,5 +1,6 @@
 local _, addon = ...;
 
+local L = Narci.L;
 local FloatingCard = addon.FloatingCard;
 
 local DIYContainer, EditorContainer, DIYCards, NewEntryButton;
@@ -94,8 +95,8 @@ function DataProvider:GetNumEntries()
 end
 
 ---------------------------------------------------------------------
-local DEFAULT_DESCRIPTION = "This is the description.";
-local DEFAULT_HEADER = "Custom Achievement";
+local DEFAULT_HEADER = L["Custom Achievement"];
+local DEFAULT_DESCRIPTION = L["Custom Achievement Description"];
 local needConfirmation = false;
 
 local function DarkenCard(card, darken, forcedUpdate)
@@ -185,7 +186,7 @@ end
 local function UpdateEditorScrollRange()
     local scrollBar = EditorContainer.scrollBar;
     local range;
-    range = max(0, EditorContainer.ColorPicker:GetTop() -  EditorContainer.RemoveButton:GetBottom() - EditorContainer:GetHeight() + 60);
+    range = math.max(0, EditorContainer.ColorPicker:GetTop() -  EditorContainer.RemoveButton:GetBottom() - EditorContainer:GetHeight() + 60);
 
     scrollBar:SetMinMaxValues(0, range);
     EditorContainer.range = range;
@@ -687,7 +688,7 @@ local function CreateColorPicker()
     ColorPicker:ClearAllPoints();
     ColorPicker:SetParent(EditorContainer.ScrollChild);
     ColorPicker:SetPoint("TOP", EditorContainer.ScrollChild, "TOP", 0, -12);
-    ColorPicker.label:SetText("Color");
+    ColorPicker.label:SetText(L["Color"]);
     ColorPicker:SetParent(EditorContainer.ScrollChild);
 
     local buttons = {};
@@ -734,7 +735,7 @@ end
 local function CreateIconEditor()
     local IconPicker = EditorContainer.IconPicker;
     IconPicker:SetScript("OnClick", StartEditing);
-    IconPicker.label:SetText("Icon");
+    IconPicker.label:SetText(L["Icon"]);
     IconPicker:SetParent(EditorContainer.ScrollChild)
     GetIcons();
 
@@ -928,7 +929,7 @@ local function CreateTextEditor()
     --Name
     local HeaderEditor = EditorContainer.HeaderEditor;
     HeaderEditor:SetParent(EditorContainer.ScrollChild);
-    HeaderEditor.label:SetText("Name");
+    HeaderEditor.label:SetText(NAME);
     local EditBox = HeaderEditor.EditBox;
     EditBox:SetMaxLetters(64);
     EditBox:SetScript("OnEditFocusGained", function(self)
@@ -958,7 +959,7 @@ local function CreateTextEditor()
     --Description
     local DescriptionEditor = EditorContainer.DescriptionEditor;
     DescriptionEditor:SetParent(EditorContainer.ScrollChild);
-    DescriptionEditor.label:SetText("Description");
+    DescriptionEditor.label:SetText(L["Description"]);
     local EditBox = DescriptionEditor.EditBox;
     EditBox:SetMaxLetters(280);
     EditBox.enableLineFeed = true;
@@ -994,7 +995,7 @@ local function CreateTextEditor()
     local PointsEditor = EditorContainer.PointsEditor;
     PointsEditor:SetHeight(74);
     PointsEditor:SetParent(EditorContainer.ScrollChild);
-    PointsEditor.label:SetText("Points");
+    PointsEditor.label:SetText(L["Points"]);
     local EditBox = PointsEditor.EditBox;
     EditBox:SetMaxLetters(3);
     EditBox:SetNumeric(true);
@@ -1021,7 +1022,7 @@ local function CreateTextEditor()
     --Reward
     local RewardEditor = EditorContainer.RewardEditor;
     RewardEditor:SetParent(EditorContainer.ScrollChild);
-    RewardEditor.label:SetText("Reward");
+    RewardEditor.label:SetText(L["Reward"]);
     local EditBox = RewardEditor.EditBox;
     EditBox:SetMaxLetters(48);
     EditBox:SetScript("OnTextChanged", function(self, isUserInput)
@@ -1051,7 +1052,7 @@ local function CreateTextEditor()
     --Date
     local DateEditor = EditorContainer.DateEditor;
     DateEditor:SetParent(EditorContainer.ScrollChild);
-    DateEditor.label:SetText("Date");
+    DateEditor.label:SetText(L["Date"]);
     local EditBox = DateEditor.EditBox;
     EditBox:SetMaxLetters(10);
     EditBox:SetScript("OnTextChanged", function(self, isUserInput)
@@ -1083,7 +1084,7 @@ local function CreateTextEditor()
     local RemoveButton = EditorContainer.RemoveButton;
     RemoveButton:SetBackdropBorderColor(0.5, 0.2, 0.2, 1);
     RemoveButton:SetParent(EditorContainer.ScrollChild);
-    RemoveButton.label:SetText("Remove");
+    RemoveButton.label:SetText(L["Remove"]);
     --RemoveButton.label:SetTextColor();
     RemoveButton.fill.Timer:SetScript("OnFinished", function(self)
         if SelectedCard then
@@ -1097,14 +1098,14 @@ local function CreateTextEditor()
 
     RemoveButton:SetScript("OnEnter", function(self)
         self.colorBackground:SetColorTexture(0.5, 0.2, 0.2);
-        self.label:SetText("Click and Hold");
+        self.label:SetText(L["Click And Hold"]);
         DIYContainer.Editor.removeMark:Show();
         PlayAnimMark();
     end);
 
     RemoveButton:SetScript("OnLeave", function(self)
         self.colorBackground:SetColorTexture(0.2, 0.2, 0.2);
-        self.label:SetText("Remove");
+        self.label:SetText(L["Remove"]);
         if not IsMouseButtonDown() then
             DIYContainer.Editor.removeMark:Hide();
         end
@@ -1150,7 +1151,7 @@ local function CreateSaveButtons()
 
     local SaveButton = DIYContainer.Editor.SaveButton;
     SaveButton:SetBackdropBorderColor(0.37, 0.74, 0.42);
-    SaveButton.label:SetText("Save");
+    SaveButton.label:SetText(L["Save"]);
     SaveButton.label:SetTextColor(0.64, 0.83, 0.61);    --0.37, 0.74, 0.42
 
     SaveButton:SetScript("OnEnter", function(self)
@@ -1163,7 +1164,7 @@ local function CreateSaveButtons()
     end);
 
     local CancelButton = DIYContainer.Editor.CancelButton;
-    CancelButton.label:SetText("Cancel");
+    CancelButton.label:SetText(L["Cancel"]);
     CancelButton:SetBackdropBorderColor(0.5, 0.5, 0.5);
     CancelButton:SetScript("OnClick", function()
         needConfirmation = false;
@@ -1223,6 +1224,8 @@ local function LoadDIY()
     if not NarciAchievementOptions.DIY then
         NarciAchievementOptions.DIY = {};
     end
+
+    EditorContainer.notes:SetText(L["Custom Achievement Select And Edit"]);
 
     CreateEditor();
 

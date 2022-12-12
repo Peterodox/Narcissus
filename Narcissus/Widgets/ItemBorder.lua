@@ -1,6 +1,6 @@
 local unpack = unpack;
 local CreateColor = NarciAPI.CreateColor;
-local IsItemProgenitorSet = NarciAPI.IsItemProgenitorSet;
+local IsItemClassSet = NarciAPI.IsItemClassSet;
 
 local FILE_PATH_DARK = "Interface/AddOns/Narcissus/Art/ItemBorder-Dark/JPG/";
 
@@ -106,11 +106,30 @@ local itemIDxBorderArt = {
     [189754] = {"Genesis", nil, CreateColor(216, 212, 155)},        --Genesis Lathe
     [188253] = {"Strife", "OrangeRune", nil},                       --Scars of Fraternal Strife
 
-    Progenitor = {"Progenitor", nil, CreateColor(230, 204, 128)},   --Class Sets
+    Progenitor = {"Progenitor", nil, CreateColor(230, 204, 128)},   --Class Sets: Sepulcher of the First Ones
 };
 
+do
+    --[[
+    local progenitorClassSetItems = {
+        188868, 188867, 188866, 188864, 188863,     --DK
+        188892, 188894, 188896, 188893, 188898,     --DH
+        188847, 188853, 188851, 188848, 188849,     --Druid
+        188859, 188861, 188860, 188856, 188858,     --Hunter
+        188844, 188845, 188839, 188842, 188843,     --Mage
+        188916, 188911, 188910, 188914, 188912,     --Monk
+        188933, 188931, 188932, 188929, 188928,     --Paladin
+        188880, 188879, 188881, 188875, 188878,     --Priest
+        188901, 188902, 188903, 188905, 188907,     --Rogue
+        188923, 188925, 188924, 188920, 188922,     --Shaman
+        188889, 188890, 188884, 188888, 188887,     --Warlock
+        188942, 188941, 188940, 188938, 188937,     --Warrior
+    };
+    --]]
+end
+
 local function GetBorderArtByItemID(itemID)
-    if IsItemProgenitorSet(itemID) then
+    if IsItemClassSet(itemID) then
         return unpack(itemIDxBorderArt.Progenitor);
     else
         if itemIDxBorderArt[itemID] then
