@@ -326,10 +326,9 @@ end
 
 local function LoadSettings(self)
     CreateSettings(self);
-    local v = 0.2;
+    local v = 0.25;
     self:SetBorderColor(v, v, v);
-    self:SetBackgroundColor(0.07, 0.07, 0.08, 0.95);
-    self:SetOffset(10);
+    self:SetBackgroundColor(0.08, 0.08, 0.08, 0.95);
     self:HideWhenParentIsHidden(true);
     self:SetScript("OnShow", SettingsFrame_OnShow);
     self:SetScript("OnHide", SettingsFrame_OnHide);

@@ -59,28 +59,6 @@
 		</Scripts>
 	</Button>
 
-	<Frame name="NarciBarberShopInfoButtonTemplate" mixin="NarciBarberShopInfoButtonMixin" virtual="true">
-		<Size x="16" y="16"/>
-		<HitRectInsets>
-			<AbsInset left="-2" right="-2"/>
-		</HitRectInsets>
-		<Layers>
-			<Layer level="OVERLAY">
-				<Texture parentKey="Icon" file="Interface\AddOns\Narcissus\Art\Modules\Showcase\InfoButton">
-					<Size x="16" y="16"/>
-					<Color r="0.4" g="0.4" b="0.4"/>
-					<Anchors>
-						<Anchor point="CENTER"/>
-					</Anchors>
-				</Texture>
-			</Layer>
-		</Layers>
-		<Scripts>
-			<OnEnter method="OnEnter"/>
-			<OnLeave method="OnLeave"/>
-		</Scripts>
-	</Frame>
-
 	<EditBox name="NarciBarberShopProfileTextBoxTemplate" inherits="NarciBarberShopStrokeFrameTemplate" mixin="NarciBarberShopProfileTextBoxMixin" autoFocus="false" virtual="true">
 		<Size x="250" y="20"/>
 		<FontString inherits="SystemFont_Tiny" justifyH="CENTER" justifyV="MIDDLE"/>
@@ -914,10 +892,13 @@
 									<KeyValue key="action" value="export" type="string"/>
 								</KeyValues>
 								<Frames>
-									<Frame parentKey="InfoButton" inherits="NarciBarberShopInfoButtonTemplate">
+									<Frame parentKey="InfoButton" inherits="NarciGenericInfoButtonTemplate">
 										<Anchors>
 											<Anchor point="LEFT" relativeKey="$parent.Header" relativePoint="RIGHT" x="5"/>
 										</Anchors>
+										<KeyValues>
+											<KeyValue key="tooltipName" value="CharCustomizeNoHeaderTooltip" type="string"/>
+										</KeyValues>
 									</Frame>
 								</Frames>
 							</EditBox>

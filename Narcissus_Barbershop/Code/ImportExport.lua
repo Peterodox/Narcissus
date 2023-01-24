@@ -488,6 +488,7 @@ local function GetCurrentCharacterRaceSex()
     
         if characterData then
             sex = characterData.sex or 0;
+            raceName = characterData.name;
             if characterData.raceData then
                 if characterData.raceData.alternateFormRaceData and C_BarberShop.IsViewingAlteredForm() then
                     --e.g. human is Worgen's alternate form
@@ -915,7 +916,7 @@ function NarciBarberShopProfileTextBoxMixin:OnLoad()
         self:SetScript("OnShow", ExportBox_UpdateString);
         self:SetScript("OnHide", ExportBox_OnHide);
 
-        self.InfoButton.tooltip = L["Barbershop Export Tooltip"];
+        self.InfoButton.tooltipText = L["Barbershop Export Tooltip"];
     end
 
     self.action = nil;

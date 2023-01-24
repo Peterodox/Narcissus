@@ -93,7 +93,7 @@ end
 
 function TransitionAPI.GetModelLight(model)        --#8
     local enabled, light = model:GetLight();
-    local enabled, omni, dirX, dirY, dirZ, ambIntensity, ambR, ambG, ambB, dirIntensity, dirR, dirG, dirB;
+    local _, omni, dirX, dirY, dirZ, ambIntensity, ambR, ambG, ambB, dirIntensity, dirR, dirG, dirB;
     if type(light) == "table" then
         omni = light.omnidirectional;
         dirX, dirY, dirZ = light.point:GetXYZ();

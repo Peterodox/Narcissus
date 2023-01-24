@@ -36,7 +36,7 @@ end
 --------------------------------------------------------------------------------------------------
 --Name: Shimmer Button
 --Type: Button
---Description: Shimmers slowly. Maintains highlight when mouseovered
+--Description: Shimmers slowly. Maintains highlight when moused-over
 --Notes: starting Alpha is always "0"
 
 TEMPS.totalDuration = 0;
@@ -1801,6 +1801,110 @@ function NarciGenericKeyBindingButtonMixin:OnShow()
 end
 
 
+NarciQuickFavoriteButtonMixin = {};
+
+function NarciQuickFavoriteButtonMixin:SetIconSize(size)
+    self.iconSize = size;
+    self.Icon:SetSize(size, size);
+    self.Bling:SetSize(size, size);
+    self.Icon:SetTexCoord(0.5, 0.75, 0.25, 0.5);
+    self.favTooltip = Narci.L["Favorites Add"];
+    self.unfavTooltip = Narci.L["Favorites Remove"];
+    self.isFav = false;
+end
+
+function NarciQuickFavoriteButtonMixin:SetFavorite(isFavorite)
+    if isFavorite then
+        self.isFav = true;
+        self.Icon:SetTexCoord(0.75, 1, 0.25, 0.5);
+        self.Icon:SetAlpha(1);
+    else
+        self.isFav = false;
+        self.Icon:SetTexCoord(0.5, 0.75, 0.25, 0.5);
+        self.Icon:SetAlpha(0.4);
+    end
+end
+
+function NarciQuickFavoriteButtonMixin:PlayVisual()
+    self:StopAnimating();
+    if self.isFav then
+        self.Icon:SetTexCoord(0.75, 1, 0.25, 0.5);
+        self.parent.Star:Show();
+        self.Bling.animIn:Play();
+    else
+        self.Icon:SetTexCoord(0.5, 0.75, 0.25, 0.5);
+        self.parent.Star:Hide();
+    end
+end
+
+function NarciQuickFavoriteButtonMixin:OnEnter()
+    self.Icon:SetAlpha(1);
+    if self.isFav then
+        NarciTooltip:NewText(self, self.unfavTooltip, nil, nil, 1);
+    else
+        NarciTooltip:NewText(self, self.favTooltip, nil, nil, 1);
+    end
+end
+
+function NarciQuickFavoriteButtonMixin:OnLeave()
+    NarciTooltip:HideTooltip();
+    if not self.isFav then
+        self.Icon:SetAlpha(0.6);
+    end
+end
+
+function NarciQuickFavoriteButtonMixin:OnHide()
+    self:StopAnimating();
+end
+
+function NarciQuickFavoriteButtonMixin:OnMouseDown()
+    self.Icon:SetSize(self.iconSize - 2, self.iconSize - 2);
+    NarciTooltip:HideTooltip();
+end
+
+function NarciQuickFavoriteButtonMixin:OnMouseUp()
+    self.Icon:SetSize(self.iconSize, self.iconSize);
+end
+
+function NarciQuickFavoriteButtonMixin:OnDoubleClick()
+
+end
+
+
+NarciGenericInfoButtonMixin = {};   --Question Mark Button that displays extra info when moused-over
+
+function NarciGenericInfoButtonMixin:OnEnter()
+    self.Icon:SetVertexColor(0.8, 0.8, 0.8);
+    SetCursor("Interface/CURSOR/UnableQuestTurnIn.blp");
+
+    local tooltip = self:GetTooltip();
+
+    if tooltip and self.tooltipText then
+        tooltip:SetOwner(self, "ANCHOR_NONE");
+        tooltip:SetPoint("TOPLEFT", self, "TOPRIGHT", self.tooltipOffsetX or 4, 0);
+        tooltip:SetPadding(5, 5, 5, 5);
+        tooltip:AddLine(self.tooltipText, 1, 1, 1, 1, true);
+        tooltip:Show();
+
+        --tooltip.TextLeft1:SetSpacing(2);
+        --tooltip:SetMinimumWidth(300);
+    end
+end
+
+function NarciGenericInfoButtonMixin:OnLeave()
+    self.Icon:SetVertexColor(0.4, 0.4, 0.4);
+    ResetCursor();
+
+    local tooltip = self:GetTooltip();
+
+    if tooltip then
+        tooltip:Hide();
+    end
+end
+
+function NarciGenericInfoButtonMixin:GetTooltip()
+    return self.tooltip or (self.tooltipName and _G[self.tooltipName]);
+end
 
 
 TEMPS = nil;

@@ -66,6 +66,14 @@ local enchantData = {
         {376847, 193564, 6496},     --Frosted Armor Kit T3 Armor + Agility/Strength
         {376845, 193560, 6495},     --Frosted Armor Kit T2
         {376819, 193556, 6494},     --Frosted Armor Kit T1
+
+        {387294, 194013, 6541},     --Frozen Spellthread T3 Stamina + INT
+        {387293, 194012, 6540},     --Frozen Spellthread T2
+        {387291, 194011, 6539},     --Frozen Spellthread T1
+
+        {387298, 194016, 6544},     --Temporal Spellthread T3 Mana + INT
+        {387296, 194015, 6543},     --Temporal Spellthread T2
+        {387295, 194014, 6542},     --Temporal Spellthread T1
     },
 
     [8] = {     --Feet

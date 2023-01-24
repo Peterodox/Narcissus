@@ -1,0 +1,97 @@
+<Ui xsi:schemaLocation="http://www.blizzard.com/wow/ui/..\FrameXML\UI.xsd">
+    <Script file="LightingPreset.lua"/>
+
+    <Button name="NarciPhotoModeLightingPresetButton" mixin="NarciPhotoModeLightingPresetButtonMixin" virtual="true" registerForClicks="LeftButtonUp, RightButtonUp, MiddleButtonUp">
+        <Size x="196" y="24"/>
+        <Layers>
+            <Layer level="OVERLAY">
+                <FontString parentKey="LocationText" inherits="NarciNonInteractiveFont" justifyH="CENTER" justifyV="MIDDLE" maxLines="1">
+                    <Anchors>
+                        <Anchor point="LEFT" relativeKey="$parent" relativePoint="LEFT" x="12" y="0"/>
+                        <Anchor point="RIGHT" relativeKey="$parent" relativePoint="RIGHT" x="-12" y="0"/>
+                    </Anchors>
+                </FontString>
+            </Layer>
+            <Layer level="BACKGROUND">
+                <Texture parentKey="Background">
+                    <Color r="1" g="1" b="1"/>
+                    <Gradient orientation="VERTICAL">
+                        <MinColor r="0.2" g="0.2" b="0.2"/>
+                        <MaxColor r="0.15" g="0.15" b="0.15"/>
+                    </Gradient>
+                </Texture>
+            </Layer>
+            <Layer level="ARTWORK">
+                <Texture parentKey="DirectionalLightTexture">
+                    <Size x="72" y="24"/>
+                    <Anchors>
+                        <Anchor point="LEFT" relativeKey="$parent" relativePoint="LEFT"/>
+                    </Anchors>
+                    <Color r="1" g="1" b="1"/>
+                </Texture>
+                <Texture parentKey="AmbientLightTexture">
+                    <Size x="72" y="24"/>
+                    <Anchors>
+                        <Anchor point="RIGHT" relativeKey="$parent" relativePoint="RIGHT"/>
+                    </Anchors>
+                    <Color r="1" g="1" b="1"/>
+                </Texture>
+            </Layer>
+        </Layers>
+        <Scripts>
+            <OnEnter method="OnEnter"/>
+            <OnLeave method="OnLeave"/>
+            <OnClick method="OnClick"/>
+        </Scripts>
+    </Button>
+
+    <Frame name="NarciPhotoModeLightingPresetFrame" mixin="NarciPhotoModeLightingPresetFrameMixin" hidden="true" enableMouse="true" movable="true">
+        <Size x="196" y="24"/>
+        <Anchors>
+            <Anchor point="CENTER"/>
+        </Anchors>
+        <Layers>
+            <Layer level="BACKGROUND">
+                <Texture parentKey="Background">
+                    <Color r="0.1" g="0.1" b="0.1" a="0.8"/>
+                </Texture>
+            </Layer>
+        </Layers>
+        <Frames>
+            <Frame parentKey="Footer">
+                <Size y="12"/>
+                <Anchors>
+                    <Anchor point="BOTTOMLEFT"/>
+                    <Anchor point="BOTTOMRIGHT"/>
+                </Anchors>
+                <Layers>
+                    <Layer level="BACKGROUND">
+                        <Texture parentKey="Background">
+                            <Color r="0.1" g="0.1" b="0.1" a="1"/>
+                        </Texture>
+                    </Layer>
+                </Layers>
+                <Frames>
+                    <Button parentKey="AddButton">
+                        <Size x="12" y="12"/>
+                        <Anchors>
+                            <Anchor point="BOTTOMLEFT"/>
+                        </Anchors>
+                        <Layers>
+                            <Layer level="OVERLAY">
+                                <Texture parentKey="Icon" file="Interface\AddOns\Narcissus\Art\Modules\TalentTree\ButtonIcons">
+                                    <TexCoords left="0" right="0.25" top="0.25" bottom="0.5"/>
+                                </Texture>
+                            </Layer>
+                        </Layers>
+                    </Button>
+                </Frames>
+            </Frame>
+        </Frames>
+        <Scripts>
+            <OnLoad method="OnLoad"/>
+            <OnMouseWheel method="OnMouseWheel"/>
+            <OnShow method="OnShow"/>
+        </Scripts>
+    </Frame>
+</Ui>

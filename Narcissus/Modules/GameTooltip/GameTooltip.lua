@@ -115,7 +115,11 @@ end
 function NarciGameTooltipMixin:OnHide()
     SharedTooltipDelay:Kill();
     self:SetScript("OnUpdate", nil);
-    --GameTooltip_ClearMoney(self);
+end
+
+function NarciGameTooltipMixin:OnTooltipCleared()
+    GameTooltip_ClearMoney(self);
+    SharedTooltip_ClearInsertedFrames(self);
 end
 
 function NarciGameTooltipMixin:OnSizeChanged(w, h)
@@ -440,7 +444,7 @@ function NarciEquipmentTooltipMixin:OnHide()
     SharedTooltipDelay:Kill();
 end
 
-function NarciEquipmentTooltipMixin:UpdateMaxWidth(width)
+function NarciEquipmentTooltipMixin:EvaluateMaxWidth(width)
     if width > self.maxWidth then
         self.maxWidth = width;
     end
@@ -725,9 +729,10 @@ function NarciEquipmentTooltipMixin:DisplayItemData(link, itemData, slotID, visu
             self:AddLine(format(ENCHANTED_TOOLTIP_LINE, itemData.enchant), r, g, b, -SEG_INSETS);
         end
 
-        local anySocket = self.GemFrame:SetSocketInfo(itemData.socketInfo);
+        local anySocket, frameHeight, lineWidth = self.GemFrame:SetSocketInfo(itemData.socketInfo);
         if anySocket then
             self:InsertFrame(self.GemFrame);
+            self:EvaluateMaxWidth(lineWidth);
         end
 
         if itemData.effects then

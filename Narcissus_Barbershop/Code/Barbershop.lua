@@ -547,6 +547,18 @@ function DataProvider:GetActiveNumSaves()
     end
 end
 
+local function GetRaceFileName(characterData)
+    local fileName;
+    if characterData then
+        if characterData.raceData then
+            fileName = characterData.raceData.fileName;
+        else
+            fileName = characterData.fileName;
+        end
+    end
+    return fileName or "human";
+end
+
 function DataProvider:LoadData()
     local raceID = API.GetPlayerRaceID();
     self.raceID = raceID or 1;
@@ -579,13 +591,7 @@ function DataProvider:LoadData()
     self.savedLooksByRace = playerAppearanceDB[raceID];
 
     local currentCharacterData = C_BarberShop.GetCurrentCharacterData();
-    local raceName;
-    if currentCharacterData then
-        raceName = currentCharacterData.raceData.fileName;
-    else
-        raceName = "human";
-    end
-
+    local raceName = GetRaceFileName(currentCharacterData);
     raceName = string.lower(raceName);
 
     CreateSavedLooksButton(ScrollModelFrame, "male");
@@ -1705,7 +1711,7 @@ function NarciBarberShopMixin:UpdateCategory(sex, raceName)
             local currentCharacterData =  C_BarberShop.GetCurrentCharacterData();
             if currentCharacterData then
                 sex = currentCharacterData.sex;
-                raceName = currentCharacterData.raceData.fileName;
+                raceName = GetRaceFileName(currentCharacterData);
             else
                 print("Error: No Character Data");
                 return
@@ -1782,7 +1788,7 @@ function NarciBarberShopMixin:OnBarberShopOpen()
     if currentCharacterData then
         sex = currentCharacterData.sex;
         self.initialIconAtlas = currentCharacterData.raceData and currentCharacterData.raceData.createScreenIconAtlas;
-        raceName = currentCharacterData.raceData.fileName;
+        raceName = GetRaceFileName(currentCharacterData);
     end
     self:UpdateCategory(sex, raceName);
     StatManager:OnBarberShopOpen();
@@ -1941,13 +1947,14 @@ EventListener:SetScript("OnEvent", function(self, event, ...)
             MainFrame:OnBarberShopOpen();
 
             
-            --[[
+           --[[
             if true then
                 C_Timer.After(0.5 , function()
                     BarberShopUI:SetPropagateKeyboardInput(true);    --DEBUG
                 end)
             end
             --]]
+           
         end
     elseif event == "BARBER_SHOP_OPEN" then
         MainFrame:OnBarberShopOpen();
@@ -2138,9 +2145,10 @@ local function CreateTabs(frame)
                     end
                     object:SetChecked(NarciBarberShopDB[dbName]);
                     if objectData.tooltip then
-                        local infoButton = CreateFrame("Frame", nil, object, "NarciBarberShopInfoButtonTemplate");
+                        local infoButton = CreateFrame("Frame", nil, object, "NarciGenericInfoButtonTemplate");
                         infoButton:SetPoint("LEFT", object, "RIGHT", 12, 0);
-                        infoButton.tooltip = objectData.tooltip;
+                        infoButton.tooltipText = objectData.tooltip;
+                        infoButton.tooltipName = "CharCustomizeNoHeaderTooltip";
                         objectData.tooltip = nil;
                     end
                 elseif type == "keybinding" then
@@ -2207,6 +2215,8 @@ end
 NarciBarberShopSettingsMixin = CreateFromMixins(NarciChamferedFrameMixin);
 
 function NarciBarberShopSettingsMixin:OnLoad()
+    self:CreateBackground();
+
     SettingFrame = self;
     StatManager.SettingFrame = self;
     ExportEditBox = self.ProfilesTab.ExportEditBox;
@@ -2215,6 +2225,8 @@ function NarciBarberShopSettingsMixin:OnLoad()
     self:SetBorderColor(v, v, v, 1);
     self:SetBackgroundColor(0, 0, 0, 1);
     self.Divider:SetVertexColor(v, v, v);
+    self:SetBorderOffset(-8);
+
     self.ScrollFrame.ScrollBar.Background:SetVertexColor(0.5, 0.5, 0.5);
 
     NarciAPI.CreateSmoothScroll(self.ScrollFrame);

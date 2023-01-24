@@ -596,7 +596,7 @@ end
 
 local function ToolbarButton_OnEnter(self)
     MainFrame:OnEnter();
-    MainFrame.Tooltip:ShowTooltip(self);
+    MainFrame.Tooltip:ShowToolbarTooltip(self);
 end
 
 local function ToolbarButton_OnLeave(self)
@@ -637,7 +637,6 @@ end
 
 function NarciScreenshotToolbarButtonMixin:OnMouseDown()
     self.Icon:SetSize(36, 36);
-    MainFrame.Tooltip:HideTooltip();
 end
 
 function NarciScreenshotToolbarButtonMixin:OnMouseUp()
@@ -866,9 +865,6 @@ function NarciScreenshotToolbarMixin:SetLayout(layoutName)
                 self.PreferenceToggle.scriptNotSet = nil;
                 self.PreferenceToggle:SetScript("OnEnter", ToolbarButton_OnEnter);
                 self.PreferenceToggle:SetScript("OnLeave", ToolbarButton_OnLeave);
-                self.PreferenceToggle:SetScript("OnMouseDown", function()
-                    MainFrame.Tooltip:HideTooltip();
-                end);
             end
         end
     else

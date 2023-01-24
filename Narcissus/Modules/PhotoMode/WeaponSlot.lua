@@ -63,17 +63,17 @@ local UnequipButtonScripts = {};
 
 function UnequipButtonScripts.OnEnter(self)
     self.Icon:SetTexCoord(0.8828125, 1, 0, 0.1171875);
-    NarciTooltip:NewText(Narci.L["Unequip Item"], nil, nil, 1);
+    NarciTooltip:NewText(self, Narci.L["Unequip Item"], nil, nil, 1);
 end
 
 function UnequipButtonScripts.OnLeave(self)
     self.Icon:SetTexCoord(0.7578125, 0.875, 0, 0.1171875);
-    NarciTooltip:FadeOut();
+    NarciTooltip:HideTooltip();
 end
 
 function UnequipButtonScripts.OnMouseDown(self)
     self.Icon:SetSize(16, 16);
-    NarciTooltip:FadeOut();
+    NarciTooltip:HideTooltip();
 end
 
 function UnequipButtonScripts.OnMouseUp(self)
@@ -195,11 +195,11 @@ function NarciPhotoModeWeaponFrameMixin:OnLoad()
     self.SheathButton.Background:Hide();
     self.SheathButton:SetScript("OnEnter", function(f)
         f.Background:Show();
-        NarciTooltip:NewText(BINDING_NAME_TOGGLESHEATH, nil, nil, 1);
+        NarciTooltip:NewText(f, BINDING_NAME_TOGGLESHEATH, nil, nil, 1);
     end);
     self.SheathButton:SetScript("OnLeave", function(f)
         f.Background:Hide();
-        NarciTooltip:FadeOut();
+        NarciTooltip:HideTooltip();
     end);
     self.SheathButton:SetScript("OnMouseDown", function(f)
         if f:IsEnabled() then

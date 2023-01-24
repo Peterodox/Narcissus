@@ -23,7 +23,11 @@ end
 
 local function CanShowAFKScreen()
     --IsInCinematicScene() or InCinematic()
-    return not(C_PvP.IsActiveBattlefield() or CinematicFrame:IsShown() or MovieFrame:IsShown() or InCombatLockdown() or (BarberShopFrame and BarberShopFrame:IsShown()))
+    local canShow = not(C_PvP.IsActiveBattlefield() or CinematicFrame:IsShown() or MovieFrame:IsShown() or InCombatLockdown() or (BarberShopFrame and BarberShopFrame:IsShown()));
+    if C_PlayerInteractionManager and C_PlayerInteractionManager.IsInteractingWithNpcOfType then
+        canShow = canShow and C_PlayerInteractionManager.IsInteractingWithNpcOfType(0);
+    end
+    return canShow
 end
 
 local function ShowAFKScreen()

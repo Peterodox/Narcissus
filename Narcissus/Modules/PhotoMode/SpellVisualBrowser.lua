@@ -1324,7 +1324,7 @@ end
 
 local function DeleteButton_OnClick(self)
     self.Icon:SetDesaturated(true);
-    NarciTooltip:FadeOut();
+    NarciTooltip:HideTooltip();
     if not SelectedVisualIndex then return; end;
 
     local model = Narci.ActiveModel;
@@ -1361,7 +1361,7 @@ end
 
 local function ButtonWithTooltip_OnLeave(self)
     self.Highlight:Hide();
-    NarciTooltip:FadeOut();
+    NarciTooltip:HideTooltip();
 end
 
 local function HistoryButton_RemoveAll()
@@ -1435,7 +1435,7 @@ local function FavoriteButton_OnEnter(self)
 end
 
 local function FavoriteButton_OnLeave(self)
-    NarciTooltip:FadeOut();
+    NarciTooltip:HideTooltip();
     self.Highlight:Hide();
     if not self.IsFav then
         self.Icon:SetAlpha(0.6);
@@ -1579,7 +1579,7 @@ local function FavoritePopUp_Cancel()
 end
 
 local function FavoriteButton_OnClick(self)
-    NarciTooltip:FadeOut();
+    NarciTooltip:HideTooltip();
     local PopUp = self:GetParent().PopUpFrame;
     if not self.IsFav then
         self.Icon:SetTexCoord(0.25, 0.5, 0, 1);
@@ -1631,14 +1631,14 @@ local function EditFrame_EditBox_Confirm()
         EntryButton.Green.animIn:Play();
     end
 
-    NarciTooltip:JustHide();
+    NarciTooltip:HideTooltip();
 end
 
 local function EditFrame_EditBox_Cancel(self)
     self.anyChange = nil;
     self:SetText("");
     self:Hide();
-    NarciTooltip:JustHide();
+    NarciTooltip:HideTooltip();
 end
 
 local function EditFrame_EditBox_OnTextChanged(self, isUserInput)
@@ -1862,7 +1862,7 @@ function Narci_SpellVisualBrowser_OnLoad(self)
 
     HomeButton = ListFrame.Header.HomeButton;
     HomeButton:SetScript("OnClick", HomeButton_OnClick);
-    HomeButton.tooltip = L["Return"];
+    HomeButton.tooltipDescription = L["Return"];
 
     HistoryFrame.DeleteButton:SetScript("OnClick", DeleteButton_OnClick);
     HistoryFrame.DeleteButton:SetScript("OnEnter", DeleteButton_OnEnter);
@@ -1900,7 +1900,7 @@ function NarciSpellVisualBrowserPreviewFrameMixin:OnLoad()
     PreviewFrame = self;
     self.packName = "Standard";
     self.isStandardPack = true;
-    self.tooltip = L["Change Pack"];
+    self.tooltipDescription = L["Change Pack"];
 end
 
 function NarciSpellVisualBrowserPreviewFrameMixin:OnClick()
@@ -1927,11 +1927,11 @@ function NarciSpellVisualBrowserPreviewFrameMixin:OnHide()
 end
 
 function NarciSpellVisualBrowserPreviewFrameMixin:OnEnter()
-    NarciTooltip:ShowTooltip(self, 6);
+    NarciTooltip:ShowButtonTooltip(self);
 end
 
 function NarciSpellVisualBrowserPreviewFrameMixin:OnLeave()
-    NarciTooltip:FadeOut();
+    NarciTooltip:HideTooltip();
 end
 
 --[[

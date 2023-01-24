@@ -40,11 +40,11 @@
 		<Scripts>
 			<OnEnter>
 				UIFrameFadeIn(self.Highlight, 0.12, self.Highlight:GetAlpha(), 0.5);
-				NarciTooltip:NewText(self.tooltip1);
+				NarciTooltip:NewText(self, self.tooltip1, nil, nil, 1);
 			</OnEnter>
 			<OnLeave>
 				UIFrameFadeOut(self.Highlight, 0.25, self.Highlight:GetAlpha(), 0);
-				NarciTooltip:FadeOut()
+				NarciTooltip:HideTooltip()
 			</OnLeave>
 			<OnHide>
 				self:SetAlpha(0);

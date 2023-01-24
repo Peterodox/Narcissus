@@ -160,7 +160,7 @@
                 </Animations>
                 <Scripts>
                     <OnLoad>
-                        self.tooltip = Narci.L["Reset Slider"];
+                        self.tooltipText = Narci.L["Reset Slider"];
                     </OnLoad>
                     <OnClick>
                         self:GetParent():SetValue(0);
@@ -168,12 +168,12 @@
                     <OnEnter>
                         if not IsMouseButtonDown() then
                             self.Highlight:Show();
-							NarciTooltip:ShowTooltip(self, 0, -4);
+							NarciTooltip:ShowButtonTooltip(self);
                         end
                     </OnEnter>
                     <OnLeave>
                         self.Highlight:Hide();
-                        NarciTooltip:FadeOut();
+                        NarciTooltip:HideTooltip();
                     </OnLeave>
                      <OnHide>
                         self.flyIn:Stop();

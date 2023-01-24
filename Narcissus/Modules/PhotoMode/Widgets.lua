@@ -1,7 +1,3 @@
---local max = math.max;
---local min = math.min;
---local sin = math.sin;
---local pi = math.pi;
 local sqrt = math.sqrt;
 local pow = math.pow;
 local floor = math.floor;
@@ -52,7 +48,7 @@ function ThumbResetter:ResetThumb(widget)
         duration = sqrt(-fromX/MAX_OFFSET)
     elseif fromX > barWidth then
         toX = barWidth;
-        duration = sqrt( (fromX - barWidth )/MAX_OFFSET);
+        duration = sqrt((fromX - barWidth )/MAX_OFFSET);
     end
 
     if duration and duration > 0 then
@@ -76,13 +72,13 @@ local function GetCapDiff(x)
         if x > CAP_OFFSET then
             x = CAP_OFFSET;
         end
-        y = curveK * (CAP_OFFSET^2 - (x - CAP_OFFSET)^2 );
+        y = curveK * (CAP_OFFSET^2 - (x - CAP_OFFSET)^2);
         ratio = y / MAX_OFFSET;
     elseif x < 0 then
         if x < -CAP_OFFSET then
             x = -CAP_OFFSET;
         end
-        y = curveK * (-CAP_OFFSET^2 + (x + CAP_OFFSET)^2 );
+        y = curveK * (-CAP_OFFSET^2 + (x + CAP_OFFSET)^2);
         ratio = -y / MAX_OFFSET;
     end
     return y, ratio
@@ -219,7 +215,7 @@ function NarciUncappedSliderMixin:UpdateThumbPosition()
                 self.Fluid:ClearAllPoints();
                 self.Fluid:SetPoint("LEFT", self.OverlayFrame.Thumb, "CENTER", 0, 0);
                 self.Fluid:SetTexCoord(0, 0.25, 0.5, 0.5625);
-            end   
+            end
         end
     end
     local thumbOffset = cursorX - self.capLeft;

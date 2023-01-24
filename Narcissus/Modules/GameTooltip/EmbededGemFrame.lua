@@ -24,13 +24,19 @@ function NarciEquipmentTooltipGemFrameMixin:SetSocketInfo(socketInfo)
     if socketInfo then
         local numGems = #socketInfo;
         self.numGems = numGems;
+        local maxWidth = 0;
+        local width;
         for i = 1, numGems do
-            self:SetGemEffect(i, unpack(socketInfo[i]))
+            width = self:SetGemEffect(i, unpack(socketInfo[i]));
+            if width > maxWidth then
+                maxWidth = width;
+            end
         end
         self:Show();
         local frameHeight = self:GetTop() - self.texts[numGems]:GetBottom();
         self:SetHeight(frameHeight);
-        return true, frameHeight
+        maxWidth = maxWidth + TEXT_OFFSET;
+        return true, frameHeight, maxWidth
     end
 end
 
@@ -91,6 +97,8 @@ function NarciEquipmentTooltipGemFrameMixin:SetGemEffect(n, texture, gemName, ge
     if not gemEffect then
         self:GetParent():QueryData();
     end
+
+    return self.texts[n]:GetWrappedWidth() or 0
 end
 
 function NarciEquipmentTooltipGemFrameMixin:UpdateAnchor()

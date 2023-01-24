@@ -4,7 +4,7 @@ local format = string.format;
 local GetItemInfoInstant = GetItemInfoInstant;
 local FORMAT_REQUIRES = ITEM_REQ_SPECIALIZATION;
 
-local slotData = {
+local SlotData = {
     --[slotID] = {InventorySlotName, Localized Name, invType, texture, validForTransmog}    --GetInventorySlotInfo("SlotName")
     [1] = {"HeadSlot", HEADSLOT, "INVTYPE_HEAD", 0, true},
     [2] = {"NeckSlot", NECKSLOT, "INVSLOT_NECK", 0},
@@ -27,7 +27,7 @@ local slotData = {
     [19]= {"TabardSlot", TABARDSLOT, "INVTYPE_TABARD", 0, true},
 }
 
-local invTypeSlotID = {
+local InvTypeXSlotID = {
     INVTYPE_WEAPON = 16,
     INVTYPE_2HWEAPON = 16,
     INVTYPE_SHIELD = 17,
@@ -38,35 +38,46 @@ local invTypeSlotID = {
     INVTYPE_TRINKET = 13,
 };
 
-for slotID, info in pairs(slotData) do
+local HoldableItem = {
+    INVTYPE_WEAPON = true,
+    INVTYPE_2HWEAPON = true,
+    INVTYPE_SHIELD = true,
+    INVTYPE_HOLDABLE = true,
+    INVTYPE_RANGED = true,
+    INVTYPE_RANGEDRIGHT = true,
+    INVTYPE_WEAPONMAINHAND = true,
+    INVTYPE_WEAPONOFFHAND = true,
+};
+
+for slotID, info in pairs(SlotData) do
     _, info[4] = GetInventorySlotInfo(info[1]);  --texture
-    invTypeSlotID[ info[3] ] = slotID;
+    InvTypeXSlotID[ info[3] ] = slotID;
 end
 
 local function GetSlotIDByInvType(invType)
-    return invTypeSlotID[invType]
+    return InvTypeXSlotID[invType]
 end
 
 local function GetSlotIDByItemID(itemID)
     local _, _, _, invType = GetItemInfoInstant(itemID);
-    return invTypeSlotID[invType]
+    return InvTypeXSlotID[invType]
 end
 
 local function GetSlotNameAndTexture(slotID)
-    if slotData[slotID] then
-        return slotData[slotID][2], slotData[slotID][4]
+    if SlotData[slotID] then
+        return SlotData[slotID][2], SlotData[slotID][4]
     end
 end
 
 local function GetInventorySlotNameBySlotID(slotID)
-    if slotData[slotID] then
-        return slotData[slotID][1]
+    if SlotData[slotID] then
+        return SlotData[slotID][1]
     end
 end
 
 local function GetSlotButtonNameBySlotID(slotID)
-    if slotData[slotID] then
-        return "Character"..slotData[slotID][1];
+    if SlotData[slotID] then
+        return "Character"..SlotData[slotID][1];
     end
 end
 
@@ -101,7 +112,7 @@ local function ConvertTableToBool(list)
     return tbl
 end
 
-local itemTypes = {
+local ItemTypes = {
     -- {classID, subclassID, exampleItemID(then placed by type name)}
     Axe1H = {2, 0, 37},
     Axe2H = {2, 1, 12282},
@@ -124,11 +135,11 @@ local itemTypes = {
 
 local typeIDKeys = {};
 
-for key, data in pairs(itemTypes) do
+for key, data in pairs(ItemTypes) do
     local classID, subclassID, tempItemID = unpack(data);
     local itemID, itemType, itemSubType = GetItemInfoInstant(tempItemID);
     if itemID then
-        itemTypes[key][3] = itemSubType;
+        ItemTypes[key][3] = itemSubType;
         local guid = toGUID(classID, subclassID);
         typeIDKeys[guid] = key;
     else
@@ -170,8 +181,8 @@ local isEnchantableWeapon = ConvertTableToBool(enchantableWeapons);
 
 local function GetItemTypeNameByGUID(guid)
     local key = typeIDKeys[guid];
-    if key and itemTypes[key] then
-        return itemTypes[key][3]
+    if key and ItemTypes[key] then
+        return ItemTypes[key][3]
     end
 end
 
@@ -234,10 +245,18 @@ local function GetItemTempEnchantRequirement(typeID)
 end
 
 local function IsSlotValidForTransmog(slotID)
-    return slotID and slotData[slotID][5]
+    return slotID and SlotData[slotID][5]
+end
+
+local function IsHoldableItem(item)
+    if item then
+        local _, _, _, itemEquipLoc = GetItemInfoInstant(item);
+        return HoldableItem[itemEquipLoc];
+    end
 end
 
 NarciAPI.GetItemTempEnchantType = GetItemTempEnchantType;
 NarciAPI.GetItemTempEnchantRequirement = GetItemTempEnchantRequirement;
 NarciAPI.IsWeaponValidForEnchant = IsWeaponValidForEnchant;
 NarciAPI.IsSlotValidForTransmog = IsSlotValidForTransmog;
+NarciAPI.IsHoldableItem = IsHoldableItem;

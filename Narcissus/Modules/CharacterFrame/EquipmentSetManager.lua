@@ -1227,9 +1227,6 @@ function NarciEquipmentSetButtonMixin:OnEnter()
         shadow:SetPoint("CENTER", self, "CENTER", 0 , 0);
         FadeFrame(shadow, 0.25, 0.6, 0);
     end
-
-    --Show Tooltip
-    --NarciTooltip:NewText("Double-click to activate\nRight-click to modify");
 end
 
 function NarciEquipmentSetButtonMixin:OnLeave()

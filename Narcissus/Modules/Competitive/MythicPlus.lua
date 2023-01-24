@@ -42,9 +42,18 @@ local MAP_UI_INFO = {
     [234] = {name = 'return-to-karazhan', barColor = '68abe0'},    --Upper
     [166] = {name = 'grimrail-depot', barColor = 'b79266'},
     [169] = {name = 'iron-docks', barColor = 'b79266'},
+
+    [165] = {name = 'shadowmoon-burial-grounds', },
+    [399] = {name = 'ruby-life-pools', },
+    [400] = {name = 'the-nokhud-offensive', },
+    [401] = {name = 'the-azure-vault', },
+    [200] = {name = 'halls-of-valor', },
+    [210] = {name = 'court-of-stars', },
+    [402] = {name = 'algethar-academy', },
+    [2] = {name = 'temple-of-the-jade-serpent', },
 };
 
-local SEASON_MAPS = {391, 392, 234, 227, 370, 369, 169, 166};
+local SEASON_MAPS = {399, 400, 401, 402, 2, 165, 200, 210};
 
 
 local function ShowNewDungeons()
@@ -953,7 +962,7 @@ function NarciMythicPlusDisplayMixin:SetMapDetail(mapID, useIntimeOrOvertime)
             f.Duration:SetTextColor(1, 1, 1);
             f.Level:SetText( data.level );
             f.Level:SetTextColor(1, 1, 1);
-            f.Date:SetText( FormatShortDate(data.completionDate.day, data.completionDate.month, data.completionDate.year) );
+            f.Date:SetText( FormatShortDate(data.completionDate.day, (data.completionDate.month or 0) + 1, data.completionDate.year) ); --month starts from zero why?
             f.Score:SetText( data.dungeonScore );
             local color = C_ChallengeMode.GetSpecificDungeonScoreRarityColor(data.dungeonScore);
             if (not color) then
@@ -1088,7 +1097,7 @@ function NarciMythicPlusHistogrameMixin:SetData(mapID, intimeRun, overtimeRun, n
     local sum = normalizedRun--(intimeRun + overtimeRun);
     self.MapName:SetText(DataProvider:GetMapName(mapID));
     local r, g, b;
-    if MAP_UI_INFO[mapID] then
+    if MAP_UI_INFO[mapID] and MAP_UI_INFO[mapID].barColor then
         r, g, b = unpack(ConvertHexColorToRGB(MAP_UI_INFO[mapID].barColor));
     else
         r, g, b = 0.8, 0.8, 0.8;

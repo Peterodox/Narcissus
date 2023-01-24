@@ -129,6 +129,22 @@ local TextureData = {
         cornerSize = 24,
         cornerCoord = 0.25,
     },
+
+    genericChamferedBorder = {
+        file = "Frames\\GenericChamferedBorder",
+        cornerSize = 32,
+        cornerCoord = 0.25,
+        pixelPerfect = true,
+        useCenterForAlignment = true,
+    },
+
+    genericChamferedBackground = {
+        file = "Frames\\GenericChamferedBackground",
+        cornerSize = 32,
+        cornerCoord = 0.25,
+        pixelPerfect = true,
+        useCenterForAlignment = true,
+    },
 };
 
 function NineSliceUtil.SetUp(frame, textureKey, layer, shrink, customLayerSubLevel)
@@ -248,33 +264,37 @@ function NineSliceUtil.SetUp(frame, textureKey, layer, shrink, customLayerSubLev
     end
 end
 
-function NineSliceUtil.SetBackdropColor(frame, r, g, b)
-    if frame.backdropTextures then
+function NineSliceUtil.SetBackdropColor(frame, r, g, b, a)
+    if frame and frame.backdropTextures then
+        a = a or 1;
         for i = 1, 9 do
             frame.backdropTextures[i]:SetVertexColor(r, g, b);
+            frame.backdropTextures[i]:SetAlpha(a);
         end
     end
 end
 
-function NineSliceUtil.SetBorderColor(frame, r, g, b)
-    if frame.borderTextures then
+function NineSliceUtil.SetBorderColor(frame, r, g, b, a)
+    if frame and frame.borderTextures then
+        a = a or 1;
         for i = 1, 9 do
             frame.borderTextures[i]:SetVertexColor(r, g, b);
+            frame.borderTextures[i]:SetAlpha(a);
         end
     end
 end
 
-function NineSliceUtil.SetUpBackdrop(frame, textureKey, shrink, r, g, b, customLayerSubLevel)
+function NineSliceUtil.SetUpBackdrop(frame, textureKey, shrink, r, g, b, a, customLayerSubLevel)
     NineSliceUtil.SetUp(frame, textureKey, "backdrop", shrink, customLayerSubLevel);
     if r and g and b then
-        NineSliceUtil.SetBackdropColor(frame, r, g, b);
+        NineSliceUtil.SetBackdropColor(frame, r, g, b, a);
     end
 end
 
-function NineSliceUtil.SetUpBorder(frame, textureKey, shrink, r, g, b, customLayerSubLevel)
+function NineSliceUtil.SetUpBorder(frame, textureKey, shrink, r, g, b, a, customLayerSubLevel)
     NineSliceUtil.SetUp(frame, textureKey, "border", shrink, customLayerSubLevel);
     if r and g and b then
-        NineSliceUtil.SetBorderColor(frame, r, g, b);
+        NineSliceUtil.SetBorderColor(frame, r, g, b, a);
     end
 end
 

@@ -54,7 +54,7 @@
             <OnShow method="OnShow"/>
             <OnHide method="OnHide"/>
             <OnSizeChanged method="OnSizeChanged"/>
-            <OnTooltipCleared function="SharedTooltip_ClearInsertedFrames"/>
+            <OnTooltipCleared method="OnTooltipCleared"/>
         </Scripts>
     </GameTooltip>
  

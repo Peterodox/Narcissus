@@ -1,6 +1,6 @@
-## Interface: 100002
+## Interface: 100005
 ## Plain Title: Narcissus
-## Version: 1.3.7
+## Version: 1.3.8
 
 ## Title: |cffA236EFN|cff9448F1a|cff865BF2r|cff786DF4c|cff6A80F6i|cff5D92F7s|cff4FA4F9s|cff41B7FAu|cff33C9FCs|r
 
@@ -9,7 +9,7 @@
 ## Notes-zhTW: 為展示和分享而生的沈浸式角色界面|n|cff959595命令: /Narci|r
 
 ## Author: Peterodox
-## SavedVariables: NarcissusDB, NarciAchievementOptions, NarciStatisticsDB, NarciTurntableOptions, NarciCharacterProfiles
+## SavedVariables: NarcissusDB, NarciAchievementOptions, NarciStatisticsDB, NarciTurntableOptions, NarciCharacterProfiles, NarciPhotoModeDB
 ## SavedVariablesPerCharacter: NarcissusDB_PC, NarciStatisticsDB_PC
 
 
@@ -33,7 +33,7 @@ Modules\PaperDollWidget\Controller.xml
 Modules\CharacterFrame\ClassSet.xml
 
 Widgets\NarciUITemplates.xml
-Widgets\NarciTooltip.xml
+Widgets\WidgetTooltip.xml
 Constants\Constants.xml
 
 #Bridge\Bridge.xml Dragonflight Beta Temporarily Disabled
@@ -86,6 +86,7 @@ Modules\AR\AR.xml
 #Modules\Splash\FakeMail.xml
 #Modules\Splash\Splash.xml
 
+Modules\PerksProgram\Core.xml
 Modules\Achievement\Core.xml
 Modules\Statistics\Core.lua
 Modules\AddOnError\AddOnError.xml
@@ -98,6 +99,7 @@ Filters\Letterbox.xml
 Guide\Guide.xml
 
 # Modules\DevTool\DevTool.xml
+#Modules\DevTool\DevWardrobe.lua
 
 #Test
 # Modules\Inspector\Inspector.xml
@@ -105,4 +107,5 @@ Guide\Guide.xml
 # Modules\AnimKit\AnimKit.xml
 
 #Experimental Features
-#Modules\DragonflightQoL\Main.xml
+#Modules\CraftingOrder\CraftingOrder.lua
+Modules\PhotoModeNew\LightingPreset.xml

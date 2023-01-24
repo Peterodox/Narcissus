@@ -64,7 +64,7 @@ function NarciEquipmentSpellFrameMixin:SetSpellEffect(link, effectText, isActive
 
     local frameHeight = self:GetTop() - (self.SpellEffect:GetBottom() or 0) + (self.bottomPadding or 0);
     local frameWidth = math.max(34 + self.SpellName:GetWrappedWidth(), self.SpellEffect:GetWrappedWidth());
-    self:GetParent():UpdateMaxWidth(frameWidth);
+    self:GetParent():EvaluateMaxWidth(frameWidth);
     self:SetHeight(frameHeight);
     self:Show();
 end

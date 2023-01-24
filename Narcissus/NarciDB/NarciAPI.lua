@@ -2686,75 +2686,6 @@ function NarciHotkeyNotificationMixin:SetHighlight(state)
     end
 end
 
-NarciQuickFavoriteButtonMixin = {};
-
-function NarciQuickFavoriteButtonMixin:SetIconSize(size)
-    self.iconSize = size;
-    self.Icon:SetSize(size, size);
-    self.Bling:SetSize(size, size);
-    self.Icon:SetTexCoord(0.5, 0.75, 0.25, 0.5);
-    self.favTooltip = Narci.L["Favorites Add"];
-    self.unfavTooltip = Narci.L["Favorites Remove"];
-    self.isFav = false;
-end
-
-function NarciQuickFavoriteButtonMixin:SetFavorite(isFavorite)
-    if isFavorite then
-        self.isFav = true;
-        self.Icon:SetTexCoord(0.75, 1, 0.25, 0.5);
-        self.Icon:SetAlpha(1);
-    else
-        self.isFav = false;
-        self.Icon:SetTexCoord(0.5, 0.75, 0.25, 0.5);
-        self.Icon:SetAlpha(0.4);
-    end
-end
-
-function NarciQuickFavoriteButtonMixin:PlayVisual()
-    self:StopAnimating();
-    if self.isFav then
-        self.Icon:SetTexCoord(0.75, 1, 0.25, 0.5);
-        self.parent.Star:Show();
-        self.Bling.animIn:Play();
-    else
-        self.Icon:SetTexCoord(0.5, 0.75, 0.25, 0.5);
-        self.parent.Star:Hide();
-    end
-end
-
-function NarciQuickFavoriteButtonMixin:OnEnter()
-    self.Icon:SetAlpha(1);
-    if self.isFav then
-        NarciTooltip:NewText(self.unfavTooltip, nil, nil, 1);
-    else
-        NarciTooltip:NewText(self.favTooltip, nil, nil, 1);
-    end
-end
-
-function NarciQuickFavoriteButtonMixin:OnLeave()
-    NarciTooltip:FadeOut();
-    if not self.isFav then
-        self.Icon:SetAlpha(0.6);
-    end
-end
-
-function NarciQuickFavoriteButtonMixin:OnHide()
-    self:StopAnimating();
-end
-
-function NarciQuickFavoriteButtonMixin:OnMouseDown()
-    self.Icon:SetSize(self.iconSize - 2, self.iconSize - 2);
-    NarciTooltip:FadeOut();
-end
-
-function NarciQuickFavoriteButtonMixin:OnMouseUp()
-    self.Icon:SetSize(self.iconSize, self.iconSize);
-end
-
-function NarciQuickFavoriteButtonMixin:OnDoubleClick()
-    
-end
-
 
 -----------------------------------------------------------
 NarciDarkRoundButtonMixin = {};
@@ -3037,65 +2968,6 @@ function NarciNonEditableEditBoxMixin:OnKeyDown(key, down)
     end
 end
 
-
-NarciChamferedFrameMixin = {};
-
-function NarciChamferedFrameMixin:SetBackgroundColor(r, g, b, a)
-    if not self.backgroundAtlas then
-        self.backgroundAtlas = {
-            self.BackgroundTopLeft, self.BackgroundTop, self.BackgroundTopRight,
-            self.BackgroundMiddleLeft, self.BackgroundMiddle, self.BackgroundMiddleRight,
-            self.BackgroundBottomLeft, self.BackgroundBottom, self.BackgroundBottomRight,
-        };
-    end
-    a = a or 1;
-    for i = 1, #self.backgroundAtlas do
-        self.backgroundAtlas[i]:SetVertexColor(r, g, b);
-        self.backgroundAtlas[i]:SetAlpha(a);
-    end
-end
-
-function NarciChamferedFrameMixin:SetBorderColor(r, g, b, a)
-    if not self.borderAtlas then
-        self.borderAtlas = {
-            self.BorderTopLeft, self.BorderTop, self.BorderTopRight,
-            self.BorderMiddleLeft, self.BorderMiddle, self.BorderMiddleRight,
-            self.BorderBottomLeft, self.BorderBottom, self.BorderBottomRight,
-        };
-    end
-    a = a or 1;
-    for i = 1, #self.borderAtlas do
-        self.borderAtlas[i]:SetVertexColor(r, g, b);
-        self.borderAtlas[i]:SetAlpha(a);
-    end
-end
-
-function NarciChamferedFrameMixin:SetOffset(value)
-    --positive value expand the frame background
-    self.BackgroundTopLeft:SetPoint("TOPLEFT", self, "TOPLEFT", -value, value);
-    self.BorderTopLeft:SetPoint("TOPLEFT", self, "TOPLEFT", -value, value);
-    self.BackgroundTopRight:SetPoint("TOPRIGHT", self, "TOPRIGHT", value, value);
-    self.BorderTopRight:SetPoint("TOPRIGHT", self, "TOPRIGHT", value, value);
-    self.BackgroundBottomLeft:SetPoint("BOTTOMLEFT", self, "BOTTOMLEFT", -value, -value);
-    self.BorderBottomLeft:SetPoint("BOTTOMLEFT", self, "BOTTOMLEFT", -value, -value);
-    self.BackgroundBottomRight:SetPoint("BOTTOMRIGHT", self, "BOTTOMRIGHT", value, -value);
-    self.BorderBottomRight:SetPoint("BOTTOMRIGHT", self, "BOTTOMRIGHT", value, -value);
-end
-
-function NarciChamferedFrameMixin:Toggle()
-    self:SetShown(not self:IsShown());
-end
-
-function NarciChamferedFrameMixin:HideWhenParentIsHidden(state)
-    if state then
-        self:SetScript("OnHide", function()
-            self:Hide()
-        end);
-    else
-        self:SetScript("OnHide", nil);
-    end
-end
-
 -----------------------------------------------------------
 NarciLanguageUtil = {};
 NarciLanguageUtil.wowheadLinkPrefix = {
@@ -3332,6 +3204,20 @@ local function AddPixelPerfectTexture(frame, texture, pixelWidth, pixelHeight)
 end
 
 NarciAPI.AddPixelPerfectTexture = AddPixelPerfectTexture;
+
+local function SetFramePointPixelPerfect(frame, point, relativeTo, relativePoint, offsetX, offsetY)
+    if relativeTo then
+        local pixel = GetPixelForWidget(frame);
+        frame:ClearAllPoints();
+        local right0 = relativeTo:GetRight();
+        local right1 = floor( (right0 + offsetX) * pixel + 0.5) / pixel;
+        local top0 = relativeTo:GetTop();
+        local top1 = floor( (top0 + offsetY) * pixel) / pixel;
+        frame:SetPoint(point, relativeTo, relativePoint, right1 - right0, top1 - top0);
+    end
+end
+
+NarciAPI.SetFramePointPixelPerfect = SetFramePointPixelPerfect;
 
 
 local function IsPlayerAtMaxLevel()

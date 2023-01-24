@@ -817,14 +817,14 @@
 		</Scripts>
 	</Button>
 
-	<Button name="Narci_Model_AnimationControlButtonTemplate" inherits="Narci_Model_PlayAnimationTemplate" virtual="true" hidden="false" registerForClicks="LeftButtonUp, RightButtonUp">
+	<Button name="NarciPhotoModeAnimationControlButtonTemplate" inherits="Narci_Model_PlayAnimationTemplate" virtual="true" hidden="false" registerForClicks="LeftButtonUp, RightButtonUp">
 		<Scripts>
 			<OnEnter>
-				NarciTooltip:ShowTooltip(self, 0, 0, 1);
+				NarciTooltip:ShowButtonTooltip(self);
 				self.Highlight:Show();
 			</OnEnter>
 			<OnLeave>
-				NarciTooltip:FadeOut();
+				NarciTooltip:HideTooltip();
 				if not self.isOn then
 					self.Highlight:Hide();
 				end
@@ -869,38 +869,46 @@
 
 		<Scripts>
 			<OnEnter>
-				NarciTooltip:ShowTooltip(self);
+				NarciTooltip:ShowButtonTooltip(self);
 			</OnEnter>
 			<OnLeave>
-				NarciTooltip:FadeOut();
+				NarciTooltip:HideTooltip();
 			</OnLeave>
 		</Scripts>
 	</Button>
 
 	<Button name="Narci_AlphaLayerButtonTemplate" virtual="true" parentKey="AlphaButton">
-		<Size x="38" y="38"/>
+		<Size x="28" y="28"/>
 		<HitRectInsets>
-			<AbsInset left="6" right="10" top="-1" bottom="-1"/>
+			<AbsInset left="-6" right="0" top="0" bottom="0"/>
 		</HitRectInsets>
-		<HighlightTexture parentKey="Highlight" file="Interface\AddOns\Narcissus\Art\Widgets\LightSetup\LayerButton" setAllPoints="true">
-			<TexCoords left="0.1484375" right="0.296875" top="0.703125" bottom="1"/>
-		</HighlightTexture>
 		<NormalTexture parentKey="Normal" file="Interface\AddOns\Narcissus\Art\Widgets\LightSetup\LayerButton" setAllPoints="true">
 			<TexCoords left="0" right="0.1484375" top="0.703125" bottom="1"/>
+			<Size x="38" y="38"/>
+			<Anchors>
+				<Anchor point="CENTER"/>
+			</Anchors>
 		</NormalTexture>
+		<HighlightTexture parentKey="Highlight" file="Interface\AddOns\Narcissus\Art\Widgets\LightSetup\LayerButton" setAllPoints="true">
+			<TexCoords left="0.1484375" right="0.296875" top="0.703125" bottom="1"/>
+			<Anchors>
+				<Anchor point="TOPLEFT" relativeKey="$parent.Normal" relativePoint="TOPLEFT"/>
+				<Anchor point="BOTTOMRIGHT" relativeKey="$parent.Normal" relativePoint="BOTTOMRIGHT"/>
+			</Anchors>
+		</HighlightTexture>
 		<Scripts>
 			<OnEnter>
-				NarciTooltip:ShowTooltip(self, -2, -4);
+				NarciTooltip:ShowButtonTooltip(self);
 			</OnEnter>
 			<OnLeave>
-				NarciTooltip:FadeOut();
+				NarciTooltip:HideTooltip();
 				if (self.isOn) then	return;	end;
 			</OnLeave>
 			<OnMouseDown>
-				self:SetSize(34, 34);
+				self.Normal:SetSize(34, 34);
 			</OnMouseDown>
 			<OnMouseUp>
-				self:SetSize(38, 38);
+				self.Normal:SetSize(38, 38);
 			</OnMouseUp>
 			<OnHide>
 				if self.isOn then
@@ -954,10 +962,10 @@
 				<OnLoad function="Narci_LayerButton_OnLoad"/>
 				<OnEnter>
 					UIFrameFadeIn(self.Highlight, 0.2, self.Highlight:GetAlpha(), 1);
-					NarciTooltip:ShowTooltip(self, 0, 0);
+					NarciTooltip:ShowButtonTooltip(self);
 				</OnEnter>
 				<OnLeave>
-					NarciTooltip:FadeOut();
+					NarciTooltip:HideTooltip();
 					if (self.isOn) or self:IsMouseOver(-4, 4, 0, 0) then return; end;
 				</OnLeave>
 			</Scripts>
@@ -1465,7 +1473,7 @@
 						<Scripts>
 							<OnLoad>
 								self.isOn = false;
-								self.tooltip = Narci.L["Race Change Tooltip"];
+								self.tooltipDescription = Narci.L["Race Change Tooltip"];
 							</OnLoad>
 							<OnMouseDown>
 								self.PortaitAnchor:SetSize(50, 50);
@@ -1474,10 +1482,10 @@
 								self.PortaitAnchor:SetSize(54, 54);
 							</OnMouseUp>
 							<OnEnter>
-								NarciTooltip:ShowTooltip(self);
+								NarciTooltip:ShowButtonTooltip(self);
 							</OnEnter>
 							<OnLeave>
-								NarciTooltip:FadeOut();
+								NarciTooltip:HideTooltip();
 							</OnLeave>
 							<OnClick function="Narci_ActorButton_OnClick"/>
 							<OnHide>
@@ -1561,10 +1569,10 @@
 								self.Highlight:SetSize(20, 20);
 							</OnMouseUp>
 							<OnEnter>
-								NarciTooltip:ShowTooltip(self, 0, 8);
+								NarciTooltip:ShowButtonTooltip(self);
 							</OnEnter>
 							<OnLeave>
-								NarciTooltip:FadeOut();
+								NarciTooltip:HideTooltip();
 							</OnLeave>
 						</Scripts>
 					</Button>
@@ -1837,16 +1845,16 @@
 										</Anchors>
 										<Scripts>
 											<OnLoad>
-												self.tooltip = Narci.L["Actor Index Tooltip"];
+												self.tooltipDescription = Narci.L["Actor Index Tooltip"];
 												self:GetParent().Label:SetText(Narci.L["Actor Index"]);
 											</OnLoad>
 											<OnEnter>
 												if not IsMouseButtonDown() then
-													NarciTooltip:ShowTooltip(self);
+													NarciTooltip:ShowButtonTooltip(self);
 												end
 											</OnEnter>
 											<OnLeave>
-												NarciTooltip:FadeOut();
+												NarciTooltip:HideTooltip();
 											</OnLeave>
 										</Scripts>
 									</Frame>
@@ -2108,17 +2116,18 @@
 						</Layers>
 						<Scripts>
 							<OnLoad>
-								self.tooltip = {Narci.L["Light Types"], Narci.L["Light Types Tooltip"]};
-								self.guideIndex = 7;
+								self.tooltipHeader = Narci.L["Light Types"];
+								self.tooltipDescription = Narci.L["Light Types Tooltip"];
+								self.tooltipImage = "LightSwitch";
 								NarciPhotoModeButton_OnLoad(self);
 							</OnLoad>
 							<OnEnter>
 								self.Background:Show();
-								NarciTooltip:ShowTooltip(self, 0, 0);
+								NarciTooltip:ShowButtonTooltip(self);
 							</OnEnter>
 							<OnLeave>
 								self.Background:Hide();
-								NarciTooltip:FadeOut();
+								NarciTooltip:HideTooltip();
 							</OnLeave>
 							<OnClick function="NarciModelControl_LightSwitch_OnClick"/>
 							<OnMouseDown>
@@ -2170,7 +2179,7 @@
 						</Frames>
 					</Frame>
 
-					<Button parentKey="ColorSwitch" inherits="Narci_Model_AnimationControlButtonTemplate" hidden="false" registerForClicks="LeftButtonUp, RightButtonUp">
+					<Button parentKey="ColorSwitch" inherits="NarciPhotoModeAnimationControlButtonTemplate" hidden="false" registerForClicks="LeftButtonUp, RightButtonUp">
 						<Anchors>
 							<Anchor point="LEFT" relativeKey="$parent.ColorPresets.Color7" relativePoint="RIGHT" x="0"/>
 						</Anchors>
@@ -2188,7 +2197,7 @@
 						<Scripts>
 							<OnLoad>
 								self.ShowSlider = false;
-								self.tooltip = Narci.L["Show Color Sliders"];
+								self.tooltipDescription = Narci.L["Show Color Sliders"];
 							</OnLoad>
 							<OnClick function="NarciModelControl_ColorPaneSwitch_OnClick"/>
 						</Scripts>
@@ -2756,16 +2765,16 @@
 								<Scripts>
 									<OnLoad>
 										self.Label:SetText(Narci.L["Animation"]);
-										self.tooltip = Narci.L["Animation Tooltip"];
+										self.tooltipDescription = Narci.L["Animation Tooltip"];
 										self:SetFrameLevel(self:GetParent():GetFrameLevel() + 2);
 									</OnLoad>
 									<OnEnter>
 										UIFrameFadeIn(self.Highlight, 0.2, self.Highlight:GetAlpha(), 1);
-										NarciTooltip:ShowTooltip(self, 0, 2, 1);
+										NarciTooltip:ShowButtonTooltip(self);
 									</OnEnter>
 									<OnLeave>
 										UIFrameFadeOut(self.Highlight, 0.2, self.Highlight:GetAlpha(), 0);
-										NarciTooltip:FadeOut();
+										NarciTooltip:HideTooltip();
 									</OnLeave>
 									<OnClick>
 										Narci_AnimationBrowser:Toggle();
@@ -2934,7 +2943,7 @@
 								</Scripts>
 							</Frame>
 
-							<Button parentKey="Pause" inherits="Narci_Model_AnimationControlButtonTemplate" hidden="false" name="NarciModelControl_PauseAnimationButton">
+							<Button parentKey="Pause" inherits="NarciPhotoModeAnimationControlButtonTemplate" hidden="false" name="NarciModelControl_PauseAnimationButton">
 								<Anchors>
 									<Anchor point="RIGHT" relativeKey="$parent" relativePoint="RIGHT" x="3"/>
 								</Anchors>
@@ -2956,12 +2965,12 @@
 										self.Highlight:Hide();
 									</OnHide>
 									<OnLoad>
-										self.tooltip = Narci.L["Pause Button Tooltip"];
+										self.tooltipDescription = Narci.L["Pause Button Tooltip"];
 									</OnLoad>
 								</Scripts>
 							</Button>
 
-							<Button parentKey="Play" inherits="Narci_Model_AnimationControlButtonTemplate" hidden="false" name="NarciModelControl_PlayAnimationButton">
+							<Button parentKey="Play" inherits="NarciPhotoModeAnimationControlButtonTemplate" hidden="false" name="NarciModelControl_PlayAnimationButton">
 								<Anchors>
 									<Anchor point="RIGHT" relativeKey="$parent.Pause" relativePoint="LEFT" x="0"/>
 								</Anchors>
@@ -2983,12 +2992,12 @@
 										self.Highlight:Show();
 									</OnShow>
 									<OnLoad>
-										self.tooltip = Narci.L["Play Button Tooltip"];
+										self.tooltipDescription = Narci.L["Play Button Tooltip"];
 									</OnLoad>
 								</Scripts>
 							</Button>
 
-							<Button name="NarciModelControl_AnimationVariationButton" parentKey="Variation" mixin="NarciAnimationVariationSphereMixin" registerForClicks="LeftButtonUp, RightButtonUp, MiddleButtonUp" frameLevel="42">
+							<Button parentKey="Variation" mixin="NarciAnimationVariationSphereMixin" registerForClicks="LeftButtonUp, RightButtonUp, MiddleButtonUp" frameLevel="42">
 								<Size x="24" y="24"/>
 								<Anchors>
 									<Anchor point="RIGHT" relativeKey="$parent.Play" relativePoint="LEFT" x="0"/>
@@ -3121,7 +3130,7 @@
 							<Button parentKey="ResetButton">
 								<Size x="36" y="30"/>
 								<HitRectInsets>
-									<AbsInset left="6" right="6" top="3" bottom="3"/>
+									<AbsInset left="0" right="6" top="3" bottom="3"/>
 								</HitRectInsets>
 								<Anchors>
 									<Anchor point="LEFT" relativePoint="LEFT" x="-5"/>
@@ -3150,14 +3159,14 @@
 								<Scripts>
 									<OnLoad>
 										self.isOn = false;
-										self.tooltip = Narci.L["Reset"];
+										self.tooltipDescription = Narci.L["Reset"];
 									</OnLoad>
 									<OnEnter>
 										self.Highlight:Show();
-										NarciTooltip:ShowTooltip(self);
+										NarciTooltip:ShowButtonTooltip(self);
 									</OnEnter>
 									<OnLeave>
-										NarciTooltip:FadeOut();
+										NarciTooltip:HideTooltip();
 										self.Highlight:Hide();
 									</OnLeave>
 									<OnMouseDown>
@@ -3174,16 +3183,17 @@
 							<OnLoad>
 								self.Label:SetText(Narci.L["Ground Shadow"])
 								self.isOn = false;
-								self.tooltip = {Narci.L["Ground Shadow"], Narci.L["Ground Shadow Tooltip"]};
-								self.guideIndex = 3;
+								self.tooltipHeader = Narci.L["Ground Shadow"];
+								self.tooltipDescription = Narci.L["Ground Shadow Tooltip"];
+								self.tooltipImage = "GroundShadow";
 							</OnLoad>
 							<OnHide function="Narci_GroundShadowToggle_OnHide"/>
 							<OnClick function="Narci_GroundShadowToggle_OnClick"/>
 							<OnEnter>
-								NarciTooltip:ShowTooltip(self);
+								NarciTooltip:ShowButtonTooltip(self);
 							</OnEnter>
 							<OnLeave>
-								NarciTooltip:FadeOut();
+								NarciTooltip:HideTooltip();
 							</OnLeave>
 						</Scripts>	
 					</Button>
@@ -3195,8 +3205,9 @@
 						<Scripts>
 							<OnLoad>
 								self.Label:SetText(Narci.L["Hide Player"]);
-								self.tooltip = {Narci.L["Hide Player"], Narci.L["Hide Player Tooltip"]};
-								self.guideIndex = 4;
+								self.tooltipHeader = Narci.L["Hide Player"];
+								self.tooltipDescription = Narci.L["Hide Player Tooltip"];
+								self.tooltipImage = "HidePlayer";
 							</OnLoad>
 							<OnShow>
 								self.isOn = false;
@@ -3226,14 +3237,15 @@
 						<Scripts>
 							<OnLoad>
 								self.Label:SetText(Narci.L["Transmog Layout3"])
-								self.tooltip = {Narci.L["Transmog Layout3"], Narci.L["Compact Mode Tooltip"]}
-								self.guideIndex = 5;
+								self.tooltipHeader = Narci.L["Transmog Layout3"];
+								self.tooltipDescription = Narci.L["Compact Mode Tooltip"];
+								self.tooltipImage = "CompactMode";
 							</OnLoad>
 							<OnClick function="Narci_Model_UseCompactMode_OnClick"/>
 						</Scripts>
 					</Button>
 
-					<Button name="Narci_Model_CaptureButton">
+					<Button parentKey="CaptureButton" mixin="NarciPhotoModeCaptureButtonMixin">
 						<Size x="55" y="60"/>
 						<HitRectInsets>
 							<AbsInset left="13" right="13" top="17" bottom="7"/>
@@ -3268,12 +3280,11 @@
 							</Anchors>
 						</HighlightTexture>
 						<Scripts>
-							<OnClick function="Narci_Model_CaptureButton_OnClick"/>
-							<OnEnter function="Narci_Model_CaptureButton_OnEnter"/>
-							<OnLeave function="Narci_Model_CaptureButton_OnLeave"/>
-							<OnHide>
-								self:Enable();
-							</OnHide>
+							<OnLoad method="OnLoad"/>
+							<OnEnter method="OnEnter"/>
+							<OnLeave method="OnLeave"/>
+							<OnClick method="OnClick"/>
+							<OnHide method="OnHide"/>
 						</Scripts>
 					</Button>
 				</Frames>
@@ -3299,9 +3310,7 @@
 				</Layers>
 			</Button>
 
-			<Button inherits="Narci_ColorPickerToggleTemplate">
-
-			</Button>
+			<Button inherits="Narci_ColorPickerToggleTemplate"/>
 			
 			<Frame name="Narci_GroundShadowOption" parentKey="GroundShadowOption" setAllPoints="true" hidden="true" clampedToScreen="true" mixin="NarciGroundShadowOptionMixin">
 				<Size x="12" y="8"/>
@@ -3319,9 +3328,6 @@
 					<OnLoad method="OnLoad"/>
 				</Scripts>
 			</Frame>
-
-
-
 		</Frames>
 		<Scripts>
 			<OnLoad method="OnLoad"/>

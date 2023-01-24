@@ -15,7 +15,7 @@ local sin = math.sin;
 local cos = math.cos;
 local atan2 = math.atan2;
 local sqrt = math.sqrt;
-local tooltip = NarciTooltip;
+
 local FadeFrame = NarciFadeUI.Fade;
 local FadeIn = NarciFadeUI.FadeIn;
 local After = C_Timer.After;
@@ -29,11 +29,13 @@ local IsMouseButtonDown = IsMouseButtonDown;
 
 local _G = _G;
 local VIRTUAL_ACTOR = L["Virtual Actor"];
+local WidgetTooltip = NarciTooltip;
 local SettingFrame, BasicPanel;
 local FullSceenChromaKey, FullScreenAlphaChannel;
 local PrimaryPlayerModel, ActorPanel;	--PrimaryPlayerModel
-local AnimationIDEditBox;
+local AnimationIDEditBox, VariationButton;
 local OutfitToggle;
+local CaptureButton
 local ModelContainer;
 
 -----------------------------------
@@ -434,6 +436,7 @@ local RGBRatio2HSV = NarciAPI.RGBRatio2HSV;
 local HSV2RGB = NarciAPI.HSV2RGB;
 
 local LightControl = {};
+addon.PhotoModeLightController = LightControl;
 LightControl.ambientMode = false;
 LightControl.angleZ = pi/4;
 LightControl.angleXY = -3*pi/4;
@@ -857,6 +860,7 @@ end
 local function HideAllModels()
 	for i, model in ipairs(ModelPool) do
 		model:ClearModel();
+		model.animationID = nil;
 	end
 end
 
@@ -1237,12 +1241,12 @@ function Narci_LayerButton_OnLoad(self)
 		self.Icon:SetTexCoord(0.5, 0.703125, 0.703125, 0.890625);
 		self:SetScript("OnClick", SlotLayerButton_OnClick);
 		self:SetScript("OnShow", SlotLayerButton_OnShow);
-		self.tooltip = L["Toggle Equipment Slots"];
+		self.tooltipDescription = L["Toggle Equipment Slots"];
 
 		--Use white font to replace item texts
 		AlphaButton:SetScript("OnClick", TextAlphaLayerButton_OnClick);
 		AlphaButton:SetScript("OnHide", TextAlphaLayerButton_OnHide);
-		AlphaButton.tooltip = L["Toggle Text Mask"];
+		AlphaButton.tooltipDescription = L["Toggle Text Mask"];
 	elseif ID == 2 then
 		--3D Model Visibility
 		self.Label:SetText(L["3D Model"]);
@@ -1251,12 +1255,12 @@ function Narci_LayerButton_OnLoad(self)
 			HighlightButton(f, true);
 			f.isOn = ModelContainer:IsShown();
 		end)
-		self.tooltip = L["Toggle 3D Model"];
+		self.tooltipDescription = L["Toggle 3D Model"];
 
 		--Show chroma key (mask, green/blue screen)
 		AlphaButton:SetScript("OnClick", ModelAlphaLayerButton_OnClick);
 		AlphaButton:SetScript("OnHide", ModelAlphaLayerButton_OnHide);
-		AlphaButton.tooltip = L["Toggle Model Mask"];
+		AlphaButton.tooltipDescription = L["Toggle Model Mask"];
 
 		--Create Chromakey Buttons
 		local ButtonFrame = self.ButtonFrame;
@@ -1634,7 +1638,7 @@ end
 ---------------------------
 ---------------------------
 ---------------------------
-local LayersToBeCaptured = -1;
+local NUM_UNCAPTURED_LAYERS = -1;
 local Temps = {
 	Alpha2 = 1,
 	Vignette = 0,
@@ -1653,7 +1657,7 @@ local function StartAutoCapture()
 	local r1, g1, b1 = 0, 177/255, 64/255;
 	local r2, g2, b2 = 0, 71/255, 187/255;
 
-	if LayersToBeCaptured == 6 then
+	if NUM_UNCAPTURED_LAYERS == 6 then
 		PauseAllModel(true);
 		Temps.TextOverlayVisibility = NarciTextOverlayContainer:IsShown();
 		NarciTextOverlayContainer:Hide();
@@ -1667,36 +1671,36 @@ local function StartAutoCapture()
 		Narci_Model_DarknessSlider:SetValue(0);
 		Narci_Character:Hide();
 		model:Hide();
-	elseif LayersToBeCaptured == 5 then
+	elseif NUM_UNCAPTURED_LAYERS == 5 then
 		model:Show();
 		FullSceenChromaKey:SetColorTexture(0, 0, 0);
 		FullSceenChromaKey:Show();
 		FullSceenChromaKey:SetAlpha(1);
 		LightsOut(true);
-	elseif LayersToBeCaptured == 4 then
+	elseif NUM_UNCAPTURED_LAYERS == 4 then
 		LightsOut(false);
 		model:Show();
 		FullSceenChromaKey:SetColorTexture(r1, g1, b1);
 		FullSceenChromaKey:Show();
 		FullSceenChromaKey:SetAlpha(1);
-	elseif LayersToBeCaptured == 3 then
+	elseif NUM_UNCAPTURED_LAYERS == 3 then
 		model:Show();
 		FullSceenChromaKey:SetColorTexture(r2, g2, b2);
 		FullSceenChromaKey:Show();
 		FullSceenChromaKey:SetAlpha(1);
-	elseif LayersToBeCaptured == 2 then
+	elseif NUM_UNCAPTURED_LAYERS == 2 then
 		model:Hide();
 		FullSceenChromaKey:Hide();
 		FullSceenChromaKey:SetAlpha(0);
 		ShowTextAlphaChannel(true);
 		FullScreenAlphaChannel:SetAlpha(1);
 		FullScreenAlphaChannel:Show();
-	elseif LayersToBeCaptured == 1 then
+	elseif NUM_UNCAPTURED_LAYERS == 1 then
 		ShowTextAlphaChannel(false);
 		FullScreenAlphaChannel:SetAlpha(1);
 		FullScreenAlphaChannel:Show();
 		model:Hide();
-	elseif LayersToBeCaptured == 0 then
+	elseif NUM_UNCAPTURED_LAYERS == 0 then
 		Narci_Model_VignetteSlider:SetValue(Temps.Vignette);
 		Narci_Model_DarknessSlider:SetValue(Temps.Brightness);
 		if Temps.TextOverlayVisibility then
@@ -1708,9 +1712,9 @@ local function StartAutoCapture()
 		if not Temps.HidePlayer then
 			Narci_HidePlayerButton:Click();
 		end
-		LayersToBeCaptured = -1;
-		Narci_Model_CaptureButton.Value:SetText(0);
-		Narci_Model_CaptureButton:Enable();
+		NUM_UNCAPTURED_LAYERS = -1;
+		CaptureButton.Value:SetText(0);
+		CaptureButton:Enable();
 		local button = Narci_SlotLayerButton;
 		button:LockHighlight();
 		button.Label:SetTextColor(0.8, 0.8, 0.8);
@@ -1718,44 +1722,19 @@ local function StartAutoCapture()
 		PauseAllModel(false);
 		return;
 	else
-		LayersToBeCaptured = -1;
-		Narci_Model_CaptureButton.Value:SetText(0);
-		Narci_Model_CaptureButton:Enable();
+		NUM_UNCAPTURED_LAYERS = -1;
+		CaptureButton.Value:SetText(0);
+		CaptureButton:Enable();
 		PauseAllModel(false);
 		return;
 	end
 	After(1, function()
 		Screenshot();
 	end)
-	Narci_Model_CaptureButton.Value:SetText(LayersToBeCaptured);
-	LayersToBeCaptured = LayersToBeCaptured - 1;
+	CaptureButton.Value:SetText(NUM_UNCAPTURED_LAYERS);
+	NUM_UNCAPTURED_LAYERS = NUM_UNCAPTURED_LAYERS - 1;
 end
 
-local NUM_CAPTURE = 6;
-function Narci_Model_CaptureButton_OnClick(self)
-	self:Disable()
-	PauseAllModel(true);
-	tooltip:Hide();
-	Narci_Character:Hide();
-	Narci_VignetteLeft:SetAlpha(0);
-	Narci_VignetteRightSmall:SetAlpha(0);
-	LayersToBeCaptured = NUM_CAPTURE;
-	Screenshot();
-end
-
-function Narci_Model_CaptureButton_OnEnter(self)
-	if LayersToBeCaptured == -1 then
-		Narci_Model_CaptureButton.Value:SetText(NUM_CAPTURE);
-		tooltip:ShowTooltip(self);
-	end
-end
-
-function Narci_Model_CaptureButton_OnLeave(self)
-	if LayersToBeCaptured == -1 then
-		Narci_Model_CaptureButton.Value:SetText(0);
-		tooltip:FadeOut();
-	end
-end
 
 
 --[[
@@ -1932,21 +1911,22 @@ function NarciAnimationVariationSphereMixin:SetVisual(variationID)
 end
 
 function NarciAnimationVariationSphereMixin:OnLoad()
+	VariationButton = self;
 	self.maxVariations = 3;	-- 0, 1, 2, 3
 	self.Icon:SetSize(12, 12);
 	self.Icon:SetTexture("Interface/AddOns/Narcissus/Art/Widgets/ModelAnimation/VariationSphere", nil, nil, "TRILINEAR");
 	self:SetVisual(0);
-	self.tooltip = L["Animation Variation"];
+	self.tooltipDescription = L["Animation Variation"];
 end
 
 function NarciAnimationVariationSphereMixin:OnEnter()
 	self.Icon:SetSize(14, 14);
-	NarciTooltip:ShowTooltip(self, 0, nil, 1);
+	WidgetTooltip:ShowButtonTooltip(self, 0, nil, 1);
 end
 
 function NarciAnimationVariationSphereMixin:OnLeave()
 	self.Icon:SetSize(12, 12);
-	NarciTooltip:FadeOut();
+	WidgetTooltip:HideTooltip();
 end
 
 function NarciAnimationVariationSphereMixin:OnClick(button)
@@ -2011,9 +1991,9 @@ end
 function NarciFavoriteStarMixin:OnEnter()
 	self:SetAlpha(1);
 	if self.isFavorite then
-		NarciTooltip:NewText(L["Favorites Remove"], nil, nil, 1);
+		WidgetTooltip:NewText(self, L["Favorites Remove"], nil, nil, 1);
 	else
-		NarciTooltip:NewText(L["Favorites Add"], nil, nil, 1);
+		WidgetTooltip:NewText(self, L["Favorites Add"], nil, nil, 1);
 	end
 end
 
@@ -2021,7 +2001,7 @@ function NarciFavoriteStarMixin:OnLeave()
 	if not self.isFavorite then
 		self:SetAlpha(0.6);
 	end
-	NarciTooltip:FadeOut();
+	WidgetTooltip:HideTooltip();
 end
 
 function NarciFavoriteStarMixin:OnMouseDown()
@@ -2177,7 +2157,7 @@ function NarciModelControl_ColorPaneSwitch_OnClick(self)
 	local Sliders = self:GetParent().ColorSliders;
 	if not self.ShowSlider then
 		--Presets
-		self.tooltip = L["Show Color Sliders"];
+		self.tooltipDescription = L["Show Color Sliders"];
 		FadeFrame(Sliders, 0.1, 0);
 		FadeFrame(Colors, 0.1, 1);
 		self.Icon:SetTexCoord(0, 0.25, 0.25, 0.5);
@@ -2187,7 +2167,7 @@ function NarciModelControl_ColorPaneSwitch_OnClick(self)
 		CPSA:Show();
 	else
 		--Sliders
-		self.tooltip = L["Show Color Presets"];
+		self.tooltipDescription = L["Show Color Presets"];
 		local ExtraHeight = 12;
 		FadeFrame(Sliders, 0.1, 1);
 		FadeFrame(Colors, 0.1, 0);
@@ -2468,7 +2448,7 @@ local function SetModelActive(index)
 	shadowFrame.Option:SetAlpha(1);
 	shadowFrame.Option:Show();
 	AnimationIDEditBox:SetAnimationID(model.animationID or 0);
-	NarciModelControl_AnimationVariationButton:SetVisual(model.variationID or 0);
+	VariationButton:SetVisual(model.variationID or 0);
 
 	--Update Virtual Toggle Status
 	local VirtualToggle = Narci_VirtualActorToggle;
@@ -2844,14 +2824,14 @@ end
 
 function NarciGenericModelMixin:OnAnimFinished()
 	--Disabled because unsheathing weapon will stop animation from playing
-	--[[
+	
 	if self.animationID then
 		local id = self.animationID;
 		if id ~= 0 and id ~= 804 and id ~= 808 then
 			self:SetAnimation(self.animationID, self.variationID);
 		end
 	end
-	--]]
+	
 end
 
 local inventoryTypeSlot = {
@@ -3509,6 +3489,7 @@ local function RemoveActor(actorIndex)
 		model.customTransmogList = nil;
 		model.GroundShadow:Hide();
 		model.freezedFrame = 0;
+		model.animationID = nil;
 		wipe(model.AppliedVisuals);
 	end
 
@@ -3561,7 +3542,7 @@ local function CustomModelPosition(model, raceID, genderID)
 end
 
 function Narci_GenderButton_OnLoad(self)
-	self.tooltip = Narci.L["Sex Change Tooltip"];
+	self.tooltipDescription = Narci.L["Sex Change Tooltip"];
 	local _, genderID = GetUnitRaceIDAndSex("player");
 	SetGenderIcon(genderID);
 end
@@ -3702,7 +3683,7 @@ function Narci_ActorButton_OnClick(self)
 		FadeFrame(Narci_RaceOptionFrame, 0.2, 0);
 	end
 
-	NarciTooltip:JustHide();
+	WidgetTooltip:HideTooltip();
 end
 
 local function HideGroundShadowControl()
@@ -4247,7 +4228,7 @@ function NarciModelIndexButtonMixin:OnLeave()
 		self.LabelColor:Hide();
 		self.Status:Hide();
 	end
-	NarciTooltip:FadeOut();
+	WidgetTooltip:HideTooltip();
 	local PopUp = self:GetParent().PopUp;
 	if not PopUp:IsMouseOver() then
 		FadeFrame(PopUp, 0.15, 0);
@@ -4349,6 +4330,7 @@ NarciModelSettingsMixin = {};
 function NarciModelSettingsMixin:OnLoad()
 	SettingFrame = self;
 	BasicPanel = self.BasicPanel;
+
 	self:RegisterForDrag("LeftButton");
 	NarciAPI_CreateFadingFrame(self);
 
@@ -4483,12 +4465,6 @@ function NarciOutfitToggleMixin:EnableButton()
 end
 
 ----------------------------------------------------
-local function InitializeScripts()
-	local CaptureButton = Narci_Model_CaptureButton;
-	CaptureButton.tooltip = {L["Save Layers"], L["Save Layers Tooltip"]};
-	CaptureButton.guideIndex = 6;
-end
-
 local ScreenshotListener = CreateFrame("Frame");
 ScreenshotListener:RegisterEvent("SCREENSHOT_STARTED")
 ScreenshotListener:RegisterEvent("SCREENSHOT_SUCCEEDED")
@@ -4500,7 +4476,7 @@ ScreenshotListener:SetScript("OnEvent",function(self,event,...)
 		SettingFrame:SetAlpha(0);
 	elseif event == "SCREENSHOT_SUCCEEDED" then
 		SettingFrame:SetAlpha(Temps.Alpha2);
-		if LayersToBeCaptured >= 0 then
+		if NUM_UNCAPTURED_LAYERS >= 0 then
 			After(1.5, function()
 				StartAutoCapture();
 			end)
@@ -4514,7 +4490,6 @@ ScreenshotListener:SetScript("OnEvent",function(self,event,...)
 		InitializePlayerInfo(1);
 		UpdateActorName(1);
 		CreateRaceButtonList(Narci_RaceOptionFrame, "Narci_RaceOptionButton_Template", RaceList, 6);
-		InitializeScripts();
 		After(1, function()
 			CacheModel();
 		end)
@@ -4548,6 +4523,19 @@ function Narci:GetActiveActor()
 	return ModelFrames[ACTIVE_MODEL_INDEX]
 end
 
+function Narci:LoadOutfitSlashCommand(msg)
+	msg = string.gsub(msg, "/outfit%s+", "");
+
+	local itemTransmogInfoList = TransmogUtil.ParseOutfitSlashCommand(msg);
+	local model = ModelFrames[ACTIVE_MODEL_INDEX];
+
+	if itemTransmogInfoList then
+		model:Undress();
+		for slotID, info in ipairs(itemTransmogInfoList) do
+			model:SetItemTransmogInfo(info, slotID);
+		end
+	end
+end
 
 function NarciPhotoModeAPI:SetMaxAnimationID(value)
 	if value > maxAnimationID then
@@ -4696,6 +4684,45 @@ function NarciPhotoModeLightDirectionControllerMixin:OnLoad()
 end
 
 
+NarciPhotoModeCaptureButtonMixin = {};
+
+function NarciPhotoModeCaptureButtonMixin:OnLoad()
+	CaptureButton = self;
+	self.numCaptures = 6;
+	self.tooltipHeader = L["Save Layers"];
+	self.tooltipDescription = L["Save Layers Tooltip"];
+	self.tooltipImage = "SaveLayers";
+end
+
+function NarciPhotoModeCaptureButtonMixin:OnClick()
+	self:Disable()
+	PauseAllModel(true);
+	WidgetTooltip:Hide();
+	Narci_Character:Hide();
+	Narci_VignetteLeft:SetAlpha(0);
+	Narci_VignetteRightSmall:SetAlpha(0);
+	NUM_UNCAPTURED_LAYERS = self.numCaptures;
+	Screenshot();
+end
+
+function NarciPhotoModeCaptureButtonMixin:OnEnter()
+	if NUM_UNCAPTURED_LAYERS == -1 then
+		self.Value:SetText(self.numCaptures);
+		WidgetTooltip:ShowButtonTooltip(self);
+	end
+end
+
+function NarciPhotoModeCaptureButtonMixin:OnLeave()
+	if NUM_UNCAPTURED_LAYERS == -1 then
+		self.Value:SetText(0);
+		WidgetTooltip:HideTooltip();
+	end
+end
+
+function NarciPhotoModeCaptureButtonMixin:OnHide()
+	self:Enable();
+end
+
 
 local function ShrinkModelHitRect(offsetX)
 	HIT_RECT_OFFSET = offsetX;
@@ -4809,3 +4836,30 @@ end
 /script local f=function(s)	s:SetAnimation(s.animationID or 0,s.variationID or 0) end;local m;for i=1,8 do m=_G["NarciPlayerModelFrame"..i] if m then m:SetScript("OnAnimFinished", f) end end
 /script local f=function(s) if s then s:SetScript("OnAnimFinished",function() s:SetAnimation(s.animationID or 0,s.variationID or 0) end) end end;for i=1,8 do f(_G["NarciPlayerModelFrame"..i]) f(_G["NarciNPCModelFrame"..i]) end
 --]]
+
+local Spinner;
+function Narci.SpinCurrentActor()
+	local actor = Narci:GetActiveActor();
+	if actor then
+		if not Spinner then
+			Spinner = CreateFrame("Frame");
+			Spinner:SetScript("OnHide", function(f)
+				f:Hide();
+			end);
+		end
+	end
+	Spinner.t = 0;
+	Spinner.yaw = actor:GetFacing();
+	Spinner:Show();
+	Spinner:SetParent(actor);
+	local pi2 = math.pi*2;
+	local t = 6;
+	local dA = pi2/t;
+	Spinner:SetScript("OnUpdate", function(f, elapsed)
+		f.yaw = f.yaw + elapsed*dA;
+		if f.yaw > pi2 then
+			f.yaw = f.yaw - pi2;
+		end
+		actor:SetFacing(f.yaw);
+	end);
+end

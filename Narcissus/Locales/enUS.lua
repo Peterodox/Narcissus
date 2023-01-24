@@ -284,8 +284,9 @@ L["Toggle Model Mask"] = "Toggle model mask";
 L["Show Color Sliders"] = "Show color sliders";
 L["Show Color Presets"] = "Show color presets";
 L["Keep Current Form"] = "Hold "..NARCI_MODIFIER_ALT.." to keep shapeshift form.";
-L["Race Change Tooltip"] = "Change to another playerable race";
-L["Sex Change Tooltip"] = "Change sex";
+L["Race Sex Change Bug"] = NARCI_COLOR_RED_MILD.."\nThis feature has a bug that cannot be fixed at the moment.|r";
+L["Race Change Tooltip"] = "Change to another playerable race"..L["Race Sex Change Bug"];
+L["Sex Change Tooltip"] = "Change sex"..L["Race Sex Change Bug"];
 L["Show More options"] = "Show More options";
 L["Show Less Options"] = "Show Less Options";
 L["Shadow"] = "Shadow";
@@ -692,3 +693,12 @@ L["Auto Filter Case"] = "Automatically filters items when you...";
 L["Send Mails"] = "Send Mails";
 L["Create Auctions"] = "Create Auctions";
 L["Socket Items"] = "Socket Items";
+
+--Perks Program--
+L["Perks Program Unclaimed Tender Format"] = "- You have |cffffffff%s|r uncollected tender in the Collector's Cache.";     --PERKS_PROGRAM_UNCOLLECTED_TENDER
+L["Perks Program Unearned Tender Format"] = "- You have |cffffffff%s|r unearned tender from the Traveler's Log.";     --PERKS_PROGRAM_ACTIVITIES_UNEARNED
+L["Perks Program Item Added In Format"] = "Added in %s";
+L["Perks Program Item Unavailable"] = "This item is not currently available.";
+L["Perks Program See Wares"] = "Show wares";
+L["Perks Program No Cache Alert"] = "Speak with the Trading Posts vendors to see this month\'s wares.";
+L["Perks Program Using Cache Alert"] = "Using the cache from your last visit. The price data may not be accurate.";

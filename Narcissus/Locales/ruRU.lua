@@ -1,4 +1,4 @@
---Coutesy of ZamestoTV. Thank you!    --Translator: ZamestoTV as of 1.3.3
+--Coutesy of ZamestoTV. Thank you!    --Translator: ZamestoTV as of 1.3.7
 
 if not (GetLocale() == "ruRU") then
     return;
@@ -294,13 +294,13 @@ L["Shadow"] = "Тень";
 L["Light Source"] = "Источник света";
 L["Light Source Independent"] = "Свободный";
 L["Light Source Interconnected"] = "Не свободный";
-
-
+L["Adjustment"] = "Adjustment";
+								 						   
 --Animation Browser--
 L["Animation"] = "Анимация";
 L["Animation Tooltip"] = "Просмотр, поиск анимации";
 L["Animation Variation"] = "Вариация";
-L["Reset Slider"] = "Reset to zero";    --reset the value of the slider to zero
+L["Reset Slider"] = "Сбросить до нуля";    --reset the value of the slider to zero
 
 
 --Spell Visual Browser--
@@ -344,6 +344,11 @@ L["Add to MogIt Wishlist"] = "Добавить в список желаний Mo
 L["Show Taint Solution"] = "Как решить эту проблему?";
 L["Taint Solution Step1"] = "1. Перезагрузите свой интерфейс.";
 L["Taint Solution Step2"] = "2. "..NARCI_MODIFIER_CONTROL.." + ЛКМ по предмету, чтобы открыть гардеробную.";
+L["Switch Form To Visage"] = "Переключить на форму |cffffffff Лицо|r";
+L["Switch Form To Dracthyr"] = "Переключить на форму |cffffffff Драктир|r";
+L["Switch Form To Worgen"] = "Переключить на форму |cffffffff Ворген|r";
+L["Switch Form To Human"] = "Переключить на форму |cffffffff Человек|r";
+L["InGame Command"] = "Внутриигровая команда";																 
 
 --NPC Browser--
 NARCI_NPC_BROWSER_TITLE_LEVEL = ".*%?%?.?";      --Level ?? --Use this to check if the second line of the tooltip is NPC's title or unit type
@@ -417,12 +422,14 @@ L["Corruption Effect Format4"] = "Поражение потусторонней 
 L["Corruption Effect Format5"] = "|cffffffff%s%%|r Урон/исцеление пропорционально уровню порчи.";
 
 --Text Overlay Frame
-L["Text Overlay Button Tooltip1"] = "Простое облако разговора";
+L["Text Overlay"] = "Text Overlay";
+L["Text Overlay Button Tooltip1"] = "Простое облако разговора";															
 L["Text Overlay Button Tooltip2"] = "Расширенное облако разговора";
 L["Text Overlay Button Tooltip3"] = "Говорящая голова";
 L["Text Overlay Button Tooltip4"] = "Плавающий субтитр";
 L["Text Overlay Button Tooltip5"] = "Субтитры с черной полосой";
 L["Visibility"] = "Видимость";
+L["Photo Mode Frame"] = "Рамка";    --Frame for photo													 
 
 --Achievement Frame--
 L["Use Achievement Panel"] = "Использовать в качестве основного";
@@ -438,7 +445,18 @@ L["Show Dates"] = "Показать даты";
 L["Hide Dates"] = "Скрыть даты";
 L["Pinned Entries"] = "Закрепленные записи";
 L["Pinned Entry Format"] = "Закреплено  %d/%d";
-
+L["Create A New Entry"] = "Создать новую запись";
+L["Custom Achievement"] = "Пользовательское достижение";
+L["Custom Achievement Description"] = "Это описание.";
+L["Custom Achievement Select And Edit"] = "Выберите запись для редактирования.";
+L["Cancel"] = "Отмена";
+L["Color"] = "Цвет";
+L["Icon"] = "Иконка";
+L["Description"] = "Описание";
+L["Points"] = "Точки";
+L["Reward"] = "Вознаграждение";
+L["Date"] = "Дата";
+L["Click And Hold"] = "Нажмите и удерживайте";								   
 
 --Barbershop--
 L["Save New Look"] = "Сохранить новый вид";
@@ -658,6 +676,13 @@ L["Create Macro Instruction 4"] = "Перетащите этот макрос н
 L["Create Macro In Combat"] = "Невозможно создать макрос во время боя.";
 L["Create Macro Next"] = "СЛЕДУЮЩИЙ";
 L["Create Marco Created"] = "СОЗДАННЫЙ";
+L["Place UI"] = "Разместите UI...";
+L["Place Talent UI Right"] = "справа от бумажной куклы";
+L["Place Talent UI Bottom"] = "Под бумажной куклой";
+L["Loadout"] = "Выгрузка";
+L["No Loadout"] = "Нет загрузки";
+L["PvP"] = "PvP";
+
 
 --Bag Item Filter--
 L["Bag Item Filter"] = "Фильтр предметов сумки";

@@ -2734,12 +2734,12 @@ function NarciRadarChartMixin:SetValue(c, h, m, v, manuallyInPutSum)
 	if h then
 		haste = h;
 	else
-		h = GetCombatRating(CR_HASTE_MELEE) or 0;
+		haste = GetCombatRating(CR_HASTE_MELEE) or 0;
 	end
 	if m then
 		mastery = m;
 	else
-		m = GetCombatRating(CR_MASTERY) or 0;
+		mastery = GetCombatRating(CR_MASTERY) or 0;
 	end
 	if v then
 		versatility = v;
@@ -3389,6 +3389,7 @@ local function ActivateMogMode()
 		ShowAttributeButton();
 		MOG_MODE_OFFSET = 0;
 		MsgAlertContainer:Hide();
+		RadarChart:SetValue();
 	end
 end
 
@@ -3703,6 +3704,9 @@ do
 			end
 		elseif msg == "resetposition" then
 			MiniButton:ResetPosition();
+		elseif string.find(msg, "/outfit") then
+			Narci:LoadOutfitSlashCommand(msg);
+			--/narci /outfit v1 50109,182541,0,77345,182521,2633,0,181613,182527,79067,182538,84323,80378,-1,0,77903,0
 		else
 			local color = "|cff40C7EB";
 			print(color.."Show Minimap Button:|r /narci minimap");
@@ -4440,7 +4444,7 @@ do
 		NarciScreenshotToolbar:SetDefaultScale(scale);
 		Narci_Character:SetScale(scale);
 		Narci_Attribute:SetScale(scale);
-		NarciTooltip:SetCustomScale(scale);
+		NarciTooltip:SetScale(scale);
 	end
 
 	function SettingFunctions.SetItemNameTextHeight(height, db)
