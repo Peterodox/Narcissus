@@ -13,8 +13,9 @@ local sin = math.sin;
 local sqrt = math.sqrt;
 local atan2 = math.atan2;
 
-local MiniButton;
+local GetMouseFocus = GetMouseFocus;
 
+local MiniButton;
 
 local DURATION_LOCK = 1;
 
@@ -87,6 +88,8 @@ NarciMinimapButtonMixin = {};
 
 function NarciMinimapButtonMixin:CreatePanel()
 	local Panel = self.Panel;
+	Panel.narciWidget = true;
+
 	local button;
 	local buttons = {};
 
@@ -139,6 +142,10 @@ function NarciMinimapButtonMixin:CreatePanel()
 	Panel:SetScript("OnLeave", function(frame)
 		if not frame:IsMouseOver() then
 			self:ShowPopup(false);
+		else
+			if not self:IsFocused() then
+				self:ShowPopup(false);
+			end
 		end
 	end)
 	Panel:SetScript("OnHide", function(frame)
@@ -250,7 +257,7 @@ function NarciMinimapButtonMixin:CreatePanel()
 			FadeFrame(ClipFrame, 0.2, 0);
 			ResetCursor();
 		end
-		if not Panel:IsMouseOver() then
+		if not self:IsFocused() then
 			self:ShowPopup(false);
 		end
 	end
@@ -277,6 +284,7 @@ function NarciMinimapButtonMixin:CreatePanel()
 		button.BlackText:SetParent(ClipFrame);
 		button.index = i;
 		button.func = func[i];
+		button.narciWidget = true;
 
 		if i == 1 then
 			button:SetPoint("TOP", Panel.Middle, "TOP", 0, button1OffsetY);
@@ -306,6 +314,19 @@ function NarciMinimapButtonMixin:CreatePanel()
 	self.CreatePanel = nil;
 end
 
+function NarciMinimapButtonMixin:IsFocused()
+	if self:IsShown() then
+		if self.Panel:IsShown()then
+			if self.Panel:IsMouseOver() then
+				local obj = GetMouseFocus();
+				if obj and obj.narciWidget then
+					return true
+				end
+			end
+		end
+	end
+end
+
 function NarciMinimapButtonMixin:OnLoad()
 	MiniButton = self;
     
@@ -314,7 +335,7 @@ function NarciMinimapButtonMixin:OnLoad()
 	self:RegisterForClicks("LeftButtonUp","RightButtonUp","MiddleButtonUp");
 	self:RegisterForDrag("LeftButton");
 	self.endAlpha = 1;
-
+	self.narciWidget = true;
 	self:CreatePanel();
 
 	--Create Popup Delay
@@ -606,10 +627,8 @@ function NarciMinimapButtonMixin:OnLeave()
 	if self.PositionUpdator:IsShown() then
 		return;
 	end
-	if self:IsShown() then
-		if not (self.Panel:IsMouseOver() and self.Panel:IsShown() ) then
-			self:ShowPopup(false);
-		end
+	if not self:IsFocused() then
+		self:ShowPopup(false);
 	else
 		self.Color:SetAlpha(0);
 	end

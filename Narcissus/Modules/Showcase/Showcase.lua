@@ -1498,7 +1498,9 @@ local function UpdateMountActor(resetModel)
 
         MountActor:Show();
         MountActor:SetYaw(0);
-        MountActor:SetModelByCreatureDisplayID(creatureDisplayID);
+
+        local showCustomization = true;
+        MountActor:SetModelByCreatureDisplayID(creatureDisplayID, showCustomization);
         MountActor.creatureName = C_MountJournal.GetMountInfoByID(mountID);
 
         if (isSelfMount) then

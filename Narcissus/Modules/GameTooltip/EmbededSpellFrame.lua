@@ -3,6 +3,54 @@ local GetSpellInfo = GetSpellInfo;
 local GetSpellBaseCooldown = GetSpellBaseCooldown;
 
 
+local SpellSetupFuncs = {};
+
+local function Setup_RubyWhelpShell(tooltip)
+    --Show whelp training progress
+    local info, value;
+
+    for i = 2148, 2153 do
+        info = C_CurrencyInfo.GetCurrencyInfo(i);
+        if info then
+            value = info.quantity;
+            if value and value > 0 then
+                tooltip:AddDoubleLine(info.name, value, 1, 0.82, 0, -12);
+            end
+        end
+    end
+end
+SpellSetupFuncs[389843] = Setup_RubyWhelpShell;
+
+local function Setup_PrimalRitualShell(tooltip, spellFrame)
+    --390655 Stone (Aborb)
+    --390899 Wind (Mastery)
+    --390835 Fire (Damage)
+    --390869 Sea (Heal)
+
+    local spellIDs = {390835, 390655, 390899, 390869}
+    local GetInfo = C_UnitAuras.GetPlayerAuraBySpellID;
+    local auraInfo, auraInstanceID;
+
+    for _, id in ipairs(spellIDs) do
+        auraInfo = GetInfo(id);
+        if auraInfo then
+            spellFrame.Icon:SetTexture(auraInfo.icon);
+            auraInstanceID = auraInfo.auraInstanceID;
+            tooltip:AddLine(auraInfo.name, 1, 1, 1, -12);
+            break
+        end
+    end
+
+    if auraInstanceID then
+        local info = C_TooltipInfo.GetUnitBuffByAuraInstanceID("player", auraInstanceID);
+        if info and info.lines and info.lines[2] then
+            tooltip:AddLine(info.lines[2].args[2].stringVal, 1, 0.82, 0);
+        end
+    end
+end
+SpellSetupFuncs[390643] = Setup_PrimalRitualShell;
+
+
 NarciEquipmentSpellFrameMixin = {};
 
 function NarciEquipmentSpellFrameMixin:SetFrameWidth(width)
@@ -14,9 +62,10 @@ end
 
 function NarciEquipmentSpellFrameMixin:SetSpellEffect(link, effectText, isActive, cooldownText)
     local spellName, spellID = GetItemSpell(link);
-    --print(effectText)
+
     self.spellID = spellID;
     self:SetSpellInactive(not isActive and ITEM_LEGACY_INACTIVE_EFFECTS);
+
     if spellID then
         if not spellName then
             self:GetParent():QueryData();
@@ -64,9 +113,17 @@ function NarciEquipmentSpellFrameMixin:SetSpellEffect(link, effectText, isActive
 
     local frameHeight = self:GetTop() - (self.SpellEffect:GetBottom() or 0) + (self.bottomPadding or 0);
     local frameWidth = math.max(34 + self.SpellName:GetWrappedWidth(), self.SpellEffect:GetWrappedWidth());
-    self:GetParent():EvaluateMaxWidth(frameWidth);
+
+    local tooltip = self:GetParent();
+
+    tooltip:EvaluateMaxWidth(frameWidth);
     self:SetHeight(frameHeight);
     self:Show();
+    tooltip:InsertFrame(self);
+
+    if spellID and SpellSetupFuncs[spellID] then
+        SpellSetupFuncs[spellID](tooltip, self);
+    end
 end
 
 function NarciEquipmentSpellFrameMixin:Clear()

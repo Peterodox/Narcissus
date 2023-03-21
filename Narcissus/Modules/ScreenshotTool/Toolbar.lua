@@ -96,9 +96,9 @@ local CVAR_GRAPHICS_VALUES = {
 	["graphicsTextureFiltering"] = 6,
 	["graphicsProjectedTextures"] = 2,
 
-	["graphicsViewDistance"] = 10,
-	["graphicsEnvironmentDetail"] = 10,
-	["graphicsGroundClutter"] = 10,
+	["graphicsViewDistance"] = 9,
+	["graphicsEnvironmentDetail"] = 9,
+	["graphicsGroundClutter"] = 9,
 
 	["graphicsShadowQuality"] = 6,
 	["graphicsLiquidDetail"] = 4,

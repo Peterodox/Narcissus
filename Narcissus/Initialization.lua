@@ -1,7 +1,7 @@
-local NARCI_VERSION_INFO = "1.3.8";
+local NARCI_VERSION_INFO = "1.4.0";
 
-local VERSION_DATE = 1674575732;
-local CURRENT_VERSION = 10308;
+local VERSION_DATE = 1679380768;
+local CURRENT_VERSION = 10400;
 local PREVIOUS_VERSION = CURRENT_VERSION;
 local TIME_SINCE_LAST_UPDATE = 0;
 
@@ -78,6 +78,8 @@ local DefaultValues = {
     TalentTreeAnchor = 1,                        --Relative Position 1.Right 2.Bottom
     TalentTreeUseClassBackground = false,
     TalentTreeBiggerUI = false,
+
+    LoopAnimation = false,                      --Photo Mode Loop Animation
 
     --# NPC
     SearchRelatives = false,                    --Search for NPCs with the same last name
@@ -227,6 +229,10 @@ local function LoadDatabase()
 end
 
 local function LoadSettings()
+    if not NarcissusDB then
+        LoadDatabase();
+    end
+
     local db = NarcissusDB;
 
     for _, func in pairs(SettingFunctions) do

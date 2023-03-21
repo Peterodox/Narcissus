@@ -672,8 +672,6 @@ function NarciBagItemSearchPopupButtonMixin:OnClick()
         MainFrame:HideUI();
     end
 
-
-
     if notSearch then
         
     else

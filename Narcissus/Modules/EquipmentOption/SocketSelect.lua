@@ -1,6 +1,7 @@
 local _, addon = ...
 
 local CloseSocketingFrame = addon.CloseSocketingFrame;
+local GemDataProvider = addon.GemDataProvider;
 
 local FadeFrame = NarciFadeUI.Fade;
 local GetSocketTypes = GetSocketTypes;
@@ -111,11 +112,11 @@ end
 
 function NarciSocketSelectButtonMixin:OnClick()
     self:Select();
-    MainFrame:ShowGemList(self.socketTypeName);
     MainFrame:SetSocketOrderID(self.id);
+    MainFrame:ShowGemList(self.socketTypeName);
 end
 
-function NarciSocketSelectButtonMixin:SetSocketTypeByName(englishName)
+function NarciSocketSelectButtonMixin:SetSocketType(englishName)
     local typeName;
     if englishName then
         typeName = _G["EMPTY_SOCKET_"..string.upper(englishName)];
@@ -143,7 +144,14 @@ function NarciSocketSelectMixin:SetupFromItemLink(itemLink)
     local socektInfo = NarciAPI.GetItemSocketInfo(itemLink);
     local numSockets = (socektInfo and #socektInfo) or 0;
 
+    local selectedSocketID = MainFrame:GetSocketOrderID() or 1;
+
+
     if numSockets > 0 then
+        if selectedSocketID > numSockets then
+            selectedSocketID = 1
+        end
+
         local socketName, icon, gemLink, socketType;
 
         for i = 1, numSockets do
@@ -160,10 +168,11 @@ function NarciSocketSelectMixin:SetupFromItemLink(itemLink)
                 SocketButtons[i].gemLink = gemLink;
                 anyPending = true;
             else
+                socketType = GemDataProvider:GetSocketTypeByLocalizedName(socketName) or socketType;
                 SocketButtons[i].Icon:SetTexCoord(0, 1, 0, 1);
                 SocketButtons[i].gemName = nil;
                 SocketButtons[i].gemLink = nil;
-                SocketButtons[i]:SetSocketTypeByName(socketType);
+                SocketButtons[i]:SetSocketType(socketType);
                 if not selectedSocketType then
                     selectedSocketType = socketType;
                 end
@@ -184,9 +193,9 @@ function NarciSocketSelectMixin:SetupFromItemLink(itemLink)
         else
             self:Hide();
         end
-        MainFrame:SetSocketOrderID(1);
+        MainFrame:SetSocketOrderID(selectedSocketID);
     else
-        MainFrame:SetSocketOrderID(1);
+        MainFrame:SetSocketOrderID(selectedSocketID);
         self:Hide();
         return
     end
@@ -201,7 +210,7 @@ function NarciSocketSelectMixin:SetupFromItemLink(itemLink)
         for i = 1, numSockets do
             if SocketButtons[i] then
                 socketType = GetSocketTypes(i);
-                SocketButtons[i]:SetSocketTypeByName(socketType);
+                SocketButtons[i]:SetSocketType(socketType);
                 if not selectedSocketType then
                     selectedSocketType = socketType;
                 end
@@ -225,7 +234,7 @@ end
 function NarciSocketSelectMixin:SetTypeHomogeneous(numSockets, typeName)
     for i = 1, numSockets do
         if SocketButtons[i] then
-            SocketButtons[i]:SetSocketTypeByName(typeName);
+            SocketButtons[i]:SetSocketType(typeName);
         end
     end
     for i = numSockets + 1, 3 do

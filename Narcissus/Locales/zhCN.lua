@@ -541,6 +541,7 @@ L["Item Socketing Tooltip"] = "双击左键进行镶嵌";
 L["No Available Gem"] = "|cffd8d8d8没有可镶嵌的宝石|r";
 L["Missing Enchant Alert"] = "附魔提示";
 L["Missing Enchant"] = NARCI_COLOR_RED_MILD.."缺失附魔".."|r";
+L["Socket Occupied"] = "插槽已被占用";
 
 --Statistics--
 S["Narcissus Played"] = "Narcissus使用时长";
@@ -572,12 +573,13 @@ L["Raise Level"] = "置于顶层";
 L["Lower Level"] = "取消置顶";
 L["Show Mount"] = "显示坐骑";
 L["Hide Mount"] = "隐藏坐骑";
-L["Loop Animation On"] = "循环播放";
+L["Loop Animation On"] = "循环播放动画";
 L["Click To Continue"] = "点击以继续";
 L["Showcase Splash 1"] = "使用Narcissus和录屏软件来制作转台动画以展示你的幻化。";
 L["Showcase Splash 2"] = "点击下方按钮来复制试衣间中的物品。";
 L["Showcase Splash 3"] = "点击下方按钮可让你的角色旋转起来。";
 L["Showcase Splash 4"] = "录制屏幕然后将视频转换为GIF动图。";
+L["Loop Animation"] = "循环播放动画";
 
 --Item Sets--
 L["Cycle Spec"] = "按Tab键切换专精";

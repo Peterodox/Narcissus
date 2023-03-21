@@ -57,6 +57,8 @@ local function PrimarySearchboxTextChanged(f, userInput)
     end
 end
 
+local PRIMARY_BAG_OPENED = false;
+
 local function PrimaryBag_OnShow()
     TriggerEvent("PRIMARY_BAG_OPEN");
 end
@@ -64,6 +66,12 @@ end
 local function PrimaryBag_OnHide()
     TriggerEvent("PRIMARY_BAG_CLOSED");
 end
+
+local function IsPrimaryBagOpened()
+    return PRIMARY_BAG_OPENED
+end
+
+API.IsPrimaryBagOpened = IsPrimaryBagOpened;
 
 local function Bagnon_FrameNew(frame, id)
     if id == "inventory" then
@@ -109,7 +117,7 @@ end
 local function FindPrimarySearchBox()
     local BagAddonFrames = {
         --{addonName = "Bagnon", callback = Bagnon_Hook },  --It seems impossible to support Bagnon: It rearanges itembuttons and removes their slotID, so we can't iterate them
-        --{addonName = "ElvUI", bagName = "ElvUI_ContainerFrame", editboxName = "ElvUI_ContainerFrameEditBox", alienSearch = true},   --Addon Name, Bag Name, SearchBox Name
+        {addonName = "ElvUI", bagName = "ElvUI_ContainerFrame", editboxName = "ElvUI_ContainerFrameEditBox", alienSearch = true},   --Addon Name, Bag Name, SearchBox Name
     };
 
     local _G = _G;
@@ -117,6 +125,7 @@ local function FindPrimarySearchBox()
     local addonName;
     local primaryBag;
     local alienSerach;  --addon is using its own search method
+    local searchBox;
 
     for i, addonData in ipairs(BagAddonFrames) do
         --print(addonData.addonName, IsAddOnLoaded(addonData.addonName))
@@ -125,10 +134,14 @@ local function FindPrimarySearchBox()
                 addonData.callback();
                 return
             end
-            addonName = addonData.addonName;
             primaryBag = _G[addonData.bagName];
-            PrimarySearchBox = (addonData.editboxName and _G[ addonData.editboxName ]) or (addonData.editboxKey and _G[addonData.bagName][addonData.editboxKey]);
-            alienSerach = addonData.alienSearch;
+            searchBox = (addonData.editboxName and _G[ addonData.editboxName ]) or (addonData.editboxKey and _G[addonData.bagName][addonData.editboxKey]);
+            if primaryBag and searchBox then
+                --Check if the bag module in ElvUI is enabled
+                addonName = addonData.addonName;
+                PrimarySearchBox = searchBox;
+                alienSerach = addonData.alienSearch;
+            end
             break
         end
     end
@@ -138,7 +151,13 @@ local function FindPrimarySearchBox()
     end
 
     if not primaryBag then
-        primaryBag = _G["ContainerFrame1"];
+        local useCombinedBags = C_CVar.GetCVarBool("combinedBags");
+
+        if useCombinedBags then
+            primaryBag = _G["ContainerFrameCombinedBags"];
+        else
+            primaryBag = _G["ContainerFrame1"];
+        end
     end
 
     if primaryBag then
@@ -204,6 +223,25 @@ end
 function API.IsSocketingItem()
     return IsFrameOpened("ItemSocketingFrame");
 end
+
+
+local GetSocketTypes = GetSocketTypes;
+local HasExtraActionBar = HasExtraActionBar;
+local GetActionInfo = GetActionInfo;
+
+function API.IsUsingPrimodialStoneSystem()
+    if GetSocketTypes(1) == "Primordial" then
+        return true
+    end
+
+    if HasExtraActionBar() then
+        local actionType, id, subType = GetActionInfo(217);
+        if id == 405721 then
+            return true
+        end
+    end
+end
+
 
 function API.AddToEventListner(frame)
     for i, f in ipairs(EventListener.callbackList) do

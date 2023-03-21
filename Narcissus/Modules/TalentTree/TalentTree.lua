@@ -522,6 +522,11 @@ function NarciMiniTalentTreeMixin:ShowConfig(configID, isPreviewing)
 
     local specID = DataProvider:GetCurrentSpecID();
     local configInfo = C_Traits.GetConfigInfo(configID);
+
+    if not configInfo then
+        return
+    end
+
     local treeID = configInfo.treeIDs[1]
 	local nodeIDs = C_Traits.GetTreeNodes(treeID);
     self.treeID = treeID;
@@ -2036,15 +2041,6 @@ EventCenter:RegisterEvent("TRAIT_CONFIG_CREATED");
 EventCenter:RegisterEvent("CONFIG_COMMIT_FAILED");
 EventCenter:RegisterEvent("ACTIVE_COMBAT_CONFIG_CHANGED");
 
-EventCenter.dynamicEvents = {
-    "TRAIT_TREE_CHANGED", "TRAIT_NODE_CHANGED", "TRAIT_NODE_CHANGED_PARTIAL", "TRAIT_NODE_ENTRY_UPDATED", "TRAIT_CONFIG_UPDATED", "ACTIVE_PLAYER_SPECIALIZATION_CHANGED", "CONFIG_COMMIT_FAILED",
-
-    --TRAIT_NODE_CHANGED: Fires multiple times when cancel switching talent
-    --TRAIT_TREE_CHANGED: After clicking a loadout
-    --TRAIT_CONFIG_UPDATED: After successfully changing loadout
-    --ACTIVE_PLAYER_SPECIALIZATION_CHANGED: followed by TRAIT_CONFIG_UPDATED
-};
-
 EventCenter.onUpdate = function(self, elapsed)
     self:SetScript("OnUpdate", nil);
     if self.onUpdateCallback then
@@ -2052,6 +2048,8 @@ EventCenter.onUpdate = function(self, elapsed)
     end
 end
 
+
+--[[
 function EventCenter:RegisterDynamicEvents(state)
     if state then
         for i, event in ipairs(self.dynamicEvents) do
@@ -2063,6 +2061,17 @@ function EventCenter:RegisterDynamicEvents(state)
         end
     end
 end
+
+EventCenter.dynamicEvents = {
+    "TRAIT_TREE_CHANGED", "TRAIT_NODE_CHANGED", "TRAIT_NODE_CHANGED_PARTIAL", "TRAIT_NODE_ENTRY_UPDATED", "TRAIT_CONFIG_UPDATED", "ACTIVE_PLAYER_SPECIALIZATION_CHANGED", "CONFIG_COMMIT_FAILED",
+
+    --TRAIT_NODE_CHANGED: Fires multiple times when cancel switching talent
+    --TRAIT_TREE_CHANGED: After clicking a loadout
+    --TRAIT_CONFIG_UPDATED: After successfully changing loadout
+    --ACTIVE_PLAYER_SPECIALIZATION_CHANGED: followed by TRAIT_CONFIG_UPDATED
+};
+--]]
+
 
 EventCenter.onEvent = function(self, event, ...)
     if event == "TRAIT_CONFIG_UPDATED" or event == "TRAIT_CONFIG_LIST_UPDATED" or event == "TRAIT_CONFIG_DELETED" or event == "TRAIT_CONFIG_CREATED" then

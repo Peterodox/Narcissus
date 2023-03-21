@@ -1,8 +1,9 @@
 local _, addon = ...;
 
-local MainFrame, ScrollFrame, Tooltip, ButtonHighlight, EnchantActionButton, GemActionButton;
+local MainFrame, ScrollFrame, Tooltip, ButtonHighlight, GemActionButton;
 
 local FadeFrame = NarciFadeUI.Fade;
+local NarciAPI = NarciAPI;
 local GetEnchantText = NarciAPI.GetEnchantTextByEnchantID;
 local GetItemQualityColor = NarciAPI.GetItemQualityColor;
 local GetGemBonus = NarciAPI.GetGemBonus;
@@ -31,6 +32,16 @@ local InUseIDs = {
     newGemID = nil;
 };
 
+--[[
+Button Info Types:
+    1. Enchant Permanent
+    2. Enchant Temporary
+    3. Generic Gem (+100 Stat)
+    4. Shard of Domination
+    5. Crystallic Cypher
+    6. Primordial Stone
+--]]
+
 local function GetAppliedEnhancement(id1, id2)
     --GetContainerItemLink
     local itemLink, slotID;
@@ -45,34 +56,41 @@ local function GetAppliedEnhancement(id1, id2)
         end
     end
 
-    local _, _, _, linkType, id, enchantID, gemID;
+    --local _, _, _, linkType, id, enchantID, gemID;
+
+    local enchantID, gemID1, gemID2, gemID3
     if itemLink then
-        _, _, _, linkType, id, enchantID, gemID = strsplit(":|H", itemLink);
+        --_, _, _, linkType, id, enchantID, gemID = strsplit(":|H", itemLink);
+        enchantID, gemID1, gemID2, gemID3 = string.match(itemLink, "item:%d+:(%d*):(%d*):(%d*):(%d*)");
     end
     
-    gemID = tonumber(gemID);
-    enchantID = tonumber(enchantID);
-    if gemID == 0 then
-        gemID = nil;
-    end
-    if enchantID == 0 then
-        enchantID = nil;
-    end
-    InUseIDs.gemID = gemID;
+    enchantID = (enchantID and tonumber(enchantID)) or nil;
+    gemID1 = (gemID1 and tonumber(gemID1)) or nil;
+    gemID2 = (gemID2 and tonumber(gemID2)) or nil;
+    gemID3 = (gemID3 and tonumber(gemID3)) or nil;
+
+    InUseIDs.gemIDs = {gemID1, gemID2, gemID3};
     InUseIDs.enchantID = enchantID;
     InUseIDs.requirementID = GetItemTempEnchantType(itemLink);
+
     local validForEnchant;
     if slotID and slotID == 17 then
         validForEnchant = IsWeaponValidForEnchant(itemLink);
     else
         validForEnchant = true;
     end
+
+    local socketID = MainFrame:GetSocketOrderID();
+    local gemID = InUseIDs.gemIDs[socketID];
+    InUseIDs.gemID = gemID;
+
     return gemID, enchantID, validForEnchant
 end
 
 local function GetNewGemID(state)
     if state then
-        local gemLink = GetNewSocketLink(1);
+        local socketID = MainFrame:GetSocketOrderID();
+        local gemLink = GetNewSocketLink(socketID);
         if gemLink then
             local gemID = GetItemInfoInstant(gemLink);
             if gemID == 0 then
@@ -90,7 +108,8 @@ end
 
 local function PlaceGem(gemID, socketOrderID)
     ClearCursor();
-    local bagID, slotIndex = GetItemBagPosition(gemID);
+    local findHighestItemLevel = true;
+    local bagID, slotIndex = GetItemBagPosition(gemID, findHighestItemLevel);
     if not(bagID and slotIndex) then return; end
     PickupContainerItem(bagID, slotIndex);
     ClickSocketButton(socketOrderID);
@@ -118,11 +137,12 @@ EventListener.t = 0;
 EventListener:SetScript("OnEvent", function(self, event, ...)
     if event == "SPELL_DATA_LOAD_RESULT" then
         local spellID, success = ...
-        if self.spellQueue[spellID] and success then
+        if self.spellQueue[spellID] then
             for _, button in pairs(self.spellQueue[spellID]) do
                 if button.spellID == spellID then
                     self.spellQueue[spellID] = nil;
-                    if button.socketType == 3 then
+
+                    if button.infoType == 5 then
                         button:SetCrystallicData(button.itemID, true);
                     else
                         local name = GetSpellInfo(spellID);
@@ -130,38 +150,72 @@ EventListener:SetScript("OnEvent", function(self, event, ...)
                         button:ShowLoadingIcon(false);
                         button.itemName = name;
                     end
+
                     break
                 end
             end
         end
     elseif event == "ITEM_DATA_LOAD_RESULT" then
         local itemID, success = ...
-        if self.itemQueue[itemID] and success then
+        if self.itemQueue[itemID] then
             for _, button in pairs(self.itemQueue[itemID]) do
                 if button.itemID == itemID then
                     self.itemQueue[itemID] = nil;
+
                     local quality = C_Item.GetItemQualityByID(itemID);
                     local r, g, b = GetItemQualityColor(quality);
+
                     if button:IsEnabled() then
                         button.Text2:SetTextColor(r, g, b, 1);
                     else
                         button.Text2:SetTextColor(r, g, b, 0.6);
                     end
+
+                    local infoType = button.infoType;
                     local name = GetItemInfo(itemID);
-                    if button.socketType == 2 then
-                        button:SetButtonText(GetShardBonus(itemID), name);
-                    elseif button.useActionButton then
-                        --Temp Enchant
+
+                    if infoType == 1 or infoType == 2 then
                         button:SetEnchantText(button.enchantID);
-                    else
+                    elseif infoType == 3 then
                         button:SetButtonText(GetGemBonus(itemID), name);
+                    elseif infoType == 6 then
+                        button:SetButtonText(NarciAPI.GetColorizedPrimordialStoneName(itemID));
+                    elseif infoType == 4 then
+                        button:SetButtonText(GetShardBonus(itemID), name);
                     end
+
                     button:ShowLoadingIcon(false);
                     button.itemName = name;
+
                     break
                 end
             end
         end
+    end
+
+    local loadingComplete = true;
+
+    if self.itemQueue then
+        for k, v in pairs(self.itemQueue) do
+            if k and v then
+                loadingComplete = false;
+                break
+            end
+        end
+    end
+
+    if loadingComplete and self.spellQueue then
+        for k, v in pairs(self.spellQueue) do
+            if k and v then
+                loadingComplete = false;
+                break
+            end
+        end
+    end
+
+    if loadingComplete then
+        self:UnregisterEvent("ITEM_DATA_LOAD_RESULT");
+        self:UnregisterEvent("SPELL_DATA_LOAD_RESULT");
     end
 end);
 
@@ -223,13 +277,13 @@ end
 
 function EventListener:Wipe()
     if self.itemQueue then
-        wipe(self.itemQueue);
+        self.itemQueue = nil;
     end
     if self.enchantQueue then
-        wipe(self.enchantQueue);
+        self.enchantQueue = nil;
     end
     if self.spellQueue then
-        wipe(self.spellQueue);
+        self.spellQueue = nil;
     end
     self:UnregisterEvent("ITEM_DATA_LOAD_RESULT");
     self:UnregisterEvent("SPELL_DATA_LOAD_RESULT");
@@ -239,20 +293,17 @@ end
 
 local function AssignWidgets()
     MainFrame = Narci_EquipmentOption;
-    EnchantActionButton = NarciEquipmentEnchantActionButton;
     ScrollFrame = MainFrame.ItemList;
     Tooltip = ScrollFrame.Tooltip;
     GemActionButton = ScrollFrame.GemActionButton;
 end
 
+addon.AssignEnchantButtonWidgets = AssignWidgets;
+
 
 NarciEquipmentEnchantButtonMixin = {};
 
 function NarciEquipmentEnchantButtonMixin:OnLoad()
-    if AssignWidgets then
-        AssignWidgets();
-        AssignWidgets = nil;
-    end
     self:SetEnabledVisual();
 end
 
@@ -329,13 +380,12 @@ function NarciEquipmentEnchantButtonMixin:OnMouseUp(button)
 end
 
 function NarciEquipmentEnchantButtonMixin:OnClick()
-    if self.useActionButton then
-        --Enchant/Temp enchant
-        if self.useActionButton == 2 then
-            EnchantActionButton:InitFromButton(self, MainFrame.slotID);
-        else
-            EnchantActionButton:InitFromButton(self, MainFrame.slotID, InUseIDs.enchantID);
-        end
+    local actionButton = NarciEquipmentEnchantActionButton;
+
+    if self.infoType == 1 then  --Perma Enchant
+        actionButton:InitFromButton(self, MainFrame.slotID, InUseIDs.enchantID);
+    elseif self.infoType == 2 then  --Temp Enchant
+        actionButton:InitFromButton(self, MainFrame.slotID);
     else
         --Gem/Shard
         if MainFrame.isNarcissusUI then
@@ -420,10 +470,11 @@ function NarciEquipmentEnchantButtonMixin:SetEnchantData(spellID, itemID, enchan
         end
         return
     end
-    self.socketType = nil;
+
+    self.infoType = 1;
     self.enchantID = enchantID;
     self.itemID = itemID;
-    self.useActionButton = 1;
+
     if spellID then
         self:SetUsed(enchantID == InUseIDs.enchantID);
         self:SetItemCount(itemID);
@@ -454,6 +505,7 @@ function NarciEquipmentEnchantButtonMixin:SetEnchantData(spellID, itemID, enchan
     else
         self:Hide();
     end
+    self:SetScript("OnUpdate", nil);
 end
 
 function NarciEquipmentEnchantButtonMixin:SetTempEnchantData(spellID, itemID, enchantID, requirementID)
@@ -465,11 +517,12 @@ function NarciEquipmentEnchantButtonMixin:SetTempEnchantData(spellID, itemID, en
         end
         return
     end
-    self.socketType = nil;
+
+    self.infoType = 2;
     self.enchantID = enchantID;
     self.itemID = itemID;
     self.requirementID = requirementID;
-    self.useActionButton = 2;
+
     if spellID then
         self:SetUsed(false);
         self.Icon:SetTexture( GetItemIcon(itemID) );
@@ -516,6 +569,7 @@ function NarciEquipmentEnchantButtonMixin:SetTempEnchantData(spellID, itemID, en
     else
         self:Hide();
     end
+    self:SetScript("OnUpdate", nil);
 end
 
 function NarciEquipmentEnchantButtonMixin:SetEnchantText(enchantID)
@@ -529,7 +583,7 @@ function NarciEquipmentEnchantButtonMixin:SetEnchantText(enchantID)
     else
         name = GetSpellInfo(self.spellID);
     end
-    
+
     local enchantText = GetEnchantText(enchantID);
     if name and name ~= "" and enchantText then
         if name == enchantText then
@@ -542,6 +596,8 @@ function NarciEquipmentEnchantButtonMixin:SetEnchantText(enchantID)
         EventListener:AddEnchant(enchantID, self);
         self:ShowLoadingIcon(true);
     end
+
+    self:SetScript("OnUpdate", nil);
 end
 
 function NarciEquipmentEnchantButtonMixin:SetGemData(itemID)
@@ -551,13 +607,14 @@ function NarciEquipmentEnchantButtonMixin:SetGemData(itemID)
         if not itemID then
             self:Hide();
         end
+        self:SetUsed(itemID == InUseIDs.gemID, itemID == InUseIDs.newGemID);
         return
     end
 
+    self.infoType = 3;
     self.spellID = nil;
-    self.socketType = 1;
     self.enchantID = nil;
-    self.useActionButton = nil;
+
     if itemID then
         local icon = GetItemIcon(itemID);
         self.Icon:SetTexture(icon);
@@ -572,14 +629,15 @@ function NarciEquipmentEnchantButtonMixin:SetGemData(itemID)
             self:ShowLoadingIcon(false);
             self.itemName = name;
         else
-            EventListener:AddItem(itemID, self);
             self:ShowLoadingIcon(true);
+            EventListener:AddItem(itemID, self);
         end
         self:SetItemCount(itemID);
         self:Show();
     else
         self:Hide();
     end
+    self:SetScript("OnUpdate", nil);
 end
 
 function NarciEquipmentEnchantButtonMixin:SetDominationShardData(itemID)
@@ -591,11 +649,12 @@ function NarciEquipmentEnchantButtonMixin:SetDominationShardData(itemID)
         end
         return
     end
+
+    self.infoType = 4;
     self.spellID = nil;
     self.enchantID = nil;
-    self.useActionButton = nil;
+
     if itemID then
-        self.socketType = 2;
         local icon = GetItemIcon(itemID);
         self.Icon:SetTexture(icon);
         local name = GetItemInfo(itemID);
@@ -614,9 +673,9 @@ function NarciEquipmentEnchantButtonMixin:SetDominationShardData(itemID)
         self:SetItemCount(itemID);
         self:Show();
     else
-        self.socketType = nil;
         self:Hide();
     end
+    self:SetScript("OnUpdate", nil);
 end
 
 function NarciEquipmentEnchantButtonMixin:SetCrystallicData(itemID, forceUpdate)
@@ -628,10 +687,11 @@ function NarciEquipmentEnchantButtonMixin:SetCrystallicData(itemID, forceUpdate)
         end
         return
     end
+
+    self.infoType = 5;
     self.spellID = nil;
-    self.socketType = 3;
     self.enchantID = nil;
-    self.useActionButton = nil;
+
     if itemID then
         local spellID = NarciAPI.GetCrystallicSpell(itemID);
         self.spellID = spellID;
@@ -649,6 +709,63 @@ function NarciEquipmentEnchantButtonMixin:SetCrystallicData(itemID, forceUpdate)
         else
             EventListener:AddSpell(spellID, self);
             self:ShowLoadingIcon(true);
+        end
+        self:SetItemCount(itemID);
+        self:Show();
+    else
+        self:Hide();
+    end
+    self:SetScript("OnUpdate", nil);
+end
+
+local function LoadingPrimodrialStone_OnUpdate(self, elapsed)
+    self.t = self.t + elapsed;
+    if self.t >= 0.25 then
+        local itemID = self.itemID;
+        if C_Item.DoesItemExistByID(itemID) then
+            self.itemID = nil;
+            self:SetPrimordialStone(itemID);
+        else
+            self:SetScript("OnUpdate", nil);
+        end
+    end
+end
+
+function NarciEquipmentEnchantButtonMixin:SetPrimordialStone(itemID)
+    if itemID ~= self.itemID then
+        self.itemID = itemID;
+    else
+        if not itemID then
+            self:Hide();
+        end
+        self:SetUsed(itemID == InUseIDs.gemID, itemID == InUseIDs.newGemID);
+        return
+    end
+
+    self.infoType = 6;
+    self.spellID = nil;
+    self.enchantID = nil;
+
+    self:SetScript("OnUpdate", nil);
+
+    if itemID then
+        local icon = GetItemIcon(itemID);
+        self.Icon:SetTexture(icon);
+        local name = NarciAPI.GetColorizedPrimordialStoneName(itemID);
+        local gemBonus = GetGemBonus(itemID);
+        local quality = C_Item.GetItemQualityByID(itemID);
+        self:SetUsed(itemID == InUseIDs.gemID, itemID == InUseIDs.newGemID);
+        if name and name ~= "" and quality then
+            local r, g, b = GetItemQualityColor(quality);
+            self.Text2:SetTextColor(r, g, b, 1);
+            self:SetButtonText(name);   --Button is too short to display bonus
+            self:ShowLoadingIcon(false);
+            self.itemName = name;
+        else
+            self:ShowLoadingIcon(true);
+            --EventListener:AddItem(itemID, self);
+            self.t = 0;
+            self:SetScript("OnUpdate", LoadingPrimodrialStone_OnUpdate);
         end
         self:SetItemCount(itemID);
         self:Show();

@@ -1,5 +1,10 @@
 local GetItemInfoInstant = GetItemInfoInstant;
-local NarciAPI = NarciAPI;
+--local NarciAPI = NarciAPI;
+
+local _, addon = ...
+
+local GetDetailedItemLevelInfo = GetDetailedItemLevelInfo;
+local GemDataProvider = addon.GemDataProvider;
 
 local PADDING = 24;
 local ICON_SIZE = 16;
@@ -79,7 +84,6 @@ function NarciEquipmentTooltipGemFrameMixin:SetGemEffect(n, texture, gemName, ge
         self.texts[n]:SetPoint("TOPLEFT", self.texts[n - 1], "BOTTOMLEFT", 0, -12);
     end
 
-    self.texts[n]:SetText(gemEffect);
     self.icons[n]:SetTexture(texture);
     --print(gemEffect .." "..texture)
     if gemLink then
@@ -88,12 +92,23 @@ function NarciEquipmentTooltipGemFrameMixin:SetGemEffect(n, texture, gemName, ge
         self.icons[n]:Show();
         self.borders[n]:Show();
         self.texts[n]:Show();
+
+        local itemID = GetItemInfoInstant(gemLink);
+        if GemDataProvider:IsItemPrimordialStone(itemID) then
+            local itemLevel = GetDetailedItemLevelInfo(gemLink);
+            if itemLevel and gemEffect then
+                gemEffect = string.gsub(gemEffect, "\n", "\n".."|CFFFFD100"..itemLevel.."|r  ", 1);
+            end
+        end
     else
         self.texts[n]:SetTextColor(0.5, 0.5, 0.5);
         self.icons[n]:Show();
         self.borders[n]:Hide();
         self.texts[n]:Show();
     end
+
+    self.texts[n]:SetText(gemEffect);
+
     if not gemEffect then
         self:GetParent():QueryData();
     end

@@ -356,6 +356,8 @@ function NarciNavBarMixin:OnLoad()
     end
 
     --Create conduit butons;
+
+    --[[
     local frame = NavigationBar.PrimaryFrame.ConduitContainer;
     if not frame.conduitButtons then
         frame.conduitButtons = {};
@@ -385,6 +387,7 @@ function NarciNavBarMixin:OnLoad()
             button:SetButtonSize(butonWidth, 24);
         end
     end
+    --]]
 
     NavButtonController:UpdateButtonPosition();
 
@@ -558,6 +561,8 @@ local function UpdateFlatConduit(row, nodeData, unlockLevel)
 end
 
 local function UpdateSoulbinds()
+    if true then return end;
+
     local data;
     local soulbindID = C_Soulbinds.GetActiveSoulbindID() or 0;
     NavigationBar.soulbindID = soulbindID;
@@ -659,9 +664,17 @@ local function UpdateButtonGroupWidth(buttons, numButtons, barWidth, maximizedMo
                 b:UseFullMask(true, 2);
             else
                 b:UseFullMask(false);
-            end 
+            end
             b:SetButtonSize(butonWidth, 24);
         end
+    end
+end
+
+function NarciNavBarMixin:GetTrayWidth()
+    if self.maximizedMode then
+        return (320 - 48);
+    else
+        return 240
     end
 end
 
@@ -672,25 +685,24 @@ function NarciNavBarMixin:SetMaximizedMode(state)
     self.maximizedMode = state;
 
     local barWidth;
+
     if state then
         barWidth = 320;
     else
         barWidth = 240;
     end
+
     self:SetWidth(barWidth);
     self.OverlayFrame.PortraitShadow:SetShown(state);
     self.OverlayFrame.Portrait:SetShown(state);
 
-    local effectiveWidth;
-    if state then
-        effectiveWidth = barWidth - 48;
-    else
-        effectiveWidth = barWidth;
-    end
-    self.OverlayFrame.Divider:SetWidth(effectiveWidth);
+    local trayWidth = self:GetTrayWidth();
+    self.OverlayFrame.Divider:SetWidth(trayWidth);
 
-    UpdateButtonGroupWidth(self.PrimaryFrame.ConduitContainer.conduitButtons, MAX_CONDUITS, effectiveWidth, state);
-    UpdateButtonGroupWidth(self.PrimaryFrame.TalentContainer.talentButtons, 7, effectiveWidth, state);
+    self.PrimaryFrame.TalentContainer:RequestUpdate();
+
+    --UpdateButtonGroupWidth(self.PrimaryFrame.ConduitContainer.conduitButtons, MAX_CONDUITS, effectiveWidth, state);
+    --UpdateButtonGroupWidth(self.PrimaryFrame.TalentContainer.talentButtons, 7, effectiveWidth, state);
 end
 
 function NarciNavBarMixin:PauseTimer(state)

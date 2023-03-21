@@ -1,4 +1,4 @@
-## Interface: 100005
+## Interface: 100007
 ## Plain Title: Narcissus Database NPC
 ## Version: 10.0.2
 ## LoadOnDemand: 1

@@ -325,17 +325,16 @@ function NarciMythicPlusRatingCardMixin:SetUpByMapID(mapID)
     if (overallScore and overallScore > 0) and (affixScores and #affixScores > 0) then
         local name, duration, overTime, level, score;
         local info1, info2;
-        if #affixScores == 1 then
-            name = affixScores[1].name;
+
+        for i = 1, #affixScores do
+            name = affixScores[i].name;
             if name == AFFIX_TYRANNICAL then
-                info1 = affixScores[1];
+                info1 = affixScores[i];
             else
-                info2 = affixScores[1];
+                info2 = affixScores[i];
             end
-        else
-            info1 = affixScores[1];
-            info2 = affixScores[2];
         end
+
         local info = {info1, info2};
         local data, v;
         for i = 1, 2 do

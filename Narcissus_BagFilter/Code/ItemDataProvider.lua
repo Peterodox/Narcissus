@@ -57,11 +57,11 @@ end
 
 
 local function GetColorString(text)
-    return match(text, "|[cC][fF][fF](%w%w%w%w%w%w)");
+    return match(text, "|[cC][fF][fF]([%w%s][%w%s][%w%s][%w%s][%w%s][%w%s])");
 end
 
 local function RemoveColorString(text)
-    return gsub(text, "|[cC][fF][fF]%w%w%w%w%w%w(.*)|[rR]", "%1")
+    return gsub(text, "|[cC][fF][fF][%w%s][%w%s][%w%s][%w%s][%w%s][%w%s](.*)|[rR]", "%1")
 end
 
 ---- Derivative of ColorUtil.lua ----
@@ -98,6 +98,26 @@ do
         KNOWN_TYPES[itemCosmetic] = {text = itemCosmetic, r = 1, g = 0.502, b = 1, count = 0, filter = "ShowCosmetic"};    --color
     end
 end
+
+
+local IGNORED_SUBTEXTS = {}
+
+do
+    local difficulties = {
+        1, 2, 3, 4, 5, 6,
+        "_MYTHIC_PLUS", "_TIMEWALKER",
+    };
+
+    local name;
+
+    for k, v in pairs(difficulties) do
+        name = _G["PLAYER_DIFFICULTY"..v];
+        if name then
+            IGNORED_SUBTEXTS[name] = true;
+        end
+    end
+end
+
 
 function DataProvider:CacheBagItem(bag, slot)
     local itemID = GetContainerItemID(bag, slot);
@@ -151,20 +171,24 @@ function DataProvider:CacheBagItem(bag, slot)
                             local colorHex = GetColorString(text);
                             if colorHex and (not find(text, "<")) then  --<Made by XXX
                                 text = RemoveColorString(text);
-                                if not SubTextXTypeID[text] then
-                                    NUM_TYPES = NUM_TYPES + 1;
-                                    typeID = NUM_TYPES;
-                                    SubTextXTypeID[text] = typeID;
-                                    table.insert(SubTextNameList, {text, typeID});
-                                    ItemSubText[typeID] = {};
-                                    local tbl = ItemSubText[typeID];
-                                    tbl.text = text;
-                                    tbl.r, tbl.g, tbl.b = GetRGBColorFromHex(colorHex);
-                                    tbl.count = 0;
-                                    --print("New Type: #"..typeID.." "..text);
+                                if text and not IGNORED_SUBTEXTS[text] then
+                                    if not SubTextXTypeID[text] then
+                                        NUM_TYPES = NUM_TYPES + 1;
+                                        typeID = NUM_TYPES;
+                                        SubTextXTypeID[text] = typeID;
+                                        table.insert(SubTextNameList, {text, typeID});
+                                        ItemSubText[typeID] = {};
+                                        local tbl = ItemSubText[typeID];
+                                        tbl.text = text;
+                                        tbl.r, tbl.g, tbl.b = GetRGBColorFromHex(colorHex);
+                                        tbl.count = 0;
+                                        --print("New Type: #"..typeID.." "..text);
+                                    end
+                                    typeID = SubTextXTypeID[text];
+                                    ItemIDXTypeID[itemID] = typeID;
+                                else
+                                    ItemIDXTypeID[itemID] = 0;
                                 end
-                                typeID = SubTextXTypeID[text];
-                                ItemIDXTypeID[itemID] = typeID;
                             else
                                 ItemIDXTypeID[itemID] = 0;
                             end

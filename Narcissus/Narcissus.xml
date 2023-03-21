@@ -726,7 +726,7 @@
 				</Texture>
 			</Layer>	
 			<Layer level="OVERLAY" textureSubLevel="2">
-				<Texture parentKey="Border" nounload="true">
+				<Texture parentKey="Border">
 					<Size x="128" y="128"/>
 					<Anchors>
 						<Anchor point="CENTER"/>
@@ -734,7 +734,7 @@
 				</Texture>
 			</Layer>
 			<Layer level="OVERLAY">
-				<MaskTexture parentKey="IconMask" file="Interface\AddOns\Narcissus\Art\Masks\HexagonMask" hWrapMode="CLAMPTOBLACKADDITIVE" vWrapMode="CLAMPTOBLACKADDITIVE" nounload="true">
+				<MaskTexture parentKey="IconMask" file="Interface\AddOns\Narcissus\Art\Masks\HexagonMask" hWrapMode="CLAMPTOBLACKADDITIVE" vWrapMode="CLAMPTOBLACKADDITIVE">
 					<Size>
 						<AbsDimension x="64" y="64"/>
 					</Size>

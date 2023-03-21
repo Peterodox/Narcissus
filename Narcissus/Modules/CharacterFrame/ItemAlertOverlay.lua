@@ -66,6 +66,10 @@ local SLOT_PRIORITY_INT = {
     [17] = 1,
 };
 
+local NO_FLASH_ITEMS = {
+    --Disable flash for some items with special border art.
+    [203460] = true,
+};
 
 local SharedUpdateFrame;
 
@@ -149,7 +153,8 @@ function SlotButtonOverlayUtil:IsSlotValidForEnchant(slotID, itemID)
 end
 
 function SlotButtonOverlayUtil:ShowEnchantAlert(slotButton, slotID, itemID)
-    if self.enabled then
+    print(itemID)
+    if self.enabled and itemID and not NO_FLASH_ITEMS[itemID] then
         if SLOT_PRIORITY[slotID] == 1 then  --self:IsSlotValidForEnchant(slotID, itemID) - already run
             local f = slotButton.slotOverlay or self:GetOverlay();
             f:ClearAllPoints();

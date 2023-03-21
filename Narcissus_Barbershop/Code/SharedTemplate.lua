@@ -50,7 +50,7 @@ function NarciBarberShopSharedTemplateMixin:OnEnter()
 end
 
 function NarciBarberShopSharedTemplateMixin:OnLeave()
-    if self:IsEnabled() then
+    if self.IsEnabled and self:IsEnabled() then
         self:SetBorderColor("grey");
     else
         self:SetBorderColor("disabled");

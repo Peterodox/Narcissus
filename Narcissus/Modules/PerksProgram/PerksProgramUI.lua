@@ -5,6 +5,7 @@ local DataProvider = addon.PerksProgramDataProvider;
 
 local L = Narci.L;
 
+local BlizzardFrame;
 local PerksProgramUITooltip;
 local ExtraDetailFrame;    --1.Display the items of an ensemble on ProductDetailsContainerFrame   2.Toggle individual item's visibility.
 local SheatheToggle;
@@ -218,59 +219,63 @@ end
 local function PerksProgramCurrencyFrame_OnEnter(f)
     --PerksProgramCurrencyFrame
     --Constants.CurrencyConsts.CURRENCY_ID_PERKS_PROGRAM_DISPLAY_INFO
+    local unclaimedPoints, unearnedPoints = DataProvider:GetAvailableCurrency();    --Sometimes returns a large negative value for some reason
 
-    local numLines = PerksProgramUITooltip:NumLines();
-    local fontString, stringText;
-    local unclaimedPoints, unearnedPoints = DataProvider:GetAvailableCurrency();
+    if unclaimedPoints > 0 or unearnedPoints > 0 then
+        local numLines = PerksProgramUITooltip:NumLines();
+        local fontString, stringText;
 
-    for i = 4, numLines do
-        fontString = _G["PerksProgramTooltipTextLeft"..i];
-        if fontString then
-            stringText = fontString:GetText();
-            if stringText ~= "" then
-                if stringText == _G.PERKS_PROGRAM_UNCOLLECTED_TENDER then
-                    fontString:SetText(string.format(L["Perks Program Unclaimed Tender Format"], unclaimedPoints));
-                elseif stringText == _G.PERKS_PROGRAM_ACTIVITIES_UNEARNED then
-                    fontString:SetText(string.format(L["Perks Program Unearned Tender Format"], unearnedPoints));
+        for i = 4, numLines do
+            fontString = _G["PerksProgramTooltipTextLeft"..i];
+            if fontString then
+                stringText = fontString:GetText();
+                if stringText ~= "" then
+                    if (stringText == _G.PERKS_PROGRAM_UNCOLLECTED_TENDER) and unclaimedPoints > 0  then
+                        fontString:SetText(string.format(L["Perks Program Unclaimed Tender Format"], unclaimedPoints));
+                    elseif (stringText == _G.PERKS_PROGRAM_ACTIVITIES_UNEARNED) and unearnedPoints > 0 then
+                        fontString:SetText(string.format(L["Perks Program Unearned Tender Format"], unearnedPoints));
+                    end
                 end
             end
         end
-    end
 
-    PerksProgramUITooltip:Show();
+        PerksProgramUITooltip:Show();
+    end
 end
 
 local function Initialize()
     if not PerksProgramFrame then return end;
 
+    BlizzardFrame = PerksProgramFrame;
+
     --Insert ExtraDetailFrame
-    if PerksProgramFrame.ProductsFrame and PerksProgramFrame.ProductsFrame.PerksProgramProductDetailsContainerFrame and PerksProgramFrame.ProductsFrame.PerksProgramProductDetailsContainerFrame.DetailsFrame then
-        ExtraDetailFrame.parentFrame = PerksProgramFrame.ProductsFrame.PerksProgramProductDetailsContainerFrame.DetailsFrame;
+    if BlizzardFrame.ProductsFrame and BlizzardFrame.ProductsFrame.PerksProgramProductDetailsContainerFrame and BlizzardFrame.ProductsFrame.PerksProgramProductDetailsContainerFrame.DetailsFrame then
+        ExtraDetailFrame.parentFrame = BlizzardFrame.ProductsFrame.PerksProgramProductDetailsContainerFrame.DetailsFrame;
         ExtraDetailFrame:SetParent(ExtraDetailFrame.parentFrame);
     end
 
     --Skin Tooltip
-    PerksProgramUITooltip = PerksProgramFrame.PerksProgramTooltip;
+    PerksProgramUITooltip = BlizzardFrame.PerksProgramTooltip;
     if PerksProgramUITooltip and PerksProgramUITooltip.ProcessInfo then
         --PerksProgramUITooltip.layoutType = "TooltipDefaultDarkLayout";
         hooksecurefunc(PerksProgramUITooltip, "ProcessInfo", PerksProgramTooltip_ProcessInfo);
 
-        if PerksProgramFrame.ProductsFrame.PerksProgramCurrencyFrame then
-            PerksProgramFrame.ProductsFrame.PerksProgramCurrencyFrame:HookScript("OnEnter", PerksProgramCurrencyFrame_OnEnter);
+        if BlizzardFrame.ProductsFrame.PerksProgramCurrencyFrame then
+            BlizzardFrame.ProductsFrame.PerksProgramCurrencyFrame:HookScript("OnEnter", PerksProgramCurrencyFrame_OnEnter);
         end
     end
 
-    if PerksProgramFrame.TimeLeftListFormatter then
+    if BlizzardFrame.TimeLeftListFormatter then
         --Hide TimeRemaining when browsing history items
-        function PerksProgramFrame.TimeLeftListFormatter:FormatZero()
+        function BlizzardFrame.TimeLeftListFormatter:FormatZero()
             return ""
         end
     end
 
     --Change the rotation speed
-    if PerksProgramFrame.FooterFrame and PerksProgramFrame.FooterFrame.RotateButtonContainer then
+    if BlizzardFrame.FooterFrame and BlizzardFrame.FooterFrame.RotateButtonContainer then
         local period = 4;
-        local f = PerksProgramFrame.FooterFrame.RotateButtonContainer;
+        local f = BlizzardFrame.FooterFrame.RotateButtonContainer;
         local increment = math.floor(1000* 2*math.pi/period/60)/1000;
 
         if f.RotateLeftButton then
@@ -305,7 +310,7 @@ local function Initialize()
         SheatheToggle_SetIcon(SheatheToggle, true);
 
         local function SheatheToggle_OnClick(b)
-            local playerActor = PerksProgramFrame.ModelSceneContainerFrame.playerActor;
+            local playerActor = BlizzardFrame.ModelSceneContainerFrame.playerActor;
             if not playerActor then return end;
             local sheathed = not playerActor:GetSheathed();
             playerActor:SetSheathed(sheathed);
@@ -344,7 +349,7 @@ local function Initialize()
 
         function SheatheToggle:SetState(perksVendorCategoryID)
             local enable = perksVendorCategoryID and (perksVendorCategoryID ~= 2) and (perksVendorCategoryID ~= 3);
-            local playerActor = PerksProgramFrame.ModelSceneContainerFrame.playerActor;
+            local playerActor = BlizzardFrame.ModelSceneContainerFrame.playerActor;
             enable = enable and (playerActor and playerActor:IsShown());
             local sheathed = playerActor and playerActor:GetSheathed();
             SheatheToggle_SetIcon(self, sheathed);
@@ -357,6 +362,7 @@ local function Initialize()
 
         SheatheToggle.onClickFunc = SheatheToggle_OnClick;
         SheatheToggle:SetState(SELECTED_DATA and SELECTED_DATA.perksVendorCategoryID);
+
         SheatheToggle_OnShow(SheatheToggle);
 
         AnimationButton = CreateFrame("Button", nil, f, "NarciPerksProgramSquareButtonTemplate");
@@ -405,7 +411,7 @@ local function Initialize()
             button.Text:Hide();
         end
 
-        local PlayerToggle = PerksProgramFrame.FooterFrame.TogglePlayerPreview;
+        local PlayerToggle = BlizzardFrame.FooterFrame.TogglePlayerPreview;
         --[[
         if PlayerToggle then
             SkinSmallButton(PlayerToggle, "common-icon-checkmark-yellow", "common-icon-checkmark");
@@ -591,7 +597,7 @@ local function TransmogItemButton_OnLeave(self)
 end
 
 local function TransmogItemButton_OnClick(self)
-    local playerActor = PerksProgramFrame.ModelSceneContainerFrame.playerActor;
+    local playerActor = BlizzardFrame.ModelSceneContainerFrame.playerActor;
     if not playerActor then return end;
 
     self.hideItem = not self.hideItem;
@@ -698,7 +704,7 @@ end
 function PerksProgramTryOnItems()
     --local items = {190904, 190905, 190906, 190907};
     local items = {190161, 190163, 190193, 190160, 190158, 190159, 190156, 190162, 190157}
-    local actor = PerksProgramFrame.ModelSceneContainerFrame.playerActor;
+    local actor = BlizzardFrame.ModelSceneContainerFrame.playerActor;
     actor:Undress();
     for _, itemID in pairs(items) do
         actor:TryOn("item:"..itemID);
@@ -708,7 +714,7 @@ function PerksProgramTryOnItems()
     local name = GetSpellInfo(368307);
     button.ContentsContainer.Label:SetText(name);
 
-    local f = PerksProgramFrame.ProductsFrame.PerksProgramProductDetailsContainerFrame.DetailsFrame;
+    local f = BlizzardFrame.ProductsFrame.PerksProgramProductDetailsContainerFrame.DetailsFrame;
     f.ProductNameText:SetText(name);
 end
 
@@ -1286,8 +1292,8 @@ function InjectVendorItemIDs()
     LoadAddOn("Blizzard_PerksProgram")
     ShowUIPanel(PerksProgramFrame);
     PerksProgramFrame:SetPropagateKeyboardInput(true);
-    PerksProgramFrame.vendorItemIDs = DataProvider:GetCurrentMonthItems();
-    PerksProgramFrame.ProductsFrame:UpdateProducts();
+    BlizzardFrame.vendorItemIDs = DataProvider:GetCurrentMonthItems();
+    BlizzardFrame.ProductsFrame:UpdateProducts();
     print("Injected")
 end
 --]]

@@ -397,7 +397,7 @@ end
 function DataProvider:GetAvailableCurrency()
     --Returns the amounts of unclaimed and unearned token
     self:CacheActivityInfo();
-    return self.unclaimedPoints, self.unearnedPoints;
+    return self.unclaimedPoints or 0, self.unearnedPoints or 0;
 end
 
 function DataProvider:GetCurrencyAmount()

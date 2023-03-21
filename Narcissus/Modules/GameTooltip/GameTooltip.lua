@@ -57,6 +57,7 @@ end
     GetSpellBaseCooldown
     GetItemSpell
     
+    C_TradeSkillUI.GetItemCraftedQualityByItemInfo(itemLink)
 --]]
 local function Round(a)
     return tonumber(format("%.2f", floor(a*100+0.5)*0.01 ))
@@ -740,7 +741,7 @@ function NarciEquipmentTooltipMixin:DisplayItemData(link, itemData, slotID, visu
             for i = 1, #itemData.effects do
                 if itemData.effects[i][1] == "use" then
                     self.SpellFrame:SetSpellEffect(link, itemData.effects[i][2], itemData.effects[i][3], itemData.effects[i][4]);
-                    self:InsertFrame(self.SpellFrame);
+                    --self:InsertFrame(self.SpellFrame);
                 else
                     local r, g, b = GetColorByIndex((itemData.effects[i][3] and 2) or 4);
                     splitLines = {string.split("\n", itemData.effects[i][2])};  --adjust multiline spacing

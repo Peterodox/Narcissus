@@ -594,6 +594,7 @@ L["Item Socketing Tooltip"] = "Click and hold to embed";
 L["No Available Gem"] = "|cffd8d8d8No available gem|r";
 L["Missing Enchant Alert"] = "Missing Enchant Alert";
 L["Missing Enchant"] = NARCI_COLOR_RED_MILD.."No Enchant".."|r";
+L["Socket Occupied"] = "Socket Occupied";       --Indicates that there is an (important) gem in the socket and you need to remove it first
 
 --Statistics--
 S["Narcissus Played"] = "Total time spent in Narcissus";
@@ -633,7 +634,7 @@ L["Showcase Splash 2"] = "Click the button below to copy items from the Dressing
 L["Showcase Splash 3"] = "Click the button below to spin your character.";
 L["Showcase Splash 4"] = "Record the screen with video recording software then convert it to GIF.";
 L["Loop Animation Alert Kultiran"] = "Loop - currently broken on Kultiran male";
-
+L["Loop Animation"] = "Loop Animation";
 
 --Item Sets--
 L["Cycle Spec"] = "Press Tab to cycle through specs";

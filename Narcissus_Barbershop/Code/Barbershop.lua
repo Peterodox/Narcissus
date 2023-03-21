@@ -1813,6 +1813,11 @@ end
 
 function NarciBarberShopMixin:IsCharacterCategoryChanged()
     --true if player is viewing a different category - i.g. was type1 but currently viewing type2
+    local chrModelID = C_BarberShop.GetViewingChrModel();
+    if chrModelID and chrModelID ~= 0 then
+        return false
+    end
+
     local currentCharacterData = C_BarberShop.GetCurrentCharacterData();
     if currentCharacterData then
         if currentCharacterData.raceData then
@@ -2059,7 +2064,8 @@ end
 
 
 local function ProfilesTab_Setup(tab)
-
+    tab:SetScript("OnShow", API.ShowAppearanceList);
+    tab:SetScript("OnHide", API.HideAppearanceList);
 end
 
 
@@ -2102,20 +2108,21 @@ local TabData = {
 
 
 local function CreateTabs(frame)
-    local Data;
-    for i = 1, #TabData do
-        Data = TabData[i];
+    local sidePadding = 8;
+    local tabWidth, tabHeight = 312, 200;
+
+    for i, data in ipairs(TabData) do
         local button = CreateFrame("Button", nil, frame, "NarciBarberShopSettingTabButtonTemplate");
-        local order = Data.order;
+        local order = data.order;
         button.order = order;
         if order ~= 0 then
-            button:SetPoint("TOPLEFT", frame, "TOPLEFT", 12, -12 + 16 *(1 - i));
+            button:SetPoint("TOPLEFT", frame, "TOPLEFT", sidePadding, -sidePadding + 16 *(1 - i));
         else
-            button:SetPoint("BOTTOMLEFT", frame, "BOTTOMLEFT", 12, 12);
+            button:SetPoint("BOTTOMLEFT", frame, "BOTTOMLEFT", sidePadding, sidePadding);
         end
-        button:SetText(Data.localizedName);
+        button:SetText(data.localizedName);
 
-        if Data.layout then
+        if data.layout then
             local totalHeight = 8;
             local objects = {};
             local ScrollFrame = frame.ScrollFrame;
@@ -2124,9 +2131,9 @@ local function CreateTabs(frame)
             if order == 0 then
                 StatManager.StatFrame = Tab;
             end
-            Tab:SetSize(ScrollFrame:GetSize());
+            Tab:SetSize(tabWidth, tabHeight);
             Tab:SetPoint("TOPLEFT", frame.ScrollFrame.ScrollChild, "TOPLEFT", 0, 0);
-            for j, objectData in ipairs(Data.layout) do
+            for j, objectData in ipairs(data.layout) do
                 local type = objectData.type;
                 local object;
                 if type == "checkbox" then
@@ -2196,14 +2203,14 @@ local function CreateTabs(frame)
             Tab.tabHeight = totalHeight;
             Tab.basicHeight = totalHeight;
 
-        elseif Data.manuallyCreated then
-            local Tab = frame[Data.name.."Tab"];
+        elseif data.manuallyCreated then
+            local Tab = frame[data.name.."Tab"];
             if Tab then
                 button.Tab = Tab;
                 Tab:ClearAllPoints();
                 Tab:SetPoint("TOPLEFT", frame.ScrollFrame, "TOPLEFT", 0, 0);
-                if Data.setupFunc then
-                    Data.setupFunc(Tab);
+                if data.setupFunc then
+                    data.setupFunc(Tab);
                 end
             end
         end
@@ -2225,22 +2232,56 @@ function NarciBarberShopSettingsMixin:OnLoad()
     self:SetBorderColor(v, v, v, 1);
     self:SetBackgroundColor(0, 0, 0, 1);
     self.Divider:SetVertexColor(v, v, v);
-    self:SetBorderOffset(-8);
+    self:SetBorderOffset(0);
 
     self.ScrollFrame.ScrollBar.Background:SetVertexColor(0.5, 0.5, 0.5);
 
     NarciAPI.CreateSmoothScroll(self.ScrollFrame);
     self.ScrollFrame:SetStepSize(40);
+
+    self:SetScript("OnMouseWheel", function()
+    end);
+end
+
+function API.GetSettingsFrame()
+    return SettingFrame
+end
+
+function NarciBarberShopSettingsMixin:AddChildFrame(child)
+    if not self.childFrames then
+        self.childFrames = {};
+    end
+
+    for i, f in ipairs(self.childFrames) do
+        if f == child then
+            return
+        end
+    end
+
+    table.insert(self.childFrames, child);
 end
 
 function NarciBarberShopSettingsMixin:Initialize()
     CreateTabs(self);
-    TabButtons[1]:Click();
+    TabButtons[3]:Click();  --Open Share (import/export)
+end
+
+function NarciBarberShopSettingsMixin:IsFocused()
+    if self:IsMouseOver(0, 0, 0, 16) then
+        return true
+    elseif self.childFrames then
+        for i, f in ipairs(self.childFrames) do
+            if f:IsVisible() and f:IsMouseOver() then
+                return true
+            end
+        end
+        return false
+    end
 end
 
 function NarciBarberShopSettingsMixin:OnEvent(event)
     --GLOBAL_MOUSE_DOWN
-    if not self:IsMouseOver() and not SettingButton:IsMouseOver() then
+    if not self:IsFocused() and not SettingButton:IsMouseOver() then
         self:Hide();
     end
 end

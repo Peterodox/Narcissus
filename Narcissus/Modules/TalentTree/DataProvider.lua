@@ -252,6 +252,7 @@ local NodeInfoCache = {};
 local EntryInfoCache = {};
 local ComparisonNodeInfoCache = {};
 local ComparisonEntryInfoCache = {};
+local EndOfLineTraits;
 local PLAYER_ACTIVE_CONFIG_ID;
 
 function DataProvider:SetPlayerActiveConfigID(configID)
@@ -289,6 +290,7 @@ end
 function DataProvider:ClearPlayerCache()
     NodeInfoCache = {};
     EntryInfoCache = {};
+    EndOfLineTraits = nil;
 end
 
 function DataProvider:ClearComparisonCache()
@@ -479,6 +481,104 @@ function DataProvider:GetLoadoutExportString()
     return exportString or "ERROR";
 end
 
+local function SortTraitByPosition(a, b)
+    --left to right, then bottom to top
+    if a[1] == b[1] then
+        return a[2] > b[2]
+    else
+        return a[1] < b[1]
+    end
+end
+
+function DataProvider:GetEndOfLineTraits()
+    --1. Traits with zero targetNode e.g. Last row
+    --2. Traits with targetNodes but none of them is activated
+
+    if EndOfLineTraits then
+        return EndOfLineTraits
+    end
+
+    local configID = DataProvider:GetSelecetdConfigID();
+    if not configID then return {} end;
+
+    local configInfo = C_Traits.GetConfigInfo(configID);
+    local treeID = configInfo and configInfo.treeIDs and configInfo.treeIDs[1];
+
+    if not treeID then
+        return {}
+    end
+
+	local nodeIDs = C_Traits.GetTreeNodes(treeID);
+    local nodeInfo, entryInfo, definitionInfo;
+    local definitionID, committedEntryID;
+    local spellID, icon, originalIcon;
+    local traitName;
+    local _;
+
+    local isNodeActive = {};
+
+    for i, nodeID in ipairs(nodeIDs) do
+        nodeInfo = GetNodeInfo(configID, nodeID);
+        if nodeInfo.isVisible then
+            committedEntryID = nodeInfo.entryIDsWithCommittedRanks and nodeInfo.entryIDsWithCommittedRanks[1];
+            if committedEntryID then
+                isNodeActive[nodeID] = true;
+            end
+        end
+    end
+
+    local numEdges, targetNodeID, valid;
+    local tempData = {};
+
+    for i, nodeID in ipairs(nodeIDs) do
+        nodeInfo = GetNodeInfo(configID, nodeID);
+        if nodeInfo.isVisible then
+            committedEntryID = nodeInfo.entryIDsWithCommittedRanks and nodeInfo.entryIDsWithCommittedRanks[1];
+            if committedEntryID then
+                numEdges = nodeInfo.visibleEdges and #nodeInfo.visibleEdges;
+                valid = true;
+                if numEdges then
+                    for j = 1, numEdges do
+                        targetNodeID = nodeInfo.visibleEdges[j].targetNode;
+                        if targetNodeID and isNodeActive[targetNodeID] then
+                            valid = false;
+                            break
+                        end
+                    end
+                end
+
+                if valid then
+                    entryInfo = GetEntryInfo(configID, committedEntryID);
+                    definitionID = entryInfo and entryInfo.definitionID;
+                    if definitionID then
+                        definitionInfo = C_Traits.GetDefinitionInfo(definitionID);
+                        if definitionInfo then
+                            spellID = definitionInfo.spellID or definitionInfo.overriddenSpellID;
+                            icon = definitionInfo.overrideIcon;
+                            if spellID then
+                                if not icon then
+                                    icon = GetSpellTexture(spellID);
+                                end
+                                table.insert(tempData, {nodeInfo.posX or 0, nodeInfo.posY or 0, committedEntryID, nodeInfo.currentRank or 1, spellID, icon});
+                            end
+                        end
+                    end
+                end
+            end
+        end
+    end
+
+    table.sort(tempData, SortTraitByPosition);
+    EndOfLineTraits = {};
+
+    for i, data in ipairs(tempData) do
+        EndOfLineTraits[i] = {data[3], data[4], data[5], data[6]};   --EntryID, Rank, SpellID, Icon
+    end
+
+    return EndOfLineTraits
+end
+
+NarciAPI.GetEndOfLineTraitInfo = DataProvider.GetEndOfLineTraits;
 
 --[[
 function DataProvider:EncodeActiveLoadout()

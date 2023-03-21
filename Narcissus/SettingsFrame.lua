@@ -679,6 +679,10 @@ local function ModelPanelScale_OnValueChanged(self, value)
     SettingFunctions.SetModelPanelScale(value);
 end
 
+local function LoopAnimation_OnValueChanged(self, value)
+    SettingFunctions.SetModelLoopAnimation(value);
+end
+
 local function GetOppositeValue(value)
     value = Round0(value);
     if value > 0 then
@@ -843,9 +847,9 @@ end
 
 
 function CreditList:CreateList(parent, anchorTo, fromOffsetY)
-    local active = {"Albator S.", "Solanya", "Erik Shafer", "Celierra&Darvian", "Pierre-Yves Bertolus", "Terradon", "Alex Boehm", "Miroslav Kovac", "Ryan Zerbin", "Nisutec"};
+    local active = {"Albator S.", "Solanya", "Erik Shafer", "Celierra&Darvian", "Pierre-Yves Bertolus", "Terradon", "Alex Boehm", "Miroslav Kovac", "Ryan Zerbin", "Tezenari"};
     local inactive = {"Elexys", "Ben Ashley", "Knightlord", "Brian Haberer", "Andrew Phoenix", "Nantangitan", "Blastflight", "Lars Norberg", "Valnoressa", "Nimrodan", "Brux",
-        "Karl", "Webb", "acein", "Christian Williamson", "Tzutzu", "Anthony Cordeiro", "Nina Recchia", "heiteo", "Psyloken", "Jesse Blick", "Victor Torres"};
+        "Karl", "Webb", "acein", "Christian Williamson", "Tzutzu", "Anthony Cordeiro", "Nina Recchia", "heiteo", "Psyloken", "Jesse Blick", "Victor Torres", "Nisutec"};
     local special = {"Marlamin | WoW.tools", "Keyboardturner | Avid Bug Finder(Generator)", "Meorawr | Wondrous Wisdomball", "Hubbotu | Translator - Russian", "Romanv | Translator - Spanish", "Onizenos | Translator - Portuguese"};
 
     local numTotal = #active;
@@ -2019,6 +2023,7 @@ local Categories = {
     {name = L["Photo Mode"], level = 0, key = "photoMode",
         widgets = {
             {type = "header", level = 0, text = L["Photo Mode"]},
+            {type = "checkbox", level = 1, key = "LoopAnimation", text = L["Loop Animation"], onValueChangedFunc = LoopAnimation_OnValueChanged},
             {type = "slider", level = 1, key = "screenshotQuality", text = L["Sceenshot Quality"], onValueChangedFunc = ScreenshotQuality_OnValueChanged, minValue = 3, maxValue = 10, getValueFunc = ScreenshotQuality_GetValue, valueFormatFunc = Round0, convertionFunc = Round0},
             {type = "subheader", level = 1, text = L["Screenshot Quality Description"]},
             {type = "slider", level = 1, key = "ModelPanelScale", text = L["Panel Scale"], onValueChangedFunc = ModelPanelScale_OnValueChanged, minValue = 0.8, maxValue = 1, valueStep = 0.1, extraTopPadding = 1, valueFormatFunc = Round1},

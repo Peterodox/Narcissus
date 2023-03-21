@@ -182,7 +182,7 @@ end
 
 local function RemoveColorString(str)
     if str then
-        return gsub(str, "|[cC][fF][fF]%w%w%w%w%w%w(.*)|[rR]", "%1")
+        return gsub(str, "|[cC][fF][fF][%w%s][%w%s][%w%s][%w%s][%w%s][%w%s](.*)|[rR]", "%1")
     end
 end
 
@@ -237,7 +237,7 @@ local function GetCraftingQualityFromText(text)
 end
 
 local function ReformatCraftingQualityText(text, addTierTextToRight)
-    local quality = match(text, "[Pp]rofessions%-[Ii]con%-[Qq]uality%-[Tt]ier(%d)", 1);
+    local quality = match(text, "[Qq]uality%-[Tt]ier(%d)", 1);     --10.0.7: Changed to Professions-(Chat)Icon-Quality-Tier
     if quality then
         local tempText = gsub(text, "%s?|A[^|]+|a", "");
         if tempText then
@@ -258,14 +258,25 @@ local function ReformatCraftingQualityText(text, addTierTextToRight)
             end
 
             if addTierTextToRight then
-                return tempText .."  "..color.."T"..quality.."|r";
+                return tempText .."  "..color.."T"..quality.."|r", true
             else
-                return color.."T"..quality.."|r  "..tempText
+                return color.."T"..quality.."|r  "..tempText, true
             end
-            
         end
     end
-    return text
+    return text, quality ~= nil
+end
+
+local function CompleteColorString(str)
+    --Fixes some unclosured color string (no |r at the end)
+    --Not robust
+    if str then
+        if strsub(str, 1, 1) == "|" and strsub(str, -2, -2) ~= "|" then
+            str = str .. "|r"
+        end
+    end
+
+    return str
 end
 
 ---- Advanced Tooltip Parser with callback ----
@@ -378,6 +389,7 @@ local function GetCachedItemTooltipTextByLine(item, line, callbackFunc)
             if _l <= numLines then
                 lineText = GetLineText(lines, _l);
                 if lineText and lineText ~= "" then
+                    lineText = CompleteColorString(lineText);
                     if output then
                         output = output.."\n"..lineText;
                     else
@@ -395,7 +407,7 @@ local function GetCachedItemTooltipTextByLine(item, line, callbackFunc)
         return output, isCached or (output ~= nil);
     else
         if line <= numLines then
-            lineText = GetLineText(lines, line);
+            lineText = RemoveColorString( GetLineText(lines, line) );
         end
 
         if not isCached then
@@ -468,23 +480,30 @@ local function GetItemEnchantText(itemLink, colorized)
 
     local lines = tooltipData.lines;
     local numLines = #lines;
+
+    if numLines < 5 then return end;
+
     local lineText;
     local enchantText;
     local enchantFormat = ITEM_ENCHANT_FORMAT;
+
     for i = 5, numLines do
-        lineText = GetLineText(lines, i);
-        if lineText then
-            enchantText = match(lineText, enchantFormat);
-            if enchantText then
-                enchantText = strtrim(enchantText);
-                if enchantText ~= "" then
-                    --print(enchantText)
-                    if colorized then
-                        enchantText = "|cff5fbd6b"..enchantText.."|r";
+        if lines[i][4] and lines[i][4].field == "enchantID" then
+            lineText = GetLineText(lines, i);
+            if lineText then
+                enchantText = match(lineText, enchantFormat);
+                if enchantText then
+                    enchantText = strtrim(enchantText);
+                    if enchantText ~= "" then
+                        if colorized then
+                            enchantText = "|cff5fbd6b"..enchantText.."|r";
+                        end
+                        enchantText = ReformatCraftingQualityText(enchantText);
+                        return enchantText
                     end
-                    return ReformatCraftingQualityText(enchantText)
                 end
             end
+            return
         else
             return
         end
@@ -493,8 +512,24 @@ end
 
 local function GetEnchantTextByEnchantID(enchantID)
     if enchantID then
-        local itemLink = "item:2092:"..enchantID;
-        return GetItemEnchantText(itemLink, false);
+        --local itemLink = "item:2092:"..enchantID;
+        --return GetItemEnchantText(itemLink, false);
+        local tooltipData = GetInfoByHyperlink("item:2092:"..enchantID);
+        if not tooltipData then return nil, true end;
+
+        local enchantText = GetLineText(tooltipData.lines, 8);  --DF:Moved to line #8
+        if enchantText and enchantText ~= "" then
+            --remove "Enchanted:"
+            local effect = match(enchantText, ITEM_ENCHANT_FORMAT);
+            if not effect then
+                effect = enchantText;
+            end
+
+            effect = ReformatCraftingQualityText(effect);
+            return effect, true
+        else
+            return nil, true
+        end
     end
 end
 
@@ -505,13 +540,13 @@ NarciAPI.GetEnchantTextByEnchantID = GetEnchantTextByEnchantID;
 local function GetEnchantTextByItemLink(itemLink, colorized, isRight)
     if not itemLink then return end;
 
-    local _, _, _, linkType, linkID, enchantID = split(":|H", itemLink);
+    local enchantID = match(itemLink, "item:%d+:(%d+):");
 
-    if enchantID then
+    if enchantID and enchantID ~= "" then
         local tooltipData = GetInfoByHyperlink("item:2092:"..enchantID);
-        if not tooltipData then return end;
+        if not tooltipData then return nil, true end;
 
-        local enchantText = GetLineText(tooltipData.lines, 7);
+        local enchantText = GetLineText(tooltipData.lines, 8);
         if enchantText and enchantText ~= "" then
             --remove "Enchanted:"
             local effect = match(enchantText, ITEM_ENCHANT_FORMAT);
@@ -522,7 +557,9 @@ local function GetEnchantTextByItemLink(itemLink, colorized, isRight)
                 effect = "|cff5fbd6b"..effect.."|r";
             end
             effect = ReformatCraftingQualityText(effect, isRight);
-            return effect
+            return effect, true
+        else
+            return nil, true
         end
     end
 end
@@ -765,8 +802,12 @@ local function GetGemBonusFromGem(gem)
             return;
         end
 
-        if not bonusText and strsub(lineText, 1, 1) == "+" then
-            bonusText = lineText;
+        if not bonusText then
+            if strsub(lineText, 1, 1) == "+" then
+                bonusText = lineText;
+            elseif find(lineText, ON_EQUIP) then
+                bonusText = FormatString(lineText, NO_COMMA_ON_EQUIP);
+            end
         end
 
         if find(lineText, GEM_MIN_LEVEL) then
@@ -1014,11 +1055,25 @@ local function GetCompleteItemData(tooltipData, itemLink)
                                 if not icon then
                                     icon = select(5, GetItemInfoInstant(gemLink));
                                 end
+
+                                local isCraftedItem;
+
                                 gemEffect = lines[i].args[2].stringVal;
                                 gemEffect = RemoveColorString(gemEffect);
-                                gemEffect = ReformatCraftingQualityText(gemEffect, true);
+                                gemEffect, isCraftedItem = ReformatCraftingQualityText(gemEffect, true);
+
+                                if not isCraftedItem then
+                                    local bonusTextFromItem = GetGemBonusFromGem(gemLink);
+                                    if bonusTextFromItem and gemEffect then
+                                        if bonusTextFromItem ~= gemEffect then
+                                            gemEffect = CompleteColorString(gemEffect)
+                                            gemEffect = gemEffect.."\n"..bonusTextFromItem;
+                                        end
+                                    end
+                                end
+
                                 if not requestSubData then
-                                    if gemEffect and gemEffect == "" then
+                                    if (not gemName or gemName == "") or (not gemEffect and gemEffect == "") then
                                         requestSubData = true;
                                     end
                                 end
@@ -1029,8 +1084,6 @@ local function GetCompleteItemData(tooltipData, itemLink)
                                 gemEffect = gemName;
                             end
                             data.socketInfo[socketOrderID] = {icon, gemName, gemLink, gemEffect};
-
-                            DT = lines[i]
                         end
                     end
                 end
@@ -1178,6 +1231,7 @@ EMPTY_SOCKET_CYPHER = "Crystallic Socket"
 RELIC_TOOLTIP_TYPE
 --]]
 
+--[[
 local SocketTypes = {
     --tooltip emtpy socket texture fileID
     [136256] = "BLUE",
@@ -1192,18 +1246,19 @@ local SocketTypes = {
     [2958630] = "PUNCHCARDRED",
     [2958631] = "PUNCHCARDYELLOW",
 };
-
-do
-    local version, build, date, tocversion = GetBuildInfo()
-    if tocversion and tocversion < 90000 then
-        SocketTypes[136257] = "META";
-    end
-end
+--]]
 
 local IsSupportedSocket = {};
 
-for _, name in pairs(SocketTypes) do
-    IsSupportedSocket[name] = true;
+do
+    local postfixes = {
+        "BLUE", "COGWHEEL", "HYDRAULIC", "META", "PRISMATIC", "PUNCHCARDBLUE", "PUNCHCARDRED", "PUNCHCARDYELLOW",
+        "RED", "TINKER", "YELLOW", "PRIMORDIAL",
+    };
+
+    for _, name in pairs(postfixes) do
+        IsSupportedSocket[name] = true;
+    end
 end
 
 
@@ -1275,7 +1330,7 @@ local function GetItemSocketInfo(itemLink)
             if not socektInfo then
                 socektInfo = {};
             end
-            gemOrderID = gemOrderID + 1;
+            gemOrderID = i;
             icon = select(5, GetItemInfoInstant(gemLink));
             socektInfo[gemOrderID] = {gemName, icon, gemLink};
         end
@@ -1612,6 +1667,27 @@ end
 NarciAPI.GetItemRequirement = GetItemRequirement;
 
 
+
+local PrimordialStoneNames = {};
+
+local function GetColorizedPrimordialStoneName(itemID)
+    --From PTR: color format |C0040C040Storm Infused Stone  --|C00?  No closure |r?
+    if PrimordialStoneNames[itemID] then
+        return PrimordialStoneNames[itemID]
+    end
+
+    local name = GetItemTooltipTextByLine(itemID, 6, true);
+
+    if name and name ~= "" then
+        PrimordialStoneNames[itemID] = name;
+    else
+        name = GetItemInfo(itemID);
+    end
+
+    return name
+end
+
+NarciAPI.GetColorizedPrimordialStoneName = GetColorizedPrimordialStoneName;
 
 --[[
 function Professions.GetIconForQuality(quality, small)

@@ -4,6 +4,7 @@
 	<Script file="ImportExport.lua"/>
 	<Script file="Statistics.lua"/>
 	<Script file="KeyboardControl.lua"/>
+	<Script file="AppearanceList.lua"/>
     <Script file="Barbershop.lua"/>
 
 	<Frame name="NarciBarberShopStrokeFrameTemplate" mixin="NarciBarberShopSharedTemplateMixin" virtual="true">
@@ -130,6 +131,53 @@
 						<MaskedTexture childKey="BorderGlow"/>
 					</MaskedTextures>
 				</MaskTexture>
+			</Layer>
+		</Layers>
+		<Scripts>
+			<OnLoad method="OnLoad"/>
+			<OnEditFocusGained method="OnEditFocusGained"/>
+			<OnEditFocusLost method="OnEditFocusLost"/>
+			<OnEscapePressed method="OnEscapePressed"/>
+		</Scripts>
+	</EditBox>
+
+	<EditBox name="NarciBarberShopAppearanceClipboardTemplate" mixin="NarciBarberShopAppearanceClipboardMixin" multiLine="true" autoFocus="false" virtual="true">
+		<FontString inherits="SystemFont_Tiny" justifyH="LEFT" justifyV="TOP"/>
+		<HighlightColor r="0.05" g="0.41" b="0.85"/>
+		<TextInsets>
+			<AbsInset left="8" right="8" top="24" bottom="8"/>
+		</TextInsets>
+		<Layers>
+			<Layer level="BACKGROUND">
+				<Texture parentKey="BackgroundOverlay">
+					<Color r="0" g="0" b="0"/>
+					<Anchors>
+						<Anchor point="TOPLEFT" x="8" y="-8"/>
+						<Anchor point="BOTTOMRIGHT" x="-8" y="8"/>
+					</Anchors>
+				</Texture>
+			</Layer>
+			<Layer level="OVERLAY">
+				<FontString inherits="SystemFont_Tiny" justifyH="CENTER" justifyV="TOP" parentKey="AlertText" hidden="true" spacing="2">
+					<Color r="0.5" g="0.5" b="0.5"/>
+					<Anchors>
+						<Anchor point="TOPLEFT" relativeKey="$parent" relativePoint="TOPLEFT" x="8" y="-8"/>
+						<Anchor point="TOPRIGHT" relativeKey="$parent" relativePoint="TOPRIGHT" x="-8" y="-8"/>
+					</Anchors>
+					<Animations>
+						<AnimationGroup parentKey="AnimFade">
+							<Alpha fromAlpha="1" toAlpha="0" startDelay="0.5" duration="1" parentKey="Anim1"/>
+							<Scripts>
+								<OnFinished>
+									self:GetParent():Hide();
+								</OnFinished>
+								<OnStop>
+									self:GetParent():Hide();
+								</OnStop>
+							</Scripts>
+						</AnimationGroup>
+					</Animations>
+				</FontString>
 			</Layer>
 		</Layers>
 		<Scripts>
@@ -798,12 +846,12 @@
 			<Frame parentKey="SettingFrame" frameStrata="HIGH" frameLevel="12" mixin="NarciBarberShopSettingsMixin" inherits="NarciChamferedFrameTemplate" hidden="true" ignoreParentAlpha="true" enableMouse="true">
 				<Size x="392" y="200"/>
 				<Anchors>
-					<Anchor point="BOTTOMLEFT" relativeKey="$parent.SettingButton" relativePoint="BOTTOMRIGHT" x="-4" y="-5"/>
+					<Anchor point="BOTTOMLEFT" relativeKey="$parent.SettingButton" relativePoint="BOTTOMRIGHT" x="3" y="3"/>
 				</Anchors>
 				<Layers>
 					<Layer level="ARTWORK">
 						<Texture parentKey="Divider" file="Interface\AddOns\Narcissus\Art\Modules\BarberShop\VerticalLine">
-							<Size x="8" y="180"/>
+							<Size x="8" y="198"/>
 							<Anchors>
 								<Anchor point="CENTER" relativeKey="$parent" relativePoint="LEFT" x="80"/>
 							</Anchors>
@@ -812,9 +860,9 @@
 				</Layers>
 				<Frames>
 					<ScrollFrame parentKey="ScrollFrame" clipChildren="true">
+						<Size x="312" y="196"/>
 						<Anchors>
-							<Anchor point="TOPLEFT" relativeKey="$parent" relativePoint="TOPLEFT" x="82" y="-10"/>
-							<Anchor point="BOTTOMRIGHT" relativeKey="$parent" relativePoint="BOTTOMRIGHT" x="-8" y="10"/>
+							<Anchor point="LEFT" relativeKey="$parent" relativePoint="LEFT" x="80"/>
 						</Anchors>
 						<!--Layers>
 							<Layer level="BACKGROUND">
@@ -846,9 +894,9 @@
 					</ScrollFrame>
 
 					<Frame parentKey="ProfilesTab" hidden="true">
-						<Size x="302" y="180"/>
+						<Size x="312" y="180"/>
 						<Anchors>
-							<Anchor point="TOPLEFT" relativeKey="$parent.ScrollFrame" relativePoint="TOPLEFT"/>
+							<Anchor point="LEFT" relativeKey="$parent" relativePoint="LEFT" x="80"/>
 						</Anchors>
 						<Layers>
 							<!--Layer level="OVERLAY">

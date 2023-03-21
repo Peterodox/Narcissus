@@ -30,7 +30,7 @@ do
 		local tempTbl = {};
 		function IsContainerItemFiltered(bag, slot)
 			tempTbl = GetContainerItemInfo(bag, slot);
-			return tempTbl.isFiltered
+			return tempTbl and tempTbl.isFiltered
 		end
 	else
 		GetContainerItemInfo = GetContainerItemInfo;
@@ -309,6 +309,11 @@ function ItemFilter.ShowGem()
 	SearchEventFrame.arg1 = nil;
 	START_SEARCHING(AUCTION_CATEGORY_GEMS or "Gems");
 	SaveLastFilter(ItemFilter.ShowGem);
+end
+
+function ItemFilter.ShowPrimordialStones()
+	local name = NarciAPI.GetCachedItemTooltipTextByLine(204002, 2) or "Primordial Stone";
+	ItemFilter.SearchKeyword(name);
 end
 
 function ItemFilter.Remove()

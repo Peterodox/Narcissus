@@ -1,6 +1,7 @@
 local unpack = unpack;
 local CreateColor = NarciAPI.CreateColor;
 local IsItemClassSet = NarciAPI.IsItemClassSet;
+local GetItemInfoInstant = GetItemInfoInstant;
 
 local FILE_PATH_DARK = "Interface/AddOns/Narcissus/Art/ItemBorder-Dark/JPG/";
 
@@ -17,6 +18,8 @@ local itemBorderMask = {
     [9200] = "Interface/AddOns/Narcissus/Art/ItemBorder-Dark/Mask/Progenitor",
     [9201] = "Interface/AddOns/Narcissus/Art/ItemBorder-Dark/Mask/Menethil",
     [9202] = "Interface/AddOns/Narcissus/Art/ItemBorder-Dark/Mask/Anduin",
+
+    [100701] = "Interface/AddOns/Narcissus/Art/ItemBorder-Dark/Mask/OnyxAnnulet",
 }
 
 local itemBorderHeavy = {
@@ -46,6 +49,7 @@ local itemBorderHeavy = {
     Genesis = {"Genesis", 2},
     Shield = {"Shield", 1},
     Strife = {"Strife", 2},
+    OnyxAnnulet = {"OnyxAnnulet", 100701},
 }
 
 local function GetBorderThemeName()
@@ -93,7 +97,7 @@ NarciAPI.SetBorderTexture = SetBorderTexture;
 
 
 local itemIDxBorderArt = {
-    --[itemID] = {borderName, vfxName, color}
+    --[itemID] = {borderName, vfxName, color, hideItemIcon}
     [186429] = {"Garrosh", "Garrosh", CreateColor(235, 91, 80)},    --177057
     [186414] = {"Sylvanas", "Sylvanas",  CreateColor(148, 188, 203)},
 
@@ -106,6 +110,8 @@ local itemIDxBorderArt = {
     [189754] = {"Genesis", nil, CreateColor(216, 212, 155)},        --Genesis Lathe
     [188253] = {"Strife", "OrangeRune", nil},                       --Scars of Fraternal Strife
 
+    [203460] = {"OnyxAnnulet", "OnyxAnnulet", nil, nil, nil, true},           --Onyx Annulet --CreateColor(255, 171, 0)
+
     Progenitor = {"Progenitor", nil, CreateColor(230, 204, 128)},   --Class Sets: Sepulcher of the First Ones
 };
 
@@ -116,7 +122,7 @@ do
         188892, 188894, 188896, 188893, 188898,     --DH
         188847, 188853, 188851, 188848, 188849,     --Druid
         188859, 188861, 188860, 188856, 188858,     --Hunter
-        188844, 188845, 188839, 188842, 188843,     --Mage
+        188844, 188845, 188839, 188842, 188843,     --Magepi
         188916, 188911, 188910, 188914, 188912,     --Monk
         188933, 188931, 188932, 188929, 188928,     --Paladin
         188880, 188879, 188881, 188875, 188878,     --Priest
@@ -141,10 +147,80 @@ end
 NarciAPI.GetBorderArtByItemID = GetBorderArtByItemID;
 
 
---------------------------------------------------------------------------------------------------
-local pi = math.pi;
+---- Gem Border ----
+local gemBorderTexture = {
+    filePrefix = "Interface/AddOns/Narcissus/Art/GemBorder/Dark/",
+	[0]  = "White",			--Empty
+	[1]  = "Primary",	--Kraken's Eye
+	[2]  = "Green",
+	[3]  = "Primary",	--Prismatic
+	[4]  = "Primary",	--Meta
+	[5]  = "Orange",	--Orange
+	[6]  = "Purple",
+    [7]  = "Yellow",	--Yellow
+	[8]  = "Blue",		--Blue
+	[9]  = "Black",	--(Other Type)
+	[10] = "Red",		--Red
+	[11] = "White",			--Artifact
+    [12] = "Crystallic",
+};
 
---ModelScene for Item Borders
+local specialGemBoder = {
+    [153714] = 10,
+    [173125] = 10,
+    [153715] = 2,
+    [169220] = 2,
+    [173126] = 2,
+    [168636] = 1,
+    [168637] = 1,
+    [168638] = 1,
+    [153707] = 1,
+    [153708] = 1,
+    [153709] = 1,
+    [189723] = 12,
+    [189722] = 12,
+    [189732] = 12,
+    [189560] = 12,
+    [189763] = 12,
+    [189724] = 12,
+    [189725] = 12,
+    [189726] = 12,
+    [189762] = 12,
+    [189727] = 12,
+    [189728] = 12,
+    [189729] = 12,
+    [189730] = 12,
+    [189731] = 12,
+    [189764] = 12,
+    [189733] = 12,
+    [189734] = 12,
+    [189760] = 12,
+    [189761] = 12,
+    [189735] = 12,
+};
+
+local function GetGemBorderTexture(itemSubClassID, itemID)
+    local index = (itemID and specialGemBoder[itemID]) or itemSubClassID or 0;
+    return gemBorderTexture.filePrefix..gemBorderTexture[index], index
+end
+
+local function SetBorderTheme(theme)
+    --1.1.2 Override
+    theme = "Dark";
+
+    if theme == "Bright" then
+        gemBorderTexture.filePrefix = "Interface/AddOns/Narcissus/Art/GemBorder/Bright/";
+    elseif theme == "Dark" then
+        gemBorderTexture.filePrefix = "Interface/AddOns/Narcissus/Art/GemBorder/Dark/";
+    end
+end
+
+NarciAPI.SetBorderTheme = SetBorderTheme;
+NarciAPI.GetGemBorderTexture = GetGemBorderTexture;
+
+
+---- Item Border Visual (ModelScene) ----
+local PI = math.pi;
 local VFXContainer = CreateFrame("Frame", "NarciItemVFXContainer");
 
 function VFXContainer:AcquireAndSetModelScene(parentFrame, effectName)
@@ -162,7 +238,7 @@ function VFXContainer:AcquireAndSetModelScene(parentFrame, effectName)
         model:GetParent().VFX = nil;
     else
         model = CreateFrame("ModelScene", nil, self, "NarciItemVFXTemplate");
-        tinsert(self.models, model);
+        table.insert(self.models, model);
     end
     model:SetParent(parentFrame);
     model:SetUpByName(effectName);
@@ -203,6 +279,100 @@ end
 
     --/run NarciItemVFX:SetUpByName("heart")
 --]]
+
+
+---- Display 3 Sockets ----
+local SocketContainer;
+
+local function CreateSocketTexture(container)
+    local texture = container:CreateTexture(nil, "OVERLAY");
+    texture:SetTexCoord(0.0625, 0.9375, 0.0625, 0.9375);
+
+    local mask = container:CreateMaskTexture(nil, "OVERLAY");
+    mask:SetPoint("TOPLEFT", texture, "TOPLEFT", 0, 0);
+    mask:SetPoint("BOTTOMRIGHT", texture, "BOTTOMRIGHT", 0, 0);
+    mask:SetTexture("Interface/AddOns/Narcissus/Art/BasicShapes/Circle64", "CLAMPTOBLACKADDITIVE", "CLAMPTOBLACKADDITIVE");
+    texture:AddMaskTexture(mask);
+
+    local overlay = container:CreateTexture(nil, "OVERLAY", nil, 3);
+    overlay:SetPoint("TOPLEFT", texture, "TOPLEFT", 0, 0);
+    overlay:SetPoint("BOTTOMRIGHT", texture, "BOTTOMRIGHT", 0, 0);
+    overlay:SetTexture("Interface/AddOns/Narcissus/Art/BasicShapes/Circle-InnerShadow-8");
+
+    return texture
+end
+
+local function DisplayThreeSockets(vfxFrame)
+    vfxFrame.effectName = nil;  --Cleared this so we can update this container
+
+    local slotButton = vfxFrame:GetParent();
+
+    if slotButton and slotButton.itemLink then
+        local gemID1, gemID2, gemID3 = string.match(slotButton.itemLink, "item:%d+:%d*:(%d*):(%d*):(%d*)");
+        local ids = {};
+        local _, socket, icon;
+
+        if gemID1 and gemID1 ~= "" then
+            table.insert(ids, tonumber(gemID1))
+        end
+        if gemID2 and gemID2 ~= "" then
+            table.insert(ids, tonumber(gemID2))
+        end
+        if gemID3 and gemID3 ~= "" then
+            table.insert(ids, tonumber(gemID3))
+        end
+
+        local total = #ids;
+
+        if total > 0 then
+            if not SocketContainer then
+                SocketContainer = CreateFrame("Frame", nil, vfxFrame);
+                SocketContainer.sockets = {};
+            end
+            if total > 1 then
+                table.sort(ids);
+            end
+            vfxFrame.additionalFrame = SocketContainer;
+            SocketContainer:SetParent(vfxFrame);
+            SocketContainer.owner = vfxFrame;
+            SocketContainer:Show();
+        end
+
+        for i = 1, total do
+            socket = SocketContainer.sockets[i];
+            if not socket then
+                socket = CreateSocketTexture(SocketContainer);
+                SocketContainer.sockets[i] = socket;
+
+                local degree;
+                if i == 1 then
+                    degree = 0;
+                elseif i == 2 then
+                    degree = 120;
+                else
+                    degree = 240;
+                end
+
+                local r = 18;
+                local x = r * math.cos( math.rad(degree) );
+                local y = r * math.sin( math.rad(degree) );
+
+                socket:SetSize(22, 22);
+                socket.x, socket.y = x, y;
+            end
+
+            socket:ClearAllPoints();
+            socket:SetPoint("CENTER", vfxFrame, "CENTER", socket.x, socket.y);
+            _, _, _, _, icon = GetItemInfoInstant(ids[i]);
+            socket:SetTexture(icon);
+            socket:Show();
+        end
+
+        for i = total + 1, #SocketContainer.sockets do
+            SocketContainer.sockets[i]:Hide();
+        end
+    end
+end
 
 local itemVFXInfo = {
     Heart = {
@@ -271,8 +441,14 @@ local itemVFXInfo = {
             {fileID = 3656114, animationID = 158, modelOffset = {0.2,-0.05}, alpha = 1, particleScale = 1,};
         },
         offset = {x = 0, y = 0 },
-    }
+    },
+
+    OnyxAnnulet = {
+        setupFunc = DisplayThreeSockets,
+    },
 };
+
+
 NarciItemVFXMixin = {};
 
 function NarciItemVFXMixin:Activate()
@@ -283,10 +459,34 @@ end
 function NarciItemVFXMixin:Remove()
     self:Hide();
     self.isActive = false;
+
+    if self.additionalFrame and self.additionalFrame.owner == self then
+        self.additionalFrame:Hide();
+        self.additionalFrame = nil;
+    end
 end
 
-function NarciItemVFXMixin:SetUp(modelSceneInfo, useCustomPosition)
-    self.isActive = true;
+function NarciItemVFXMixin:ClearEffects(fromIndex)
+    if self.effects then
+        fromIndex = fromIndex or 1;
+        for i = fromIndex, #self.effects do
+            self.effects[i]:Hide();
+            self.effects[i]:ClearModel();
+        end
+    end
+end
+
+function NarciItemVFXMixin:SetUp(vfxInfo, useCustomPosition)
+    self:SetFrameLevel( (self:GetParent():GetFrameLevel() or 0) + 2);
+    self:Activate();
+
+    if vfxInfo.setupFunc then
+        self:ClearAllPoints();
+        self:SetPoint("CENTER", self:GetParent(), "CENTER", 0, 0);
+        self:ClearEffects();
+        vfxInfo.setupFunc(self);
+        return
+    end
 
     local camera = self.effectCamera;
     if not camera then
@@ -298,7 +498,7 @@ function NarciItemVFXMixin:SetUp(modelSceneInfo, useCustomPosition)
         camera:ApplyFromModelSceneCameraInfo(modelSceneCameraInfo, 1, 1);    --1 ~ CAMERA_TRANSITION_TYPE_IMMEDIATE / CAMERA_MODIFICATION_TYPE_DISCARD
     end
 
-    local cameraInfo = modelSceneInfo.camera;
+    local cameraInfo = vfxInfo.camera;
     camera:SetZoomDistance(cameraInfo.zoomDistance or 3);
     camera:SynchronizeCamera();
 
@@ -306,25 +506,25 @@ function NarciItemVFXMixin:SetUp(modelSceneInfo, useCustomPosition)
     local actorPitch, actorYaw = 0, 0;
     if view then
         if type(view) == "string" then
-            view = strupper(view);
+            view = string.upper(view);
             if view == "FRONT" then
                 actorPitch = 0;
-                actorYaw = pi;
+                actorYaw = PI;
             elseif view == "BACK" then
                 actorPitch = 0;
                 actorYaw = 0;
             elseif view == "TOP" then
-                actorPitch = pi/2;
-                actorYaw = pi; 
+                actorPitch = PI/2;
+                actorYaw = PI; 
             elseif view == "BOTTOM" then
-                actorPitch = -pi/2;
-                actorYaw = pi;
+                actorPitch = -PI/2;
+                actorYaw = PI;
             elseif view == "LEFT" then
                 actorPitch = 0;
-                actorYaw = -pi/2;
+                actorYaw = -PI/2;
             elseif view == "RIGHT" then
                 actorPitch = 0;
-                actorYaw = pi/2;
+                actorYaw = PI/2;
             end
         elseif type(view) == "table" then
             actorPitch = view[1] or actorPitch;
@@ -338,9 +538,10 @@ function NarciItemVFXMixin:SetUp(modelSceneInfo, useCustomPosition)
 
     local actorInfo;
     local actor;
-    local numEffects = #modelSceneInfo.actors
+    local numEffects = #vfxInfo.actors;
+
     for i = 1, numEffects do
-        actorInfo = modelSceneInfo.actors[i];
+        actorInfo = vfxInfo.actors[i];
         actor = self.effects[i];
         if actorInfo then
             if not actor then
@@ -369,19 +570,17 @@ function NarciItemVFXMixin:SetUp(modelSceneInfo, useCustomPosition)
         else
             actor:Hide();
         end
-
-        ACTOR = actor
     end
-    local frameOffset = modelSceneInfo.offset;
+
+    self:ClearEffects(numEffects + 1);
+
+    local frameOffset = vfxInfo.offset;
     self:ClearAllPoints();
     self.offsetX = frameOffset.x or 0;
-    self.offsetY = frameOffset.y or 0
+    self.offsetY = frameOffset.y or 0;
     if not useCustomPosition then
         self:SetPoint("CENTER", self:GetParent(), "CENTER", self.offsetX, self.offsetY);
     end
-    self:SetFrameLevel( (self:GetParent():GetFrameLevel() or 0) + 2);
-
-    self:Activate();
 end
 
 function NarciItemVFXMixin:SetUpByName(effectName, useCustomPosition)

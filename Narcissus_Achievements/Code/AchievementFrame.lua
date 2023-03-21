@@ -1451,22 +1451,6 @@ local function SelectCategory(categoryID)
     end
 end
 
-local function SubCategoryButton_OnClick(button)
-    local categoryID = button.id;
-    if categoryID ~= DataProvider.currentCategory then
-        --print(categoryID);
-        local lastButton = DataProvider:GetCategoryButtonByID(DataProvider.currentCategory);
-        DataProvider.currentCategory = categoryID;
-        if lastButton then
-            lastButton.label:SetTextColor(0.8, 0.8, 0.8);
-        end
-        button.label:SetTextColor(1, 0.91, 0.647);
-        SelectCategory(categoryID);
-    else
-        --print("old")
-    end
-end
-
 local function ToggleFeatOfStrenghtText(button)
     if button.isFoS then
         local _, totalCompleted = GetCategoryNumAchievements(button.id, false);
@@ -1483,6 +1467,23 @@ local function ToggleFeatOfStrenghtText(button)
     else
         MainFrame.FeatOfStrengthText:Hide();
     end
+end
+
+local function SubCategoryButton_OnClick(button)
+    local categoryID = button.id;
+    if categoryID ~= DataProvider.currentCategory then
+        --print(categoryID);
+        local lastButton = DataProvider:GetCategoryButtonByID(DataProvider.currentCategory);
+        DataProvider.currentCategory = categoryID;
+        if lastButton then
+            lastButton.label:SetTextColor(0.8, 0.8, 0.8);
+        end
+        button.label:SetTextColor(1, 0.91, 0.647);
+        SelectCategory(categoryID);
+    else
+        --print("old")
+    end
+    ToggleFeatOfStrenghtText(button);
 end
 
 local function CategoryButton_OnClick(button, mouse)

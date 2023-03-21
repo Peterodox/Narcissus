@@ -423,75 +423,7 @@ NarciAPI.GetItemQualityColorTable = function()
     return newTable;
 end
 
-local gemBorderTexture = {
-    filePrefix = "Interface/AddOns/Narcissus/Art/GemBorder/Dark/",
-	[0]  = "White",			--Empty
-	[1]  = "Primary",	--Kraken's Eye
-	[2]  = "Green",
-	[3]  = "Primary",	--Prismatic
-	[4]  = "Primary",	--Meta
-	[5]  = "Orange",	--Orange
-	[6]  = "Purple",
-    [7]  = "Yellow",	--Yellow
-	[8]  = "Blue",		--Blue
-	[9]  = "Yellow",	--Empty
-	[10] = "Red",		--Red
-	[11] = "White",			--Artifact
-    [12] = "Crystallic",
-};
 
-local specialGemBoder = {
-    [153714] = 10,
-    [173125] = 10,
-    [153715] = 2,
-    [169220] = 2,
-    [173126] = 2,
-    [168636] = 1,
-    [168637] = 1,
-    [168638] = 1,
-    [153707] = 1,
-    [153708] = 1,
-    [153709] = 1,
-    [189723] = 12,
-    [189722] = 12,
-    [189732] = 12,
-    [189560] = 12,
-    [189763] = 12,
-    [189724] = 12,
-    [189725] = 12,
-    [189726] = 12,
-    [189762] = 12,
-    [189727] = 12,
-    [189728] = 12,
-    [189729] = 12,
-    [189730] = 12,
-    [189731] = 12,
-    [189764] = 12,
-    [189733] = 12,
-    [189734] = 12,
-    [189760] = 12,
-    [189761] = 12,
-    [189735] = 12,
-};
-
-local function GetGemBorderTexture(itemSubClassID, itemID)
-    local index = (itemID and specialGemBoder[itemID]) or itemSubClassID or 0;
-    return gemBorderTexture.filePrefix..gemBorderTexture[index], index
-end
-
-local function SetBorderTheme(theme)
-    --1.1.2 Override
-    theme = "Dark";
-
-    if theme == "Bright" then
-        gemBorderTexture.filePrefix = "Interface/AddOns/Narcissus/Art/GemBorder/Bright/";
-    elseif theme == "Dark" then
-        gemBorderTexture.filePrefix = "Interface/AddOns/Narcissus/Art/GemBorder/Dark/";
-    end
-end
-
-NarciAPI.SetBorderTheme = SetBorderTheme;
-NarciAPI.GetGemBorderTexture = GetGemBorderTexture;
 
 --------------------
 ------Item API------
@@ -639,16 +571,61 @@ end
 do
     local GetContainerNumSlots = (C_Container and C_Container.GetContainerNumSlots) or GetContainerNumSlots;
     local GetContainerItemID = (C_Container and C_Container.GetContainerItemID) or GetContainerItemID;
-    local function GetItemBagPosition(itemID)
-        for bagID = 0, (NUM_BAG_SLOTS or 4) do
-            for slotID = 1, GetContainerNumSlots(bagID) do
-                if(GetContainerItemID(bagID, slotID) == itemID) then
-                    return bagID, slotID
+    local GetContainerItemLink = (C_Container and C_Container.GetContainerItemLink) or GetContainerItemLink;
+    local GetInventoryItemID = GetInventoryItemID;
+    local GetItemCount = GetItemCount;
+
+    local function GetItemBagPosition(itemID, findHighestItemLevel)
+        if findHighestItemLevel then
+            local topLevel = -1;
+            local level;
+            local GetDetailedItemLevelInfo = GetDetailedItemLevelInfo;
+            local id1, id2;
+
+            for bagID = 0, (NUM_BAG_SLOTS or 4) do
+                for slotID = 1, GetContainerNumSlots(bagID) do
+                    if(GetContainerItemID(bagID, slotID) == itemID) then
+                        level = GetDetailedItemLevelInfo( GetContainerItemLink(bagID, slotID) ) or 0;
+                        if level > topLevel then
+                            id1, id2 = bagID, slotID;
+                        end
+                    end
+                end
+            end
+
+            return id1, id2;
+
+        else
+            for bagID = 0, (NUM_BAG_SLOTS or 4) do
+                for slotID = 1, GetContainerNumSlots(bagID) do
+                    if(GetContainerItemID(bagID, slotID) == itemID) then
+                        return bagID, slotID
+                    end
                 end
             end
         end
     end
     NarciAPI.GetItemBagPosition = GetItemBagPosition;
+
+    local function GetItemPositionByItemID(itemID)
+        local count = GetItemCount(itemID);
+
+        if count and count > 0 then
+            local id;
+            for slotID = 1, 19 do
+                id = GetInventoryItemID("player", slotID);
+                if id and id == itemID then
+                    return "inventory", slotID
+                end
+            end
+
+            local bagID, slotID = GetItemBagPosition(itemID);
+            if bagID then
+                return "container", bagID, slotID
+            end
+        end
+    end
+    NarciAPI.GetItemPositionByItemID = GetItemPositionByItemID;
 end
 
 
@@ -792,6 +769,12 @@ local function GetTexturePixelSize(texture)
 end
 
 NarciAPI.GetTexturePixelSize = GetTexturePixelSize;
+
+local function GetBestSizeForPixel(size, pixel)
+    return floor(size/pixel + 0.5) * pixel
+end
+
+NarciAPI.GetBestSizeForPixel = GetBestSizeForPixel;
 
 
 function NarciAPI_OptimizeBorderThickness(self)

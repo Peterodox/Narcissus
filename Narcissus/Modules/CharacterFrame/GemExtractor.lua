@@ -1,9 +1,7 @@
 local Narci = Narci;
 
 local After = C_Timer.After;
-local GetContainerNumFreeSlots = GetContainerNumFreeSlots;
-local GetContainerNumSlots = GetContainerNumSlots;
-local GetContainerItemID = GetContainerItemID;
+local GetContainerNumFreeSlots = (C_Container and C_Container.GetContainerNumFreeSlots) or GetContainerNumFreeSlots;
 local GetItemCount = GetItemCount;
 local NUM_BAGS = NUM_BAG_SLOTS or 4;
 
@@ -15,22 +13,13 @@ local MARCO_USE_ITEM_BY_ID = "/use item:%s";
 
 
 local function DoesPlayerHaveItem(itemID)
-    return GetItemCount(itemID) > 0
-end
-
-local function GetBagPosition(itemID)
-    for bagID = 0, NUM_BAGS do
-        for slotIndex = 1, GetContainerNumSlots(bagID) do
-            if(GetContainerItemID(bagID, slotIndex) == itemID) then
-                return bagID, slotIndex
-            end
-        end
-    end
+    --return GetItemCount(itemID) > 0
+    return false
 end
 
 local function GetNumFreeBagSlots()
     --a copy of CalculateTotalNumberOfFreeBagSlots
-	local totalFree, freeSlots, bagFamily = 0;
+	local totalFree, freeSlots, bagFamily = 0, 0, 0;
 	for i = 0, NUM_BAGS do --BACKPACK_CONTAINER, NUM_BAG_SLOTS
 		freeSlots, bagFamily = GetContainerNumFreeSlots(i);
 		if ( bagFamily == 0 ) then
@@ -39,27 +28,6 @@ local function GetNumFreeBagSlots()
 	end
 	return totalFree;
 end
-
-local function GetCurrentSocketingItem(bag, slot)
-    local itemlocation;
-    if not bag then
-        itemlocation = ItemLocation:CreateFromEquipmentSlot(slot);
-    else
-        itemlocation = ItemLocation:CreateFromBagAndSlot(bag, slot);
-    end
-    return itemlocation;
-end
-
-
---/dump GetMouseFocus().itemLocation:GetBagAndSlot()
---Protected: UseContainerItem
---ItemLocation:SetBagAndSlot(bagID, slotIndex);
---local itemIsValidItem = itemLocation:IsValid() and C_Item.DoesItemExist(itemLocation);
-
---[[
-    1, 16
---]]
-
 
 local IsMounted = IsMounted;
 local IsFlying = IsFlying;
@@ -138,7 +106,7 @@ end
 function NarciItemSocketingActionButtonMixin:OnShow()
     self:RegisterEvent("PLAYER_MOUNT_DISPLAY_CHANGED");
     self:RegisterEvent("PLAYER_REGEN_DISABLED");
-    if not self:IsMouseOver() then
+    if self:IsEnabled() and not self:IsMouseOver() then
         self:OnLeave();
     end
 end
@@ -151,14 +119,17 @@ function NarciItemSocketingActionButtonMixin:OnHide()
 end
 
 function NarciItemSocketingActionButtonMixin:DisableButton()
+    self:Show();
     self:Disable();
-    if not EXTRACTOR_ITEM_LOCALIZED_NAME then
-        EXTRACTOR_ITEM_LOCALIZED_NAME = C_Item.GetItemNameByID(EXTRACTOR_ITEM_ID);
-    end
-    self.Label:SetText( string.format(REQUIREMENT_FORMAT, (EXTRACTOR_ITEM_LOCALIZED_NAME or EXTRACTOR_ITEM_NAME)) );
+    --if not EXTRACTOR_ITEM_LOCALIZED_NAME then
+    --    EXTRACTOR_ITEM_LOCALIZED_NAME = C_Item.GetItemNameByID(EXTRACTOR_ITEM_ID);
+    --end
+    --self.Label:SetText( string.format(REQUIREMENT_FORMAT, (EXTRACTOR_ITEM_LOCALIZED_NAME or EXTRACTOR_ITEM_NAME)) );
+    self.Label:SetText(Narci.L["Socket Occupied"]);
 end
 
 function NarciItemSocketingActionButtonMixin:AttemptToEnable()
+    --[[
     self:Show();
     self:SetScript("OnUpdate", nil);
     local numFreeSlots = GetNumFreeBagSlots();
@@ -178,6 +149,7 @@ function NarciItemSocketingActionButtonMixin:AttemptToEnable()
     else
         self:SetFailedReason(1);
     end
+    --]]
 end
 
 function NarciItemSocketingActionButtonMixin:TrackFlyingStatus()

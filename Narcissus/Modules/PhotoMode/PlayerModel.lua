@@ -71,6 +71,7 @@ end
 
 local LINK_SCALE = false;
 local LINK_LIGHT = true;
+local LOOP_ANIMATION = false;
 local GLOBAL_CAMERA_PITCH = pi/2;
 
 local ModelSettings = {
@@ -2488,7 +2489,6 @@ function Narci_ModelIndexButton_OnClick(self, button)
 	local playBling = true;
 	local model = ModelFrames[ID];
 	local buttons = self:GetParent().buttons;
-	ACTIVE_MODEL_INDEX = ID;
 
 	if not self.hasModel then
 		if UnitExists(unit) then
@@ -2824,14 +2824,13 @@ end
 
 function NarciGenericModelMixin:OnAnimFinished()
 	--Disabled because unsheathing weapon will stop animation from playing
-	
-	if self.animationID then
+
+	if LOOP_ANIMATION and self.animationID and not self.isPaused then
 		local id = self.animationID;
 		if id ~= 0 and id ~= 804 and id ~= 808 then
-			self:SetAnimation(self.animationID, self.variationID);
+			self:SetAnimation(self.animationID, self.variationID or 0);
 		end
 	end
-	
 end
 
 local inventoryTypeSlot = {
@@ -4771,6 +4770,14 @@ do
         end
 		ShrinkModelHitRect(shrinkX);
     end
+
+	function SettingFunctions.SetModelLoopAnimation(loop, db)
+		if loop == nil then
+			loop = db["LoopAnimation"] or false;
+		end
+
+		LOOP_ANIMATION = loop;
+	end
 end
 
 --[[

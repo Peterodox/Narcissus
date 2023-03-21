@@ -663,11 +663,13 @@ HotkeyListener:SetScript("OnKeyDown", function(self, key)
     if keys == "CTRL-C" or key == "COMMAND-C" then
         if self.parentEditBox then
             self:Hide();
+            local editBox = self.parentEditBox;
             C_Timer.After(0, function()
                 --Texts won't be copied if the editbox hides immediately
-                self.parentEditBox:ClearFocus();
-                self.parentEditBox.AlertText:SetText(L["String Copied"]);
-                self.parentEditBox:PlayGlow();
+                if editBox.OnSuccess then
+                    editBox.OnSuccess(editBox);
+                end
+                editBox:ClearFocus();
             end);
         end
     end
@@ -729,6 +731,10 @@ local function ExportBox_OnEditFocusLost(self)
     end
 end
 
+local function ExportBox_OnSuccess(self)
+    self.AlertText:SetText(L["String Copied"]);
+    self:PlayGlow();
+end
 
 local function CanSaveNewLook()
     local case = Narci_BarbershopFrame.PlusButton:GetCase();
@@ -908,6 +914,7 @@ function NarciBarberShopProfileTextBoxMixin:OnLoad()
         self.Header:SetText(L["Export"]);
         self.AlertText:SetText(L["Press Copy"]);
         self.BorderGlow:SetColorTexture(API.GetColorByKey("green"));
+        self.OnSuccess = ExportBox_OnSuccess;
 
         self:SetScript("OnTextChanged", ExportBox_OnTextChanged);
         self:SetScript("OnCursorChanged", ExportBox_OnCursorChanged);
@@ -984,6 +991,65 @@ function NarciBarberShopProfileTextBoxMixin:PlayGlow()
     self.BorderGlow.Glow:Play();
     self.BorderGlow:Show();
     self.AlertText:Show();
+    self.AlertText.AnimFade:Play();
+end
+
+
+NarciBarberShopAppearanceClipboardMixin = {};
+
+function NarciBarberShopAppearanceClipboardMixin:OnLoad()
+    self:SetScript("OnCursorChanged", ExportBox_OnCursorChanged);
+end
+
+function NarciBarberShopAppearanceClipboardMixin:OnEditFocusGained()
+    self.parent:SetBorderColor(0.80, 0.80, 0.80, 1);
+
+    self:Enable();
+    self:EnableMouse(true);
+    self:SetCursorPosition(0);
+    self:HighlightText();
+    self.BackgroundOverlay:Show();
+
+    self.AlertText.AnimFade:Stop();
+    self.AlertText:Show();
+    self.AlertText:SetText(L["Press To Copy"]);
+
+    HotkeyListener:SetParentObject(self);
+end
+
+function NarciBarberShopAppearanceClipboardMixin:OnEditFocusLost()
+    HotkeyListener:Hide();
+
+    self:Disable();
+    self:EnableMouse(false);
+    self:HighlightText(0, 0);
+    self:SetText("");
+    self.BackgroundOverlay:Hide();
+
+    if self.parent:IsVisible() and self.parent:IsMouseOver() then
+        self.parent:SetBorderColor(0.80, 0.80, 0.80, 1);
+    else
+        self.parent:SetBorderColor(0.2, 0.2, 0.2, 1);
+    end
+
+    if not self.AlertText.AnimFade:IsPlaying() then
+        self.AlertText:Hide();
+    end
+end
+
+function NarciBarberShopAppearanceClipboardMixin:OnTextChanged(userInput)
+    if userInput then
+        self:ClearFocus();
+    end
+end
+
+function NarciBarberShopAppearanceClipboardMixin:OnEscapePressed()
+    self:ClearFocus();
+end
+
+function NarciBarberShopAppearanceClipboardMixin:OnSuccess()
+    self.AlertText.AnimFade:Stop();
+    self.AlertText:SetText(L["String Copied"]);
     self.AlertText.AnimFade:Play();
 end
 
