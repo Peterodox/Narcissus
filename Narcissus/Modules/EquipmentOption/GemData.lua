@@ -370,6 +370,7 @@ function DataProvider:GetPrimordialStones()
     return PrimordialStones
 end
 
+--[[
 ---- Debug ----
 function SortPrimodrialStones()
     local name;
@@ -509,3 +510,4 @@ function GetInstanceForTier()
         print("----")
     end
 end
+--]]

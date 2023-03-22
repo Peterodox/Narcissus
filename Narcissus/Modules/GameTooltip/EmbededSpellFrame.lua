@@ -8,13 +8,19 @@ local SpellSetupFuncs = {};
 local function Setup_RubyWhelpShell(tooltip)
     --Show whelp training progress
     local info, value;
+    local anyPadding = false;
 
     for i = 2148, 2153 do
         info = C_CurrencyInfo.GetCurrencyInfo(i);
         if info then
             value = info.quantity;
             if value and value > 0 then
-                tooltip:AddDoubleLine(info.name, value, 1, 0.82, 0, -12);
+                if anyPadding then
+                    tooltip:AddDoubleLine(info.name, value, 1, 0.82, 0);
+                else
+                    anyPadding = true;
+                    tooltip:AddDoubleLine(info.name, value, 1, 0.82, 0, -12);
+                end
             end
         end
     end

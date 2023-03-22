@@ -862,6 +862,7 @@
             <OnDragStart method="OnDragStart"/>
             <OnReceiveDrag method="OnReceiveDrag"/>
 			<OnHide method="OnHide"/>
+			<PreClick method="PreClick"/>
 			<PostClick method="PostClick"/>
 			<OnEnter method="OnEnter"/>
 			<OnLeave method="OnLeave"/>

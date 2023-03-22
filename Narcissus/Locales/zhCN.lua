@@ -519,6 +519,7 @@ L["Combat Error"] = NARCI_COLOR_RED_MILD.."此操作无法在战斗中进行".."
 L["Extract Shard"] = "取下统御碎片";
 L["No Service"] = "信号不佳";
 L["Shards Disabled"] = "统御碎片在噬渊之外的地区无效。";
+L["Unsocket Gem"] = "取下宝石";
 
 --Mythic+ Leaderboard--
 L["Mythic Plus"] = "大秘境";

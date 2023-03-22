@@ -2646,12 +2646,12 @@
     <Frame name="NarciAnimatedSizingFrameTemplate" mixin="NarciAnimatedSizingFrameMixin" virtual="true">
         <Size x="48" y="48"/>
         <Layers>
-            <Layer level="BACKGROUND">
+            <Layer level="BACKGROUND" textureSubLevel="-2">
                 <Texture parentKey="Backdrop">
                     <Color r="0" g="0" b="0"/>
                 </Texture>
             </Layer>
-            <Layer level="BORDER">
+            <Layer level="BACKGROUND" textureSubLevel="-1">
                 <Texture parentKey="TopLeft" file="Interface\AddOns\Narcissus\Art\EquipmentOption\Shadow" parentArray="BorderTextures">
                     <Size x="32" y="32"/>
                     <TexCoords left="0" right="0.25" top="0" bottom="0.25"/>

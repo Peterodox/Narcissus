@@ -1897,6 +1897,12 @@ function NarciEquipmentSlotMixin:OnHide()
 	self:ResetAnimation();
 end
 
+function NarciEquipmentSlotMixin:PreClick(button)
+	if button == "RightButton" then
+		NarciAPI.SecureActionButtonPreClick();
+	end
+end
+
 function NarciEquipmentSlotMixin:PostClick(button)
 	if CursorHasItem() then
 		EquipCursorItem(self:GetID());

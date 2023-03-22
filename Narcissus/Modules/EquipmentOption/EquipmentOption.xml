@@ -440,7 +440,7 @@
                     <Frame parentKey="Tooltip" mixin="NarciEquipmentListTooltipMixin" inherits="NarciAnimatedSizingFrameTemplate" hidden="true" alpha="0" clampedToScreen="true">
                         <Size x="32" y="24"/>
                         <Frames>
-                            <Frame parentKey="ClipFrame" clipChildren="true">
+                            <Frame parentKey="ClipFrame">   <!--clipChildren="true"-->
                                 <Anchors>
                                     <Anchor point="TOPLEFT"/>
                                     <Anchor point="BOTTOMRIGHT"/>
@@ -874,6 +874,7 @@
         <Scripts>
             <OnLoad method="OnLoad"/>
             <OnLeave method="OnLeave"/>
+            <PreClick method="PreClick"/>
             <PostClick method="PostClick"/>
             <OnEvent method="OnEvent"/>
             <OnShow method="OnShow"/>

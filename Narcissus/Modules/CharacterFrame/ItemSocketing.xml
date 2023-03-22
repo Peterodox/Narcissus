@@ -323,6 +323,7 @@
 			<OnEvent method="OnEvent"/>
 			<OnEnable method="OnEnable"/>
 			<OnDisable method="OnDisable"/>
+			<PreClick method="PreClick"/>
 		</Scripts>
 	</Button>
 </Ui>

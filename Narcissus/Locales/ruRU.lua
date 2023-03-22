@@ -1,4 +1,4 @@
---Coutesy of ZamestoTV. Thank you!    --Translator: ZamestoTV as of 1.3.7
+--Coutesy of ZamestoTV. Thank you!    --Translator: ZamestoTV as of 1.3.9
 
 if not (GetLocale() == "ruRU") then
     return;
@@ -422,7 +422,7 @@ L["Corruption Effect Format4"] = "Поражение потусторонней 
 L["Corruption Effect Format5"] = "|cffffffff%s%%|r Урон/исцеление пропорционально уровню порчи.";
 
 --Text Overlay Frame
-L["Text Overlay"] = "Text Overlay";
+L["Text Overlay"] = "Наложение текста";
 L["Text Overlay Button Tooltip1"] = "Простое облако разговора";															
 L["Text Overlay Button Tooltip2"] = "Расширенное облако разговора";
 L["Text Overlay Button Tooltip3"] = "Говорящая голова";
@@ -694,3 +694,12 @@ L["Auto Filter Case"] = "Автоматически фильтрует пред�
 L["Send Mails"] = "Отправляете почту";
 L["Create Auctions"] = "Создаете аукцион";
 L["Socket Items"] = "Сокеты";
+
+--Perks Program--
+L["Perks Program Unclaimed Tender Format"] = "- У вас есть |cffffffff%s|r несобранные Торговые жетоны в сундуке коллекционера.";     --PERKS_PROGRAM_UNCOLLECTED_TENDER
+L["Perks Program Unearned Tender Format"] = "- У вас есть |cffffffff%s|r незаработанные Торговые жетоны в журнале путешественника.";     --PERKS_PROGRAM_ACTIVITIES_UNEARNED
+L["Perks Program Item Added In Format"] = "Добавлено в %s";
+L["Perks Program Item Unavailable"] = "Этот товар в настоящее время недоступен.";
+L["Perks Program See Wares"] = "Показать товары";
+L["Perks Program No Cache Alert"] = "Поговорите с продавцами торговой лавки, чтобы увидеть товары этого месяца.";
+L["Perks Program Using Cache Alert"] = "Использование кеша с вашего последнего посещения. Данные о цене могут быть неточными.";

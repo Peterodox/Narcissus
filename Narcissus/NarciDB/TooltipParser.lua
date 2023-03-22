@@ -1338,21 +1338,25 @@ local function GetItemSocketInfo(itemLink)
 
     local lines = tooltipData.lines;
     local numLines = #lines;
+    local field;
 
     gemOrderID = 0;
 
     for i = 4, numLines do     --max 10
-        if lines[i].args and lines[i].args[4] and lines[i].args[4].field == "socketType" then
-            gemOrderID = gemOrderID + 1;
-            if not socektInfo then
-                socektInfo = {};
-            end
-            socketType = lines[i].args[4].stringVal;
-            if not socektInfo[gemOrderID] then
-                socketName = lines[i].args[2].stringVal;
-                socektInfo[gemOrderID] = {socketName, "Interface\\ItemSocketingFrame\\UI-EmptySocket-"..socketType, nil, socketType};
-            else
-                socektInfo[gemOrderID][4] = socketType;
+        if lines[i].args and lines[i].args[4] then
+            field = lines[i].args[4].field;
+            if field and field == "socketType" or field == "gemIcon" then
+                gemOrderID = gemOrderID + 1;
+                if not socektInfo then
+                    socektInfo = {};
+                end
+                socketType = lines[i].args[4].stringVal;
+                if not socektInfo[gemOrderID] then
+                    socketName = lines[i].args[2].stringVal;
+                    socektInfo[gemOrderID] = {socketName, "Interface\\ItemSocketingFrame\\UI-EmptySocket-"..socketType, nil, socketType};
+                else
+                    socektInfo[gemOrderID][4] = socketType;
+                end
             end
         end
     end

@@ -11,7 +11,7 @@ local MainFrame;
 local SocketButtons = {};
 
 local SIZE_REGULAR = 16;
-local SIZE_SELECTED = 18;
+local SIZE_SELECTED = 20;
 
 local GetPixelByScale = NarciAPI.GetPixelByScale;
 local PIXEL = 1;
@@ -142,6 +142,7 @@ function NarciSocketSelectMixin:SetupFromItemLink(itemLink)
     local selectedSocketType;
 
     local socektInfo = NarciAPI.GetItemSocketInfo(itemLink);
+
     local numSockets = (socektInfo and #socektInfo) or 0;
 
     local selectedSocketID = MainFrame:GetSocketOrderID() or 1;

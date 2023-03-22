@@ -222,6 +222,9 @@ function NarciEquipmentEnchantActionButtonMixin:MarkActive(state)
     end
 end
 
+function NarciEquipmentEnchantActionButtonMixin:PreClick()
+    NarciAPI.SecureActionButtonPreClick();
+end
 
 -------- Item Socketing --------
 
@@ -253,9 +256,9 @@ local function SocketingEventFrame_OnShow(self)
 end
 
 local function SocketingEventFrame_OnHide(self)
-    self:RegisterEvent("SOCKET_INFO_SUCCESS");
-    self:RegisterEvent("SOCKET_INFO_FAILURE");
-    self:RegisterEvent("UI_ERROR_MESSAGE");
+    self:UnregisterEvent("SOCKET_INFO_SUCCESS");
+    self:UnregisterEvent("SOCKET_INFO_FAILURE");
+    self:UnregisterEvent("UI_ERROR_MESSAGE");
 end
 
 local function SocketingEventFrame_OnEvent(self, event, ...)
@@ -270,7 +273,6 @@ local function SocketingEventFrame_OnEvent(self, event, ...)
         GemActionButton:OnActionFailed(FAILED);
         self:UnregisterEvent("UI_ERROR_MESSAGE");
     end
-    CloseSocketingFrame();
 end
 
 NarciEquipmentGemActionButtonMixin = {};

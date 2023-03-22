@@ -572,6 +572,7 @@ L["Combat Error"] = NARCI_COLOR_RED_MILD.."Leave combat to continue".."|r";
 L["Extract Shard"] = "Extract Shard";
 L["No Service"] = "No Service";
 L["Shards Disabled"] = "Shards of Domination are disabled outside the Maw.";
+L["Unsocket Gem"] = "Unsocket Gem";
 
 --Mythic+ Leaderboard--
 L["Mythic Plus"] = "Mythic+";

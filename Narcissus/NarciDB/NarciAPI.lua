@@ -3220,6 +3220,16 @@ end
 NarciAPI.IsPlayerAtMaxLevel = IsPlayerAtMaxLevel;
 
 
+local function SecureActionButtonPreClick()
+    local value = GetCVar("ActionButtonUseKeyDown");
+    SetCVar("ActionButtonUseKeyDown", 0);
+    After(0, function()
+        SetCVar("ActionButtonUseKeyDown", value);
+    end);
+end
+
+NarciAPI.SecureActionButtonPreClick = SecureActionButtonPreClick;
+
 --[[
     /script DEFAULT_CHAT_FRAME:AddMessage("\124Hitem:narcissus:0:\124h[Test Link]\124h\124r");
 function TestFX(modelFileID, zoomDistance, view)
