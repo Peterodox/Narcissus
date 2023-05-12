@@ -1,10 +1,10 @@
-## Interface: 100007
+## Interface: 100100
 ## Plain Title: Narcissus Barbershop
 ## Version: 1.4
 ## LoadOnDemand: 1
 ## RequiredDeps: Narcissus
 
-## Title: |cffA236EFN|cff9448F1a|cff865BF2r|cff786DF4c|cff6A80F6i|cff5D92F7s|cff4FA4F9s|cff41B7FAu|cff33C9FCs|r |cffFF657FBarber|r|cffCCCCCCshop|r
+## Title: |cffd177ffN|cffc480fba|cffb787f6r|cffa98ef2c|cff9a94edi|cff8a9ae9s|cff789fe5s|cff63a4e0u|cff48a8dcs|r |cffFF657FBarber|r|cffCCCCCCshop|r
 
 ## Notes: Save and share your appearances.
 ## Notes-zhCN: 理发厅增强: 保存\分享外观
@@ -12,5 +12,7 @@
 
 ## SavedVariables: NarciBarberShopDB
 ## Author: Peterodox
+
+## IconTexture: Interface\AddOns\Narcissus\Art\Logos\AddonListIconT
 
 Code\Barbershop.xml

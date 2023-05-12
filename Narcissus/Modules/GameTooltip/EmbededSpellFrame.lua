@@ -27,13 +27,8 @@ local function Setup_RubyWhelpShell(tooltip)
 end
 SpellSetupFuncs[389843] = Setup_RubyWhelpShell;
 
-local function Setup_PrimalRitualShell(tooltip, spellFrame)
-    --390655 Stone (Aborb)
-    --390899 Wind (Mastery)
-    --390835 Fire (Damage)
-    --390869 Sea (Heal)
 
-    local spellIDs = {390835, 390655, 390899, 390869}
+local function Setup_FindItemAura(spellIDs, tooltip, spellFrame)
     local GetInfo = C_UnitAuras.GetPlayerAuraBySpellID;
     local auraInfo, auraInstanceID;
 
@@ -49,12 +44,26 @@ local function Setup_PrimalRitualShell(tooltip, spellFrame)
 
     if auraInstanceID then
         local info = C_TooltipInfo.GetUnitBuffByAuraInstanceID("player", auraInstanceID);
-        if info and info.lines and info.lines[2] then
-            tooltip:AddLine(info.lines[2].args[2].stringVal, 1, 0.82, 0);
+        if info and info.lines and info.lines[2] and info.lines[2].leftText then
+            tooltip:AddLine(info.lines[2].leftText, 1, 0.82, 0);
         end
     end
 end
+
+local function Setup_PrimalRitualShell(tooltip, spellFrame)
+    local spellIDs = {390835, 390655, 390899, 390869};    --Fire (Damage), Stone (Aborb), Wind (Mastery), Sea (Heal)
+    Setup_FindItemAura(spellIDs, tooltip, spellFrame);
+end
+
 SpellSetupFuncs[390643] = Setup_PrimalRitualShell;
+
+
+local function Setup_OminousChromaticEssence(tooltip, spellFrame)
+    local spellIDs = {402221, 401516, 401518, 401519, 401521};    --Fire (Damage), Stone (Aborb), Wind (Mastery), Sea (Heal)
+    Setup_FindItemAura(spellIDs, tooltip, spellFrame);
+end
+
+SpellSetupFuncs[401515] = Setup_OminousChromaticEssence;
 
 
 NarciEquipmentSpellFrameMixin = {};

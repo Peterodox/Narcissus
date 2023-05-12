@@ -51,7 +51,7 @@
                         <Anchor point="TOPLEFT" relativeKey="$parent" relativePoint="TOPLEFT" x="30" y="-20"/>
                     </Anchors>
                 </FontString>
-                <Texture parentKey="Count1" file="Interface\AddOns\Narcissus\Art\Widgets\Progenitor\CountIcon">
+                <Texture parentKey="Count1" file="Interface\AddOns\Narcissus\Art\Widgets\ItemLevel\Neltharion\TooltipCountIcon">
                     <Size x="16" y="16"/>
                     <TexCoords left="0" right="0.5" top="0" bottom="0.25"/>
                     <Anchors>
@@ -65,7 +65,7 @@
                         <Anchor point="TOPLEFT" relativeKey="$parent.Effect1" relativePoint="BOTTOMLEFT" x="0" y="-10"/>
                     </Anchors>
                 </FontString>
-                <Texture parentKey="Count2" file="Interface\AddOns\Narcissus\Art\Widgets\Progenitor\CountIcon">
+                <Texture parentKey="Count2" file="Interface\AddOns\Narcissus\Art\Widgets\ItemLevel\Neltharion\TooltipCountIcon">
                     <Size x="16" y="16"/>
                     <TexCoords left="0" right="0.5" top="0.5" bottom="0.75"/>
                     <Anchors>

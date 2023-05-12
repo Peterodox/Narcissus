@@ -92,20 +92,20 @@ end
 ---Set Graphics Settings to Ultra---
 local CVAR_GRAPHICS_BACKUP = {};
 local CVAR_GRAPHICS_VALUES = {
-	["graphicsTextureResolution"] = 3,
-	["graphicsTextureFiltering"] = 6,
-	["graphicsProjectedTextures"] = 2,
+	["graphicsTextureResolution"] = 2,
+	["graphicsTextureFiltering"] = 5,
+	["graphicsProjectedTextures"] = 1,
 
 	["graphicsViewDistance"] = 9,
 	["graphicsEnvironmentDetail"] = 9,
 	["graphicsGroundClutter"] = 9,
 
-	["graphicsShadowQuality"] = 6,
-	["graphicsLiquidDetail"] = 4,
-	["graphicsSunshafts"] = 3,
+	["graphicsShadowQuality"] = 5,
+	["graphicsLiquidDetail"] = 3,
+	["graphicsComputeEffects"] = 4,
 	["graphicsParticleDensity"] = 5,
-	["graphicsSSAO"] = 5,
-	["graphicsDepthEffects"] = 4,
+	["graphicsSSAO"] = 4,
+	["graphicsDepthEffects"] = 3,
 	--["graphicsLightingQuality"] = 3,
 	["lightMode"] = 2,
     ["ffxAntiAliasingMode"] = 2,    --FXAA High

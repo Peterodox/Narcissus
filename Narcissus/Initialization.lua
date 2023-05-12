@@ -1,7 +1,7 @@
-local NARCI_VERSION_INFO = "1.4.0";
+local NARCI_VERSION_INFO = "1.4.1";
 
-local VERSION_DATE = 1679451641;
-local CURRENT_VERSION = 10400;
+local VERSION_DATE = 1683208824;
+local CURRENT_VERSION = 10401;
 local PREVIOUS_VERSION = CURRENT_VERSION;
 local TIME_SINCE_LAST_UPDATE = 0;
 
@@ -99,6 +99,10 @@ local DefaultValues = {
     AutoFilterMail = false,
     AutoFilterAuction = false,
     AutoFilterGem = false,
+
+    --Quest
+    AutoDisplayQuestItem = false,
+    QuestCardTheme = 1,
 
     --# Initializationd in other files
     --["MinimapIconStyle = 1,                     --Change the icon of minimap button (Main.lua)
@@ -313,13 +317,31 @@ NarciAPI.GetAddOnVersionInfo = GetAddOnVersionInfo;
 
 
 do
-    local version = GetBuildInfo();
+    local version, _, _, tocVersion = GetBuildInfo();
     local expansionID = string.match(version, "(%d+)%.");
 	local isDF = (tonumber(expansionID) or 1) >= 10;
-	
+
+    tocVersion = tonumber(tocVersion)
+
     local function IsDragonflight()
         return isDF
     end
-
     addon.IsDragonflight = IsDragonflight;
+
+    local tooltipInfoVersion;
+
+    if isDF then
+        if tocVersion >= 100100 then
+            tooltipInfoVersion = 2;
+        else
+            tooltipInfoVersion = 1;
+        end
+    else
+        tooltipInfoVersion = 0;
+    end
+
+    local function GetTooltipInfoVersion()
+        return tooltipInfoVersion
+    end
+    addon.GetTooltipInfoVersion = GetTooltipInfoVersion;
 end

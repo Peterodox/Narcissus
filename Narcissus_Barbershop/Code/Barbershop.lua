@@ -139,7 +139,7 @@ local ModelPool = {};
 ModelPool.pools = {};
 
 function ModelPool:Init()
-    local f = CreateFrame("Frame", MainFrame);
+    local f = CreateFrame("Frame", nil, MainFrame);
     f:SetSize(8, 8);
     f:SetPoint("TOP", MainFrame, "BOTTOM", 0, -8);
     f:Hide();
@@ -182,7 +182,7 @@ end
 
 function ModelPool:AcquireModel(modelID)
     if not self.activeModelPool[modelID] then
-        self.activeModelPool[modelID] = CreateFrame("PlayerModel", self.container);
+        self.activeModelPool[modelID] = CreateFrame("PlayerModel", nil, self.container);
         self.SetupModel( self.activeModelPool[modelID] );
     end
     return self.activeModelPool[modelID]
@@ -463,6 +463,8 @@ RaceAtlas.fixedModelAtlasNames = {
     [129] = "dragonriding-barbershop-icon-pterrodax",
     [123] = "dragonriding-barbershop-icon-drake",
     [126] = "dragonriding-barbershop-icon-wyvernspirit",
+
+    [125] = "dragonriding-barbershop-icon-slitherdrake",  --10.1.0
 };
 
 function RaceAtlas:GetAtlas(raceName, gender, alternateForm)
@@ -481,6 +483,8 @@ function RaceAtlas:GetAtlas(raceName, gender, alternateForm)
     if not raceName then
         raceName = "human";
     end
+
+    gender = gender or "none";
 
     local formatingString = "raceicon128-%s-%s";    --"raceicon-%s-%s"
     return formatingString:format(raceName, gender);

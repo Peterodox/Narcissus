@@ -500,20 +500,22 @@ function LightControl:UpdateModel()
 
 	local _, _, _, _, _, ambIntensity, ambR, ambG, ambB, dirIntensity, dirR, dirG, dirB = GetModelLight(ModelFrames[ACTIVE_MODEL_INDEX]);
 	
+
 	if LINK_LIGHT then
 		for i = 1, #ModelFrames do
 			SetModelLight(ModelFrames[i], true, false, rX, rY, rZ, ambIntensity, ambR, ambG, ambB, dirIntensity, dirR, dirG, dirB);
 		end
 	else
 		SetModelLight(ModelFrames[ACTIVE_MODEL_INDEX], true, false, rX, rY, rZ, ambIntensity, ambR, ambG, ambB, dirIntensity, dirR, dirG, dirB);
-		--[[
-		local ModelScene = Narci_InteractiveSplash.ClipFrame.ModelScene;
-		ModelScene:SetLightDirection(rX, rY, rZ);
-		ModelScene:SetLightDiffuseColor(dirR, dirG, dirB);
-		ModelScene:SetLightAmbientColor(ambR, ambG, ambB);
-		print(dirR, dirG, dirB, ambR, ambG, ambB);
-		--]]
 	end
+
+	--[[
+	local ModelScene = DaedalusStudio.PrimaryModelScene;
+	ModelScene:SetLightDirection(rX, rY, rZ);
+	ModelScene:SetLightDiffuseColor(dirR, dirG, dirB);
+	ModelScene:SetLightAmbientColor(ambR, ambG, ambB);
+	print(rX, rY, rZ, dirR, dirG, dirB, ambR, ambG, ambB);
+	--]]
 end
 
 function LightControl:SetDirection(radian, heightRatio)
@@ -805,8 +807,8 @@ PMAI:SetScript("OnShow", function(self)		--PlayerModelAnimIn
 		model:SetKeepModelOnHide(true);
 	end
 
-	WeaponUpdator:GetTargetWeapons("player");
 	model:SetActive(true);
+	WeaponUpdator:GetTargetWeapons("player");
 end);
 
 PMAI:SetScript("OnUpdate", PlayerModelAnimIn_Update_Style1);
@@ -2534,7 +2536,9 @@ function Narci_ModelIndexButton_OnClick(self, button)
 				self:SetModelType("npc");
 			end
 			--Fix Weapons
-			WeaponUpdator:GetTargetWeapons(unit);
+			After(0, function()
+				WeaponUpdator:GetTargetWeapons(unit);
+			end);
 		else
 			local PopUp = self:GetParent().PopUp;
 			PopUp.AddTarget.Text.animError:Play();
@@ -2649,6 +2653,7 @@ function NarciGenericModelMixin:PlayAnimation(animationID, variationID)
 	else
 		variationID = self.variationID or 0;
 	end
+	animationID = animationID or 0;
 	self:SetAnimation(animationID, variationID);
 	self.animationID = animationID;
 	self.isPaused = nil;

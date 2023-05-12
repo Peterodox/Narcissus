@@ -229,8 +229,8 @@ function DataProvider:IsVendorItemPurchased(vendorItemID)
             elseif category == 8 then
                 local transmogSetID = info.transmogSetID;
                 if transmogSetID == 0 then
-                    info = DataProvider:GetVendorItemInfoFromDatabase(vendorItemID);
-                    transmogSetID = info and info.transmogSetID;
+                    local itemInfo = DataProvider:GetVendorItemInfoFromDatabase(vendorItemID);
+                    transmogSetID = itemInfo and itemInfo.transmogSetID;
                 end
                 if transmogSetID then
                     local sourceIDs = C_TransmogSets.GetAllSourceIDs(transmogSetID);

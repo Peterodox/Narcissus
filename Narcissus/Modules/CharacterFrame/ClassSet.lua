@@ -17,19 +17,19 @@ local isClassItem = {};
 do
     local classSetItems = {
         --https://wow.tools/dbc/?dbc=itemset&build=10.0.2.46801#page=1
-        200405, 200407, 200408, 200409, 200410,     --DK
-        200342, 200344, 200345, 200346, 200347,     --DH
-        200351, 200353, 200354, 200355, 200356,     --Druid
-        200387, 200389, 200390, 200391, 200392,     --Hunter
-        200378, 200380, 200381, 200382, 200383,     --Evoker
-        200315, 200317, 200318, 200319, 200320,     --Mage
-        200360, 200362, 200363, 200364, 200365,     --Monk
-        200414, 200416, 200417, 200418, 200419,     --Paladin
-        200326, 200327, 200328, 200324, 200329,     --Priest
-        200369, 200371, 200372, 200373, 200374,     --Rogue
-        200396, 200398, 200399, 200400, 200401,     --Shaman
-        200335, 200336, 200337, 200333, 200338,     --Warlock
-        200423, 200425, 200426, 200427, 200428,     --Warrior
+        202464, 202462, 202461, 202460, 202459,     --DK
+        202527, 202525, 202524, 202523, 202522,     --DH
+        202518, 202516, 202515, 202514, 202513,     --Druid
+        202491, 202489, 202488, 202487, 202486,     --Evoker
+        202482, 202480, 202479, 202478, 202477,     --Hunter
+        202554, 202552, 202551, 202550, 202549,     --Mage
+        202509, 202507, 202506, 202505, 202504,     --Monk
+        202455, 202453, 202452, 202451, 202450,     --Paladin
+        202543, 202542, 202541, 202545, 202540,     --Priest
+        202500, 202498, 202497, 202496, 202495,     --Rogue
+        202473, 202471, 202470, 202469, 202468,     --Shaman
+        202534, 202533, 202532, 202536, 202531,     --Warlock
+        202446, 202444, 202443, 202442, 202441,     --Warrior
     };
 
     for _, itemID in pairs(classSetItems) do
@@ -49,80 +49,80 @@ local clssSetSpells = {
     --[classID] = { [specIndex] = {spell1, spell2} },
 
     [1] = {    --Warrior
-        {393705, 393706},   --Arms 71
-        {393708, 393709},   --Fury 72
-        {393710, 393711},   --Protection 73
+        {405577, 405578},   --Arms 71
+        {405579, 405580},   --Fury 72
+        {405581, 405582},   --Protection 73
     },
 
     [2] = {    --Paladin
-        {393670, 393672},   --Holy 65
-        {393673, 393674},   --Protection 66
-        {393675, 393677},   --Retribution 70
+        {405545, 405546},   --Holy 65
+        {405547, 405548},   --Protection 66
+        {405549, 405550},   --Retribution 70
     },
 
     [3] = {    --Hunter
-        {393646, 393647},   --BM 253
-        {393648, 393649},   --Marksmanship 254
-        {393650, 393652},   --Survival 255
+        {405524, 405525},   --BM 253
+        {405526, 405527},   --Marksmanship 254
+        {405528, 405530},   --Survival 255
     },
 
     [4] = {    --Rogue
-        {393724, 393725},   --Ass 259
-        {393727, 393728},   --Outlaw 260
-        {393729, 393730},   --Sub 261
+        {405559, 405560},   --Ass 259
+        {405561, 405562},   --Outlaw 260
+        {405563, 405564},   --Sub 261
     },
 
     [5] = {    --Priest
-        {393679, 393681},   --Discipline 256
-        {393682, 393683},   --Holy 257
-        {393684, 393685},   --Shadow 258
+        {405551, 405553},   --Discipline 256
+        {405554, 405556},   --Holy 257
+        {405557, 405558},   --Shadow 258
     },
 
     [6] = {    --DK
-        {393621, 393622},   --Blood 250
-        {393623, 393624},   --Frost 251
-        {393626, 393627},   --Unholy 252
+        {405499, 405500},   --Blood 250
+        {405501, 405502},   --Frost 251
+        {405503, 405504},   --Unholy 252
     },
 
     [7] = {    --Shaman
-        {393688, 393690},   --Elemental 262
-        {393691, 393693},   --Enhancement 263
-        {393695, 393697},   --Restoration 264
+        {405565, 405566},   --Elemental 262
+        {405567, 405568},   --Enhancement 263
+        {405569, 405570},   --Restoration 264
     },
 
     [8] = {    --Mage
-        {393653, 393654},   --Arcane 62
-        {393655, 393656},   --Fire 63
-        {393657, 393658},   --Frost 64
+        {405532, 405533},   --Arcane 62
+        {405534, 405535},   --Fire 63
+        {405536, 405538},   --Frost 64
     },
 
     [9] = {    --Warlock
-        {393698, 393699},   --Affliction 265
-        {393701, 393702},   --Demonology 266
-        {393703, 393704},   --Destruction 267
+        {405571, 405572},   --Affliction 265
+        {405573, 405574},   --Demonology 266
+        {405575, 405576},   --Destruction 267
     },
 
     [10] = {    --Monk
-        {393659, 393660},   --Brewmaster 268
-        {393661, 393663},   --Mistweaver 270
-        {393666, 393668},   --Windwalker 269
+        {405539, 405540},   --Brewmaster 268
+        {405541, 405542},   --Mistweaver 270
+        {405543, 405544},   --Windwalker 269
     },
 
     [11] = {    --Druid
-        {393632, 393633},   --Balance 102
-        {393635, 393636},   --Feral 103
-        {393637, 393638},   --Guardian 104
-        {393639, 393641},   --Restoration 105
+        {405510, 405511},   --Balance 102
+        {405512, 405513},   --Feral 103
+        {405514, 405515},   --Guardian 104
+        {405516, 405517},   --Restoration 105
     },
 
     [12] = {    --DH
-        {393628, 393629},   --Havoc 577
-        {393630, 393631},   --Vengeance 581
+        {405505, 405507},   --Havoc 577
+        {405508, 405509},   --Vengeance 581
     },
 
     [13] = {    --Evoker
-        {393642, 393643},   --Devastation 1467
-        {393644, 393645},   --Preservation 1468
+        {405518, 405519},   --Devastation 1467
+        {405520, 405522},   --Preservation 1468
     },
 };
 
@@ -203,7 +203,7 @@ local function SetCountIcon(icon, required, owned)
     icon:SetTexCoord(left, left + 0.5, top, top + 0.25);
 end
 
-local function OnTabPressed(self, key)
+local function Tooltip_OnTabPressed(self, key)
     if key == "TAB" then
         self:SetPropagateKeyboardInput(false);
         if IsShiftKeyDown() then
@@ -213,6 +213,14 @@ local function OnTabPressed(self, key)
         end
     else
         self:SetPropagateKeyboardInput(true);
+    end
+end
+
+local function Indicator_OnMouseWheel(self, delta)
+    if delta > 0 then
+        NarciClassSetTooltip:CycleSpec(-1, true);
+    else
+        NarciClassSetTooltip:CycleSpec(1, true);
     end
 end
 
@@ -229,9 +237,11 @@ end
 
 function NarciClassSetTooltipMixin:ListenKey(state)
     if state then
-        self:SetScript("OnKeyDown", OnTabPressed);
+        self:SetScript("OnKeyDown", Tooltip_OnTabPressed);
+        PaperDollIndicator:SetScript("OnMouseWheel", Indicator_OnMouseWheel);
     else
         self:SetScript("OnKeyDown", nil);
+        PaperDollIndicator:SetScript("OnMouseWheel", nil);
     end
 end
 
@@ -370,13 +380,19 @@ function NarciClassSetTooltipMixin:UpdateSize()
     self:SetHeight((self.Effect1:GetHeight() or 12) + (self.Effect2:GetHeight() or 12) + self.fixedHeight);
 end
 
-function NarciClassSetTooltipMixin:CycleSpec(delta)
+function NarciClassSetTooltipMixin:CycleSpec(delta, clamp)
     if delta > 0 then
+        if clamp and self.specIndex >= self.numSpecs then
+            return
+        end
         self.specIndex = self.specIndex + 1;
         if self.specIndex > self.numSpecs then
             self.specIndex = 1;
         end
     else
+        if clamp and self.specIndex <= 1 then
+            return
+        end
         self.specIndex = self.specIndex - 1;
         if self.specIndex < 1 then
             self.specIndex = self.numSpecs;

@@ -1,7 +1,9 @@
 ----Pre Dragonflight----
 
 local _, addon = ...
-if C_TooltipInfo ~= nil and addon.IsDragonflight() then return end;
+if addon.GetTooltipInfoVersion() ~= 0 then
+    return
+end
 
 local strtrim = strtrim;
 local gsub = string.gsub;

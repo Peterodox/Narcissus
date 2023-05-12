@@ -1736,7 +1736,19 @@ local officialAnimationName = {
 	"FlyAdvFlyForwardGlideSlow",
 	"AdvFlyForwardGlideFast",
 	"FlyAdvFlyForwardGlideFast",		--1725
-	"Soar",	--1726
+	"AdvFlySecondFlapUp",
+	"FlyAdvFlySecondFlapUp",
+	"FloatIdle",
+	"FlyFloatIdle",
+	"FloatWalk",						--1730
+	"FlyFloatWalk",
+	"CinematicTalk",
+	"FlyCinematicTalk",
+	"CinematicWAGuardEmoteSlam01",
+	"FlyCinematicWAGuardEmoteSlam01",	--1735
+	"WABlowHorn",
+	"FlyWABlowHorn",	--1737
+
 	[0] = "Stand",
 };
 

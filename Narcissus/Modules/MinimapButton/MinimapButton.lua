@@ -120,6 +120,20 @@ function NarciMinimapButtonMixin:CreatePanel()
 		end
 	};
 
+	local menuInfo = {};
+	self.menuInfo = menuInfo;
+
+	for i = 1, #LOCALIZED_NAMES do
+		if func[i] then
+			table.insert(menuInfo, {
+				text = LOCALIZED_NAMES[i],
+				func = func[i],
+				notCheckable = true,
+			}
+		);
+		end
+	end
+
 	local numButtons = #LOCALIZED_NAMES;
 
 	local BUTTON_HEIGHT = 24;
@@ -716,6 +730,10 @@ function NarciMinimapButtonMixin:Init()
     self:RegisterEvent("UI_SCALE_CHANGED");
 
     self.Init = nil;
+end
+
+function NarciMinimapButtonMixin:GetMenuInfo()
+	return self.menuInfo
 end
 
 

@@ -931,9 +931,6 @@
 				</Anchors>
 			</Button>
 		</Frames>
-		<Scripts>
-
-		</Scripts>
 		<Animations>
 			<AnimationGroup parentKey="animOut">
 				<Translation smoothing="IN" offsetX="-120" duration="0.6" order="1"/>
@@ -941,7 +938,10 @@
 		</Animations>
 	</Button>
 
-	<Button name="NarciSlotButtonRightTemplate" inherits="NarciEquipmentSlotButtonTemplate" virtual="true"> 
+	<Button name="NarciSlotButtonRightTemplate" inherits="NarciEquipmentSlotButtonTemplate" virtual="true">
+		<KeyValues>
+			<KeyValue key="isRight" value="true" type="boolean"/>
+		</KeyValues>
 		<Layers>
 			<Layer level="BACKGROUND">
 				<Texture setAllPoints="true" parentKey="GradientBackground">
@@ -1009,12 +1009,6 @@
 				</Anchors>
 			</Button>
 		</Frames>
-		<Scripts>
-            <OnLoad>
-				self:OnLoad();
-				self.isRight = true;
-			</OnLoad>
-		</Scripts>
 		<Animations>
 			<AnimationGroup parentKey="animOut">
 				<Translation smoothing="IN" offsetX="120" duration="0.6" order="1"/>

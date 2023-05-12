@@ -1,12 +1,14 @@
-## Interface: 100007
+## Interface: 100100
 ## Version: 1.0.0
 ## LoadOnDemand: 0
 ## RequiredDeps: Narcissus
 
 ## Author: Peterodox
-## Title: |cffA236EFN|cff9448F1a|cff865BF2r|cff786DF4c|cff6A80F6i|cff5D92F7s|cff4FA4F9s|cff41B7FAu|cff33C9FCs|r |cffc4c29eBag Filter|r
+## Title: |cffd177ffN|cffc480fba|cffb787f6r|cffa98ef2c|cff9a94edi|cff8a9ae9s|cff789fe5s|cff63a4e0u|cff48a8dcs|r |cffc4c29eBag Filter|r
 ## Notes: Bag item search suggest and auto-filter.
 ## SavedVariables: NarcissusBagFilterDB
+
+## IconTexture: Interface\AddOns\Narcissus\Art\Logos\AddonListIconT
 
 Code\SavedVariables.lua
 Code\API.lua

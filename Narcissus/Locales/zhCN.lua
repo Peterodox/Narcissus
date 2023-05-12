@@ -639,3 +639,6 @@ L["Auto Filter Case"] = "在以下情形自动过滤物品：";
 L["Send Mails"] = "发送右键";
 L["Create Auctions"] = "拍卖物品";
 L["Socket Items"] = "镶嵌宝石";
+
+--Quest--
+L["Auto Display Quest Item"] = "自动阅读任务物品的文字说明";

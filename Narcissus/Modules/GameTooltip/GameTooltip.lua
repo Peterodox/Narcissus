@@ -658,27 +658,40 @@ function NarciEquipmentTooltipMixin:DisplayItemData(link, itemData, slotID, visu
             levelSubtext = itemData.context;
         end
 
-        if itemData.upgradeLevel then
+        if itemData.upgradeString then
+            levelSubtext = itemData.upgradeString;
+        elseif itemData.upgradeLevel then
             levelSubtext = format("%s/%s", itemData.upgradeLevel[1], itemData.upgradeLevel[2]);
         end
+
         self.HeaderFrame.LevelSubText:SetText(levelSubtext);
 
         if itemData.craftingQuality then
+            local qualityTexture = self.HeaderFrame.CraftingQualityIcon;
             local craftingQuality = itemData.craftingQuality;
             local qualityAtlas = format("Professions-Icon-Quality-Tier%d-Small", craftingQuality);
-            self.HeaderFrame.CraftingQualityIcon:ClearAllPoints();
+            qualityTexture:ClearAllPoints();
+
+            local offsetY;
             if craftingQuality == 2 then
-                self.HeaderFrame.CraftingQualityIcon:SetSize(18, 18);
-                self.HeaderFrame.CraftingQualityIcon:SetPoint("TOPLEFT", self.HeaderFrame.ItemLevel, "TOPRIGHT", 4, 2);
+                qualityTexture:SetSize(18, 18);
+                offsetY = 2;
             elseif craftingQuality == 3 then
-                self.HeaderFrame.CraftingQualityIcon:SetSize(16, 16);
-                self.HeaderFrame.CraftingQualityIcon:SetPoint("TOPLEFT", self.HeaderFrame.ItemLevel, "TOPRIGHT", 4, -1);
+                qualityTexture:SetSize(16, 16);
+                offsetY = -1;
             else
-                self.HeaderFrame.CraftingQualityIcon:SetSize(12, 12);
-                self.HeaderFrame.CraftingQualityIcon:SetPoint("TOPLEFT", self.HeaderFrame.ItemLevel, "TOPRIGHT", 4, -1);
+                qualityTexture:SetSize(12, 12);
+                offsetY = -1;
             end
-            self.HeaderFrame.CraftingQualityIcon:SetAtlas(qualityAtlas, false);
-            self.HeaderFrame.CraftingQualityIcon:Show();
+
+            qualityTexture:SetAtlas(qualityAtlas, false);
+            qualityTexture:Show();
+
+            if levelSubtext ~= nil and levelSubtext ~= "" then
+                qualityTexture:SetPoint("LEFT", self.HeaderFrame.LevelSubText, "RIGHT", 4, 0);
+            else
+                qualityTexture:SetPoint("TOPLEFT", self.HeaderFrame.ItemLevel, "TOPRIGHT", 4, offsetY);
+            end
         else
             self.HeaderFrame.CraftingQualityIcon:Hide();
         end

@@ -2312,8 +2312,8 @@ do
         local GetInfoByHyperlink = C_TooltipInfo.GetHyperlink;
 
         local function GetLineText(lines, index)
-            if lines[index] and lines[index].args then
-                return lines[index].args[2].stringVal;
+            if lines[index] and lines[index].leftText then
+                return lines[index].leftText;
             end
         end
 

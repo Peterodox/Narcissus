@@ -49,7 +49,7 @@ local AUTO_GRANTED_NODES = {
 
     [65] = {81597, 81599},  --Holy
     [66] = {81597, 81599},  --Protection
-    [70] = {81510, 81601},  --Retribution
+    [70] = {81510, 81600, 81601},  --Retribution (Changed in 10.0.7)
 
     [256] = {82717, 82713}, --Discipline
     [257] = {82717, 82718}, --Holy

@@ -17,7 +17,13 @@ NarciConstants = {
 do
     local _, addon = ...
     if addon.IsDragonflight() then
-        local maxAnimID = 1737;
+        local _, _, _, tocVersion = GetBuildInfo();
+        local maxAnimID;
+        if tocVersion and tocVersion >= 100100 then
+            maxAnimID = 1737;
+        else
+            maxAnimID = 1757;
+        end
         NarciConstants.Animation.MaxAnimationID = maxAnimID;
     end
 end

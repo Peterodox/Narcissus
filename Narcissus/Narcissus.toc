@@ -1,17 +1,19 @@
-## Interface: 100007
+## Interface: 100100
 ## Plain Title: Narcissus
-## Version: 1.4.0
+## Version: 1.4.1
 
-## Title: |cffA236EFN|cff9448F1a|cff865BF2r|cff786DF4c|cff6A80F6i|cff5D92F7s|cff4FA4F9s|cff41B7FAu|cff33C9FCs|r
+## Title: |cffd177ffN|cffc480fba|cffb787f6r|cffa98ef2c|cff9a94edi|cff8a9ae9s|cff789fe5s|cff63a4e0u|cff48a8dcs|r
 
-## Notes: Immersive paperdoll frame and in-game studio. |n|cff959595Slash command: /Narci|r
-## Notes-zhCN: 为展示和分享而生的沉浸式角色界面|n|cff959595命令: /Narci|r
-## Notes-zhTW: 為展示和分享而生的沈浸式角色界面|n|cff959595命令: /Narci|r
+## Notes: Immersive paperdoll frame and in-game studio. |n|cff959595Slash command: /narci|r
+## Notes-zhCN: 为展示和分享而生的沉浸式角色界面|n|cff959595命令: /narci|r
+## Notes-zhTW: 為展示和分享而生的沈浸式角色界面|n|cff959595命令: /narci|r
 
 ## Author: Peterodox
-## SavedVariables: NarcissusDB, NarciAchievementOptions, NarciStatisticsDB, NarciTurntableOptions, NarciCharacterProfiles, NarciPhotoModeDB
+## SavedVariables: NarcissusDB, NarciAchievementOptions, NarciStatisticsDB, NarciTurntableOptions, NarciCharacterProfiles, NarciPhotoModeDB, NarciDevToolOutput
 ## SavedVariablesPerCharacter: NarcissusDB_PC, NarciStatisticsDB_PC
 
+## IconTexture: Interface\AddOns\Narcissus\Art\Logos\NarcissusLogo32
+# AddonCompartmentFunc: 
 
 Font\FontSettings.xml
 
@@ -36,7 +38,7 @@ Widgets\NarciUITemplates.xml
 Widgets\WidgetTooltip.xml
 Constants\Constants.xml
 
-#Bridge\Bridge.xml Dragonflight Beta Temporarily Disabled
+Bridge\Bridge.xml
 
 Modules\CharacterFrame\Domination.xml
 Modules\CharacterFrame\ItemLevelFrame.lua
@@ -112,3 +114,5 @@ Guide\Guide.xml
 #Experimental Features
 #Modules\CraftingOrder\CraftingOrder.lua
 Modules\PhotoModeNew\LightingPreset.xml
+
+Modules\Storyboard\Storyboard.xml

@@ -9,8 +9,11 @@
     <Script file="Color.lua"/>
     <Script file="ScrollFrame.lua"/>
     <Script file="ItemCache.lua"/>
+
     <Script file="TooltipParser.lua"/>
-    <Script file="TooltipParser_Old.lua"/>
+    <Script file="TooltipParser_Pre_10_1.lua"/>
+    <Script file="TooltipParser_Pre_10_0.lua"/>
+
     <Script file="TransmogDataProvider.lua"/>
     <Script file="CypherEquipment.lua"/>
     <Script file="CharacterProfile.lua"/>

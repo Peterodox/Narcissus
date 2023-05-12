@@ -488,13 +488,14 @@ end
 local SmoothShoulder = CreateFrame("Frame");
 SmoothShoulder.t = 0;
 SmoothShoulder.duration = 1;
+SmoothShoulder.zoom = 0;
 SmoothShoulder:Hide();
 
 SmoothShoulder:SetScript("OnShow", function(self)
 	self.fromPoint = GetCVar("test_cameraOverShoulder");
 end);
 
-SmoothShoulder:SetScript("OnUpdate", function(self, elapsed)
+local function SmoothShoulder_OnUpdate_ToValue(self, elapsed)
 	self.t = self.t + elapsed;
 	local value = outSine(self.t, self.fromPoint, self.toPoint, self.duration);
 
@@ -504,7 +505,23 @@ SmoothShoulder:SetScript("OnUpdate", function(self, elapsed)
 	end
 
 	SetCVar("test_cameraOverShoulder", value);
-end);
+end
+
+local function SmoothShoulder_OnUpdate_ByZoom(self, elapsed)
+	local zoom = GetCameraZoom();
+
+	if zoom ~= self.zoom then
+		local value = zoom * SHOULDER_FACTOR_1 + SHOULDER_FACTOR_2 + MOG_MODE_OFFSET;
+		if value < 0 then
+			value = 0;
+		end
+
+		SetCVar("test_cameraOverShoulder", value);
+	else
+		self:Hide();
+	end
+end
+
 
 SmoothShoulder:SetScript("OnHide", function(self)
 	self.t = 0;
@@ -519,22 +536,45 @@ local function SmoothShoulderCVar(toPoint, clampToZero)
 			toPoint = 0;
 		end
 	end
+	SmoothShoulder:SetScript("OnUpdate", SmoothShoulder_OnUpdate_ToValue);
 	SmoothShoulder.t = 0;
 	SmoothShoulder.toPoint = toPoint;
+	SmoothShoulder.fromPoint = GetCVar("test_cameraOverShoulder");
 	SmoothShoulder:Show();
 end
 
-local UpdateShoulderCVar = {};
-function UpdateShoulderCVar:Start(increment, clampToZero)
-	if ( not self.pauseUpdate ) then
-		self.zoom = GetCameraZoom();
-		self.pauseUpdate = true;
-		After(0.1, function()    -- Execute after 0.1s
-			self.pauseUpdate = nil;
-			SmoothShoulderCVar(self.zoom * SHOULDER_FACTOR_1 + SHOULDER_FACTOR_2 + MOG_MODE_OFFSET, clampToZero);
-		end)
+local function SmoothShoulder_OnUpdate_UntilStable(self, elapsed)
+	self.t = self.t + elapsed;
+
+	if self.t >= 0.1 then
+		local zoom = GetCameraZoom();
+		if zoom ~= self.zoom then
+			self.zoom = zoom;
+			self.t = 0;
+		else
+			local value = zoom * SHOULDER_FACTOR_1 + SHOULDER_FACTOR_2 + MOG_MODE_OFFSET;
+			if value < 0 then
+				value = 0;
+			end
+			SmoothShoulderCVar(value, true);
+		end
 	end
-	self.zoom = self.zoom + increment;
+end
+
+local UpdateShoulderCVar = {};
+UpdateShoulderCVar.steps = 0;
+
+function UpdateShoulderCVar:Start(increment)
+	--Responsive Mode
+	--[[
+	SmoothShoulder:SetScript("OnUpdate", SmoothShoulder_OnUpdate_ByZoom);
+	SmoothShoulder.zoom = -1;
+	SmoothShoulder:Show();
+	--]]
+
+	SmoothShoulder:SetScript("OnUpdate", SmoothShoulder_OnUpdate_UntilStable);
+	SmoothShoulder.t = 0;
+	SmoothShoulder:Show();
 end
 
 local DURATION_TRANSLATION = 0.8;
@@ -4063,13 +4103,13 @@ EL:SetScript("OnEvent",function(self, event, ...)
 			
 			hooksecurefunc("CameraZoomIn", function(increment)
 				if IS_OPENED then
-					UpdateShoulderCVar:Start(-increment, true);
+					UpdateShoulderCVar:Start(-increment);
 				end
 			end)
 			
 			hooksecurefunc("CameraZoomOut", function(increment)
 				if IS_OPENED then
-					UpdateShoulderCVar:Start(increment, true);
+					UpdateShoulderCVar:Start(increment);
 				end
 			end)
 		end)

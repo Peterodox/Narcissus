@@ -1,15 +1,16 @@
-## Interface: 100007
+## Interface: 100100
 ## Plain Title: Narcissus Database NPC
 ## Version: 10.0.2
 ## LoadOnDemand: 1
 ## RequiredDeps: Narcissus
 ### SavedVariables: UniqueCreatureIDs, LocalizedNames, SortedNames, CreatureIDxModelFileID, UnprocessedCreatures
 
-## Title: |cffA236EFN|cff9448F1a|cff865BF2r|cff786DF4c|cff6A80F6i|cff5D92F7s|cff4FA4F9s|cff41B7FAu|cff33C9FCs|r |cff666666Database NPC|r
+## Title: |cffd177ffN|cffc480fba|cffb787f6r|cffa98ef2c|cff9a94edi|cff8a9ae9s|cff789fe5s|cff63a4e0u|cff48a8dcs|r |cff666666Database NPC|r
 
 ## Notes: Find any NPC by name.
 
 ## Author: Peterodox
 
+## IconTexture: Interface\AddOns\Narcissus\Art\Logos\AddonListIconT
 
 Creatures\DB.xml

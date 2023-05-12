@@ -443,6 +443,7 @@ function Narci_Comparison_SetComparison(itemLocation, itemButton)
         frame.BonusButton1:Hide();
         frame.BonusButton2:Hide();
         frame.SubTooltip:Hide();
+        frame.PawnText:Hide();
         EmptyComparison();
         return;
     end
@@ -493,8 +494,6 @@ function Narci_Comparison_SetComparison(itemLocation, itemButton)
     DisplayComparison("haste", STAT_HASTE, stats.haste, baseStats.haste, CR_ConvertRatio.haste);
     DisplayComparison("mastery", STAT_MASTERY, stats.mastery, baseStats.mastery, CR_ConvertRatio.mastery);
     DisplayComparison("versatility", STAT_VERSATILITY, stats.versatility, baseStats.versatility, CR_ConvertRatio.versatility);
-
-    --NarciRefVirtualTooltip:SetHyperlink(itemLink)    --Used to hook the Pawn upgrade notification (if supported)
 
     local iconPos;
     if stats.GemIcon and stats.GemPos then
@@ -620,7 +619,15 @@ function Narci_Comparison_SetComparison(itemLocation, itemButton)
 
     UntruncateText(SubTooltip, SubTooltip.Description)
 
-    ----
+    ---- Pawn ----
+    frame.PawnText:Hide();
+    if PawnGetItemData and PawnIsItemAnUpgrade and PawnAddValuesToTooltip then
+        local Item = PawnGetItemData(itemLink);
+        if Item then
+            local UpgradeInfo, ItemLevelIncrease, BestItemFor, SecondBestItemFor, NeedsEnhancements = PawnIsItemAnUpgrade(Item);
+            PawnAddValuesToTooltip(frame, Item.Values, UpgradeInfo, BestItemFor, SecondBestItemFor, NeedsEnhancements, Item.InvType);
+        end
+    end
 end
 
 --FlyOut Tooltip
@@ -680,8 +687,7 @@ end)
 
 
 function Narci_ShowComparisonTooltip(tooltip)
-    --local extraHeight = floor(tooltip.PawnText:GetHeight() + tooltip.ItemName:GetHeight() + 0.5)
-    local extraHeight = floor(tooltip.ItemName:GetHeight() + 0.5)
+    local extraHeight = floor(tooltip.ItemName:GetHeight() + 0.5);
     tooltip:SetHeight(COMPARISON_HEIGHT + extraHeight);
     tooltip.Icon:SetWidth(COMPARISON_HEIGHT + extraHeight);
     tooltip:Show();
@@ -738,27 +744,41 @@ end
 NarciAPI.ConvertRatingToPercentage = ConvertRatingToPercentage;
 
 
---[[
-hooksecurefunc("DressUpItemLink", function(link)
-    local str = string.match(link, "item[%-?%d:]+")
-    local _, a = string.find(link, ":%d+:.-:")
-    local _, b = string.find(link, ":%d+:")
-    local strp = nil;
-    if b + 1 < a -1 then
-        strp = string.sub(link, b+1, a-1)
-    end
+NarciEquipmentComparisonMixin = {};
 
-    --local EnchantID = strp.match(strp, "%d%d+")
-    --print(str)
-    --print(strp)
-end)
---]]
-
---[[
-function PrintStats(slotID)
-    --GetItemStats(C_Item.GetItemLink(ItemLocation:CreateFromEquipmentSlot(slotID)))
-    local _, GemLink = GetItemGem(C_Item.GetItemLink(ItemLocation:CreateFromEquipmentSlot(slotID)), 1)
-    print(GemLink)
-    GemStats = GetItemStats(GemLink);
+function NarciEquipmentComparisonMixin:OnSizeChanged()
+    self.Icon:SetWidth(self:GetHeight());
 end
---]]
+
+function NarciEquipmentComparisonMixin:OnShow()
+    self.Icon:SetAlpha(0.06);
+    self:StopAnimating();
+    self.animIn:Play();
+end
+
+function NarciEquipmentComparisonMixin:OnHide()
+    self:Hide();
+    self:SetScript("OnUpdate", nil);
+end
+
+function NarciEquipmentComparisonMixin:AddPawnText(text)
+    if text then
+        self.PawnText:Show();
+        self.PawnText:SetText(text);
+
+        local extraHeight = floor(self.PawnText:GetHeight() + self.ItemName:GetHeight() + 8);
+        self:SetHeight(COMPARISON_HEIGHT + extraHeight);
+    else
+        self.PawnText:Hide();
+    end
+end
+
+function NarciEquipmentComparisonMixin:AddLine(text, r, g, b, wrap)
+    self:AddPawnText(text);
+end
+
+function NarciEquipmentComparisonMixin:AddDoubleLine(leftText, rightText, leftR, leftG, leftB, rightR, rightG, rightB)
+    if leftText and rightText then
+        self:AddPawnText(leftText.." "..rightText);
+    end
+end

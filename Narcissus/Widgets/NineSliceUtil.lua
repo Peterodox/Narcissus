@@ -145,6 +145,14 @@ local TextureData = {
         pixelPerfect = true,
         useCenterForAlignment = true,
     },
+
+    ChamferedBevelBorderThick = {
+        file = "Frames\\ChamferedBevelBorderThick",
+        cornerSize = 32,
+        cornerCoord = 0.25,
+        pixelPerfect = false,
+        useCenterForAlignment = true,
+    },
 };
 
 function NineSliceUtil.SetUp(frame, textureKey, layer, shrink, customLayerSubLevel)

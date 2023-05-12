@@ -464,9 +464,9 @@ end
 
 local function GenerateReport()
     local format = string.format;
-    local GetAddOnInfo = GetAddOnInfo;
-    local GetAddOnMetadata = GetAddOnMetadata;
-    local IsAddOnLoaded = IsAddOnLoaded;
+    local GetAddOnInfo = (C_AddOns and C_AddOns.GetAddOnInfo) or GetAddOnInfo;
+    local GetAddOnMetadata = (C_AddOns and C_AddOns.GetAddOnMetadata) or GetAddOnMetadata;
+    local IsAddOnLoaded = (C_AddOns and C_AddOns.GetAddOnMetadata) or IsAddOnLoaded;
 
     local line1 = format("Date: %s", date());
     local osName = (IsWindowsClient() and "Windows") or (IsMacClient() and "Mac") or (IsLinuxClient() and "Linux");

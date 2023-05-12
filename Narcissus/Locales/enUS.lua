@@ -4,7 +4,7 @@ Narci.L.S = {};     --Statistics;
 local L = Narci.L;
 local S = Narci.L.S;
 
-NARCI_GRADIENT = "|cffA236EFN|r|cff9448F1a|r|cff865BF2r|r|cff786DF4c|r|cff6A80F6i|r|cff5D92F7s|r|cff4FA4F9s|r|cff41B7FAu|r|cff33C9FCs|r";
+NARCI_GRADIENT = "|cffd177ffN|cffc480fba|cffb787f6r|cffa98ef2c|cff9a94edi|cff8a9ae9s|cff789fe5s|cff63a4e0u|cff48a8dcs|r";
 
 L["Developer Info"] = "Developed by Peterodox";
 
@@ -704,3 +704,9 @@ L["Perks Program Item Unavailable"] = "This item is not currently available.";
 L["Perks Program See Wares"] = "Show wares";
 L["Perks Program No Cache Alert"] = "Speak with the Trading Posts vendors to see this month\'s wares.";
 L["Perks Program Using Cache Alert"] = "Using the cache from your last visit. The price data may not be accurate.";
+
+--Quest--
+L["Auto Display Quest Item"] = "Auto Display Quest Item Descriptions";
+L["Drag To Move"] = "Drag to Move";
+L["Middle Click Reset Position"] = "Middle-click to reset position."
+L["Change Position"] = "Change Position";

@@ -1,3 +1,5 @@
+local MAX_DISPLAYED_TALENTS = 9;
+
 local _, addon = ...;
 
 local After = C_Timer.After;
@@ -98,8 +100,8 @@ function NarciTalentsMixin:UpdateAllTalents()
 
     if numTalents < 4 then
         numTalents = 4;
-    elseif numTalents > 8 then
-        numTalents = 8;     --cut-off
+    elseif numTalents > MAX_DISPLAYED_TALENTS then
+        numTalents = MAX_DISPLAYED_TALENTS;     --cut-off
     end
 
     for i = 1, #buttons do

@@ -51,9 +51,18 @@ local MAP_UI_INFO = {
     [210] = {name = 'court-of-stars', },
     [402] = {name = 'algethar-academy', },
     [2] = {name = 'temple-of-the-jade-serpent', },
+
+    [438] = {name = 'the-vortex-pinnacle', },
+    [403] = {name = 'uldaman-legacy-of-tyr', },
+    [404] = {name = 'neltharus', },
+    [406] = {name = 'halls-of-infusion', },
+    [251] = {name = 'the-underrot', },
+    [245] = {name = 'freehold', },
+    [206] = {name = 'neltharions-lair', },
+    [405] = {name = 'brackenhide-hollow', },
 };
 
-local SEASON_MAPS = {399, 400, 401, 402, 2, 165, 200, 210};
+local SEASON_MAPS = {403, 438, 251, 404, 206, 406, 245, 405};
 
 
 local function ShowNewDungeons()

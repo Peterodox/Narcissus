@@ -190,13 +190,14 @@ end
 
 local COLORS = {
     [1] = {0.25, 0.83, 0.66};    --Progenitor Class Set (turquoise)
+    [2] = {0.94, 0.6, 0};    --Yellow Ember
 };
 
 
 NarciPaperDollItemHighlightMixin = {};
 
 function NarciPaperDollItemHighlightMixin:OnLoad()
-    self:SetColor(1);
+    self:SetColor(2);
     self:SetScript("OnLoad", nil);
 end
 

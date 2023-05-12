@@ -2064,6 +2064,9 @@ local Categories = {
     },
 };
 
+local function InsertCategory(newCategory)
+    table.insert(Categories, #Categories -1, newCategory);
+end
 
 if IS_DRAGONFLIGHT then
     local function ShowTreeCase1(self, state)
@@ -2107,7 +2110,7 @@ if IS_DRAGONFLIGHT then
         }
     };
 
-    table.insert(Categories, #Categories -1, talentCategory);
+    InsertCategory(talentCategory);
 
     
 
@@ -2156,7 +2159,7 @@ if IS_DRAGONFLIGHT then
         {type = "checkbox", level = 1, key = "SearchSuggestEnable", text = L["Bag Item Filter Enable"], onValueChangedFunc = ItemSearchToggle_OnValueChanged},
         {type = "subheader", level = 3, text = L["Place Window"], extraTopPadding = 1, isChild = true},
         {type = "radio", level = 3, key = "SearchSuggestDirection", texts = {L["Below Search Box"], L["Above Search Box"]}, onValueChangedFunc = ItemSearchDirectionButton_OnValueChanged, setupFunc = ItemSearchDirection_Setup,
-            previewImage = "PopupPositionPreview", previewWidth = 200, previewHeight = 162, previewOffsetY = 28, isChild = true
+            previewImage = "Preview-PopupPosition", previewWidth = 200, previewHeight = 162, previewOffsetY = 28, isChild = true
         },
         {type = "subheader", level = 3, text = L["Auto Filter Case"], extraTopPadding = 1, isChild = true},
         {type = "checkbox", level = 3, key = "AutoFilterMail", text = L["Send Mails"], onValueChangedFunc = AutoFilterMail_OnValueChanged, isChild = true},
@@ -2164,7 +2167,63 @@ if IS_DRAGONFLIGHT then
         {type = "checkbox", level = 3, key = "AutoFilterGem", text = L["Socket Items"], onValueChangedFunc = AutoFilterGem_OnValueChanged, isChild = true},
     }};
 
-    table.insert(Categories, #Categories -1, bagCategory);
+    InsertCategory(bagCategory);
+
+
+    local function AutoDisplayQuestItemToggle_OnValueChanged(self, state)
+        SettingFunctions.SetAutoDisplayQuestItem(state);
+    end
+
+    local function QuestCardStyleButton_OnValueChanged(self, id)
+        if id == 2 then
+            self.preview:SetTexCoord(0, 1, 0.375, 0.75);
+        else
+            self.preview:SetTexCoord(0, 1, 0, 0.375);
+        end
+
+        NarciQuestItemDisplay:SetTheme(id);
+    end
+    
+    local function QuestCardStyle_Setup(radioButton)
+        if radioButton.preview then
+            if DB and DB.QuestCardTheme == 2 then
+                radioButton.preview:SetTexCoord(0, 1, 0.375, 0.75);
+            else
+                radioButton.preview:SetTexCoord(0, 1, 0, 0.375);
+            end
+        end
+    end
+
+    local function QuestCardPositionButton_Setup(f)
+        f:SetScript("OnClick", function ()
+            NarciQuestItemDisplay:ChangePosition()
+        end)
+
+        function f:UpdateState()
+            return
+        end
+
+        f.Border:SetTexture("Interface\\AddOns\\Narcissus\\Art\\SettingsFrame\\FourWayArrow");
+        f.Border:SetTexCoord(0, 1, 0, 1);
+        f.Selection:Hide();
+        f.Selection:SetTexture(nil);
+        f.Highlight:SetTexture(nil);
+        f.Background:Hide();
+        f.Background:SetTexture(nil);
+    end
+
+    local questCategory = {name = TRANSMOG_SOURCE_2 or "Quest", level = 1, key = "quest",
+    widgets = {
+        {type = "header", level = 0, text = TRANSMOG_SOURCE_2 or "Quest"},
+        {type = "checkbox", level = 1, key = "AutoDisplayQuestItem", text = L["Auto Display Quest Item"], onValueChangedFunc = AutoDisplayQuestItemToggle_OnValueChanged},
+        {type = "subheader", level = 3, text = L["Appearance"], extraTopPadding = 1, isChild = true},
+        {type = "radio", level = 3, key = "QuestCardTheme", texts = {L["Border Theme Bright"], L["Border Theme Dark"]}, onValueChangedFunc = QuestCardStyleButton_OnValueChanged, setupFunc = QuestCardStyle_Setup,
+            previewImage = "Preview-QuestCardTheme", previewWidth = 200, previewHeight = 75, previewOffsetY = 10, isChild = true
+        },
+        {type = "checkbox", level = 3, text = L["Change Position"], isChild = true, setupFunc = QuestCardPositionButton_Setup},
+    }};
+
+    InsertCategory(questCategory);
 end
 
 
@@ -2391,14 +2450,14 @@ function NarciSettingsFrameMixin:ShowUI(mode, alignToCenter, navigateTo)
     SetupFrame();
 
     mode = mode or "default";
-    if mode ~= self.mode then
+    --if mode ~= self.mode then
         self.mode = mode;
         if mode == "blizzard" then
             self:AnchorToInterfaceOptions();
         else
             self:AnchorToDefault(alignToCenter);
         end
-    end
+    --end
 
     CreditList:StopAnimation();
 

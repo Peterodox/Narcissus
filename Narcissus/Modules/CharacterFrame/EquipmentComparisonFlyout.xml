@@ -162,7 +162,7 @@
 		</Scripts>
 	</Button>
 	
-	<Frame name="Narci_SubTooltip_Template" hidden="true" virtual="true">
+	<Frame name="Narci_Comparison_SubTooltip_Template" hidden="true" virtual="true">
         <Layers>
             <Layer level="BACKGROUND" textureSubLevel="1">
                 <Texture file="Interface\AddOns\Narcissus\Art\Tooltip\DropShadow" parentKey="Shadow">
@@ -277,7 +277,7 @@
 		</Scripts>
 	</Frame>
 
-    <Frame name="Narci_Comparison" parent="Narci_EquipmentFlyoutFrame" clampedToScreen="true" frameStrata="TOOLTIP" hidden="true" enableMouseMotion="false" clipChildren="false" frameLevel="18">
+    <Frame name="Narci_Comparison" parent="Narci_EquipmentFlyoutFrame" clampedToScreen="true" frameStrata="TOOLTIP" hidden="true" enableMouseMotion="false" clipChildren="false" frameLevel="18" mixin="NarciEquipmentComparisonMixin">
         <Size x="256" y="160"/>
         <Anchors>
             <Anchor point="BOTTOMLEFT" relativePoint="TOPLEFT"  x="8" y="8"/>
@@ -363,7 +363,6 @@
 						<Anchor point="BOTTOMLEFT" relativePoint="BOTTOMLEFT" x="14" y="13"/>
 					</Anchors>
 				</FontString>
-			
             </Layer>
         </Layers>
 		<Frames>
@@ -378,7 +377,7 @@
 				</Scripts>
 			</Frame>
 
-			<Frame name="Narci_SubTooltip" inherits="Narci_SubTooltip_Template" parentKey="SubTooltip">
+			<Frame inherits="Narci_Comparison_SubTooltip_Template" parentKey="SubTooltip">
 				<Size x="240"/>
 				<Anchors>
 					<Anchor point="TOPLEFT" relativeKey="$parent" relativePoint="TOPRIGHT" x="-20" y="-12"/>
@@ -482,18 +481,9 @@
 			</AnimationGroup>
 		</Animations>		
 		<Scripts>
-			<OnSizeChanged>
-			    self.Icon:SetWidth(self:GetHeight());
-			</OnSizeChanged>
-			<OnShow>
-				self.Icon:SetAlpha(0.06);	--Item Icon
-				self:StopAnimating();
-				self.animIn:Play();
-			</OnShow>
-			<OnHide>
-				self:Hide();
-				self:SetScript("OnUpdate", nil);
-			</OnHide>
+			<OnSizeChanged method="OnSizeChanged"/>
+			<OnShow method="OnShow"/>
+			<OnHide method="OnHide"/>
 		</Scripts>
     </Frame>
 </Ui>

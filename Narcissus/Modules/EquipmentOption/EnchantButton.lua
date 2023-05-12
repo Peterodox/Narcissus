@@ -752,7 +752,6 @@ function NarciEquipmentEnchantButtonMixin:SetPrimordialStone(itemID)
         local icon = GetItemIcon(itemID);
         self.Icon:SetTexture(icon);
         local name = NarciAPI.GetColorizedPrimordialStoneName(itemID);
-        local gemBonus = GetGemBonus(itemID);
         local quality = C_Item.GetItemQualityByID(itemID);
         self:SetUsed(itemID == InUseIDs.gemID, itemID == InUseIDs.newGemID);
         if name and name ~= "" and quality then

@@ -2645,7 +2645,6 @@ function NarciHotkeyNotificationMixin:OnEvent(event, key)
         self:UnregisterEvent("GLOBAL_MOUSE_UP");
         self:FadeOut();
     end
-    print(event);
 end
 
 function NarciHotkeyNotificationMixin:SetHighlight(state)

@@ -1,4 +1,7 @@
 --[[
+Function: Show item value on tooltip
+# Impletemented in EquipmentComparisonFlyout.lua
+
 Pawn Parameters:
     local Item = PawnGetItemData(ItemLink)
     local UnenchantedItem = PawnUnenchantItemLink(ItemLink)

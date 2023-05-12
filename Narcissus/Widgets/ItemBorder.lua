@@ -20,6 +20,7 @@ local itemBorderMask = {
     [9202] = "Interface/AddOns/Narcissus/Art/ItemBorder-Dark/Mask/Anduin",
 
     [100701] = "Interface/AddOns/Narcissus/Art/ItemBorder-Dark/Mask/OnyxAnnulet",
+    [100101] = "Interface/AddOns/Narcissus/Art/ItemBorder-Dark/Mask/Dragonflight",
 }
 
 local itemBorderHeavy = {
@@ -50,6 +51,7 @@ local itemBorderHeavy = {
     Shield = {"Shield", 1},
     Strife = {"Strife", 2},
     OnyxAnnulet = {"OnyxAnnulet", 100701},
+    Dragonflight = {"Dragonflight", 100101},
 }
 
 local function GetBorderThemeName()
@@ -112,31 +114,14 @@ local itemIDxBorderArt = {
 
     [203460] = {"OnyxAnnulet", "OnyxAnnulet", nil, nil, nil, true},           --Onyx Annulet --CreateColor(255, 171, 0)
 
-    Progenitor = {"Progenitor", nil, CreateColor(230, 204, 128)},   --Class Sets: Sepulcher of the First Ones
+    --Progenitor = {"Progenitor", nil, CreateColor(230, 204, 128)},   --Class Sets: Sepulcher of the First Ones
+    Dragonflight = {"Dragonflight", nil, CreateColor(252, 185, 54)},  --Class Sets: Embers of Neltharion
 };
 
-do
-    --[[
-    local progenitorClassSetItems = {
-        188868, 188867, 188866, 188864, 188863,     --DK
-        188892, 188894, 188896, 188893, 188898,     --DH
-        188847, 188853, 188851, 188848, 188849,     --Druid
-        188859, 188861, 188860, 188856, 188858,     --Hunter
-        188844, 188845, 188839, 188842, 188843,     --Magepi
-        188916, 188911, 188910, 188914, 188912,     --Monk
-        188933, 188931, 188932, 188929, 188928,     --Paladin
-        188880, 188879, 188881, 188875, 188878,     --Priest
-        188901, 188902, 188903, 188905, 188907,     --Rogue
-        188923, 188925, 188924, 188920, 188922,     --Shaman
-        188889, 188890, 188884, 188888, 188887,     --Warlock
-        188942, 188941, 188940, 188938, 188937,     --Warrior
-    };
-    --]]
-end
 
 local function GetBorderArtByItemID(itemID)
     if IsItemClassSet(itemID) then
-        return unpack(itemIDxBorderArt.Progenitor);
+        return unpack(itemIDxBorderArt.Dragonflight);
     else
         if itemIDxBorderArt[itemID] then
             return unpack(itemIDxBorderArt[itemID]);

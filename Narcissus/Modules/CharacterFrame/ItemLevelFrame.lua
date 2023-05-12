@@ -113,9 +113,25 @@ local Themes = {
 		onEnterFunc = Domination_OnEnter,
     },
 
+	--[[
     classSet = {
-        frameTex = "Progenitor",
-        highlightTex = "ProgenitorHighlight",
+        frameTex = "Progenitor\\ItemLevelHex",
+        highlightTex = "Progenitor\\ItemLevelHexHighlight",
+		nodeTex = "Progenitor\\SetPieceCount",
+		nodeHighlightTex = "Progenitor\\SetPieceCountHighlight",
+        highlightSize = 104,
+        highlightBlend = "ADD",
+        highlightLevel = 4,
+		onEnterFunc = ClassSet_OnEnter,
+		onLeaveFunc = ClassSet_OnLeave,
+    },
+	--]]
+
+    classSet = {
+        frameTex = "Neltharion\\ItemLevelHex",
+        highlightTex = "Neltharion\\ItemLevelHexHighlight",
+		nodeTex = "Neltharion\\SetPieceCount",
+		nodeHighlightTex = "Neltharion\\SetPieceCountHighlight",
         highlightSize = 104,
         highlightBlend = "ADD",
         highlightLevel = 4,
@@ -220,6 +236,23 @@ function NarciItemLevelFrameMixin:SetThemeByName(themeName)
 		self.CenterButton.onEnterFunc = asset.onEnterFunc or GenericItemLevel_OnEnter;
 		self.CenterButton.onLeaveFunc = asset.onLeaveFunc;
 		self.ClassSetOverlay:SetShown(themeName == "classSet");
+
+		if self.ClassSetOverlay and self.ClassSetOverlay.Nodes then
+			local nodeTex, highlightTex;
+
+			if asset.nodeTex then
+				nodeTex = prefix.. asset.nodeTex;
+			end
+
+			if asset.nodeHighlightTex then
+				highlightTex = prefix.. asset.nodeHighlightTex;
+			end
+
+			for i, node in ipairs(self.ClassSetOverlay.Nodes) do
+				node.NormalTexture:SetTexture(nodeTex);
+				node.HighlightTexture:SetTexture(highlightTex);
+			end
+		end
 	end
 end
 

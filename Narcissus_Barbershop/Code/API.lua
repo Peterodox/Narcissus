@@ -69,10 +69,12 @@ local function GetMountNameByID(mountID)
 end
 
 local CHR_MODEL_NAME = {
+    --Dragonriding
     [124] = {1589, GetMountNameByID},
     [129] = {1590, GetMountNameByID},
     [123] = {1563, GetMountNameByID},
     [126] = {1591, GetMountNameByID},
+    [125] = {1588, GetMountNameByID},
 };
 
 local function GetChrModelName(chrModelID)
@@ -111,7 +113,7 @@ local CAMERA_DATA_FILEID = {
 
     [1630218] = {1.97, -0.35, -2.2, 0.43},      --highmountaintauren-male
     [1630402] = {2.86, -0.35, -2.4, 0.52},      --highmountaintauren-female
-    
+
     [900914] = {3.23, -0.01, -0.92, 0.43},      --Gnome M
     [940356] = {3.37, -0.07, -0.9, 0.43},       --Gnome F
 
@@ -164,11 +166,13 @@ local CAMERA_DATA_FILEID = {
     [4281540] = {-20.58, -3.77, -6.32, 0.61},    --Windrborne Velocidrake
     [4227968] = {-0.59, -1.86, -2.57, 0.44},    --Highland Drake
     [4252337] = {0.26, -0.74, -1.2, 0.44},    --Cliffside Wylderdrake
+    [4252339] = {1.95, 5.96, -3.73, -0.79},    --Winding Slitherdrake
 };
 
 CAMERA_DATA_FILEID[4675519] = CAMERA_DATA_FILEID[4278602];  --Storm-Easter Vault of the Incarnates
 CAMERA_DATA_FILEID[4571488] = CAMERA_DATA_FILEID[4227968];  --Crimson Gladiator PvP
-
+CAMERA_DATA_FILEID[4954741] = CAMERA_DATA_FILEID[4227968];  --Elemental Drake Aberrus
+CAMERA_DATA_FILEID[4995347] = CAMERA_DATA_FILEID[4252339];  --Obsidian Gladiator
 
 local function GetPortraitCameraInfoByModelFileID(fileID)
     if fileID and CAMERA_DATA_FILEID[fileID] then
