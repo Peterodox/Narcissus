@@ -145,12 +145,12 @@ local Themes = {
 NarciItemLevelFrameMixin = {};
 
 function NarciItemLevelFrameMixin:UpdateItemLevel(playerLevel)
-	playerLevel = playerLevel or UnitLevel("player");
+	--playerLevel = playerLevel or UnitLevel("player");
 	local avgItemLevel, avgItemLevelEquipped, avgItemLevelPvp = GetAverageItemLevel();
 	local avgItemLevelBase = floor(avgItemLevel);
 	avgItemLevel = RoundLevel(avgItemLevel);
 	avgItemLevelEquipped = RoundLevel(avgItemLevelEquipped);
-	avgItemLevelPvp = RoundLevel(avgItemLevelEquipped);
+	avgItemLevelPvp = RoundLevel(avgItemLevelPvp);
 	self.LeftButton.avgItemLevel = avgItemLevel;
 	self.LeftButton.avgItemLevelPvp = avgItemLevelPvp;
 	self.LeftButton.isSameLevel = (avgItemLevel == avgItemLevelEquipped);

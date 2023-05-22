@@ -37,6 +37,10 @@ local enchantData = {
     },
 
     [16] = {    --Weapon
+        {409660, 204973, 6839},     --Hissing Rune T3 Mastery (Melee)
+        {409659, 204972, 6837},     --Hissing Rune T2
+        {409654, 204971, 6838},     --Hissing Rune T1
+
         {385327, 194823, 6514},     --Buzzing Rune T3 Crit (Melee)
         {385326, 194822, 6513},     --Buzzing Rune T2
         {385325, 194821, 6512},     --Buzzing Rune T1

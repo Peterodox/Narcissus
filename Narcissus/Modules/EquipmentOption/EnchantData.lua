@@ -30,6 +30,7 @@ local enchantData = {
     --[slotID] = { {spellID, itemID, enchantID, [icon], [requirement]} }     --default icon: 463531
     --Shadowlands and on
     --Dragonflight Crafing: https://wow.tools/dbc/?dbc=craftingdataenchantquality
+    --EnchantID: https://wago.tools/db2/SpellItemEnchantment
 
     [5] = {     --Chest
         {389419, 200029, 6622, 136101},     --Sustained Strength T3 STR + HP
@@ -57,8 +58,17 @@ local enchantData = {
         {323762, 177716, 6216},             --Sacred Stats
     },
 
+    [6] = {     --Waist
+        {411897, 205039, 6904},     --Shadowed Belt Clasp T3 Stamina
+        {411898, 205044, 6905},     --Shadowed Belt Clasp T2
+        {411899, 205043, 6906},     --Shadowed Belt Clasp T1
+    },
 
     [7] = {     --Legs
+        {406299, 204702, 6830},     --Lambent Armor Kit T3 Primary + Versatility
+        {406298, 204701, 6829},     --Lambent Armor Kit T2
+        {406295, 204700, 6828},     --Lambent Armor Kit T1
+
         {376848, 193565, 6490},     --Fierce Armor Kit T3 Stamina + Agility/Strength
         {376844, 193561, 6489},     --Fierce Armor Kit T2
         {376822, 193557, 6488},     --Fierce Armor Kit T1
@@ -210,6 +220,14 @@ local enchantData = {
     },
 
     [16] = {    --Weapon
+        {405076, 204623, 6827, 5009071},    --Shadowflame Wreathe T3
+        {405076, 204622, 6826, 5009071},    --Shadowflame Wreathe T2
+        {405076, 204621, 6825, 5009071},    --Shadowflame Wreathe T1
+
+        {404859, 204615, 6824, 5041801},    --Spore Tender T3
+        {404859, 204614, 6823, 5041801},    --Spore Tender T2
+        {404859, 204613, 6822, 5041801},    --Spore Tender T1
+
         {389547, 200050, 6631, 4554438},    --Burning Devotion T3 Heal
         {389547, 200008, 6630, 4554438},    --Burning Devotion T2 
         {389547, 199966, 6629, 4554438},    --Burning Devotion T1

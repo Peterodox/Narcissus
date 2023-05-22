@@ -664,6 +664,13 @@ function NarciEquipmentTooltipMixin:DisplayItemData(link, itemData, slotID, visu
             levelSubtext = format("%s/%s", itemData.upgradeLevel[1], itemData.upgradeLevel[2]);
         end
 
+        if levelSubtext and itemData.fullyUpgradedItemLevel then
+            local level1, level2 = match(levelSubtext, "(%d)/(%d)");
+            if level1 and level2 and level1 ~= level2 then
+                levelSubtext = levelSubtext.." |cff808080("..itemData.fullyUpgradedItemLevel..")|r";
+            end
+        end
+
         self.HeaderFrame.LevelSubText:SetText(levelSubtext);
 
         if itemData.craftingQuality then
@@ -1094,6 +1101,7 @@ function NarciEquipmentTooltipMixin:SetUseTransmogLayout(state)
             self.HeaderFrame.ItemName:SetPoint("TOPLEFT", self.HeaderFrame, "TOPLEFT", TOOLTIP_PADDING, -36);
             self.HeaderFrame.ItemType:SetPoint("TOPLEFT", self.HeaderFrame.ItemName, "BOTTOMLEFT", 0, -4);
             self.headerPadding = 48 + SEG_INSETS;
+            self.HeaderFrame.CraftingQualityIcon:Hide();
         else
             self.HeaderFrame.ItemName:SetPoint("TOPLEFT", self.HeaderFrame, "TOPLEFT", TOOLTIP_PADDING, -TOOLTIP_PADDING);
             self.HeaderFrame.ItemType:SetPoint("TOPLEFT", self.HeaderFrame.ItemLevel, "BOTTOMLEFT", 0, -2);

@@ -30,6 +30,7 @@ local SLOT_PRIORITY = {
 local SLOT_PRIORITY_STR = {
     --primary stats: Strengh
     [5] = 1,
+    [6] = 0,
     [7] = 1,
     [8] = 0,
     [9] = 0,
@@ -43,6 +44,7 @@ local SLOT_PRIORITY_STR = {
 local SLOT_PRIORITY_AGI = {
     --primary stats: Agility
     [5] = 1,
+    [6] = 0,
     [7] = 1,
     [8] = 0,
     [9] = 0,
@@ -56,6 +58,7 @@ local SLOT_PRIORITY_AGI = {
 local SLOT_PRIORITY_INT = {
     --primary stats: Intellect
     [5] = 1,
+    [6] = 0,
     [7] = 1,
     [8] = 0,
     [9] = 0,
@@ -153,7 +156,6 @@ function SlotButtonOverlayUtil:IsSlotValidForEnchant(slotID, itemID)
 end
 
 function SlotButtonOverlayUtil:ShowEnchantAlert(slotButton, slotID, itemID)
-    print(itemID)
     if self.enabled and itemID and not NO_FLASH_ITEMS[itemID] then
         if SLOT_PRIORITY[slotID] == 1 then  --self:IsSlotValidForEnchant(slotID, itemID) - already run
             local f = slotButton.slotOverlay or self:GetOverlay();

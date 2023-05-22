@@ -396,18 +396,18 @@
 								</Layers>
 								<Scripts>
 									<OnLoad>
-										self.tooltip = Narci.L["NPC Has Weapons"];
+										self.tooltipDescription = Narci.L["NPC Has Weapons"];
 									</OnLoad>
 									<OnEnter>
-										NarciTooltip:ShowTooltip(self);
+										NarciTooltip:ShowButtonTooltip(self);
 										self.Icon:SetAlpha(1);
 									</OnEnter>
 									<OnLeave>
-										NarciTooltip:FadeOut();
+										NarciTooltip:HideTooltip();
 										self.Icon:SetAlpha(0.6);
 									</OnLeave>
 									<OnMouseDown>
-										NarciTooltip:FadeOut();
+										NarciTooltip:HideTooltip();
 										self.Icon:SetSize(11, 11);
 									</OnMouseDown>
 									<OnMouseUp>

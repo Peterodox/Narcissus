@@ -5,8 +5,50 @@ addon.DataProvider = DataProvider;
 local GetAchievementCategory = GetAchievementCategory;
 local GetCategoryInfo = GetCategoryInfo;
 local GetAchievementInfo = GetAchievementInfo;
-local GetTrackedAchievements = GetTrackedAchievements;
 local SetFocusedAchievement= SetFocusedAchievement;
+
+--Changed in 10.1.5 (C_ContentTracking)
+local GetTrackedAchievements = GetTrackedAchievements;
+local RemoveTrackedAchievement = RemoveTrackedAchievement;
+local AddTrackedAchievement = AddTrackedAchievement;
+
+do
+    local TRACKING_TYPE_ACHV = (Enum and Enum.ContentTrackingType and Enum.ContentTrackingType.Achievement) or 2;
+
+    if C_ContentTracking then
+        if C_ContentTracking.GetTrackedIDs then
+            GetTrackedAchievements = function()
+                return C_ContentTracking.GetTrackedIDs(TRACKING_TYPE_ACHV)
+            end
+        end
+
+        if C_ContentTracking.StopTracking then
+            RemoveTrackedAchievement = function(id)
+                C_ContentTracking.StopTracking(TRACKING_TYPE_ACHV, id);
+            end
+        end
+
+        if C_ContentTracking.StartTracking then
+            AddTrackedAchievement = function(id)
+                local trackingError = C_ContentTracking.StartTracking(TRACKING_TYPE_ACHV, id);
+                if trackingError then
+                	ContentTrackingUtil.DisplayTrackingError(trackingError);
+                end
+            end
+        end
+
+        if C_ContentTracking.IsTracking then
+            function DataProvider:IsTrackedAchievement(id)
+                return C_ContentTracking.IsTracking(TRACKING_TYPE_ACHV, id)
+            end
+        end
+    else
+        function DataProvider:IsTrackedAchievement(id)
+            return self.isTrackedAchievements[id]
+        end
+    end
+end
+
 
 local NARCI_CATE_ID = 12080000;
 
@@ -175,6 +217,10 @@ function DataProvider:GetTrackedAchievements()
     return dif
 end
 
-function DataProvider:IsTrackedAchievement(id)
-    return self.isTrackedAchievements[id]
+function DataProvider:StopTracking(id)
+    RemoveTrackedAchievement(id);
+end
+
+function DataProvider:StartTracking(id)
+    AddTrackedAchievement(id);
 end

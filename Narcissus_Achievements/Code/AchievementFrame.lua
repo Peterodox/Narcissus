@@ -420,7 +420,7 @@ local function ToggleTracking(id)
     if not id then return end;
 
     if DataProvider:IsTrackedAchievement(id) then
-        RemoveTrackedAchievement(id);
+        DataProvider:StopTracking(id);
     else
         local MAX_TRACKED_ACHIEVEMENTS = 10;
         if ( DataProvider.numTrackedAchievements >= MAX_TRACKED_ACHIEVEMENTS ) then
@@ -433,8 +433,8 @@ local function ToggleTracking(id)
             UIErrorsFrame:AddMessage(ERR_ACHIEVEMENT_WATCH_COMPLETED, 1.0, 0.1, 0.1, 1.0);
             return;
         end
-    
-        AddTrackedAchievement(id);
+
+        DataProvider:StartTracking(id);
         return true
     end
 end

@@ -132,6 +132,9 @@ local CVAR_UNIT_NAME_VALUES = {			--Unit Name CVars
 	["chatBubbles"] = 0,
 	["floatingCombatTextCombatDamage"] = 0,
 	["floatingCombatTextCombatHealing"] = 0,
+
+    ["SoftTargetEnemy"] = 1,
+    ["SoftTargetInteract"] = 1,
 };
 
 

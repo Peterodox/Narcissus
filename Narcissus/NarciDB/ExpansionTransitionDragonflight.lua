@@ -125,14 +125,34 @@ function TransitionAPI.SetCameraPosition(model, x, y, z)     --#10
     if type(x) == "table" then
         x, y, z = x:GetXYZ();
     end
-    model:SetCameraPosition(x, y, z);
+
+    if model:IsObjectType("CinematicModel") then
+        local position = {
+            x = x,
+            y = y,
+            z = z,
+        }
+        model:SetCameraPosition(position);
+    else
+        model:SetCameraPosition(x, y, z);
+    end
 end
 
 function TransitionAPI.SetCameraTarget(model, x, y, z)     --#11
     if type(x) == "table" then
         x, y, z = x:GetXYZ();
     end
-    model:SetCameraTarget(x, y, z);
+
+    if model:IsObjectType("CinematicModel") then
+        local position = {
+            x = x,
+            y = y,
+            z = z,
+        }
+        model:SetCameraTarget(position);
+    else
+        model:SetCameraTarget(x, y, z);
+    end
 end
 
 function TransitionAPI.SetModelPosition(model, x, y, z)     --#12
