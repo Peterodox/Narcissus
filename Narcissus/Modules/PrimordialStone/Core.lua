@@ -8,7 +8,7 @@ local SPELL_ID_PLUCK = 405805;
 local SPELL_ID_BREAK = 405721;
 
 local GetActionInfo = GetActionInfo;
-local GetActionTexture = GetActionTexture;
+--local GetActionTexture = GetActionTexture;
 local HasExtraActionBar = HasExtraActionBar;
 
 
@@ -16,49 +16,54 @@ local GetItemPositionByItemID = NarciAPI.GetItemPositionByItemID;
 
 local SHOW_UI;
 
-local EL = CreateFrame("Frame");
+local EL;
 
-EL:RegisterEvent("ZONE_CHANGED_NEW_AREA");
-EL:RegisterEvent("PLAYER_ENTERING_WORLD");
+local module = addon.CreateZoneTriggeredModule();
+module:SetValidZones(FORBIDDEN_REACH_MAP_ID);
 
-EL:SetScript("OnEvent", function(self, event, ...)
-    if event == "ZONE_CHANGED_NEW_AREA" or event == "PLAYER_ENTERING_WORLD" then
-        local mapID = C_Map.GetBestMapForUnit("player");
+local function OnEnabledCallback()
+    if not EL then
+        EL = CreateFrame("Frame");
 
-        if mapID == FORBIDDEN_REACH_MAP_ID then
-            self:RegisterEvent("UPDATE_EXTRA_ACTIONBAR");
-            self.trackingActionBar = true;
-            --print("Tracking")
-        elseif self.trackingActionBar then
-            self:UnregisterEvent("UPDATE_EXTRA_ACTIONBAR");
-            --print("Untracked");
-        end
+        EL:SetScript("OnEvent", function(self, event, ...)
+            if HasExtraActionBar() then
+                local actionType, id, subType = GetActionInfo(EXTRA_ACTION_BUTTON_ACTION);
+                if id == SPELL_ID_PLUCK or id == SPELL_ID_BREAK then
+                    if not SHOW_UI then
+                        SHOW_UI = true;
+                    end
 
-    elseif event == "UPDATE_EXTRA_ACTIONBAR" then
-        if HasExtraActionBar() then
-            local actionType, id, subType = GetActionInfo(EXTRA_ACTION_BUTTON_ACTION);
-            if id == SPELL_ID_PLUCK or id == SPELL_ID_BREAK then
-                if not SHOW_UI then
-                    SHOW_UI = true;
-                end
-
-                if id == SPELL_ID_PLUCK then
-                    local positionType, id1, id2 = GetItemPositionByItemID(ITEM_ID_RING);
-                    if positionType == "inventory" then
-                        SocketInventoryItem(id1);
-                    elseif positionType == "container" then
-                        C_Container.SocketContainerItem(id1, id2);
+                    if id == SPELL_ID_PLUCK then
+                        local positionType, id1, id2 = GetItemPositionByItemID(ITEM_ID_RING);
+                        if positionType == "inventory" then
+                            SocketInventoryItem(id1);
+                        elseif positionType == "container" then
+                            C_Container.SocketContainerItem(id1, id2);
+                        end
                     end
                 end
+            else
+                if SHOW_UI then
+                    SHOW_UI = false;
+                    CloseSocketInfo();
+                end
             end
-        else
-            if SHOW_UI then
-                SHOW_UI = false;
-                CloseSocketInfo();
-            end
-        end
+        end);
     end
-end);
+
+    EL:RegisterEvent("UPDATE_EXTRA_ACTIONBAR");
+end
+
+local function OnDisabledCallback()
+    if EL then
+        EL:UnregisterEvent("UPDATE_EXTRA_ACTIONBAR");
+    end
+end
+
+module:SetOnEnabledCallback(OnEnabledCallback);
+module:SetOnDisabledCallback(OnDisabledCallback);
+
+
 
 --[[
 API:

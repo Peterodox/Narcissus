@@ -1504,10 +1504,10 @@ local function UpdateMountActor(resetModel)
         MountActor.creatureName = C_MountJournal.GetMountInfoByID(mountID);
 
         if (isSelfMount) then
-            MountActor:SetAnimationBlendOperation(1);   --LE_MODEL_BLEND_OPERATION_NONE
+            MountActor:SetAnimationBlendOperation(0);   --LE_MODEL_BLEND_OPERATION_NONE
             MountActor:SetAnimation(618);
         else
-            MountActor:SetAnimationBlendOperation(2);    --LE_MODEL_BLEND_OPERATION_ANIM
+            MountActor:SetAnimationBlendOperation(1);    --LE_MODEL_BLEND_OPERATION_ANIM
             MountActor:SetAnimation(0);
         end
 
@@ -1530,6 +1530,8 @@ local function UpdateMountActor(resetModel)
 
     end
 end
+
+--/script local a = DressUpFrame.ModelScene:GetPlayerActor();if a then a:TryOn(78416) end
 
 ------------------------------------------------------------
 

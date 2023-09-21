@@ -63,7 +63,7 @@ local MAP_UI_INFO = {
 };
 
 local SEASON_MAPS = {403, 438, 251, 404, 206, 406, 245, 405};
-
+local IS_MAP_THIS_SEASON = {};
 
 local function ShowNewDungeons()
     --Use this to get season map
@@ -574,6 +574,9 @@ function NarciMythicPlusDisplayMixin:Init()
             self.maps = SEASON_MAPS;
         end
 
+        for _, mapID in ipairs(self.maps) do
+            IS_MAP_THIS_SEASON[mapID] = true;
+        end
     end
 
     local numRows = math.ceil(#self.maps * 0.5);
@@ -711,9 +714,17 @@ function NarciMythicPlusDisplayMixin:PostUpdate()
     local text = overallScore;
     local runHistory = C_MythicPlus.GetRunHistory(true, true);
     if runHistory then
-        local numRuns = #runHistory;
-        if numRuns > 0 then
-            text = text.."     ".. Narci.L["Total Runs"] .."|cffffffff"..numRuns.."|r";
+        local total = 0;
+
+        for i, info in ipairs(runHistory) do
+            if info.mapChallengeModeID and IS_MAP_THIS_SEASON[info.mapChallengeModeID] then
+                --Only count the ones that are in the current map pool
+                total = total + 1;
+            end
+        end
+
+        if total > 0 then
+            text = text.."     ".. Narci.L["Total Runs"] .."|cffffffff"..total.."|r";
         end
     end
 

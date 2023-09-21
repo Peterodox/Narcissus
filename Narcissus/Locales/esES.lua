@@ -47,7 +47,10 @@ L["A Year Ago"] = "Hace 1 año";
 L["Format Years Ago"] = "%d hace años que";
 L["Version Colon"] = (GAME_VERSION_LABEL or "Versión")..": ";
 L["Date Colon"] = "Fecha: ";
-
+L["Day Plural"] = "días";
+L["Day Singular"] = "día";
+L["Hour Plural"] = "horas";
+L["Hour Singular"] = "hora";
 
 L["Swap items"] = "Intercambiar items";
 L["Press Copy"] = NARCI_COLOR_GREY_70.. "Presiona |r".. NARCI_SHORTCUTS_COPY.. NARCI_COLOR_GREY_70 .." para copiar";
@@ -98,10 +101,10 @@ L["Use Alias"] = "Cambiar a alias";
 L["Use Player Name"] = "Cambiar a "..CALENDAR_PLAYER_NAME;
 
 L["Minimap Tooltip Double Click"] = "Double-tap";
-L["Minimap Tooltip Left Click"] = "Left-click|r";
-L["Minimap Tooltip To Open"] = "|cffffffffOpen "..CHARACTER_INFO;
-L["Minimap Tooltip Module Panel"] = "|cffffffffOpen Module Panel";
-L["Minimap Tooltip Right Click"] = "Right-click";
+L["Minimap Tooltip Left Click"] = "Click:|r";
+L["Minimap Tooltip To Open"] = "|cffffffffAbrir "..CHARACTER_INFO;
+L["Minimap Tooltip Module Panel"] = "|cffffffffAbrir panel de módulos";
+L["Minimap Tooltip Right Click"] = "Click derecho:";
 L["Minimap Tooltip Shift Left Click"] = "Shift + Left-click";
 L["Minimap Tooltip Shift Right Click"] = "Shift + Right-click";
 L["Minimap Tooltip Hide Button"] = "|cffffffffHide this button|r"
@@ -286,6 +289,7 @@ L["Toggle Model Mask"] = "Alternar máscara de modelo";
 L["Show Color Sliders"] = "Mostrar controles deslizantes de color";
 L["Show Color Presets"] = "Mostrar ajustes preestablecidos de color";
 L["Keep Current Form"] = "Mantener"..NARCI_MODIFIER_ALT.."para mantener la forma de cambio de forma.";
+L["Race Sex Change Bug"] = NARCI_COLOR_RED_MILD.."\nThis feature has a bug that cannot be fixed at the moment.|r";
 L["Race Change Tooltip"] = "Cambiar a otra raza jugable";
 L["Sex Change Tooltip"] = "Cambiar género";
 L["Show More options"] = "Mostrar más opciones";
@@ -342,12 +346,13 @@ L["Cannot Inspect Target"] = "No se puede inspeccionar al objetivo"
 L["External Link"] = "Enlace externo";
 L["Add to MogIt Wishlist"] = "Añadir a la lista de deseos de MogIt";
 L["Show Taint Solution"] = "¿Cómo resolver este problema?";
-L["Taint Solution Step1"] = "1. Recarga tu UI.";
+L["Taint Solution Step1"] = "1. Recargar UI.";
 L["Taint Solution Step2"] = "2. "..NARCI_MODIFIER_CONTROL.." + Left-click en un item para abrir el probador.";
 L["Switch Form To Visage"] = "Cambiar a la forma|cffffffff Rostro|r";
 L["Switch Form To Dracthyr"] = "Cambiar a la forma|cffffffff Dracthyr|r";
 L["Switch Form To Worgen"] = "Cambiar a la forma|cffffffff Huargen|r";
 L["Switch Form To Human"] = "Cambiar a la forma|cffffffff Humana|r";
+L["InGame Command"] = "In-Game Command";
 
 --NPC Browser--
 NARCI_NPC_BROWSER_TITLE_LEVEL = ".*%?%?.?";      --Level ?? --Use this to check if the second line of the tooltip is NPC's title or unit type
@@ -421,12 +426,14 @@ L["Corruption Effect Format4"] = "Struck by the Thing From Beyond triggers other
 L["Corruption Effect Format5"] = "|cffffffff%s%%|r damage\\healing taken modified";
 
 --Text Overlay Frame
+L["Text Overlay"] = "Text Overlay";
 L["Text Overlay Button Tooltip1"] = "Globo de diálogo simple";
 L["Text Overlay Button Tooltip2"] = "Globo de diálogo avanzado";
 L["Text Overlay Button Tooltip3"] = "Globo de diálogo en la cabeza";
 L["Text Overlay Button Tooltip4"] = "Subtítulo flotante";
 L["Text Overlay Button Tooltip5"] = "Subtítulo de barra negra";
 L["Visibility"] = "Visibilidad";
+L["Photo Mode Frame"] = "Frame";    --Frame for photo
 
 --Achievement Frame--
 L["Use Achievement Panel"] = "Usar como panel de logros principal";
@@ -442,7 +449,18 @@ L["Show Dates"] = "Mostrar fecha";
 L["Hide Dates"] = "Ocultar fecha";
 L["Pinned Entries"] = "Entradas fijadas";
 L["Pinned Entry Format"] = "Fijadas  %d/%d";
-
+L["Create A New Entry"] = "Create A New Entry";
+L["Custom Achievement"] = "Custom Achievement";
+L["Custom Achievement Description"] = "This is the description.";
+L["Custom Achievement Select And Edit"] = "Select an entry to edit.";
+L["Cancel"] = "Cancelar";
+L["Color"] = "Color";
+L["Icon"] = "Icono";
+L["Description"] = "Descripción";
+L["Points"] = "Puntos";
+L["Reward"] = "Recompensa";
+L["Date"] = "Fecha";
+L["Click And Hold"] = "Click and Hold";
 
 --Barbershop--
 L["Save New Look"] = "Guardar el nuevo aspecto";
@@ -559,6 +577,7 @@ L["Combat Error"] = NARCI_COLOR_RED_MILD.."Abandonar combate para seguir".."|r";
 L["Extract Shard"] = "Extraer fragmento";
 L["No Service"] = "Sin servicio";
 L["Shards Disabled"] = "Los fragmentos de Dominación están desactivados fuera de las Fauces.";
+L["Unsocket Gem"] = "Unsocket Gem";
 
 --Mythic+ Leaderboard--
 L["Mythic Plus"] = "Mítica+";
@@ -581,6 +600,7 @@ L["Item Socketing Tooltip"] = "Click y mantener para incrustar";
 L["No Available Gem"] = "|cffd8d8d8No hay gema disponible|r";
 L["Missing Enchant Alert"] = "Alerta de encantamiento faltante";
 L["Missing Enchant"] = NARCI_COLOR_RED_MILD.."Sin encantamiento".."|r";
+L["Socket Occupied"] = "Socket Occupied";       --Indicates that there is an (important) gem in the socket and you need to remove it first
 
 --Statistics--
 S["Narcissus Played"] = "Tiempo total gastado en Narcissus";
@@ -620,7 +640,7 @@ L["Showcase Splash 2"] = "Click en el botón de abajo para copiar elementos del 
 L["Showcase Splash 3"] = "Click en el botón de abajo para girar tu personaje.";
 L["Showcase Splash 4"] = "Graba la pantalla con el software de grabación y luego conviértela a GIF.";
 L["Loop Animation Alert Kultiran"] = "Bucle - actualmente roto en Kultirano hombre";
-
+L["Loop Animation"] = "Animación en bucle";
 
 --Item Sets--
 L["Cycle Spec"] = "Presiona Tab para recorrer las especificaciones";
@@ -648,6 +668,7 @@ L["Show Talent Tree Inspection"] = "Inspeccionar a otros jugadores";
 L["Show Talent Tree Equipment Manager"] = "Gestor de equipos";
 L["Appearance"] = "Apariencia";
 L["Use Class Background"] = "Usar fondo de clase";
+L["Use Bigger UI"] = "Usar UI grande";
 L["Empty Loadout Name"] = "Nombre";
 L["No Save Slot Red"] = NARCI_COLOR_RED_MILD.. "Sin espacio para guardar" .."|r";
 L["Save"] = "Guardar";
@@ -660,7 +681,14 @@ L["Create Macro Instruction 3"] = "Nombre de la macro\n ";
 L["Create Macro Instruction 4"] = "Arrastra esta macro a tu barra de acción.";
 L["Create Macro In Combat"] = "No se puede crear una macro durante el combate.";
 L["Create Macro Next"] = "SIGUIENTE";
-L["Create Marco Created"] = "CREADO";
+L["Create Macro Created"] = "CREADO";
+L["Place UI"] = "Situar la UI...";
+L["Place Talent UI Right"] = "a la derecha del modelo del personaje";
+L["Place Talent UI Bottom"] = "debajo del modelo del personaje";
+L["Loadout"] = "Loadout";
+L["No Loadout"] = "No Loadout";
+L["PvP"] = "PvP";
+
 
 --Bag Item Filter--
 L["Bag Item Filter"] = "Filtro de items de la bolsa";
@@ -672,3 +700,12 @@ L["Auto Filter Case"] = "Filtra elementos automáticamente cuando...";
 L["Send Mails"] = "Enviar correos";
 L["Create Auctions"] = "Crear subastas";
 L["Socket Items"] = "Items con ranura";
+
+--Perks Program--
+L["Perks Program Unclaimed Tender Format"] = "- Tienes |cffffffff%s|r cupones sin recoger en el alijo de recolector.";     --PERKS_PROGRAM_UNCOLLECTED_TENDER
+L["Perks Program Unearned Tender Format"] = "- Tienes |cffffffff%s|r  cupones sin ganar del registro de viajero.";     --PERKS_PROGRAM_ACTIVITIES_UNEARNED
+L["Perks Program Item Added In Format"] = "Añadido en %s";
+L["Perks Program Item Unavailable"] = "Este item no está disponible actualmente.";
+L["Perks Program See Wares"] = "Ver articulos";
+L["Perks Program No Cache Alert"] = "Habla con los vendedores del Puesto Comercial para ver las mercancías de este mes..";
+L["Perks Program Using Cache Alert"] = "Se usa tu última visita como referencia. Los datos de precios pueden no ser exactos.";

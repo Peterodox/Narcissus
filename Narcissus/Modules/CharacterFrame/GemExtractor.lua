@@ -161,6 +161,8 @@ function NarciItemSocketingActionButtonMixin:AttemptToEnable()
     else
         self:SetFailedReason(1);
     end
+
+    Narci_EquipmentOption.ItemList.NoItemText:Hide();   --HideNoItemAlert
 end
 
 function NarciItemSocketingActionButtonMixin:TrackFlyingStatus()

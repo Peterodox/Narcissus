@@ -24,12 +24,14 @@ do
 
         if C_ContentTracking.StopTracking then
             RemoveTrackedAchievement = function(id)
-                C_ContentTracking.StopTracking(TRACKING_TYPE_ACHV, id);
+                C_ContentTracking.StopTracking(TRACKING_TYPE_ACHV, id, Enum.ContentTrackingStopType.Manual);
             end
         end
 
         if C_ContentTracking.StartTracking then
             AddTrackedAchievement = function(id)
+                AchievementFrame_LoadUI();  --Due to the change of Objective Tracker in 10.1.5;
+
                 local trackingError = C_ContentTracking.StartTracking(TRACKING_TYPE_ACHV, id);
                 if trackingError then
                 	ContentTrackingUtil.DisplayTrackingError(trackingError);

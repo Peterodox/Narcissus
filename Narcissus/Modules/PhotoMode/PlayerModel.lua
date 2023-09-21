@@ -277,6 +277,8 @@ local ModelPool = {};	--all models created, including DressUpModel and Cinematic
 local PlayerInfo = {};
 
 local function SetGenderIcon(genderID)
+	--"SetCustomRace" removed in 10.1.5
+
 	local button = Narci_GenderButton;
 	if genderID == 3 then
 		--female
@@ -308,7 +310,7 @@ local function InitializePlayerInfo(index, unit)
 	PlayerInfo[index].gender = PlayerInfo[index].gender_Original;
 	PlayerInfo[index].name = name;
 	PlayerInfo[index].class = className;
-	SetGenderIcon(PlayerInfo[index].gender_Original);
+	--SetGenderIcon(PlayerInfo[index].gender_Original);
 	local r, g, b = GetClassColor(className);
 	local fontstring = ActorPanel.ExtraPanel.buttons[index].Label;	--name tooltip
 	SmartSetActorName(fontstring, name);
@@ -321,7 +323,7 @@ local function RestorePlayerInfo(index)
 	if not PlayerInfo[index] then return; end;
 	PlayerInfo[index].raceID = PlayerInfo[index].raceID_Original;
 	PlayerInfo[index].gender = PlayerInfo[index].gender_Original;
-	SetGenderIcon(PlayerInfo[index].gender_Original);
+	--SetGenderIcon(PlayerInfo[index].gender_Original);
 end
 
 local function UpdateActorName(index)
@@ -733,9 +735,13 @@ local function InitializeModel(model)
 	model:SetPortraitZoom(zoomLevel)
 	model:SetPosition(0, 0, defaultZ);
 	model:PlayAnimation(0, 0);
-	After(0, function()
-		model:ResetCameraPosition();
-	end)
+
+	if model.isCameraDirty then
+		model.isCameraDirty = false;
+		After(0, function()
+			model:ResetCameraPosition();
+		end)
+	end
 end
 
 local EntranceAnimation;
@@ -865,6 +871,7 @@ local function HideAllModels()
 	for i, model in ipairs(ModelPool) do
 		model:ClearModel();
 		model.animationID = nil;
+		model.isCameraDirty = true;
 	end
 end
 
@@ -1724,6 +1731,8 @@ local function StartAutoCapture()
 		button.Label:SetTextColor(0.8, 0.8, 0.8);
 		button.isOn = true;
 		PauseAllModel(false);
+		FullSceenChromaKey:Hide();
+		FullSceenChromaKey:SetAlpha(0);
 		return;
 	else
 		NUM_UNCAPTURED_LAYERS = -1;
@@ -1739,7 +1748,78 @@ local function StartAutoCapture()
 	NUM_UNCAPTURED_LAYERS = NUM_UNCAPTURED_LAYERS - 1;
 end
 
+local function StartAutoCapture_SkipItems()
+	local model = ModelContainer;
+	local r1, g1, b1 = 0, 177/255, 64/255;
+	local r2, g2, b2 = 0, 71/255, 187/255;
 
+	if NUM_UNCAPTURED_LAYERS == 4 then
+		PauseAllModel(true);
+		Temps.TextOverlayVisibility = NarciTextOverlayContainer:IsShown();
+		NarciTextOverlayContainer:Hide();
+		Temps.HidePlayer = Narci_HidePlayerButton.isOn;
+		if not Temps.HidePlayer then
+			Narci_HidePlayerButton:Click();
+		end
+		Temps.Vignette = Narci_Model_VignetteSlider:GetValue();
+		Temps.Brightness = Narci_Model_DarknessSlider:GetValue();
+		Narci_Model_VignetteSlider:SetValue(0);
+		Narci_Model_DarknessSlider:SetValue(0);
+		Narci_Character:Hide();
+		model:Hide();
+	elseif NUM_UNCAPTURED_LAYERS == 3 then
+		model:Show();
+		FullSceenChromaKey:SetColorTexture(0, 0, 0);
+		FullSceenChromaKey:Show();
+		FullSceenChromaKey:SetAlpha(1);
+		LightsOut(true);
+	elseif NUM_UNCAPTURED_LAYERS == 2 then
+		LightsOut(false);
+		model:Show();
+		FullSceenChromaKey:SetColorTexture(r1, g1, b1);
+		FullSceenChromaKey:Show();
+		FullSceenChromaKey:SetAlpha(1);
+	elseif NUM_UNCAPTURED_LAYERS == 1 then
+		model:Show();
+		FullSceenChromaKey:SetColorTexture(r2, g2, b2);
+		FullSceenChromaKey:Show();
+		FullSceenChromaKey:SetAlpha(1);
+	elseif NUM_UNCAPTURED_LAYERS == 0 then
+		Narci_Model_VignetteSlider:SetValue(Temps.Vignette);
+		Narci_Model_DarknessSlider:SetValue(Temps.Brightness);
+		if Temps.TextOverlayVisibility then
+			 NarciTextOverlayContainer:Show();
+		end
+		model:Show();
+		FullScreenAlphaChannel:SetAlpha(0);
+		FullScreenAlphaChannel:Hide();
+		if not Temps.HidePlayer then
+			Narci_HidePlayerButton:Click();
+		end
+		NUM_UNCAPTURED_LAYERS = -1;
+		CaptureButton.Value:SetText(0);
+		CaptureButton:Enable();
+		local button = Narci_SlotLayerButton;
+		button:LockHighlight();
+		button.Label:SetTextColor(0.8, 0.8, 0.8);
+		button.isOn = true;
+		PauseAllModel(false);
+		FullSceenChromaKey:Hide();
+		FullSceenChromaKey:SetAlpha(0);
+		return;
+	else
+		NUM_UNCAPTURED_LAYERS = -1;
+		CaptureButton.Value:SetText(0);
+		CaptureButton:Enable();
+		PauseAllModel(false);
+		return;
+	end
+	After(1, function()
+		Screenshot();
+	end)
+	CaptureButton.Value:SetText(NUM_UNCAPTURED_LAYERS);
+	NUM_UNCAPTURED_LAYERS = NUM_UNCAPTURED_LAYERS - 1;
+end
 
 --[[
 -----------------
@@ -2557,7 +2637,7 @@ function Narci_ModelIndexButton_OnClick(self, button)
 
 	SwitchPortrait(ID);
 	UpdateActorName(ID);
-	SetGenderIcon(PlayerInfo[ID].gender);
+	--SetGenderIcon(PlayerInfo[ID].gender);
 
 	if model then
 		if button == "LeftButton" then
@@ -3102,7 +3182,7 @@ local function CreateEmptyModelForNPCBrowser(actorIndex, isPet)
 	model.race, model.gender = InitializePlayerInfo(ID, "player");
 
 	UpdateActorName(ID);
-	SetGenderIcon(PlayerInfo[ID].gender);
+	--SetGenderIcon(PlayerInfo[ID].gender);
 
 	IndexButton.hasModel = true;
 	IndexButton.ID:Show();
@@ -3227,7 +3307,7 @@ local function CreateAndSelectNewActor(actorIndex, unit, isVirtual)
 	SwitchPortrait(ID, unit);	--Use diffrent portrait for virtual actor?
 	model.race, model.gender = InitializePlayerInfo(ID, unit);
 	UpdateActorName(ID);
-	SetGenderIcon(PlayerInfo[ID].gender);
+	--SetGenderIcon(PlayerInfo[ID].gender);
 
 	--Update index button
 
@@ -3485,6 +3565,7 @@ local function RemoveActor(actorIndex)
 		model.isItemLoaded = false;
 		model:ClearModel();
 		model.isVirtual = false;
+		model.isCameraDirty = true;
 		model:Hide();
 
 		model.creatureID = nil;
@@ -3529,139 +3610,6 @@ function Narci_DeleteModelButton_OnClick()
 	RemoveActor();
 end
 
-local function CustomModelPosition(model, raceID, genderID)
-	model:MakeCurrentCameraCustom();
-	raceID = ReAssignRaceID(raceID, true);
-
-	local data;
-	if genderID == 2 then
-		data = TranslateValue_Male[raceID][2];
-	else
-		data = TranslateValue_Female[raceID][2];
-	end
-
-	model:SetPosition(0, data[2], data[3]);
-	model:SetPortraitZoom(data[1]);
-	model:MakeCurrentCameraCustom();
-	After(0, function()
-		model:ResetCameraPosition();
-	end)
-end
-
-function Narci_GenderButton_OnLoad(self)
-	self.tooltipDescription = Narci.L["Sex Change Tooltip"];
-	local _, genderID = GetUnitRaceIDAndSex("player");
-	SetGenderIcon(genderID);
-end
-
-local function RestoreModelAfterRaceChange(model)
-	if model.isPaused then
-		model:Freeze(model.animationID or 804);
-	else
-		model:PlayAnimation(model.animationID or 804);
-	end
-
-	After(0, function()
-		local visualID;
-		local AppliedVisuals = model.AppliedVisuals;
-		for i = 1, #AppliedVisuals do
-			visualID = AppliedVisuals[i];
-			if visualID then
-				model:ApplySpellVisualKit(visualID, false);
-			end
-		end
-		if model.isVirtual then
-			model:SetModelAlpha(0);
-		else
-			model:SetModelAlpha(1);
-		end
-
-		model.hasRaceChanged = true;
-		--Weapons Gone
-		--It seems that after race change, the model can no longer get dressed or undressed
-		--[[
-		local WeaponInfo = ActorPanel;
-		if WeaponInfo.MainHandSource then
-			model:TryOn(WeaponInfo.MainHandSource, "MAINHANDSLOT", WeaponInfo.MainHandEnchant);
-		end
-		if WeaponInfo.OffHandSource then
-			model:TryOn(WeaponInfo.OffHandSource, "SECONDARYHANDSLOT", WeaponInfo.OffHandEnchant);
-		end
-		--]]
-	end)
-end
-
-function Narci_GenderButton_OnClick(self)
-	local index = ACTIVE_MODEL_INDEX;
-	local model = ModelFrames[ACTIVE_MODEL_INDEX];
-	local genderID = PlayerInfo[index].gender or 2;
-	local raceID = PlayerInfo[index].raceID;
-	local _, _, dirX, dirY, dirZ, _, ambR, ambG, ambB, _, dirR, dirG, dirB = GetModelLight(model);
-	model:SetBarberShopAlternateForm();
-	if genderID == 2 then
-		model:SetCustomRace(raceID, 1);
-		genderID = 3;
-	elseif genderID == 3 then
-		model:SetCustomRace(raceID, 0);
-		genderID = 2;
-	end
-	PlayerInfo[index].gender = genderID;
-	SetGenderIcon(PlayerInfo[index].gender);
-	model:SetModelAlpha(0);
-	After(0, function()
-		CustomModelPosition(model, raceID, genderID);
-		After(0, function()
-			RestoreModelAfterRaceChange(model);
-			SetModelLight(model, true, false, dirX, dirY, dirZ, 1, ambR, ambG, ambB, 1, dirR, dirG, dirB);
-		end);
-	end);
-end
-
-local AutoCloseTimer2 = C_Timer.NewTimer(0, function()	end);
-
-local function AutoCloseRaceOption(time)
-	AutoCloseTimer2:Cancel();
-	AutoCloseTimer2 = C_Timer.NewTimer(time, function()
-		if NarciModelControl_ActorButton.isOn then
-			NarciModelControl_ActorButton:Click();
-		end
-	end)
-end
-
-function Narci_RaceOptionButton_OnEnter(self)
-	self.Highlight:Show();
-	AutoCloseTimer2:Cancel();
-end
-
-function Narci_RaceOptionButton_OnLeave(self)
-	self.Highlight:Hide();
-	AutoCloseRaceOption(2);
-end
-
-function Narci_RaceOptionButton_OnClick(self)
-	AutoCloseTimer2:Cancel();
-	local model = ModelFrames[ACTIVE_MODEL_INDEX];
-	local genderID = PlayerInfo[ACTIVE_MODEL_INDEX].gender;
-	local raceID = self:GetID() or 1;
-	PlayerInfo[ACTIVE_MODEL_INDEX].raceID = raceID;
-	local _, _, dirX, dirY, dirZ, _, ambR, ambG, ambB, _, dirR, dirG, dirB = GetModelLight(model);
-	model:SetBarberShopAlternateForm();
-	if genderID == 2 then
-		model:SetCustomRace(raceID, 0);
-	else
-		model:SetCustomRace(raceID, 1);
-	end
-	AutoCloseRaceOption(4);
-	
-	model:SetModelAlpha(0);
-	After(0, function()
-		CustomModelPosition(model, raceID, genderID);
-		After(0, function()
-			RestoreModelAfterRaceChange(model);
-			SetModelLight(model, true, false, dirX, dirY, dirZ, 1, ambR, ambG, ambB, 1, dirR, dirG, dirB);
-		end);
-	end);
-end
 
 function Narci_LinkLightButton_OnClick(self)
 	self.isOn = not self.isOn;
@@ -4485,7 +4433,7 @@ ScreenshotListener:SetScript("OnEvent",function(self,event,...)
 		SettingFrame:SetAlpha(Temps.Alpha2);
 		if NUM_UNCAPTURED_LAYERS >= 0 then
 			After(1.5, function()
-				StartAutoCapture();
+				StartAutoCapture_SkipItems();
 			end)
 		end
 		NarciAPI.UpdateScreenshotsCounter();
@@ -4496,7 +4444,7 @@ ScreenshotListener:SetScript("OnEvent",function(self,event,...)
 		ModelIndexButton_ResetReposition();
 		InitializePlayerInfo(1);
 		UpdateActorName(1);
-		CreateRaceButtonList(Narci_RaceOptionFrame, "Narci_RaceOptionButton_Template", RaceList, 6);
+		--CreateRaceButtonList(Narci_RaceOptionFrame, "Narci_RaceOptionButton_Template", RaceList, 6);	--"SetCustomRace" removed in 10.1.5
 		After(1, function()
 			CacheModel();
 		end)
@@ -4695,7 +4643,7 @@ NarciPhotoModeCaptureButtonMixin = {};
 
 function NarciPhotoModeCaptureButtonMixin:OnLoad()
 	CaptureButton = self;
-	self.numCaptures = 6;
+	self.numCaptures = 4;
 	self.tooltipHeader = L["Save Layers"];
 	self.tooltipDescription = L["Save Layers Tooltip"];
 	self.tooltipImage = "SaveLayers";
@@ -4878,3 +4826,92 @@ function Narci.SpinCurrentActor()
 		actor:SetFacing(f.yaw);
 	end);
 end
+
+function Narci.ApplyNeutralLight()
+	--Same as WardrobeItemsModelMixin
+	local actor = Narci:GetActiveActor();
+	if actor then
+		local lightValues = { omnidirectional = false, point = CreateVector3D(-1, 1, -1), ambientIntensity = 1.05, ambientColor = CreateColor(1, 1, 1), diffuseIntensity = 0, diffuseColor = CreateColor(1, 1, 1) };
+		local enabled = true;
+		actor:SetLight(enabled, lightValues);
+	end
+end
+
+local WardrobeModelContainer;
+
+function Narci.ToggleWardrobeItemModel()
+	if not WardrobeModelContainer then
+		local scale = 2;
+
+		WardrobeModelContainer = CreateFrame("DressUpModel", nil, UIParent);
+		WardrobeModelContainer:SetSize(78*scale, 104*scale);
+		WardrobeModelContainer:SetPoint("CENTER", UIParent, "CENTER", 0, 0);
+		WardrobeModelContainer:SetIgnoreParentScale(true);
+		WardrobeModelContainer:SetIgnoreParentAlpha(true);
+
+		local bg = WardrobeModelContainer:CreateTexture(nil, "BACKGROUND");
+		bg:SetAllPoints(true);
+		bg:SetColorTexture(0, 0, 0);
+
+		WardrobeModelContainer:SetScript("OnHide", function(self)
+			self:Hide();
+		end);
+
+		WardrobeModelContainer:SetScript("OnShow", function(self)
+			local visualID = 29124;	--Hide Helm		--/dump GetMouseFocus().visualInfo
+			local cameraVariation = nil;
+			local cameraID = C_TransmogCollection.GetAppearanceCameraID(visualID, cameraVariation);
+			self.cameraID = cameraID;
+
+			self:SetUnit("player", false, PlayerUtil.ShouldUseNativeFormInModelScene());
+			self:TryOn(78420);	--Chest
+		end);
+
+		WardrobeModelContainer:SetScript("OnEnter", function()
+		end);
+
+		WardrobeModelContainer:SetScript("OnModelLoaded", function(self)
+			if self.cameraID then
+				Model_ApplyUICamera(self, self.cameraID);
+			end
+		end);
+
+		local lightValues = { omnidirectional = false, point = CreateVector3D(-1, 1, -1), ambientIntensity = 1.05, ambientColor = CreateColor(1, 1, 1), diffuseIntensity = 0, diffuseColor = CreateColor(1, 1, 1) };
+		local enabled = true;
+		WardrobeModelContainer:SetLight(enabled, lightValues);
+
+		WardrobeModelContainer:SetAutoDress(false);
+		WardrobeModelContainer:Hide();
+	end
+
+	WardrobeModelContainer:SetShown(not WardrobeModelContainer:IsShown());
+end
+
+
+local function SetChromaKeyColor(r, g, b, a)
+	local tex = Narci_ModelContainer.ChromaKey;
+
+	if not r then
+		tex:Hide();
+		return
+	end
+
+	a = a or 1;
+
+	if type(r) == "string" then
+		local color = NarciAPI.ConvertHexColorToRGB(r);
+		r, g, b = unpack(color);
+		a = g or 1;
+	else
+		r = (r or 0)/255;
+		g = (g or 0)/255;
+		b = (b or 0)/255;
+	end
+
+	tex:SetAlpha(1);
+	tex:SetColorTexture(r, g, b, 1);
+	tex:SetAlpha(a);
+	tex:Show();
+end
+
+NarciPhotoModeAPI.SetChromaKeyColor = SetChromaKeyColor;

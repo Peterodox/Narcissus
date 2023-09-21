@@ -11,21 +11,21 @@ local ErrorDB;
 local EventListener = CreateFrame("Frame");
 EventListener:RegisterEvent("PLAYER_ENTERING_WORLD");
 
+--[[
 local INCONSEQUENTIAL_ERROR = {
     ["CopyToClipboard()"] = true,
     --Narcissus Dressing Room: Caused by Clicking "Copy to Clipboard" if the dressing room was initialized by player clicking "Dressing Room" on Narcissus minimap flyout menu.
     --No way around this but we already provided an alternative to copy outfit string - showing an editbox where player can press Ctrl+C to copy.
 };
+--]]
 
-function TogggleLeaderboard()
-    local tooltip = ItemRefTooltip;
-    if not tooltip then return end;
-
-    --tooltip:Hide();
-    tooltip:SetText("Errors Over The Last 7 Days")
-    tooltip:AddDoubleLine("Narcissus", 14);
-    tooltip:Show();
-end
+local HIGH_PRIORITY_ERROR = {
+    --Updates: Only shows pop-up when player can't use abilities or items.
+    ["UseAction()"] = true,
+    ["UseInventoryItem()"] = true,
+    --The "unable to use item in the Backpack" error says Unknown() was blocked
+    --/script local a = C_Container.UseContainerItem; C_Container.UseContainerItem = a;
+};
 
 local function ClearDatedData()
     if NarciStatisticsDB and NarciStatisticsDB.AddOnActionForbidden then
@@ -90,10 +90,6 @@ local function SetupAlertFrame(addonName, functionName)
     addonName = addonName or "Unknown AddOn";
     functionName = functionName or "Unknown Function";
 
-    if INCONSEQUENTIAL_ERROR[functionName] then
-        return
-    end
-
     local currentTime = time();
 
     if not ErrorDB then
@@ -126,7 +122,7 @@ local function SetupAlertFrame(addonName, functionName)
     end
     table.insert(addonErrorData.errorTime, currentTime);
 
-    if SHOW_POPUP then
+    if SHOW_POPUP and HIGH_PRIORITY_ERROR[functionName] then
         if not AlertFrame then
             AlertFrame = CreateFrame("Frame", nil, UIParent, "NarciGenericTaintAlertFrameTemplate");
         end

@@ -1,6 +1,6 @@
-## Interface: 100100
+## Interface: 100107
 ## Plain Title: Narcissus
-## Version: 1.4.1
+## Version: 1.4.4
 
 ## Title: |cffd177ffN|cffc480fba|cffb787f6r|cffa98ef2c|cff9a94edi|cff8a9ae9s|cff789fe5s|cff63a4e0u|cff48a8dcs|r
 
@@ -116,3 +116,6 @@ Guide\Guide.xml
 Modules\PhotoModeNew\LightingPreset.xml
 
 Modules\Storyboard\Storyboard.xml
+Modules\DragonridingRaces\Main.xml
+
+Widgets\BandAids.lua

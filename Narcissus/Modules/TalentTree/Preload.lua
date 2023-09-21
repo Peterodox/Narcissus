@@ -52,6 +52,7 @@ local SpecIDXBackgroundFile = {
     -- Evoker
     [1467] = "evoker-devastation",
     [1468] = "evoker-preservation",
+    [1473] = "evoker-Augmentation",
 
     -- Hunter
     [253] = "hunter-beastmastery",

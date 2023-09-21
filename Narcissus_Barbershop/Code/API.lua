@@ -162,7 +162,7 @@ local CAMERA_DATA_FILEID = {
 
 
     --Dragonriding
-    [4278602] = {-20.58, -3.59, -4.9, 0.61},    --Renewed Proto-drake
+    [4278602] = {-6.76, -1.98, -1.98, 0.61},    --Renewed Proto-drake   --{-20.58, -3.59, -4.9, 0.61}
     [4281540] = {-20.58, -3.77, -6.32, 0.61},    --Windrborne Velocidrake
     [4227968] = {-0.59, -1.86, -2.57, 0.44},    --Highland Drake
     [4252337] = {0.26, -0.74, -1.2, 0.44},    --Cliffside Wylderdrake

@@ -16,3 +16,7 @@ L["Item Bonus"] = "추가 효과:";
 
 L["No Service"] = "서비스 없음";
 L["Shards Disabled"] = "나락 외부에서 지배의 조각이 비활성화됩니다.";
+L["Day Plural"] = "일";
+L["Day Singular"] = "일";
+L["Hour Plural"] = "시간";
+L["Hour Singular"] = "시간";

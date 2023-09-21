@@ -1464,17 +1464,25 @@ function NarciTalentTreeLoadoutButtonMixin:OnLeave()
     OnEnterDelay:ClearWatch();
 end
 
-local function AttemptToApplyConfig(configID)
-    if not configID then return end;
 
+local function AttemptToApplyConfig(configIDToLoad)
+    if not configIDToLoad then return end;
     MainFrame.lastConfigID = DataProvider:GetSelecetdConfigID();
-    local autoApply = true;
-    local result = C_ClassTalents.LoadConfig(configID, autoApply);
-    if result ~= 0 then
-        local currentSpecID = DataProvider:GetCurrentSpecID();
-        C_ClassTalents.UpdateLastSelectedSavedConfigID(currentSpecID, configID);
+
+    if ClassTalentFrame then
+        ClassTalentFrame.TalentsTab:LoadConfigByPredicate(function(_, configID)
+            return configID == configIDToLoad;
+        end);
+    else
+        MainFrame.lastConfigID = DataProvider:GetSelecetdConfigID();
+        local autoApply = true;
+        local result = C_ClassTalents.LoadConfig(configIDToLoad, autoApply);
+        if result ~= 0 then
+            local currentSpecID = DataProvider:GetCurrentSpecID();
+            C_ClassTalents.UpdateLastSelectedSavedConfigID(currentSpecID, configIDToLoad);
+        end
+        return result
     end
-    return result
 end
 
 Narci.AC = AttemptToApplyConfig;    --Name Shorten to be used in macro 

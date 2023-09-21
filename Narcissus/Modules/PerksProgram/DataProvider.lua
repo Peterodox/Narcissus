@@ -31,16 +31,19 @@ local IGNORED_KEYS = {
     perksVendorItemID = true,
     timeRemaining = true,
     refundable = true,
+    pending = true,
 };
 
 local DELIMITER = "::";
 
 local function CompressTable(tbl)
     local output = DELIMITER;
+    local valueType;
 
     for k, v in pairs(tbl) do
         if not IGNORED_KEYS[k] then
-            if v ~= 0 and v ~= "" then
+            valueType = type(v);
+            if valueType == "number" or valueType == "string" and v ~= 0 and v ~= "" then
                 output = output ..k ..DELIMITER.. v ..DELIMITER;
             end
         end
@@ -143,6 +146,8 @@ function DataProvider:GetVendorItemName(vendorItemID)
     local info = self:GetAndCacheVendorItemInfo(vendorItemID);
     if info then
         return info.name
+    else
+        return ""
     end
 end
 
@@ -150,6 +155,9 @@ function DataProvider:GetVendorItemCategory(vendorItemID)
     local info = self:GetAndCacheVendorItemInfo(vendorItemID);
     if info then
         return info.perksVendorCategoryID
+    else
+        --print("vendorItemID", vendorItemID)   --252, 255 are missing in 10.1.7 PTR
+        return 128
     end
 end
 
@@ -157,6 +165,8 @@ function DataProvider:GetVendorItemDescription(vendorItemID)
     local info = self:GetAndCacheVendorItemInfo(vendorItemID);
     if info then
         return info.description
+    else
+        return ""
     end
 end
 
@@ -432,6 +442,20 @@ function DataProvider:GetCurrentMonthItems()
     end
 end
 
+function DataProvider:GetVendorItemAddedMonthName(vendorItemID)
+    local info = self:GetVendorItemInfoFromDatabase(vendorItemID);
+    if info and info.addedDate then
+        if not self.currentMonthDate then
+            local month, year = self:GetActivePerksDate();
+            self.currentMonthDate = year.."/"..month;
+        end
+
+        local monthName = DataProvider:GetDisplayMonthName(info.addedDate);
+        return monthName, (self.currentMonthDate == info.addedDate);
+    else
+        return nil, true
+    end
+end
 
 
 

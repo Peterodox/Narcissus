@@ -1,14 +1,11 @@
+local _, addon = ...
+
 local FadeFrame = NarciFadeUI.Fade;
-local GetItemQualityColor = NarciAPI.GetItemQualityColor;
 local GetNumClassSetItems = NarciAPI.GetNumClassSetItems;
 local floor = math.floor;
 local After = C_Timer.After;
-local sin = math.sin;
-local pi = math.pi;
 
-local function outSine(t, b, e, d)
-	return (e - b) * sin(t / d * (pi / 2)) + b
-end
+local outSine = addon.EasingFunctions.outSine;
 
 local function RoundLevel(lvl)
 	return floor(lvl * 100 + 0.5)/100
@@ -59,7 +56,7 @@ local Themes = {
         fluidColor = {0.9, 0.9, 0.9},
         showLevel = true,
 		frameTex = "HexagonTube",
-        bakcgroundTex = "QualityGrey",
+        backgroundTex = "QualityGrey",
         highlightTex = "GenericHighlight",
         highlightSize = 100,
         highlightBlend = "ADD",
@@ -69,7 +66,7 @@ local Themes = {
         fluidColor = {0.76, 0.89, 0.94},
         showLevel = true,
 		frameTex = "HexagonTube",
-        bakcgroundTex = "CovenantKyrian",
+        backgroundTex = "CovenantKyrian",
         highlightTex = "GenericHighlight",
         highlightSize = 100,
         highlightBlend = "ADD",
@@ -79,7 +76,7 @@ local Themes = {
         fluidColor = {0.55, 0, 0.19},
         showLevel = true,
 		frameTex = "HexagonTube",
-        bakcgroundTex = "CovenantVenthyr",
+        backgroundTex = "CovenantVenthyr",
         highlightTex = "GenericHighlight",
         highlightSize = 100,
         highlightBlend = "ADD",
@@ -89,7 +86,7 @@ local Themes = {
         fluidColor = {0.11, 0.42, 0.80},
         showLevel = true,
 		frameTex = "HexagonTube",
-        bakcgroundTex = "CovenantNightFae",
+        backgroundTex = "CovenantNightFae",
         highlightTex = "GenericHighlight",
         highlightSize = 100,
         highlightBlend = "ADD",
@@ -99,7 +96,7 @@ local Themes = {
         fluidColor = {0, 0.63, 0.43},
         showLevel = true,
 		frameTex = "HexagonTube",
-        bakcgroundTex = "CovenantNecrolord",
+        backgroundTex = "CovenantNecrolord",
         highlightTex = "GenericHighlight",
         highlightSize = 100,
         highlightBlend = "ADD",
@@ -140,6 +137,21 @@ local Themes = {
     },
 };
 
+do
+	if addon.IsTOCVersionEqualOrNewerThan(100200) then
+		Themes.classSet = {
+			frameTex = "EmeraldDream\\ItemLevelHex",
+			--highlightTex = "EmeraldDream\\ItemLevelHexHighlight",
+			nodeTex = "EmeraldDream\\SetPieceCount",
+			nodeHighlightTex = "EmeraldDream\\SetPieceCountHighlight",
+			highlightSize = 104,
+			highlightBlend = "ADD",
+			highlightLevel = 4,
+			onEnterFunc = ClassSet_OnEnter,
+			onLeaveFunc = ClassSet_OnLeave,
+		};
+    end
+end
 
 
 NarciItemLevelFrameMixin = {};
@@ -214,19 +226,23 @@ function NarciItemLevelFrameMixin:SetThemeByName(themeName)
 		self.RightButton.Background:SetTexture(file);
 		self.RightButton.Highlight:SetTexture(file);
 
-		file = prefix.. asset.highlightTex;
-		self.CenterButton.Highlight:SetTexture(file, nil, nil, "TRILINEAR");
-		self.CenterButton.Highlight:SetSize(asset.highlightSize, asset.highlightSize);
-		self.CenterButton.Highlight:SetDrawLayer("OVERLAY", asset.highlightLevel or 1);
-		self.CenterButton.Highlight:SetBlendMode(asset.highlightBlend or "ADD");
 		self.CenterButton:ShowMaxLevel(asset.showLevel);
 
-		if asset.bakcgroundTex then
-			self.CenterButton.Background:SetTexture(prefix.. asset.bakcgroundTex);
+		if asset.highlightTex then
+			file = prefix.. asset.highlightTex;
+			self.CenterButton.Highlight:SetTexture(file, nil, nil, "TRILINEAR");
+			self.CenterButton.Highlight:SetSize(asset.highlightSize, asset.highlightSize);
+			self.CenterButton.Highlight:SetDrawLayer("OVERLAY", asset.highlightLevel or 1);
+			self.CenterButton.Highlight:SetBlendMode(asset.highlightBlend or "ADD");
+		end
+
+		if asset.backgroundTex then
+			self.CenterButton.Background:SetTexture(prefix.. asset.backgroundTex);
 			self.CenterButton.Background:SetTexCoord(0, 1, 0, 1);
 		else
 			self.CenterButton.Background:SetTexture(nil);
 		end
+
 		if asset.fluidColor then
 			self.CenterButton.Fluid:SetColorTexture(unpack(asset.fluidColor));
 		end

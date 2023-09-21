@@ -1,6 +1,5 @@
 local unpack = unpack;
 local CreateColor = NarciAPI.CreateColor;
-local IsItemClassSet = NarciAPI.IsItemClassSet;
 local GetItemInfoInstant = GetItemInfoInstant;
 
 local FILE_PATH_DARK = "Interface/AddOns/Narcissus/Art/ItemBorder-Dark/JPG/";
@@ -20,7 +19,9 @@ local itemBorderMask = {
     [9202] = "Interface/AddOns/Narcissus/Art/ItemBorder-Dark/Mask/Anduin",
 
     [100701] = "Interface/AddOns/Narcissus/Art/ItemBorder-Dark/Mask/OnyxAnnulet",
-    [100101] = "Interface/AddOns/Narcissus/Art/ItemBorder-Dark/Mask/Dragonflight",
+    [100101] = "Interface/AddOns/Narcissus/Art/ItemBorder-Dark/Mask/Neltharion",
+
+    [100200] = "Interface/AddOns/Narcissus/Art/ItemBorder-Dark/Mask/TreeAndFlame",
 }
 
 local itemBorderHeavy = {
@@ -51,7 +52,8 @@ local itemBorderHeavy = {
     Shield = {"Shield", 1},
     Strife = {"Strife", 2},
     OnyxAnnulet = {"OnyxAnnulet", 100701},
-    Dragonflight = {"Dragonflight", 100101},
+    Neltharion = {"Neltharion", 100101},
+    EmeraldDream = {"TreeAndFlame", 100200},
 }
 
 local function GetBorderThemeName()
@@ -115,13 +117,26 @@ local itemIDxBorderArt = {
     [203460] = {"OnyxAnnulet", "OnyxAnnulet", nil, nil, nil, true},           --Onyx Annulet --CreateColor(255, 171, 0)
 
     --Progenitor = {"Progenitor", nil, CreateColor(230, 204, 128)},   --Class Sets: Sepulcher of the First Ones
-    Dragonflight = {"Dragonflight", nil, CreateColor(252, 185, 54)},  --Class Sets: Embers of Neltharion
+
+
+    --[visualID] = {borderName, vfxName, color, hideItemIcon}
+    [1] = {"Neltharion", nil, CreateColor(252, 185, 54)},           --Class Sets: Embers of Neltharion
+    [2] = {"EmeraldDream", nil, CreateColor(56, 224, 178)},         --Class Sets: Guardians of the Dream
 };
 
+local itemVisualGroup = {};
+
+do
+    for borderVisualID, items in pairs(NarciAPI.GetClassSetGroup()) do
+        for _, itemID in pairs(items) do
+            itemVisualGroup[itemID] = borderVisualID;
+        end
+    end
+end
 
 local function GetBorderArtByItemID(itemID)
-    if IsItemClassSet(itemID) then
-        return unpack(itemIDxBorderArt.Dragonflight);
+    if itemVisualGroup[itemID] then
+        return unpack(itemIDxBorderArt[ itemVisualGroup[itemID] ]);
     else
         if itemIDxBorderArt[itemID] then
             return unpack(itemIDxBorderArt[itemID]);

@@ -51,6 +51,7 @@ local IsPlayerInAlteredForm = TransitionAPI.IsPlayerInAlteredForm;
 local InCombatLockdown = InCombatLockdown;
 local GetItemInfoInstant = GetItemInfoInstant;
 local GetInventoryItemTexture = GetInventoryItemTexture;
+local GetCameraZoom = GetCameraZoom;
 
 local floor = math.floor;
 local max = math.max;
@@ -484,6 +485,9 @@ function CameraUtil:OnPlayerFormChanged(pauseDuration)
 end
 
 
+local function GetShoulderOffsetByZoom(zoom)
+	return zoom * SHOULDER_FACTOR_1 + SHOULDER_FACTOR_2 + MOG_MODE_OFFSET
+end
 
 local SmoothShoulder = CreateFrame("Frame");
 SmoothShoulder.t = 0;
@@ -511,7 +515,7 @@ local function SmoothShoulder_OnUpdate_ByZoom(self, elapsed)
 	local zoom = GetCameraZoom();
 
 	if zoom ~= self.zoom then
-		local value = zoom * SHOULDER_FACTOR_1 + SHOULDER_FACTOR_2 + MOG_MODE_OFFSET;
+		local value = GetShoulderOffsetByZoom(zoom);
 		if value < 0 then
 			value = 0;
 		end
@@ -552,7 +556,7 @@ local function SmoothShoulder_OnUpdate_UntilStable(self, elapsed)
 			self.zoom = zoom;
 			self.t = 0;
 		else
-			local value = zoom * SHOULDER_FACTOR_1 + SHOULDER_FACTOR_2 + MOG_MODE_OFFSET;
+			local value = GetShoulderOffsetByZoom(zoom);
 			if value < 0 then
 				value = 0;
 			end
@@ -565,13 +569,6 @@ local UpdateShoulderCVar = {};
 UpdateShoulderCVar.steps = 0;
 
 function UpdateShoulderCVar:Start(increment)
-	--Responsive Mode
-	--[[
-	SmoothShoulder:SetScript("OnUpdate", SmoothShoulder_OnUpdate_ByZoom);
-	SmoothShoulder.zoom = -1;
-	SmoothShoulder:Show();
-	--]]
-
 	SmoothShoulder:SetScript("OnUpdate", SmoothShoulder_OnUpdate_UntilStable);
 	SmoothShoulder.t = 0;
 	SmoothShoulder:Show();
@@ -735,7 +732,7 @@ function CameraMover:InstantZoomIn()
 	end)
 	
 	local zoom = ZOOM_IN_VALUE or GetCameraZoom();
-	local shoulderOffset = zoom * SHOULDER_FACTOR_1 + SHOULDER_FACTOR_2 + MOG_MODE_OFFSET;
+	local shoulderOffset = GetShoulderOffsetByZoom(zoom);
 	SetCVar("test_cameraOverShoulder", shoulderOffset);		--CameraZoomIn(0.0)	--Smooth
 	
 	self:ZoomIn(ZOOM_IN_VALUE);
@@ -814,6 +811,43 @@ function CameraMover:Pitch()
 	self.smoothPitch:Show();
 end
 
+function CameraMover:MakeActive()
+	--Reserved for DynamicCam users
+end
+
+function CameraMover:MakeInactive()
+	--Reserved for DynamicCam users
+end
+
+function CameraMover:UpdateMovementMethodForDynamicCam()
+	if not self.handler then
+		self.handler = CreateFrame("Frame");
+	end
+
+	local f = self.handler;
+	f:Hide();
+	f.t = 0;
+
+	f:SetScript("OnUpdate", function(_, elapsed)
+		f.t = f.t + elapsed;
+		if f.t >= 0.2 then
+			f.currentZoom = GetCameraZoom();
+			if f.currentZoom ~= f.lastZoom then
+				f.lastZoom = f.currentZoom;
+				UpdateShoulderCVar:Start();
+			end
+		end
+	end);
+
+	function self:MakeActive()
+		f.lastZoom = -1;
+		f:Show();
+	end
+
+	function self:MakeInactive()
+		f:Hide();
+	end
+end
 
 ------------------------------
 
@@ -825,6 +859,7 @@ local function ExitFunc()
 	IS_OPENED = false;
 	MOG_MODE_OFFSET = 0;
 	EL:Hide();
+	CameraMover:MakeInactive();
 	MoveViewRightStop();
 	if not GetKeepActionCam() then		--(not CVarTemp.isDynamicCamLoaded and CVarTemp.dynamicPitch == 0) or not Narci.keepActionCam
 		SetCVar("test_cameraDynamicPitch", 0);								--Note: "test_cameraDynamicPitch" may cause camera to jitter while reseting the player's view
@@ -908,6 +943,7 @@ function Narci:EmergencyStop()
 	SetCVar("test_cameraOverShoulder", 0);
 	SetCVar("cameraViewBlendStyle", 1);
 	ConsoleExec( "actioncam off" );
+	CameraMover:MakeInactive();
 	Narci_ModelContainer:HideAndClearModel();
 	Narci_ModelSettings:Hide();
 	Narci_Character:Hide();
@@ -1959,9 +1995,13 @@ function NarciEquipmentSlotMixin:PostClick(button)
 			return;
 		elseif IsShiftKeyDown() and button == "LeftButton" then
 			if self.hyperlink then
-				SendChatMessage(self.hyperlink)
+				if ChatEdit_InsertLink(self.hyperlink) then
+					return
+				elseif SocialPostFrame and Social_IsShown() then
+					Social_InsertLink(self.hyperlink);
+					return
+				end
 			end
-			--ShareHyperLink()
 		else
 			PaperDollItemSlotButton_OnModifiedClick(self, button);
 			TakeOutFrames(true);
@@ -2133,8 +2173,13 @@ function NarciItemLevelFrameMixin:OnLoad()
 			end
 
 			local function UnlockOrderSort(faction1, faction2)
-				return faction1.unlockOrder < faction2.unlockOrder;
+				if faction1.uiPriority then
+					return faction1.uiPriority < faction2.uiPriority;
+				else
+					return faction1.unlockOrder < faction2.unlockOrder;
+				end
 			end
+
 			table.sort(factionList, UnlockOrderSort);
 
 			--Embedded Frame
@@ -2194,6 +2239,36 @@ function NarciItemLevelFrameMixin:OnLoad()
 			local numButtons = #factionList;
 			f.FactionListFrame:SetHeight((28 + 6)*numButtons - 12);
 			f.FactionListFrame:SetWidth(floor(maxTextWidth + 0.5) + 28 + 6);
+
+			local function GameTooltip_InsertFrame(tooltipFrame, frame, verticalPadding)	-- this is an exact copy of GameTooltip_InsertFrame to avoid "Execution tainted"
+				verticalPadding = verticalPadding or 0;
+				local textSpacing = tooltipFrame:GetCustomLineSpacing() or 2;
+				local textHeight = Round(_G[tooltipFrame:GetName().."TextLeft2"]:GetLineHeight());
+				local neededHeight = Round(frame:GetHeight() + verticalPadding);
+				local numLinesNeeded = math.ceil(neededHeight / (textHeight + textSpacing));
+				local currentLine = tooltipFrame:NumLines();
+
+				if numLinesNeeded ~= nil then
+					for i = 1, numLinesNeeded do
+						tooltipFrame:AddLine(" ");
+					end
+				end
+
+				frame:SetParent(tooltipFrame);
+				frame:ClearAllPoints();
+				frame:SetPoint("TOPLEFT", tooltipFrame:GetName().."TextLeft"..(currentLine + 1), "TOPLEFT", 0, -verticalPadding);
+				if not tooltipFrame.insertedFrames then
+					tooltipFrame.insertedFrames = { };
+				end
+				local frameWidth = frame:GetWidth();
+				if tooltipFrame:GetMinimumWidth() < frameWidth then
+					tooltipFrame:SetMinimumWidth(frameWidth);
+				end
+				frame:Show();
+				tinsert(tooltipFrame.insertedFrames, frame);
+				return (numLinesNeeded * textHeight) + (numLinesNeeded - 1) * textSpacing;
+			end
+
 			GameTooltip_InsertFrame(DefaultTooltip, f.FactionListFrame, 6);
 		else
 			DefaultTooltip:AddLine(MAJOR_FACTION_BUTTON_FACTION_LOCKED, 0.5, 0.5, 0.5, true);
@@ -3049,10 +3124,6 @@ function Narci_AttributeFrame_OnLoad(self)
 	Narci_AttributeFrame_UpdateBackgroundColor(self);
 end
 
-function XmogList_OnLoad(self)
-	Narci_AttributeFrame_UpdateBackgroundColor(self);
-end
-
 local function RefreshStats(id, frame)
 	frame = frame or "Detailed";
 	if frame == "Detailed" then
@@ -3265,6 +3336,7 @@ function Narci_Open()
 		Toolbar:ShowUI("Narcissus");
 		ViewProfile:SaveView(5);
 		CameraUtil:UpdateParameters();
+		CameraMover:MakeActive();
 		MOG_MODE_OFFSET = 0;
 
 		local speedFactor = 180/(GetCVar("cameraYawMoveSpeed") or 180);
@@ -3339,6 +3411,7 @@ function Narci_OpenGroupPhoto()
 		Toolbar:ShowUI("Narcissus");
 		ViewProfile:SaveView(5);
 		CameraUtil:UpdateParameters();
+		CameraMover:MakeActive();
 		SetCVar("test_cameraDynamicPitch", 1);
 		
 		local speedFactor = 180/(GetCVar("cameraYawMoveSpeed") or 180);
@@ -3747,9 +3820,14 @@ end)
 
 do
 	--Slash Command
-	local command = "narci";
+	local commandName = "narci";
 	local commandAlias = "narcissus";
+
 	local function callback(msg)
+		if not msg then
+			msg = "";
+		end
+
 		msg = string.lower(msg);
 		if msg == "" then
 			MiniButton:Click();
@@ -3768,13 +3846,38 @@ do
 			--/narci /outfit v1 50109,182541,0,77345,182521,2633,0,181613,182527,79067,182538,84323,80378,-1,0,77903,0
 		else
 			local color = "|cff40C7EB";
+			print(" ");
 			print(color.."Show Minimap Button:|r /narci minimap");
 			print(color.."Reset Minimap Button Position:|r /narci resetposition");
 			print(color.."Copy Item List:|r /narci itemlist");
 		end
 	end
 
-	RegisterNewSlashCommand(callback, command, commandAlias);
+	--RegisterNewSlashCommand(callback, commandName, commandAlias);
+
+	---- Alternative method to avoid slash command taint
+
+	if ChatEdit_HandleChatType then
+		local VALID_COMMANDS = {
+			["/NARCI"] = true,
+			["/NARCISSUS"] = true,
+		};
+
+		local c, m;
+
+		hooksecurefunc("ChatEdit_HandleChatType", function(editBox, msg, command, send)
+			c = command;
+			m = msg;
+			if send == 1 then
+				if c and VALID_COMMANDS[c] then
+					callback(m);
+				end
+
+				c = nil;
+				m = nil;
+			end
+		end);
+	end
 end
 
 ----------------
@@ -4030,7 +4133,7 @@ end
 
 --Static Events
 EL:RegisterEvent("PLAYER_ENTERING_WORLD");
-EL:RegisterEvent("UNIT_NAME_UPDATE");
+EL:RegisterUnitEvent("UNIT_NAME_UPDATE", "player");
 EL:RegisterEvent("PLAYER_AVG_ITEM_LEVEL_UPDATE");
 EL:RegisterEvent("ACTIVE_TALENT_GROUP_CHANGED");
 EL:RegisterEvent("PLAYER_LEVEL_CHANGED");
@@ -4086,7 +4189,7 @@ EL:SetScript("OnEvent",function(self, event, ...)
 			end)
 
 			ViewProfile:Disable();
-		
+
 		else
 			if NarcissusDB.CameraSafeMode then
 				local temp = GetCVar("test_cameraOverShoulder");
@@ -4101,17 +4204,21 @@ EL:SetScript("OnEvent",function(self, event, ...)
 		After(1.7, function()
 			UpdateCharacterInfoFrame();
 			
-			hooksecurefunc("CameraZoomIn", function(increment)
-				if IS_OPENED then
-					UpdateShoulderCVar:Start(-increment);
-				end
-			end)
-			
-			hooksecurefunc("CameraZoomOut", function(increment)
-				if IS_OPENED then
-					UpdateShoulderCVar:Start(increment);
-				end
-			end)
+			if CVarTemp.isDynamicCamLoaded then
+				CameraMover:UpdateMovementMethodForDynamicCam();
+			else
+				hooksecurefunc("CameraZoomIn", function(increment)
+					if IS_OPENED then
+						UpdateShoulderCVar:Start(-increment);
+					end
+				end)
+				
+				hooksecurefunc("CameraZoomOut", function(increment)
+					if IS_OPENED then
+						UpdateShoulderCVar:Start(increment);
+					end
+				end)
+			end
 		end)
 
 	elseif event == "PLAYER_EQUIPMENT_CHANGED" then
@@ -4138,13 +4245,11 @@ EL:SetScript("OnEvent",function(self, event, ...)
 		SlotController:Refresh(neckSlotID);		--Heart of Azeroth
 
 	elseif event == "PLAYER_AVG_ITEM_LEVEL_UPDATE" then
-        if not self.isRefreshing then
-            self.isRefreshing = true;
-            After(0, function()    -- only want 1 update per 0.1s
+        if not self.pendingItemLevel then
+            self.pendingItemLevel = true;
+            After(0.1, function()    -- only want 1 update per 0.1s
 				ItemLevelFrame:UpdateItemLevel();
-				After(0.1, function()
-					self.isRefreshing = nil;
-				end)
+				self.pendingItemLevel = nil;
             end)
 		end
 

@@ -354,6 +354,8 @@ end
 function NarciQuestItemDisplayMixin:ResetPosition()
     self:ClearAllPoints();
     self:SetPoint("LEFT", Narci_GuideLineFrame, "LEFT", 64, 80);
+    NarcissusDB.QuestItemDisplayPositionX = nil;
+    NarcissusDB.QuestItemDisplayPositionY = nil;
 end
 
 function NarciQuestItemDisplayMixin:UseSavedPosition()

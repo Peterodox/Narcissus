@@ -34,6 +34,7 @@ local AUTO_GRANTED_NODES = {
 
     [1467] = {68681},    --Devastation
     [1468] = {68689},    --Preservation
+    [1473] = {93305, 93304},    --Augmentation
 
     [253] = {79935}, --Beast Mastery
     [254] = {79834}, --Marksmanship

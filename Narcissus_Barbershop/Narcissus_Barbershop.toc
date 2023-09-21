@@ -1,4 +1,4 @@
-## Interface: 100100
+## Interface: 100107
 ## Plain Title: Narcissus Barbershop
 ## Version: 1.4
 ## LoadOnDemand: 1

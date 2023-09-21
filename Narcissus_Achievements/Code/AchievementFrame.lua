@@ -1780,13 +1780,13 @@ function NarciAchievementInspectionFrameMixin:OnLoad()
     InspectionFrame = self;
 
     local CompleteFrame = self.CriteriaFrame.LeftInset;
-    CompleteFrame.header:SetText("COMPLETED");
+    CompleteFrame.header:SetText(string.upper(CRITERIA_COMPLETED or "Completed"));
     CompleteFrame.header:SetTextColor(0.216, 0.502, 0.2);
     CompleteFrame.count:SetTextColor(0.216, 0.502, 0.2);
     self.numCompleted = CompleteFrame.count;
 
     local IncompleteFrame = self.CriteriaFrame.RightInset;
-    IncompleteFrame.header:SetText("INCOMPLETED");
+    IncompleteFrame.header:SetText(string.upper(INCOMPLETE or "Incomplete"));
     IncompleteFrame.header:SetTextColor(0.502, 0.2, 0.2);
     IncompleteFrame.count:SetTextColor(0.502, 0.2, 0.2);
     self.numIncomplete = IncompleteFrame.count;

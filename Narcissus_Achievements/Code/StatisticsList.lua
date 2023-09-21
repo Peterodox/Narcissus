@@ -793,7 +793,7 @@ local function GetQuestReading()
     if NarciStatisticsDB.SLQuestReadingTime then
         local locale, numQuests, numWords, timeReading, speed = unpack(NarciStatisticsDB.SLQuestReadingTime);
         if locale then
-            local f = "Completed: %s (%s words)  Reading: %s (%s wpm)";
+            local f = S["Quest Text Reading Speed Format"];
             return string.format(f, numQuests, numWords, timeReading, speed);
         else
             return NONE;
@@ -818,7 +818,7 @@ local customStatData = {
 
     [12080003] = {
         --Reading Quest
-        name = "Shadowlands Quests",
+        name = S["Shadowlands Quests"],
         valueFunc = GetQuestReading,
     }
 }

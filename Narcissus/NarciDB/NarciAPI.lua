@@ -2341,23 +2341,6 @@ end
 
 NarciAPI.InitializeModelLight = NarciAPI_InitializeModelLight;
 
---------------------
---------Time--------
---------------------
-function NarciAPI_FormatTime(seconds)
-    seconds = seconds or 0;
-
-    local hour = floor(seconds / 3600);
-    local minute = floor((seconds - 3600 * hour) / 60);
-    local second = mod(seconds, 60);
-    if hour > 0 then
-        return hour.."h "..minute.."m "..second.."s";
-    elseif minute > 0 then
-        return minute.."m "..second.."s";
-    else
-        return second.."s";
-    end
-end
 
 ----------------------------
 ----UI Animation Generic----
@@ -3228,6 +3211,32 @@ local function SecureActionButtonPreClick()
 end
 
 NarciAPI.SecureActionButtonPreClick = SecureActionButtonPreClick;
+
+
+local function GetTimeDifference_Recursion(lhs, rhs, totalDayOffset)
+    --Requires Calendar Time (table)
+    if not totalDayOffset then
+        totalDayOffset = 0;
+    end
+
+    local diffYear = rhs.year - lhs.year;
+    local diffMonth = rhs.month - lhs.month;
+    local diffDay = rhs.monthDay - lhs.monthDay;
+
+    local dayOffset = floor(diffYear * 365 + diffMonth * 30.4 + diffDay * 1 + 0.5);
+
+    if dayOffset ~= 0 then
+        totalDayOffset = totalDayOffset + dayOffset;
+        local ct = C_DateAndTime.AdjustTimeByDays(lhs, dayOffset);
+        GetTimeDifference_Recursion(ct, rhs, totalDayOffset);
+    end
+
+    local minuteOffset = (totalDayOffset * 24 + rhs.hour - lhs.hour) * 60 + (rhs.minute - lhs.minute);
+
+    return totalDayOffset, minuteOffset
+end
+
+NarciAPI.GetCalendarTimeDifferenceInDays = GetTimeDifference_Recursion;
 
 --[[
     /script DEFAULT_CHAT_FRAME:AddMessage("\124Hitem:narcissus:0:\124h[Test Link]\124h\124r");

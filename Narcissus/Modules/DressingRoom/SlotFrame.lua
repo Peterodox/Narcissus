@@ -647,6 +647,7 @@ function NarciDressingRoomSlotFrameMixin:OnLoad()
             if slotID then
                 self:ShineSlot(slotID);
                 self:FadeIn();
+                self:SetManuallyChanged(true);
             end
         end
         --print("DressUpVisual")
@@ -658,6 +659,7 @@ function NarciDressingRoomSlotFrameMixin:OnLoad()
             if slotID then
                 self:ShineSlot(slotID);
                 self:FadeIn();
+                self:SetManuallyChanged(true);
             end
         end
         --print("DressUpItemTransmogInfo")
@@ -667,6 +669,7 @@ function NarciDressingRoomSlotFrameMixin:OnLoad()
     if DressUpItemTransmogInfoList then
         hooksecurefunc("DressUpItemTransmogInfoList", function(itemTransmogInfoList)
             self:FadeIn();
+            self:SetManuallyChanged(true);
             --print("DressUpItemTransmogInfoList")
         end)
     end
@@ -678,6 +681,7 @@ function NarciDressingRoomSlotFrameMixin:OnLoad()
             if slotID then
                 self:ShineSlot(slotID);
                 self:FadeIn();
+                self:SetManuallyChanged(true);
             end
             --print("DressUpCollectionAppearance")
         end);
@@ -718,6 +722,7 @@ end
 function NarciDressingRoomSlotFrameMixin:OnHide()
     self:StopAnimating();
     self.Notification:SetAlpha(0);
+    self:SetManuallyChanged(false);
 end
 
 function NarciDressingRoomSlotFrameMixin:FadeIn()
@@ -840,6 +845,14 @@ function NarciDressingRoomSlotFrameMixin:SetInvisible(state)
             self:Show();
         end
     end
+end
+
+function NarciDressingRoomSlotFrameMixin:SetManuallyChanged(state)
+    self.manuallyChanged = (state and true) or nil;
+end
+
+function NarciDressingRoomSlotFrameMixin:IsManuallyChanged()
+    return self.manuallyChanged == true
 end
 
 

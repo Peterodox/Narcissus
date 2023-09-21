@@ -35,7 +35,7 @@ function StatManager:StopTimer()
         self.startTime = 0;
 
         local mapID = self.mapID;
-        if mapID then
+        if mapID and duration < 4800 then   --time broken?
             self.DB.Locations[mapID].time = self.DB.Locations[mapID].time + duration;
         end
     end
@@ -106,7 +106,7 @@ function StatManager:OnBarberShopOpen()
     C_Timer.After(0.5, function()
         self:UpdateZone();
         self:StartTimer();
-        self:UpdateMoney();
+        --self:UpdateMoney();
     end)
 end
 
@@ -141,11 +141,9 @@ end
 local COPPER_PER_SILVER = 100;
 local SILVER_PER_GOLD = 100;
 
-local floor = math.floor;
-local mod = mod;
 
 local L = Narci.L;
-local FormatTime = NarciAPI_FormatTime;
+local FormatTime = NarciAPI.FormatTime;
 
 NarciBarberShopStatsMoneyFrameMixin = {};
 
@@ -154,9 +152,9 @@ function NarciBarberShopStatsMoneyFrameMixin:SetLabel(label)
 end
 
 function NarciBarberShopStatsMoneyFrameMixin:SetAmount(rawCopper)
-	local gold = floor(rawCopper / (COPPER_PER_SILVER * SILVER_PER_GOLD));
-	local silver = floor((rawCopper - (gold * COPPER_PER_SILVER * SILVER_PER_GOLD)) / COPPER_PER_SILVER);
-    local copper = mod(rawCopper, COPPER_PER_SILVER);
+	local gold = math.floor(rawCopper / (COPPER_PER_SILVER * SILVER_PER_GOLD));
+	local silver = math.floor((rawCopper - (gold * COPPER_PER_SILVER * SILVER_PER_GOLD)) / COPPER_PER_SILVER);
+    local copper = math.fmod(rawCopper, COPPER_PER_SILVER);
     self.Gold:SetText(gold);
     self.Silver:SetText(silver);
     self.Copper:SetText(copper);

@@ -12,30 +12,6 @@ local PDWC = NarciPaperDollWidgetController;
 
 local PaperDollIndicator, SplashFrame;
 
-local isClassItem = {};
-
-do
-    local classSetItems = {
-        --https://wow.tools/dbc/?dbc=itemset&build=10.0.2.46801#page=1
-        202464, 202462, 202461, 202460, 202459,     --DK
-        202527, 202525, 202524, 202523, 202522,     --DH
-        202518, 202516, 202515, 202514, 202513,     --Druid
-        202491, 202489, 202488, 202487, 202486,     --Evoker
-        202482, 202480, 202479, 202478, 202477,     --Hunter
-        202554, 202552, 202551, 202550, 202549,     --Mage
-        202509, 202507, 202506, 202505, 202504,     --Monk
-        202455, 202453, 202452, 202451, 202450,     --Paladin
-        202543, 202542, 202541, 202545, 202540,     --Priest
-        202500, 202498, 202497, 202496, 202495,     --Rogue
-        202473, 202471, 202470, 202469, 202468,     --Shaman
-        202534, 202533, 202532, 202536, 202531,     --Warlock
-        202446, 202444, 202443, 202442, 202441,     --Warrior
-    };
-
-    for _, itemID in pairs(classSetItems) do
-        isClassItem[itemID] = true;
-    end
-end
 
 local candidateSlots = {
     [1] = true,   --Head
@@ -45,90 +21,242 @@ local candidateSlots = {
     [10] = true,  --Hands
 };
 
-local clssSetSpells = {
-    --[classID] = { [specIndex] = {spell1, spell2} },
 
-    [1] = {    --Warrior
-        {405577, 405578},   --Arms 71
-        {405579, 405580},   --Fury 72
-        {405581, 405582},   --Protection 73
-    },
+local isLastestClassSetItem = {};
+local clssSetSpells = {};
+local classSetGroup = {};
 
-    [2] = {    --Paladin
-        {405545, 405546},   --Holy 65
-        {405547, 405548},   --Protection 66
-        {405549, 405550},   --Retribution 70
-    },
+local function SetClassSetGroup(items, key)
+    classSetGroup[key] = items;
+end
 
-    [3] = {    --Hunter
-        {405524, 405525},   --BM 253
-        {405526, 405527},   --Marksmanship 254
-        {405528, 405530},   --Survival 255
-    },
+do
+    local amidrassil = {
+        207180, 207181, 207182, 207183, 207185,     --Warrior
+        207270, 207271, 207272, 207273, 207275,     --Warlock
+        207207, 207208, 207209, 207210, 207212,     --Shaman
+        207236, 207234, 207239, 207237, 207235,     --Rogue
+        207279, 207280, 207281, 207282, 207284,     --Priest
+        207189, 207190, 207191, 207192, 207194,     --Paladin
+        207243, 207244, 207245, 207246, 207248,     --Monk
+        207288, 207289, 207290, 207291, 207293,     --Mage
+        207216, 207217, 207218, 207219, 207221,     --Hunter
+        207225, 207226, 207227, 207228, 207230,     --Evoker
+        207252, 207253, 207254, 207255, 207257,     --Druid
+        207261, 207262, 207263, 207264, 207266,     --DH
+        207198, 207199, 207200, 207201, 207203,     --DK
+    };
 
-    [4] = {    --Rogue
-        {405559, 405560},   --Ass 259
-        {405561, 405562},   --Outlaw 260
-        {405563, 405564},   --Sub 261
-    },
+    SetClassSetGroup(amidrassil, 2);
 
-    [5] = {    --Priest
-        {405551, 405553},   --Discipline 256
-        {405554, 405556},   --Holy 257
-        {405557, 405558},   --Shadow 258
-    },
 
-    [6] = {    --DK
-        {405499, 405500},   --Blood 250
-        {405501, 405502},   --Frost 251
-        {405503, 405504},   --Unholy 252
-    },
+    ---- Old Class Set ----
+    -- Purge this every other raids
+    local aberrus = {
+        202464, 202462, 202461, 202460, 202459,
+        202527, 202525, 202524, 202523, 202522,
+        202518, 202516, 202515, 202514, 202513,
+        202491, 202489, 202488, 202487, 202486,
+        202482, 202480, 202479, 202478, 202477,
+        202554, 202552, 202551, 202550, 202549,
+        202509, 202507, 202506, 202505, 202504,
+        202455, 202453, 202452, 202451, 202450,
+        202543, 202542, 202541, 202545, 202540,
+        202500, 202498, 202497, 202496, 202495,
+        202473, 202471, 202470, 202469, 202468,
+        202534, 202533, 202532, 202536, 202531,
+        202446, 202444, 202443, 202442, 202441,
+        200371,
+    };
 
-    [7] = {    --Shaman
-        {405565, 405566},   --Elemental 262
-        {405567, 405568},   --Enhancement 263
-        {405569, 405570},   --Restoration 264
-    },
+    SetClassSetGroup(aberrus, 1);
 
-    [8] = {    --Mage
-        {405532, 405533},   --Arcane 62
-        {405534, 405535},   --Fire 63
-        {405536, 405538},   --Frost 64
-    },
 
-    [9] = {    --Warlock
-        {405571, 405572},   --Affliction 265
-        {405573, 405574},   --Demonology 266
-        {405575, 405576},   --Destruction 267
-    },
+    local _, addon = ...
+    local newRaidItems;
 
-    [10] = {    --Monk
-        {405539, 405540},   --Brewmaster 268
-        {405541, 405542},   --Mistweaver 270
-        {405543, 405544},   --Windwalker 269
-    },
+    if addon.IsTOCVersionEqualOrNewerThan(100200) then
+        newRaidItems = amidrassil;
 
-    [11] = {    --Druid
-        {405510, 405511},   --Balance 102
-        {405512, 405513},   --Feral 103
-        {405514, 405515},   --Guardian 104
-        {405516, 405517},   --Restoration 105
-    },
+        clssSetSpells = {
+            --[classID] = { [specIndex] = {spell1, spell2} },
+        
+            [1] = {    --Warrior
+                {422923, 422924},   --Arms 71
+                {422925, 422926},   --Fury 72
+                {422927, 422928},   --Protection 73
+            },
+        
+            [2] = {    --Paladin
+                {422893, 422894},   --Holy 65
+                {422895, 422896},   --Protection 66
+                {424513, 424572},   --Retribution 70
+            },
+        
+            [3] = {    --Hunter
+                {422874, 422875},   --BM 253
+                {422876, 422877},   --Marksmanship 254
+                {422878, 422879},   --Survival 255
+            },
+        
+            [4] = {    --Rogue
+                {422905, 422906},   --Ass 259
+                {422907, 422908},   --Outlaw 260
+                {422910, 422909},   --Sub 261
+            },
+        
+            [5] = {    --Priest
+                {422899, 422900},   --Discipline 256
+                {422901, 422902},   --Holy 257
+                {422903, 422904},   --Shadow 258
+            },
+        
+            [6] = {    --DK
+                {422850, 422851},   --Blood 250
+                {422852, 422853},   --Frost 251
+                {422854, 422855},   --Unholy 252
+            },
+        
+            [7] = {    --Shaman
+                {422911, 422912},   --Elemental 262
+                {422913, 422914},   --Enhancement 263
+                {422915, 422916},   --Restoration 264
+            },
+        
+            [8] = {    --Mage
+                {422880, 422881},   --Arcane 62
+                {422882, 422883},   --Fire 63
+                {422884, 422885},   --Frost 64
+            },
+        
+            [9] = {    --Warlock
+                {422917, 422918},   --Affliction 265
+                {422919, 422920},   --Demonology 266
+                {422921, 422922},   --Destruction 267
+            },
+        
+            [10] = {    --Monk
+                {422886, 422887},   --Brewmaster 268
+                {422889, 422890},   --Mistweaver 270
+                {422891, 422892},   --Windwalker 269
+            },
+        
+            [11] = {    --Druid
+                {422862, 422863},   --Balance 102
+                {422747, 422748},   --Feral 103
+                {422864, 422865},   --Guardian 104
+                {422866, 422867},   --Restoration 105
+            },
+        
+            [12] = {    --DH
+                {422858, 422859},   --Havoc 577
+                {422860, 422861},   --Vengeance 581
+            },
+        
+            [13] = {    --Evoker
+                {422870, 422871},   --Devastation 1467
+                {422872, 422873},   --Preservation 1468
+                {422868, 422869},   --Augmentation 1473
+            },
+        };
+    else
+        newRaidItems = aberrus;
 
-    [12] = {    --DH
-        {405505, 405507},   --Havoc 577
-        {405508, 405509},   --Vengeance 581
-    },
+        clssSetSpells = {
+            --[classID] = { [specIndex] = {spell1, spell2} },
+        
+            [1] = {    --Warrior
+                {405577, 405578},   --Arms 71
+                {405579, 405580},   --Fury 72
+                {405581, 405582},   --Protection 73
+            },
+        
+            [2] = {    --Paladin
+                {405545, 405546},   --Holy 65
+                {405547, 405548},   --Protection 66
+                {405549, 405550},   --Retribution 70
+            },
+        
+            [3] = {    --Hunter
+                {405524, 405525},   --BM 253
+                {405526, 405527},   --Marksmanship 254
+                {405528, 405530},   --Survival 255
+            },
+        
+            [4] = {    --Rogue
+                {405559, 405560},   --Ass 259
+                {405561, 405562},   --Outlaw 260
+                {405563, 405564},   --Sub 261
+            },
+        
+            [5] = {    --Priest
+                {405551, 405553},   --Discipline 256
+                {405554, 405556},   --Holy 257
+                {405557, 405558},   --Shadow 258
+            },
+        
+            [6] = {    --DK
+                {405499, 405500},   --Blood 250
+                {405501, 405502},   --Frost 251
+                {405503, 405504},   --Unholy 252
+            },
+        
+            [7] = {    --Shaman
+                {405565, 405566},   --Elemental 262
+                {405567, 405568},   --Enhancement 263
+                {405569, 405570},   --Restoration 264
+            },
+        
+            [8] = {    --Mage
+                {405532, 405533},   --Arcane 62
+                {405534, 405535},   --Fire 63
+                {405536, 405538},   --Frost 64
+            },
+        
+            [9] = {    --Warlock
+                {405571, 405572},   --Affliction 265
+                {405573, 405574},   --Demonology 266
+                {405575, 405576},   --Destruction 267
+            },
+        
+            [10] = {    --Monk
+                {405539, 405540},   --Brewmaster 268
+                {405541, 405542},   --Mistweaver 270
+                {405543, 411375},   --Windwalker 269
+            },
+        
+            [11] = {    --Druid
+                {405510, 405511},   --Balance 102
+                {405512, 405513},   --Feral 103
+                {405514, 405515},   --Guardian 104
+                {405516, 405517},   --Restoration 105
+            },
+        
+            [12] = {    --DH
+                {405505, 405507},   --Havoc 577
+                {405508, 405509},   --Vengeance 581
+            },
+        
+            [13] = {    --Evoker
+                {405518, 405519},   --Devastation 1467
+                {405520, 405522},   --Preservation 1468
+                {414877, 414878},   --Augmentation 1473
+            },
+        };
+    end
 
-    [13] = {    --Evoker
-        {405518, 405519},   --Devastation 1467
-        {405520, 405522},   --Preservation 1468
-    },
-};
+    for _, itemID in pairs(newRaidItems) do
+        isLastestClassSetItem[itemID] = true;
+    end
+end
 
 
 local function IsItemClassSet(itemID)
-    return (itemID and isClassItem[itemID])
+    return (itemID and isLastestClassSetItem[itemID])
+end
+
+local function GetClassSetGroup()
+    return classSetGroup
 end
 
 local NUM_OWNED = 0;
@@ -156,7 +284,7 @@ end
 
 NarciAPI.IsItemClassSet = IsItemClassSet;
 NarciAPI.GetNumClassSetItems = GetEquippedSet;
-
+NarciAPI.GetClassSetGroup = GetClassSetGroup;
 
 
 local TOOLTIP_PADDING = 32;

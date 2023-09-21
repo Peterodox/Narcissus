@@ -14,3 +14,7 @@ NARCI_NPC_BROWSER_TITLE_LEVEL = "d*i*%s*.ivello%s%?%?.?";      --Level ?? --Use 
 
 L["No Service"] = "Nessun servizio";
 L["Shards Disabled"] = "Scheggia del Dominio sono disabilitati fuori La Fauce";
+L["Day Plural"] = "giorni";
+L["Day Singular"] = "giorno";
+L["Hour Plural"] = "ore";
+L["Hour Singular"] = "ora";

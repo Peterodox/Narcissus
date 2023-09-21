@@ -15,7 +15,11 @@ L["A Month Ago"] = "1个月前";
 L["Format Months Ago"] = "%d个月前";
 L["A Year Ago"] = "1年前";
 L["Format Years Ago"] = "%d年前";
-
+L["Date Colon"] = "日期: ";
+L["Day Plural"] = "天";
+L["Day Singular"] = "天";
+L["Hour Plural"] = "小时";
+L["Hour Singular"] = "小时";
 
 L["Swap items"] = "更换装备";
 L["Movement Speed"] = STAT_MOVEMENT_SPEED;

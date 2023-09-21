@@ -142,9 +142,6 @@ function DataProvider:UnitInQueue()
     return hasUnit
 end
 
--------Create Mogit List-------
-local newSet = {items = {}}
-
 
 --Background Transition Animation--
 local function Narci_SetDressUpBackground(unit, instant)
@@ -212,32 +209,6 @@ local function UpdateDressingRoomExtraWdith()
        --DressUpFrame:SetAttribute("UIPanelLayout-extraWidth", (IsDressUpFrameMaximized() and -100) or 0);   --self.OutfitDetailsPanel
        DressUpFrame:SetAttribute("UIPanelLayout-width", (IsDressUpFrameMaximized() and 450) or 334);    --DressUpModelFrameMixin:ConfigureSize(isMinimized)
     end
-end
-
-local function InitializeActor(actor, actorInfo)
-    --[[
-	actor:SetUseCenterForOrigin(actorInfo.useCenterForOriginX, actorInfo.useCenterForOriginY, actorInfo.useCenterForOriginZ);
-	actor:SetPosition(actorInfo.position:GetXYZ());
-	actor:SetYaw(actorInfo.yaw);
-	actor:SetPitch(actorInfo.pitch);
-	actor:SetRoll(actorInfo.roll);
-    actor.requestedScale = nil;
-    actor:SetAnimation(0, 0, 1.0);
-    actor:SetAlpha(1.0);
-    actor:SetScale(actorInfo.scale or 1.0);
-    --]]
-
-    actor:SetUseCenterForOrigin(actorInfo.useCenterForOriginX, actorInfo.useCenterForOriginY, actorInfo.useCenterForOriginZ);
-	actor:SetPosition(actorInfo.position:GetXYZ());
-	actor:SetYaw(actorInfo.yaw);
-	actor:SetPitch(actorInfo.pitch);
-	actor:SetRoll(actorInfo.roll);
-	actor.requestedScale = nil;
-    actor:SetAlpha(1.0);
-    actor:SetRequestedScale(1.0);
-	actor:SetNormalizedScaleAggressiveness(actorInfo.normalizeScaleAggressiveness or 0.0);
-	actor:MarkScaleDirty();
-	actor:UpdateScale();
 end
 
 
@@ -317,7 +288,6 @@ local function UpdateDressingRoomModelByUnit(unit, transmogInfoList)
 
     if updateScale then
         After(0.0,function()
-            --InitializeActor(actor, modelInfo)
             local modelInfo = GetActorInfoByFileID(actor:GetModelFileID());
             if modelInfo then
                 actor:ApplyFromModelSceneActorInfo(modelInfo);
@@ -363,11 +333,6 @@ local function RefreshFavoriteState(visualID)
     end
 end
 
-local function NarciBridge_MogIt_SaveButton_OnClick(self)
-    StaticPopup_Show("MOGIT_WISHLIST_CREATE_SET", nil, nil, newSet);    --Create a new whishlist
-    MogIt.view:Show();  --Open a view window
-end
-
 local function ShareButton_OnClick(self)
     local Popup = NarciDressingRoomSharedPopup;
     if not Popup:IsShown() then
@@ -380,6 +345,8 @@ local function ShareButton_OnClick(self)
 end
 
 local function InspectButton_OnClick(self)
+    DressingRoomOverlayFrame.SlotFrame:SetManuallyChanged(false);
+
     local state = NarcissusDB.DressingRoomUseTargetModel;
     NarcissusDB.DressingRoomUseTargetModel = not state;
     USE_TARGET_MODEL = not state;
@@ -1061,7 +1028,9 @@ end
 
 function NarciDressingRoomOverlayMixin:OnEvent(event, ...)
     if event == "PLAYER_TARGET_CHANGED" then
-        self:InspectTarget();
+        if not self.SlotFrame:IsManuallyChanged() then
+            self:InspectTarget();
+        end
     elseif event == "TRANSMOG_COLLECTION_UPDATED" then
         local collectionIndex, modID, itemAppearanceID, reason = ...
         if reason == "favorite" and itemAppearanceID then

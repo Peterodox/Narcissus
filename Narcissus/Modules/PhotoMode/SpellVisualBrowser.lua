@@ -1279,6 +1279,8 @@ local function ResetModel()
     end
     --]]
 
+    model.isCameraDirty = false;
+
     if model.creatureID then
         model:SetCreature(model.creatureID);
     elseif model.displayID then
@@ -1294,8 +1296,8 @@ local function ResetModel()
     After(0, function()
         model:MakeCurrentCameraCustom();
         model:SetPosition(posX, posY, posZ);
-        model:SetCameraTarget(0, 0, 0.8);
-        model:SetCameraPosition(camX, camY, camZ);
+        TransitionAPI.SetCameraTarget(model, 0, 0, 0.8);
+        TransitionAPI.SetCameraPosition(model, camX, camY, camZ);
         model.cameraDistance = distance;
         TransitionAPI.SetModelLight(model, true, false, dirX, dirY, dirZ, 1, ambR, ambG, ambB, 1, dirR, dirG, dirB);
         if isPaused then

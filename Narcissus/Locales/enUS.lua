@@ -44,7 +44,10 @@ L["A Year Ago"] = "1 year ago";
 L["Format Years Ago"] = "%d years ago";
 L["Version Colon"] = (GAME_VERSION_LABEL or "Version")..": ";
 L["Date Colon"] = "Date: ";
-
+L["Day Plural"] = "Days";
+L["Day Singular"] = "Day";
+L["Hour Plural"] = "Hours";
+L["Hour Singular"] = "Hour";
 
 L["Swap items"] = "Swap items";
 L["Press Copy"] = NARCI_COLOR_GREY_70.. "Press |r".. NARCI_SHORTCUTS_COPY.. NARCI_COLOR_GREY_70 .." to Copy";
@@ -267,7 +270,7 @@ L["Actor Index Tooltip"] = "Drag an index button to change the model's layer.";
 L["Play Button Tooltip"] = NARCI_MOUSE_BUTTON_ICON_1.."Play this animation\n"..NARCI_MOUSE_BUTTON_ICON_2.."Resume all models\' animations";
 L["Pause Button Tooltip"] = NARCI_MOUSE_BUTTON_ICON_1.."Pause this animation\n"..NARCI_MOUSE_BUTTON_ICON_2.."Pause all models\' animations";
 L["Save Layers"] = "Save Layers";
-L["Save Layers Tooltip"] = "Automatically capture 6 screenshots for picture compositing.\nPlease do not move your cursor or click any buttons during this process. Otherwise, your character could becomes invisible after exiting the addon. Should it happen, use this command:\n/console showplayer";
+L["Save Layers Tooltip"] = "Automatically capture 4 screenshots for picture compositing.\nPlease do not move your cursor or click any buttons during this process. Otherwise, your character could becomes invisible after exiting the addon. Should it happen, use this command:\n/console showplayer";
 L["Ground Shadow"] = "Ground Shadow";
 L["Ground Shadow Tooltip"] = "Add a movable ground shadow beneath you model.";
 L["Hide Player"] = "Hide Player";
@@ -456,6 +459,8 @@ L["Points"] = "Points";
 L["Reward"] = "Reward";
 L["Date"] = "Date";
 L["Click And Hold"] = "Click and Hold";
+L["Shadowlands Quests"] = "Missões das Terras Sombrias";
+L["Completed: %s (%s words)  Reading: %s (%s wpm)"] = "Concluído: %s (%s palavras)  Leitura: %s (%s ppm)";
 
 --Barbershop--
 L["Save New Look"] = "Save New Look";
@@ -601,6 +606,8 @@ L["Socket Occupied"] = "Socket Occupied";       --Indicates that there is an (im
 S["Narcissus Played"] = "Total time spent in Narcissus";
 S["Format Since"] = "(since %s)";
 S["Screenshots"] = "Screenshots Taken In Narcissus";
+S["Shadowlands Quests"] = "Shadowlands Quests";
+S["Quest Text Reading Speed Format"] = "Completed: %s (%s words)  Reading: %s (%s wpm)";
 
 --Turntable Showcase--
 L["Turntable"] = "Turntable";

@@ -1,4 +1,4 @@
---Coutesy of ZamestoTV. Thank you!    --Translator: ZamestoTV as of 1.4.1
+--Coutesy of ZamestoTV. Thank you!    --Translator: ZamestoTV as of 1.4.2
 
 if not (GetLocale() == "ruRU") then
     return;
@@ -46,8 +46,12 @@ L["Format Months Ago"] = "%d месяца назад";
 L["A Year Ago"] = "1 год назад";
 L["Format Years Ago"] = "%d года назад";
 L["Version Colon"] = (GAME_VERSION_LABEL or "Версия")..": ";
-L["Date Colon"] = "Дата: ";
 
+L["Date Colon"] = "Дата: ";
+L["Day Plural"] = "д.";
+L["Day Singular"] = "д.";
+L["Hour Plural"] = "ч.";
+L["Hour Singular"] = "ч.";
 
 L["Swap items"] = "Менять предметы";
 L["Press Copy"] = NARCI_COLOR_GREY_70.. "Нажмите |r".. NARCI_SHORTCUTS_COPY.. NARCI_COLOR_GREY_70 .." чтобы скопировать";
@@ -459,6 +463,8 @@ L["Points"] = "Точки";
 L["Reward"] = "Вознаграждение";
 L["Date"] = "Дата";
 L["Click And Hold"] = "Нажмите и удерживайте";								   
+L["Shadowlands Quests"] = "Миссии Темных земель";
+L["Completed: %s (%s words)  Reading: %s (%s wpm)"] = "Завершено: %s ( %s слова) Чтение: %s ( %s ppm)";														 
 
 --Barbershop--
 L["Save New Look"] = "Сохранить новый вид";

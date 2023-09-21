@@ -212,7 +212,7 @@ end
 
 
 local ALTERNATE_FORM_SAVED_ID = "alternateForm";   --OLD:220 (number)
-local MAX_SAVES = 10;
+local MAX_SAVES = 20;
 local NUM_ACTIVE_BUTTONS = 0;
 local SCROLLFRAME_CENTER_Y;
 
@@ -934,7 +934,7 @@ function CustomizationUtil:ApplyCustomizationCategoryData(customizationCategoryD
     if firstCall then
         After(0.033, function()
             self:ApplyCustomizationCategoryData(customizationCategoryData);
-            DataProvider:IsCharacterDataUnique(customizationCategoryData);
+            DataProvider:IsCharacterDataUnique();
         end);
     end
 end
@@ -1982,7 +1982,7 @@ EventListener:SetScript("OnEvent", function(self, event, ...)
         else
             BarberShopUI:Cancel();
         end
-        StatManager:UpdateMoney();
+        --StatManager:UpdateMoney();
     end
 end)
 
@@ -2101,10 +2101,11 @@ local TabData = {
 
     { name = "Statistics", order = 0, localizedName = STATISTICS,
         layout = {
-            { name = "Money", type = "header", localizedName = L["Coins Spent"] },
-            { name = "CoinsSpentSinceShadowlands", type="money", localizedName = "9.0+", tooltip = "Coins spent since 9.0"},
-            { name = "CoinsSpentLifetime", type="money", localizedName = HONOR_LIFETIME, tooltip = "Coins spent during lifetime"},
-            { name = "Blank", type="header", localizedName=" ",},
+            --Barbershop service is free now. Remove money stats
+            --{ name = "Money", type = "header", localizedName = L["Coins Spent"] },
+            --{ name = "CoinsSpentSinceShadowlands", type="money", localizedName = "9.0+", tooltip = "Coins spent since 9.0"},
+            --{ name = "CoinsSpentLifetime", type="money", localizedName = HONOR_LIFETIME, tooltip = "Coins spent during lifetime"},
+            --{ name = "Blank", type="header", localizedName=" ",},
             { name = "LocationHeader", type = "location", localizedName = L["Locations"] },
         },
     },
@@ -2200,7 +2201,7 @@ local function CreateTabs(frame)
                     object:SetHeader();
                     totalHeight = totalHeight + 16;
                     StatManager.widgets[objectData.name] = object;
-                    
+
                 end
             end
 
@@ -2587,6 +2588,8 @@ function NarciBarberShopLoadingFrameMixin:LoadPortraits()
         self.total = total;
     end
 
+    MainFrame.initialCustomizationData = C_BarberShop.GetAvailableCustomizations();
+
     self.Name:SetText(Narci.L["Loading Portraits"] .."...");
     self.current = fromID - 1;
     self.Ring.AnimSpin:Play();
@@ -2633,10 +2636,11 @@ function NarciBarberShopLoadingFrameMixin:OnLoadingComplete()
     --self:Hide();
     FadeFrame(self, 0.5, 0);
 
+    MainFrame:ResetCustomizationInternally();
+
     if MainFrame:IsCharacterCategoryChanged() then
-        local customizationCategoryData = C_BarberShop.GetAvailableCustomizations();
-        DataProvider:IsCharacterDataUnique(customizationCategoryData);
+
     else
-        MainFrame:ResetCustomizationInternally();
+
     end
 end

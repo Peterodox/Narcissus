@@ -15,6 +15,11 @@ L["A Month Ago"] = "1個月前";
 L["Format Months Ago"] = "%d個月前";
 L["A Year Ago"] = "1年前";
 L["Format Years Ago"] = "%d年前";
+L["Date Colon"] = "日期: ";
+L["Day Plural"] = "天";
+L["Day Singular"] = "天";
+L["Hour Plural"] = "小時";
+L["Hour Singular"] = "小時";
 
 
 L["Swap items"] = "更換裝備";

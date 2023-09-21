@@ -46,7 +46,7 @@ local List = {
     },
 };
 --]]
-local FormatTime = NarciAPI_FormatTime;
+local FormatTime = NarciAPI.FormatTime;
 
 
 --Private

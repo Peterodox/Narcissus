@@ -1856,7 +1856,7 @@
 								</MaskTexture>
 							</Layer>
 							<Layer level="BACKGROUND" textureSubLevel="-1">
-								<Texture file="Interface\AddOns\Narcissus\Art\Widgets\ItemLevel\HexagonBackground">
+								<Texture file="Interface\AddOns\Narcissus\Art\Widgets\ItemLevel\HexagonBackground" hidden="true">
 									<Size x="80" y="80"/>
 									<Anchors>
 										<Anchor point="CENTER" relativeKey="$parent" x="0" y="0"/>

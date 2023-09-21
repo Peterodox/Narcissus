@@ -1,5 +1,7 @@
 local match = string.match;
 local floor = math.floor;
+local mod = math.fmod;
+local tonumber = tonumber;
 
 local RemoveNumberBracket;
 
@@ -69,3 +71,54 @@ print(TIME_LEFT_HOUR);
 print(TIME_LEFT_MIN);
 print(TIME_LEFT_SEC);
 --]]
+
+
+local function WrapNumber(text)
+    return string.gsub(text, "%%d", "(%%d+)");
+end
+
+local PATTERN_MINUTE = WrapNumber(MINUTES_ABBR or "%d |4Min:Min;");
+local PATTERN_SECOND = WrapNumber(SECONDS_ABBR or "%d |4Sec:Sec;");
+
+local function GetTimeFromAbbreviatedDurationText(durationText, toSeconds)
+    local minutes = match(durationText, PATTERN_MINUTE);
+    local seconds = match(durationText, PATTERN_SECOND);
+
+    if minutes then
+        minutes = tonumber(minutes);
+    else
+        minutes = 0;
+    end
+
+    if seconds then
+        seconds = tonumber(seconds);
+    else
+        seconds = 0;
+    end
+
+    if toSeconds then
+        return 60*minutes + seconds
+    else
+        return minutes, seconds
+    end
+end
+
+NarciAPI.GetTimeFromAbbreviatedDurationText = GetTimeFromAbbreviatedDurationText;
+
+
+local function FormatTime(seconds)
+    seconds = seconds or 0;
+
+    local hour = floor(seconds / 3600);
+    local minute = floor((seconds - 3600 * hour) / 60);
+    local second = mod(seconds, 60);
+    if hour > 0 then
+        return hour.."h "..minute.."m "..second.."s";
+    elseif minute > 0 then
+        return minute.."m "..second.."s";
+    else
+        return second.."s";
+    end
+end
+
+NarciAPI.FormatTime = FormatTime;

@@ -181,7 +181,9 @@ local function PerksProgramTooltip_ProcessInfo(f, info)
     local owner = f:GetOwner();
     if not owner then return end;
 
-    if owner.perksVendorItemID then
+    local viid = owner.perksVendorItemID;
+
+    if viid then
         --PerksProgramProductButtonTemplate
 
         --[[
@@ -202,7 +204,7 @@ local function PerksProgramTooltip_ProcessInfo(f, info)
 
         if not owner.purchased then
             --Show "unavailable" for historical items
-            local seconds = C_PerksProgram.GetTimeRemaining(owner.perksVendorItemID);
+            local seconds = C_PerksProgram.GetTimeRemaining(viid);
             if seconds and seconds <= 0 then
                 f:AddLine(L["Perks Program Item Unavailable"], 0.6, 0.6, 0.6, true);
                 f:Show();
@@ -210,9 +212,11 @@ local function PerksProgramTooltip_ProcessInfo(f, info)
         end
 
         --Show month name for returning items
-        local displayMonthName = DataProvider:GetCurrentDisplayMonthName();
-        f:AddLine(" ");
-        f:AddLine(string.format(L["Perks Program Item Added In Format"], displayMonthName), 1, 0.82, 0, true);
+        local displayMonthName, isNewItem = DataProvider:GetVendorItemAddedMonthName(viid);
+        if (not isNewItem) and displayMonthName then
+            f:AddLine(" ");
+            f:AddLine(string.format(L["Perks Program Item Added In Format"], displayMonthName), 1, 0.82, 0, true);
+        end
     end
 end
 
@@ -517,10 +521,10 @@ function NarciPerksProgramItemDetailExtraFrameMixin:DisplayPetInfo(speciesID)
 
     if speciesID then
         local _, _, petType, _, _, _, _, canBattle = C_PetJournal.GetPetInfoBySpeciesID(speciesID);
-        local petAbilityLevelInfo = petType and C_PetJournal.GetPetAbilityListTable(speciesID);
-        if (canBattle) and (not petAbilityLevelInfo) then self:Hide(); return; end;
+        local abilities, levels = C_PetJournal.GetPetAbilityList(speciesID);
+        if (canBattle) and (not abilities) then self:Hide(); return; end;
 
-        local numItems = #petAbilityLevelInfo;
+        local numItems = #abilities;
 
         local buttonSize = 32;
         local buttonGap = 8;
@@ -543,7 +547,7 @@ function NarciPerksProgramItemDetailExtraFrameMixin:DisplayPetInfo(speciesID)
             button = self:AcquireButton(i);
             button:ClearAllPoints();
             button:SetPoint("TOPLEFT", self.HeaderText, "BOTTOM", fromOffsetX + (col - 1) * buttonUnit, -8 -row*(buttonSize + verticalGap));
-            button:SetPetAbilityInfo(petAbilityLevelInfo[i]);
+            button:SetPetAbilityInfo(abilities[i], levels[i]);
         end
 
         local petTypeName = _G["BATTLE_PET_NAME_"..petType] or "Unknown Type";
@@ -586,7 +590,16 @@ local function TransmogItemButton_OnEnter(self)
         local slotName;
         if itemID then
             local _, itemType, itemSubType, itemEquipLoc, icon, classID, subclassID = GetItemInfoInstant(itemID);
-            slotName = itemEquipLoc and _G[itemEquipLoc];
+
+            if classID == 4 then        --Armor
+                if subclassID == 6 then
+                    slotName = itemSubType;
+                else
+                    slotName = itemEquipLoc and _G[itemEquipLoc];
+                end
+            elseif classID == 2 then    --Weapon Type
+                slotName = itemSubType;
+            end
         end
         ExtraDetailFrame:SetEnsembleHeaderText(slotName);
     end
@@ -660,7 +673,7 @@ function NarciPerksProgramItemDetailButtonMixin:SetTransmogSource(sourceID)
     self:UpdateVisual();
 end
 
-function NarciPerksProgramItemDetailButtonMixin:SetPetAbilityInfo(abilityInfo)
+function NarciPerksProgramItemDetailButtonMixin:SetPetAbilityInfo(abilityID, level)
     if self.type ~= "pet" then
         self.onEnterFunc = PetAbilityButton_OnEnter;
         self.onLeaveFunc = nil;
@@ -668,11 +681,12 @@ function NarciPerksProgramItemDetailButtonMixin:SetPetAbilityInfo(abilityInfo)
         self.type = "pet";
     end
 
-    if abilityInfo.abilityID then
-        self.petAbilityID = abilityInfo.abilityID;
-        local name, icon, typeID = C_PetJournal.GetPetAbilityInfo(abilityInfo.abilityID);
+    self.petAbilityID = abilityID;
+
+    if abilityID then
+        local name, icon, typeID = C_PetJournal.GetPetAbilityInfo(abilityID);
         self.Icon:SetTexture(icon);
-        self.petAbilityLevel = abilityInfo.level;
+        self.petAbilityLevel = level;
         self:Show();
     end
 
@@ -699,23 +713,6 @@ function NarciPerksProgramItemDetailButtonMixin:UpdateVisual()
         self.Icon:SetVertexColor(1, 1, 1);
         self.RedEye:Hide();
     end
-end
-
-function PerksProgramTryOnItems()
-    --local items = {190904, 190905, 190906, 190907};
-    local items = {190161, 190163, 190193, 190160, 190158, 190159, 190156, 190162, 190157}
-    local actor = BlizzardFrame.ModelSceneContainerFrame.playerActor;
-    actor:Undress();
-    for _, itemID in pairs(items) do
-        actor:TryOn("item:"..itemID);
-    end
-
-    local button = GetMouseFocus();
-    local name = GetSpellInfo(368307);
-    button.ContentsContainer.Label:SetText(name);
-
-    local f = BlizzardFrame.ProductsFrame.PerksProgramProductDetailsContainerFrame.DetailsFrame;
-    f.ProductNameText:SetText(name);
 end
 
 
@@ -1110,7 +1107,7 @@ local function AnimationDropDown_PlayAnimation(actor, button)
     if not actor then return end;
 
     actor:StopAnimationKit();
-    actor:SetAnimationBlendOperation(2);  --LE_MODEL_BLEND_OPERATION_ANIM
+    actor:SetAnimationBlendOperation(1);  --LE_MODEL_BLEND_OPERATION_ANIM
 
     if button.animationKitID then
         actor:PlayAnimationKit(button.animationKitID, true);

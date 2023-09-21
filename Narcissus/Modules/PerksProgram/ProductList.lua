@@ -47,7 +47,7 @@ local function EncounterJournal_TabChanged(_, _, id)
 end
 
 do
-    if DataProvider:DoesPerksProgramExist() or true then
+    if DataProvider:DoesPerksProgramExist() then
         if EncounterJournal_LoadUI then
             hooksecurefunc("EncounterJournal_LoadUI", SetupEncounterJournal);
             --EventRegistry:RegisterCallback("EncounterJournal.TabSet", EncounterJournal_TabChanged, MainFrame);
@@ -656,6 +656,7 @@ function NarciPerksProgramProductListButtonMixin:OnClick()
     if self.itemID then
         local _, itemLink = GetItemInfo(self.itemID);
         local result = HandleModifiedItemClick(itemLink);
+        MainFrame:HidePreview();
     end
 end
 
@@ -709,6 +710,8 @@ local function GetCategoryText(categoryID)
 		return PERKS_VENDOR_CATEGORY_ILLUSION;
 	elseif categoryID == Enum.PerksVendorCategoryType.Transmogset then
 		return PERKS_VENDOR_CATEGORY_TRANSMOG_SET;
+    elseif categoryID == 128 then
+        return "Missing Data"
 	end
 	return "";
 end
@@ -723,7 +726,7 @@ function NarciPerksProgramProductListButtonMixin:SetCategoryID(perksVendorCatego
     self.Container.Price:SetText("");
 end
 
-
+--[[
 if true then return end;
 
 do
@@ -858,6 +861,8 @@ do
         end
     end
 end
+
+--]]
 --[[
     /script for k, v in pairs(GetMouseFocus()) do print(k) end
 

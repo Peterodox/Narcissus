@@ -7,7 +7,7 @@
     <Script file="PlayerModel.lua"/>
 
 
-	<Button name="Narci_RaceOptionButton_Template" virtual="true">
+	<!--Button name="Narci_RaceOptionButton_Template" virtual="true">
 		<Size x="80" y="20"/>
 		<Layers>
 			<Layer level="BACKGROUND">
@@ -34,7 +34,7 @@
 			<OnLeave function="Narci_RaceOptionButton_OnLeave"/>
 			<OnClick function="Narci_RaceOptionButton_OnClick"/>
 		</Scripts>	
-	</Button>
+	</Button-->
 
 	<Button name="Narci_ColorButton_Template" virtual="true">
 		<Size>
@@ -593,6 +593,9 @@
 			<Anchor point="TOPLEFT" relativeTo="UIParent" relativePoint="TOPLEFT" x="0" y="0"/>
 			<Anchor point="BOTTOMRIGHT" relativeTo="UIParent" relativePoint="BOTTOMRIGHT" x="0" y="0"/>
 		</Anchors>
+		<KeyValues>
+			<KeyValue key="isCameraDirty" value="true" type="boolean"/>
+		</KeyValues>
 		<Frames>
 			<Frame inherits="Narci_GroundShadowFrame_Template"/>
 		</Frames>
@@ -1462,32 +1465,32 @@
 							</Layer>
 						</Layers>
 
-						<HighlightTexture file="Interface\AddOns\Narcissus\Art\Widgets\ActorPanel\Panel" parentKey="Highlight">
+						<!--HighlightTexture file="Interface\AddOns\Narcissus\Art\Widgets\ActorPanel\Panel" parentKey="Highlight">
 							<TexCoords left="0.21875" right="0.4375" top="0.78125" bottom="1"/>
 							<Anchors>
 								<Anchor point="TOPLEFT" relativeKey="$parent.Background" relativePoint="TOPLEFT" x="0" y="0"/>
 								<Anchor point="BOTTOMRIGHT" relativeKey="$parent.Background" relativePoint="BOTTOMRIGHT" x="0" y="0"/>
 							</Anchors>
-						</HighlightTexture>
+						</HighlightTexture-->
 						
 						<Scripts>
 							<OnLoad>
 								self.isOn = false;
 								self.tooltipDescription = Narci.L["Race Change Tooltip"];
 							</OnLoad>
-							<OnMouseDown>
+							<!--OnMouseDown>
 								self.PortaitAnchor:SetSize(50, 50);
-							</OnMouseDown>
-							<OnMouseUp>
+							</OnMouseDown-->
+							<!--OnMouseUp>
 								self.PortaitAnchor:SetSize(54, 54);
-							</OnMouseUp>
-							<OnEnter>
+							</OnMouseUp-->
+							<!--OnEnter>
 								NarciTooltip:ShowButtonTooltip(self);
-							</OnEnter>
-							<OnLeave>
+							</OnEnter-->
+							<!--OnLeave>
 								NarciTooltip:HideTooltip();
-							</OnLeave>
-							<OnClick function="Narci_ActorButton_OnClick"/>
+							</OnLeave-->
+							<!--OnClick function="Narci_ActorButton_OnClick"/-->
 							<OnHide>
 								self:UnlockHighlight();
 							</OnHide>
@@ -1497,7 +1500,7 @@
 						</Scripts>				
 					</Button>
 
-					<Frame name="Narci_RaceOptionFrame" hidden="true" alpha="0" parentKey="RaceOption" mixin="ExpansionTransitionBackdropTemplateMixin" frameLevel="70">
+					<!--Frame name="Narci_RaceOptionFrame" hidden="true" alpha="0" parentKey="RaceOption" mixin="ExpansionTransitionBackdropTemplateMixin" frameLevel="70">
 						<Size x="120" y="100"/>
 						<Anchors>
 							<Anchor point="BOTTOMLEFT" relativeKey="$parent.ActorButton" relativePoint="TOPLEFT" x="0" y="-2"/>
@@ -1534,9 +1537,9 @@
 								self:SetAlpha(0);
 							</OnHide>
 						</Scripts>
-					</Frame>
+					</Frame-->
 
-					<Button name="Narci_GenderButton" parentKey="GenderButton" frameLevel="58">
+					<!--Button name="Narci_GenderButton" parentKey="GenderButton" frameLevel="58">
 						<Size x="20" y="20"/>
 						<Anchors>
 							<Anchor point="TOPRIGHT" relativeKey="$parent.ActorButton" relativePoint="TOPRIGHT" x="-4" y="-6"/>
@@ -1575,7 +1578,7 @@
 								NarciTooltip:HideTooltip();
 							</OnLeave>
 						</Scripts>
-					</Button>
+					</Button-->
 
 					<Button parentKey="ExpandButton">
 						<Anchors>
