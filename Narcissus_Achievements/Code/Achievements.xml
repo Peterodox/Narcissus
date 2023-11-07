@@ -83,11 +83,8 @@
 		</Scripts>
 	</Button>
 
-	<Frame name="NarciAchievementEditorFrameTemplate" virtual="true" mixin="ExpansionTransitionBackdropTemplateMixin">
-		<Size x="232" y="60"/>
-		<HitRectInsets>
-			<AbsInset left="12" right="12" top="12" bottom="12"/>
-		</HitRectInsets>
+	<Frame name="NarciAchievementEditorFrameTemplate" virtual="true">
+		<Size x="208" y="36"/>
 		<Layers>
 			<Layer level="BACKGROUND">
 				<Texture parentKey="colorBackground">
@@ -97,8 +94,8 @@
 						<MinColor a="0.9" r="0.5" g="0.5" b="0.5"/>
 					</Gradient>
 					<Anchors>
-						<Anchor point="TOPLEFT" relativePoint="TOPLEFT" x="13" y="-13"/>
-						<Anchor point="BOTTOMRIGHT" relativePoint="BOTTOMRIGHT" x="-14.5" y="14"/>
+						<Anchor point="TOPLEFT" relativePoint="TOPLEFT" x="0" y="0"/>
+						<Anchor point="BOTTOMRIGHT" relativePoint="BOTTOMRIGHT" x="0" y="0"/>
 					</Anchors>
 				</Texture>
 			</Layer>
@@ -107,36 +104,25 @@
 					<Size x="180" y="0"/>
 					<!--Color r="0.5" g="0.5" b="0.5"/-->
 					<Anchors>
-						<Anchor point="TOPLEFT" relativeKey="$parent.colorBackground" relativePoint="TOPLEFT" x="8" y="-10"/>
+						<Anchor point="TOPLEFT" relativeKey="$parent.colorBackground" relativePoint="TOPLEFT" x="10" y="-10"/>
 					</Anchors>
 				</FontString>
 			</Layer>
 		</Layers>
 		<Scripts>
 			<OnLoad>
-				local backdropInfo = {
-					edgeFile = "Interface\\AddOns\\Narcissus_Achievements\\ART\\Shared\\Tooltip-SoftShadowChamfer",
-					tile = true,
-					tileSize = 24,
-					edgeSize = 24,
-				}
-				self:SetBackdrop(backdropInfo);
-				self:SetBackdropBorderColor(0.4, 0.33, 0.29);
-
-				function self:OnHeightChanged(height)
-					self:SetHeight(62 + height)
-				end
+				NarciAPI.NineSliceUtil.SetUpOverlay(self, "blizzardTooltipBorder", 0, 0.4, 0.33, 0.29);
 			</OnLoad>
 		</Scripts>
 	</Frame>
 
 	<Frame name="NarciAchievementEditorFrameWithEditBoxTemplate" inherits="NarciAchievementEditorFrameTemplate" virtual="true">
-		<Size x="232" y="76"/>
+		<Size x="208" y="46"/>
 		<Frames>
 			<EditBox parentKey="EditBox" multiLine="true" autoFocus="false">
-				<Size x="190" y="14"/>
+				<Size x="188" y="14"/>
 				<Anchors>
-					<Anchor point="TOPLEFT" relativeKey="$parent.colorBackground" relativePoint="TOPLEFT" x="8" y="-24"/>
+					<Anchor point="TOPLEFT" relativeKey="$parent.colorBackground" relativePoint="TOPLEFT" x="10" y="-24"/>
 				</Anchors>
 				<FontString inherits="NarciAchievementText" justifyH="LEFT" justifyV="TOP" spacing="2">
 					<Color r="0.64" g="0.58" b="0.55"/>
@@ -149,13 +135,6 @@
 					</Layer>
 				</Layers-->
 				<Scripts>
-					<OnTextChanged>
-						local height = self:GetHeight();
-						if height ~= self.oldHeight then
-							self.oldHeight = height;
-							self:GetParent():OnHeightChanged(height);
-						end
-					</OnTextChanged>
 					<OnEscapePressed>
 						self:ClearFocus();
 					</OnEscapePressed>
@@ -179,11 +158,8 @@
 		</Scripts>
 	</Frame>
 
-	<Button name="NarciAchievementEditorSaveButtonTemplate" virtual="true" frameLevel="8" mixin="ExpansionTransitionBackdropTemplateMixin">
-		<Size x="120" y="52"/>
-		<HitRectInsets>
-			<AbsInset left="12" right="12" top="12" bottom="12"/>
-		</HitRectInsets>
+	<Button name="NarciAchievementEditorSaveButtonTemplate" virtual="true" frameLevel="8">
+		<Size x="96" y="28"/>
 		<Layers>
 			<Layer level="BACKGROUND">
 				<Texture parentKey="colorBackground">
@@ -193,8 +169,8 @@
 						<MinColor a="1" r="0.1" g="0.1" b="0.1"/>
 					</Gradient>
 					<Anchors>
-						<Anchor point="TOPLEFT" relativePoint="TOPLEFT" x="13" y="-13"/>
-						<Anchor point="BOTTOMRIGHT" relativePoint="BOTTOMRIGHT" x="-14.5" y="14"/>
+						<Anchor point="TOPLEFT" relativePoint="TOPLEFT" x="0" y="0"/>
+						<Anchor point="BOTTOMRIGHT" relativePoint="BOTTOMRIGHT" x="0" y="0"/>
 					</Anchors>
 				</Texture>
 			</Layer>
@@ -208,15 +184,6 @@
 			</Layer>
 		</Layers>
 		<Scripts>
-			<OnLoad>
-				local backdropInfo = {
-					edgeFile = "Interface\\AddOns\\Narcissus_Achievements\\ART\\Shared\\Tooltip-SoftShadowChamfer",
-					tile = true,
-					tileSize = 24,
-					edgeSize = 24,
-				}
-				self:SetBackdrop(backdropInfo);
-			</OnLoad>
 			<OnEnter>
 				self.colorBackground:SetColorTexture(0.5, 0.5, 0.5);
 			</OnEnter>
@@ -525,7 +492,6 @@
 		</Layers>
 
 		<Frames>
-			<!--Frame inherits="NarciFrameDispersiveShadowTemplate"/-->
 			<Frame parentKey="RewardFrame" hidden="true" useParentLevel="true">
 				<Size x="536" y="6"/>
 				<Anchors>
@@ -2057,15 +2023,13 @@
 				</Layers>
 				<Frames>
 					<Frame parentKey="ColorPicker" inherits="NarciAchievementEditorFrameTemplate">
-						<Size x="232" y="60"/>
 						<Anchors>
-							<Anchor point="TOP" relativeKey="$parent.CategoryFrame" relativePoint="TOP" x="0" y="-68"/>
+							<Anchor point="TOP" relativeKey="$parent.CategoryFrame" relativePoint="TOP" x="0" y="-80"/>
 						</Anchors>
 					</Frame>
 					<Button parentKey="IconPicker" inherits="NarciAchievementEditorFrameTemplate">
-						<Size x="232" y="36"/>
 						<Anchors>
-							<Anchor point="TOP" relativeKey="$parent.ColorPicker" relativePoint="BOTTOM" x="0" y="12"/>
+							<Anchor point="TOP" relativeKey="$parent.ColorPicker" relativePoint="BOTTOM" x="0" y="-10.0"/>
 						</Anchors>
 						<Layers>
 							<Layer level="OVERLAY">
@@ -2082,7 +2046,7 @@
 							<Frame parentKey="IconContainer">
 								<Size x="204" y="200"/>
 								<Anchors>
-									<Anchor point="TOP" relativeKey="$parent.colorBackground" relativePoint="TOP" x="-1" y="-46"/>
+									<Anchor point="TOP" relativeKey="$parent.colorBackground" relativePoint="TOP" x="-1" y="-56"/>
 								</Anchors>
 								<Layers>
 									<Layer level="OVERLAY">
@@ -2099,7 +2063,7 @@
 										</Texture>
 										<FontString inherits="NarciAchievementDate" parentKey="pageText" text="" justifyH="CENTER" justifyV="TOP">
 											<Anchors>
-												<Anchor point="TOP" relativeKey="$parent" relativePoint="BOTTOM" x="0" y="-10"/>
+												<Anchor point="BOTTOM" relativeKey="$parent" relativePoint="BOTTOM" x="0" y="4"/>
 											</Anchors>
 											<Color r="0.4" g="0.33" b="0.29"/>
 										</FontString>
@@ -2107,7 +2071,7 @@
 											<Size x="148" y="18"/>
 											<Color r="0.64" g="0.58" b="0.55"/>
 											<Anchors>
-												<Anchor point="TOPLEFT" relativeKey="$parent.$parent.colorBackground" relativePoint="TOPLEFT" x="8" y="-6"/>
+												<Anchor point="TOPLEFT" relativeKey="$parent.$parent" relativePoint="TOPLEFT" x="8" y="-10"/>
 											</Anchors>
 										</FontString>
 									</Layer>
@@ -2115,12 +2079,12 @@
 								<Frames>
 									<Button inherits="NarciAchievementEditorConfirmCancelButtonTemplate" parentKey="ConfirmButton">
 										<Anchors>
-											<Anchor point="BOTTOMLEFT" relativeKey="$parent" relativePoint="TOPLEFT" x="4" y="6"/>
+											<Anchor point="BOTTOMLEFT" relativeKey="$parent" relativePoint="TOPLEFT" x="4" y="10"/>
 										</Anchors>
 									</Button>
 									<Button inherits="NarciAchievementEditorConfirmCancelButtonTemplate" parentKey="CancelButton">
 										<Anchors>
-											<Anchor point="LEFT" relativeKey="$parent.ConfirmButton" relativePoint="RIGHT" x="4" y="0"/>
+											<Anchor point="LEFT" relativeKey="$parent.ConfirmButton" relativePoint="RIGHT" x="2" y="0"/>
 										</Anchors>
 									</Button>
 								</Frames>
@@ -2129,37 +2093,37 @@
 					</Button>
 					<Frame parentKey="HeaderEditor" inherits="NarciAchievementEditorFrameWithEditBoxTemplate">
 						<Anchors>
-							<Anchor point="TOP" relativeKey="$parent.IconPicker" relativePoint="BOTTOM" x="0" y="12"/>
+							<Anchor point="TOP" relativeKey="$parent.IconPicker" relativePoint="BOTTOM" x="0" y="-10.0"/>
 						</Anchors>
 					</Frame>
 					<Frame parentKey="DescriptionEditor" inherits="NarciAchievementEditorFrameWithEditBoxTemplate">
 						<Anchors>
-							<Anchor point="TOP" relativeKey="$parent.HeaderEditor" relativePoint="BOTTOM" x="0" y="12"/>
+							<Anchor point="TOP" relativeKey="$parent.HeaderEditor" relativePoint="BOTTOM" x="0" y="-10.0"/>
 						</Anchors>
 					</Frame>
 
 					<Frame parentKey="RewardEditor" inherits="NarciAchievementEditorFrameWithEditBoxTemplate">
 						<Anchors>
-							<Anchor point="TOP" relativeKey="$parent.DescriptionEditor" relativePoint="BOTTOM" x="0" y="12"/>
+							<Anchor point="TOP" relativeKey="$parent.DescriptionEditor" relativePoint="BOTTOM" x="0" y="-10.0"/>
 						</Anchors>
 					</Frame>
 
 					<Frame parentKey="PointsEditor" inherits="NarciAchievementEditorFrameWithEditBoxTemplate">
 						<Anchors>
-							<Anchor point="TOP" relativeKey="$parent.RewardEditor" relativePoint="BOTTOM" x="0" y="12"/>
+							<Anchor point="TOP" relativeKey="$parent.RewardEditor" relativePoint="BOTTOM" x="0" y="-10.0"/>
 						</Anchors>
 					</Frame>
 
 					<Frame parentKey="DateEditor" inherits="NarciAchievementEditorFrameWithEditBoxTemplate">
 						<Anchors>
-							<Anchor point="TOP" relativeKey="$parent.PointsEditor" relativePoint="BOTTOM" x="0" y="12"/>
+							<Anchor point="TOP" relativeKey="$parent.PointsEditor" relativePoint="BOTTOM" x="0" y="-10.0"/>
 						</Anchors>
 					</Frame>
 
 					<Button parentKey="RemoveButton" inherits="NarciAchievementEditorSaveButtonTemplate">
-						<Size x="232" y="52"/>
+						<Size x="208" y="28"/>
 						<Anchors>
-							<Anchor point="TOP" relativeKey="$parent.DateEditor" relativePoint="BOTTOM" x="0" y="12"/>
+							<Anchor point="TOP" relativeKey="$parent.DateEditor" relativePoint="BOTTOM" x="0" y="-10.0"/>
 						</Anchors>
 						<Layers>
 							<Layer level="BACKGROUND" textureSubLevel="2">
@@ -2838,7 +2802,6 @@
 					</Layer>
 				</Layers>
 				<Frames>
-					<Frame inherits="NarciFrameDispersiveShadowTemplate" frameLevel="1"/>
 					<Frame inherits="NarciFrameDispersiveShadowTemplate" frameLevel="1"/>
 
 					<EditBox parentKey="SearchBox" letters="40" hidden="false" mixin="NarciAchievementSearchBoxMixin" autoFocus="false">

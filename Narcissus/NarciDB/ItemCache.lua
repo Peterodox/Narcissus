@@ -44,6 +44,7 @@ end
 
 
 ---- Debug Test Find Quest Item And Its Quest
+--[[
 function NarciDebug_GetQuestTitles()
     if not NarcissusTestDB then
         NarcissusTestDB = {};
@@ -184,3 +185,4 @@ function NarciDebug_FindSameNames()
         end
     end
 end
+--]]

@@ -169,7 +169,7 @@ function DataProvider:CacheBagItem(bag, slot)
                             ItemIDXTypeID[itemID] = typeID;
                         else
                             local colorHex = GetColorString(text);
-                            if colorHex and (not find(text, "<")) then  --<Made by XXX
+                            if colorHex and (not find(text, "[</]")) then  --<Made by XXX
                                 text = RemoveColorString(text);
                                 if text and not IGNORED_SUBTEXTS[text] then
                                     if not SubTextXTypeID[text] then

@@ -340,13 +340,13 @@
     </Frame>
 
     <Button name="Narci_TitleManager_Switch" parent="Narci_PlayerInfoFrame" Alpha="0" mixin="NarciTitleManagerSwitchMixin">
-        <Size x="200" y="20"/>
+        <Size x="200" y="16"/>
         <Anchors>
-            <Anchor point="TOPLEFT" relativeKey="$parent.Miscellaneous" relativePoint="TOPLEFT" x="-8" y="8"/>
-            <Anchor point="BOTTOMRIGHT" relativeKey="$parent.Miscellaneous" relativePoint="BOTTOMRIGHT" x="8" y="-8"/>
+            <Anchor point="LEFT" relativeKey="$parent.Miscellaneous" relativePoint="LEFT" x="-8" y="0"/>
+            <Anchor point="RIGHT" relativeKey="$parent.Miscellaneous" relativePoint="RIGHT" x="8" y="0"/>
         </Anchors>
         <HitRectInsets>
-            <AbsInset left="-10" right="-10" top="4" bottom="0"/>
+            <AbsInset left="-10" right="-10" top="0" bottom="0"/>
         </HitRectInsets>
         <Layers>
             <Layer level="OVERLAY">

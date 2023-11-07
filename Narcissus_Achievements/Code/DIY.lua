@@ -6,6 +6,8 @@ local FloatingCard = addon.FloatingCard;
 local DIYContainer, EditorContainer, DIYCards, NewEntryButton;
 local SelectedCard;
 
+local EDIT_FRAME_HEADER_HEIGHT = 34;
+
 --Functions
 local ReskinButton = addon.ReskinButton;
 local IsDarkTheme = addon.IsDarkTheme;
@@ -256,9 +258,9 @@ local function ReAnchorEditor(card)
     Editor.DateArea:SetPoint("RIGHT", card.date, "RIGHT", 2, 0);
 
     Editor.SaveButton:ClearAllPoints();
-    Editor.SaveButton:SetPoint("TOPRIGHT", card, "BOTTOM", 0, 4);
+    Editor.SaveButton:SetPoint("TOPRIGHT", card, "BOTTOM", -8, -4);
     Editor.CancelButton:ClearAllPoints();
-    Editor.CancelButton:SetPoint("TOPLEFT", card, "BOTTOM", 0, 4);
+    Editor.CancelButton:SetPoint("TOPLEFT", card, "BOTTOM", 8, -4);
 
     Editor:SetFrameLevel(10);
     Editor:Show();
@@ -687,8 +689,10 @@ local function CreateColorPicker()
     local ColorPicker = EditorContainer.ColorPicker;
     ColorPicker:ClearAllPoints();
     ColorPicker:SetParent(EditorContainer.ScrollChild);
-    ColorPicker:SetPoint("TOP", EditorContainer.ScrollChild, "TOP", 0, -12);
+    ColorPicker:SetPoint("TOP", EditorContainer.ScrollChild, "TOP", 0, -24);
     ColorPicker.label:SetText(L["Color"]);
+    ColorPicker.label:ClearAllPoints();
+    ColorPicker.label:SetPoint("LEFT", ColorPicker, "LEFT", 10, 0);
     ColorPicker:SetParent(EditorContainer.ScrollChild);
 
     local buttons = {};
@@ -744,27 +748,22 @@ local function CreateIconEditor()
     local button;
     local row = 5;
     local col = 5;
-    local gap = 4;
+    local gap = 2;
+    local iconSize = 36;
+    local padding = 10;
+
+    local collapsedHeight = iconSize + 2*padding;
 
     local CurrentIcon = CreateFrame("Frame", nil, IconPicker ,"NarciAchievementIconButtonTemplate");
-    local offsetX = (36 + gap)*(col - 1)/2;
-    CurrentIcon:SetPoint("TOP", IconPicker, "TOP", offsetX, -18);
+    local offsetX = (iconSize + gap)*(col - 1)/2;
+    CurrentIcon:SetPoint("TOPRIGHT", IconPicker, "TOPRIGHT", -padding, -padding);
     CurrentIcon.icon:SetTexture(134400);
     IconPicker.CurrentIcon = CurrentIcon;
 
-    IconPicker.onStartFunc = function(self)
-        self.IconContainer:Show();
-        self:SetHeight(294);
-        self.label:Hide();
-        CurrentIcon:ClearAllPoints();
-        CurrentIcon:SetPoint("TOP", IconPicker, "TOP", offsetX, -18);
-        self.iconName:Hide();
-    end
-    
     IconPicker.onQuitFunc = function(self)
         self:StopAnimating();
         self.IconContainer:Hide();
-        self:SetHeight(73);
+        self:SetHeight(collapsedHeight);
         self.label:Show();
         self.iconName:Show();
         local name = GetTextureName(CurrentIcon.icon)
@@ -824,10 +823,18 @@ local function CreateIconEditor()
         end
     end
 
-    local size = 36;
-    local height = (size + gap) * col - gap;    --196
+    local pageTextHeight = 8;
+    local iconListHeight = (iconSize + gap) * row - gap + 2*padding + pageTextHeight;
+    local expandedHeight = collapsedHeight + iconListHeight;
 
-    IconContainer:SetHeight(height);
+    IconPicker.onStartFunc = function(self)
+        self.IconContainer:Show();
+        self:SetHeight(expandedHeight);
+        self.label:Hide();
+        self.iconName:Hide();
+    end
+
+    IconContainer:SetHeight(iconListHeight);
     --IconPicker:SetHeight(98 + height);
 
 
@@ -951,7 +958,7 @@ local function CreateTextEditor()
         local height = self:GetHeight();
         if height ~= self.oldHeight then
             self.oldHeight = height;
-            HeaderEditor:SetHeight(62 + height);
+            HeaderEditor:SetHeight(EDIT_FRAME_HEADER_HEIGHT + height);
             UpdateEditorScrollRange();
         end
     end);
@@ -987,13 +994,12 @@ local function CreateTextEditor()
         local height = self:GetHeight();
         if height ~= self.oldHeight then
             self.oldHeight = height;
-            DescriptionEditor:SetHeight(62 + height);
+            DescriptionEditor:SetHeight(EDIT_FRAME_HEADER_HEIGHT + height);
         end
     end);
     
     --Points
     local PointsEditor = EditorContainer.PointsEditor;
-    PointsEditor:SetHeight(74);
     PointsEditor:SetParent(EditorContainer.ScrollChild);
     PointsEditor.label:SetText(L["Points"]);
     local EditBox = PointsEditor.EditBox;
@@ -1044,7 +1050,7 @@ local function CreateTextEditor()
         local height = self:GetHeight();
         if height ~= self.oldHeight then
             self.oldHeight = height;
-            RewardEditor:SetHeight(62 + height);
+            RewardEditor:SetHeight(EDIT_FRAME_HEADER_HEIGHT + height);
             UpdateEditorScrollRange();
         end
     end);
@@ -1082,7 +1088,7 @@ local function CreateTextEditor()
     end
 
     local RemoveButton = EditorContainer.RemoveButton;
-    RemoveButton:SetBackdropBorderColor(0.5, 0.2, 0.2, 1);
+    NarciAPI.NineSliceUtil.SetUpOverlay(RemoveButton, "blizzardTooltipBorder", 0, 0.5, 0.2, 0.2);
     RemoveButton:SetParent(EditorContainer.ScrollChild);
     RemoveButton.label:SetText(L["Remove"]);
     --RemoveButton.label:SetTextColor();
@@ -1150,7 +1156,7 @@ local function CreateSaveButtons()
     DIYContainer.Editor:SetParent(DIYContainer.ScrollChild);
 
     local SaveButton = DIYContainer.Editor.SaveButton;
-    SaveButton:SetBackdropBorderColor(0.37, 0.74, 0.42);
+    NarciAPI.NineSliceUtil.SetUpOverlay(SaveButton, "blizzardTooltipBorder", 0, 0.37, 0.74, 0.42);
     SaveButton.label:SetText(L["Save"]);
     SaveButton.label:SetTextColor(0.64, 0.83, 0.61);    --0.37, 0.74, 0.42
 
@@ -1165,7 +1171,7 @@ local function CreateSaveButtons()
 
     local CancelButton = DIYContainer.Editor.CancelButton;
     CancelButton.label:SetText(L["Cancel"]);
-    CancelButton:SetBackdropBorderColor(0.5, 0.5, 0.5);
+    NarciAPI.NineSliceUtil.SetUpOverlay(CancelButton, "blizzardTooltipBorder", 0, 0.5, 0.5, 0.5);
     CancelButton:SetScript("OnClick", function()
         needConfirmation = false;
         if SelectedCard then

@@ -9,7 +9,6 @@ local UIFrameFadeIn = UIFrameFadeIn;
 local UIFrameFadeOut = UIFrameFadeOut;
 local FadeFrame = NarciFadeUI.Fade;
 local PlaySound = PlaySound;
-local _, _, _, tocversion = GetBuildInfo();
 
 local find = string.find;
 local match = string.match;
@@ -32,16 +31,7 @@ local NarciAPI = NarciAPI;
 
 local SecureContainer = CreateFrame("Frame", "NarciSecureFrameContainer");
 SecureContainer:Hide();
-------------------------
---Redirect API for 9.0--
-------------------------
-tocversion = tonumber(tocversion);
 
-ExpansionTransitionBackdropTemplateMixin = {};
-
-if BackdropTemplateMixin then
-    ExpansionTransitionBackdropTemplateMixin = CreateFromMixins(BackdropTemplateMixin);
-end
 
 --GetSlotVisualID
 local IGNORED_MOG_SLOT = {
@@ -1323,11 +1313,7 @@ function NarciAPI_RunDelayedFunction(frame, delay, func)
 end
 
 -----Alert Frame-----
-if BackdropTemplateMixin then
-    NarciAlertFrameMixin = CreateFromMixins(BackdropTemplateMixin);
-else
-    NarciAlertFrameMixin = {};
-end
+NarciAlertFrameMixin = {};
 
 function NarciAlertFrameMixin:AddShakeAnimation(frame)
     if frame.animError then return; end;
@@ -1373,9 +1359,9 @@ function NarciAlertFrameMixin:SetAnchor(frame, offsetY, AddErrorAnimation)
 	self:Hide();
     self:ClearAllPoints();
     self:SetScale(Narci_Character:GetEffectiveScale())
-    local y = offsetY or -12;
-	self:SetPoint("BOTTOM", frame, "TOP", 0, y);
-    self:SetFrameLevel(50)
+    offsetY = offsetY or 0
+	self:SetPoint("BOTTOM", frame, "TOP", 0, offsetY);
+    self:SetFrameLevel(50);
     self.anchor = frame;
 
     if AddErrorAnimation then
@@ -1385,7 +1371,7 @@ end
 
 function NarciAlertFrameMixin:AddMessage(msg, UseErrorAnimation)
     self.Text:SetText(msg);
-    self:SetHeight(self.Background:GetHeight());
+    self:UpdateFrameSize();
     FadeFrame(self, 0.2, 1);
     local anchorFrame = self.anchor;
     if anchorFrame then
@@ -1396,6 +1382,11 @@ function NarciAlertFrameMixin:AddMessage(msg, UseErrorAnimation)
     end
 end
 
+function NarciAlertFrameMixin:UpdateFrameSize()
+    local textWidth = self.Text:GetWrappedWidth();
+    local textHeight = self.Text:GetHeight();
+    self:SetSize(textWidth + 24, textHeight + 24);
+end
 
 
 ------------------------
@@ -2376,7 +2367,7 @@ function NarciAPI_CreateFadingFrame(parentObject)
             parentObject:SetAlpha(alpha);
         end
     end);
-    
+
     function parentObject:FadeOut(duration, delay)
         delay = delay or 0;
         animFade.t = -delay;
@@ -2397,7 +2388,7 @@ function NarciAPI_CreateFadingFrame(parentObject)
             animFade:Show();
         end
     end
-    
+
     function parentObject:FadeIn(duration, delay)
         delay = delay or 0;
         animFade.t = -delay;
@@ -2419,81 +2410,6 @@ function NarciAPI_CreateFadingFrame(parentObject)
     end
 
     return animFade
-end
-
-
-
-----------------------------
--------Frame Template-------
-----------------------------
-NarciFrameMixin = CreateFromMixins(ExpansionTransitionBackdropTemplateMixin);
-
-function NarciFrameMixin:ShowFrame(state)
-    self:SetShown(state);
-    if state then
-        self:SetAlpha(1);
-    else
-        self:SetAlpha(0);
-    end
-end
-
-function NarciFrameMixin:HideFrame()
-    self:ShowFrame(false);
-end
-
-function NarciFrameMixin:ToggleFrame()
-    if self:IsShown() then
-        self:ShowFrame(false);
-    else
-        self:ShowFrame(true);
-    end
-end
-
-function NarciFrameMixin:SetHeaderText(text, r, g, b)
-    self.Header:SetText(text);
-    self.Header:SetTextColor(r or 0.4, g or 0.4, b or 0.4);
-end
-
-function NarciFrameMixin:SetSizeAndAnchor(x, y, point, relativeTo, relativePoint, offsetX, offsetY)
-    if x then x = max(x, 40) end;
-    if y then y = max(y, 40) end;
-
-    if x then
-        if y then
-            self:SetSize(x, y);
-        else
-            self:SetWidth(x);
-        end
-    else
-        self:SetHeight(y);
-    end
-
-    self:ClearAllPoints();
-    self:SetPoint(point, relativeTo, relativePoint, offsetX, offsetY);
-end
-
-function NarciFrameMixin:SetRelativeFrameLevel(offset)
-    local parent = self:GetParent();
-    if parent then
-        local parentLevel = parent:GetFrameLevel() or 0;
-        self:SetFrameStrata(parent:GetFrameStrata());
-        self:SetFrameLevel( max(parentLevel + offset, 0) );
-    end
-end
-
-function NarciFrameMixin:HideWhenParentIsHidden(state)
-    if state then
-        self:SetScript("OnHide", function(self)
-            self:HideFrame();
-        end);
-
-        local parent = self:GetParent();
-        if parent and not parent:IsVisible() then
-            self:HideFrame();
-        end
-    else
-        self:SetScript("OnHide", nil);
-    end
 end
 
 
@@ -3201,42 +3117,6 @@ end
 
 NarciAPI.IsPlayerAtMaxLevel = IsPlayerAtMaxLevel;
 
-
-local function SecureActionButtonPreClick()
-    local value = GetCVar("ActionButtonUseKeyDown");
-    SetCVar("ActionButtonUseKeyDown", 0);
-    After(0, function()
-        SetCVar("ActionButtonUseKeyDown", value);
-    end);
-end
-
-NarciAPI.SecureActionButtonPreClick = SecureActionButtonPreClick;
-
-
-local function GetTimeDifference_Recursion(lhs, rhs, totalDayOffset)
-    --Requires Calendar Time (table)
-    if not totalDayOffset then
-        totalDayOffset = 0;
-    end
-
-    local diffYear = rhs.year - lhs.year;
-    local diffMonth = rhs.month - lhs.month;
-    local diffDay = rhs.monthDay - lhs.monthDay;
-
-    local dayOffset = floor(diffYear * 365 + diffMonth * 30.4 + diffDay * 1 + 0.5);
-
-    if dayOffset ~= 0 then
-        totalDayOffset = totalDayOffset + dayOffset;
-        local ct = C_DateAndTime.AdjustTimeByDays(lhs, dayOffset);
-        GetTimeDifference_Recursion(ct, rhs, totalDayOffset);
-    end
-
-    local minuteOffset = (totalDayOffset * 24 + rhs.hour - lhs.hour) * 60 + (rhs.minute - lhs.minute);
-
-    return totalDayOffset, minuteOffset
-end
-
-NarciAPI.GetCalendarTimeDifferenceInDays = GetTimeDifference_Recursion;
 
 --[[
     /script DEFAULT_CHAT_FRAME:AddMessage("\124Hitem:narcissus:0:\124h[Test Link]\124h\124r");

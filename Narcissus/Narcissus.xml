@@ -679,7 +679,7 @@
 		</Layers>
 	</Button>
 
-	<Button name="NarciSlotButtonTemplate" registerForClicks="LeftButtonUp, RightButtonUp" virtual="true" frameLevel="6" inherits="SecureActionButtonTemplate" mixin="NarciItemButtonSharedMixin"> <!--inherits="SecureActionButtonTemplate"  inherits="SecureHandlerClickTemplate" -->
+	<Button name="NarciSlotButtonTemplate" registerForClicks="LeftButtonUp, RightButtonDown, RightButtonUp" virtual="true" frameLevel="6" inherits="SecureActionButtonTemplate" mixin="NarciItemButtonSharedMixin"> <!--inherits="SecureActionButtonTemplate"  inherits="SecureHandlerClickTemplate" -->
 		<Size>
 			<AbsDimension x="70" y="72"/>
 		</Size>

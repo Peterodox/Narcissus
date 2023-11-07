@@ -185,6 +185,7 @@
 			<OnEditFocusGained method="OnEditFocusGained"/>
 			<OnEditFocusLost method="OnEditFocusLost"/>
 			<OnEscapePressed method="OnEscapePressed"/>
+			<OnTextChanged method="OnTextChanged"/>
 		</Scripts>
 	</EditBox>
 
@@ -1050,7 +1051,7 @@
 		</Scripts>
 	</Button>
 
-	<Frame name="NarciDevToolPortraitFrame" mixin="NarciDevToolPortraitMixin" hidden="true">
+	<!--Frame name="NarciDevToolPortraitFrame" mixin="NarciDevToolPortraitMixin" hidden="false">
 		<Size x="56" y="56"/>
 		<Anchors>
 			<Anchor point="CENTER" relativeTo="UIParent" relativePoint="CENTER" x="0" y="0"/>
@@ -1105,15 +1106,6 @@
 					<Anchor point="TOPLEFT" relativeKey="$parent.Model" relativePoint="TOPRIGHT" x="10" y="0"/>
 				</Anchors>
 			</Button>
-			<!--Button inherits="NarciDevToolSquareButtonTemplate" parentKey="CameraPitchButton">
-				<KeyValues>
-					<KeyValue key="delta" value="0.087266" type="number"/>
-					<KeyValue key="labelText" value="Pitch" type="string"/>
-				</KeyValues>
-				<Anchors>
-					<Anchor point="TOP" relativeKey="$parent.DistanceButton" relativePoint="BOTTOM" x="0" y="-2"/>
-				</Anchors>
-			</Button-->
 
 			<Button inherits="NarciDevToolSquareButtonTemplate" parentKey="ModelXButton">
 				<KeyValues>
@@ -1184,5 +1176,5 @@
 			<OnLoad method="OnLoad"/>
 			<OnShow method="OnShow"/>
 		</Scripts>
-	</Frame>
+	</Frame-->
 </Ui>

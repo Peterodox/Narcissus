@@ -120,12 +120,15 @@ end
 function NarciWorldMapDataProviderMixin:RefreshAllData(fromOnShow)
 	self:RemoveAllData();
 	local mapID = self:GetMap():GetMapID();
-    WorldMapWidget:Refresh(mapID);
 
-    if ENABLE_MAP_PIN and DataProvider:ShouldShowWorldMapWidget(mapID) then
-        if mapID == 12 then
+    if DataProvider:ShouldShowWorldMapWidget(mapID) then
+        DataProvider:SetCurrentContinent(mapID);
+        WorldMapWidget:Refresh(mapID);
+        if ENABLE_MAP_PIN then
             NarciWorldMapDataProviderMixin:ShowAllPins();
         end
+    else
+        WorldMapWidget:Hide();
     end
 end
 
@@ -165,7 +168,7 @@ end
 
 function NarciWorldMapDataProviderMixin:ShowAllPins()
     self:RemoveAllData();
-    for poiID in pairs(TourPOI) do
+    for i, poiID in ipairs( DataProvider:GetPOIsForCurrentContinent() ) do
         self:ShowMapPinByPOIID(poiID);
     end
 end
@@ -433,7 +436,6 @@ function NarciWorldMapDragonridingRaceUIMixin:OnLoad()
     local blurredTexture = self.BackgroundFrame.BlurredMap:CreateTexture(nil, "BACKGROUND", nil, -1);
     self.blurredTexture = blurredTexture;
     blurredTexture:Hide();
-    blurredTexture:SetTexture("Interface\\AddOns\\Narcissus\\Art\\Modules\\DragonridingRaces\\BlurredMap-Kalimdor", nil, nil, "TRILINEAR"); --Gaussian 12.0
 
     local relativeTo = WorldMapFrame.ScrollContainer.Child;
     blurredTexture:SetPoint("TOPLEFT", relativeTo, "TOPLEFT", 0, 0);
@@ -496,11 +498,13 @@ end
 function NarciWorldMapDragonridingRaceUIMixin:ShowScoreboard()
     self.ToggleButton:Hide();
     self:Refresh();
+    self:EnableMouse(true);
 end
 
 function NarciWorldMapDragonridingRaceUIMixin:HideScoreboard()
     self.ToggleButton:Show();
     self:Refresh();
+    self:EnableMouse(false);
 end
 
 function NarciWorldMapDragonridingRaceUIMixin:Refresh(mapID)
@@ -508,7 +512,7 @@ function NarciWorldMapDragonridingRaceUIMixin:Refresh(mapID)
         mapID = WorldMapFrame:GetMapID();
     end
 
-    if mapID and mapID == 12 then
+    if mapID then
         local poiList = DataProvider:GetPOIsForContinent(mapID);
         if poiList and #poiList > 0 then
             if self.ToggleButton:IsShown() then
@@ -632,6 +636,23 @@ function NarciWorldMapDragonridingRaceUIMixin:OnMouseDown(button)
     if button == "RightButton" then
         self:HideScoreboard();
     end
+end
+
+function NarciWorldMapDragonridingRaceUIMixin:OnShow()
+    --one-time
+    local trpButton = TRP3_WorldMapButton;
+    if trpButton then
+        local height = trpButton:GetHeight();
+        self.ToggleButton:ClearAllPoints();
+        self.ToggleButton:SetPoint("BOTTOMLEFT", self:GetParent(), "BOTTOMLEFT", 8, height + 24);
+        self.ToggleButton.Shade:Hide();
+
+        self:SetFrameStrata("FULLSCREEN_DIALOG");
+        self:SetFixedFrameStrata(true);
+        self:SetFrameLevel(20);
+    end
+
+    self:SetScript("OnShow", nil);
 end
 
 
@@ -784,20 +805,21 @@ do
         C_Calendar.OpenCalendar();  --Must be used after game loading process
 
         C_Timer.After(2, function()
-            local activeTournament, remainingSeconds = DataProvider:GetActiveTournamentInfo();
-            local enable = (activeTournament ~= nil);
+            local tourLocalizedName, remainingSeconds, tourLabel = DataProvider:GetActiveTournamentInfo();
+            local enable = (tourLocalizedName ~= nil);
             if enable then
                 local overlay = CreateFrame("Frame", nil, WorldMapFrame, "NarciWorldMapDragonridingRaceUITemplate");
                 overlay:SetPoint("BOTTOMLEFT", WorldMapFrame:GetCanvasContainer(), "BOTTOMLEFT", 0, 1);
 
                 local durationDisplay = overlay.ListFrame.TournamentInfo.DurationDisplay;
                 local icon = "|TInterface\\AddOns\\Narcissus\\Art\\Modules\\DragonridingRaces\\ClockIcon:0:0:0:1:32:32:0:32:0:32:172:172:172|t";
-                durationDisplay.Label:SetText(icon.." "..activeTournament);
+                durationDisplay.Label:SetText(icon.." "..tourLocalizedName);
                 durationDisplay.Label:SetTextColor(0.67, 0.67, 0.67);
                 durationDisplay:SetHorizontalGap(4);
                 overlay:ShowTournamentInfo();
 
                 WorldMapFrame:AddDataProvider(NarciWorldMapDataProviderMixin);
+                WorldMapWidget.blurredTexture:SetTexture(string.format("Interface\\AddOns\\Narcissus\\Art\\Modules\\DragonridingRaces\\BlurredMap-%s", tourLabel), nil, nil, "TRILINEAR"); --Resize to 768x512 then Gaussian radius 3
             end
         end);
     end

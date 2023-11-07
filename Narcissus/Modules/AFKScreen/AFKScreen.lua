@@ -32,7 +32,8 @@ end
 
 local function ShowAFKScreen()
     if not Narci.isActive then
-        securecall("CloseAllWindows");
+        --securecall("CloseAllWindows");    --cause taint?
+        CloseWindows();
         Narci_MinimapButton:Click();
         Narci.isAFK = true;
     end

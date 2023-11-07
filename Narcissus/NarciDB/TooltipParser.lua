@@ -13,7 +13,9 @@ local GetInfoByInventoryItem = C_TooltipInfo.GetInventoryItem;
 
 --C_TooltipInfo.GetInventoryItem("player", 13, true)
 --TooltipDataLineType
-local TP_LINE_TYPE_SOCKET = 3;
+local LINE_TYPE_SOCKET = 3;
+local LINE_TYPE_TOY_EFFECT = Enum.TooltipDataLineType.ToyEffect;
+local LINE_TYPE_TOY_DESC = Enum.TooltipDataLineType.ToyDescription;
 
 local strtrim = strtrim;
 local strsub = string.sub;
@@ -32,12 +34,14 @@ local max = math.max;
 
 local _G = _G;
 local L = Narci.L;
+local NarciAPI = NarciAPI;
 local TEXT_LOCALE = GetLocale();
 
 local GetItemInfoInstant = GetItemInfoInstant;
 local GetItemGem = GetItemGem;
 local GetItemStats = GetItemStats;
 local GetInventoryItemLink = GetInventoryItemLink;
+local StripHyperlinks = StripHyperlinks;    --Added in 10.1.0
 
 local function IsArtifactRelic(item)
     --an alternative to IsArtifactRelicItem()
@@ -1072,7 +1076,7 @@ local function GetCompleteItemData(tooltipData, itemLink)
 
                     if not anyMatch then
                         --socket
-                        if lines[i].type and (lines[i].type == TP_LINE_TYPE_SOCKET) then   --type:GemSocket/
+                        if lines[i].type and (lines[i].type == LINE_TYPE_SOCKET) then   --type:GemSocket/
                             if not data then
                                 data = {};
                             end
@@ -1315,7 +1319,7 @@ local function IsItemSocketable(itemLink, socketID)
     local numLines = #lines;
 
     for i = 4, numLines do     --max 10
-        if lines[i] and lines[i].type and lines[i].type == TP_LINE_TYPE_SOCKET then
+        if lines[i] and lines[i].type and lines[i].type == LINE_TYPE_SOCKET then
             return lines[i].leftText, nil
         end
     end
@@ -1378,7 +1382,7 @@ local function GetItemSocketInfo(itemLink)
     gemOrderID = 0;
 
     for i = 4, numLines do     --max 10
-        if lines[i] and lines[i].type and lines[i].type == TP_LINE_TYPE_SOCKET then
+        if lines[i] and lines[i].type and lines[i].type == LINE_TYPE_SOCKET then
             gemOrderID = gemOrderID + 1;
             if not socektInfo then
                 socektInfo = {};
@@ -1817,4 +1821,36 @@ local function Debug_PrintItemBonus(fromID)
 end
 
 NarciAPI.DebugPrintItemBonus = Debug_PrintItemBonus;
---]]
+
+
+local function GetToyEffect(item)
+    local itemID;
+    if type(item) == "number" then
+        itemID = item;
+    else
+        itemID = GetItemInfoInstant(item);
+    end
+
+    local tooltipData = C_TooltipInfo.GetToyByItemID(itemID);
+    if not (tooltipData and tooltipData.lines) then return end;
+
+    local toyEffect, toyDescription;
+
+    for i, lineData in ipairs(tooltipData.lines) do
+        if lineData.leftText then
+            if lineData.type == LINE_TYPE_TOY_EFFECT then
+                toyEffect = StripHyperlinks(lineData.leftText);
+                toyEffect = lineData.leftColor:WrapTextInColorCode(toyEffect);
+            elseif lineData.type == LINE_TYPE_TOY_DESC then
+                toyDescription = StripHyperlinks(lineData.leftText);
+                toyDescription = lineData.leftColor:WrapTextInColorCode(toyDescription);
+            end
+
+            if toyEffect and toyDescription then break end;
+        end
+    end
+
+    return toyEffect, toyDescription
+end
+
+NarciAPI.GetToyEffect = GetToyEffect;

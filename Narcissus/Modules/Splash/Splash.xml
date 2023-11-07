@@ -1042,7 +1042,7 @@
                 </Scripts>
             </Frame>
 
-            <Frame inherits="NarciFrameWithShadowTemplate" parentKey="Backdrop">
+            <Frame parentKey="Backdrop">
                 <Anchors>
                     <Anchor point="TOPLEFT" relativePoint="TOPLEFT" x="-11.5" y="11.5"/>
                     <Anchor point="BOTTOMRIGHT" relativePoint="BOTTOMRIGHT" x="11.5" y="-11.5"/>

@@ -25,10 +25,10 @@ local AUTO_GRANTED_NODES = {
     [252] = {76072}, --Unholy
 
     [577] = {90942}, --Havoc
-    [581] = {90943}, --Vengeance
+    [581] = {90946}, --Vengeance (Changed in 10.2.0)
 
     [102] = {82201, 82202}, --Balance
-    [103] = {82199, 82223}, --Feral
+    [103] = {82199, 82222}, --Feral (Changed in 10.2.0)
     [104] = {82220, 82223}, --Guardian
     [105] = {82217, 82216}, --Restoration
 
@@ -45,10 +45,10 @@ local AUTO_GRANTED_NODES = {
     [64] = {62117},  --Frost
 
     [268] = {80689}, --Brewmaster
-    [270] = {80691}, --Mistweaver
+    [270] = {80691, 80690}, --Mistweaver (Changed in 10.2.0)
     [269] = {80690}, --Windwalker
 
-    [65] = {81597, 81599},  --Holy
+    [65] = {81597, 81599, 81600},  --Holy (Changed in 10.2.0)
     [66] = {81597, 81599},  --Protection
     [70] = {81510, 81600, 81601},  --Retribution (Changed in 10.0.7)
 
@@ -58,7 +58,7 @@ local AUTO_GRANTED_NODES = {
 
     [259] = {90740}, --Assassination
     [260] = {90684}, --Outlaw
-    [261] = {90685}, --Subtlety
+    [261] = {90697}, --Subtlety (Changed in 10.2.0)
 
     [262] = {81061, 81062}, --Elemental
     [263] = {81060, 81061}, --Enhancement

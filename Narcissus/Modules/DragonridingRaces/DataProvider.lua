@@ -7,6 +7,18 @@ local time = time;
 
 --Bronze Timekeeper vignetteID 5104
 
+local CalendarTexture = {
+    [5213737] = "Kalimdor",
+    [5213738] = "Kalimdor",
+    [5225883] = "Eastern Kingdoms",
+    [5225884] = "Eastern Kingdoms",
+};
+
+local TourLabelXContitentMapID = {
+    ["Kalimdor"] = 12,
+    ["Eastern Kingdoms"] = 13;
+};
+
 local TourPOI = {
     --auto-generated
 	[7494] = {--Fel Flyover
@@ -114,7 +126,6 @@ local TourPOI = {
 		["id"] = 7508,
 		["continent"] = 12,
 	},
-
 	[7509] = {--Un'Goro Crater Circuit
 		["mapID"] = 78,
 		["cy"] = 0.8385398387908936,
@@ -122,9 +133,113 @@ local TourPOI = {
 		["id"] = 7509,
 		["continent"] = 12,
 	},
+
+
+	[7571] = {--Gilneas Gambit
+		["mapID"] = 217,
+		["cy"] = 0.4402732253074646,
+		["cx"] = 0.4068848490715027,
+		["id"] = 7571,
+		["continent"] = 13,
+	},
+	[7572] = {--Loch Modan Loop
+		["mapID"] = 48,
+		["cy"] = 0.5863564014434814,
+		["cx"] = 0.5267385244369507,
+		["id"] = 7572,
+		["continent"] = 13,
+	},
+	[7573] = {--Searing Slalom
+		["mapID"] = 32,
+		["cy"] = 0.6595594882965088,
+		["cx"] = 0.4940609931945801,
+		["id"] = 7573,
+		["continent"] = 13,
+	},
+	[7574] = {--Twilight Terror
+		["mapID"] = 241,
+		["cy"] = 0.5918666124343872,
+		["cx"] = 0.5508695840835571,
+		["id"] = 7574,
+		["continent"] = 13,
+	},
+	[7575] = {--Deadwind Derby
+		["mapID"] = 42,
+		["cy"] = 0.8194032907485962,
+		["cx"] = 0.4948469400405884,
+		["id"] = 7575,
+		["continent"] = 13,
+	},
+	[7576] = {--Elwynn Forest Flash
+		["mapID"] = 37,
+		["cy"] = 0.7455446720123291,
+		["cx"] = 0.463355302810669,
+		["id"] = 7576,
+		["continent"] = 13,
+	},
+	[7577] = {--Gurubashi Gala
+		["mapID"] = 50,
+		["cy"] = 0.8441623449325562,
+		["cx"] = 0.4737812876701355,
+		["id"] = 7577,
+		["continent"] = 13,
+	},
+	[7578] = {--Ironforge Interceptor
+		["mapID"] = 27,
+		["cy"] = 0.5976994633674622,
+		["cx"] = 0.48268061876297,
+		["id"] = 7578,
+		["continent"] = 13,
+	},
+	[7579] = {--Blasted Lands Bolt
+		["mapID"] = 17,
+		["cy"] = 0.8249945640563965,
+		["cx"] = 0.5316610336303711,
+		["id"] = 7579,
+		["continent"] = 13,
+	},
+	[7580] = {--Plaguelands Plunge
+		["mapID"] = 23,
+		["cy"] = 0.3127650022506714,
+		["cx"] = 0.5365713238716125,
+		["id"] = 7580,
+		["continent"] = 13,
+	},
+	[7581] = {--Booty Bay Blast
+		["mapID"] = 210,
+		["cy"] = 0.9481046199798584,
+		["cx"] = 0.433427095413208,
+		["id"] = 7581,
+		["continent"] = 13,
+	},
+	[7582] = {--Fuselight Night Flight
+		["mapID"] = 15,
+		["cy"] = 0.654969334602356,
+		["cx"] = 0.5433018207550049,
+		["id"] = 7582,
+		["continent"] = 13,
+	},
+	[7583] = {--Krazzworks Klash
+		["mapID"] = 241,
+		["cy"] = 0.5271182060241699,
+		["cx"] = 0.6001608371734619,
+		["id"] = 7583,
+		["continent"] = 13,
+	},
+	[7584] = {--Redridge Rally
+		["mapID"] = 49,
+		["cy"] = 0.7410318851470947,
+		["cx"] = 0.5080758333206177,
+		["id"] = 7584,
+		["continent"] = 13,
+	},
 };
 
+
 local RecordData = {
+    --Record is Currency
+    --Currency Naming Rule: Dragon Racing - Personal Best Record - E Kingdoms 07 ← This number is the same as its achievement criteria order
+
     [7494] = {
         goldTime = {70, 63, 62},
         recordCurrency = {2312, 2342, 2372},
@@ -204,15 +319,87 @@ local RecordData = {
         goldTime = {100, 87, 91},
         recordCurrency = {2327, 2357, 2387},
     },
+
+    --E Kingdoms
+    [7571] = {--01
+        goldTime = {78, 74, 74},
+        recordCurrency = {2536, 2552, 2568},
+    },
+
+    [7572] = {--02
+        goldTime = {63, 61, 63},
+        recordCurrency = {2537, 2553, 2569},
+    },
+
+    [7573] = {--03
+        goldTime = {52, 46, 43},
+        recordCurrency = {2538, 2554, 2570},
+    },
+
+    [7574] = {--04
+        goldTime = {73, 68, 66},
+        recordCurrency = {2539, 2555, 2571},
+    },
+
+    [7575] = {--05
+        goldTime = {60, 59, 59},
+        recordCurrency = {2540, 2556, 2572},
+    },
+
+    [7576] = {--06
+        goldTime = {73, 66, 63},
+        recordCurrency = {2541, 2557, 2573},
+    },
+
+    [7577] = {--07
+        goldTime = {56, 49, 50},
+        recordCurrency = {2542, 2558, 2574},
+    },
+
+    [7578] = {--08
+        goldTime = {70, 64, 60},
+        recordCurrency = {2543, 2559, 2575},
+    },
+
+    [7579] = {--09
+        goldTime = {69, 62, 64},
+        recordCurrency = {2544, 2560, 2576},
+    },
+
+    [7580] = {--10
+        goldTime = {63, 53, 58},
+        recordCurrency = {2545, 2561, 2577},
+    },
+
+    [7581] = {--11
+        goldTime = {63, 57, 56},
+        recordCurrency = {2546, 2562, 2578},
+    },
+
+    [7582] = {--12
+        goldTime = {64, 58, 58},
+        recordCurrency = {2547, 2563, 2579},
+    },
+
+    [7583] = {--13
+        goldTime = {71, 64, 62},
+        recordCurrency = {2548, 2564, 2580},
+    },
+
+    [7584] = {--14
+        goldTime = {57, 52, 52},
+        recordCurrency = {2549, 2565, 2581},
+    },
 };
 
 DataProvider.TourPOI = TourPOI;
 
 local WidgetVisibleMaps = {};
-do
-    for poiID, info in pairs(TourPOI) do
-        WidgetVisibleMaps[ info.mapID ] = true;
-        WidgetVisibleMaps[ info.continent ] = true;
+
+function DataProvider:InitMapPool(tourLabel)
+    local uiMapID = tourLabel and TourLabelXContitentMapID[tourLabel]
+    if uiMapID then
+        WidgetVisibleMaps[uiMapID] = true;
     end
 end
 
@@ -243,6 +430,14 @@ function DataProvider:GetPOIWaypoint(poiID)
     if poiInfo then
         point.uiMapID = mapID;
         point.position = poiInfo.position:Clone();
+    else
+        --The API seems to return nil when tournament is not active
+        --Use our own data as a fallback 
+        point.uiMapID = TourPOI[poiID]["continent"];
+        point.position = {
+            x = TourPOI[poiID]["cx"],
+            y = TourPOI[poiID]["cy"],
+        }
     end
 
     return point
@@ -280,6 +475,10 @@ function DataProvider:GetMapName(uiMapID)
 end
 
 function DataProvider:GetPOIsForContinent(continentMapID)
+    if not continentMapID then
+        return {}
+    end
+
     if not self.continentPOIs then
         self.continentPOIs = {};
     end
@@ -297,6 +496,15 @@ function DataProvider:GetPOIsForContinent(continentMapID)
     end
 
     return self.continentPOIs[continentMapID]
+end
+
+
+function DataProvider:SetCurrentContinent(continentMapID)
+    self.currentContinent = continentMapID;
+end
+
+function DataProvider:GetPOIsForCurrentContinent()
+    return self:GetPOIsForContinent( self.currentContinent )
 end
 
 function DataProvider:UpdateRecordTime(poiID)
@@ -343,13 +551,15 @@ function DataProvider:GetAndCacheRecord(poiID, courseTypeID)
 end
 
 function DataProvider:IsCourseGold(poiID)
+    if not RecordData[poiID] then
+        return false
+    end
+
     if not RecordData[poiID].recordTime then
         self:UpdateRecordTime(poiID);
     end
 
-    if RecordData[poiID] then
-        return RecordData[poiID].isGold
-    end
+    return RecordData[poiID].isGold
 end
 
 function DataProvider:GetNumBadges()
@@ -399,10 +609,6 @@ function DataProvider:GetClosestTourPOIID()
     end
 end
 
-local CalendarTexture = {
-    [5213737] = "Kalimdor",
-    [5213738] = "Kalimdor",
-};
 
 function DataProvider:GetActiveTournamentInfo()
     local currentCalendarTime = C_DateAndTime.GetCurrentCalendarTime();
@@ -415,10 +621,15 @@ function DataProvider:GetActiveTournamentInfo()
 
     local eventEndTime;
 
+    --debug
+    --monthOffset = -1;
+    --presentDay = 27;
+
     for i = 1, C_Calendar.GetNumDayEvents(monthOffset, presentDay) do   --Need to request data first with C_Calendar.OpenCalendar()
         holidayInfo = C_Calendar.GetHolidayInfo(monthOffset, presentDay, i);
         if holidayInfo and holidayInfo.texture and CalendarTexture[holidayInfo.texture] then
             tourLabel = CalendarTexture[holidayInfo.texture];
+            DataProvider:InitMapPool(tourLabel);
             tourName = holidayInfo.name;
             if holidayInfo.startTime and holidayInfo.endTime then
                 --durationText = FormatShortDate(holidayInfo.endTime.monthDay, holidayInfo.endTime.month) .." "..  GameTime_GetFormattedTime(holidayInfo.endTime.hour, holidayInfo.endTime.minute, true);
@@ -429,13 +640,12 @@ function DataProvider:GetActiveTournamentInfo()
     end
 
     if eventEndTime then
-        local dayOffset, minuteOffset = NarciAPI.GetCalendarTimeDifferenceInDays(currentCalendarTime, eventEndTime);
+        remainingSeconds = NarciAPI.GetCalendarTimeDifference(currentCalendarTime, eventEndTime);
         local presentTime = time();
-        remainingSeconds = minuteOffset * 60;
         self.endTime = presentTime + remainingSeconds;
     end
 
-    return tourName, remainingSeconds
+    return tourName, remainingSeconds, tourLabel
 end
 
 function DataProvider:GetTournamentRemainingSeconds()
@@ -446,6 +656,7 @@ function DataProvider:GetTournamentRemainingSeconds()
         return 0
     end
 end
+
 
 ---- Dev Tool ----
 local function ConvertMapPositionToContinentPosition(uiMapID, x, y, poiID)
@@ -508,6 +719,8 @@ local function GetPOIContinentPosition(poiID)
     if poiInfo then
         local x, y = poiInfo.position:GetXY();
         ConvertMapPositionToContinentPosition(mapID, x, y, poiID);
+    else
+        print(poiID, "NO POI")
     end
 end
 
@@ -536,3 +749,72 @@ local function ProcessAllPOI()
         end
     end);
 end
+
+
+
+--[[
+local RawAreaPOI = {
+    {7571, -776.93701171875, 1595, 217},
+    {7572, -4743.0498046875, -3287.9799804688, 48},
+    {7573, -6730.490234375, -1956.6600341797, 32},
+    {7574, -4892.6499023438, -4271.1098632812, 241},
+    {7575, -11070.200195312, -1988.6800537109, 42},
+    {7576, -9064.9599609375, -705.67102050781, 37},
+    {7577, -11742.400390625, -1130.4399414062, 50},
+    {7578, -5051.009765625, -1493.0100097656, 27},
+    {7579, -11222, -3488.5300292969, 17},
+    {7580, 2684.8701171875, -3688.580078125, 23},
+    {7581, -14564.400390625, 513.63800048828, 210},
+    {7582, -6605.8701171875, -3962.7900390625, 15},
+    {7583, -3134.75, -6279.2900390625, 241},
+    {7584, -8942.4404296875, -2527.6398925781, 49},
+}
+
+local POI_MAP_INFO = {};
+
+for i, v in ipairs(RawAreaPOI) do
+    local poiID = v[1];
+    POI_MAP_INFO[poiID] = {
+        x = v[2],
+        y = v[3],
+        mapID = v[4],
+    };
+end
+
+local function GetPOIContinentPosition_Offline(poiID)
+    local info = POI_MAP_INFO[poiID];
+    local continentID = 0;
+    local worldPosition = {
+        x = info.x,
+        y = info.y,
+    }
+    local uiMapID, mapPosition = C_Map.GetMapPosFromWorldPos(continentID, worldPosition, info.mapID);
+    ConvertMapPositionToContinentPosition(info.mapID, mapPosition.x, mapPosition.y, poiID);
+end
+
+function ProcessAllRawPOI()
+    local f = CreateFrame("Frame");
+    f.t = 0;
+
+    local pois = {};
+    local i = 0;
+
+    for k, v in pairs(POI_MAP_INFO) do
+        table.insert(pois, k);
+    end
+
+    f:SetScript("OnUpdate", function(self, elapsed)
+        self.t = self.t + elapsed;
+        if self.t >= 0.25 then
+            self.t = 0;
+
+            i = i + 1;
+            if pois[i] then
+                GetPOIContinentPosition_Offline( pois[i] );
+            else
+                self:SetScript("OnUpdate", nil);
+            end
+        end
+    end);
+end
+--]]

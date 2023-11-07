@@ -24,13 +24,11 @@ EventListener:RegisterEvent("MAIL_CLOSED");
 EventListener:RegisterEvent("AUCTION_HOUSE_SHOW");
 EventListener:RegisterEvent("AUCTION_HOUSE_CLOSED");
 EventListener.callbackList = {};
-local LIST_LENGTH = 0;
 
-EventListener:RegisterEvent("PLAYER_ENTERING_WORLD");   --one-time
 
 ---- Custom Event ----
 -- PRIMARY_BAG_OPEN / PRIMARY_BAG_CLOSED   --ContainerFrame1
-
+local LIST_LENGTH = 0;
 
 local function TriggerEvent(event, ...)
     for i = 1, LIST_LENGTH do
@@ -161,8 +159,10 @@ local function FindPrimarySearchBox()
     end
 
     if primaryBag then
-        primaryBag:HookScript("OnShow", PrimaryBag_OnShow);
-        primaryBag:HookScript("OnHide", PrimaryBag_OnHide);
+        --primaryBag:HookScript("OnShow", PrimaryBag_OnShow);
+        --primaryBag:HookScript("OnHide", PrimaryBag_OnHide);
+        EventRegistry:RegisterCallback("ContainerFrame.OpenAllBags", PrimaryBag_OnShow, {});
+        EventRegistry:RegisterCallback("ContainerFrame.CloseAllBags", PrimaryBag_OnHide, {});
     end
 
     --If no searchbox, create a pseudo one
@@ -188,8 +188,8 @@ end
 
 EventListener:SetScript("OnEvent", function(self, event, ...)
     if event == "PLAYER_ENTERING_WORLD" then
-        self:RegisterEvent("ADDON_LOADED");
-        FindPrimarySearchBox();
+        --self:RegisterEvent("ADDON_LOADED");
+        --FindPrimarySearchBox();
     elseif event == "ADDON_LOADED" then
         local name = ...
         if name == "Blizzard_ItemSocketingUI" then
@@ -203,9 +203,11 @@ EventListener:SetScript("OnEvent", function(self, event, ...)
     else
         TriggerEvent(event, ...);
     end
-
 end);
 
+--EventListener:RegisterEvent("PLAYER_ENTERING_WORLD");
+EventListener:RegisterEvent("ADDON_LOADED");
+C_Timer.After(0.5, FindPrimarySearchBox);     --10.2.0 We changed this addon to load-on-demand (loaded after PLAYER_ENTERING_WORLD)
 
 
 local function IsFrameOpened(frameName)

@@ -1,4 +1,5 @@
-local MAX_BAG_ID = 6;	--Reagent Bag 
+local MAX_BAG_ID = 6;					--Reagent Bag 
+local BACKPACK_EXTENTED_SIZE = 20;		--the starup backpack can be extended to 20 slots Authenticator
 
 local _, addon = ...
 
@@ -64,6 +65,7 @@ local function IterateItemButtons(mode, conditionFunc, arg1, arg2)
 	local frame, frameName;
 	local itemButton;
 	local isCombinedBagShown = CombinedBag and CombinedBag:IsShown();
+	local numSlots;
 
 	if mode == 1 then
 		local itemLocation = ItemLocation:CreateEmpty();
@@ -71,10 +73,16 @@ local function IterateItemButtons(mode, conditionFunc, arg1, arg2)
 			frameName = "ContainerFrame"..i;
 			frame = _G[frameName];
 			if isCombinedBagShown or (frame and frame:IsShown()) then
-				bag = i - 1	--frame:GetID();
+				if i == 1 then
+					numSlots = BACKPACK_EXTENTED_SIZE;
+				else
+					numSlots = GetContainerNumSlots(bag)
+				end
+
+				bag = i - 1;	--frame:GetID()
 				frameName = frameName.."Item";
 
-				for j = 1, GetContainerNumSlots(bag) do
+				for j = 1, numSlots do
 					itemButton = _G[frameName..j] or frame["Item"..j];
 					if itemButton then
 						slot = itemButton:GetID();
@@ -96,10 +104,16 @@ local function IterateItemButtons(mode, conditionFunc, arg1, arg2)
 			frameName = "ContainerFrame"..i;
 			frame = _G[frameName];
 			if isCombinedBagShown or (frame and frame:IsShown()) then
-				bag = i - 1--frame:GetID();
+				if i == 1 then
+					numSlots = BACKPACK_EXTENTED_SIZE;
+				else
+					numSlots = GetContainerNumSlots(bag)
+				end
+
+				bag = i - 1;	--frame:GetID()
 				frameName = frameName.."Item";
 
-				for j = 1, GetContainerNumSlots(bag) do
+				for j = 1, numSlots do
 					itemButton = _G[frameName..j] or frame["Item"..j];
 					if itemButton then
 						slot = itemButton:GetID();

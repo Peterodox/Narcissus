@@ -1,6 +1,9 @@
 local MAX_WIDTH = 180;
 local MIN_WIDTH = 0;
 local EXTRA_HEIGHT = 0;
+local ICON_SIZE = 20;
+local TOOLTIP_PADDING = 6;
+
 
 local UIParent = UIParent;
 local GetCursorPosition = GetCursorPosition;
@@ -25,24 +28,21 @@ function DataProvider:GetInventoryName(itemEquipLoc)
 end
 
 
-NarciWeaponTooltipMixin = CreateFromMixins(ExpansionTransitionBackdropTemplateMixin);
+NarciWeaponTooltipMixin = {};
 
 function NarciWeaponTooltipMixin:OnLoad()
     local a = 12;
-    local backdropInfo = {
-        edgeFile = "Interface\\AddOns\\Narcissus\\Art\\Tooltip\\Tooltip-Grey27",
-        tile = true,
-        tileEdge = true,
-        tileSize = a,
-        edgeSize = a,
-    };
-    self:SetBackdrop(backdropInfo);
+
+    NarciAPI.NineSliceUtil.SetUpBackdrop(self, "blizzardTooltipBorder", 0, 0.27, 0.27, 0.27);
 
     local p = self.Pointer;
     p:ClearAllPoints();
     p:SetSize(a, a);
     p:SetTexture("Interface\\AddOns\\Narcissus\\Art\\Tooltip\\Tooltip-Grey27-Pointer");
-    p:SetPoint("RIGHT", self.Background, "LEFT", 1, 0);
+    p:SetPoint("RIGHT", self, "LEFT", 1, 0);
+
+    self.ItemIcon:ClearAllPoints();
+    self.ItemIcon:SetPoint("TOPLEFT", self, "TOPLEFT", TOOLTIP_PADDING, -TOOLTIP_PADDING);
 
     self.uiScale = UIParent:GetEffectiveScale();
     self:SetAlpha(0);
@@ -74,13 +74,13 @@ function NarciWeaponTooltipMixin:SetNameID(name, itemID, boundaryFrame)
         
         self.Name:SetSize(0, 0);
         self.Name:SetText(name);
-        local textWidth = self.Name:GetWidth();
+        local textWidth = self.Name:GetWrappedWidth();
         if textWidth > MAX_WIDTH then
             textWidth = MAX_WIDTH;
-            self.Name:SetWidth(textWidth);
+            self.Name:SetWidth(textWidth + 0.5);
         end
         
-        textWidth = math.max(self.Name:GetWrappedWidth(), self.IDText:GetWrappedWidth()) + 24;
+        textWidth = math.max(self.Name:GetWrappedWidth(), self.IDText:GetWrappedWidth());
 
         local textHeight = self.Name:GetHeight() + self.IDText:GetHeight() + 2;
         if self.showExtraInfo then
@@ -93,7 +93,7 @@ function NarciWeaponTooltipMixin:SetNameID(name, itemID, boundaryFrame)
         else
             
         end
-        self:SetSize( textWidth + 20, textHeight + 21 + EXTRA_HEIGHT);
+        self:SetSize( textWidth + ICON_SIZE + 2*TOOLTIP_PADDING + 4, math.max(textHeight, ICON_SIZE) + 2*TOOLTIP_PADDING);
 
         if boundaryFrame then
             self.xMin = boundaryFrame:GetRight() - 24;

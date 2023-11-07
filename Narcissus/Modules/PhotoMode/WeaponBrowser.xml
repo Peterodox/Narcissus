@@ -8,8 +8,8 @@
                 <Texture parentKey="Background">
                     <Color r="0.1" g="0.1" b="0.1" a="0.9"/>
                     <Anchors>
-                        <Anchor point="TOPLEFT" x="6" y="-6"/>
-                        <Anchor point="BOTTOMRIGHT" x="-6" y="6"/>
+                        <Anchor point="TOPLEFT" relativeKey="$parent" relativePoint="TOPLEFT" x="1" y="-1"/>
+                        <Anchor point="BOTTOMRIGHT" relativeKey="$parent" relativePoint="BOTTOMRIGHT" x="-1" y="1"/>
                     </Anchors>
                 </Texture>
             </Layer>
@@ -20,7 +20,7 @@
                     <Size x="20" y="20"/>
                     <TexCoords left="0.075" right="0.925" top="0.075" bottom="0.925"/>
                     <Anchors>
-                        <Anchor point="TOPLEFT" relativeKey="$parent.Background" relativePoint="TOPLEFT" x="4" y="-4"/>
+                        <Anchor point="TOPLEFT" relativeKey="$parent" relativePoint="TOPLEFT" x="4" y="-4"/>
                     </Anchors>
                 </Texture>
                 <Texture file="Interface\AddOns\Narcissus\Art\Tooltip\Shadow-Inner-Thin">
@@ -34,7 +34,7 @@
 					<Size x="150" y="0"/>
 					<Color r="0.66" g="0.66" b="0.66"/>
 					<Anchors>
-						<Anchor point="TOPLEFT" relativeKey="$parent.Background" relativePoint="TOPLEFT" x="28" y="-4.5"/>
+						<Anchor point="TOPLEFT" relativeKey="$parent.ItemIcon" relativePoint="TOPRIGHT" x="4" y="0"/>
 					</Anchors>
 				</FontString>
 				<FontString inherits="NarciIndicatorTiny" justifyH="LEFT" justifyV="TOP" parentKey="IDText" text="1208">
@@ -254,7 +254,7 @@
             </Layer>
         </Layers>
         <Frames>
-            <Frame inherits="NarciGreyBorderTemplate" frameLevel="8"/>
+            <Frame inherits="NarciPhotoModeUIBorderTemplate" frameLevel="8"/>
 
             <Frame parentKey="HomePage" clipChildren="true" frameLevel="2">
                 <Size x="192"/>
@@ -658,7 +658,7 @@
                     </Layer>
                 </Layers>
                 <Frames>
-                    <Frame inherits="NarciGreyBorderTemplate" frameLevel="5"/>
+                    <Frame inherits="NarciPhotoModeUIBorderTemplate" frameLevel="5"/>
                     <Frame parentKey="Header" frameLevel="3">
                         <Size y="16"/>
                         <Anchors>

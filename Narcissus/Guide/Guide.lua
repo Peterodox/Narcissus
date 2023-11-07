@@ -1,11 +1,22 @@
 NarciGuideMixin = {};
-local tutorial;     --NarcissusDB
+
+local TutorialDB;     --NarcissusDB
 local L = Narci.L;
 local After = C_Timer.After;
 local FadeFrame = NarciFadeUI.Fade;
 local FIXED_WIDTH = 270;
-local TEXT_INSET = 18;
+local TOOLTIP_PADDING = 12;
+local TEXT_GAP = 8;
 local CRITERIA_MET_MARK = "[OK]";
+
+local DEBUG_ALWAYS_SHOW_GUIDE = false;
+
+
+local function ShouldShowGuideForModule(key)
+    if (key and TutorialDB[key]) or DEBUG_ALWAYS_SHOW_GUIDE then
+        return true
+    end
+end
 
 local function CloseGuide(self)
     self:GetParent():Hide();
@@ -15,13 +26,13 @@ local function EmptyFunc()
 end
 
 function NarciGuideMixin:OnShow()
-    if tutorial[self.KeyValue] then
-        tutorial[self.KeyValue] = false;
+    if TutorialDB[self.KeyValue] then
+        TutorialDB[self.KeyValue] = false;
     end
     FadeFrame(self, 0.25, 1, 0);
     self:SetScale(NarcissusDB["GlobalScale"]);
     self:SetWidth(FIXED_WIDTH);
-    local height = (self.Header:GetHeight() + self.Text:GetHeight() + 2 * (TEXT_INSET - 6) + 24 + 4 + 1);
+    local height = (self.Header:GetHeight() + self.Text:GetHeight() + TEXT_GAP + 2*TOOLTIP_PADDING);
     self:SetHeight(height);
     PlaySound(869, "SFX");
 end
@@ -35,15 +46,19 @@ function NarciGuideMixin:NewText(title, description, anchorTo, offsetX, offsetY,
     self:ClearAllPoints();
     self.Header:SetText(title);
     self.Text:SetText(description);
+
+    self.Pointer:ClearAllPoints();
+    self.Pointer2:ClearAllPoints();
+
     if horizontal then
         self:SetPoint("RIGHT", anchorTo, "LEFT", offsetX or 0, offsetY or 0);
         self.Pointer:Hide();
-        self.Pointer2:SetPoint("CENTER", anchorTo, "LEFT", (offsetX or 0) - 12, offsetY or 0);
+        self.Pointer2:SetPoint("CENTER", anchorTo, "RIGHT", 0, 0);
         self.Pointer2:Show();
     else
         self:SetPoint("BOTTOM", anchorTo, "TOP", offsetX or 0, offsetY or 0);
         self.Pointer2:Hide();
-        self.Pointer:SetPoint("CENTER", anchorTo, "TOP", offsetX or 0, (offsetY or 0) + 12 );
+        self.Pointer:SetPoint("CENTER", self, "BOTTOM", 0, 0);
         self.Pointer:Show();
     end
     self:Show();
@@ -137,7 +152,7 @@ local function BuildSpellVisualBrowserGuide()
     ExpandableFrames:SetScript("OnShow", function(self)
         After(0.6, function()
             BrowserGuide:NewText(L["Category"], L["Guide Spell Choose Category"], ExpandableFrames.ListFrame, 0, 0, SelectFirstEntry);
-            tutorial["SpellVisualBrowser"] = false;
+            TutorialDB["SpellVisualBrowser"] = false;
         end);
         self:SetScript("OnShow", EmptyFunc);
     end);
@@ -158,7 +173,7 @@ local function MakeItInsanelyLarge()
     ExitConfirm:SetScale(4);
     ExitConfirm:SetScript("OnHide", function(self)
         self:SetScale(1);
-        tutorial["ExitConfirmation"] = false;
+        TutorialDB["ExitConfirmation"] = false;
     end)
 end
 
@@ -169,55 +184,49 @@ Initialization:RegisterEvent("VARIABLES_LOADED");
 Initialization:SetScript("OnEvent", function(self, event, ...)
     self:UnregisterEvent("VARIABLES_LOADED");
     After(3, function()
-        tutorial = NarcissusDB.Tutorials;
-        if not tutorial then return; end;
-        --True ~ will show tutorial
-        local key;
+        TutorialDB = NarcissusDB.Tutorials;
+        if not TutorialDB then return; end;
 
         --Enlarged Exit Confirmation
-        key = tutorial["ExitConfirmation"];
-        if key then
+        if ShouldShowGuideForModule("ExitConfirmation") then
             MakeItInsanelyLarge();
         end
 
         --Spell Visual Browser
-        key = tutorial["SpellVisualBrowser"];
-        if key then
+        if ShouldShowGuideForModule("SpellVisualBrowser") then
             BuildSpellVisualBrowserGuide();
         end
 
         --Equipment Set Manager
 
         --Character Movement
-        key = tutorial["Movement"];
-        if key then
+        if ShouldShowGuideForModule("Movement") then
             local Movement = CreateFrame("Frame", nil, Narci_ModelSettings, "NarciGenericGuideTemplate");
             Narci_ModelSettings:SetScript("OnShow", function(self)
                 self:RegisterEvent("MODIFIER_STATE_CHANGED");
                 After(2, function()
                     Movement:NewText(L["Guide Model Control Headline"], L["Guide Model Control Line1"], Narci_ModelSettings, 0, 32, "END");
-                    tutorial["Movement"] = false;
+                    TutorialDB["Movement"] = false;
                 end);
                 self:SetScript("OnShow", function(self)
                     self:RegisterEvent("MODIFIER_STATE_CHANGED");
                 end);
             end);
-            
         end
 
         --Minimap button can be influenced by other addons
-        key = tutorial["IndependentMinimapButton"];
-        if key and NarcissusDB.Version > 10000 then
+        --[[
+        if ShouldShowGuideForModule("IndependentMinimapButton") then
             local Mini = CreateFrame("Frame", nil, Minimap, "NarciGenericGuideTemplate");
             After(1, function()
                 Mini:NewText(L["Guide Minimap Button Headline"], L["Guide Minimap Button Line1"], Narci_MinimapButton, 0, 0, "END", "LEFT");
             end)
-            tutorial["IndependentMinimapButton"] = false;
+            TutorialDB["IndependentMinimapButton"] = false;
         end
+        --]]
 
         --NPC Browser Entrance
-        key = tutorial["NPCBrowserEntance"];
-        if key then
+        if ShouldShowGuideForModule("NPCBrowserEntance") then
             local IndexButton2 = Narci_ActorPanel.ExtraPanel.buttons[2];
             local Entrance = CreateFrame("Frame", nil, IndexButton2, "NarciGenericGuideTemplate");
             local hasHidden = true;
@@ -225,7 +234,7 @@ Initialization:SetScript("OnEvent", function(self, event, ...)
                 After(0.5, function()
                     hasHidden = false;
                     Entrance:NewText(L["NPC Browser"], L["Guide NPC Entrance Line1"], IndexButton2, 0, -3, "END");
-                    tutorial["NPCBrowserEntance"] = false;
+                    TutorialDB["NPCBrowserEntance"] = false;
                 end);
                 self:SetScript("OnShow", nil);
             end);
@@ -239,21 +248,20 @@ Initialization:SetScript("OnEvent", function(self, event, ...)
         end
 
         --NPC Browser
-        key = tutorial["NPCBrowser"];
-        if key then
+        if ShouldShowGuideForModule("NPCBrowser") then
             local NPC = CreateFrame("Frame", nil, Narci_NPCBrowser, "NarciGenericGuideTemplate");
             Narci_NPCBrowser:SetScript("OnShow", function(self)
                 After(0.5, function()
                     NPC:NewText(L["NPC Browser"], L["Guide NPC Browser Line1"], Narci_NPCBrowser, 0, 0, "END");
-                    tutorial["NPCBrowser"] = false;
+                    TutorialDB["NPCBrowser"] = false;
                 end);
                 self:SetScript("OnShow", nil);
             end);
         end
 
         --Shards of Domination
-        key = tutorial["Domination"];
-        if key then
+        --[[
+        if ShouldShowGuideForModule("Domination") then
             local parent = Narci_Attribute;
             local Alert = CreateFrame("Frame", nil, parent,"NarciDominationNoEffectAlert");
             local function onShowFunc()
@@ -262,13 +270,14 @@ Initialization:SetScript("OnEvent", function(self, event, ...)
                 Alert:ShowAlert();
             end
             local function onAlertShownFunc()
-                tutorial["Domination"] = false;
+                TutorialDB["Domination"] = false;
             end
             Alert.onShowFunc = onAlertShownFunc;
             if not parent:GetScript("OnShow") then
                 parent:SetScript("OnShow", onShowFunc);
             end
         end
+        --]]
     end)
 end);
 

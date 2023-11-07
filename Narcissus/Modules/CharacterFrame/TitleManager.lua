@@ -751,20 +751,12 @@ function NarciTitleFilterButtonMixin:OnClick()
 end
 
 
-NarciTitleManagerSwitchMixin = CreateFromMixins(ExpansionTransitionBackdropTemplateMixin);
+NarciTitleManagerSwitchMixin = {};
 
 function NarciTitleManagerSwitchMixin:OnLoad()
 	self.isOn = false;
 	self.counter = 0;
-
-	local backdropInfo = {
-		edgeFile = "Interface\\AddOns\\Narcissus\\Art\\Tooltip\\Tooltip-Border-White",
-		tile = true,
-		tileEdge = true,
-		tileSize = 12,
-		edgeSize = 12,
-	}
-	self:SetBackdrop(backdropInfo);
+	NarciAPI.NineSliceUtil.SetUpBackdrop(self, "focus");
 end
 
 function NarciTitleManagerSwitchMixin:Close()

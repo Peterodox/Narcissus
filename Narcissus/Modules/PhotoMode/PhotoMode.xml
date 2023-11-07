@@ -421,7 +421,7 @@
 					</OnLoad>
 				</Scripts>
 			</Frame>
-			<Frame setAllPoints="true" parentKey="Option" alpha="0" mixin="ExpansionTransitionBackdropTemplateMixin">
+			<Frame setAllPoints="true" parentKey="Option" alpha="0">
 				<Anchors>
 					<Anchor point="TOPLEFT" relativeKey="$parent" relativePoint="TOPLEFT" x="0" y="0"/>
 					<Anchor point="BOTTOMRIGHT" relativeKey="$parent" relativePoint="BOTTOMRIGHT" x="0" y="0"/>
@@ -548,14 +548,7 @@
 				</Frames>
 				<Scripts>
 					<OnLoad>
-						local backdropInfo = {
-							edgeFile = "Interface\\AddOns\\Narcissus\\Art\\Tooltip\\Tooltip-Border-White",
-							tile = true,
-							tileEdge = true,
-							tileSize = 12,
-							edgeSize = 12,
-						}
-						self:SetBackdrop(backdropInfo);
+						NarciAPI.NineSliceUtil.SetUpBackdrop(self, "focus", 4);
 					</OnLoad>
 					<OnHide>
 						self:SetAlpha(0);

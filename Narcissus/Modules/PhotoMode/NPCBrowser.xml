@@ -287,7 +287,7 @@
 			</Layer-->
 		</Layers>
 		<Frames>
-			<Frame inherits="NarciGreyBorderTemplate" frameLevel="81"/>
+			<Frame inherits="NarciPhotoModeUIBorderTemplate" frameLevel="81"/>
 
 			<Frame parentKey="Container" clipChildren="true">
 				<Anchors>
@@ -492,7 +492,7 @@
 									<AbsInset left="-6" right="0" top="-1" bottom="0"/>
 								</HitRectInsets>
 								<Anchors>
-									<Anchor point="RIGHT" relativeKey="$parent" relativePoint="RIGHT" x="-1" y="0"/> 
+									<Anchor point="RIGHT" relativeKey="$parent" relativePoint="RIGHT" x="-2" y="0"/> 
 								</Anchors>
 								<Scripts>
 									<OnLoad>

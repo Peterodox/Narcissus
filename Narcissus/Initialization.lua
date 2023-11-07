@@ -1,7 +1,7 @@
-local NARCI_VERSION_INFO = "1.4.4";
+local NARCI_VERSION_INFO = "1.4.6";
 
-local VERSION_DATE = 1695258614;
-local CURRENT_VERSION = 10404;
+local VERSION_DATE = 1699375403;
+local CURRENT_VERSION = 10406;
 local PREVIOUS_VERSION = CURRENT_VERSION;
 local TIME_SINCE_LAST_UPDATE = 0;
 
@@ -101,8 +101,8 @@ local DefaultValues = {
     -- Internal Hotkey --
     SearchRelativesHotkey = "TAB",              --The key you press to begin/cycle relative search
 
-    -- Search Suggestion --
-    SearchSuggestEnable = true,
+    -- Bag Search Suggestion --
+    SearchSuggestEnable = false,
     SearchSuggestDirection = 1;                 --Below Item Search Box
     AutoFilterMail = false,
     AutoFilterAuction = false,
@@ -166,7 +166,7 @@ local function LoadDatabase()
     NarcissusDB_PC.EquipmentSetDB = NarcissusDB_PC.EquipmentSetDB or {};
 
     db.MinimapButton = db.MinimapButton or {};
-    db.MinimapButton.Position = db.MinimapButton.Position or math.rad(150);
+    db.MinimapButton.Position = db.MinimapButton.Position or math.rad(150);     --From 3 O'clock, counter-clockwise
 
 
     --Migrate deprecated variables
@@ -236,6 +236,12 @@ local function LoadDatabase()
     if db.SearchRelatives or db.TranslateName then
         C_Timer.After(0, function()
             LoadAddOn("Narcissus_Database_NPC");
+        end)
+    end
+
+    if db.SearchSuggestEnable then
+        C_Timer.After(0, function()
+            LoadAddOn("Narcissus_BagFilter");
         end)
     end
 

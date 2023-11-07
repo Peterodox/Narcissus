@@ -63,28 +63,77 @@ do
     addon.IsDragonflight = IsDragonflight;
 end
 
+
+local DRUID_CHR_MODEL = {
+    [189] = 5,   --Bear
+    [190] = 1,   --Cat
+    [194] = 31,  --Moonkin
+    [193] = 29,  --Flight
+    [191] = 4,   --Aquatic
+    [192] = 3,   --Travel
+};
+
+local SHAPESHIFT_SPELLS = {
+    [1]  = 768,     --Cat
+    [2]  = 53691,   --Tree of Life
+    [3]  = 783,     --Travel
+    [4]  = 276012,  --Aquatic
+    [5]  = 5487,    --Bear
+    [29] = 165962,  --Flight
+    [31] = 24858,   --Moonkin
+    [36] = 114282,  --Treant
+};
+
+local SUPPORTED_FORMS = {
+    [31] = true,    --Moonkin
+};
+
+local function IsFormSavable(formID)
+    --formID = nil when viewing unshapeshift character
+    return (not formID) or (formID and SUPPORTED_FORMS[formID])
+end
+API.IsFormSavable = IsFormSavable;
+
+local function GetShapeshiftFormName(formID)
+    local spellID = formID and SHAPESHIFT_SPELLS[formID];
+    if spellID then
+        local name = GetSpellInfo(spellID);
+        return name
+    end
+end
+
 local function GetMountNameByID(mountID)
     local name = C_MountJournal.GetMountInfoByID(mountID);
     return name
 end
 
-local CHR_MODEL_NAME = {
+local MOUNT_CHR_MODEL = {
     --Dragonriding
-    [124] = {1589, GetMountNameByID},
-    [129] = {1590, GetMountNameByID},
-    [123] = {1563, GetMountNameByID},
-    [126] = {1591, GetMountNameByID},
-    [125] = {1588, GetMountNameByID},
+    --/dump GetMouseFocus().mountID
+    [124] = 1589,
+    [129] = 1590,
+    [123] = 1563,
+    [126] = 1591,
+    [125] = 1588,
+    [149] = 1744,
+    [188] = 1830,
+    [186] = 1792,   --Algarian Stormrider
 };
 
+local function IsDragonridingChrModel(chrModelID)
+    return chrModelID and MOUNT_CHR_MODEL[chrModelID] ~= nil
+end
+API.IsDragonridingChrModel = IsDragonridingChrModel;
+
 local function GetChrModelName(chrModelID)
-    local info = CHR_MODEL_NAME[chrModelID];
-    if info then
-        if info[2] then
-            return info[2](info[1]);
-        else
-            return info[1]
-        end
+    if DRUID_CHR_MODEL[chrModelID] then
+        local formID = DRUID_CHR_MODEL[chrModelID];
+        return GetShapeshiftFormName(formID);
+    end
+
+    if MOUNT_CHR_MODEL[chrModelID] then
+        local mountID = MOUNT_CHR_MODEL[chrModelID];
+        return GetMountNameByID(mountID);
     end
 end
 API.GetChrModelName = GetChrModelName;
@@ -111,8 +160,8 @@ local CAMERA_DATA_FILEID = {
     [1890761] = {3.33, -0.05, -1.09, 0.26},     --vulpera-male
     [1890759] = {3.33, -0.04, -1.09, 0.26},     --vulpera-female
 
-    [1630218] = {1.97, -0.35, -2.2, 0.43},      --highmountaintauren-male
-    [1630402] = {2.86, -0.35, -2.4, 0.52},      --highmountaintauren-female
+    [1630218] = {1.85, -0.35, -2.2, 0.43},      --highmountaintauren-male
+    [1630402] = {2.82, -0.35, -2.4, 0.52},      --highmountaintauren-female
 
     [900914] = {3.23, -0.01, -0.92, 0.43},      --Gnome M
     [940356] = {3.37, -0.07, -0.9, 0.43},       --Gnome F
@@ -163,12 +212,25 @@ local CAMERA_DATA_FILEID = {
 
     --Dragonriding
     [4278602] = {-6.76, -1.98, -1.98, 0.61},    --Renewed Proto-drake   --{-20.58, -3.59, -4.9, 0.61}
-    [4281540] = {-20.58, -3.77, -6.32, 0.61},    --Windrborne Velocidrake
+    [4281540] = {-20.58, -3.77, -6.32, 0.61},   --Windrborne Velocidrake
     [4227968] = {-0.59, -1.86, -2.57, 0.44},    --Highland Drake
-    [4252337] = {0.26, -0.74, -1.2, 0.44},    --Cliffside Wylderdrake
-    [4252339] = {1.95, 5.96, -3.73, -0.79},    --Winding Slitherdrake
+    [4252337] = {0.26, -0.74, -1.2, 0.44},      --Cliffside Wylderdrake
+    [4252339] = {1.79, -5.96, -3.69, 0.78},     --Winding Slitherdrake   --{1.95, 5.96, -3.73, -0.79} --left face
+    [5143343] = {-0.59, -1.86, -2.57, 0.44},    --Grotto Netherwing Drake
+    [5228774] = {-0.24, -1.38, -2.56, 0.44},    --Flourishing Whimsydrake
+
+
+    --Druid
+    [1139162] = {1.73, -0.22, -2.48, 0.61},     --Moonkin, Classic
+    [5154480] = {1.7, -0.34, -2.55, 0.61},      --Moonkin, New Customizable
+    [2205511] = {1.75, -0.21, -2.48, 0.61},     --Moonkin, Full Transform, Kul Tiran
+    [1139164] = {1.75, -0.23, -2.46, 0.61},     --Moonkin, Full Transform, Tauren
+    [2393672] = {1.67, -0.24, -2.49, 0.61},     --Moonkin, Full Transform, Highmountain Tauren
+    [1949828] = {3.08, -0.2, -1.55, 0.61},      --Moonkin, Full Transform, Zandalari
 };
 
+CAMERA_DATA_FILEID[968705] = CAMERA_DATA_FILEID[1630218];   --Tauren
+CAMERA_DATA_FILEID[986648] = CAMERA_DATA_FILEID[1630402];   --Tauren
 CAMERA_DATA_FILEID[4675519] = CAMERA_DATA_FILEID[4278602];  --Storm-Easter Vault of the Incarnates
 CAMERA_DATA_FILEID[4571488] = CAMERA_DATA_FILEID[4227968];  --Crimson Gladiator PvP
 CAMERA_DATA_FILEID[4954741] = CAMERA_DATA_FILEID[4227968];  --Elemental Drake Aberrus

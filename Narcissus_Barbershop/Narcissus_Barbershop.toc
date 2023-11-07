@@ -1,6 +1,6 @@
-## Interface: 100107
+## Interface: 100200
 ## Plain Title: Narcissus Barbershop
-## Version: 1.4
+## Version: 1.5
 ## LoadOnDemand: 1
 ## RequiredDeps: Narcissus
 

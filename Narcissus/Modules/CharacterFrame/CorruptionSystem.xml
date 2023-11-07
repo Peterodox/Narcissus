@@ -117,13 +117,6 @@
             <Anchor point="CENTER"/>
         </Anchors>
         <Frames>
-            <Frame inherits="NarciFrameWithShadowTemplate" useParentLevel="true">
-                <Anchors>
-                    <Anchor point="TOPLEFT" relativePoint="TOPLEFT" x="-11" y="11"/>
-                    <Anchor point="BOTTOMRIGHT" relativePoint="BOTTOMRIGHT" x="11" y="-11"/>
-                </Anchors>
-            </Frame>
-
             <Button inherits="NarciCorruptionTooltipTemplate" parentKey="Entry1">
                 <Anchors>
                     <Anchor point="BOTTOMLEFT" relativeKey="$parent" relativePoint="BOTTOMLEFT"/>

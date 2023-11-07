@@ -307,6 +307,12 @@ local function DisplayCurrentCustomizations()
 	end
 
 
+    local numOptions = #optionChoiceTexts;
+    if numOptions == 0 then
+        container:Hide();
+        return
+    end
+
     ----Display----
     local padding = px*SIDE_PADDING;
     local strokePixel = 2;

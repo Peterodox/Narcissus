@@ -238,7 +238,7 @@
 		</Layers>
 		<Frames>
 			<Frame parentKey="BackgroundFrame" useParentLevel="true" setAllPoints="true"/>
-			<Frame parentKey="PreviewFrame">
+			<Frame parentKey="PreviewFrame" clampedToScreen="true" hidden="true">
 				<Size x="78" y="104"/>
 				<Anchors>
 					<Anchor point="TOPLEFT" relativeKey="$parent" relativePoint="TOPRIGHT" x="8" y="0"/>
@@ -248,7 +248,7 @@
 					<DressUpModel parentKey="Model" useParentLevel="true">
 						<Size x="78" y="104"/>
 						<Anchors>
-							<Anchor point="TOPLEFT"/>
+							<Anchor point="TOPLEFT" x="2" y="-2"/>
 						</Anchors>
 					</DressUpModel>
 				</Frames>
@@ -267,6 +267,12 @@
 								<Anchor point="TOPLEFT" relativeKey="$parent.ItemName" relativePoint="BOTTOMLEFT" x="0" y="-4"/>
 							</Anchors>
 						</FontString>
+						<FontString parentKey="CarouselText" inherits="GameFontNormal" justifyH="LEFT" justifyV="BOTTOM">
+							<Color r="0.5" g="0.5" b="0.5"/>
+							<Anchors>
+								<Anchor point="BOTTOMLEFT" relativeKey="$parent.ItemName" relativePoint="TOPLEFT" x="0" y="4"/>
+							</Anchors>
+						</FontString>
 					</Layer>
 				</Layers>
 				<Animations>
@@ -275,11 +281,17 @@
 						<Alpha childKey="Model" fromAlpha="0" toAlpha="0" duration="0" order="1"/>
 						<Alpha childKey="ItemName" fromAlpha="0" toAlpha="0" duration="0" order="1"/>
 						<Alpha childKey="ItemDescription" fromAlpha="0" toAlpha="0" duration="0" order="1"/>
+						<Alpha childKey="CarouselText" fromAlpha="0" toAlpha="0" duration="0" order="1"/>
 
 						<Alpha childKey="BackgroundFrame" fromAlpha="0" toAlpha="1" duration="0.2" startDelay="0.1" order="2"/>
 						<Alpha childKey="Model" fromAlpha="0" toAlpha="1" duration="0.2" startDelay="0.1" order="2"/>
 						<Alpha childKey="ItemName" fromAlpha="0" toAlpha="1" duration="0.2" startDelay="0.1" order="2"/>
 						<Alpha childKey="ItemDescription" fromAlpha="0" toAlpha="1" duration="0.2" startDelay="0.1" order="2"/>
+						<Alpha childKey="CarouselText" fromAlpha="0" toAlpha="1" duration="0.2" startDelay="0.1" order="2"/>
+					</AnimationGroup>
+					<AnimationGroup parentKey="ModelFadeIn">
+						<Alpha childKey="Model" fromAlpha="0" toAlpha="0" duration="0" order="1"/>
+						<Alpha childKey="Model" fromAlpha="0" toAlpha="1" duration="0.15" startDelay="0.1" order="2"/>
 					</AnimationGroup>
 				</Animations>
 			</Frame>

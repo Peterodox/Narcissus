@@ -186,102 +186,17 @@
 			<OnLoad method="OnLoad"/>
 			<OnShow method="OnShow"/>
 		</Scripts>
-		<!--Frames>
-			<Frame parentKey="Highlight" useParentLevel="true" Alpha="0" mixin="ExpansionTransitionBackdropTemplateMixin">
-				<Anchors>
-					<Anchor point="TOPLEFT" relativeKey="$parent" relativePoint="TOPLEFT"/>
-					<Anchor point="BOTTOMRIGHT" relativeKey="$parent" relativePoint="BOTTOMRIGHT"/>
-				</Anchors>
-				<Scripts>
-					<OnLoad>
-						local backdropInfo = {
-							edgeFile = "Interface\\AddOns\\Narcissus\\Art\\Tooltip\\Tooltip-WhiteLine",
-							tile = true,
-							tileEdge = true,
-							tileSize = 6,
-							edgeSize = 6,
-						}
-						self:SetBackdrop(backdropInfo);
-					</OnLoad>
-				</Scripts>
-			</Frame>
-			<Frame parentKey="Normal" useParentLevel="true" Alpha="1"  mixin="ExpansionTransitionBackdropTemplateMixin">
-				<Anchors>
-					<Anchor point="TOPLEFT" relativeKey="$parent" relativePoint="TOPLEFT"/>
-					<Anchor point="BOTTOMRIGHT" relativeKey="$parent" relativePoint="BOTTOMRIGHT"/>
-				</Anchors>
-				<Scripts>
-					<OnLoad>
-						local backdropInfo = {
-							edgeFile = "Interface\\AddOns\\Narcissus\\Art\\Tooltip\\Tooltip-GreyLine",
-							tile = true,
-							tileEdge = true,
-							tileSize = 6,
-							edgeSize = 6,
-						}
-						self:SetBackdrop(backdropInfo);
-					</OnLoad>
-				</Scripts>
-			</Frame>
-		</Frames-->
 	</Frame>
 
 
-	<Frame name="NarciFrameDispersiveShadowTemplate" virtual="true" mixin="ExpansionTransitionBackdropTemplateMixin">
+	<Frame name="NarciFrameDispersiveShadowTemplate" virtual="true">
 		<Anchors>
-			<Anchor point="TOPLEFT" relativePoint="TOPLEFT" x="-13" y="0"/>
-			<Anchor point="BOTTOMRIGHT" relativePoint="BOTTOMRIGHT" x="13" y="-13"/>
+			<Anchor point="TOPLEFT" relativePoint="TOPLEFT" x="1" y="-1"/>
+			<Anchor point="BOTTOMRIGHT" relativePoint="BOTTOMRIGHT" x="-1" y="1"/>
 		</Anchors>
 		<Scripts>
 			<OnLoad>
-				local backdropInfo = {
-					edgeFile = "Interface\\AddOns\\Narcissus\\Art\\Tooltip\\Tooltip-DispersiveShadow",
-					tile = true,
-					tileEdge = true,
-					tileSize = 24,
-					edgeSize = 24,
-				}
-				self:SetBackdrop(backdropInfo);
-			</OnLoad>
-		</Scripts>
-	</Frame>
-
-
-	<Frame name="NarciFrameWithShadowTemplate" virtual="true" mixin="ExpansionTransitionBackdropTemplateMixin">
-		<Anchors>
-			<Anchor point="TOPLEFT" relativePoint="TOPLEFT" x="-11" y="11"/>
-			<Anchor point="BOTTOMRIGHT" relativePoint="BOTTOMRIGHT" x="11" y="-11"/>
-		</Anchors>
-		<Layers>
-			<Layer level="BACKGROUND">
-				<Texture setAllPoints="true" parentKey="inset" hidden="true">
-					<Color r="1" g="1" b="1" a="0"/>
-					<Anchors>
-						<Anchor point="TOPLEFT" relativePoint="TOPLEFT" x="11.5" y="-11.5"/>
-						<Anchor point="BOTTOMRIGHT" relativePoint="BOTTOMRIGHT" x="-11.5" y="11.5"/>
-					</Anchors>
-				</Texture>
-			</Layer>
-		</Layers>
-		<Scripts>
-			<OnLoad>
-				local parent = self:GetParent();
-				if parent then
-					local frameLevel = parent:GetFrameLevel() - 1;
-					if frameLevel > 0 then
-						self:SetFrameLevel(frameLevel);
-					end
-				end
-
-				local backdropInfo = {
-					edgeFile = "Interface\\AddOns\\Narcissus\\Art\\Tooltip\\Tooltip-White-Border",
-					tile = true,
-					tileEdge = true,
-					tileSize = 24,
-					edgeSize = 24,
-				};
-				
-				self:SetBackdrop(backdropInfo);
+				NarciAPI.NineSliceUtil.SetUpBackdrop(self, "dispersiveShadow");
 			</OnLoad>
 		</Scripts>
 	</Frame>
@@ -829,25 +744,6 @@
 		</Scripts>
 	</Button>
 
-	<Frame name="NarciFrameShadowTemplate" virtual="true" mixin="ExpansionTransitionBackdropTemplateMixin">
-		<Anchors>
-			<Anchor point="TOPLEFT" relativePoint="TOPLEFT" x="-11.5" y="11.5"/>
-			<Anchor point="BOTTOMRIGHT" relativePoint="BOTTOMRIGHT" x="11.5" y="-11.5"/>
-		</Anchors>
-		<Scripts>
-			<OnLoad>
-				local backdropInfo = {
-					edgeFile = "Interface\\AddOns\\Narcissus\\Art\\Tooltip\\Tooltip-White-Border",
-					tile = true,
-					tileEdge = true,
-					tileSize = 24,
-					edgeSize = 24,
-				}
-				self:SetBackdrop(backdropInfo);
-			</OnLoad>
-		</Scripts>
-	</Frame>
-
 	<Frame name="NarciHeaderWithShadowTemplate" hidden="false" virtual="true" parentKey="Header">
 		<Size x="74" y="24"/>
         <Layers>
@@ -947,16 +843,15 @@
         </Scripts>
     </Button>
 
-	<Button name="Narci_AlertFrame" inherits="NarciFrameWithShadowTemplate" frameStrata="TOOLTIP" frameLevel="30" Alpha="0" clampedToScreen="true" registerForClicks="LeftButtonUp, RightButtonUp" virtual="true" hidden="true" mixin="NarciAlertFrameMixin">
+	<Button name="NarciAlertFrameTemplate" frameStrata="TOOLTIP" frameLevel="30" Alpha="0" clampedToScreen="true" registerForClicks="LeftButtonUp, RightButtonUp" virtual="true" hidden="true" mixin="NarciAlertFrameMixin">
 		<Size x="240" y="60"/>
 		<Layers>
 			<Layer level="OVERLAY">
 				<FontString parentKey="Text" inherits="NarciFontNormal10" justifyH="CENTER" justifyV="TOP" text="Description" spacing="2">
-					<Size x="0" y="0"/>	<!--220, 0-->
+					<Size x="240" y="0"/>	<!--220, 0-->
 					<Color r="1" g="1" b="1" a="1"/>
 					<Anchors>
 						<Anchor point="CENTER" relativeKey="$parent" relativePoint="CENTER" x="0" y="0"/>
-						<!--Anchor point="RIGHT" relativeKey="$parent" relativePoint="RIGHT" x="-10"/-->
 					</Anchors>
 				</FontString>
 			</Layer>
@@ -968,8 +863,8 @@
 						<MaxColor a="1" r="0.1" g="0.1" b="0.1"/>
 					</Gradient>
 					<Anchors>
-						<Anchor point="TOPLEFT" relativeKey="$parent.Text" relativePoint="TOPLEFT" x="-10" y="10"/>
-						<Anchor point="BOTTOMRIGHT" relativeKey="$parent.Text" relativePoint="BOTTOMRIGHT" x="10" y="-10"/>
+						<Anchor point="TOPLEFT" relativeKey="$parent" relativePoint="TOPLEFT" x="0" y="0"/>
+						<Anchor point="BOTTOMRIGHT" relativeKey="$parent" relativePoint="BOTTOMRIGHT" x="0" y="0"/>
 					</Anchors>
 				</Texture>
 				<Texture parentKey="TopGradient" setAllPoints="true" hidden="true">
@@ -988,8 +883,8 @@
 			<Layer level="ART">
 				<Texture setAllPoints="true" parentKey="Gradient">
 					<Anchors>
-						<Anchor point="TOPLEFT" relativeKey="$parent.inset" relativePoint="TOPLEFT"/>
-						<Anchor point="BOTTOMRIGHT" relativeKey="$parent.inset" relativePoint="BOTTOMRIGHT"/>
+						<Anchor point="TOPLEFT" relativeKey="$parent" relativePoint="TOPLEFT"/>
+						<Anchor point="BOTTOMRIGHT" relativeKey="$parent" relativePoint="BOTTOMRIGHT"/>
 					</Anchors>
 					<Color r="1" g="1" b="1" a="1"/>
 					<Gradient orientation="VERTICAL">
@@ -1002,7 +897,7 @@
 					<Size x="16" y="16"/>
 					<TexCoords left="0.5" right="1" top="0" bottom="1"/>
 					<Anchors>
-						<Anchor point="CENTER" relativeKey="$parent.inset" relativePoint="BOTTOM"  x="0" y="0.5"/>
+						<Anchor point="CENTER" relativeKey="$parent" relativePoint="BOTTOM"  x="0" y="0.5"/>
 					</Anchors>				
 				</Texture>
 			</Layer>
@@ -1027,7 +922,7 @@
 		</Scripts>
 	</Button>
 
-	<Button name="Narci_AlertFrame_Autohide" inherits="Narci_AlertFrame">
+	<Button name="Narci_AlertFrame_Autohide" inherits="NarciAlertFrameTemplate">
 		<HitRectInsets>
 			<AbsInset left="0" right="0" top="0" bottom="24"/>
 		</HitRectInsets>
@@ -1062,16 +957,8 @@
 				self.OnUpdateFunc = OnUpdate;
 			</OnLoad>
 			<OnShow>
+				self:UpdateFrameSize();
 				local t = 2;	--Duration changes with text length
-				local TextWidth = self.Text:GetWidth();
-				if TextWidth > 220 then
-					self.Text:SetWidth(220);
-					t = 1 + 1.5*TextWidth / 220;
-					--print("Hide in "..t.."s")
-				end
-				
-				self:SetHeight(math.max(48, self.Text:GetHeight() + 36));
-				self:SetWidth(self.Text:GetWidth() + 48);
 				self:StopAnimating();
 				self.Counter:SetScript("OnStop", function(self)
 					NarciAPI_FadeFrame(self:GetParent(), 0.35, "OUT");
@@ -1110,21 +997,6 @@
 				self.anchor = nil;
 			</OnHide>
 		</Scripts>
-	</Button>
-
-	<Button name="Narci_AlertFrame_Static" inherits="Narci_AlertFrame">
-		<Scripts>
-			<OnLoad>
-				self.Text:SetTextColor(0.25, 0.78, 0.92);
-			</OnLoad>
-		</Scripts>
-		<Frames>
-			<Button inherits="NarciCloseButtonTemplate" scale="0.6">
-				<Anchors>
-					<Anchor point="TOPRIGHT" relativePoint="TOPRIGHT" x="-4" y="-4"/>
-				</Anchors>
-			</Button>
-		</Frames>
 	</Button>
 
 	<EditBox name="NarciEditBoxTemplate" autoFocus="false" virtual="true">
@@ -1171,62 +1043,6 @@
 		</Scripts>
     </ModelScene>
 
-
-	<Frame name="NarciFrameTemplate" mixin="NarciFrameMixin" virtual="true">
-		<Layers>
-			<Layer level="BACKGROUND" textureSubLevel="1">
-				<Texture setAllPoints="true">
-					<Color r="0.07" g="0.07" b="0.08" a="0.95"/>
-					<Anchors>
-						<Anchor point="TOPLEFT" relativePoint="TOPLEFT" x="0" y="0"/>
-						<Anchor point="BOTTOMRIGHT" relativePoint="BOTTOMRIGHT" x="0" y="0"/>
-					</Anchors>
-				</Texture>
-			</Layer>
-            <Layer level="BACKGROUND" textureSubLevel="10">
-                <Texture parentKey="HeaderBackground" setAllPoints="true">
-                    <Size y="20"/>
-					<Anchors>
-						<Anchor point="BOTTOMLEFT" relativePoint="TOPLEFT"/>
-						<Anchor point="BOTTOMRIGHT" relativePoint="TOPRIGHT"/>
-					</Anchors>                    
-                    <Color a="1" r="1" g="1" b="1"/>
-                    <Gradient orientation="VERTICAL">
-                        <MinColor a="1" r="0.0" g="0.0" b="0.0"/>
-                        <MaxColor a="1" r="0.1" g="0.1" b="0.1"/>
-                    </Gradient>
-                </Texture>
-            </Layer>
-            <Layer level="OVERLAY">
-                <Texture inherits="NarciTopShadowTemplate"/>
-
-				<FontString parentKey="Header" inherits="NarciPrefFontGrey9" justifyH="CENTER" justifyV="MIDDLE" maxLines="1">
-					<Size x="0" y="0"/>
-					<Anchors>
-						<Anchor point="LEFT" relativeKey="$parent.HeaderBackground" relativePoint="LEFT" x="4" y="0"/>
-						<Anchor point="RIGHT" relativeKey="$parent.HeaderBackground" relativePoint="RIGHT" x="-4" y="0"/>
-					</Anchors>
-				</FontString>
-            </Layer>
-        </Layers>
-        <Frames>
-            <Frame>
-                <Anchors>
-                    <Anchor point="TOPLEFT" relativeKey="$parent" relativePoint="TOPLEFT" x="-11" y="31"/>
-                    <Anchor point="BOTTOMRIGHT" relativeKey="$parent" relativePoint="BOTTOMRIGHT" x="11" y="-11"/>
-                </Anchors>
-            </Frame>
-
-            <Button inherits="NarciCloseButtonTemplate">
-                <Anchors>
-                    <Anchor point="RIGHT" relativeKey="$parent.HeaderBackground" relativePoint="RIGHT" x="-4" y="0"/>
-                </Anchors>
-            </Button>
-		</Frames>
-		<Scripts>
-
-		</Scripts>
-	</Frame>
 
 	<Slider name="NarciSimpleSliderTemplate" valueStep="0.01" parentKey="scrollBar" virtual="true">
 		<Size x="2" y="0"/>
@@ -1860,10 +1676,6 @@
             </Layer>
         </Layers>
         <Frames>
-            <Frame inherits="NarciFrameWithShadowTemplate" frameLevel="10">
-
-            </Frame>
-
             <Button parentKey="ItemButton">
                 <Size x="48" y="48"/>
                 <Anchors>
@@ -2408,21 +2220,14 @@
 		</Scripts>
 	</EditBox>
 
-	<Frame name="NarciGreyBorderTemplate" virtual="true" mixin="ExpansionTransitionBackdropTemplateMixin">
+	<Frame name="NarciPhotoModeUIBorderTemplate" virtual="true">
 		<Anchors>
-			<Anchor point="TOPLEFT" relativePoint="TOPLEFT" x="-8.5" y="8.5"/>
-			<Anchor point="BOTTOMRIGHT" relativePoint="BOTTOMRIGHT" x="8.5" y="-8.5"/>
+			<Anchor point="TOPLEFT" relativePoint="TOPLEFT" x="0" y="0"/>
+			<Anchor point="BOTTOMRIGHT" relativePoint="BOTTOMRIGHT" x="0" y="0"/>
 		</Anchors>
 		<Scripts>
 			<OnLoad>
-				local backdropInfo = {
-					edgeFile = "Interface\\AddOns\\Narcissus\\Art\\Frames\\GreyBorder",
-					tile = true,
-					tileEdge = true,
-					tileSize = 16,
-					edgeSize = 16,
-				}
-				self:SetBackdrop(backdropInfo);
+				NarciAPI.NineSliceUtil.SetUpBackdrop(self, "photoModeUIBorder");
 			</OnLoad>
 		</Scripts>
 	</Frame>

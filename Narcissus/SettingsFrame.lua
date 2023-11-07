@@ -850,7 +850,7 @@ function CreditList:CreateList(parent, anchorTo, fromOffsetY)
     local active = {"Albator S.", "Lala.Marie", "Erik Shafer", "Celierra&Darvian", "Pierre-Yves Bertolus", "Terradon", "Miroslav Kovac", "Ryan Zerbin", "Helene Rigo"};
     local inactive = {"Alex Boehm", "Solanya", "Elexys", "Ben Ashley", "Knightlord", "Brian Haberer", "Andrew Phoenix", "Nantangitan", "Blastflight", "Lars Norberg", "Valnoressa", "Nimrodan", "Brux",
         "Karl", "Webb", "acein", "Christian Williamson", "Tzutzu", "Anthony Cordeiro", "Nina Recchia", "heiteo", "Psyloken", "Jesse Blick", "Victor Torres", "Nisutec", "Tezenari", "Gina"};
-    local special = {"Marlamin | WoW.tools", "Keyboardturner | Avid Bug Finder(Generator)", "Meorawr | Wondrous Wisdomball", "Hubbotu | Translator - Russian", "Romanv | Translator - Spanish", "Onizenos | Translator - Portuguese"};
+    local special = {"Marlamin | WoW.tools", "Keyboardturner | Avid Bug Finder(Generator)", "Meorawr | Wondrous Wisdomball", "Ghost | Real Person", "Hubbotu | Translator - Russian", "Romanv | Translator - Spanish", "Onizenos | Translator - Portuguese"};
 
     local aciveColor = "|cff914270";
 
@@ -2120,9 +2120,20 @@ if IS_DRAGONFLIGHT then
     InsertCategory(talentCategory);
 
     
+    local function NarciBagItemFilter_LoadAddOn()
+        if not NarciBagItemFilterSettings then
+            LoadAddOn("Narcissus_BagFilter");
+        end
+    end
 
     local function ItemSearchToggle_OnValueChanged(self, state)
-        NarciBagItemFilterSettings.SetEnableSearchSuggestion(state);
+        if state then
+            NarciBagItemFilter_LoadAddOn();
+        end
+
+        if NarciBagItemFilterSettings then
+            NarciBagItemFilterSettings.SetEnableSearchSuggestion(state);
+        end
     end
     
     local function ItemSearchDirectionButton_OnValueChanged(self, id)
@@ -2157,7 +2168,8 @@ if IS_DRAGONFLIGHT then
     end
 
     local function IsBagItemFilterAddOnLoaded()
-        return NarciBagItemFilterSettings ~= nil
+        --return NarciBagItemFilterSettings ~= nil
+        return true     --changed this module to load-on-demand, so we need to keep its settings visible
     end
 
     local bagCategory = {name = L["Bag Item Filter"], level = 1, key = "bagitemfilter", validityCheckFunc = IsBagItemFilterAddOnLoaded,

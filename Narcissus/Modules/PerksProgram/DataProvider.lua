@@ -130,6 +130,8 @@ end
 function DataProvider:GetAndCacheVendorItemInfo(vendorItemID)
     if not VendorItemDataCache[vendorItemID] then
         local info = GetVendorItemInfo(vendorItemID);
+        --! After patch ?, the perksVendorItemID will not return 0 even you haven't visited Trading Post during the game session
+        --! So (perksVendorItemID ~= 0) is no longer a reliable way to check if we need to decompress data from our SavedVariables
         if info and info.perksVendorItemID ~= 0 then
             if info.name and info.name ~= "" then
                 VendorItemDataCache[vendorItemID] = info;
@@ -156,7 +158,6 @@ function DataProvider:GetVendorItemCategory(vendorItemID)
     if info then
         return info.perksVendorCategoryID
     else
-        --print("vendorItemID", vendorItemID)   --252, 255 are missing in 10.1.7 PTR
         return 128
     end
 end
@@ -184,6 +185,16 @@ function DataProvider:GetVendorItemPrice(vendorItemID)
         end
     end
     return 0
+end
+
+function DataProvider:GetVendorItemTransmogSetID(vendorItemID)
+    local info = self:GetAndCacheVendorItemInfo(vendorItemID);
+    if info and info.transmogSetID ~= 0 then
+        return info.transmogSetID
+    else
+        local cachedData = self:GetVendorItemInfoFromDatabase(vendorItemID);
+        return cachedData and cachedData.transmogSetID or nil;
+    end
 end
 
 function DataProvider:IsVendorItemPurchased(vendorItemID)

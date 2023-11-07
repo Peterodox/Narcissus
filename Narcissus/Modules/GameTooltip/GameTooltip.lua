@@ -550,6 +550,8 @@ function NarciEquipmentTooltipMixin:ClearLines()
 
     self.HeaderFrame.ItemLevel:SetText(nil);
     self.HeaderFrame.LevelSubText:SetText(nil);
+    self.HeaderFrame.CraftingQualityIcon:Hide();
+
     self.GemFrame:Clear();
     self.SpellFrame:Clear();
 end
@@ -671,6 +673,14 @@ function NarciEquipmentTooltipMixin:DisplayItemData(link, itemData, slotID, visu
             end
         end
 
+        if levelSubtext then
+            local temp = levelSubtext;
+            local _, numNewLines = gsub(temp, "|n", " ");
+            if numNewLines and numNewLines > 1 then
+                --Remove one line break (10.2.0, old season item has very long subtext. e.g. "Raid Finder Dragonflight Season 2 Upgrade Level Veteran 8/8")
+                levelSubtext = gsub(levelSubtext, "|n", " ", 1);
+            end
+        end
         self.HeaderFrame.LevelSubText:SetText(levelSubtext);
 
         if itemData.craftingQuality then

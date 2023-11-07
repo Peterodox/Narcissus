@@ -34,6 +34,7 @@ NarciEquipmentEnchantActionButtonMixin = {};
 
 function NarciEquipmentEnchantActionButtonMixin:OnLoad()
     EnchantActionButton = self;
+    self:RegisterForClicks("LeftButtonDown", "LeftButtonUp", "RightButtonDown", "RightButtonUp");
 end
 
 function NarciEquipmentEnchantActionButtonMixin:InitFromButton(button, slotID, inUseEnchantID)
@@ -223,7 +224,7 @@ function NarciEquipmentEnchantActionButtonMixin:MarkActive(state)
 end
 
 function NarciEquipmentEnchantActionButtonMixin:PreClick()
-    NarciAPI.SecureActionButtonPreClick();
+
 end
 
 -------- Item Socketing --------

@@ -122,3 +122,77 @@ local function FormatTime(seconds)
 end
 
 NarciAPI.FormatTime = FormatTime;
+
+
+
+
+local MonthDays = {
+    31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31,
+};
+
+local function IsLeapYear(year)
+    return year % 400 == 0 or (year % 4 == 0 and year % 100 ~= 0)
+end
+
+local function GetFebruaryDays(year)
+    if IsLeapYear(year) then
+        return 29
+    else
+        return 28
+    end
+end
+
+local function GetNumDaysToDate(year, month, day)
+    local numDays = day;
+
+    for yr = 1, (year -1) do
+        if IsLeapYear(yr) then
+            numDays = numDays + 366;
+        else
+            numDays = numDays + 365;
+        end
+    end
+
+    for m = 1, (month - 1) do
+        if m == 2 then
+            numDays = numDays + GetFebruaryDays(year);
+        else
+            numDays = numDays + MonthDays[m];
+        end
+    end
+
+    return numDays
+end
+
+local function GetNumSecondsToDate(year, month, day, hour, minute, second)
+    hour = hour or 0;
+    minute = minute or 0;
+    second = second or 0;
+    local numDays = GetNumDaysToDate(year, month, day);
+    local numSeconds = second;
+    numSeconds = numSeconds + numDays * 86400;
+    numSeconds = numSeconds + hour * 3600 + minute * 60;
+    return numSeconds
+end
+
+local function ConvertCalendarTime(calendarTime)
+    --WoW's CalendarTime See https://warcraft.wiki.gg/wiki/API_C_DateAndTime.GetCurrentCalendarTime
+    local year = calendarTime.year;
+    local month = calendarTime.month;
+    local day = calendarTime.monthDay;
+    local hour = calendarTime.hour;
+    local minute = calendarTime.minute;
+    local second = calendarTime.second or 0;    --the original calendarTime does not contain second
+
+    return {year, month, day, hour, minute, second}
+end
+
+local function GetCalendarTimeDifference(lhsCalendarTime, rhsCalendarTime)
+    --time = {year, month, day, hour, minute, second}
+    local time1 = ConvertCalendarTime(lhsCalendarTime);
+    local time2 = ConvertCalendarTime(rhsCalendarTime);
+    local second1 = GetNumSecondsToDate(unpack(time1));
+    local second2 = GetNumSecondsToDate(unpack(time2));
+    return second2 - second1
+end
+NarciAPI.GetCalendarTimeDifference = GetCalendarTimeDifference;
