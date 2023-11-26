@@ -60,9 +60,18 @@ local MAP_UI_INFO = {
     [245] = {name = 'freehold', },
     [206] = {name = 'neltharions-lair', },
     [405] = {name = 'brackenhide-hollow', },
+
+    [244] = {name = 'ataldazar', },
+    [199] = {name = 'black-rook-hold', },
+    [198] = {name = 'darkheart-thicket', },
+    [168] = {name = 'the-everbloom', },
+    [456] = {name = 'throne-of-the-tides', },
+    [248] = {name = 'waycrest-manor', },
+    [463] = {name = 'dawn-of-the-infinite', },  --Galakrond
+    [464] = {name = 'dawn-of-the-infinite', },  --Murozond
 };
 
-local SEASON_MAPS = {403, 438, 251, 404, 206, 406, 245, 405};
+local SEASON_MAPS = {244, 199, 198, 168, 463, 464, 456, 248};
 local IS_MAP_THIS_SEASON = {};
 
 local function ShowNewDungeons()

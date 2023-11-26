@@ -599,7 +599,7 @@
                             <Size x="192"/>
                             <Color r="0.1" g="0.1" b="0.1"/>
                             <Anchors>
-                                <Anchor point="TOP" relativeKey="$parent.$parent" relativePoint="TOP"/>
+                                <Anchor point="TOP" relativeKey="$parent" relativePoint="TOP"/>
                                 <Anchor point="BOTTOM" relativeKey="$parent.$parent" relativePoint="BOTTOM"/>
                             </Anchors>
                         </Texture>

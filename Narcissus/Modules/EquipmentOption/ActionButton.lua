@@ -29,6 +29,14 @@ local function FormatReplacementString(effectText, isNew)
     end
 end
 
+local function RegisterClicks(actionButton)
+    if C_CVar.GetCVarBool("ActionButtonUseKeyDown") then
+        actionButton:RegisterForClicks("LeftButtonDown", "RightButtonDown", "RightButtonUp");
+    else
+        actionButton:RegisterForClicks("LeftButtonUp", "RightButtonDown", "RightButtonUp");
+    end
+end
+
 
 NarciEquipmentEnchantActionButtonMixin = {};
 
@@ -122,6 +130,7 @@ function NarciEquipmentEnchantActionButtonMixin:OnLeave()
 end
 
 function NarciEquipmentEnchantActionButtonMixin:SetUsingItem(itemID, slotID)
+    RegisterClicks(self);
     local slotName = GetSlotNameByID(slotID);
     local macroText = string.format("/use item:%s\r/click %s\r/click StaticPopup1Button1\r/click %s", itemID, slotName or "", slotName or "");
     self:SetAttribute("type1", "macro");
@@ -136,6 +145,7 @@ function NarciEquipmentEnchantActionButtonMixin:GetMacroText()
 end
 
 function NarciEquipmentEnchantActionButtonMixin:SetClickToCancel()
+    RegisterClicks(self);
     self:SetAttribute("type1", nil);
     self:SetAttribute("type2", "macro");
     self:SetAttribute("macrotext", "/stopcasting");

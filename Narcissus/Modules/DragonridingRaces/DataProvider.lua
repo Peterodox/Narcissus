@@ -12,11 +12,14 @@ local CalendarTexture = {
     [5213738] = "Kalimdor",
     [5225883] = "Eastern Kingdoms",
     [5225884] = "Eastern Kingdoms",
+    [5225881] = "Outland",
+    [5225882] = "Outland",
 };
 
 local TourLabelXContitentMapID = {
     ["Kalimdor"] = 12,
     ["Eastern Kingdoms"] = 13;
+    ["Outland"] = 101,
 };
 
 local TourPOI = {
@@ -233,8 +236,100 @@ local TourPOI = {
 		["id"] = 7584,
 		["continent"] = 13,
 	},
-};
 
+
+	[7589] = {--Hellfire Hustle
+		["mapID"] = 100,
+		["cy"] = 0.5036680698394775,
+		["cx"] = 0.6502492427825928,
+		["id"] = 7589,
+		["continent"] = 101,
+	},
+	[7590] = {--Coilfang Caper
+		["mapID"] = 102,
+		["cy"] = 0.4408425688743591,
+		["cx"] = 0.3078436851501465,
+		["id"] = 7590,
+		["continent"] = 101,
+	},
+	[7591] = {--Blade's Edge Brawl
+		["mapID"] = 105,
+		["cy"] = 0.2070049643516541,
+		["cx"] = 0.4271526038646698,
+		["id"] = 7591,
+		["continent"] = 101,
+	},
+	[7592] = {--Telaar Tear
+		["mapID"] = 107,
+		["cy"] = 0.7368491888046265,
+		["cx"] = 0.3388928771018982,
+		["id"] = 7592,
+		["continent"] = 101,
+	},
+	[7593] = {--Razorthorn Rise Rush
+		["mapID"] = 108,
+		["cy"] = 0.6006608009338379,
+		["cx"] = 0.5234887599945068,
+		["id"] = 7593,
+		["continent"] = 101,
+	},
+	[7594] = {--Auchindoun Coaster
+		["mapID"] = 108,
+		["cy"] = 0.7958080768585205,
+		["cx"] = 0.4691863059997559,
+		["id"] = 7594,
+		["continent"] = 101,
+	},
+	[7595] = {--Tempest Keep Sweep
+		["mapID"] = 109,
+		["cy"] = 0.1837196350097656,
+		["cx"] = 0.6500643491744995,
+		["id"] = 7595,
+		["continent"] = 101,
+	},
+	[7596] = {--Shattrath City Sashay
+		["mapID"] = 108,
+		["cy"] = 0.6794252991676331,
+		["cx"] = 0.4461385011672974,
+		["id"] = 7596,
+		["continent"] = 101,
+	},
+	[7597] = {--Shadowmoon Slam
+		["mapID"] = 104,
+		["cy"] = 0.8197986483573914,
+		["cx"] = 0.6966030597686768,
+		["id"] = 7597,
+		["continent"] = 101,
+	},
+	[7598] = {--Eco-Dome Excursion
+		["mapID"] = 109,
+		["cy"] = 0.1652154326438904,
+		["cx"] = 0.5935842990875244,
+		["id"] = 7598,
+		["continent"] = 101,
+	},
+	[7599] = {--Warmaul Wingding
+		["mapID"] = 107,
+		["cy"] = 0.5756202340126038,
+		["cx"] = 0.2478588819503784,
+		["id"] = 7599,
+		["continent"] = 101,
+	},
+	[7600] = {--Skettis Scramble
+		["mapID"] = 108,
+		["cy"] = 0.7895718812942505,
+		["cx"] = 0.5464901328086853,
+		["id"] = 7600,
+		["continent"] = 101,
+	},
+	[7601] = {--Fel Pit Fracas
+		["mapID"] = 104,
+		["cy"] = 0.7935017347335815,
+		["cx"] = 0.662832498550415,
+		["id"] = 7601,
+		["continent"] = 101,
+	},
+};
 
 local RecordData = {
     --Record is Currency
@@ -386,9 +481,70 @@ local RecordData = {
         recordCurrency = {2548, 2564, 2580},
     },
 
-    [7584] = {--14
-        goldTime = {57, 52, 52},
-        recordCurrency = {2549, 2565, 2581},
+    --Outland
+    [7589] = {--1
+        goldTime = {75, 73, 72},
+        recordCurrency = {2600, 2615, 2630},
+    },
+
+    [7590] = {--2
+        goldTime = {75, 70, 70},
+        recordCurrency = {2601, 2616, 2631},
+    },
+
+    [7591] = {--3
+        goldTime = {75, 72, 75},
+        recordCurrency = {2602, 2617, 2632},
+    },
+
+    [7592] = {--4
+        goldTime = {64, 57, 58},
+        recordCurrency = {2603, 2618, 2633},
+    },
+
+    [7593] = {--5
+        goldTime = {67, 54, 54},
+        recordCurrency = {2604, 2619, 2634},
+    },
+
+    [7594] = {--6
+        goldTime = {73, 70, 70},
+        recordCurrency = {2605, 2620, 2635},
+    },
+
+    [7595] = {--7
+        goldTime = {100, 87, 88},
+        recordCurrency = {2606, 2621, 2636},
+    },
+
+    [7596] = {--8
+        goldTime = {75, 65, 66},
+        recordCurrency = {2607, 2622, 2637},
+    },
+
+    [7597] = {--9
+        goldTime = {70, 63, 63},
+        recordCurrency = {2608, 2623, 2638},
+    },
+
+    [7598] = {--10
+        goldTime = {115, 109, 110},
+        recordCurrency = {2609, 2624, 2639},
+    },
+
+    [7599] = {--11
+        goldTime = {80, 72, 73},
+        recordCurrency = {2610, 2625, 2640},
+    },
+
+    [7600] = {--12
+        goldTime = {70, 63, 63},
+        recordCurrency = {2611, 2626, 2641},
+    },
+
+    [7601] = {--13
+        goldTime = {77, 73, 76},
+        recordCurrency = {2612, 2627, 2642},
     },
 };
 
@@ -731,8 +887,8 @@ local function ProcessAllPOI()
     local pois = {};
     local i = 0;
 
-    for k, v in pairs(TourPOI) do
-        table.insert(pois, k);
+    for poiID in pairs(TourPOI) do
+        table.insert(pois, poiID);
     end
 
     f:SetScript("OnUpdate", function(self, elapsed)

@@ -1772,12 +1772,12 @@ end
 local function GetAvailableItemUpgradeTracks()
     local bonusInfo = {
         --{bonusID, maxItemLevel}
-        {9294, 398},  --Explorer
-        {9302, 411},  --Adventurer
-        {9313, 424},  --Veteran 1/8    --LFG
-        {9321, 437},  --Champion 1/8   --Normal
-        {9330, 441},  --Hero 1/5       --Heroic
-        {9380, 447},  --Myth 1/3       --Mythic added in 10.1.5
+        {9294, 437},  --Explorer
+        {9302, 450},  --Adventurer
+        {9313, 463},  --Veteran 1/8    --LFG
+        {9321, 476},  --Champion 1/8   --Normal
+        {9330, 483},  --Hero 1/5       --Heroic
+        {9380, 489},  --Myth 1/3       --Mythic added in 10.1.5
     };
 
     local tooltipData;

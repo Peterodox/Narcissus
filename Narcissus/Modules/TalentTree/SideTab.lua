@@ -96,8 +96,8 @@ local function SpecButton_OnClick(self, button)
         SideFrame.SpecTab.t = 2;
         if ActionValidityCheck:IsValid() then
             LoadingBarUtil:SetFromSpecButton(self);
-            if ClassTalentFrame then
-                ClassTalentFrame.SpecTab:ActivateSpecByIndex(self.specIndex);
+            if ClassTalentHelper and ClassTalentHelper.SwitchToSpecializationByIndex then
+                ClassTalentHelper.SwitchToSpecializationByIndex(self.specIndex);
             else
                 SetSpecialization(self.specIndex, false);
             end

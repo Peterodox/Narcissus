@@ -101,7 +101,7 @@ function NarciMinimapButtonMixin:CreatePanel()
         function()
 		    Narci_OpenGroupPhoto();
         end,
-		
+
 		function()
 			Narci_ShowDressingRoom();
 		end,

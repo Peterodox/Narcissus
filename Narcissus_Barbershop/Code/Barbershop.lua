@@ -136,12 +136,12 @@ function ModelPool:SetActiveModelPool(poolID)
     self.activeModelPool = self.pools[poolID];
 end
 
-function ModelPool:AcquireModel(modelID)
-    if not self.activeModelPool[modelID] then
-        self.activeModelPool[modelID] = CreateFrame("PlayerModel", nil, self.container);
-        self.SetupModel( self.activeModelPool[modelID] );
+function ModelPool:AcquireModel(identifier)
+    if not self.activeModelPool[identifier] then
+        self.activeModelPool[identifier] = CreateFrame("PlayerModel", nil, self.container);
+        self.SetupModel( self.activeModelPool[identifier] );
     end
-    return self.activeModelPool[modelID]
+    return self.activeModelPool[identifier]
 end
 
 function ModelPool:ReleaseModels()
@@ -987,6 +987,10 @@ function NarciBarberShopSavedLooksMixin:IsPortraitLoaded()
     if self.Model then
         return self.Model.isModelLoaded
     end
+end
+
+function NarciBarberShopSavedLooksMixin:GetPortraitModel()
+    return self.Model
 end
 
 function NarciBarberShopSavedLooksMixin:LoadPortrait()
@@ -2539,18 +2543,45 @@ function NarciBarberShopLoadingFrameMixin:OnLoad()
 end
 
 function NarciBarberShopLoadingFrameMixin:LoadPortraits()
+    local model;
+
+    if self.isLoading then
+        --player select another category before previous portraits loading complete
+        if self.models then
+            for i, model in ipairs(self.models) do
+                model.isModelLoaded = false;
+                model:ClearModel();
+            end
+            self.models = nil;
+        end
+
+        if self.button then
+            model = self.button:GetPortraitModel();
+            if model then
+                model.isModelLoaded = false;
+                model:ClearModel();
+            end
+        end
+    end
+
     local fromID;
     local total = 0;
+    local models = {};
     if SavedLookButtons then
-        for i = 1, #SavedLookButtons do
-            if (not SavedLookButtons[i]:IsPortraitLoaded()) and SavedLookButtons[i].appearanceData then
+        for i, presetButton in ipairs(SavedLookButtons) do
+            model = presetButton:GetPortraitModel();
+            if model then
+                tinsert(models, model);
+            end
+            if (not presetButton:IsPortraitLoaded()) and presetButton.appearanceData then
                 total = total + 1;
-                if not fromID  then
+                if not fromID then
                     fromID = i;
                 end
             end
         end
     end
+    self.models = models;
 
     if total == 0 then
         self:Hide();
@@ -2605,14 +2636,14 @@ function NarciBarberShopLoadingFrameMixin:OnLoadingComplete()
     --self:StopAnimating();
     self:SetScript("OnUpdate", nil);
     self.isLoading = false;
-    --self:Hide();
-    FadeFrame(self, 0.5, 0);
+    self.button = nil;
 
+    FadeFrame(self, 0.5, 0);
     MainFrame:ResetCustomizationInternally();
 
-    if MainFrame:IsCharacterCategoryChanged() then
+    --if MainFrame:IsCharacterCategoryChanged() then
 
-    else
+    --else
 
-    end
+    --end
 end

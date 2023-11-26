@@ -1438,6 +1438,9 @@ function NarciMiniTalentTreeMixin:SetBackgroundAlpha(alpha)
     self.SpecArt:SetAlpha(alpha);
 end
 
+function NarciMiniTalentTreeMixin:OnSwitchLoadoutFailed(reason)
+    self:RequestUpdate();
+end
 
 NarciTalentTreeLoadoutButtonMixin = {};
 
@@ -1469,6 +1472,10 @@ local function AttemptToApplyConfig(configIDToLoad)
     if not configIDToLoad then return end;
     MainFrame.lastConfigID = DataProvider:GetSelecetdConfigID();
 
+    if not ClassTalentFrame then
+		ClassTalentFrame_LoadUI();
+	end
+
     if ClassTalentFrame then
         ClassTalentFrame.TalentsTab:LoadConfigByPredicate(function(_, configID)
             return configID == configIDToLoad;
@@ -1492,16 +1499,14 @@ function NarciTalentTreeLoadoutButtonMixin:OnClick()
     if self.selected then
 
     else
-        if self.configID then
+        if self.configID and (ClassTalentHelper and ClassTalentHelper.SwitchToLoadoutByIndex) then
             MainFrame.lastConfigID = DataProvider:GetSelecetdConfigID();
-
-            local result = AttemptToApplyConfig(self.configID);
-            if result ~= 0 then
-                --print(MainFrame.lastConfigID, self.configID)
-                if result ~= 1 then
-                    LoadingBarUtil:SetFromLoadoutToggle(MainFrame.LoadoutToggle);
-                end
+            if ClassTalentHelper and ClassTalentHelper.SwitchToLoadoutByIndex then
+                ClassTalentHelper.SwitchToLoadoutByIndex(self.index);
             end
+            --Talent swap may not succeed due to abilities in cooldown, but "ClassTalentHelper" itself doesn't return anything
+            --We check if loading start after 1s
+            LoadingBarUtil:SetFromLoadoutToggle(MainFrame.LoadoutToggle);
         end
     end
     LoadoutUtil:HideList();
@@ -1570,6 +1575,7 @@ function LoadoutUtil:UpdateList()
         if not button then
             button = CreateFrame("Button", nil, self.container, "NarciTalentTreeLoadoutButtonTemplate");
             self.buttons[i] = button;
+            button.index = i;
             button.ButtonText:SetFont(self.font, FONT_HEIGHT, "");
             button:SetPoint("TOP", MainFrame.LoadoutToggle, "TOP", 0, self.buttonHeight*( - i));
             button:SetHeight(self.buttonHeight);

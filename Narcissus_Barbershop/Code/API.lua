@@ -218,7 +218,7 @@ local CAMERA_DATA_FILEID = {
     [4252339] = {1.79, -5.96, -3.69, 0.78},     --Winding Slitherdrake   --{1.95, 5.96, -3.73, -0.79} --left face
     [5143343] = {-0.59, -1.86, -2.57, 0.44},    --Grotto Netherwing Drake
     [5228774] = {-0.24, -1.38, -2.56, 0.44},    --Flourishing Whimsydrake
-
+    [5305977] = {0.2, -0.5, -1.87, 0.35},       --Algarian Stormrider
 
     --Druid
     [1139162] = {1.73, -0.22, -2.48, 0.61},     --Moonkin, Classic

@@ -765,7 +765,8 @@ function NarciEquipmentOptionMixin:UpdateCurrentList(resetScroll)
         self:AnimateSize(240, BUTTON_HEIGHT * 4, 0.25);
     end
 
-    self.ItemList.NoItemText:SetShown(numItems == 0);
+    self.isListEmpty = numItems == 0;
+    self.ItemList.NoItemText:SetShown(self.isListEmpty and not (NarciItemSocketingActionButton:IsShown()));
     self.inUseGemID, self.inUsedEnchantID = GetAppliedEnhancement(self.itemLink);
     local newGemID = GetNewGemID(true);
 
@@ -791,6 +792,9 @@ function NarciEquipmentOptionMixin:HasMouseFocus()
     return (self:IsShown() and self:IsFocused());
 end
 
+function NarciEquipmentOptionMixin:IsCurrentListEmpty()
+    return self.isListEmpty
+end
 
 NarciEquipmentOptionButtonMixin = {};
 
