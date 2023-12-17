@@ -238,6 +238,7 @@
 		</Layers>
 		<Frames>
 			<Frame parentKey="BackgroundFrame" useParentLevel="true" setAllPoints="true"/>
+			<ScrollFrame parentKey="ContentFrame" setAllPoints="true"/>
 			<Frame parentKey="PreviewFrame" clampedToScreen="true" hidden="true">
 				<Size x="78" y="104"/>
 				<Anchors>

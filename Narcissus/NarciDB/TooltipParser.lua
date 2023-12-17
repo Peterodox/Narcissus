@@ -39,7 +39,7 @@ local TEXT_LOCALE = GetLocale();
 
 local GetItemInfoInstant = GetItemInfoInstant;
 local GetItemGem = GetItemGem;
-local GetItemStats = GetItemStats;
+local GetItemStats = GetItemStats or C_Item.GetItemStats;
 local GetInventoryItemLink = GetInventoryItemLink;
 local StripHyperlinks = StripHyperlinks;    --Added in 10.1.0
 

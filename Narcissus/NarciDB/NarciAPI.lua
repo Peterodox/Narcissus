@@ -456,7 +456,7 @@ local EnchantInfo = Narci.EnchantData;
 local DoesItemExist = C_Item.DoesItemExist;
 local GetCurrentItemLevel = C_Item.GetCurrentItemLevel;
 local GetItemLink = C_Item.GetItemLink
-local GetItemStats = GetItemStats;
+local GetItemStats = GetItemStats or C_Item.GetItemStats;
 local GetItemGem = GetItemGem;
 
 function NarciAPI_GetItemStats(itemLocation)

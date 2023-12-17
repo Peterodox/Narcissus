@@ -12,6 +12,7 @@ local SheatheToggle;
 local AnimationButton, AnimationDropDown;
 
 local SELECTED_DATA;
+local IS_10_2_5 = addon.IsTOCVersionEqualOrNewerThan(100205);   --Stop showing items in a transmog set since it becomes baseline in 10.2.5
 
 
 local function SetButtonFontColor(fontString, colorIndex)
@@ -24,6 +25,19 @@ local function SetButtonFontColor(fontString, colorIndex)
     end
 end
 
+local function GetSelectedMountTypeName()
+    local data = SELECTED_DATA;
+    if not (data and data.mountID and data.mountID ~= 0) then return end;
+    local mountTypeID = select(5, C_MountJournal.GetMountInfoExtraByID(data.mountID));
+    local mountTypeName;
+    if mountTypeID == 230 then --ground
+        mountTypeName = MOUNT_JOURNAL_FILTER_GROUND or "Ground";
+    elseif mountTypeID == 248 then  --flying
+        mountTypeName = MOUNT_JOURNAL_FILTER_FLYING or "Flying";
+    end
+    return mountTypeName
+end
+
 local function OnProductSelectedAfterModel(f, data)
     --Enum.PerksVendorCategoryType
     SELECTED_DATA = data;
@@ -33,7 +47,7 @@ local function OnProductSelectedAfterModel(f, data)
     local showSheatheToggle = true;
 
     if categoryID == 8 then
-        if data.transmogSetID then
+        if data.transmogSetID and not IS_10_2_5 then
             ExtraDetailFrame:Show();
             local sourceIDs = C_TransmogSets.GetAllSourceIDs(data.transmogSetID);
             ExtraDetailFrame:DisplayEnsembleSources(sourceIDs);
@@ -46,8 +60,20 @@ local function OnProductSelectedAfterModel(f, data)
         end
         showSheatheToggle = false;
     elseif categoryID == 2 then
-        --mount
+        --Mount: Add mountType (Ground, Flying, etc.) to CategoryText
         showSheatheToggle = false;
+        local mountTypeName = GetSelectedMountTypeName();
+        if mountTypeName then
+            local defaultDetailsFrame = ExtraDetailFrame.parentFrame;   --PerksProgramDetailsFrameTemplate
+            if defaultDetailsFrame and defaultDetailsFrame.CategoryText then
+                C_Timer.After(0, function() --DetailsFrame also use EventRegistry for updating data, so we need to set a delay
+                    mountTypeName = GetSelectedMountTypeName();
+                    if mountTypeName then
+                        defaultDetailsFrame.CategoryText:SetText((PERKS_VENDOR_CATEGORY_MOUNT or "Mount").." - "..mountTypeName);
+                    end
+                end);
+            end
+        end
     end
 
     if not showExtraDetail then
@@ -438,7 +464,7 @@ function NarciPerksProgramItemDetailExtraFrameMixin:OnLoad()
     self:RegisterEvent("PERKS_PROGRAM_OPEN");
     self:RegisterEvent("PERKS_PROGRAM_CLOSE");
     self:SetEnsembleHeaderText();
-    EventRegistry:RegisterCallback("PerksProgramModel.OnProductSelectedAfterModel", OnProductSelectedAfterModel, self);
+    EventRegistry:RegisterCallback("PerksProgramModel.OnProductSelectedAfterModel", OnProductSelectedAfterModel, ExtraDetailFrame);
 end
 
 function NarciPerksProgramItemDetailExtraFrameMixin:OnEvent(event, ...)
@@ -480,6 +506,7 @@ local function CalculateInitialOffset(buttonSize, gap, numButtons, maxButtonPerR
     local spanX = (buttonSize + gap) * (math.min(numButtons, maxButtonPerRow)) - gap;
     return -0.5*spanX;
 end
+
 function NarciPerksProgramItemDetailExtraFrameMixin:DisplayEnsembleSources(sourceIDs)
     self:ReleaseButtons();
     local numItems = (sourceIDs and #sourceIDs) or 0;

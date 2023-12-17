@@ -3,6 +3,10 @@ local TEXTURE_PATH = "Interface\\AddOns\\Narcissus\\Art\\Widgets\\Progenitor\\";
 
 local GetInventoryItemID = GetInventoryItemID;
 local GetSpellDescription = GetSpellDescription;
+local GetSpecializationInfo = GetSpecializationInfo;
+local GetSetBonusesForSpecializationByItemID = C_Item.GetSetBonusesForSpecializationByItemID or GetSetBonusesForSpecializationByItemID;     --Deprecated
+local GetNumSpecializations = GetNumSpecializations;
+
 local FadeFrame = NarciFadeUI.Fade;
 local strtrim = strtrim;
 
@@ -23,7 +27,6 @@ local candidateSlots = {
 
 
 local isLastestClassSetItem = {};
-local clssSetSpells = {};
 local classSetGroup = {};
 
 local function SetClassSetGroup(items, key)
@@ -76,172 +79,8 @@ do
 
     if addon.IsTOCVersionEqualOrNewerThan(100200) then
         newRaidItems = amidrassil;
-
-        clssSetSpells = {
-            --[classID] = { [specIndex] = {spell1, spell2} },
-        
-            [1] = {    --Warrior
-                {422923, 422924},   --Arms 71
-                {422925, 422926},   --Fury 72
-                {422927, 422928},   --Protection 73
-            },
-        
-            [2] = {    --Paladin
-                {422893, 422894},   --Holy 65
-                {422895, 422896},   --Protection 66
-                {424513, 424572},   --Retribution 70
-            },
-        
-            [3] = {    --Hunter
-                {422874, 422875},   --BM 253
-                {422876, 422877},   --Marksmanship 254
-                {422878, 422879},   --Survival 255
-            },
-        
-            [4] = {    --Rogue
-                {422905, 422906},   --Ass 259
-                {422907, 422908},   --Outlaw 260
-                {422910, 422909},   --Sub 261
-            },
-        
-            [5] = {    --Priest
-                {422899, 422900},   --Discipline 256
-                {422901, 422902},   --Holy 257
-                {422903, 422904},   --Shadow 258
-            },
-        
-            [6] = {    --DK
-                {422850, 422851},   --Blood 250
-                {422852, 422853},   --Frost 251
-                {422854, 422855},   --Unholy 252
-            },
-        
-            [7] = {    --Shaman
-                {422911, 422912},   --Elemental 262
-                {422913, 422914},   --Enhancement 263
-                {422915, 422916},   --Restoration 264
-            },
-        
-            [8] = {    --Mage
-                {422880, 422881},   --Arcane 62
-                {422882, 422883},   --Fire 63
-                {422884, 422885},   --Frost 64
-            },
-        
-            [9] = {    --Warlock
-                {422917, 422918},   --Affliction 265
-                {422919, 422920},   --Demonology 266
-                {422921, 422922},   --Destruction 267
-            },
-        
-            [10] = {    --Monk
-                {422886, 422887},   --Brewmaster 268
-                {422889, 422890},   --Mistweaver 270
-                {422891, 422892},   --Windwalker 269
-            },
-        
-            [11] = {    --Druid
-                {422862, 422863},   --Balance 102
-                {422747, 422748},   --Feral 103
-                {422864, 422865},   --Guardian 104
-                {422866, 422867},   --Restoration 105
-            },
-        
-            [12] = {    --DH
-                {422857, 422859},   --Havoc 577
-                {422860, 422861},   --Vengeance 581
-            },
-        
-            [13] = {    --Evoker
-                {422870, 422871},   --Devastation 1467
-                {422872, 422873},   --Preservation 1468
-                {422868, 422869},   --Augmentation 1473
-            },
-        };
     else
         newRaidItems = aberrus;
-
-        clssSetSpells = {
-            --[classID] = { [specIndex] = {spell1, spell2} },
-        
-            [1] = {    --Warrior
-                {405577, 405578},   --Arms 71
-                {405579, 405580},   --Fury 72
-                {405581, 405582},   --Protection 73
-            },
-        
-            [2] = {    --Paladin
-                {405545, 405546},   --Holy 65
-                {405547, 405548},   --Protection 66
-                {405549, 405550},   --Retribution 70
-            },
-        
-            [3] = {    --Hunter
-                {405524, 405525},   --BM 253
-                {405526, 405527},   --Marksmanship 254
-                {405528, 405530},   --Survival 255
-            },
-        
-            [4] = {    --Rogue
-                {405559, 405560},   --Ass 259
-                {405561, 405562},   --Outlaw 260
-                {405563, 405564},   --Sub 261
-            },
-        
-            [5] = {    --Priest
-                {405551, 405553},   --Discipline 256
-                {405554, 405556},   --Holy 257
-                {405557, 405558},   --Shadow 258
-            },
-        
-            [6] = {    --DK
-                {405499, 405500},   --Blood 250
-                {405501, 405502},   --Frost 251
-                {405503, 405504},   --Unholy 252
-            },
-        
-            [7] = {    --Shaman
-                {405565, 405566},   --Elemental 262
-                {405567, 405568},   --Enhancement 263
-                {405569, 405570},   --Restoration 264
-            },
-        
-            [8] = {    --Mage
-                {405532, 405533},   --Arcane 62
-                {405534, 405535},   --Fire 63
-                {405536, 405538},   --Frost 64
-            },
-        
-            [9] = {    --Warlock
-                {405571, 405572},   --Affliction 265
-                {405573, 405574},   --Demonology 266
-                {405575, 405576},   --Destruction 267
-            },
-        
-            [10] = {    --Monk
-                {405539, 405540},   --Brewmaster 268
-                {405541, 405542},   --Mistweaver 270
-                {405543, 411375},   --Windwalker 269
-            },
-        
-            [11] = {    --Druid
-                {405510, 405511},   --Balance 102
-                {405512, 405513},   --Feral 103
-                {405514, 405515},   --Guardian 104
-                {405516, 405517},   --Restoration 105
-            },
-        
-            [12] = {    --DH
-                {405505, 405507},   --Havoc 577
-                {405508, 405509},   --Vengeance 581
-            },
-        
-            [13] = {    --Evoker
-                {405518, 405519},   --Devastation 1467
-                {405520, 405522},   --Preservation 1468
-                {414877, 414878},   --Augmentation 1473
-            },
-        };
     end
 
     for _, itemID in pairs(newRaidItems) do
@@ -260,15 +99,18 @@ end
 
 local NUM_OWNED = 0;
 local OWNED_SLOTS;
+local EXAMPLE_ITEM;
 
 local function GetEquippedSet(recount)
     if recount then
         local itemID;
         local numValid = 0;
+
         OWNED_SLOTS = {};
         for slotID in pairs(candidateSlots) do
             itemID = GetInventoryItemID("player", slotID);
             if IsItemClassSet(itemID) then
+                EXAMPLE_ITEM = itemID;
                 numValid = numValid + 1;
                 OWNED_SLOTS[numValid] = slotID;
                 if numValid >= 5 then
@@ -278,7 +120,7 @@ local function GetEquippedSet(recount)
         end
         NUM_OWNED = numValid;
     end
-    return NUM_OWNED, OWNED_SLOTS
+    return NUM_OWNED, OWNED_SLOTS, EXAMPLE_ITEM
 end
 
 NarciAPI.IsItemClassSet = IsItemClassSet;
@@ -390,8 +232,7 @@ end
 
 function NarciClassSetTooltipMixin:Init()
     local _, _, classID = UnitClass("player");
-    self.specSpells = clssSetSpells[classID];
-    local numSpecs = #self.specSpells   --GetNumSpecializations();
+    local numSpecs = GetNumSpecializations();
 
     local padding = TOOLTIP_PADDING;
     local width = math.floor(self:GetWidth() + 0.5);
@@ -440,7 +281,7 @@ function NarciClassSetTooltipMixin:Init()
 end
 
 function NarciClassSetTooltipMixin:DisplayBonus(specIndex)
-    local numOwned = GetEquippedSet();     --debug
+    local numOwned, _, exampleItemID = GetEquippedSet();     --debug
 
     --Spec
     specIndex = specIndex or GetSpecialization();
@@ -464,13 +305,21 @@ function NarciClassSetTooltipMixin:DisplayBonus(specIndex)
 
     --Set Bonus
     local spell1, spell2, text1, text2;
-    if self.specSpells[specIndex] then
-        spell1, spell2 =  unpack(self.specSpells[specIndex]);
-        text1 = FormatText(GetSpellDescription(spell1));
-        text2 = FormatText(GetSpellDescription(spell2));
-    else
+    local specID = GetSpecializationInfo(specIndex);
+    if specID and exampleItemID then
+        local spells = GetSetBonusesForSpecializationByItemID(specID, exampleItemID);
+        if spells then
+            spell1, spell2 = unpack(spells);
+            text1 = FormatText(GetSpellDescription(spell1));
+            text2 = FormatText(GetSpellDescription(spell2));
+        end
+    end
+
+    if not text1 then
         text1 = "Bonus #1";
-        text2 = "Bonus #2";
+    end
+    if not text1 then
+        text1 = "Bonus #2";
     end
 
     local fullyLoaded;
@@ -588,6 +437,8 @@ function NarciClassSetIndicatorMixin:OnLoad()
 
     self.numOwned = 0;
     PDWC:AddWidget(self, 2);
+
+    self:SetNotification(Narci.L["Theme Changed"]);
 end
 
 function NarciClassSetIndicatorMixin:ResetAnchor()
@@ -658,11 +509,18 @@ function NarciClassSetIndicatorMixin:OnMouseDown(button)
         self:SetCount(self.numOwned);
     end
     --]]
+
     self.themeID = self.themeID + 1;
     if self.themeID > 3 then
         self.themeID = 1;
     end
     self:SetTheme(self.themeID, true);
+
+    if not self.notePlayed then
+        self.notePlayed = true;
+        self.Notification:Show();
+        self.Notification.FadeOut:Play();
+    end
 end
 
 function NarciClassSetIndicatorMixin:SetCount(numOwned)
@@ -722,6 +580,9 @@ function NarciClassSetIndicatorMixin:SetTheme(themeID, save)
     end
 end
 
+function NarciClassSetIndicatorMixin:SetNotification(text)
+    self.Notification:SetText(text);
+end
 
 
 --Splash--

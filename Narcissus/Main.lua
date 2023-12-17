@@ -3406,17 +3406,17 @@ function Narci_OpenGroupPhoto()
 		end
 		IS_OPENED = true;
 		CVarTemp:BackUp();
-		Toolbar:ShowUI("Narcissus");
+		Toolbar:ShowUI("PhotoMode");
 		ViewProfile:SaveView(5);
 		CameraUtil:UpdateParameters();
 		CameraMover:MakeActive();
 		SetCVar("test_cameraDynamicPitch", 1);
-		
+
 		local speedFactor = 180/(GetCVar("cameraYawMoveSpeed") or 180);
 		ZoomFactor.toSpeed = speedFactor*ZoomFactor.toSpeedBasic;
 		ZoomFactor.fromSpeed = speedFactor*ZoomFactor.fromSpeedBasic;
 		EL:Show();
-		
+
 		CameraMover:Pitch();
 
 		After(0, function()
@@ -3448,7 +3448,7 @@ function Narci_OpenGroupPhoto()
 				end)
 			end)
 		end)
-		
+
 		Narci.isActive = true;
 		MsgAlertContainer:Display();
 	end
@@ -4212,13 +4212,13 @@ EL:SetScript("OnEvent",function(self, event, ...)
 				CameraMover:UpdateMovementMethodForDynamicCam();
 			else
 				hooksecurefunc("CameraZoomIn", function(increment)
-					if IS_OPENED then
+					if IS_OPENED and (not Narci.groupPhotoMode) then
 						UpdateShoulderCVar:Start(-increment);
 					end
 				end)
 				
 				hooksecurefunc("CameraZoomOut", function(increment)
-					if IS_OPENED then
+					if IS_OPENED and (not Narci.groupPhotoMode) then
 						UpdateShoulderCVar:Start(increment);
 					end
 				end)

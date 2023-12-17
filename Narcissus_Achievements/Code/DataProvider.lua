@@ -64,6 +64,7 @@ DataProvider.id2Button = {};
 DataProvider.currentCategory = 0;
 DataProvider.isTrackedAchievements = {};
 DataProvider.trackedAchievements = {};
+DataProvider.rootCategories = {};
 
 function DataProvider:ClearCache()
     wipe(self.categoryCache);
@@ -225,4 +226,16 @@ end
 
 function DataProvider:StartTracking(id)
     AddTrackedAchievement(id);
+end
+
+function DataProvider:IsAchievementCompleted(id)
+    return self:GetAchievementInfo(id, 4) and true
+end
+
+function DataProvider:IsRootCategory(categoryID)
+    if self.rootCategories[categoryID] == nil then
+        local name, parentID = self:GetCategoryInfo(categoryID);
+        self.rootCategories[categoryID] = (parentID == -1 or parentID == 15076) or false;
+    end
+    return self.rootCategories[categoryID]
 end

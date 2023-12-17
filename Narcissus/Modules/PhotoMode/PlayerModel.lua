@@ -2498,6 +2498,7 @@ local function ExitGroupPhoto()
 	HighlightButton(SlotLayerButton, true);
 
 	ModelFrames[1] = PrimaryPlayerModel;
+	Narci.groupPhotoMode = false;
 end
 
 local function ShowIndexButtonLabel(self, bool)
@@ -3913,6 +3914,9 @@ function Narci_GroupPhotoToggle_OnClick(self)
 	Narci.showExitConfirm = true;
 
 	Narci_NPCBrowser:Init();
+
+	Narci.groupPhotoMode = true;
+	NarciScreenshotToolbar:ShowUI("PhotoMode");
 end
 
 
@@ -4039,7 +4043,6 @@ NarciActorPanelPopUpMixin = {};
 function NarciActorPanelPopUpMixin:OnShow()
 	self:RegisterEvent("PLAYER_TARGET_CHANGED");
 	self:RegisterEvent("MODIFIER_STATE_CHANGED");
-	
 
 	if UnitExists("target") then
 		self.AddTarget.isTypeLocked = not UnitIsPlayer("target");

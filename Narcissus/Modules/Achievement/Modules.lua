@@ -177,29 +177,84 @@ function RedirectFrame:OverrideFunctions()
     end
 end
 
-local function UpdateAchievementSettings()
-    if NarciAchievementOptions.UseAsDefault then
-        RedirectFrame:OverrideFunctions();
-        HookAchievementTooltip()
-        ENABLE_TOOLTIP = true;
-        if NarciAchievementOptions.ReplaceToast then
-            AchievementAlertUtil:Enable();
-            AchievementAlertFrame_OnClick = AchievementAlertUtil.AlertFrame_OnClick;
-        else
-            AchievementAlertUtil:Disable();
-            AchievementAlertFrame_OnClick = Original_AchievementAlertFrame_OnClick;
-        end
-    else
-        RedirectFrame:RestoreFunctions();
-        ENABLE_TOOLTIP = false;
-        AchievementAlertUtil:Disable();
-    end
-end
+
 --]]
 
-local function UpdateAchievementSettings()
+
+
+local REDIRECT_TO_NARCISSUS = false;
+local FUNCTIONS_HOOKED = false;
+
+local function CloseDefaultWindow()
+    local f = AchievementFrame;
+    if f and f:IsShown() then
+        if InCombatLockdown() then
+            --f:Hide();
+            --"Hide" doesn't seem to cause Interface Failure, but UIPanel still considers it opened
+            --which affects frame anchors and cause Esc unable to clear targets or open Game Menu
+        else
+            HideUIPanel(f);
+        end
+    end
 end
 
+local function New_OnBlockHeaderClick(_, block, mouseButton)
+    if not REDIRECT_TO_NARCISSUS then return end;
+    if mouseButton == "LeftButton" and not(IsModifiedClick("CHATLINK") or IsModifiedClick("QUESTWATCHTOGGLE")) then
+        local clickAgainToClose = true;
+        AttemptToOpenAchievement(block.id, clickAgainToClose);
+        CloseDefaultWindow();
+    end
+end
+
+local function New_AchievementAlertFrame_OnClick(self, button, down)
+    --Debug /run AchievementAlertSystem:AddAlert(5159)
+    if not REDIRECT_TO_NARCISSUS then return end;
+    if button == "LeftButton" then
+        local id = self.id;
+        if id then
+            AttemptToOpenAchievement(id);
+            CloseDefaultWindow();
+        end
+    end
+end
+
+local function HookAchievementTrackerModule()
+    --Attemp to use Hooks instead of overwriting exsisting functions to reduce Taint?
+    --Default AchievementFrame will be opened then closed by us, so there might be some stuttering
+
+    if FUNCTIONS_HOOKED then return end;
+    FUNCTIONS_HOOKED = true;
+
+    local m = ACHIEVEMENT_TRACKER_MODULE;
+    if m and m.OnBlockHeaderClick then
+        hooksecurefunc(m, "OnBlockHeaderClick", New_OnBlockHeaderClick);
+    end
+
+    if AchievementAlertFrame_OnClick then
+        hooksecurefunc("AchievementAlertFrame_OnClick", New_AchievementAlertFrame_OnClick);
+    end
+end
+
+HookAchievementTrackerModule();
+
+
+
+local function UpdateAchievementSettings()
+    local db = NarciAchievementOptions;
+    if not db then return end;
+
+    if db.UseAsDefault then
+        ENABLE_TOOLTIP = true;
+        HookAchievementTooltip()
+
+        REDIRECT_TO_NARCISSUS = true;
+        HookAchievementTrackerModule();
+    else
+        ENABLE_TOOLTIP = false;
+        REDIRECT_TO_NARCISSUS = false;
+    end
+end
 Narci.UpdateAchievementSettings = UpdateAchievementSettings;
 
 

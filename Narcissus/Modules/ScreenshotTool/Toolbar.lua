@@ -343,7 +343,9 @@ local function CameraButton_OnClick(self)
         self.isOn = nil;
     end
 
-    CVarUtil:SetCameraStatus(self.isOn);
+    if (not Narci.groupPhotoMode) then
+        CVarUtil:SetCameraStatus(self.isOn);
+    end
 
     self:UpdateIcon();
 end
@@ -403,6 +405,10 @@ local Layouts = {
 
     Blizzard = {"Camera", "Emote", "HideTexts", "TopQuality", "Location",
         customScale = 1,
+    },
+
+    PhotoMode = {"Mog", "Emote", "HideTexts", "TopQuality", "Camera",
+        showSwitch = true,
     },
 };
 

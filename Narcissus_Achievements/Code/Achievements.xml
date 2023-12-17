@@ -1,5 +1,7 @@
 <Ui xsi:schemaLocation="http://www.blizzard.com/wow/ui/..\FrameXML\UI.xsd">
 	<Script file="DataProvider.lua"/>
+	<Script file="Bookmarks.lua"/>
+
 	<Script file="RewardModelSceneMixin.lua"/>
 	<Script file="StatusBarMixin.lua"/>
 	<Script file="TabButtonMixin.lua"/>
@@ -308,13 +310,13 @@
 					</Anchors>
 				</FontString>
 
-				<FontString inherits="NarciAchievementDigit" text="25" justifyH="RIGHT" parentKey="value">
+				<FontString inherits="NarciAchievementDigit" text="" justifyH="RIGHT" parentKey="value">
 					<Anchors>
 						<Anchor point="RIGHT" relativeKey="$parent" relativePoint="RIGHT" x="-16" y="0"/>
 					</Anchors>
 				</FontString>
 
-				<FontString inherits="NarciPercentSign" text="%" justifyH="RIGHT" justifyV="BOTTOM" parentKey="percentSign">
+				<FontString inherits="NarciPercentSign" text="%" justifyH="RIGHT" justifyV="BOTTOM" parentKey="percentSign" hidden="true">
 					<Anchors>
 						<Anchor point="RIGHT" relativeKey="$parent" relativePoint="RIGHT" x="-8" y="-1.5"/>
 					</Anchors>
@@ -486,6 +488,12 @@
 					<Size x="20" y="20"/>
 					<Anchors>
 						<Anchor point="LEFT" relativeKey="$parent.NotEarned" relativePoint="RIGHT" x="2" y="0"/>
+					</Anchors>
+				</Texture>
+				<Texture file="Interface\AddOns\Narcissus_Achievements\Art\Shared\Bookmark.tga" parentKey="bookmarkIcon" hidden="true">
+					<Size x="20" y="20"/>
+					<Anchors>
+						<Anchor point="RIGHT" relativeKey="$parent.border" relativePoint="TOPRIGHT" x="-46" y="-25"/>
 					</Anchors>
 				</Texture>
 			</Layer>
@@ -1659,6 +1667,12 @@
 						</Anchors>
 					</Frame>
 					<Frame parentKey="StatsCategory" hidden="true">
+						<Anchors>
+							<Anchor point="TOPLEFT" relativeKey="$parent" relativePoint="TOPLEFT"/>
+							<Anchor point="BOTTOMRIGHT" relativeKey="$parent" relativePoint="BOTTOMRIGHT"/>
+						</Anchors>
+					</Frame>
+					<Frame parentKey="ToDoCategory" hidden="true">
 						<Anchors>
 							<Anchor point="TOPLEFT" relativeKey="$parent" relativePoint="TOPLEFT"/>
 							<Anchor point="BOTTOMRIGHT" relativeKey="$parent" relativePoint="BOTTOMRIGHT"/>
@@ -3117,7 +3131,7 @@
 				</MaskTexture>
 			</Layer>
 			<Layer level="OVERLAY">
-				<FontString inherits="NarciAchievementText" parentKey="FeatOfStrengthText" text="FEAT_OF_STRENGTH_DESCRIPTION" justifyH="LEFT" justifyV="MIDDLE" hidden="true">
+				<FontString inherits="NarciAchievementText" parentKey="FeatOfStrengthText" text="FEAT_OF_STRENGTH_DESCRIPTION" justifyH="CENTER" justifyV="MIDDLE" hidden="true">
 					<Size x="460" y="0"/>
 					<Anchors>
 						<Anchor point="CENTER" relativeKey="$parent.background" relativePoint="CENTER" x="-10" y="10"/>

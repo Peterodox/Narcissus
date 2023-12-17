@@ -198,6 +198,23 @@ function NarciPerksProgramProductListMixin:OnShow()
     if FrameToggle then
         FrameToggle:UpdateVisual();
     end
+
+    self:UpdateScale();
+end
+
+function NarciPerksProgramProductListMixin:UpdateScale()
+    --We want to show the entire list so player can know at once how many items there are
+    --We don't use ScrollFrame, instead scale down the frame if needed
+    self:SetScale(1);
+    local yBottom = self:GetBottom();
+    local safeY = 12;   --Half the button height
+    if yBottom < safeY then
+        local yTop = self:GetTop();
+        local fullHeight = yTop - yBottom;
+        local bestHeight = yTop - safeY;
+        local bestScale = bestHeight/fullHeight;
+        self:SetScale(bestScale);
+    end
 end
 
 function NarciPerksProgramProductListMixin:OnHide()
@@ -226,7 +243,7 @@ function NarciPerksProgramProductListMixin:OnEvent(event, ...)
     end
 end
 
-function NarciPerksProgramProductListMixin:ShowInfoButton()
+function NarciPerksProgramProductListMixin:CreateInfoButton()
     if not self.InfoButton then
         local b = CreateFrame("Frame", nil, self, "NarciGenericInfoButtonTemplate");
         self.InfoButton = b;
@@ -236,13 +253,26 @@ function NarciPerksProgramProductListMixin:ShowInfoButton()
         b:SetHitRectInsets(0, 0, 0, 0);
         b.tooltipOffsetX = 12;
         b.tooltipName = "GameTooltip";
-        b.tooltipText = Narci.L["Perks Program Using Cache Alert"];
+        b.tooltipText = Narci.L["Perks Program Using Cache Alert"]
     end
+end
+
+function NarciPerksProgramProductListMixin:ShowInfoButton()
+    self:CreateInfoButton();
+    self.InfoButton:Show();
 end
 
 function NarciPerksProgramProductListMixin:HideInfoButton()
     if self.InfoButton then
         self.InfoButton:Hide();
+    end
+end
+
+function NarciPerksProgramProductListMixin:SetupNumItems(count)
+    self:CreateInfoButton();
+
+    if count and count > 0 then
+        self.InfoButton.tooltipText = Narci.L["Perks Program Using Cache Alert"].."\n|cff808080"..string.format(SINGLE_PAGE_RESULTS_TEMPLATE or "%d Items", count).."|r";
     end
 end
 
@@ -309,7 +339,7 @@ end
 
 function NarciPerksProgramProductListMixin:AcquireButton(index)
     if not ProductButtons[index] then
-        ProductButtons[index] = CreateFrame("Button", nil, self, "NarciPerksProgramProductListButtonTemplate");
+        ProductButtons[index] = CreateFrame("Button", nil, self.ContentFrame, "NarciPerksProgramProductListButtonTemplate");
     end
     return ProductButtons[index]
 end
@@ -322,8 +352,13 @@ function NarciPerksProgramProductListMixin:UpdateList()
 
     if numItems > 0 then
         local sortedList = {};
-        for i = 1, numItems do
-            sortedList[i] = vendorItemIDs[i];
+        local numValid = 0;
+
+        for _, vendorItemID in ipairs(vendorItemIDs) do
+            if DataProvider:IsValidItem(vendorItemID) then
+                numValid = numValid + 1;
+                sortedList[numValid] = vendorItemID;
+            end
         end
 
         table.sort(sortedList, SortFunc_Category);
@@ -344,7 +379,7 @@ function NarciPerksProgramProductListMixin:UpdateList()
         local button;
 
         local numButtons = 0;
-        for i = 1, numItems do
+        for i = 1, numValid do
             vendorItemID = sortedList[i];
             categoryID = DataProvider:GetVendorItemCategory(vendorItemID);
             if categoryID ~= lastCategory then
@@ -355,7 +390,6 @@ function NarciPerksProgramProductListMixin:UpdateList()
                 button:SetPoint("TOPLEFT", self, "TOPLEFT", 0, -paddingTop + (1 - numButtons)*buttonHeight);
                 button:SetCategoryID(categoryID);
             end
-            
             numButtons = numButtons + 1;
             button = self:AcquireButton(numButtons);
             button:ClearAllPoints();
@@ -366,6 +400,7 @@ function NarciPerksProgramProductListMixin:UpdateList()
         self:SetHeight(paddingTop + paddingBottom + buttonHeight*numButtons);
         self.AlertText:Hide();
         self:ShowInfoButton();
+        self:SetupNumItems(numValid);
     else
         self.AlertText:SetText(Narci.L["Perks Program No Cache Alert"]);
         self.AlertText:Show();
@@ -1104,3 +1139,36 @@ C_TransmogSets.GetAllSourceIDs
 --]]
 
 --/script LoadAddOn("Blizzard_PerksProgram");ShowUIPanel(PerksProgramFrame);PerksProgramFrame:SetPropagateKeyboardInput(true);
+
+
+local function PrintUniqueVID()
+    --Debug
+    --Item must pass filter check, which remove category 0
+    --See: PerksProgramProducts_PassFilterCheck, PerksProgramFrame:GetFilterState(vendorItemInfo.perksVendorCategoryID)
+    local vendorItemIDs = C_PerksProgram.GetAvailableVendorItemIDs();
+    local unique = {};
+    for i, vendorItemID in ipairs(vendorItemIDs) do
+        if not unique[vendorItemID] then
+            unique[vendorItemID] = true;
+        end
+    end
+
+    local uniqueVendorItemIDs = {};
+
+    for vendorItemID in pairs(unique) do
+        table.insert(uniqueVendorItemIDs, vendorItemID);
+    end
+
+    table.sort(uniqueVendorItemIDs);
+
+    local GetInfo = C_PerksProgram.GetVendorItemInfo;
+    for i, vendorItemID in ipairs(uniqueVendorItemIDs) do
+        local info = GetInfo(vendorItemID);
+        if info then
+            print(vendorItemID, info.name);
+        else
+            print("No Info: "..vendorItemID);
+        end
+    end
+end
+NarciAPI.YeetTradingPostItemList = PrintUniqueVID;

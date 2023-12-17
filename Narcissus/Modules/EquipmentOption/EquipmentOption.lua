@@ -766,7 +766,7 @@ function NarciEquipmentOptionMixin:UpdateCurrentList(resetScroll)
     end
 
     self.isListEmpty = numItems == 0;
-    self.ItemList.NoItemText:SetShown(self.isListEmpty and not (NarciItemSocketingActionButton:IsShown()));
+    self.ItemList.NoItemText:SetShown(self.isListEmpty);
     self.inUseGemID, self.inUsedEnchantID = GetAppliedEnhancement(self.itemLink);
     local newGemID = GetNewGemID(true);
 

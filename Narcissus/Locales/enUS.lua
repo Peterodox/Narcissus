@@ -98,7 +98,7 @@ L["Use Alias"] = "Switch to Alias";
 L["Use Player Name"] = "Switch to "..CALENDAR_PLAYER_NAME;
 
 L["Minimap Tooltip Double Click"] = "Double-tap";
-L["Minimap Tooltip Left Click"] = "Left-click|r";
+L["Minimap Tooltip Left Click"] = "Left-click";
 L["Minimap Tooltip To Open"] = "|cffffffffOpen "..CHARACTER_INFO;
 L["Minimap Tooltip Module Panel"] = "|cffffffffOpen Module Panel";
 L["Minimap Tooltip Right Click"] = "Right-click";
@@ -459,8 +459,9 @@ L["Points"] = "Points";
 L["Reward"] = "Reward";
 L["Date"] = "Date";
 L["Click And Hold"] = "Click and Hold";
-L["Shadowlands Quests"] = "Missões das Terras Sombrias";
-L["Completed: %s (%s words)  Reading: %s (%s wpm)"] = "Concluído: %s (%s palavras)  Leitura: %s (%s ppm)";
+L["To Do List"] = "To-Do";
+L["Error Alert Bookmarks Too Many"] = "You may only bookmark %d achievements at a time.";
+L["Instruction Add To To Do List"] = string.format("%s Left Click on an unearned achievement to add it to your to-do list.", NARCI_MODIFIER_ALT);
 
 --Barbershop--
 L["Save New Look"] = "Save New Look";
@@ -512,7 +513,7 @@ L["Guide Input Headline"] = "Manual Input";
 L["Guide Input Line1"] = "You may also input a SpellVisualKitID yourself. As of 9.0, Its cap is around 155,000.\nYou can use your mousewheel to try the next/previous ID.\nVery few IDs can crash the game.";
 L["Guide Equipment Manager Line1"] = "Double-click: Use a set\nRight-click: Edit a set.\n\nThis button's previous function has been moved to Preferences.";
 L["Guide Model Control Headline"] = "Model Control";
-L["Guide Model Control Line1"] = format("This model shares the same mouse actions you use in the dressing room, plus:\n\n1.Hold %s and Left Button: Rotate model around Y-axis.\n2.Hold %s and Right Button: Execute scrubby zoom.", NARCI_MODIFIER_ALT, NARCI_MODIFIER_ALT);
+L["Guide Model Control Line1"] = string.format("This model shares the same mouse actions you use in the dressing room, plus:\n\n1.Hold %s and Left Button: Rotate model around Y-axis.\n2.Hold %s and Right Button: Execute scrubby zoom.", NARCI_MODIFIER_ALT, NARCI_MODIFIER_ALT);
 L["Guide Minimap Button Headline"] = "Minimap Button";
 L["Guide Minimap Button Line1"] = "Narcissus minimap button can now be handled by other addons.\nYou can change this option in the Preferences Panel. It may require a UI reload."
 L["Guide NPC Entrance Line1"] = "You can add any NPC into your scene."
@@ -648,6 +649,7 @@ L["Loop Animation"] = "Loop Animation";
 L["Cycle Spec"] = "Press Tab to cycle through specs";
 L["Paperdoll Splash 1"] = "Enable class set indicator?";
 L["Paperdoll Splash 2"] = "Choose a theme";
+L["Theme Changed"] = "Theme Changed";   --the color theme has been changed
 
 --Outfit Select--
 L["Outfit"] = "Outfit";

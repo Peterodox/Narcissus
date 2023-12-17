@@ -359,7 +359,13 @@ EventListener:SetScript("OnEvent", function(self, event, ...)
         end);
 
         DataProvider:UpdateActivePerksMonthInfo();
-        DataProvider:SaveCurrentMonthItems(vendorItemIDs);
+
+        if not self.monthItemUpdated then
+            self.monthItemUpdated = true;
+            local forceUpdate = true;
+            DataProvider:SaveCurrentMonthItems(vendorItemIDs, forceUpdate);
+        end
+
     elseif event == "PERKS_PROGRAM_CURRENCY_REFRESH" then
         DataProvider.ownedCurrencyAmount = nil;
     elseif event == "PERKS_PROGRAM_REFUND_SUCCESS" or event == "PERKS_PROGRAM_PURCHASE_SUCCESS" then
@@ -428,9 +434,10 @@ function DataProvider:GetCurrencyAmount()
     return self.ownedCurrencyAmount
 end
 
-function DataProvider:SaveCurrentMonthItems(vendorItemIDs)
+function DataProvider:SaveCurrentMonthItems(vendorItemIDs, forceUpdate)
+    --Sometimes not all items are immediately available on day 1
     local month = self:GetActivePerksDate();
-    if month ~= DB.CurrentMonthData.month then
+    if month ~= DB.CurrentMonthData.month or forceUpdate then
         local tbl = {};
         local total = 0;
         for i, id in ipairs(vendorItemIDs) do
@@ -466,6 +473,11 @@ function DataProvider:GetVendorItemAddedMonthName(vendorItemID)
     else
         return nil, true
     end
+end
+
+function DataProvider:IsValidItem(vendorItemID)
+    local categoryID = self:GetVendorItemCategory(vendorItemID);
+    return categoryID and categoryID ~=0 and categoryID ~= 128
 end
 
 

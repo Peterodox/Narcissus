@@ -46,6 +46,7 @@ local AFKCountdownFrame;
 local function CreateAFKCountdown()
     AFKCountdownFrame = CreateFrame("Frame", nil, UIParent, "NarciAFKCoundownFrame");
     local f = AFKCountdownFrame;
+    f:SetFrameStrata("FULLSCREEN");
 
     local fontPath = NarciFontMedium12Outline:GetFont();
 

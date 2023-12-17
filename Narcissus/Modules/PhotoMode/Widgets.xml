@@ -160,7 +160,7 @@
                 </Animations>
                 <Scripts>
                     <OnLoad>
-                        self.tooltipText = Narci.L["Reset Slider"];
+                        self.tooltipDescription = Narci.L["Reset Slider"];
                     </OnLoad>
                     <OnClick>
                         self:GetParent():SetValue(0);

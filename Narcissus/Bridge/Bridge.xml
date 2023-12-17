@@ -5,4 +5,5 @@
     <!--Script file="Pawn.lua"/-->
 
     <Script file="DataBroker.lua"/>
+    <Script file="Opie.lua"/>
 </Ui>

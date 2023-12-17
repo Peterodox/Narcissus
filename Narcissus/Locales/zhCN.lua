@@ -412,6 +412,9 @@ L["Points"] = "点数";
 L["Reward"] = "奖励";
 L["Date"] = "日期";
 L["Click And Hold"] = "按住鼠标左键";
+L["To Do List"] = "待办事项";
+L["Error Alert Bookmarks Too Many"] = "你最多同时选择%s个成就。";
+L["Instruction Add To To Do List"] = string.format("%s 左键 点击一个未完成的成就，可把它加入到你的待办事项里。", NARCI_MODIFIER_ALT);
 
 --Barbershop--
 L["Save New Look"] = "保存外观";
@@ -552,6 +555,8 @@ L["Socket Occupied"] = "插槽已被占用";
 S["Narcissus Played"] = "Narcissus使用时长";
 S["Format Since"] = "(自%s以来)";
 S["Screenshots"] = "使用Narcissus截图";
+S["Shadowlands Quests"] = "暗影界任务";
+S["Quest Text Reading Speed Format"] = "已完成: %s (%s个字)  阅读时长: %s (每分钟%s字)";
 
 --Turntable Showcase--
 L["Turntable"] = "转台";
@@ -590,6 +595,7 @@ L["Loop Animation"] = "循环播放动画";
 L["Cycle Spec"] = "按Tab键切换专精";
 L["Paperdoll Splash 1"] = "使用套装指示器？";
 L["Paperdoll Splash 2"] = "选择主题色";
+L["Theme Changed"] = "主题色已改变";
 
 --Outfit Select--
 L["Outfit"] = "外观方案";

@@ -3,26 +3,31 @@ local floor = math.floor;
 local format = string.format;
 local GetItemInfoInstant = GetItemInfoInstant;
 local FORMAT_REQUIRES = ITEM_REQ_SPECIALIZATION;
+local GetContainerNumSlots = C_Container.GetContainerNumSlots;
+local GetContainerItemID = C_Container.GetContainerItemID;
+local GetInventoryItemID = GetInventoryItemID;
 
 local SlotData = {
-    --[slotID] = {InventorySlotName, Localized Name, invType, texture, validForTransmog}    --GetInventorySlotInfo("SlotName")
-    [1] = {"HeadSlot", HEADSLOT, "INVTYPE_HEAD", 0, true},
-    [2] = {"NeckSlot", NECKSLOT, "INVSLOT_NECK", 0},
-    [3] = {"ShoulderSlot", SHOULDERSLOT, "INVTYPE_SHOULDER", 0, true},
+    --[slotID] = {InventorySlotName, Localized Name, invType, texture, validForTransmog, ItemEnchancementSubclassID}    --GetInventorySlotInfo("SlotName")
+    --Added in 10.2: ItemEnchancementSubclassID https://warcraft.wiki.gg/wiki/ItemType#8:_Item_Enhancement
+    --Weapon Enchants depend on, surprisingly, weapons!
+    [1] = {"HeadSlot", HEADSLOT, "INVTYPE_HEAD", 0, true, 0},
+    [2] = {"NeckSlot", NECKSLOT, "INVSLOT_NECK", 0, 1},
+    [3] = {"ShoulderSlot", SHOULDERSLOT, "INVTYPE_SHOULDER", 0, true, 2},
     [4] = {"ShirtSlot", SHIRTSLOT, "INVTYPE_BODY", 0, true},
-    [5] = {"ChestSlot", CHESTSLOT, "INVTYPE_CHEST", 0, true},
-    [6] = {"WaistSlot", WAISTSLOT, "INVTYPE_WAIST", 0, true},
-    [7] = {"LegsSlot", LEGSSLOT, "INVTYPE_LEGS", 0, true},
-    [8] = {"FeetSlot", FEETSLOT, "INVTYPE_FEET", 0, true},
-    [9] = {"WristSlot", WRISTSLOT, "INVTYPE_WRIST", 0, true},
-    [10]= {"HandsSlot", HANDSSLOT, "INVTYPE_HAND", 0, true},
-    [11]= {"Finger0Slot", FINGER0SLOT_UNIQUE, "INVSLOT_FINGER1", 0},
-    [12]= {"Finger1Slot", FINGER1SLOT_UNIQUE, "INVSLOT_FINGER2", 0},
+    [5] = {"ChestSlot", CHESTSLOT, "INVTYPE_CHEST", 0, true, 4},
+    [6] = {"WaistSlot", WAISTSLOT, "INVTYPE_WAIST", 0, true, 7},
+    [7] = {"LegsSlot", LEGSSLOT, "INVTYPE_LEGS", 0, true, 8},
+    [8] = {"FeetSlot", FEETSLOT, "INVTYPE_FEET", 0, true, 9},
+    [9] = {"WristSlot", WRISTSLOT, "INVTYPE_WRIST", 0, true, 5},
+    [10]= {"HandsSlot", HANDSSLOT, "INVTYPE_HAND", 0, true, 6},
+    [11]= {"Finger0Slot", FINGER0SLOT_UNIQUE, "INVSLOT_FINGER1", 0, 10},
+    [12]= {"Finger1Slot", FINGER1SLOT_UNIQUE, "INVSLOT_FINGER2", 0, 10},
     [13]= {"Trinket0Slot", TRINKET0SLOT_UNIQUE, "INVSLOT_TRINKET1", 0},
     [14]= {"Trinket1Slot", TRINKET1SLOT_UNIQUE, "INVSLOT_TRINKET2", 0},
-    [15]= {"BackSlot", BACKSLOT, "INVTYPE_CLOAK", 0, true},
-    [16]= {"MainHandSlot", MAINHANDSLOT, "INVTYPE_WEAPONMAINHAND", 0, true},
-    [17]= {"SecondaryHandSlot", SECONDARYHANDSLOT, "INVTYPE_WEAPONOFFHAND", 0, true},
+    [15]= {"BackSlot", BACKSLOT, "INVTYPE_CLOAK", 0, true, 3},
+    [16]= {"MainHandSlot", MAINHANDSLOT, "INVTYPE_WEAPONMAINHAND", 0, true, 128},
+    [17]= {"SecondaryHandSlot", SECONDARYHANDSLOT, "INVTYPE_WEAPONOFFHAND", 0, true, 128},
     [18]= {"AmmoSlot", RANGEDSLOT, "INVSLOT_RANGED", 0},
     [19]= {"TabardSlot", TABARDSLOT, "INVTYPE_TABARD", 0, true},
 }
@@ -260,3 +265,76 @@ NarciAPI.GetItemTempEnchantRequirement = GetItemTempEnchantRequirement;
 NarciAPI.IsWeaponValidForEnchant = IsWeaponValidForEnchant;
 NarciAPI.IsSlotValidForTransmog = IsSlotValidForTransmog;
 NarciAPI.IsHoldableItem = IsHoldableItem;
+
+
+
+
+--Find bag items by Class/Subclass ID
+local function GetItemEnchancementSubclassIDFromSlot(slotID)
+    local subclassID;
+
+    if slotID == 16 or slotID == 17 then
+        --Weapon Slots
+        local itemID = GetInventoryItemID("player", slotID);
+        if itemID then
+            local classID, itemSubclassID = select(6, GetItemInfoInstant(itemID));
+            if classID == 4 and itemSubclassID == 6 then
+                subclassID = 13;    --Shield
+            elseif classID == 2 then
+                if itemSubclassID == 2 or itemSubclassID == 3 or itemSubclassID == 18 then
+                    subclassID = 12;    --Hunter ranged weapon is deemed Two-Handed Weapon
+                elseif itemSubclassID == 20 then
+                    subclassID = 14;    --Misc Tools Fishingpole
+                else
+                    subclassID = 11;
+                end
+            end
+        end
+    else
+        subclassID = SlotData[slotID][6];
+    end
+
+    return subclassID
+end
+
+local function GetBagItemsByItemType(condition)
+    --Doesn't work on Wrath reputation enchants like [Arcanum of X]
+    --Don't appear to cause any stutter
+    local _, itemID, classID, subclassID;
+    local n = 0;
+    local itemFound = {};
+    local itemList = {};
+    for i = 0, 4 do     --NUM_BAG_SLOTS
+        for j = 1, GetContainerNumSlots(i) do
+            itemID = GetContainerItemID(i, j);
+            if itemID then
+                itemID, _, _, _, _, classID, subclassID = GetItemInfoInstant(itemID);
+                if condition(classID, subclassID) then
+                    if not itemFound[itemID] then
+                        itemFound[itemID] = true;
+                        n = n + 1;
+                        itemList[n] = itemID;
+                    end
+                end
+            end
+        end
+    end
+
+    return itemList, n
+end
+
+local function GetBagItemEnchancementForSlot(slotID)
+    local subclassID = GetItemEnchancementSubclassIDFromSlot(slotID);
+    if subclassID then
+        local condition = function(itemClassID, itemSubclassID)
+            return itemClassID == 8 and itemSubclassID == subclassID;
+        end
+        return GetBagItemsByItemType(condition);
+    else
+        return nil, 0
+    end
+end
+
+
+NarciAPI.GetBagItemsByItemType = GetBagItemsByItemType;
+NarciAPI.GetBagItemEnchancementForSlot = GetBagItemEnchancementForSlot;

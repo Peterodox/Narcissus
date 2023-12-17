@@ -1,3 +1,5 @@
+-- Not being used due to potential taint
+
 local _, addon = ...
 
 local function SetSmallFont(object)
