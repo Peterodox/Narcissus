@@ -1,6 +1,6 @@
 ## Interface: 100200
 ## Plain Title: Narcissus
-## Version: 1.4.8
+## Version: 1.4.9
 
 ## Title: |cffd177ffN|cffc480fba|cffb787f6r|cffa98ef2c|cff9a94edi|cff8a9ae9s|cff789fe5s|cff63a4e0u|cff48a8dcs|r
 
@@ -36,6 +36,7 @@ Modules\CharacterFrame\ClassSet.xml
 
 Widgets\NarciUITemplates.xml
 Widgets\WidgetTooltip.xml
+Widgets\UIFrameTooltip.lua
 Constants\Constants.xml
 
 Bridge\Bridge.xml
@@ -117,3 +118,4 @@ Modules\PhotoModeNew\LightingPreset.xml
 
 Modules\Storyboard\Storyboard.xml
 Modules\DragonridingRaces\Main.xml
+Modules\GossipFrame\GossipFrame.xml

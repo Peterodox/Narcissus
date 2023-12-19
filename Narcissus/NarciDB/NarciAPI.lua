@@ -1,5 +1,6 @@
 local _, addon = ...
 local TransitionAPI = addon.TransitionAPI;
+local RoundToDigit = addon.Math.RoundToDigit;
 
 local C_Item = C_Item;
 local After = C_Timer.After;
@@ -2914,14 +2915,8 @@ end
 NarciAPI.GetAllSelectedTalentIDsAndIcons = GetAllSelectedTalentIDsAndIcons;
 
 
-local round = function(number, digit)
-    digit = digit or 0;
-    local a = 10 ^ digit;
-    return math.floor(number * a + 0.5)/a
-end
-
 local function CreateColor(r, g, b)
-    return round(r/255, 4), round(g/255, 4), round(b/255, 4);
+    return RoundToDigit(r/255, 4), RoundToDigit(g/255, 4), RoundToDigit(b/255, 4);
 end
 
 NarciAPI.CreateColor = CreateColor;

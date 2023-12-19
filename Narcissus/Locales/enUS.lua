@@ -251,6 +251,8 @@ L["Project Page"] = "Project Page";
 L["Press Copy Yellow"] = "Press |cffffd100".. NARCI_SHORTCUTS_COPY .."|r to Copy";
 L["New Option"] = NARCI_NEW_ENTRY_PREFIX.." NEW".."|r"
 L["Expansion Features"] = "Expansion Features";
+L["LFR Wing Details"] = "LFR Wing Details";
+L["LFR Wing Details Description"] = "Show boss names and lockouts when you talk with solo queue LFR NPCs.";
 
 --Model Control--
 L["Ranged Weapon"] = "Ranged Weapon";

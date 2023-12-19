@@ -1,15 +1,6 @@
 <Ui xsi:schemaLocation="http://www.blizzard.com/wow/ui/..\FrameXML\UI.xsd">
     <Script file="Main.lua"/>
 
-	<EditBox name="NarciEditBoxHideTooltipTemplate" virtual="true" inherits="NarciEditBoxTemplate">
-		<Scripts>
-			<OnEditFocusGained>
-				Narci:HideButtonTooltip();
-				Narci.UserIsInputing = true;
-			</OnEditFocusGained>
-		</Scripts>		
-	</EditBox>
-
 	<DressUpModel name="ModelPieceTemplate" virtual="true">
 		<Anchors>
 			<Anchor point="TOPLEFT" relativeKey="$parent.$parent.FigureModelReference" relativePoint="TOPLEFT" x="-2" y="14"/>
@@ -1290,42 +1281,27 @@
 						</Anchors>
 					</Frame>
 
-					<EditBox parentKey="PlayerName" clipChildren="false" autoFocus="false" letters="24" multiLine="false" name="Narci_XmogNameEditbox" inherits="NarciEditBoxHideTooltipTemplate">
+					<EditBox parentKey="MogNameEditBox" clipChildren="false" autoFocus="false" letters="24" multiLine="false" inherits="NarciEditBoxTemplate">
 						<Size>
-							<AbsDimension x="400" y="24"/>
+							<AbsDimension x="386" y="24"/>
 						</Size>
 						<Anchors>
 							<Anchor point="BOTTOMLEFT" relativeKey="$parent.Background" relativePoint="BOTTOMLEFT" x="26" y="8"/>
 						</Anchors>
 						<FontString justifyH="LEFT" justifyV="BOTTOM"/>
 						<Scripts>
-							<OnLoad>
-								self.tooltipHeadline = "Name Your Set -PH"
-								self.tooltipLine1 = "Left-click to modify this text."
-							</OnLoad>
 							<OnEnter>
 								if self:GetParent():GetAlpha() ~= 1 then
 									return;
 								end
-								Narci_ShowButtonTooltip(self);
 								SetCursor("Interface/CURSOR/Cast.blp")
 							</OnEnter>
 							<OnTextChanged>
 								NarciAPI.SmartFontType(self)
 								local LetterNum = self:GetNumLetters()
-								local w = math.max(LetterNum*16, 180)
+								local w = math.max(LetterNum*16, 180);
 								self:GetParent().Background:SetWidth(w)
 							</OnTextChanged>
-							<OnEscapePressed>
-								self:ClearFocus();
-							</OnEscapePressed>
-							<OnEnterPressed>
-								self:ClearFocus();
-							</OnEnterPressed>
-							<OnLeave>
-								Narci:HideButtonTooltip();
-								SetCursor("Interface/CURSOR/Point.blp")
-							</OnLeave>
 						</Scripts>
 					</EditBox>
 				</Frames>
@@ -1635,7 +1611,7 @@
 					</Layer>
 				</Layers>
 				<Frames>
-					<EditBox parentKey="PlayerName" clipChildren="false" autoFocus="false" letters="24" multiLine="false" name="Narci_PlayerNameEditbox" inherits="NarciEditBoxHideTooltipTemplate">
+					<EditBox parentKey="PlayerName" autoFocus="false" letters="24" multiLine="false" mixin="NarciCharacterUIPlayerNameEditBoxMixin" inherits="NarciEditBoxTemplate">
 						<Size>
 							<AbsDimension x="400" y="24"/>
 						</Size>
@@ -1646,50 +1622,13 @@
 							<Color r="0.92" g="0.92" b="0.92"/>
 						</FontString>
 						<Scripts>
-							<OnShow>
-								local LetterNum = self:GetNumLetters()
-								local w = math.max(LetterNum*16, 180)
-								self:SetWidth(w);
-							</OnShow>
-							<OnEnter>
-								if self:GetParent():GetAlpha() ~= 1 then
-									return;
-								end
-								if self:IsEnabled() then
-									SetCursor("Interface/CURSOR/Cast.blp")
-								end
-							</OnEnter>
-							<OnTextChanged>
-								NarciAPI.SmartFontType(self)
-								local LetterNum = self:GetNumLetters()
-								local w = math.max(LetterNum*16, 160)
-								self:SetWidth(w);
-							</OnTextChanged>
-							<OnEscapePressed>
-								self:ClearFocus();
-								self:HighlightText(0,0);
-								local text = strtrim(self:GetText());
-								self:SetText(text);
-								NarcissusDB_PC.PlayerAlias = text;
-							</OnEscapePressed>
-							<OnEnterPressed>
-								self:ClearFocus();
-								self:HighlightText(0,0);
-								local text = strtrim(self:GetText());
-								self:SetText(text);
-								NarcissusDB_PC.PlayerAlias = text;
-							</OnEnterPressed>
-							<OnLeave>
-								Narci:HideButtonTooltip();
-								SetCursor("Interface/CURSOR/Point.blp")
-							</OnLeave>
-							<OnHide>
-								self:ClearFocus();
-								self:HighlightText(0,0);
-							</OnHide>
+							<OnShow method="OnShow"/>
+							<OnTextChanged method="OnTextChanged"/>
+							<OnEscapePressed method="OnEscapePressed"/>
+							<OnEnterPressed method="OnEnterPressed"/>
 						</Scripts>
 						<Frames>
-							<Button name="Narci_AliasButton" parentKey="TooltipFrame" Alpha="0">
+							<Button parentKey="AliasButton" mixin="NarciCharacterUIAliasButtonMixin" Alpha="0">
 								<Size x="160" y="20"/>
 								<Anchors>
 									<Anchor point="BOTTOM" relativeKey="$parent" relativePoint="TOP" x="0" y="4"/>
@@ -1734,26 +1673,12 @@
 									</Layer> 
 								</Layers>
 								<Scripts>
-									<OnLoad>
-										self:SetWidth(self.Label:GetWidth()+12)
-									</OnLoad>
-									<OnEnter>
-										self.Label:SetTextColor(0, 0, 0);
-										self.Label:SetShadowColor(1, 1, 1);
-										self.Highlight:Show();
-									</OnEnter>
-									<OnLeave>
-										self.Label:SetTextColor(0.25, 0.78, 0.92);
-										self.Label:SetShadowColor(0, 0, 0);
-										self.Highlight:Hide();
-									</OnLeave>
-									<OnHide>
-										self:SetAlpha(0)
-										self.Label:SetTextColor(0.25, 0.78, 0.92);
-										self.Label:SetShadowColor(0, 0, 0);
-										self.Highlight:Hide();
-									</OnHide>
-									<OnClick function="Narci_AliasButton_OnClick"/>
+									<OnLoad method="OnLoad"/>
+									<OnEnter method="OnEnter"/>
+									<OnLeave method="OnLeave"/>
+									<OnShow method="OnShow"/>
+									<OnHide method="OnHide"/>
+									<OnClick method="OnClick"/>
 								</Scripts>
 							</Button>
 						</Frames>
@@ -1773,24 +1698,16 @@
 							</Layers>
 						<Scripts>
 							<OnEnter>
-								local TooltipFrame = self:GetParent().PlayerName.TooltipFrame;
-                				UIFrameFadeIn(TooltipFrame, 0.15, TooltipFrame:GetAlpha(), 1);
+								local AliasButton = self:GetParent().PlayerName.AliasButton;
+                				AliasButton:FadeIn(0.15);
 							</OnEnter>
 							<OnLeave>
 								Narci:HideButtonTooltip();
 								SetCursor("Interface/CURSOR/Point.blp")
-								local TooltipFrame = self:GetParent().PlayerName.TooltipFrame;
-								--print("leave")
-								if not self:IsMouseOver() then
-									UIFrameFadeOut(TooltipFrame, 0.15, TooltipFrame:GetAlpha(), 0);
-									Narci_PlayerInfoFrame.PlayerName:HighlightText(0,0)
-									if NarcissusDB_PC.UseAlias then
-										local editBox = Narci_PlayerInfoFrame.PlayerName;
-										local text = strtrim(editBox:GetText());
-										editBox:SetText(text);
-										NarcissusDB_PC.PlayerAlias = text;
-									end
-									Narci_PlayerInfoFrame.PlayerName:ClearFocus()
+								local PlayerNameFrame = self:GetParent().PlayerName;
+								if not self:IsMouseOver() or (Narci_TitleFrame:IsMouseOver()) then
+									PlayerNameFrame.AliasButton:FadeOut(0.15);
+									PlayerNameFrame:SaveAndExit();
 								end
 							</OnLeave>
 						</Scripts>

@@ -767,6 +767,10 @@ local function DressingRoomToggle_OnValueChanged(self, state)
     end
 end
 
+local function LFRWingDetails_OnValueChanged(self, state)
+    SettingFunctions.EnableGossipFrameSoloQueueLFRDetails(state);
+end
+
 local function PaperDollWidgetToggle_OnValueChanged(self, state)
     SettingFunctions.EnablePaperDollWidget(state);
 end
@@ -2055,6 +2059,7 @@ local Categories = {
             {type = "header", level = 0, text = L["Extensions"]},
             {type = "checkbox", level = 1, key = "GemManager", text = L["Gem Manager"], onValueChangedFunc = GemManagerToggle_OnValueChanged, description = L["Gemma Description"]},
             {type = "checkbox", level = 1, key = "DressingRoom", text = L["Dressing Room"], onValueChangedFunc = DressingRoomToggle_OnValueChanged, description = L["Dressing Room Description"]},
+            {type = "checkbox", level = 1, key = "SoloQueueLFRDetails", text = L["LFR Wing Details"], onValueChangedFunc = LFRWingDetails_OnValueChanged, description = L["LFR Wing Details Description"]},
             {type = "subheader", level = 1, text = L["Expansion Features"], extraTopPadding = 1},
             {type = "checkbox", level = 1, key = "PaperDollWidget", text = L["Paperdoll Widget"], onValueChangedFunc = PaperDollWidgetToggle_OnValueChanged, showFeaturePreview = true, onEnterFunc = FeaturePreview.ShowPreview, onLeaveFunc = FeaturePreview.HidePreview},
             --{type = "checkbox", level = 1, key = "ConduitTooltip", text = L["Conduit Tooltip"], onValueChangedFunc = ConduitTooltipToggle_OnValueChanged, showFeaturePreview = true, onEnterFunc = FeaturePreview.ShowPreview, onLeaveFunc = FeaturePreview.HidePreview},

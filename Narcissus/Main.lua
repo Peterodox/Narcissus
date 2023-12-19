@@ -3262,58 +3262,12 @@ end
 
 function Narci_SetPlayerName(self)
 	local playerName = UnitName("player");
-	self.PlayerName:SetShadowColor(0, 0, 0);
-	self.PlayerName:SetShadowOffset(2, -2);
-	self.PlayerName:SetText(playerName);
-	SmartFontType(self.PlayerName);
+	local editBox = self.PlayerName or self.MogNameEditBox;
+	editBox:SetShadowColor(0, 0, 0);
+	editBox:SetShadowOffset(2, -2);
+	editBox:SetText(playerName);
+	SmartFontType(editBox);
 end
-
-function Narci_AliasButton_SetState()
-	local editBox = Narci_PlayerInfoFrame.PlayerName;
-	local button = Narci_AliasButton;
-
-	if NarcissusDB_PC.UseAlias then
-		editBox:Enable();
-		editBox:SetText((NarcissusDB_PC.PlayerAlias or UnitName("player")));
-		button.Label:SetText(L["Use Player Name"]);
-	else
-		editBox:Disable();
-		editBox:SetText(UnitName("player"));
-		button.Label:SetText(L["Use Alias"]);
-	end
-
-	local LetterNum = editBox:GetNumLetters();
-	local w = max(LetterNum*16, 160);
-	editBox:SetWidth(w);
-
-	button:SetWidth(button.Label:GetWidth() + 12);
-end
-
-function Narci_AliasButton_OnClick(self)
-	local editBox = Narci_PlayerInfoFrame.PlayerName;
-	NarcissusDB_PC.UseAlias = not NarcissusDB_PC.UseAlias;
-
-	if NarcissusDB_PC.UseAlias then
-		self.Label:SetText(L["Use Player Name"]);
-		editBox:Enable();
-		editBox:SetFocus();
-		editBox:SetText(NarcissusDB_PC.PlayerAlias or UnitName("player"));
-		editBox:HighlightText();
-	else
-		self.Label:SetText(L["Use Alias"]);
-		local text = strtrim(editBox:GetText());
-		editBox:SetText(text);
-		NarcissusDB_PC.PlayerAlias = text;
-		editBox:Disable();
-		editBox:HighlightText(0,0)
-		editBox:SetText(UnitName("player"));
-	end
-	self:SetWidth(self.Label:GetWidth() + 12);
-	local LetterNum = editBox:GetNumLetters();
-	local w = max(LetterNum*16, 160);
-	editBox:SetWidth(w);
-end
-
 
 
 function Narci_Open()
@@ -3581,7 +3535,7 @@ local function GetWowHeadDressingRoomURL()
 end
 
 local function CopyTexts(textFormat, includeID)
-	local texts = Narci_XmogNameFrame.PlayerName:GetText() or "My Transmog";
+	local texts = Narci_XmogNameFrame.MogNameEditBox:GetText() or "My Transmog";
 	textFormat = textFormat or "text";
 
 	local source;
@@ -3690,7 +3644,7 @@ local function Narci_XmogButton_OnClick(self)
 		Narci_SnowEffect(false);
 		PlayLetteboxAnimation("OUT");
 
-		Narci_XmogNameFrame.PlayerName:SetText(Narci_PlayerInfoFrame.PlayerName:GetText())
+		Narci_XmogNameFrame.MogNameEditBox:SetText(Narci_PlayerInfoFrame.PlayerName:GetText())
 
 		Toolbar.TransmogListFrame:ShowUI();
 		Toolbar.showTransmogFrame = true;
@@ -4151,7 +4105,6 @@ EL:SetScript("OnEvent",function(self, event, ...)
 		self:UnregisterEvent(event);
 
 		After(2, function()
-			Narci_AliasButton_SetState();
 			StatsUpdator:Instant();
 			RadarChart:SetValue(0,0,0,0,1);
 			UpdateXmogName();
@@ -4715,35 +4668,104 @@ do
 	end
 end
 
---[[
-	C_BarberShop.GetAvailableCustomizations();
-	/run BarberShopFrame:SetPropagateKeyboardInput(true)
-	CharCustomizeFrame:SetCustomizationChoice
-    hooksecurefunc(CharCustomizeFrame, "SetCustomizationChoice", function(optionID, choiceID) print("Set ",optionID, choiceID) end)
-	hooksecurefunc(CharCustomizeFrame, "PreviewCustomizationChoice", function(optionID, choiceID) print("Preview ", optionID, choiceID) end)
-	Blizzard_CharacterCustomize
-	Blizzard_BarbershopUI
 
-	slotID shoulder ~ 3
-	C_Transmog.SetPending(self.transmogLocation, sourceID, self.activeCategory);
 
-	WardrobeCollectionFrame.ItemsCollectionFrame:SelectVisual()
-	/run WardrobeCollectionFrame.ItemsCollectionFrame.RightShoulderCheckbox:Show();
 
-	/run GetMouseFocus().transmogLocation = TransmogUtil.GetTransmogLocation(3, 0, 0)	--96875
+NarciCharacterUIPlayerNameEditBoxMixin = {};
 
-	New APIs:
-	CenterCamera();
+function NarciCharacterUIPlayerNameEditBoxMixin:OnLoad()
 
-	/run CenterCamera();
---]]
-
---Ember Court Correspondence
---https://wowpedia.fandom.com/wiki/Quill_of_Correspondence
---[[
-function SaveCurrentMail()
-	local m = OpenMailBodyText:GetTextData();
-	m.subject = OpenMailSubject:GetText();
-	NarciDevToolOutput.mail = m;
 end
---]]
+
+function NarciCharacterUIPlayerNameEditBoxMixin:OnShow()
+	self:UpdateSize();
+end
+
+function NarciCharacterUIPlayerNameEditBoxMixin:OnTextChanged()
+	SmartFontType(self)
+	self:UpdateSize();
+end
+
+function NarciCharacterUIPlayerNameEditBoxMixin:UpdateSize()
+	local numLetters = self:GetNumLetters();
+	local width = max(numLetters*16, 160);
+	self:SetWidth(width);
+end
+
+function NarciCharacterUIPlayerNameEditBoxMixin:SaveAndExit()
+	self:ClearFocus();
+	local text = strtrim(self:GetText());
+	self:SetText(text);
+	NarcissusDB_PC.PlayerAlias = text;
+end
+
+function NarciCharacterUIPlayerNameEditBoxMixin:OnEscapePressed()
+	self:SaveAndExit();
+end
+
+function NarciCharacterUIPlayerNameEditBoxMixin:OnEnterPressed()
+	self:SaveAndExit();
+end
+
+
+NarciCharacterUIAliasButtonMixin = {};
+
+function NarciCharacterUIAliasButtonMixin:OnLoad()
+	local keepInvisibleFrame = true;
+	NarciFadeUI.CreateFadeObject(self, keepInvisibleFrame);
+end
+
+function NarciCharacterUIAliasButtonMixin:OnEnter()
+	self.Label:SetTextColor(0, 0, 0);
+	self.Label:SetShadowColor(1, 1, 1);
+	self.Highlight:Show();
+end
+
+function NarciCharacterUIAliasButtonMixin:OnLeave()
+	self.Label:SetTextColor(0.25, 0.78, 0.92);
+	self.Label:SetShadowColor(0, 0, 0);
+	self.Highlight:Hide();
+end
+
+function NarciCharacterUIAliasButtonMixin:OnClick()
+	NarcissusDB_PC.UseAlias = not NarcissusDB_PC.UseAlias;
+	self:UpdateNames(true);
+end
+
+function NarciCharacterUIAliasButtonMixin:OnShow()
+	self:SetScript("OnShow", nil);
+	self:UpdateNames();
+end
+
+function NarciCharacterUIAliasButtonMixin:OnHide()
+	self:OnLeave();
+end
+
+function NarciCharacterUIAliasButtonMixin:UpdateSize()
+	self:SetWidth(self.Label:GetWidth() + 12);
+end
+
+function NarciCharacterUIAliasButtonMixin:UpdateNames(onClick)
+	local editBox = self:GetParent();
+
+	if NarcissusDB_PC.UseAlias then
+		self.Label:SetText(L["Use Player Name"]);
+		editBox:Enable();
+		editBox:SetText(NarcissusDB_PC.PlayerAlias or UnitName("player"));
+		if onClick then
+			editBox:SetFocus();
+			editBox:HighlightText();
+		end
+	else
+		self.Label:SetText(L["Use Alias"]);
+		local text = strtrim(editBox:GetText());
+		editBox:SetText(text);
+		NarcissusDB_PC.PlayerAlias = text;
+		editBox:Disable();
+		editBox:HighlightText(0,0)
+		editBox:SetText(UnitName("player"));
+	end
+
+	self:UpdateSize();
+	editBox:UpdateSize();
+end

@@ -219,7 +219,8 @@ L["Project Page"] = "项目主页";
 L["Press Copy Yellow"] = "按下|cffffd100".. NARCI_SHORTCUTS_COPY .."|r复制";
 L["New Option"] = NARCI_NEW_ENTRY_PREFIX.." 新".."|r"
 L["Expansion Features"] = "资料片特色";
-
+L["LFR Wing Details"] = "随机难度团本区域信息";
+L["LFR Wing Details Description"] = "在你单排随机难度的旧团本时，显示boss名称和进度情况。";
 
 --模型控制面板--
 L["Ranged Weapon"] = "远程武器";
