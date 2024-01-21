@@ -3766,6 +3766,7 @@ hooksecurefunc("SetUIVisibility", function(state)
 				CVarTemp.shoulderOffset = GetCVar("test_cameraOverShoulder");
 			end
 			bar:ShowUI("Blizzard");
+			bar:FadeOut(true);
 		end
 	end
 end)

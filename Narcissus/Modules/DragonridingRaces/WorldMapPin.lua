@@ -802,7 +802,11 @@ end
 
 do
     local function CheckActiveTournament()
-        C_Calendar.OpenCalendar();  --Must be used after game loading process
+        --Must be used after game loading process
+        local currentCalendarTime = C_DateAndTime.GetCurrentCalendarTime();
+        C_Calendar.SetAbsMonth(currentCalendarTime.month, currentCalendarTime.year);
+        C_Calendar.OpenCalendar();
+
 
         C_Timer.After(2, function()
             local tourLocalizedName, remainingSeconds, tourLabel = DataProvider:GetActiveTournamentInfo();

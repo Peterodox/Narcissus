@@ -4918,3 +4918,32 @@ local function SetChromaKeyColor(r, g, b, a)
 end
 
 NarciPhotoModeAPI.SetChromaKeyColor = SetChromaKeyColor;
+
+
+
+--Play a sequence of animation on the actor
+local function Moodel_OnAnimFinished_PlaySequence(self)
+	self.sequenceIndex = self.sequenceIndex + 1;
+	local nextAnimationID = self.animationSequence[self.sequenceIndex];
+
+	if nextAnimationID then
+		self:SetAnimation(nextAnimationID, 0);
+	else
+		self:SetScript("OnAnimFinished", NarciGenericModelMixin.OnAnimFinished);
+		self.animationSequence = nil;
+		self.sequenceIndex = nil;
+	end
+end
+
+local function PlayAnimationSequenceOnModel(moldeIndex, ...)
+	-- ... animationIDs
+	local model = ModelFrames[moldeIndex];
+	if model and model:IsVisible() then
+		model.animationSequence = {...};
+		model.sequenceIndex = 1;
+		model:SetScript("OnAnimFinished", Moodel_OnAnimFinished_PlaySequence);
+		model:SetAnimation(model.animationSequence[1], 0);
+	end
+end
+
+Narci.PlayAnimationSequenceOnModel = PlayAnimationSequenceOnModel;

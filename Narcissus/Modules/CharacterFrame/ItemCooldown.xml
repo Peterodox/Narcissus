@@ -81,6 +81,9 @@
                     <Anchor point="CENTER"/>
                 </Anchors>	
                 <SwipeTexture file="Interface\AddOns\Narcissus\Art\Cooldown\NewCooldown-Fluid-Dark"/>
+                <KeyValues>
+                    <KeyValue key="noCooldownCount" value="true" type="boolean"/>
+                </KeyValues>
                 <Scripts>
                     <OnCooldownDone>
                         self:GetParent():OnCooldownDone();

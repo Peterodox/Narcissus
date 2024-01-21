@@ -20,6 +20,7 @@ local GetCombatRating = GetCombatRating;
 local GetCombatRatingBonus = GetCombatRatingBonus;
 local BASE_MOVEMENT_SPEED = BASE_MOVEMENT_SPEED;
 local GetSpecialization = GetSpecialization;
+local GetUnitSpeed = GetUnitSpeed;
 
 local function GetPrimaryStatsNum()
 	local _, strength = UnitStat("player", 1);

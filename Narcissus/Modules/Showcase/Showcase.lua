@@ -1450,15 +1450,17 @@ local function UpdateMountActor(resetModel)
     if MountJournal and MountJournal:IsVisible() and MountJournal.selectedMountID then
         mountID = MountJournal.selectedMountID;
     elseif IsMounted() then
-        local UnitBuff = UnitBuff;
+        local UnitBuff = C_UnitAuras.GetBuffDataByIndex;
         local GetMountFromSpell = C_MountJournal.GetMountFromSpell;
         local i = 1;
         local _, count, duration;
         local spellID = 0;
+        local auraData;
         while spellID do
-            _, _, count, _, duration, _, _, _, _, spellID = UnitBuff("player", i, "PLAYER");
+            auraData = UnitBuff("player", i);
+            spellID = auraData and auraData.spellId;
             if spellID then
-                if count == 0 and duration == 0 then
+                if auraData.duration == 0 then
                     mountID = GetMountFromSpell(spellID);
                     if mountID then
                         break

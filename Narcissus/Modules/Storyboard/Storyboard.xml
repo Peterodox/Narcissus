@@ -258,6 +258,9 @@
                                     <Anchor point="CENTER"/>
                                 </Anchors>	
                                 <SwipeTexture file="Interface\AddOns\Narcissus\Art\Frames\RedCloseButtonSwipe"/>
+                                <KeyValues>
+                                    <KeyValue key="noCooldownCount" value="true" type="boolean"/>
+                                </KeyValues>
                             </Cooldown>
                         </Frames>
                     </Button>

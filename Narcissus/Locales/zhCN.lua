@@ -593,7 +593,7 @@ L["Showcase Splash 4"] = "录制屏幕然后将视频转换为GIF动图。";
 L["Loop Animation"] = "循环播放动画";
 
 --Item Sets--
-L["Cycle Spec"] = "按Tab键切换专精";
+L["Cycle Spec"] = "使用滚轮切换专精";
 L["Paperdoll Splash 1"] = "使用套装指示器？";
 L["Paperdoll Splash 2"] = "选择主题色";
 L["Theme Changed"] = "主题色已改变";

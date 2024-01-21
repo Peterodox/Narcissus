@@ -783,6 +783,7 @@ function DataProvider:GetActiveTournamentInfo()
 
     for i = 1, C_Calendar.GetNumDayEvents(monthOffset, presentDay) do   --Need to request data first with C_Calendar.OpenCalendar()
         holidayInfo = C_Calendar.GetHolidayInfo(monthOffset, presentDay, i);
+        --print(holidayInfo.name, holidayInfo.texture)
         if holidayInfo and holidayInfo.texture and CalendarTexture[holidayInfo.texture] then
             tourLabel = CalendarTexture[holidayInfo.texture];
             DataProvider:InitMapPool(tourLabel);

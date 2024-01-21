@@ -2221,13 +2221,26 @@ local function FormatMetaButtons(container, data, count, completed)
         header:SetPoint("TOPLEFT", container, "BOTTOMLEFT", 3, -16);
     end
 
+    local focusedButtonIndex;
+
     if completed then
         header:SetText("");
         container.description:SetText("");
         container.points:SetText("");
         container.shield:Hide();
     else
-        buttons[1]:SetAchievement();
+        focusedButtonIndex = 1;
+    end
+
+    for i = 1, count do
+        if buttons[i]:IsMouseOver() then
+            focusedButtonIndex = i;
+            break
+        end
+    end
+
+    if focusedButtonIndex then
+        buttons[focusedButtonIndex]:SetAchievement();
     end
 
     --Update Scroll Range

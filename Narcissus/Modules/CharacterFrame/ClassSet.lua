@@ -206,7 +206,9 @@ end
 
 function NarciClassSetTooltipMixin:ListenKey(state)
     if state then
-        self:SetScript("OnKeyDown", Tooltip_OnTabPressed);
+        if not InCombatLockdown() then
+            self:SetScript("OnKeyDown", Tooltip_OnTabPressed);    --cause issue during Combat
+        end
         PaperDollIndicator:SetScript("OnMouseWheel", Indicator_OnMouseWheel);
     else
         self:SetScript("OnKeyDown", nil);

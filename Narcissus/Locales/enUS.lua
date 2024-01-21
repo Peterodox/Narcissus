@@ -648,7 +648,7 @@ L["Loop Animation Alert Kultiran"] = "Loop - currently broken on Kultiran male";
 L["Loop Animation"] = "Loop Animation";
 
 --Item Sets--
-L["Cycle Spec"] = "Press Tab to cycle through specs";
+L["Cycle Spec"] = "Scroll to cycle through specs";
 L["Paperdoll Splash 1"] = "Enable class set indicator?";
 L["Paperdoll Splash 2"] = "Choose a theme";
 L["Theme Changed"] = "Theme Changed";   --the color theme has been changed

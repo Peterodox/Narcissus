@@ -2,7 +2,7 @@ local AFK_MSG = string.format(MARKED_AFK_MESSAGE, DEFAULT_AFK_MESSAGE);
 
 local AFK = CreateFrame("Frame");
 
---local UnitIsAFK = UnitIsAFK;
+local UnitIsAFK = UnitIsAFK;
 
 do
     local _, addon = ...
@@ -75,6 +75,11 @@ local function CreateAFKCountdown()
     end
 
     local function Countdown_OnFinished(self)
+        if not UnitIsAFK("player") then --Jumping doesn't trigger Moving
+            f:Hide();
+            return
+        end
+
         f.t = f.t - 1;
         if f.t <= 0 then
             f:Hide();

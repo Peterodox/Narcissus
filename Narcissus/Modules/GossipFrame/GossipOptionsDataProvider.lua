@@ -66,8 +66,8 @@ do
         [110032] = {2223, 2450, DIFFICULTY_LFR, {2446, 2436}, {2447, 2431}, {2440, 2422}},      --Shackles of Fate
         [110031] = {2224, 2450, DIFFICULTY_LFR, {2441, 2435}},      --The Reckoning
 
-        [110030] = {2292, 2481, DIFFICULTY_LFR, {2458, 2512}, {2465, 2542}, {2470, 2553}, {2463, 2529}},    --Ephemeral Plains
-        [110029] = {2291, 2481, DIFFICULTY_LFR, {2459, 2540}, {2460, 2544}, {2461, 2539}},      --Cornerstone of Creation
+        [110030] = {2291, 2481, DIFFICULTY_LFR, {2459, 2540}, {2460, 2544}, {2461, 2539}},      --Cornerstone of Creation
+        [110029] = {2292, 2481, DIFFICULTY_LFR, {2458, 2512}, {2465, 2542}, {2470, 2553}, {2463, 2529}},    --Ephemeral Plains
         [110028] = {2293, 2481, DIFFICULTY_LFR, {2469, 2546}, {2457, 2543}, {2467, 2549}},      --Domination's Grasp
         [110027] = {2294, 2481, DIFFICULTY_LFR, {2464, 2537}},      --The Grand Design
 
