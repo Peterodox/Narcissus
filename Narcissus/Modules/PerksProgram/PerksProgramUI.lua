@@ -14,6 +14,57 @@ local AnimationButton, AnimationDropDown;
 local SELECTED_DATA;
 local IS_10_2_5 = addon.IsTOCVersionEqualOrNewerThan(100205);   --Stop showing items in a transmog set since it becomes baseline in 10.2.5
 
+local GetItemInfoInstant = GetItemInfoInstant;
+
+
+-- User Settings --
+local MODEL_SETUP_ENABLED = false;   --Change the default model's animation and yaw
+local DEV_MODE = false;
+-------------------
+
+local STAND_ANIMATION = 804;    --Stand Character Create
+
+local MODEL_SETUPS = {
+    INVTYPE_RANGED = {yaw = -1.52, animation = STAND_ANIMATION, sheathed = false},
+    INVTYPE_2HWEAPON = {yaw = 0.00, animation = STAND_ANIMATION, sheathed = false},
+    INVTYPE_WEAPON = {yaw = -2.10, animation = STAND_ANIMATION, sheathed = false},
+    INVTYPE_RANGEDRIGHT = {yaw = -1.83, animation = STAND_ANIMATION, sheathed = false},
+
+    STAFF =  {yaw = 2.13, animation = STAND_ANIMATION, sheathed = true},
+};
+
+local function SetupModelByItemID(actor, itemID)
+    if itemID then
+        local _, _, _, itemEquipLoc, _, classID, subclassID = GetItemInfoInstant(itemID);
+        local key = itemEquipLoc;
+
+        if classID == 2 and subclassID == 10 then
+            key = "STAFF";
+        end
+
+        local data = key and MODEL_SETUPS[key];
+
+        if data then
+            if data.yaw then
+                actor:SetYaw(data.yaw);
+            end
+
+            if data.sheathed ~= nil then
+                actor:SetSheathed(data.sheathed);
+            end
+        end
+
+        local animationID = (data and data.animation) or STAND_ANIMATION;
+        actor:StopAnimationKit();
+        actor:SetAnimationBlendOperation(0);  --LE_MODEL_BLEND_OPERATION_ANIM
+        actor:SetAnimation(animationID);
+
+        local sheathed = actor:GetSheathed();   --Re-sheathe so the actor can grip the weapon
+        actor:SetSheathed(not sheathed);
+        actor:SetSheathed(sheathed);
+    end
+end
+
 
 local function SetButtonFontColor(fontString, colorIndex)
     if colorIndex == 1 then
@@ -46,20 +97,20 @@ local function OnProductSelectedAfterModel(f, data)
     local showExtraDetail;
     local showSheatheToggle = true;
 
-    if categoryID == 8 then
+    if categoryID == 8 then     --TransmogSet
         if data.transmogSetID and not IS_10_2_5 then
             ExtraDetailFrame:Show();
             local sourceIDs = C_TransmogSets.GetAllSourceIDs(data.transmogSetID);
             ExtraDetailFrame:DisplayEnsembleSources(sourceIDs);
             showExtraDetail = true;
         end
-    elseif categoryID == 3 then
+    elseif categoryID == 3 then     --Pet
         if data.speciesID then
             ExtraDetailFrame:DisplayPetInfo(data.speciesID);
             showExtraDetail = true;
         end
         showSheatheToggle = false;
-    elseif categoryID == 2 then
+    elseif categoryID == 2 then     --Mounts
         --Mount: Add mountType (Ground, Flying, etc.) to CategoryText
         showSheatheToggle = false;
         local mountTypeName = GetSelectedMountTypeName();
@@ -72,6 +123,13 @@ local function OnProductSelectedAfterModel(f, data)
                         defaultDetailsFrame.CategoryText:SetText((PERKS_VENDOR_CATEGORY_MOUNT or "Mount").." - "..mountTypeName);
                     end
                 end);
+            end
+        end
+    elseif categoryID == 1 then     --Transmog
+        if MODEL_SETUP_ENABLED then
+            local actor = PerksProgramFrame.ModelSceneContainerFrame.playerActor;
+            if actor then
+                SetupModelByItemID(actor, data.itemID);
             end
         end
     end
@@ -95,7 +153,7 @@ local function GetPetTypeTexture(petTypeID, size)
     size = size or 16;
 
     if petTypeID and PET_TYPE_SUFFIX and PET_TYPE_SUFFIX[petTypeID] then
-        return string.format("|T%s:%d:%d:0:0:128:256:102:63:129:168|t", "Interface\\PetBattles\\PetIcon-"..PET_TYPE_SUFFIX[petTypeID], size, size);
+        return string.format("|T%s:%d:%d:0:0:128:256:102:63:129:168|t", "Interface/PetBattles/PetIcon-"..PET_TYPE_SUFFIX[petTypeID], size, size);
     else
         return "";
     end
@@ -109,7 +167,7 @@ local function SetupPetTooltip(tooltip, speciesID)
         local typeIconFomart = "|T%s:24:24|t|T%s:16:16:-4:0:128:256:102:63:129:168|t";
         for _, info in ipairs(petAbilityLevelInfo) do
             name, icon, typeID = C_PetJournal.GetPetAbilityInfo(info.abilityID);
-            icon = string.format(typeIconFomart, icon, "Interface\\PetBattles\\PetIcon-"..PET_TYPE_SUFFIX[typeID]);
+            icon = string.format(typeIconFomart, icon, "Interface/PetBattles/PetIcon-"..PET_TYPE_SUFFIX[typeID]);
             tooltip:AddLine(icon.." "..name, 1, 1, 1, true);
         end
         tooltip:Show();
@@ -273,10 +331,74 @@ local function PerksProgramCurrencyFrame_OnEnter(f)
     end
 end
 
+local function CreateDevTool(owner)
+    local f = CreateFrame("Frame", nil, owner);
+    f:SetSize(16, 16);
+    f:SetPoint("TOP", owner, "TOP", 0, -16);
+
+    local line1 = f:CreateFontString(nil, "OVERLAY", "SystemFont_Shadow_Med3_Outline");
+    line1:SetJustifyH("CENTER");
+    line1:SetPoint("TOP", f, "TOP", 0, 0);
+    line1:SetTextColor(1, 0.82, 0);
+
+    local line2 = f:CreateFontString(nil, "OVERLAY", "SystemFont_Shadow_Med3_Outline");
+    line2:SetJustifyH("CENTER");
+    line2:SetPoint("TOP", f, "TOP", 0, -20);
+    line2:SetTextColor(1, 0.82, 0);
+
+    local function OnUpdate(self, elapsed)
+        self.t = self.t + elapsed;
+        if self.t > 0.2 then
+            self.t = 0;
+            local actorYaw = 0;
+            local cameraYaw = 0;
+            local effectiveYaw = 0;
+
+            if self.actor then
+                actorYaw = self.actor:GetYaw();
+            end
+
+            if self.camera then
+                cameraYaw = self.camera:GetYaw();
+            end
+
+            if self.baseCameraYaw then
+                local delta = cameraYaw - self.baseCameraYaw;
+                effectiveYaw = actorYaw - delta;
+            end
+
+            line2:SetText(string.format("Actor: |cffffffff%.2f|r   Camera: |cffffffff%.2f|r   Effective: |cffffffff%.2f|r", actorYaw, cameraYaw, effectiveYaw));
+        end
+    end
+
+    f.t = 0;
+    f:SetScript("OnUpdate", OnUpdate);
+
+    local function Callback(_, data)
+        f.actor = BlizzardFrame.ModelSceneContainerFrame.playerActor;
+        local DEFAULT_CAMERA_TAG = "primary";
+        f.camera = BlizzardFrame.ModelSceneContainerFrame.PlayerModelScene:GetCameraByTag(DEFAULT_CAMERA_TAG);
+        f.baseCameraYaw = f.camera:GetYaw();
+
+        local itemID = data.itemID;
+        local _, _, _, itemEquipLoc, _, classID, subclassID = GetItemInfoInstant(itemID);
+        itemEquipLoc = itemEquipLoc or "NOT_Equippable";
+        line1:SetText(string.format("ItemID: |cffffffff%s|r   EquipLoc: |cffffffff%s|r   Class: |cffffffff%s/%s|r", itemID, itemEquipLoc, classID, subclassID));
+    end
+
+    EventRegistry:RegisterCallback("PerksProgramModel.OnProductSelectedAfterModel", Callback, f);
+end
+
 local function Initialize()
     if not PerksProgramFrame then return end;
 
     BlizzardFrame = PerksProgramFrame;
+
+    MODEL_SETUP_ENABLED = NarcissusDB.TradingPostModifyDefaultPose;
+
+    if DEV_MODE then
+        CreateDevTool(BlizzardFrame);
+    end
 
     --Insert ExtraDetailFrame
     if BlizzardFrame.ProductsFrame and BlizzardFrame.ProductsFrame.PerksProgramProductDetailsContainerFrame and BlizzardFrame.ProductsFrame.PerksProgramProductDetailsContainerFrame.DetailsFrame then
@@ -327,7 +449,7 @@ local function Initialize()
 
         SheatheToggle = CreateFrame("Button", nil, f, "NarciPerksProgramSquareButtonTemplate");
         SheatheToggle:SetPoint("LEFT", f, "CENTER", 8, 0);
-        SheatheToggle.Icon:SetTexture("Interface\\AddOns\\Narcissus\\Art\\Modules\\PerksProgram\\SheatheIconYellow");
+        SheatheToggle.Icon:SetTexture("Interface/AddOns/Narcissus/Art/Modules/PerksProgram/SheatheIconYellow");
 
         local function SheatheToggle_SetIcon(b, sheathed)
             if sheathed then
@@ -397,7 +519,7 @@ local function Initialize()
 
         AnimationButton = CreateFrame("Button", nil, f, "NarciPerksProgramSquareButtonTemplate");
         AnimationButton:SetPoint("LEFT", SheatheToggle, "RIGHT", 4, 0);
-        AnimationButton.Icon:SetTexture("Interface\\AddOns\\Narcissus\\Art\\Modules\\PerksProgram\\AnimationIcon");
+        AnimationButton.Icon:SetTexture("Interface/AddOns/Narcissus/Art/Modules/PerksProgram/AnimationIcon");
 
         AnimationDropDown:SetParentButton(AnimationButton);
         AnimationDropDown:UpdateOptions();
@@ -799,48 +921,48 @@ local ANIMATIONS_MOUNT = {
     4,      --Walk
     5,      --Run
     13,     --Walk Backwards
-    135,    --Fly
+    94,     --Mount Special
     548,    --Mount Flight Idle
 };
 
 local ANIMATIONS_PLAYER_DEFAULT = {
-    0,
+    STAND_ANIMATION,
     4,  --Walk
     5,  --Run
 };
 
 local ANIMATIONS_PLAYER_MELEE_1H = {
-    0, 4, 5,
+    STAND_ANIMATION, 4, 5,
     26,
 };
 
 local ANIMATIONS_PLAYER_MELEE_2H = {
-    0, 4, 5,
+    STAND_ANIMATION, 4, 5,
     27, 28,
 };
 
 local ANIMATIONS_PLAYER_SHIELD = {
-    0, 4, 5,
+    STAND_ANIMATION, 4, 5,
     26, 1078,
 };
 
 local ANIMATIONS_PLAYER_BOW = {
-    0, 4, 5,
+    STAND_ANIMATION, 4, 5,
     29, 109,
 };
 
 local ANIMATIONS_PLAYER_CROSSBOW = {
-    0, 4, 5,
+    STAND_ANIMATION, 4, 5,
     836, 842,
 };
 
 local ANIMATIONS_PLAYER_GUN = {
-    0, 4, 5,
+    STAND_ANIMATION, 4, 5,
     48, 110,
 };
 
 local ANIMATIONS_PLAYER_CASTER = {
-    0, 4, 5,
+    STAND_ANIMATION, 4, 5,
     51, 52,
 };
 
@@ -1034,23 +1156,44 @@ function NarciPerksProgramAnimationDropDownMixin:Build()
         local maxNameWidth = 0;
         local numberWidth, nameWidth;
 
+        numButtons = numButtons + 1;    --We use the first button as a checkbox/toggle
+
+        local offsetY = paddingV;
+
         for i = 1, numButtons do
             if not self.buttons[i] then
                 self.buttons[i] = CreateFrame("Button", nil, self, "NarciPerksProgramDropDownButtonTemplate");
                 self.buttons[i].id = i;
             end
             button = self.buttons[i];
-            button:ClearAllPoints();
-            button:SetPoint("TOPLEFT", self, "TOPLEFT", 0, -paddingV + (1-i)*buttonHeight);
 
-            if defaultOption and i == numButtons then
-                if self.defaultAnimationKitID then
-                    numberWidth, nameWidth = button:SetAnimationOption("Default", self.defaultAnimationKitID, true);
-                else
-                    numberWidth, nameWidth = button:SetAnimationOption("Default", defaultAnimationID);
+            button:ClearAllPoints();
+            button:SetPoint("TOPLEFT", self, "TOPLEFT", 0, -offsetY);
+
+            if i == 1 then
+                numberWidth, nameWidth = button:SetModelSetupToggle();
+                local dividerHeight = 12;
+                offsetY = offsetY + buttonHeight;
+                if not self.Divider then
+                    self.Divider = self:CreateTexture(nil, "OVERLAY");
+                    self.Divider:SetPoint("TOPLEFT", self, "TOPLEFT", 0, -(offsetY + 0.5*dividerHeight));
+                    self.Divider:SetPoint("RIGHT", self, "RIGHT", 0, 0);
+                    self.Divider:SetColorTexture(0.2, 0.2, 0.2);
                 end
+                local pixel = NarciAPI.GetPixelForWidget(self, 1);
+                self.Divider:SetHeight(pixel);
+                offsetY = offsetY + dividerHeight;
             else
-                numberWidth, nameWidth = button:SetAnimationOption(self.getNameFunc(self.animationIDs[i]), self.animationIDs[i]);
+                if defaultOption and i == numButtons then
+                    if self.defaultAnimationKitID then
+                        numberWidth, nameWidth = button:SetAnimationOption("Default AnimKit", self.defaultAnimationKitID, true);
+                    else
+                        numberWidth, nameWidth = button:SetAnimationOption("Default Animation", defaultAnimationID);
+                    end
+                else
+                    numberWidth, nameWidth = button:SetAnimationOption(self.getNameFunc(self.animationIDs[i-1]), self.animationIDs[i-1]);
+                end
+                offsetY = offsetY + buttonHeight;
             end
 
             if numberWidth > maxNumberWidth then
@@ -1078,7 +1221,7 @@ function NarciPerksProgramAnimationDropDownMixin:Build()
         end
 
         self:SetWidth(buttonWidth);
-        self:SetHeight(paddingV*2 + numButtons*buttonHeight);
+        self:SetHeight(offsetY + paddingV);
 
         if defaultOption then
             self:SelectButton(self.buttons[numButtons]);
@@ -1107,6 +1250,7 @@ function NarciPerksProgramAnimationDropDownMixin:OnShow()
 end
 
 function NarciPerksProgramAnimationDropDownMixin:OnHide()
+    self:Hide();
     self:UnregisterEvent("GLOBAL_MOUSE_DOWN");
     if self.parentButton then
         self.parentButton:SetScript("OnMouseWheel", nil);
@@ -1253,6 +1397,7 @@ function NarciPerksProgramDropDownButtonMixin:SetButtonFontColor(colorIndex)
 end
 
 function NarciPerksProgramDropDownButtonMixin:SetAnimationOption(name, id, isAnimKit)
+    self.onClickFunc = self.OnClick_Animation;
     self.OptionName:SetText(name);
     self.OptionNumber:SetWidth(0);
 
@@ -1264,7 +1409,8 @@ function NarciPerksProgramDropDownButtonMixin:SetAnimationOption(name, id, isAni
         self.OptionNumber:Show();
         numberWidth = self.OptionNumber:GetWrappedWidth();
     else
-        self.OptionNumber:Hide();
+        self.OptionNumber:SetText("--");
+        self.OptionNumber:Show();
         numberWidth = 0;
     end
 
@@ -1280,6 +1426,36 @@ function NarciPerksProgramDropDownButtonMixin:SetAnimationOption(name, id, isAni
     return numberWidth, nameWidth;
 end
 
+local function UpdateModelSetupCheckbox(dropdownButton)
+    if dropdownButton.Checkbox then
+        if MODEL_SETUP_ENABLED then
+            dropdownButton.Checkbox:SetTexCoord(0, 0.5, 0, 1);
+        else
+            dropdownButton.Checkbox:SetTexCoord(0.5, 1, 0, 1);
+        end
+    end
+end
+
+function NarciPerksProgramDropDownButtonMixin:SetModelSetupToggle()
+    self.onClickFunc = self.OnClick_ModelSetupToggle;
+    self.OptionName:SetText(L["Modify Default Pose"]);
+    self.OptionNumber:Hide();
+
+    local numberWidth = 0;
+    local nameWidth = self.OptionName:GetWrappedWidth()
+
+    if not self.Checkbox then
+        self.Checkbox = self:CreateTexture(nil, "OVERLAY");
+        self.Checkbox:SetPoint("LEFT", self, "LEFT", 6, 0);
+        self.Checkbox:SetSize(40, 40);
+        self.Checkbox:SetTexture("Interface/AddOns/Narcissus/Art/Modules/PerksProgram/TwoStateCheckbox");
+    end
+
+    UpdateModelSetupCheckbox(self);
+
+    return numberWidth, nameWidth
+end
+
 function NarciPerksProgramDropDownButtonMixin:SetElementSizes(numberWidth, buttonWidth)
     if numberWidth > 0 then
         self.OptionNumber:SetWidth(numberWidth);
@@ -1288,10 +1464,28 @@ function NarciPerksProgramDropDownButtonMixin:SetElementSizes(numberWidth, butto
 end
 
 function NarciPerksProgramDropDownButtonMixin:OnClick()
+    if self.onClickFunc then
+        self.onClickFunc(self);
+    end
+end
+
+function NarciPerksProgramDropDownButtonMixin:OnClick_Animation()
     AnimationDropDown:SelectButton(self, true);
 end
 
+function NarciPerksProgramDropDownButtonMixin:OnClick_ModelSetupToggle()
+    MODEL_SETUP_ENABLED = not MODEL_SETUP_ENABLED;
+    UpdateModelSetupCheckbox(self);
 
+    NarcissusDB.TradingPostModifyDefaultPose = MODEL_SETUP_ENABLED;
+
+    local actor = PerksProgramFrame.ModelSceneContainerFrame.playerActor;
+    if actor and SELECTED_DATA then
+        if MODEL_SETUP_ENABLED then
+            SetupModelByItemID(actor, SELECTED_DATA.itemID);
+        end
+    end
+end
 
 --[[
 if false then

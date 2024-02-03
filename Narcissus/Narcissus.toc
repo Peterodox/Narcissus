@@ -1,6 +1,6 @@
 ## Interface: 100205
 ## Plain Title: Narcissus
-## Version: 1.5.0
+## Version: 1.5.1
 
 ## Title: |cffd177ffN|cffc480fba|cffb787f6r|cffa98ef2c|cff9a94edi|cff8a9ae9s|cff789fe5s|cff63a4e0u|cff48a8dcs|r
 

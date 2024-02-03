@@ -1,7 +1,7 @@
-local NARCI_VERSION_INFO = "1.5.0";
+local NARCI_VERSION_INFO = "1.5.1";
 
-local VERSION_DATE = 1705713176;
-local CURRENT_VERSION = 10500;
+local VERSION_DATE = 1706975668;
+local CURRENT_VERSION = 10501;
 local PREVIOUS_VERSION = CURRENT_VERSION;
 local TIME_SINCE_LAST_UPDATE = 0;
 
@@ -115,6 +115,9 @@ local DefaultValues = {
 
     -- Dragonriding --
     DragonridingTourWorldMapPin = true,         --Show Dragonriding Race location on continent map
+
+    -- Perks Program (Trading Post) --
+    TradingPostModifyDefaultPose = false,
 
     --# Initializationd in other files
     --["MinimapIconStyle = 1,                     --Change the icon of minimap button (Main.lua)

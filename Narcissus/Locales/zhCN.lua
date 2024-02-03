@@ -187,9 +187,10 @@ L["Find Related Creatures Description"] = "找到与目标同姓的其他生物�
 L["Find Relatives Hotkey"] = "按Tab搜索相关生物。";
 L["Find Relatives Hotkey Format"] = "按下%s开始查找。";
 L["Translate Names"] = "翻译姓名";
-L["Translate Names Description On"] = "获取目标译名并将其显示在...";
-L["Select A Language"] = "已选语言：";
-L["Select Multiple Languages"] = "已选语言：";
+L["Translate Names Description"] = "获取目标译名并将其显示在...";
+L["Translate Names Languages"] = "翻译为...";
+L["Select Language Single"] = "选择一种语言显示在姓名版上";
+L["Select Language Multiple"] = "选择显示在鼠标提示上的语言";
 L["Load on Demand"] = "按需加载";
 L["Load on Demand Description On"] = "在搜索功能被调用时再加载数据库。";
 L["Load on Demand Description Off"] = "数据库将在你登入时加载。";
@@ -651,5 +652,18 @@ L["Send Mails"] = "发送右键";
 L["Create Auctions"] = "拍卖物品";
 L["Socket Items"] = "镶嵌宝石";
 
+--Perks Program--
+L["Perks Program Unclaimed Tender Format"] = "- 收集者宝箱中有 |cffffffff%s|r 枚未拾取的商贩标币。";     --PERKS_PROGRAM_UNCOLLECTED_TENDER
+L["Perks Program Unearned Tender Format"] = "- 旅行者日志中有 |cffffffff%s|r 枚待获取的商贩标币。";     --PERKS_PROGRAM_ACTIVITIES_UNEARNED
+L["Perks Program Item Added In Format"] = "加入于 %s";
+L["Perks Program Item Unavailable"] = "这个物品目前不可用。";
+L["Perks Program See Wares"] = "显示商品";
+L["Perks Program No Cache Alert"] = "与商栈商人交谈以获取本月的商品列表。";
+L["Perks Program Using Cache Alert"] = "正在使用你上次访问商栈时的数据。价格信息有可能不准确。";
+L["Modify Default Pose"] = "更改默认动作";   --Change the default pose/animation/camera yaw when viewing transmog items
+
 --Quest--
 L["Auto Display Quest Item"] = "自动阅读任务物品的文字说明";
+L["Drag To Move"] = "左击并拖动来移动位置";
+L["Middle Click Reset Position"] = "鼠标中键重置位置。"
+L["Change Position"] = "改变位置";

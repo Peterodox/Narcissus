@@ -119,7 +119,7 @@ function StoryboardUtil.SetScene(storyboard, sceneName)
         light:SetAlpha(1);
     end
 
-    modelScene:SetLightType(2);
+    modelScene:SetLightType(1);
 
     --[[
     --Debug

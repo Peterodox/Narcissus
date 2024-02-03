@@ -715,6 +715,7 @@ L["Perks Program Item Unavailable"] = "This item is not currently available.";
 L["Perks Program See Wares"] = "Show wares";
 L["Perks Program No Cache Alert"] = "Speak with the Trading Posts vendors to see this month\'s wares.";
 L["Perks Program Using Cache Alert"] = "Using the cache from your last visit. The price data may not be accurate.";
+L["Modify Default Pose"] = "Modify Default Pose";   --Change the default pose/animation/camera yaw when viewing transmog items
 
 --Quest--
 L["Auto Display Quest Item"] = "Auto Display Quest Item Descriptions";

@@ -725,21 +725,36 @@ local function DressingRoomOverlayFrame_Initialize()
 
     --expensive call
     DressUpFrame.ModelScene:HookScript("OnDressModel", function(f, ...)
-        if not (DressingRoomOverlayFrame and SLOT_FRAME_ENABLED) then return end;
-        if not DressingRoomOverlayFrame.pauseUpdate then
-            DressingRoomOverlayFrame.pauseUpdate = true;
-            DressingRoomOverlayFrame.mode = "visual";
-            After(0, function()
-                if SLOT_FRAME_ENABLED and IsDressUpFrameMaximized() then
-                    DressingRoomOverlayFrame.SlotFrame:Show();
-                    DressingRoomOverlayFrame.OptionFrame:Show();
+        if not (DressingRoomOverlayFrame) then return end;
+
+        if SLOT_FRAME_ENABLED then
+            if not DressingRoomOverlayFrame.pauseUpdate then
+                DressingRoomOverlayFrame.pauseUpdate = true;
+                DressingRoomOverlayFrame.mode = "visual";
+                After(0, function()
+                    if SLOT_FRAME_ENABLED and IsDressUpFrameMaximized() then
+                        DressingRoomOverlayFrame.SlotFrame:Show();
+                        DressingRoomOverlayFrame.OptionFrame:Show();
+                        GetDressingSourceFromActor();
+                        if NarciDressingRoomGearTextsClipborad:IsVisible() then
+                            PrintItemList();
+                        end
+                    end
+                    DressingRoomOverlayFrame.pauseUpdate = nil;
+                end)
+            end
+        else
+            if not DressingRoomOverlayFrame.pauseUpdate then
+                DressingRoomOverlayFrame.pauseUpdate = true;
+                DressingRoomOverlayFrame.mode = "visual";
+                After(0, function()
                     GetDressingSourceFromActor();
                     if NarciDressingRoomGearTextsClipborad:IsVisible() then
                         PrintItemList();
                     end
-                end
-                DressingRoomOverlayFrame.pauseUpdate = nil;
-            end)
+                    DressingRoomOverlayFrame.pauseUpdate = nil;
+                end)
+            end
         end
     end)
 
