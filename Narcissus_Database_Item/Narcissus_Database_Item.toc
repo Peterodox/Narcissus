@@ -1,11 +1,11 @@
-## Interface: 100205
+## Interface: 100206
 ## Plain Title: Narcissus Database Item
 ## Version: 9.2.0
 ## LoadOnDemand: 1
 ## RequiredDeps: Narcissus
 # SavedVariables: NarciItemDatabaseOutput, NarciItemDatabaseFailure, NarciItemDatabaseCount
 
-## Title: |cffd177ffN|cffc480fba|cffb787f6r|cffa98ef2c|cff9a94edi|cff8a9ae9s|cff789fe5s|cff63a4e0u|cff48a8dcs|r |cff666666Database Item|r
+## Title: Narcissus Database Item
 
 ## Notes: A complete list of holdable items available in Narcissus photo mode.
 

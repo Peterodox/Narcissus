@@ -1,10 +1,10 @@
-## Interface: 100205
+## Interface: 100206
 ## Plain Title: Narcissus Barbershop
 ## Version: 1.5
 ## LoadOnDemand: 1
 ## RequiredDeps: Narcissus
 
-## Title: |cffd177ffN|cffc480fba|cffb787f6r|cffa98ef2c|cff9a94edi|cff8a9ae9s|cff789fe5s|cff63a4e0u|cff48a8dcs|r |cffFF657FBarber|r|cffCCCCCCshop|r
+## Title: Narcissus Barbershop
 
 ## Notes: Save and share your appearances.
 ## Notes-zhCN: 理发厅增强: 保存\分享外观

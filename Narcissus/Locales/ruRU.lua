@@ -1,4 +1,4 @@
---Coutesy of ZamestoTV. Thank you!    --Translator: ZamestoTV as of 1.4.9
+--Coutesy of ZamestoTV. Thank you!    --Translator: ZamestoTV as of 1.5.1
 
 if not (GetLocale() == "ruRU") then
     return;
@@ -718,6 +718,7 @@ L["Perks Program Item Unavailable"] = "Этот товар в настоящее
 L["Perks Program See Wares"] = "Показать товары";
 L["Perks Program No Cache Alert"] = "Поговорите с продавцами торговой лавки, чтобы увидеть товары этого месяца.";
 L["Perks Program Using Cache Alert"] = "Использование кеша с вашего последнего посещения. Данные о цене могут быть неточными.";
+L["Modify Default Pose"] = "Изменить позу по умолчанию";   --Change the default pose/animation/camera yaw when viewing transmog items
 
 --Quest--
 L["Auto Display Quest Item"] = "Автоматическое отображение описаний предметов заданий";

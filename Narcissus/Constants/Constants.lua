@@ -19,8 +19,8 @@ do
     if addon.IsDragonflight() then
         local _, _, _, tocVersion = GetBuildInfo();
         local maxAnimID;
-        if tocVersion and tocVersion >= 100105 then
-            maxAnimID = 1763;
+        if tocVersion and tocVersion >= 100206 then
+            maxAnimID = 1776;
         else
             maxAnimID = 1757;
         end

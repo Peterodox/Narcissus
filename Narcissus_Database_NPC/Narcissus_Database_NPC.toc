@@ -1,11 +1,11 @@
-## Interface: 100205
+## Interface: 100206
 ## Plain Title: Narcissus Database NPC
 ## Version: 10.2.0
 ## LoadOnDemand: 1
 ## RequiredDeps: Narcissus
 ### SavedVariables: UniqueCreatureIDs, LocalizedNames, SortedNames, CreatureIDxModelFileID, UnprocessedCreatures
 
-## Title: |cffd177ffN|cffc480fba|cffb787f6r|cffa98ef2c|cff9a94edi|cff8a9ae9s|cff789fe5s|cff63a4e0u|cff48a8dcs|r |cff666666Database NPC|r
+## Title: Narcissus Database NPC
 
 ## Notes: Find any NPC by name.
 

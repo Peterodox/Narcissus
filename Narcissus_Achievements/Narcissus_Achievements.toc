@@ -1,11 +1,11 @@
-## Interface: 100205
-## Version: 10.2.5
+## Interface: 100206
+## Version: 10.2.6
 ## LoadOnDemand: 1
 ## RequiredDeps: Narcissus
 
 ## SavedVariables: NarciDevToolOutput
 # Plain Title: Narcissus Achievements
-## Title: |cffd177ffN|cffc480fba|cffb787f6r|cffa98ef2c|cff9a94edi|cff8a9ae9s|cff789fe5s|cff63a4e0u|cff48a8dcs|r |cffe5c75fAchievements|r
+## Title: Narcissus Achievements
 ## Notes: A standalone achievement UI.
 ## Notes-zhCN: Narcissus成就面板
 

@@ -3113,6 +3113,19 @@ end
 NarciAPI.IsPlayerAtMaxLevel = IsPlayerAtMaxLevel;
 
 
+do
+    local IsInteractingWithNpcOfType = C_PlayerInteractionManager.IsInteractingWithNpcOfType;
+    local TYPE_GOSSIP = Enum.PlayerInteractionType and Enum.PlayerInteractionType.Gossip or 3;
+    local TYPE_QUEST_GIVER = Enum.PlayerInteractionType and Enum.PlayerInteractionType.QuestGiver or 4;
+    local GetQuestID = GetQuestID;
+
+    local function IsInteractingWithDialogNPC()
+        local currentQuestID = GetQuestID();
+        return IsInteractingWithNpcOfType(TYPE_GOSSIP) or IsInteractingWithNpcOfType(TYPE_QUEST_GIVER) or (currentQuestID ~= nil and currentQuestID ~= 0)
+    end
+    addon.IsInteractingWithDialogNPC = IsInteractingWithDialogNPC;
+end
+
 --[[
     /script DEFAULT_CHAT_FRAME:AddMessage("\124Hitem:narcissus:0:\124h[Test Link]\124h\124r");
 function TestFX(modelFileID, zoomDistance, view)

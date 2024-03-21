@@ -343,8 +343,8 @@ end
 
 function ItemFilter.ShowMailable_Native()
 	-- 1. Show Auctionable;
-	-- 2. Add Blizzard Account Bound Item
-	--Deprecated Method: First set searchbox "Blizzard Account Bound" ITEM_BNETACCOUNTBOUND
+	-- 2. Add Account Bound Item
+	--Deprecated Method: First set searchbox "Account Bound" ITEM_BNETACCOUNTBOUND
     --IterateItemButtons(Condition_NotBound);   --false: Hide error messages
 	SearchEventFrame:RegisterEvent("INVENTORY_SEARCH_UPDATE");
 	--SearchEventFrame.postSearchCallback = ItemFilter.ReverseMatch;
@@ -352,7 +352,7 @@ function ItemFilter.ShowMailable_Native()
 	SearchEventFrame.postSearchCallback = ITERTATE_BUTTONS;
 	SearchEventFrame.arg1 = 1;
 	SearchEventFrame.arg2 = Condition_Mailable;
-	START_SEARCHING(ITEM_BNETACCOUNTBOUND or "Account Bound");
+	START_SEARCHING(ITEM_ACCOUNTBOUND or "Account Bound");	--ITEM_BNETACCOUNTBOUND not used after 10.2.0
 
 	SaveLastFilter(ItemFilter.ShowMailable_Native);
 end

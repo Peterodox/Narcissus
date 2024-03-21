@@ -1,8 +1,7 @@
-## Interface: 100205
-## Plain Title: Narcissus
-## Version: 1.5.1
+## Interface: 100206
+## Version: 1.5.2
 
-## Title: |cffd177ffN|cffc480fba|cffb787f6r|cffa98ef2c|cff9a94edi|cff8a9ae9s|cff789fe5s|cff63a4e0u|cff48a8dcs|r
+## Title: Narcissus
 
 ## Notes: Immersive paperdoll frame and in-game studio. |n|cff959595Slash command: /narci|r
 ## Notes-zhCN: 为展示和分享而生的沉浸式角色界面|n|cff959595命令: /narci|r

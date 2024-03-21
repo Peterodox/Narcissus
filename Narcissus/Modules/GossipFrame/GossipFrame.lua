@@ -15,7 +15,7 @@ local function IsObjectValid_BlizzardUI(obj)
 end
 
 local function IsObjectValid_Immersion(obj)
-    local name = obj and obj:GetName();
+    local name = obj and obj.GetName and obj:GetName();
     return name and find(name, "^ImmersionTitleButton");
 end
 

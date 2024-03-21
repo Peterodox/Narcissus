@@ -1,10 +1,10 @@
-## Interface: 100205
-## Version: 1.0.1
+## Interface: 100206
+## Version: 1.0.2
 ## LoadOnDemand: 1
 ## RequiredDeps: Narcissus
 
 ## Author: Peterodox
-## Title: |cffd177ffN|cffc480fba|cffb787f6r|cffa98ef2c|cff9a94edi|cff8a9ae9s|cff789fe5s|cff63a4e0u|cff48a8dcs|r |cffc4c29eBag Filter|r
+## Title: Narcissus Bag Filter
 ## Notes: Bag item search suggest and auto-filter.
 ## SavedVariables: NarcissusBagFilterDB
 
