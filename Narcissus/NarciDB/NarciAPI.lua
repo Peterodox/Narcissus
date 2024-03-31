@@ -3118,12 +3118,48 @@ do
     local TYPE_GOSSIP = Enum.PlayerInteractionType and Enum.PlayerInteractionType.Gossip or 3;
     local TYPE_QUEST_GIVER = Enum.PlayerInteractionType and Enum.PlayerInteractionType.QuestGiver or 4;
     local GetQuestID = GetQuestID;
+    local INTERACT_RECENELY = false;
 
     local function IsInteractingWithDialogNPC()
+        if INTERACT_RECENELY then return true end;
+
         local currentQuestID = GetQuestID();
         return IsInteractingWithNpcOfType(TYPE_GOSSIP) or IsInteractingWithNpcOfType(TYPE_QUEST_GIVER) or (currentQuestID ~= nil and currentQuestID ~= 0)
     end
     addon.IsInteractingWithDialogNPC = IsInteractingWithDialogNPC;
+
+    local DialogEventHandler;
+
+    local function DialogEventHandler_Check()
+        if C_AddOns.IsAddOnLoaded("DialogueUI") then
+            local events = {
+                "GOSSIP_SHOW", "QUEST_DETAIL", "QUEST_PROGRESS", "QUEST_COMPLETE", "QUEST_GREETING",
+            };
+
+            DialogEventHandler = CreateFrame("Frame");
+
+            for _, event in ipairs(events) do
+                DialogEventHandler:RegisterEvent(event)
+            end
+
+            local function OnUpdate(self, elapsed)
+                self.t = self.t + elapsed;
+                if self.t >= 1 then
+                    self:SetScript("OnUpdate", nil);
+                    self.t = nil;
+                    INTERACT_RECENELY = false;
+                end
+            end
+
+            DialogEventHandler:SetScript("OnEvent", function(self, event, ...)
+                self.t = 0;
+                INTERACT_RECENELY = true;
+                self:SetScript("OnUpdate", OnUpdate);
+            end);
+        end
+    end
+
+    addon.AddLoadingCompleteCallback(DialogEventHandler_Check);
 end
 
 --[[

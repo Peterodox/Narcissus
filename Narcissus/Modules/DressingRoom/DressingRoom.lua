@@ -624,7 +624,9 @@ local function DressingRoomOverlayFrame_Initialize()
         return;
     end
 
-    DressUpFrame.ModelScene:SetLightDiffuseColor(0.78, 0.78, 0.78);
+    if not NarcissusDB.KeepDressingRoomOriginalLight then
+        DressUpFrame.ModelScene:SetLightDiffuseColor(0.78, 0.78, 0.78);
+    end
 
     local frame = CreateFrame("Frame", "NarciDressingRoomOverlay", parentFrame, "NarciDressingRoomOverlayTemplate")
     CreateSlotButton(frame)

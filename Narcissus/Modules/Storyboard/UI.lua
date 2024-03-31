@@ -221,7 +221,7 @@ function NarciQuestItemDisplayMixin:ProcessQueue()
     end
 end
 
-function NarciQuestItemDisplayMixin:SetItem(itemID, requery)
+function NarciQuestItemDisplayMixin:SetItem(itemID, isRequery)
     --/run NarciQuestItemDisplay:SetItem(203395);NarciQuestItemDisplay:SetItem(205366)
 
     local tooltipData = C_TooltipInfo.GetItemByID(itemID);
@@ -253,7 +253,7 @@ function NarciQuestItemDisplayMixin:SetItem(itemID, requery)
     end
 
     if not (name and description) then
-        if requery then
+        if not isRequery then
             C_Timer.After(0.5, function()
                 self:SetItem(itemID, true);
             end);

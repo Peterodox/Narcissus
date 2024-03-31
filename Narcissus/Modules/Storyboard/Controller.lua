@@ -281,6 +281,11 @@ do
         if state == nil then
             state = db["AutoDisplayQuestItem"];
         end
+
+        if DialogueUI_DB and DialogueUI_DB.QuestItemDisplay then
+            state = false;
+        end
+
         if state then
             QuestItemTracker:EnableTracker()
         else

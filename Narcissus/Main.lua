@@ -3730,52 +3730,57 @@ end
 
 
 ------Photo Mode Toolbar------
+do
+	local IsInteractingWithDialogNPC = addon.IsInteractingWithDialogNPC;	--Prevent clash with DialogUI
 
+	hooksecurefunc("SetUIVisibility", function(state)
+		if IS_OPENED then		--when Narcissus hide the UI
+			if state then
+				MsgAlertContainer:SetDND(true);
+				Toolbar:UseLowerLevel(true);
+			else
+				local bar = Toolbar;
+				Toolbar.ExitButton:Show();
+				if not bar:IsShown() then
+					bar:Show();
+				end
+				MsgAlertContainer:SetDND(false);
+				bar:UseLowerLevel(false);
+			end
+		else						--when user hide the UI manually
+			if state then
+				--When player closes the full-screen world map, SetUIVisibility(true) fires twice, and WorldMapFrame:IsShown() returns true and false.
+				--Thus, use this VisibilityTracker instead to check if WorldMapFrame has been closed recently.
+				--WorldMapFrame.VisibilityTracker.state
+				MsgAlertContainer:Hide();
+				if Narci_Character:IsShown() then return end;
+				if not Toolbar:IsShown() then return end;
+
+				if not GetKeepActionCam() then
+					After(0.6, function()
+						ConsoleExec( "actioncam off" );
+					end)
+				end
+				Toolbar:HideUI();
+			else
+				if IsInteractingWithDialogNPC() then return end;
+
+				local bar = Toolbar;
+				if not bar:IsShown() then
+					CVarTemp.shoulderOffset = GetCVar("test_cameraOverShoulder");
+				end
+				bar:ShowUI("Blizzard");
+				bar:FadeOut(true);
+			end
+		end
+	end)
+end
 
 --[[
-hooksecurefunc("SetUIVisibility", function(state)
-	if IS_OPENED then		--when Narcissus hide the UI
-		if state then
-			MsgAlertContainer:SetDND(true);
-			Toolbar:UseLowerLevel(true);
-		else
-			local bar = Toolbar;
-			Toolbar.ExitButton:Show();
-			if not bar:IsShown() then
-				bar:Show();
-			end
-			MsgAlertContainer:SetDND(false);
-			bar:UseLowerLevel(false);
-		end
-	else						--when user hide the UI manually
-		if state then
-			--When player closes the full-screen world map, SetUIVisibility(true) fires twice, and WorldMapFrame:IsShown() returns true and false.
-			--Thus, use this VisibilityTracker instead to check if WorldMapFrame has been closed recently.
-			--WorldMapFrame.VisibilityTracker.state
-			MsgAlertContainer:Hide();
-			if Narci_Character:IsShown() then return; end
-			if not GetKeepActionCam() then
-				After(0.6, function()
-					ConsoleExec( "actioncam off" );
-				end)
-			end
-			Toolbar:HideUI();
-		else
-			local bar = Toolbar;
-			if not bar:IsShown() then
-				CVarTemp.shoulderOffset = GetCVar("test_cameraOverShoulder");
-			end
-			bar:ShowUI("Blizzard");
-			bar:FadeOut(true);
-		end
-	end
-end)
---]]
-
 do  --UIParent OnShow/OnHide
 	local IsInteractingWithDialogNPC = addon.IsInteractingWithDialogNPC;	--Prevent clash with DialogUI
 
-    local frame = CreateFrame("Frame", nil, UIParent);
+	local frame = CreateFrame("Frame", nil, UIParent);
 
 	local function UIParent_OnShow()
 		if IS_OPENED then		--when Narcissus hide the UI
@@ -3819,6 +3824,7 @@ do  --UIParent OnShow/OnHide
     frame:SetScript("OnShow", UIParent_OnShow);
     frame:SetScript("OnHide", UIParent_OnHide);
 end
+--]]
 
 do
 	--Slash Command

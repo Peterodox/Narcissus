@@ -8,6 +8,8 @@ local SetTrackingPets = addon.TransitionAPI.SetTrackingPets;
 
 local outSine = addon.EasingFunctions.outSine;
 
+local InCombatLockdown = InCombatLockdown;
+
 
 local MainFrame;
 local ToolbarButtons = {};
@@ -301,6 +303,8 @@ local function HideTextsButton_OnClick(self)
 end
 
 local function HideTextsButton_OnInit(self)
+    if InCombatLockdown() then return end;
+
     self.isOn = NarcissusDB.HideTextsWithUI;
 
     if self.isOn then
@@ -1040,6 +1044,7 @@ function NarciScreenshotToolbarMixin:OnShow()
     self:RegisterEvent("PLAYER_QUITING");
     self:RegisterEvent("PLAYER_CAMPING");
     self:RegisterEvent("SCREENSHOT_STARTED");
+    self:RegisterEvent("PLAYER_REGEN_DISABLED");
 end
 
 function NarciScreenshotToolbarMixin:OnHide()
@@ -1047,6 +1052,7 @@ function NarciScreenshotToolbarMixin:OnHide()
     self:UnregisterEvent("PLAYER_QUITING");
     self:UnregisterEvent("PLAYER_CAMPING");
     self:UnregisterEvent("SCREENSHOT_STARTED");
+    self:UnregisterEvent("PLAYER_REGEN_DISABLED");
     self:FadeOut(true);
     self:UseLowerLevel(false);
 end
@@ -1054,6 +1060,13 @@ end
 function NarciScreenshotToolbarMixin:OnEvent(event, ...)
     if event == "SCREENSHOT_STARTED" then
         self:FadeOut(true);
+    elseif event == "PLAYER_REGEN_DISABLED" then
+        local toolbarButton = GetToolbarButtonByButtonType("HideTexts");
+        if toolbarButton and CVarUtil:IsCVarChanged("HideTexts") then
+            CVarUtil:SetHideTextStatus(false);
+            toolbarButton.isOn = false;
+            toolbarButton:UpdateIcon();
+        end
     else
         self:OnExit();
     end
