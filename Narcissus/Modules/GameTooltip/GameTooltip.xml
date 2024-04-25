@@ -2,6 +2,7 @@
     <Script file="Delay.lua"/>
     <Script file="EmbededGemFrame.lua"/>
     <Script file="EmbededSpellFrame.lua"/>
+    <Script file="SpecialItems.lua"/>
     <Script file="GameTooltip.lua"/>
 
     <GameTooltip name="NarciGameTooltip" hidden="true" clampedToScreen="true" mixin="NarciGameTooltipMixin">

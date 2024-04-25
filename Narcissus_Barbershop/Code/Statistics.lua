@@ -96,10 +96,12 @@ function StatManager:UpdateZone()
             self.DB.Locations[mapID] = { visit = 0, time = 0 };
         end
         self.DB.Locations[mapID].visit = self.DB.Locations[mapID].visit + 1;
-
-        self:UpdateLocationFrame();
-        self:UpdateLocationFramesHeight();
     end
+end
+
+function StatManager:UpdateFrame()
+    self:UpdateLocationFrame();
+    self:UpdateLocationFramesHeight();
 end
 
 function StatManager:OnBarberShopOpen()

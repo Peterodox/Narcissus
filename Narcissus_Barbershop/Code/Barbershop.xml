@@ -7,7 +7,7 @@
 	<Script file="AppearanceList.lua"/>
     <Script file="Barbershop.lua"/>
 
-	<Frame name="NarciBarberShopStrokeFrameTemplate" mixin="NarciBarberShopSharedTemplateMixin" virtual="true">
+	<Frame name="NarciBarberShopStrokeFrameNoScriptTemplate" mixin="NarciBarberShopSharedTemplateMixin" virtual="true">
 		<Size x="80" y="20"/>
 		<Layers>
 			<Layer level="BORDER">
@@ -34,6 +34,12 @@
 				</Texture>
 			</Layer>
 		</Layers>
+		<Scripts>
+			<OnLoad method="UpdatePixel"/>
+		</Scripts>
+	</Frame>
+
+	<Frame name="NarciBarberShopStrokeFrameTemplate" mixin="NarciBarberShopSharedTemplateMixin" inherits="NarciBarberShopStrokeFrameNoScriptTemplate" virtual="true">
 		<Scripts>
 			<OnLoad method="UpdatePixel"/>
 			<OnEnter method="OnEnter"/>
@@ -894,44 +900,12 @@
 						</Frames>
 					</ScrollFrame>
 
-					<Frame parentKey="ProfilesTab" hidden="true">
+					<Frame parentKey="ShareTab" hidden="true">
 						<Size x="312" y="180"/>
 						<Anchors>
 							<Anchor point="LEFT" relativeKey="$parent" relativePoint="LEFT" x="80"/>
 						</Anchors>
-						<Layers>
-							<!--Layer level="OVERLAY">
-								<FontString inherits="SystemFont_Tiny" justifyH="CENTER" justifyV="TOP" parentKey="Header1" text="Export">
-									<Color r="0.5" g="0.5" b="0.5"/>
-									<Size x="120"/>
-									<Anchors>
-										<Anchor point="TOP" relativeKey="$parent" relativePoint="TOP" x="0" y="-8"/>
-									</Anchors>
-								</FontString>
-
-								<FontString inherits="SystemFont_Tiny" justifyH="CENTER" justifyV="TOP" parentKey="Header2" text="Import">
-									<Color r="0.5" g="0.5" b="0.5"/>
-									<Size x="120"/>
-									<Anchors>
-										<Anchor point="TOP" relativeKey="$parent" relativePoint="TOP" x="0" y="-75"/>
-									</Anchors>
-								</FontString>
-							</Layer-->
-						</Layers>
 						<Frames>
-							<!--Button parentKey="ExportCurrentButton" inherits="NarciBarberShopStrokeButtonTemplate">
-								<Size x="120" y="20"/>
-								<Anchors>
-									<Anchor point="TOPRIGHT" relativeKey="$parent" relativePoint="TOP" x="-5" y="-25"/>
-								</Anchors>
-							</Button>
-							<Button parentKey="ExportAllButton" inherits="NarciBarberShopStrokeButtonTemplate">
-								<Size x="120" y="20"/>
-								<Anchors>
-									<Anchor point="TOPLEFT" relativeKey="$parent" relativePoint="TOP" x="5" y="-25"/>
-								</Anchors>
-							</Button-->
-
 							<EditBox parentKey="ExportEditBox" inherits="NarciBarberShopProfileTextBoxTemplate">
 								<Size x="250" y="20"/>
 								<Anchors>
@@ -977,6 +951,13 @@
 								self:StopAnimating();
 							</OnHide>
 						</Scripts>
+					</Frame>
+
+					<Frame parentKey="ProfileTab" hidden="true">
+						<Size x="312" y="180"/>
+						<Anchors>
+							<Anchor point="LEFT" relativeKey="$parent" relativePoint="LEFT" x="80"/>
+						</Anchors>
 					</Frame>
 				</Frames>
 				<Scripts>

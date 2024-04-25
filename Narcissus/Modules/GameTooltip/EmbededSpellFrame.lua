@@ -1,4 +1,4 @@
-local GetItemSpell = GetItemSpell;
+local GetItemSpell = C_Item.GetItemSpell;
 local GetSpellInfo = GetSpellInfo;
 local GetSpellBaseCooldown = GetSpellBaseCooldown;
 

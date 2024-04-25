@@ -37,7 +37,7 @@ local L = Narci.L;
 local NarciAPI = NarciAPI;
 local TEXT_LOCALE = GetLocale();
 
-local GetItemInfoInstant = GetItemInfoInstant;
+local GetItemInfoInstant = C_Item.GetItemInfoInstant;
 local GetItemGem = GetItemGem;
 local GetItemStats = GetItemStats or C_Item.GetItemStats;
 local GetInventoryItemLink = GetInventoryItemLink;
@@ -1733,7 +1733,7 @@ local function GetColorizedPrimordialStoneName(itemID)
     if name and name ~= "" then
         PrimordialStoneNames[itemID] = name;
     else
-        name = GetItemInfo(itemID);
+        name = C_Item.GetItemInfo(itemID);
     end
 
     return name

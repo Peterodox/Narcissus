@@ -468,7 +468,6 @@ L["Save New Look"] = "Salvar nova aparência";
 L["No Available Slot"] = "Nenhum espaço disponível";
 L["Look Saved"] = "Aparência salva";
 L["Cannot Save Forms"] = "Não é possível salvar a aparência";
-L["Profiles"] = SOCIAL_SHARE_TEXT or "Compartilhar";
 L["Share"] = "Compartilhar";
 L["Save Notify"] = "Notificá-lo ao salvar a nova aparência";
 L["Save Notify Tooltip"] = "Você será notificado para salvar a personalização depois de clicar no botão Aceitar.";

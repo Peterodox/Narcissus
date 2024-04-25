@@ -8,7 +8,7 @@ local Narci = Narci;
 
 local function GetItemIcon(itemID)
     if itemID then
-        local _, _, _, _, icon = GetItemInfoInstant(itemID);
+        local _, _, _, _, icon = C_Item.GetItemInfoInstant(itemID);
         if icon == 0 then
             icon = nil;
         end
@@ -225,7 +225,7 @@ function NarciPhotoModeWeaponFrameMixin:SetItemInfo(id, slot, databaseName, over
     local icon, name;
     if id then
         icon = GetItemIcon(id);
-        name = GetItemInfo(id) or databaseName;
+        name = C_Item.GetItemInfo(id) or databaseName;
     end
     if slot == 1 then
         self.MainHandSlot:SetSlotInfo(id, name, icon);

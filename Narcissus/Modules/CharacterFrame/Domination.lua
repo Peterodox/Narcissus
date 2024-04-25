@@ -12,7 +12,7 @@ local COLOR_DOMINATION = "|cff66bbff";
 
 local unpack = unpack;
 local After = C_Timer.After;
-local GetItemInfoInstant = GetItemInfoInstant;
+local GetItemInfoInstant = C_Item.GetItemInfoInstant;
 local ItemLocation = ItemLocation;
 local DoesItemExist = C_Item.DoesItemExist;
 local GetItemLink = C_Item.GetItemLink;

@@ -22,7 +22,7 @@ local GetItemName = C_Item.GetItemName;
 local GetItemQuality = C_Item.GetItemQuality;
 local RequestLoadItemData = C_Item.RequestLoadItemData;
 local GetCombatRating = GetCombatRating;
-local GetItemInfoInstant = GetItemInfoInstant;
+local GetItemInfoInstant = C_Item.GetItemInfoInstant;
 
 local GetGemBorderTexture = NarciAPI.GetGemBorderTexture;
 local DoesItemHaveDomationSocket = NarciAPI.DoesItemHaveDomationSocket;

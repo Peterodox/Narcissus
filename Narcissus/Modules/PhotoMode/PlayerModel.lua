@@ -1388,7 +1388,7 @@ end
 local animationIDPresets = {
 	--from right to left
 	[1] = {110, 48, 109, 29, ["name"] = L["Ranged Weapon"],},
-	[2] = {962, 1242, 1240, 1076, ["name"] = L["Melee Animation"],},	--NARCI_MELEE_WEAPON
+	[2] = {962, 1242, 1240, 1076, ["name"] = L["Melee Animation"],},
 	[3] = {124, 51, 874, 940, ["name"] = L["Spellcasting"],},
 }
 
@@ -2935,7 +2935,7 @@ local inventoryTypeSlot = {
 };
 
 local function RedirectInventorySlot(itemID, widgetType)
-	local _, _, _, itemEquipLoc, _, itemClassID, itemSubClassID = GetItemInfoInstant(itemID);
+	local _, _, _, itemEquipLoc, _, itemClassID, itemSubClassID = C_Item.GetItemInfoInstant(itemID);
 	if itemClassID == 4 and itemSubClassID == 6 then	--shield ~ always offhand
 		return 2
 	elseif widgetType == 2 then	--CinematicModel
@@ -4463,9 +4463,9 @@ end)
 ----------------------------------------------------
 function Narci:EquipmentItemByItemID(modelIndex, itemID, itemModID)
 	local appearanceID, sourceID = C_TransmogCollection.GetItemInfo(itemID, itemModID);
-	local name = GetItemInfo(itemID) or "";
+	local name = C_Item.GetItemInfo(itemID) or "";
 	After(0.1, function()
-		name = GetItemInfo(itemID) or "";
+		name = C_Item.GetItemInfo(itemID) or "";
 		print(name.." | ".."AppearanceID: "..appearanceID.."  ".." SourceID"..sourceID);
 	end)
 	

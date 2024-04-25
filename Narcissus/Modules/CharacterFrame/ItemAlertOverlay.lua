@@ -7,7 +7,7 @@ local tinsert = table.insert;
 
 local GetSpecialization = GetSpecialization;
 local GetSpecializationInfo = GetSpecializationInfo;
-local GetItemInfoInstant = GetItemInfoInstant;
+local GetItemInfoInstant = C_Item.GetItemInfoInstant;
 
 local SLOT_PRIORITY = {
     --[slotID] = 1,  --(1 high priority, Show red glow) (0 low just a text says no enchant) (nil/false, don't show alert)

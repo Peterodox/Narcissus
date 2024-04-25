@@ -1,7 +1,7 @@
-local ItemLocation = ItemLocation;
 local GetTemporaryItemBuff = NarciAPI.GetTemporaryItemBuff;
 local GetEnchantDataByEnchantID = NarciAPI.GetEnchantDataByEnchantID;
 local ConvertTextToSeconds = NarciAPI.ConvertTextToSeconds;
+local GetItemIcon = C_Item.GetItemIconByID;
 
 local SHOW_SECONDS_THRESHOLD = 60 * 60;     --Most boss fights end within 15 min
 

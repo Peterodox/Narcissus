@@ -222,6 +222,7 @@ L["New Option"] = NARCI_NEW_ENTRY_PREFIX.." 新".."|r"
 L["Expansion Features"] = "资料片特色";
 L["LFR Wing Details"] = "随机难度团本区域信息";
 L["LFR Wing Details Description"] = "在你单排随机难度的旧团本时，显示boss名称和进度情况。";
+L["Speedy Screenshot Alert"] = "让截图成功通知更快地消失";
 
 --模型控制面板--
 L["Ranged Weapon"] = "远程武器";
@@ -423,7 +424,7 @@ L["Save New Look"] = "保存外观";
 L["No Available Slot"] = "保存栏位已满";
 L["Look Saved"] = "已保存";
 L["Cannot Save Forms"] = "不支持形态";
-L["Profiles"] = "存档管理";
+L["Profile"] = "存档管理";
 L["Share"] = "分享";
 L["Save Notify"] = "提示你保存新外观";
 L["Save Notify Tooltip"] = "在你应用一个套新外观后提示你是否保存。";
@@ -451,6 +452,11 @@ L["Decode Good"] = "解码成功";
 L["Barbershop Export Tooltip"] = "用当前外观生成一串可在网上分享的字符串。\n你可以修改冒号前的文字。";
 L["Settings And Share"] = "设置与分享";
 L["Loading Portraits"] = "生成头像";
+L["Private Profile"] = "个人";   --used by the current character
+L["Public Profile"] = "共用";     --shared among all your characters
+L["No Saves"] = "没有存档";
+L["Profile Type Tooltip"] = "选择当前角色所用档案。\n\n个人:|cffedd100 由此角色创建的档案|r\n\n共用:|cffedd100 可被你所有角色共用的档案|r";
+L["Profile Migration Okay"] = "好的"
 
 --Tutorial--
 L["Alert"] = "警告";

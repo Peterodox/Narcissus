@@ -1453,11 +1453,10 @@ local function UpdateMountActor(resetModel)
         local UnitBuff = C_UnitAuras.GetBuffDataByIndex;
         local GetMountFromSpell = C_MountJournal.GetMountFromSpell;
         local i = 1;
-        local _, count, duration;
         local spellID = 0;
         local auraData;
         while spellID do
-            auraData = UnitBuff("player", i);
+            auraData = UnitBuff("player", i, "HELPFUL");
             spellID = auraData and auraData.spellId;
             if spellID then
                 if auraData.duration == 0 then
@@ -1491,7 +1490,6 @@ local function UpdateMountActor(resetModel)
             MountActor:SetUseCenterForOrigin(false, false, false);
             MountActor:SetPosition(0, 0, 0);
             --MountActor:SetParticleOverrideScale(0);
-            MA = MountActor;
         end
 
         if resetModel then

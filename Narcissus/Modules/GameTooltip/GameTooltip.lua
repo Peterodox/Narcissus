@@ -7,30 +7,31 @@ local gsub = string.gsub;
 local format = string.format;
 local match = string.match;
 local strtrim = strtrim;
+local unpack = unpack;
 
 local _G = _G;
 local NarciAPI = NarciAPI;
 local FadeFrame = NarciFadeUI.Fade;
-local GetItemStats = GetItemStats or C_Item.GetItemStats;
-local GetItemSpell = GetItemSpell;
-local GetItemInfo = GetItemInfo;
-local GetItemInfoInstant = GetItemInfoInstant;
-local GetDetailedItemLevelInfo = GetDetailedItemLevelInfo;
+local C_Item = C_Item;
+local GetItemStats = C_Item.GetItemStats;
+local GetItemSpell = C_Item.GetItemSpell;
+local GetItemInfo = C_Item.GetItemInfo;
+local GetItemInfoInstant = C_Item.GetItemInfoInstant;
+local GetDetailedItemLevelInfo = C_Item.GetDetailedItemLevelInfo;
 local GetInventoryItemLink = GetInventoryItemLink;
 local GetInventoryItemDurability = GetInventoryItemDurability;
 local Model_ApplyUICamera = Model_ApplyUICamera;
 local C_TransmogCollection = C_TransmogCollection;
-local C_Item = C_Item;
 local GetSlotVisualInfo = C_Transmog.GetSlotVisualInfo;
 local EJ_SetSearch = EJ_SetSearch;
 
 local GetItemQualityColor = NarciAPI.GetItemQualityColor;
-local GetSlotVisualID = NarciAPI.GetSlotVisualID;
 
 local SharedTooltipDelay = addon.SharedTooltipDelay;
 local TransmogDataProvider = addon.TransmogDataProvider;
 local SetModelByUnit = addon.TransitionAPI.SetModelByUnit;
 local ItemCacheUtil = addon.ItemCacheUtil;
+local SetupSpecialItemTooltip = addon.SetupSpecialItemTooltip;
 
 local PT_EQUIPMENT_SETS = gsub(EQUIPMENT_SETS, ".cFF.+", "");
 local PT_ITEM_SOULBOUND = ITEM_SOULBOUND;
@@ -303,7 +304,7 @@ local function AppendItemID(tooltip)
     if spellID then
         tooltip:AddDoubleLine(format("|cff545454ItemID|r |cff808080%s|r", tooltip.itemID), format("|cff545454SpellID|r |cff808080%s|r", spellID), 1, 1, 1, (tooltip.numLines > 0 and - SEG_INSETS));
     else
-        tooltip:AddLine(format("|cff545454ID|r |cff808080%s|r", tooltip.itemID), 1, 1, 1, (tooltip.numLines > 0 and - SEG_INSETS));
+        tooltip:AddLine(format("|cff545454ItemID|r |cff808080%s|r", tooltip.itemID), 1, 1, 1, (tooltip.numLines > 0 and - SEG_INSETS));
     end
 end
 
@@ -480,6 +481,11 @@ function NarciEquipmentTooltipMixin:AddLine(text, r, g, b, offsetY)
     self.bottomObject = self.leftTexts[n];
 end
 
+function NarciEquipmentTooltipMixin:AddColoredText(text, colorIndex, offsetY)
+    local r, g, b = GetColorByIndex(colorIndex);
+    self:AddLine(text, r, g, b, offsetY);
+end
+
 function NarciEquipmentTooltipMixin:IsBottomObjectFontString()
     return self.bottomObject and self.bottomObject:IsObjectType("FontString")
 end
@@ -630,6 +636,7 @@ function NarciEquipmentTooltipMixin:DisplayItemData(link, itemData, slotID, visu
     self.itemName = itemName;
     self.itemIcon = icon;
     self.isWeapon = classID == 2;
+    self.quality = quality;
     local validForTransmog = visualID or NarciAPI.IsSlotValidForTransmog(slotID);
     if validForTransmog ~= self.showItemModel then
         if validForTransmog then
@@ -774,6 +781,7 @@ function NarciEquipmentTooltipMixin:DisplayItemData(link, itemData, slotID, visu
                     --self:InsertFrame(self.SpellFrame);
                 else
                     local r, g, b = GetColorByIndex((itemData.effects[i][3] and 2) or 4);
+                    --C_Item.GetFirstTriggeredSpellForItem(itemID, quality)
                     splitLines = {string.split("\n", itemData.effects[i][2])};  --adjust multiline spacing
                     for j = 1, #splitLines do
                         lineText = strtrim(splitLines[j]);
@@ -821,7 +829,7 @@ function NarciEquipmentTooltipMixin:DisplayItemData(link, itemData, slotID, visu
     end
     self:SearchDropLocation(itemName, itemID, self.baseSourceID);
 
-    ADDTIONAL_SETUP_FUNC(self);
+    self:SetAdditionalInfo(itemID);
 
     self:UpdateSize();
     self:SetItemModel();
@@ -832,7 +840,6 @@ function NarciEquipmentTooltipMixin:SetTransmogSource(appliedSourceID)
     self:ClearLines();
     self:SetUseTransmogLayout(true);
 
-    --local appliedSourceID, appliedVisualID, hasSecondaryAppearance = GetSlotVisualID(slotID);
     if appliedSourceID and appliedSourceID > 0 then
         local sourceInfo = C_TransmogCollection.GetSourceInfo(appliedSourceID);
         local itemName = sourceInfo and sourceInfo.name;
@@ -849,6 +856,7 @@ function NarciEquipmentTooltipMixin:SetTransmogSource(appliedSourceID)
         self.HeaderFrame.ItemIcon:SetTexture(icon);
         self.HeaderFrame.ItemIcon:SetVertexColor(0.6, 0.6, 0.6);
         self.isWeapon = classID == 2;
+        self.quality = quality;
         if not self.showItemModel then
             self.showItemModel = true;
             self.textWidth = self.textWidthDefault;
@@ -1053,7 +1061,14 @@ function NarciEquipmentTooltipMixin:CalculateHeightAbove()
 end
 
 function NarciEquipmentTooltipMixin:GetItemSpellID()
-    return self.SpellFrame.spellID;
+    local spellID1 = self.itemID and self.quality and C_Item.GetFirstTriggeredSpellForItem(self.itemID, self.quality);
+    local spellID2 = self.SpellFrame.spellID;
+
+    if spellID1 and spellID2 and spellID1 ~= spellID2 then
+        return spellID1..", "..spellID2
+    else
+        return spellID1 or spellID2
+    end
 end
 
 function NarciEquipmentTooltipMixin:SetItemModel()
@@ -1272,6 +1287,10 @@ function NarciEquipmentTooltipMixin:FadeIn()
     self.ItemModel.FadeIn:Play();
 end
 
+function NarciEquipmentTooltipMixin:SetAdditionalInfo(itemID)
+    SetupSpecialItemTooltip(self, itemID);
+    ADDTIONAL_SETUP_FUNC(self);
+end
 
 do
     local SettingFunctions = addon.SettingFunctions;

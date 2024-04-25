@@ -492,7 +492,7 @@ local function FormatRewardText(id, rewardText)
     if isDarkTheme then
         local itemID = GetRewardItemID(id);
         if itemID then
-            local itemID, itemType, itemSubType, _, icon, itemClassID, itemSubClassID = GetItemInfoInstant(itemID);
+            local itemID, itemType, itemSubType, _, icon, itemClassID, itemSubClassID = C_Item.GetItemInfoInstant(itemID);
             if itemSubType == "Mount" then
                 rewardText = gsub(rewardText, ".+:(.+)", "|cff808080".. "Mount:" .."|r|cff8950c6".."%1".."|r");
             elseif itemSubType == "Companion Pets" then

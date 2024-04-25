@@ -13,13 +13,13 @@ local _G = _G;
 local find = string.find;
 local ItemLocation = ItemLocation;
 local IsBound = C_Item.IsBound;
-local IsCosmeticItem = IsCosmeticItem;
+local IsCosmeticItem = C_Item.IsCosmeticItem;
 local IsSellItemValid = C_AuctionHouse.IsSellItemValid;
-local GetItemInfoInstant = GetItemInfoInstant;
-local SetItemSearch = (C_Container and C_Container.SetItemSearch) or SetItemSearch;
+local GetItemInfoInstant = C_Item.GetItemInfoInstant;
+local SetItemSearch = C_Container.SetItemSearch;
 
-local GetContainerItemID = (C_Container and C_Container.GetContainerItemID) or GetContainerItemID;
-local GetContainerNumSlots = (C_Container and C_Container.GetContainerNumSlots) or GetContainerNumSlots;
+local GetContainerItemID = C_Container.GetContainerItemID;
+local GetContainerNumSlots = C_Container.GetContainerNumSlots;
 local CombinedBag = ContainerFrameCombinedBags;
 
 local GetContainerItemInfo;

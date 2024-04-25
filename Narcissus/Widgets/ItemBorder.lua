@@ -1,6 +1,6 @@
 local unpack = unpack;
 local CreateColor = NarciAPI.CreateColor;
-local GetItemInfoInstant = GetItemInfoInstant;
+local GetItemInfoInstant = C_Item.GetItemInfoInstant;
 
 local FILE_PATH_DARK = "Interface/AddOns/Narcissus/Art/ItemBorder-Dark/JPG/";
 
@@ -122,6 +122,7 @@ local itemIDxBorderArt = {
     --[visualID] = {borderName, vfxName, color, hideItemIcon}
     [1] = {"Neltharion", nil, CreateColor(252, 185, 54)},           --Class Sets: Embers of Neltharion
     [2] = {"EmeraldDream", nil, CreateColor(56, 224, 178)},         --Class Sets: Guardians of the Dream
+    [3] = {"EmeraldDream", nil, CreateColor(56, 224, 178)},         --Class Sets: DF S4 Awakened Raids
 };
 
 local itemVisualGroup = {};

@@ -492,3 +492,13 @@ function NarciItemLevelCenterButtonMixin:StopDelay()
 		self.delay = nil;
 	end
 end
+
+function NarciItemLevelCenterButtonMixin:OnMouseWheel(delta)
+	if NarciClassSetTooltip:IsVisible() then
+		if delta > 0 then
+			NarciClassSetTooltip:CycleSpec(-1, true);
+		else
+			NarciClassSetTooltip:CycleSpec(1, true);
+		end
+	end
+end

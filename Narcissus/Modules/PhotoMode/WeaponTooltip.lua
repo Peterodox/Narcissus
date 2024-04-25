@@ -7,8 +7,7 @@ local TOOLTIP_PADDING = 6;
 
 local UIParent = UIParent;
 local GetCursorPosition = GetCursorPosition;
-local GetItemInfo = GetItemInfo;
-local GetItemInfoInstant = GetItemInfoInstant;
+local GetItemInfoInstant = C_Item.GetItemInfoInstant;
 local GetTransmogItemAppearanceID = C_TransmogCollection.GetItemInfo;
 local GetItemAppearanceID;
 local FadeFrame = NarciFadeUI.Fade;

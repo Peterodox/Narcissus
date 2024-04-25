@@ -467,7 +467,6 @@ L["Save New Look"] = "Guardar el nuevo aspecto";
 L["No Available Slot"] = "No hay ranura disponible";
 L["Look Saved"] = "Apariencia guardada";
 L["Cannot Save Forms"] = "No se pueden guardar los formularios";
-L["Profiles"] = SOCIAL_SHARE_TEXT or "Share";
 L["Share"] = "Compartir";
 L["Save Notify"] = "Notificación para guardar la nueva apariencia";
 L["Save Notify Tooltip"] = "Te avisa para que guardes la personalización después de hacer click en el botón Aceptar.";

@@ -4,6 +4,7 @@
     <Script file="Toolbar.lua"/>
     <Script file="PlayerLocation.lua"/>
     <Script file="TransmogList.lua"/>
+    <Script file="MuteMessage.lua"/>
 
 
     <!--Script file="Map.lua"/-->

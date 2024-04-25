@@ -15,9 +15,9 @@ local IsWeaponValidForEnchant = NarciAPI.IsWeaponValidForEnchant;
 local C_Item = C_Item;
 local GetSpellInfo = GetSpellInfo;
 local GetSpellDescription = GetSpellDescription;
-local GetItemCount = GetItemCount;
-local GetItemIcon = GetItemIcon;
-local GetItemInfo = GetItemInfo;
+local GetItemCount = C_Item.GetItemCount;
+local GetItemIcon = C_Item.GetItemIconByID;
+local GetItemInfo = C_Item.GetItemInfo;
 local IsMouseButtonDown = IsMouseButtonDown;
 
 local PickupContainerItem = (C_Container and C_Container.PickupContainerItem) or PickupContainerItem;
@@ -92,7 +92,7 @@ local function GetNewGemID(state)
         local socketID = MainFrame:GetSocketOrderID();
         local gemLink = GetNewSocketLink(socketID);
         if gemLink then
-            local gemID = GetItemInfoInstant(gemLink);
+            local gemID = C_Item.GetItemInfoInstant(gemLink);
             if gemID == 0 then
                 gemID = nil;
             end

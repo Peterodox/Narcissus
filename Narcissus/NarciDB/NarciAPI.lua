@@ -4,8 +4,8 @@ local RoundToDigit = addon.Math.RoundToDigit;
 
 local C_Item = C_Item;
 local After = C_Timer.After;
-local GetItemInfo = GetItemInfo;
-local GetItemInfoInstant = GetItemInfoInstant;
+local GetItemInfo = C_Item.GetItemInfo;
+local GetItemInfoInstant = C_Item.GetItemInfoInstant;
 local UIFrameFadeIn = UIFrameFadeIn;
 local UIFrameFadeOut = UIFrameFadeOut;
 local FadeFrame = NarciFadeUI.Fade;
@@ -3161,6 +3161,86 @@ do
 
     addon.AddLoadingCompleteCallback(DialogEventHandler_Check);
 end
+
+do
+    local BindHelper;
+
+    local BindEvents = {
+        "ACTION_WILL_BIND_ITEM",
+        "EQUIP_BIND_REFUNDABLE_CONFIRM",
+        "EQUIP_BIND_TRADEABLE_CONFIRM",
+        "EQUIP_BIND_CONFIRM",
+        "END_BOUND_TRADEABLE",
+    };
+
+    local function HideStaticPopup()
+        if StaticPopup1 then
+            StaticPopup1:Hide();
+        end
+    end
+
+    local function ConfirmBinding()
+        if not BindHelper then
+            BindHelper = CreateFrame("Frame");
+            BindHelper:Hide();
+
+            BindHelper:SetScript("OnEvent", function(self, event, ...)
+                if event == "ACTION_WILL_BIND_ITEM" then
+                    if self.pending then
+                        self.pending = nil;
+                        C_Item.ActionBindsItem();
+                    end
+                elseif event == "EQUIP_BIND_REFUNDABLE_CONFIRM" or event == "EQUIP_BIND_TRADEABLE_CONFIRM" or event == "EQUIP_BIND_CONFIRM" then
+                    if self.pending then
+                        self.pending = nil;
+                        local slot = ...
+                        EquipPendingItem(slot);
+                    end
+                elseif event == "END_BOUND_TRADEABLE" then
+                    if self.pending then
+                        self.pending = nil;
+                        local reason = ...
+                        C_Item.EndBoundTradeable(reason);
+                    end
+                end
+
+                HideStaticPopup();
+
+                for _, v in ipairs(BindEvents) do
+                    self:UnregisterEvent(v);
+                end
+            end);
+
+            BindHelper:SetScript("OnUpdate", function(self, elapsed)
+                self.t = self.t + elapsed;
+                if self.t > 0.5 then
+                    self.t = nil;
+                    self.pending = nil;
+                    self:Hide();
+                    for _, v in ipairs(BindEvents) do
+                        self:UnregisterEvent(v);
+                    end
+                end
+            end);
+        end
+
+        for _, v in ipairs(BindEvents) do
+            BindHelper:RegisterEvent(v);
+        end
+
+        BindHelper.t = 0;
+        BindHelper.pending = true;
+        BindHelper:Show();
+    end
+    addon.ConfirmBinding = ConfirmBinding;
+end
+
+local function DoesItemExistByID(itemID)
+    itemID = GetItemInfoInstant(itemID)
+    return itemID ~= nil
+end
+addon.DoesItemExistByID = DoesItemExistByID;
+
 
 --[[
     /script DEFAULT_CHAT_FRAME:AddMessage("\124Hitem:narcissus:0:\124h[Test Link]\124h\124r");

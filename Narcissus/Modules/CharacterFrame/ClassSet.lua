@@ -6,6 +6,7 @@ local GetSpellDescription = GetSpellDescription;
 local GetSpecializationInfo = GetSpecializationInfo;
 local GetSetBonusesForSpecializationByItemID = C_Item.GetSetBonusesForSpecializationByItemID or GetSetBonusesForSpecializationByItemID;     --Deprecated
 local GetNumSpecializations = GetNumSpecializations;
+local InCombatLockdown = InCombatLockdown;
 
 local FadeFrame = NarciFadeUI.Fade;
 local strtrim = strtrim;
@@ -30,10 +31,28 @@ local isLastestClassSetItem = {};
 local classSetGroup = {};
 
 local function SetClassSetGroup(items, key)
+    --key determines item border art
     classSetGroup[key] = items;
 end
 
 do
+    local awakened = {
+        217236, 217237, 217238, 217239, 217240,
+        217235, 217231, 217232, 217233, 217234,
+        217226, 217227, 217228, 217229, 217230,
+        217221, 217222, 217223, 217224, 217225,
+        217216, 217217, 217218, 217219, 217220,
+        217211, 217212, 217213, 217215, 217214,
+        217206, 217207, 217208, 217209, 217210,
+        217201, 217202, 217203, 217205, 217204,
+        217196, 217197, 217198, 217199, 217200,
+        217191, 217192, 217193, 217194, 217195,
+        217186, 217187, 217188, 217189, 217190,
+        217181, 217182, 217183, 217184, 217185,
+        217176, 217177, 217178, 217179, 217180,
+    };
+    SetClassSetGroup(awakened, 3);
+
     local amidrassil = {
         207180, 207181, 207182, 207183, 207185,     --Warrior
         207270, 207271, 207272, 207273, 207275,     --Warlock
@@ -77,11 +96,18 @@ do
     local _, addon = ...
     local newRaidItems;
 
-    if addon.IsTOCVersionEqualOrNewerThan(100200) then
-        newRaidItems = amidrassil;
+    local tempTime = GetTime();
+
+    if tempTime > 1713916800 then   -- April 24, 2024 12:00:00 AM GMT
+        newRaidItems = awakened;
     else
-        newRaidItems = aberrus;
+        if addon.IsTOCVersionEqualOrNewerThan(100200) then
+            newRaidItems = amidrassil;
+        else
+            newRaidItems = aberrus;
+        end
     end
+
 
     for _, itemID in pairs(newRaidItems) do
         isLastestClassSetItem[itemID] = true;
@@ -172,16 +198,25 @@ local function SetCountIcon(icon, required, owned)
     icon:SetTexCoord(left, left + 0.5, top, top + 0.25);
 end
 
+local function Tooltip_PropagteKeyboardInput(self, state)
+    if InCombatLockdown() then
+        self:SetScript("OnKeyDown", nil);
+    else
+        self:SetPropagateKeyboardInput(state);
+    end
+end
+
 local function Tooltip_OnTabPressed(self, key)
     if key == "TAB" then
-        self:SetPropagateKeyboardInput(false);
+        Tooltip_PropagteKeyboardInput(self, false);
+
         if IsShiftKeyDown() then
             self:CycleSpec(-1);
         else
             self:CycleSpec(1);
         end
     else
-        self:SetPropagateKeyboardInput(true);
+        Tooltip_PropagteKeyboardInput(self, true);
     end
 end
 

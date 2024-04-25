@@ -1790,7 +1790,7 @@
 						</Anchors>
 						<Layers>
 							<Layer level="BACKGROUND">
-								<Texture file="Interface\AddOns\Narcissus\Art\Animations\ActorPanel.tga" parentKey="SequenceTexture" nounload="false">
+								<Texture file="Interface\AddOns\Narcissus\Art\Animations\ActorPanel.png" parentKey="SequenceTexture">
 									<TexCoords left="0" right="0.4296875" top="0" bottom="0.056640625"/>
 									<Size x="236" y="31"/>
 									<Anchors>
@@ -2025,6 +2025,14 @@
 						<Scripts>
 							<OnLoad function="Narci_ExtraPanel_OnLoad"/>
 						</Scripts>
+					</Frame>
+
+					<Frame parentKey="PreloadFrame" ignoreParentAlpha="true" alpha="0">
+						<Layers>
+							<Layer>
+								<Texture file="Interface\AddOns\Narcissus\Art\Animations\ActorPanel.png"/>
+							</Layer>
+						</Layers>
 					</Frame>
 				</Frames>
 			</Frame>

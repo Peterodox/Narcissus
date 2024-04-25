@@ -519,7 +519,7 @@ function NarciEquipmentOptionMixin:SetGemListForBlizzardUI(id1, id2)
         return
     end
 
-    local itemID, _, _, invType = GetItemInfoInstant(itemLink);
+    local itemID, _, _, invType = C_Item.GetItemInfoInstant(itemLink);
 
     local slotID = NarciAPI.GetSlotIDByInvType(invType);
     self.slotID = slotID;
@@ -546,7 +546,7 @@ function NarciEquipmentOptionMixin:SetGemListForBlizzardUI(id1, id2)
     if self.isDominationItem then
         local gemLink = GetExistingSocketLink(1);
         if gemLink then
-            local existingGemID, _, _, _, icon = GetItemInfoInstant(gemLink);
+            local existingGemID, _, _, _, icon = C_Item.GetItemInfoInstant(gemLink);
             NarciItemPushOverlay:WatchIcon(icon);
         else
             NarciItemPushOverlay:HideIfIdle();

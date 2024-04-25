@@ -1,9 +1,7 @@
-local GetItemInfoInstant = GetItemInfoInstant;
---local NarciAPI = NarciAPI;
-
 local _, addon = ...
 
-local GetDetailedItemLevelInfo = GetDetailedItemLevelInfo;
+local GetItemInfoInstant = C_Item.GetItemInfoInstant;
+local GetDetailedItemLevelInfo = C_Item.GetDetailedItemLevelInfo;
 local GemDataProvider = addon.GemDataProvider;
 
 local PADDING = 24;

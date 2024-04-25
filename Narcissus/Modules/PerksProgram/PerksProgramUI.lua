@@ -14,7 +14,7 @@ local AnimationButton, AnimationDropDown;
 local SELECTED_DATA;
 local IS_10_2_5 = addon.IsTOCVersionEqualOrNewerThan(100205);   --Stop showing items in a transmog set since it becomes baseline in 10.2.5
 
-local GetItemInfoInstant = GetItemInfoInstant;
+local GetItemInfoInstant = C_Item.GetItemInfoInstant;
 
 
 -- User Settings --

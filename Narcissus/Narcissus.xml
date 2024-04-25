@@ -1352,7 +1352,7 @@
 						<Size x="256" y="144"/>
 						<Layers>
 							<Layer level="OVERLAY">
-								<Texture parentKey="Sequence" file="Interface\AddOns\Narcissus\Art\Animations\HeartBox">
+								<Texture parentKey="Sequence" file="Interface\AddOns\Narcissus\Art\Animations\HeartBox.png">
 									<TexCoords left="0" right="0.25" top="0" bottom="0.140625"/>
 									<Anchors>
 										<Anchor point="TOPLEFT"/>
@@ -1880,10 +1880,11 @@
 							<OnLoad method="OnLoad"/>
 							<!--OnMouseDown method="OnMouseDown"/>
 							<OnMouseUp method="OnMouseUp"/>		
-							<OnClick method="OnClick"/-->				
+							<OnClick method="OnClick"/-->
 							<OnEnter method="OnEnter"/>
 							<OnLeave method="OnLeave"/>
 							<OnHide method="OnHide"/>
+							<OnMouseWheel method="OnMouseWheel"/>
 						</Scripts>
 					</Button>
 

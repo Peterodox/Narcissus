@@ -50,12 +50,29 @@ local function GetColorByKey(k)
 end
 API.GetColorByKey = GetColorByKey;
 
+local RAID_CLASS_COLORS = RAID_CLASS_COLORS;
+local GetClassInfo = GetClassInfo;
+local FORMAT_PLAYER_REALM = "%s|cff666666 - |r|cffcccccc%s|r";
+local format = string.format;
+
+local function FormatPlayerName(playerName, realmName, classID)
+    if classID then
+        local _, classFile = GetClassInfo(classID)
+        local classColorString = classFile and RAID_CLASS_COLORS[classFile] and RAID_CLASS_COLORS[classFile].colorStr;
+        if classColorString then
+            playerName = format("|c%s%s|r", classColorString, playerName);
+        end
+    end
+
+    return format(FORMAT_PLAYER_REALM, playerName, realmName);
+end
+API.FormatPlayerName = FormatPlayerName;
 
 do
     local version = GetBuildInfo();
     local expansionID = string.match(version, "(%d+)%.");
 	local isDF = (tonumber(expansionID) or 1) >= 10;
-	
+
     local function IsDragonflight()
         return isDF
     end
@@ -63,6 +80,13 @@ do
     addon.IsDragonflight = IsDragonflight;
 end
 
+do
+    local PIXEL = 1;
+    local _, screenHeight = GetPhysicalScreenSize();
+    PIXEL = 768/screenHeight;
+
+    addon.pixel = PIXEL;
+end
 
 local DRUID_CHR_MODEL = {
     [189] = 5,   --Bear

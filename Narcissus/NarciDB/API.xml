@@ -21,5 +21,7 @@
     <Script file="CustomChatLink.lua"/>
     <Script file="UniversalFont.lua"/>
 
+    <Script file="Timerunning.lua"/>
+
     <!--Script file="Utilities.lua"/-->
 </Ui>

@@ -7,9 +7,9 @@ local FadeFrame = NarciFadeUI.Fade;
 
 local GemIDList = {};
 local DominationShardIDs = {};
-local GetItemIcon = GetItemIcon;
-local GetItemCount = GetItemCount;
-local GetItemInfo = GetItemInfo;
+local GetItemIcon = C_Item.GetItemIconByID;
+local GetItemCount = C_Item.GetItemCount;
+local GetItemInfo = C_Item.GetItemInfo;
 local NUM_EXAMPLE_GEMS = 3;
 
 for gemID, info in pairs(Narci.GemData) do

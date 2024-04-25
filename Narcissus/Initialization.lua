@@ -1,7 +1,7 @@
-local NARCI_VERSION_INFO = "1.5.3";
+local NARCI_VERSION_INFO = "1.5.4";
 
-local VERSION_DATE = 1711850000;
-local CURRENT_VERSION = 10503;
+local VERSION_DATE = 1714030000;
+local CURRENT_VERSION = 10504;
 local PREVIOUS_VERSION = CURRENT_VERSION;
 local TIME_SINCE_LAST_UPDATE = 0;
 
@@ -62,6 +62,7 @@ local DefaultValues = {
     AutoPlayAnimation = false,                  --Play recommended animation when clicking a spell visual entry
     OutfitSortMethod = "name",                  --Filter for sorting outfits: (name alphabet/recently visited)
     LoopAnimation = false,                      --Photo Mode Loop Animation
+    SpeedyScreenshotAlert = true,               --Make "Screen Captured" message disappear faster
 
     -- Dressing Room --
     DressingRoom = true,                        --Enable dressing room module

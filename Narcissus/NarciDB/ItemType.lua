@@ -1,8 +1,8 @@
 local _;
+local FORMAT_REQUIRES = ITEM_REQ_SPECIALIZATION;
 local floor = math.floor;
 local format = string.format;
-local GetItemInfoInstant = GetItemInfoInstant;
-local FORMAT_REQUIRES = ITEM_REQ_SPECIALIZATION;
+local GetItemInfoInstant = C_Item.GetItemInfoInstant;
 local GetContainerNumSlots = C_Container.GetContainerNumSlots;
 local GetContainerItemID = C_Container.GetContainerItemID;
 local GetInventoryItemID = GetInventoryItemID;

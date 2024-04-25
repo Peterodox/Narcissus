@@ -3,6 +3,7 @@ local _, addon = ...
 local MsgAlertContainer = addon.MsgAlertContainer;
 local TransitionAPI = addon.TransitionAPI;
 local SlotButtonOverlayUtil = addon.SlotButtonOverlayUtil;
+local TimerunningUtil = addon.TimerunningUtil;
 
 local Narci = Narci;
 
@@ -38,18 +39,19 @@ local outSine = addon.EasingFunctions.outSine;
 
 local GetToolbarButtonByButtonType = addon.GetToolbarButtonByButtonType;
 local TransmogDataProvider = addon.TransmogDataProvider;
+local ConfirmBinding = addon.ConfirmBinding;
 
 --local GetCorruptedItemAffix = NarciAPI_GetCorruptedItemAffix;
 local Narci_AlertFrame_Autohide = Narci_AlertFrame_Autohide;
 local C_Item = C_Item;
-local GetItemInfo = GetItemInfo;
+local GetItemInfo = C_Item.GetItemInfo;
+local GetItemInfoInstant = C_Item.GetItemInfoInstant;
 local C_LegendaryCrafting = C_LegendaryCrafting;
 local C_TransmogCollection = C_TransmogCollection;
 local After = C_Timer.After;
 local ItemLocation = ItemLocation;
 local IsPlayerInAlteredForm = TransitionAPI.IsPlayerInAlteredForm;
 local InCombatLockdown = InCombatLockdown;
-local GetItemInfoInstant = GetItemInfoInstant;
 local GetInventoryItemTexture = GetInventoryItemTexture;
 local GetCameraZoom = GetCameraZoom;
 
@@ -66,12 +68,6 @@ local ItemTooltip;
 local MiniButton = Narci_MinimapButton;
 local NarciThemeUtil = NarciThemeUtil;
 
-
-hooksecurefunc("StaticPopup_Show", function(name)
-	if name == "EXPERIMENTAL_CVAR_WARNING" then
-		StaticPopup_Hide(name);
-	end
-end)
 
 local EL = CreateFrame("Frame");	--Event Listener
 EL:Hide();
@@ -1178,7 +1174,10 @@ function NarciItemButtonSharedMixin:RegisterErrorEvent()
 end
 
 function NarciItemButtonSharedMixin:UnregisterErrorEvent()
-	self:UnregisterEvent("UI_ERROR_MESSAGE");
+	if self.errorFrame then
+		self.errorFrame = nil;
+		self:UnregisterEvent("UI_ERROR_MESSAGE");
+	end
 end
 
 function NarciItemButtonSharedMixin:OnErrorMessage(...)
@@ -1188,8 +1187,11 @@ function NarciItemButtonSharedMixin:OnErrorMessage(...)
 end
 
 function NarciItemButtonSharedMixin:AnchorAlertFrame()
-	self:RegisterErrorEvent();
-	Narci_AlertFrame_Autohide:SetAnchor(self, -12, true);
+	if not self.errorFrame then
+		self.errorFrame = true;
+		self:RegisterErrorEvent();
+		Narci_AlertFrame_Autohide:SetAnchor(self, -12, true);
+	end
 end
 
 function NarciItemButtonSharedMixin:PlayGamePadAnimation()
@@ -1585,6 +1587,12 @@ function NarciEquipmentSlotMixin:Refresh(forceRefresh)
 					effectiveLvl = effectiveLvl.."  "..rank.."  |cFFFFD100"..corruptionResistance.."|r";
 					borderTexKey = "BlackDragon";
 					itemVFX = "DragonFire";
+				elseif itemID == 210333 then		--Timerunning Thread
+					local rank = TimerunningUtil.GetThreadRank();
+					if rank > 0 then
+						rank = "|cff00ccff"..rank.."|r";
+						effectiveLvl = effectiveLvl.."  "..rank;
+					end
 				end
 			end
 
@@ -1977,13 +1985,14 @@ function NarciEquipmentSlotMixin:PreClick(button)
 
 end
 
-function NarciEquipmentSlotMixin:PostClick(button)
-	if CursorHasItem() then
+function NarciEquipmentSlotMixin:PostClick(button, down)
+	if CursorHasItem() and button == "LeftButton" then
 		EquipCursorItem(self:GetID());
 		return
 	end
 
 	ClearCursor();
+
 	if ( IsModifiedClick() ) then
 		if IsAltKeyDown() and button == "LeftButton" then
 			local action = EquipmentManager_UnequipItemInSlot(self:GetID())
@@ -2012,7 +2021,10 @@ function NarciEquipmentSlotMixin:PostClick(button)
 				Narci_EquipmentOption:SetFromSlotButton(self, true)
 			end
 		elseif button == "RightButton" then
-			self:AnchorAlertFrame();
+			local useKeyDown = C_CVar.GetCVarBool("ActionButtonUseKeyDown");
+			if (useKeyDown and down) or (not useKeyDown and not down) then
+				self:AnchorAlertFrame();
+			end
 		end
 	end
 end
@@ -2112,15 +2124,6 @@ function Narci_ShowStatTooltipDelayed(self)
 	ShowDelayedTooltip("BOTTOM", self, "TOP", 0, -4);
 	--print("Narci_ShowStatTooltipDelayed")
 end
-
---/dump GetItemStats(GetInventoryItemLink("player", 8))
---/script DEFAULT_CHAT_FRAME:AddMessage("\124cff0070dd\124Hitem:152783::::::::120::::1:1672:\124h[Mac'Aree Focusing Amethyst]\124h\124r");
---/script DEFAULT_CHAT_FRAME:AddMessage("\124cff0070dd\124Hitem:152783::::::::120::::1:1657:\124h[Mac'Aree Focusing Amethyst]\124h\124r");
---/script DEFAULT_CHAT_FRAME:AddMessage("\124cff0070dd\124Hitem:158362::::::::120::::2:1557:4778:\124h[Lord Waycrest's Signet]\124h\124r");
---[[				 Stats sum						ilvl							ilvl+ from Gem
-	Ring		1.7626*ilvl - 246.88		(sum + 246.88) / 1.7626				40  / 1.7626 = 22.6937
---]]
-
 
 
 function NarciItemLevelFrameMixin:OnLoad()
@@ -2306,7 +2309,7 @@ local function UpdateCharacterInfoFrame(newLevel)
 	if currentSpecName then
 		local titleID = GetCurrentTitle();
 		local titleName = GetTitleName(titleID);
-		if titleName then
+		if titleName and titleName ~= "" then
 			titleName = strtrim(titleName); --delete the space in Title
 			frame.Miscellaneous:SetText(titleName.."  |  ".."|cFFFFD100"..level.."|r  ".."|c"..rgbHex..currentSpecName.." "..className.."|r");
 		else
@@ -2418,7 +2421,8 @@ function NarciEquipmentFlyoutButtonMixin:OnClick(button, down, isGamepad)
 		local action = EquipmentManager_EquipItemByLocation(self.location, self.slotID)
 		if action then
 			self:AnchorAlertFrame();
-			EquipmentManager_RunAction(action)
+			ConfirmBinding();
+			EquipmentManager_RunAction(action);
 		end
 		self:Disable();
 		if isGamepad then
@@ -2466,7 +2470,7 @@ function NarciEquipmentFlyoutButtonMixin:SetUp(maxItemLevel)
 		itemQuality = "Azerite";	--AzeriteEmpoweredItem
 	elseif C_AzeriteItem.IsAzeriteItem(itemLocation) then
 		itemQuality = "Heart";
-	elseif IsCorruptedItem(itemLink) then
+	elseif C_Item.IsCorruptedItem(itemLink) then
 		itemQuality = "NZoth";
 	elseif C_LegendaryCrafting.IsRuneforgeLegendary(itemLocation) then
 		itemQuality = "Runeforge";
@@ -4234,6 +4238,9 @@ EL:SetScript("OnEvent",function(self, event, ...)
 			end
 		end)
 
+		if TimerunningUtil.IsTimerunningMode() then
+			print("TIMERUNNING")
+		end
 	elseif event == "PLAYER_EQUIPMENT_CHANGED" then
 		local slotID, isItem = ...;
 		USE_DELAY = false;
@@ -4825,3 +4832,6 @@ function NarciCharacterUIAliasButtonMixin:UpdateNames(onClick)
 	self:UpdateSize();
 	editBox:UpdateSize();
 end
+
+
+UIParent:UnregisterEvent("EXPERIMENTAL_CVAR_CONFIRMATION_NEEDED");  --Disable EXPERIMENTAL_CVAR_WARNING

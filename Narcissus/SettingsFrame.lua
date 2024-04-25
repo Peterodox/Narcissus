@@ -356,10 +356,10 @@ end
 ---- Feature Preview Pictures ----
 local FeaturePreview = {
     --textureKey[same as DB key] = {fileName, imageWidth, imageWidth, effectiveWidth, effectiveHeight}
-    PaperDollWidget = {"Preview-PaperDollWidget", 512, 256, 250, 185},
-    ConduitTooltip = {"Preview-ConduitTooltip", 512, 256, 256, 188},
-    NameTranslationPosition1 = {"Preview-TranslationOnTooltip", 256, 256, 149, 193},
-    NameTranslationPosition2 = {"Preview-TranslationOnNameplate", 256, 256, 149, 193},
+    PaperDollWidget = {"Preview-PaperDollWidget.png", 512, 256, 250, 185},
+    ConduitTooltip = {"Preview-ConduitTooltip.png", 512, 256, 256, 188},
+    NameTranslationPosition1 = {"Preview-TranslationOnTooltip.png", 256, 256, 149, 193},
+    NameTranslationPosition2 = {"Preview-TranslationOnNameplate.png", 256, 256, 149, 193},
 };
 
 function FeaturePreview.FadeIn_OnUpdate(f, elapsed)
@@ -681,6 +681,10 @@ end
 
 local function LoopAnimation_OnValueChanged(self, value)
     SettingFunctions.SetModelLoopAnimation(value);
+end
+
+local function SpeedyScreenshotAlert_OnValueChanged(self, value)
+    SettingFunctions.SpeedyScreenshotAlert(value);
 end
 
 local function GetOppositeValue(value)
@@ -2039,6 +2043,7 @@ local Categories = {
             {type = "subheader", level = 1, text = L["Screenshot Quality Description"]},
             {type = "slider", level = 1, key = "ModelPanelScale", text = L["Panel Scale"], onValueChangedFunc = ModelPanelScale_OnValueChanged, minValue = 0.8, maxValue = 1, valueStep = 0.1, extraTopPadding = 1, valueFormatFunc = Round1},
             {type = "slider", level = 1, key = "ShrinkArea", text = L["Interactive Area"], onValueChangedFunc = ModelHitRectShrinkage_OnValueChanged, minValue = 0, maxValue = MAX_MODEL_SHRINKAGE, valueFormatFunc = GetOppositeValue, convertionFunc = Round0},
+            {type = "checkbox", level = 1, key = "SpeedyScreenshotAlert", text = L["Speedy Screenshot Alert"], onValueChangedFunc = SpeedyScreenshotAlert_OnValueChanged},
         },
     },
 
@@ -2183,7 +2188,7 @@ if IS_DRAGONFLIGHT then
         {type = "checkbox", level = 1, key = "SearchSuggestEnable", text = L["Bag Item Filter Enable"], onValueChangedFunc = ItemSearchToggle_OnValueChanged},
         {type = "subheader", level = 3, text = L["Place Window"], extraTopPadding = 1, isChild = true},
         {type = "radio", level = 3, key = "SearchSuggestDirection", texts = {L["Below Search Box"], L["Above Search Box"]}, onValueChangedFunc = ItemSearchDirectionButton_OnValueChanged, setupFunc = ItemSearchDirection_Setup,
-            previewImage = "Preview-PopupPosition", previewWidth = 200, previewHeight = 162, previewOffsetY = 28, isChild = true
+            previewImage = "Preview-PopupPosition.png", previewWidth = 200, previewHeight = 162, previewOffsetY = 28, isChild = true
         },
         {type = "subheader", level = 3, text = L["Auto Filter Case"], extraTopPadding = 1, isChild = true},
         {type = "checkbox", level = 3, key = "AutoFilterMail", text = L["Send Mails"], onValueChangedFunc = AutoFilterMail_OnValueChanged, isChild = true},
@@ -2242,7 +2247,7 @@ if IS_DRAGONFLIGHT then
         {type = "checkbox", level = 1, key = "AutoDisplayQuestItem", text = L["Auto Display Quest Item"], onValueChangedFunc = AutoDisplayQuestItemToggle_OnValueChanged},
         {type = "subheader", level = 3, text = L["Appearance"], extraTopPadding = 1, isChild = true},
         {type = "radio", level = 3, key = "QuestCardTheme", texts = {L["Border Theme Bright"], L["Border Theme Dark"]}, onValueChangedFunc = QuestCardStyleButton_OnValueChanged, setupFunc = QuestCardStyle_Setup,
-            previewImage = "Preview-QuestCardTheme", previewWidth = 200, previewHeight = 75, previewOffsetY = 10, isChild = true
+            previewImage = "Preview-QuestCardTheme.png", previewWidth = 200, previewHeight = 75, previewOffsetY = 10, isChild = true
         },
         {type = "checkbox", level = 3, text = L["Change Position"], isChild = true, setupFunc = QuestCardPositionButton_Setup},
     }};

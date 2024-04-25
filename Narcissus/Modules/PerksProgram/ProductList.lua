@@ -13,8 +13,8 @@ local NarciAPI = NarciAPI;
 local C_Item = C_Item;
 local GetItemIconByID = C_Item.GetItemIconByID;
 local ResetCursor = ResetCursor;
-local GetItemInfo = GetItemInfo;
-local GetItemInfoInstant = GetItemInfoInstant;
+local GetItemInfo = C_Item.GetItemInfo;
+local GetItemInfoInstant = C_Item.GetItemInfoInstant;
 local C_TransmogCollection = C_TransmogCollection;
 local C_TransmogSets = C_TransmogSets;
 

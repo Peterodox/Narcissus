@@ -7,6 +7,7 @@ local API = addon.API;
 local StatManager = addon.StatManager;
 local HotkeyManager = addon.HotkeyManager;
 local GetPortraitCameraInfoByModelFileID = API.GetPortraitCameraInfoByModelFileID;
+local FormatPlayerName = API.FormatPlayerName;
 
 local FadeFrame = NarciFadeUI.Fade;
 local TransitionAPI = NarciAPI.TransitionAPI;
@@ -30,6 +31,7 @@ local tostring = tostring;
 local IsMouseButtonDown = IsMouseButtonDown;
 local GetMouseFocus = GetMouseFocus;
 local PlaySound = PlaySound;
+local CreateFrame = CreateFrame;
 
 local function IsWidgetFocused(widget1, widget2)
     local focus = GetMouseFocus();
@@ -57,7 +59,6 @@ local L = Narci.L;
 -----------------------------------------------
 
 local MainFrame, ScrollModelFrame, EditButton, EditBox, DeleteButton, PlusButton, SettingFrame, SettingButton, LoadingFrame, SavedLookButtons;
-local BarbershopModel, ExportEditBox;
 local BarberShopUI; --Blizzard BarberShopUI
 
 
@@ -164,6 +165,19 @@ function ModelPool:AssignModelToButton(savedLookButton, identifier)
     model:Show();
     model.parentButton = savedLookButton;
     savedLookButton.Model = model;
+end
+
+function ModelPool:WipeAllModels()
+    for poolID, modelPool in pairs(self.pools) do
+        for identifier, model in pairs(modelPool) do
+            model:ClearModel();
+            model:Hide();
+            model:ClearAllPoints();
+            model:SetParent(self.container);
+            model:SetPoint("TOP", self.container, "TOP", 0, 0);
+            model.isModelLoaded = nil;
+        end
+    end
 end
 
 
@@ -276,6 +290,7 @@ local function UpdateScrollRange(initialOffset)
 
     local range;
     local numButtons = NUM_ACTIVE_BUTTONS;
+
     if numButtons == 0 then
         range = 0;
     else
@@ -478,23 +493,29 @@ local function SetUpSavedLooksButton(dataSource, atlas)
     end
 end
 
-function DataProvider:SetActiveDatabase(key, sex)
-    if not key then
-        key = self.raceID;
+function DataProvider:SetActiveDatabase(key1, key2)
+    --key1: race, key2: sex
+
+    if not key1 then
+        key1 = self.raceID;
     end
 
-    if not self.playerAppearanceDB[key] then
-        self.playerAppearanceDB[key] = {};
+    if not self.activeAppearanceDB[key1] then
+        self.activeAppearanceDB[key1] = {};
     end
 
-    if sex then
-        if not self.playerAppearanceDB[key][sex] then
-            self.playerAppearanceDB[key][sex] = {};
+    if key2 then
+        if not self.activeAppearanceDB[key1][key2] then
+            self.activeAppearanceDB[key1][key2] = {};
         end
-        self.activeDB = self.playerAppearanceDB[key][sex]
+        self.activeDB = self.activeAppearanceDB[key1][key2];
     else
-        self.activeDB = self.playerAppearanceDB[key]
+        self.activeDB = self.activeAppearanceDB[key1];
     end
+
+    self.dbKey1 = key1;
+    self.dbKey2 = key2;
+
     return self.activeDB
 end
 
@@ -523,9 +544,6 @@ local function GetRaceFileName(characterData)
 end
 
 function DataProvider:LoadData()
-    local raceID = API.GetPlayerRaceID();
-    self.raceID = raceID or 1;
-
     if not NarciBarberShopDB then
         NarciBarberShopDB = {};
     end
@@ -533,35 +551,65 @@ function DataProvider:LoadData()
     local DB = NarciBarberShopDB;
 
     --wipe(DB) --!!TEST
-    
+
     if not DB.PlayerData then
         DB.PlayerData = {};
     end
+    self.allPlayerData = DB.PlayerData;
+
+    if not DB.SharedSavedLooks then
+        DB.SharedSavedLooks = {};
+    end
 
     local unitType, realmID, playerID = string.split("-", UnitGUID("player"));
+
     if not DB.PlayerData[playerID] then
-        local playerName = UnitName("player");
-        local realmName = GetRealmName();
-        DB.PlayerData[playerID] = { SavedLooks = {} , realmID = realmID, playerName = playerName, realmName = realmName};
+        DB.PlayerData[playerID] = {
+            SavedLooks = {},
+            realmID = realmID,
+            playerName = UnitName("player"),
+            realmName = GetRealmName(),
+            usePublicProfile = nil,
+        };
     end
 
-    local playerAppearanceDB = DB.PlayerData[playerID].SavedLooks;
-    self.playerAppearanceDB = playerAppearanceDB;
+    local playerDB = DB.PlayerData[playerID];
+    self.currentPlayerDB = playerDB;
+    self.currentPlayerID = playerID;
 
-    if not playerAppearanceDB[raceID] then
-        playerAppearanceDB[raceID] = {male = {}, female = {}};
+    local _, classID = UnitClassBase("player");
+    playerDB.classID = classID;
+
+    self.sharedAppearanceDB = DB.SharedSavedLooks;
+    self.playerAppearanceDB = DB.PlayerData[playerID].SavedLooks;
+
+    local activeAppearanceDB;
+
+    if playerDB.usePublicProfile then
+        activeAppearanceDB = self.sharedAppearanceDB;
+    else
+        activeAppearanceDB = self.playerAppearanceDB;
     end
-    self.savedLooksByRace = playerAppearanceDB[raceID];
+
+    self.activeAppearanceDB = activeAppearanceDB;
+
+    local raceID = API.GetPlayerRaceID();
+    self.raceID = raceID or 1;
+
+    if not activeAppearanceDB[raceID] then
+        activeAppearanceDB[raceID] = {male = {}, female = {}};
+    end
+
+    self.savedLooksByRace = activeAppearanceDB[raceID];
 
     local currentCharacterData = C_BarberShop.GetCurrentCharacterData();
     local raceName = GetRaceFileName(currentCharacterData);
     raceName = string.lower(raceName);
 
     CreateSavedLooksButton(ScrollModelFrame, "male");
-    
 
     --Migrate Old Saves
-    if playerAppearanceDB[220] then
+    if activeAppearanceDB[220] then
         local function CopyTable(tbl)
             local copy = {};
             for k, v in pairs(tbl) do
@@ -573,8 +621,8 @@ function DataProvider:LoadData()
             end
             return copy;
         end
-        playerAppearanceDB[ALTERNATE_FORM_SAVED_ID] = CopyTable(playerAppearanceDB[220]);
-        playerAppearanceDB[220] = nil;
+        activeAppearanceDB[ALTERNATE_FORM_SAVED_ID] = CopyTable(activeAppearanceDB[220]);
+        activeAppearanceDB[220] = nil;
     end
 
 
@@ -583,10 +631,10 @@ function DataProvider:LoadData()
         HAS_ALTERNATE_FORM = true;
         local id = ALTERNATE_FORM_SAVED_ID;
 
-        if not playerAppearanceDB[id] then
-            playerAppearanceDB[id] = { male = {}, female = {} };
+        if not activeAppearanceDB[id] then
+            activeAppearanceDB[id] = { male = {}, female = {} };
         end
-        self.savedLooksInAlternateForm = playerAppearanceDB[id];
+        self.savedLooksInAlternateForm = activeAppearanceDB[id];
     end
 
     for i = 1, MAX_SAVES do
@@ -698,7 +746,7 @@ function DataProvider:CheckAndSaveLooks(newLooks, generatedDescription, customNa
 
     local currentCharacterData = C_BarberShop.GetCurrentCharacterData();
     if not currentCharacterData then return false end;
-    
+
     local targetDB = self:GetActiveDatabase();
 
     local isUnique = true;
@@ -832,6 +880,97 @@ function DataProvider:GetButton()
     end
     InsertButtonToTop(SavedLookButtons, numNewSaves);
     return SavedLookButtons[1]
+end
+
+function DataProvider:IsUsingPublicProfile()
+    return self.currentPlayerDB and self.currentPlayerDB.usePublicProfile
+end
+
+function DataProvider:SetUsePublicProfile(state)
+    if self.currentPlayerDB then
+        self.currentPlayerDB.usePublicProfile = state or false;
+
+        if state then
+            self.activeAppearanceDB = self.sharedAppearanceDB;
+        else
+            self.activeAppearanceDB = self.playerAppearanceDB;
+        end
+    end
+end
+
+function DataProvider:GetAppearanceByPlayerID(playerID)
+    if self.dbKey1 and self.allPlayerData[playerID] then
+        local looks = self.allPlayerData[playerID].SavedLooks;
+
+        if looks[self.dbKey1] and self.dbKey2 then
+            return looks[self.dbKey1][self.dbKey2];
+        else
+            return looks[self.dbKey1]
+        end
+    end
+end
+
+function DataProvider:GetAppearanceFromSharedDB()
+    if self.dbKey1 then
+        local tbl = self.sharedAppearanceDB;
+        if tbl[self.dbKey1] and self.dbKey2 then
+            return tbl[self.dbKey1][self.dbKey2];
+        else
+            return tbl[self.dbKey1]
+        end
+    end
+end
+
+
+function DataProvider:GetCharacterList()
+    if not self.dbKey1 then return {} end;
+
+    local tbl = {};
+    local n = 0;
+    local numLooks;
+    local looks;
+
+    for playerID, playerData in pairs(self.allPlayerData) do
+        looks = self:GetAppearanceByPlayerID(playerID);
+        numLooks = looks and #looks or 0;
+        if numLooks > 0 then
+            n = n + 1;
+            tbl[n] = {
+                playerID = playerID,
+                playerName = playerData.playerName,
+                realmName = playerData.realmName,
+                numLooks = numLooks,
+                classID = playerData.classID,
+            };
+        end
+    end
+
+    local function SortFunc(a, b)
+        --Realm Name
+        if a.realmName ~= b.realmName then
+            return a.realmName < b.realmName
+        end
+
+        if a.playerName ~= b.playerName then
+            return a.playerName < b.playerName
+        end
+
+        return a.playerID < b.playerID;
+    end
+
+    table.sort(tbl, SortFunc);
+
+    return tbl
+end
+
+function DataProvider:GetNumLooksInSharedDB()
+    local db = self:GetAppearanceFromSharedDB();
+    local numSaves = db and #db or 0;
+    return numSaves
+end
+
+function DataProvider:IsPublicProfileFull()
+    return self:GetNumLooksInSharedDB() >= MAX_SAVES
 end
 
 
@@ -1153,7 +1292,7 @@ animScrollButtons:SetScript("OnUpdate", function(self, elapsed)
         UpdateScrollRange();
         ScrollButtonAlphaUpdater:Stop();
     end
-    
+
     for i = self.buttonIndex, self.numButtons do
         self.buttonPool[i]:SetPoint("TOPLEFT", self.relativeTo, "TOPLEFT", 0, -8 + 80*(1 - i) + offsetY);
     end
@@ -1309,9 +1448,11 @@ local function SaveCurrentAppearance(customName)
                 button:SetSelection(true);
             end);
         end
+        MainFrame:FadeIn(0.2);
         return true
     end
 end
+
 
 API.SaveCurrentAppearance = SaveCurrentAppearance;
 
@@ -1667,6 +1808,9 @@ end
 local SCROLL_OFFSETS = {};  --Used to preserve the scroll offset of the old category
 
 function NarciBarberShopMixin:UpdateCategory(sex, raceName)
+    self.currentCategorySex = sex;
+    self.currentCategoryRaceName = raceName;
+
     self:FadeIn(0.2);
     autoHideTimer:Hide();
     autoHideTimer:Show();
@@ -1813,6 +1957,24 @@ function NarciBarberShopMixin:OnViewingModelChanged(chrModelID)
     --print("chrModelID", effectiveChrModelID)
 end
 
+function NarciBarberShopMixin:ReloadData()
+    for k, v in pairs(SCROLL_OFFSETS) do
+        SCROLL_OFFSETS[k] = 0;
+    end
+
+    ModelPool:WipeAllModels();
+
+    for _, presetButton in pairs(SavedLookButtons) do
+        presetButton.appearanceData = nil;
+    end
+
+    self:UpdateCategory(self.currentCategorySex, self.currentCategoryRaceName);
+
+    After(0.1, function()
+        DataProvider:IsCharacterDataUnique();
+    end);
+end
+
 -----------------------------------------------------------------
 local function InitializeBarberShopFrame()
     local frame = Narci_BarbershopFrame;
@@ -1824,7 +1986,6 @@ local function InitializeBarberShopFrame()
     --The WoW default action is automatically closing the BarberShopUI
     --But here we want to check if the newly applied appearance is unique and notifiy user to save it
     BarberShopUI:UnregisterEvent("BARBER_SHOP_APPEARANCE_APPLIED");
-    SettingFrame:Initialize();
 
     ModelPool:Init();
 end
@@ -1841,7 +2002,7 @@ local function HookMixin()
         print("Preview ", optionID, choiceID)
     end)
     --]]
-    
+
     hooksecurefunc(C_BarberShop, "SetSelectedSex", function(sexID)
         MainFrame:UpdateCategory(sexID);
     end);
@@ -2039,11 +2200,479 @@ function NarciBarberShopSettingCheckBoxMixin:OnClick()
 end
 
 
-local function ProfilesTab_Setup(tab)
+local DiffUtil = {};
+
+function DiffUtil:GenerateAppearanceUID(selectedOptions)
+    --selectedOptions = { {option1ID, choice1ID}, }
+
+    local choices = {};
+    local n = 0;
+
+    for _, data in ipairs(selectedOptions) do
+        n = n + 1;
+        choices[n] = data[2];
+    end
+
+    table.sort(choices);
+
+    local uid;
+    local lastValue;
+
+    for k, v in ipairs(choices) do
+        if k == 1 then
+            uid = v;
+        else
+            uid = uid .. (v - lastValue);
+        end
+        lastValue = v;
+    end
+
+    return uid
+end
+
+function DiffUtil:UpdateTable()
+    local tbl = {};
+    local sharedAppearance = DataProvider:GetAppearanceFromSharedDB();
+    local uid;
+
+    if sharedAppearance then
+        local n = 0;
+
+        for _, dataSource in pairs(sharedAppearance) do
+            n = n + 1;
+            uid = self:GenerateAppearanceUID(dataSource.data);
+            tbl[uid] = true;
+        end
+    end
+
+    self.lookupTable = tbl;
+end
+
+function DiffUtil:IsSavedAppearance(selectedOptions)
+    local uid = self:GenerateAppearanceUID(selectedOptions);
+    return self.lookupTable[uid] or false
+end
+
+
+local function ShareTab_Setup(tab)
     tab:SetScript("OnShow", API.ShowAppearanceList);
     tab:SetScript("OnHide", API.HideAppearanceList);
 end
 
+local function ProfileTab_Setup(tab)
+    local widgetHeight = 20;
+    local padding = 8;
+    local tabWidth = tab:GetWidth();
+
+
+    local subframe = CreateFrame("Frame", nil, tab);
+    local LookList = CreateFrame("Frame", nil, subframe);
+    local IntroFrame;
+
+    local function IntroFrame_Show()
+        if not IntroFrame then
+            IntroFrame = CreateFrame("Frame", nil, tab);
+            IntroFrame:SetPoint("TOPLEFT", tab, "TOPLEFT", 0, -padding - 40);
+            IntroFrame:SetPoint("BOTTOMRIGHT", tab, "BOTTOMRIGHT", 0, padding);
+
+            local Instruction = IntroFrame:CreateFontString(nil, "OVERLAY", "SystemFont_Tiny");
+            Instruction:SetWidth(tabWidth*0.8);
+            Instruction:SetJustifyH("CENTER");
+            Instruction:SetJustifyH("TOP");
+            Instruction:SetPoint("TOP", tab, "TOP", 0, 0);
+            Instruction:SetTextColor(0.8, 0.8, 0.8);
+            Instruction:SetText(L["Profile Migration Tooltip"]);
+
+            local OkButton = CreateFrame("Button", nil, IntroFrame, "NarciBarberShopStrokeButtonTemplate");
+            OkButton.onClickFunc = function()
+                IntroFrame:Hide();
+                NarciBarberShopDB.Intro_PublicProfile = true;
+                subframe:Show();
+            end
+            OkButton:SetPoint("TOP", Instruction, "BOTTOM", 0, -12);
+            OkButton:SetButtonText(L["Profile Migration Okay"]);
+
+            local contentHeight = Instruction:GetHeight() + 12 + widgetHeight;
+            local frameHeight = IntroFrame:GetHeight();
+            local offsetY = 0.5 * (frameHeight - contentHeight);
+            Instruction:ClearAllPoints();
+            Instruction:SetPoint("TOP", IntroFrame, "TOP", 0, -offsetY);
+        end
+
+        subframe:Hide();
+        IntroFrame:Show();
+    end
+
+    --Select Profile: Private/Public
+    local frame1Data = {
+        label = L["Profile"],
+
+        tooltip = L["Profile Type Tooltip"],
+
+        choices = {
+            {text = L["Private Profile"]},
+            {text = L["Public Profile"]},
+        },
+
+        getChoice = function()
+            if DataProvider:IsUsingPublicProfile() then
+                return 2
+            else
+                return 1
+            end
+        end,
+
+        onSelectChoice = function(choice)
+            if IntroFrame then
+                IntroFrame:Hide();
+            end
+
+            if choice == 1 then
+                DataProvider:SetUsePublicProfile(false);
+                subframe:Hide();
+            elseif choice == 2 then
+                DataProvider:SetUsePublicProfile(true);
+
+                if not NarciBarberShopDB.Intro_PublicProfile then
+                    IntroFrame_Show();
+                else
+                    subframe:Show();
+                end
+            end
+
+            MainFrame:ReloadData();
+        end
+    };
+
+    local totalHeight = padding;
+    local choiceFrame = addon.CreateChoiceFrame(tab);
+    choiceFrame:SetPoint("TOPLEFT", tab, "TOPLEFT", padding, -totalHeight);
+    choiceFrame:SetFrameWidth(tabWidth - 2*padding);
+    choiceFrame:SetData(frame1Data);
+    totalHeight = totalHeight + widgetHeight;
+
+
+    do  --Save Looks List
+        local BUTTON_TEXT_OFFSET = 6;
+        local BUTTON_WIDTH = (tabWidth - 2*padding) / 2;
+        local BUTTON_HEIGHT = 20;
+        local FORMAT_PAGE = PAGE_NUMBER_WITH_MAX or "Page %d/%d";
+
+        LookList:SetSize(tabWidth - 2 * padding, 6 * BUTTON_HEIGHT);
+
+        LookList.buttons = {};
+
+        local ButtonHighlight = LookList:CreateTexture(nil, "BORDER");
+        ButtonHighlight:SetColorTexture(0.2, 0.2, 0.2);
+        ButtonHighlight:Hide();
+
+        local function HighlightButton(button)
+            ButtonHighlight:ClearAllPoints();
+            if button then
+                ButtonHighlight:Show();
+                ButtonHighlight:SetPoint("TOPLEFT", button, "TOPLEFT", 0, 0);
+                ButtonHighlight:SetPoint("BOTTOMRIGHT", button, "BOTTOMRIGHT", 0, 0);
+            else
+                ButtonHighlight:Hide();
+            end
+        end
+
+
+        local PageText = LookList:CreateFontString(nil, "OVERLAY", "SystemFont_Tiny");
+        PageText:SetHeight(BUTTON_HEIGHT);
+        PageText:SetJustifyH("CENTER");
+        PageText:SetJustifyH("MIDDLE");
+        PageText:SetPoint("BOTTOM", LookList, "BOTTOM", 0, 0);
+        PageText:SetTextColor(0.5, 0.5, 0.5);
+
+        local CountText = LookList:CreateFontString(nil, "OVERLAY", "SystemFont_Tiny");
+        CountText:SetHeight(BUTTON_HEIGHT);
+        CountText:SetJustifyH("RIGHT");
+        CountText:SetJustifyH("MIDDLE");
+        CountText:SetPoint("BOTTOMRIGHT", LookList, "TOPRIGHT", -BUTTON_TEXT_OFFSET, 0.5 * widgetHeight);
+        CountText:SetTextColor(0.5, 0.5, 0.5);
+
+        local CopyButton = CreateFrame("Button", nil, LookList);
+        CopyButton:Hide();
+        CopyButton:SetSize(30, BUTTON_HEIGHT);
+        CopyButton.Icon = CopyButton:CreateTexture(nil, "OVERLAY");
+        CopyButton.Icon:SetTexture("Interface/AddOns/Narcissus/Art/Modules/BarberShop/CopyButton");
+        CopyButton.Icon:SetSize(12, 12);
+        CopyButton.Icon:SetPoint("CENTER", CopyButton, "CENTER", 0, 0);
+
+        CopyButton.BlackLine = CopyButton:CreateTexture(nil, "OVERLAY");
+        CopyButton.BlackLine:SetPoint("TOPLEFT", CopyButton, "TOPLEFT", 0, 0);
+        CopyButton.BlackLine:SetSize(2*addon.pixel, widgetHeight);
+        CopyButton.BlackLine:SetColorTexture(0, 0, 0);
+
+        local function CopyButton_OnEnter(self)
+            HighlightButton(self:GetParent());
+            self.Icon:SetAlpha(1);
+        end
+
+        local function CopyButton_OnLeave(self)
+            HighlightButton(nil);
+            self.Icon:SetAlpha(0.6);
+            self:Hide();
+        end
+        CopyButton_OnLeave(CopyButton);
+
+        local function CopyButton_OnClick(self)
+            if DataProvider:IsPublicProfileFull() then
+                return
+            end
+
+            if not self.isProcessing then
+                self.isProcessing = true;
+                CustomizationUtil:UseCustomization(self:GetParent().dataSource.data)
+                self:Disable();
+                After(0.1, function()
+                    self.isProcessing = nil;
+                    self:Enable();
+                    SaveCurrentAppearance();
+                    LookList:UpdateList();
+                end)
+            end
+        end
+
+        CopyButton:SetScript("OnEnter", CopyButton_OnEnter);
+        CopyButton:SetScript("OnLeave", CopyButton_OnLeave);
+        CopyButton:SetScript("OnClick", CopyButton_OnClick);
+
+        function CopyButton:UpdateState()
+            if DataProvider:IsPublicProfileFull() then
+                if not self.RedTexture then
+                    self.RedTexture = self:CreateTexture(nil, "ARTWORK");
+                    self.RedTexture:SetAllPoints(true);
+                    local r, g, b = API.GetColorByKey("red");
+                    self.RedTexture:SetColorTexture(r, g, b, 0.6);
+                end
+                self.RedTexture:Show();
+                self.isFull = true;
+                CountText:SetTextColor(0.9333, 0.1961, 0.1412);
+            else
+                if self.RedTexture then
+                    self.RedTexture:Hide();
+                end
+                self.isFull = nil;
+                CountText:SetTextColor(0.5, 0.5, 0.5);
+            end
+        end
+
+        local function LookButton_OnEnter(self)
+            HighlightButton(self);
+            if not self.isSaved then
+                CopyButton:ClearAllPoints();
+                CopyButton:SetPoint("RIGHT", self, "RIGHT", 0, 0);
+                CopyButton:SetParent(self);
+                CopyButton:Show();
+            end
+        end
+
+        local function LookButton_OnLeave(self)
+            if not self:IsMouseOver() then
+                HighlightButton(nil);
+                CopyButton:Hide();
+            end
+        end
+
+        local function LookButton_OnClick(self)
+            CustomizationUtil:UseCustomization(self.dataSource.data);
+        end
+
+        local function CreateLookButton(parent)
+            local button = CreateFrame("Button", nil, parent);
+
+            button.LeftText = button:CreateFontString(nil, "OVERLAY", "SystemFont_Tiny");
+            button.LeftText:SetPoint("LEFT", button, "LEFT", BUTTON_TEXT_OFFSET + 12, 0);
+            button.LeftText:SetJustifyH("LEFT");
+            button.LeftText:SetTextColor(0.8, 0.8, 0.8);
+            button.LeftText:SetPoint("RIGHT", button, "RIGHT", -34, 0)
+
+            button.Check = button:CreateTexture(nil, "OVERLAY");
+            button.Check:SetPoint("LEFT", button, "LEFT", BUTTON_TEXT_OFFSET, 0);
+            button.Check:SetSize(8, 8);
+            button.Check:SetTexture("Interface/AddOns/Narcissus/Art/Modules/BarberShop/GreenCheck");
+
+            button:SetScript("OnEnter", LookButton_OnEnter);
+            button:SetScript("OnLeave", LookButton_OnLeave);
+            button:SetScript("OnClick", LookButton_OnClick);
+
+            button:SetSize(BUTTON_WIDTH, BUTTON_HEIGHT);
+
+            return button
+        end
+
+        function LookList:SetDataByPlayerID(playerID)
+            if playerID ~= self.playerID then
+                self.page = 1;
+            end
+            self.playerID = playerID;
+            self:UpdateList();
+        end
+
+        function LookList:UpdateList()
+            local list = DataProvider:GetAppearanceByPlayerID(self.playerID);
+            self.list = list;
+            self.numPages = math.ceil( (list and #list)/10 or 0);
+
+            PageText:ClearAllPoints();
+
+            if self.numPages > 0 then
+                PageText:SetPoint("BOTTOM", LookList, "BOTTOM", 0, 0);
+                PageText:SetHeight(BUTTON_HEIGHT);
+            else
+                PageText:SetPoint("CENTER", LookList, "CENTER", 0, 0);
+                PageText:SetHeight(96);
+                PageText:SetText(L["No Saves"]);
+            end
+
+            self.isSaved = {};
+            DiffUtil:UpdateTable();
+            for i, dataSource in ipairs(list) do
+                self.isSaved[i] = DiffUtil:IsSavedAppearance(dataSource.data);
+            end
+
+            CountText:SetText(DataProvider:GetNumLooksInSharedDB().." / "..MAX_SAVES);
+
+            CopyButton:UpdateState()
+
+            self:SetPage(self.page);
+        end
+
+        function LookList:SetPage(page)
+            self.page = page;
+
+            if self.numPages > 0 then
+                PageText:SetText(FORMAT_PAGE:format(page, self.numPages));
+            else
+                for i = 1, 10 do
+                    if self.buttons[i] then
+                        self.buttons[i]:Hide();
+                    end
+                end
+                return
+            end
+
+            local button;
+
+            local fromIndex = 10 * (page - 1);
+            local total = 0;
+            local dataSource, dataIndex;
+
+            for i = 1, 10 do
+                dataIndex = fromIndex + i;
+                dataSource = self.list[dataIndex];
+                if dataSource then
+                    total = total + 1;
+                    button = self.buttons[i];
+
+                    if not button then
+                        button = CreateLookButton(self);
+                        self.buttons[i] = button;
+                        local col = (i > 5 and 2) or 1;
+                        local row = i - (col - 1) * 5;
+                        button:SetPoint("TOPLEFT", self, "TOPLEFT", (col - 1) * BUTTON_WIDTH, (1 - row) * BUTTON_HEIGHT);
+                    end
+
+                    button.isSaved = self.isSaved[dataIndex]
+                    button.LeftText:SetText(dataSource.name);
+                    button.Check:SetShown(button.isSaved);
+                    button.dataSource = dataSource;
+
+                    button:Show();
+                end
+            end
+
+            for i = total + 1, 10 do
+                if self.buttons[i] then
+                    self.buttons[i]:Hide();
+                end
+            end
+        end
+
+        function LookList:SetPageByDelta(delta)
+            if delta < 0 then
+                if self.page < self.numPages then
+                    self.page = self.page + 1;
+                else
+                    return
+                end
+            else
+                if self.page > 1 then
+                    self.page = self.page - 1;
+                else
+                    return
+                end
+            end
+
+            self:SetPage(self.page);
+        end
+
+        LookList:SetScript("OnMouseWheel", function(self, delta)
+            LookList:SetPageByDelta(delta);
+        end);
+
+        LookList:SetScript("OnShow", function(self)
+            LookList:UpdateList();
+        end);
+
+        LookList:SetDataByPlayerID(DataProvider.currentPlayerID);
+    end
+
+    do  --Dropdown: Character Select
+        local _, classID = UnitClassBase("player");
+        local playerName = UnitName("player");
+        local realmName = GetRealmName();
+
+        local DropdownDataProvider = {};
+
+        function DropdownDataProvider:GetList()
+            return DataProvider:GetCharacterList()
+        end
+
+        function DropdownDataProvider:SelectData(data)
+            LookList:SetDataByPlayerID(data.playerID);
+            return true
+        end
+
+        function DropdownDataProvider:SetData(button, data)
+            button.LeftText:SetText(FormatPlayerName(data.playerName, data.realmName, data.classID));
+            if button.RightText then
+                button.RightText:SetText(data.numLooks);
+            end
+            button.data = data;
+            button:Show();
+        end
+
+        local frame2Data = {
+            text = FormatPlayerName(playerName, realmName, classID),
+            dataProvider = DropdownDataProvider,
+        };
+
+        totalHeight = totalHeight + widgetHeight;
+        local dropdown = addon.CreateDropdownFrame(subframe);
+        dropdown:SetFrameLevel(tab:GetFrameLevel() + 5);
+        dropdown:SetPoint("TOPLEFT", tab, "TOPLEFT", padding, -totalHeight);
+        dropdown:SetWidth(0.6*(tabWidth - 2*padding));
+        dropdown:SetData(frame2Data);
+
+        totalHeight = totalHeight + widgetHeight;
+    end
+
+    totalHeight = totalHeight + 0.5*widgetHeight;
+    LookList:SetPoint("TOPLEFT", tab, "TOPLEFT", padding, -totalHeight);
+
+    if DataProvider:IsUsingPublicProfile() then
+        if not NarciBarberShopDB.Intro_PublicProfile then
+            IntroFrame_Show();
+        else
+            subframe:Show();
+        end
+    else
+        subframe:Hide();
+    end
+end
 
 local TabData = {
     { name= "General", order = 1, localizedName = GENERAL,
@@ -2066,9 +2695,14 @@ local TabData = {
         },
     },
 
-    { name = "Profiles", order = 3, localizedName = L["Profiles"],
+    { name = "Share", order = 3, localizedName = L["Share"],
         manuallyCreated = true,
-        setupFunc = ProfilesTab_Setup,
+        setupFunc = ShareTab_Setup,
+    },
+
+    { name = "Profile", order = 4, localizedName = L["Profile"],
+        manuallyCreated = true,
+        setupFunc = ProfileTab_Setup,
     },
 
     { name = "Statistics", order = 0, localizedName = STATISTICS,
@@ -2081,17 +2715,19 @@ local TabData = {
             { name = "LocationHeader", type = "location", localizedName = L["Locations"] },
         },
     },
-}
+};
 
 
 local function CreateTabs(frame)
     local sidePadding = 8;
     local tabWidth, tabHeight = 312, 200;
+    local ScrollFrame = frame.ScrollFrame;
 
     for i, data in ipairs(TabData) do
         local button = CreateFrame("Button", nil, frame, "NarciBarberShopSettingTabButtonTemplate");
         local order = data.order;
         button.order = order;
+
         if order ~= 0 then
             button:SetPoint("TOPLEFT", frame, "TOPLEFT", sidePadding, -sidePadding + 16 *(1 - i));
         else
@@ -2101,8 +2737,6 @@ local function CreateTabs(frame)
 
         if data.layout then
             local totalHeight = 8;
-            local objects = {};
-            local ScrollFrame = frame.ScrollFrame;
             local Tab = CreateFrame("Frame", nil, ScrollFrame);
             button.Tab = Tab;
             if order == 0 then
@@ -2173,7 +2807,6 @@ local function CreateTabs(frame)
                     object:SetHeader();
                     totalHeight = totalHeight + 16;
                     StatManager.widgets[objectData.name] = object;
-
                 end
             end
 
@@ -2182,18 +2815,25 @@ local function CreateTabs(frame)
 
         elseif data.manuallyCreated then
             local Tab = frame[data.name.."Tab"];
-            if Tab then
+
+            if not Tab then
+                Tab = CreateFrame("Frame", nil, ScrollFrame);
                 button.Tab = Tab;
-                Tab:ClearAllPoints();
-                Tab:SetPoint("TOPLEFT", frame.ScrollFrame, "TOPLEFT", 0, 0);
-                if data.setupFunc then
-                    data.setupFunc(Tab);
-                end
+                Tab:SetSize(tabWidth, tabHeight);
+                Tab:SetPoint("TOPLEFT", ScrollFrame.ScrollChild, "TOPLEFT", 0, 0);
+            end
+
+            button.Tab = Tab;
+            Tab:ClearAllPoints();
+            Tab:SetPoint("TOPLEFT", ScrollFrame, "TOPLEFT", 0, 0);
+
+            if data.setupFunc then
+                data.setupFunc(Tab);
             end
         end
     end
 
-    wipe(TabData);
+    TabData = nil;
 end
 
 NarciBarberShopSettingsMixin = CreateFromMixins(NarciChamferedFrameMixin);
@@ -2203,7 +2843,6 @@ function NarciBarberShopSettingsMixin:OnLoad()
 
     SettingFrame = self;
     StatManager.SettingFrame = self;
-    ExportEditBox = self.ProfilesTab.ExportEditBox;
 
     local v = 0.2;
     self:SetBorderColor(v, v, v, 1);
@@ -2238,7 +2877,8 @@ function NarciBarberShopSettingsMixin:AddChildFrame(child)
     table.insert(self.childFrames, child);
 end
 
-function NarciBarberShopSettingsMixin:Initialize()
+function NarciBarberShopSettingsMixin:Init()
+    self.Init = nil;
     CreateTabs(self);
     TabButtons[3]:Click();  --Open Share (import/export)
 end
@@ -2265,6 +2905,7 @@ end
 
 function NarciBarberShopSettingsMixin:OnShow()
     self:RegisterEvent("GLOBAL_MOUSE_DOWN");
+    StatManager:UpdateFrame();
 end
 
 function NarciBarberShopSettingsMixin:OnHide()
@@ -2323,6 +2964,9 @@ function NarciBarberShopSettingButtonMixin:OnLeave()
 end
 
 function NarciBarberShopSettingButtonMixin:OnClick()
+    if SettingFrame.Init then
+        SettingFrame:Init();
+    end
     SettingFrame:Toggle();
     PlaySound(856);
 end
