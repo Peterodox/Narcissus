@@ -4239,7 +4239,7 @@ EL:SetScript("OnEvent",function(self, event, ...)
 		end)
 
 		if TimerunningUtil.IsTimerunningMode() then
-			print("TIMERUNNING")
+			Narci.deferGemManager = true;
 		end
 	elseif event == "PLAYER_EQUIPMENT_CHANGED" then
 		local slotID, isItem = ...;

@@ -767,6 +767,15 @@ end
 
 NarciAPI.GetBestSizeForPixel = GetBestSizeForPixel;
 
+local function GetObjectScreenSize(objectSize, scale)
+    local _, screenHeight = GetPhysicalScreenSize();
+    if not scale then
+        scale = UIParent:GetEffectiveScale();
+    end
+    return objectSize / ((768/SCREEN_HEIGHT)/scale)
+end
+
+NarciAPI.GetObjectScreenSize = GetObjectScreenSize;
 
 function NarciAPI_OptimizeBorderThickness(self)
     if not self.HasOptimized then

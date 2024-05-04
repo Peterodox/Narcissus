@@ -51,6 +51,7 @@ do
         217181, 217182, 217183, 217184, 217185,
         217176, 217177, 217178, 217179, 217180,
     };
+
     SetClassSetGroup(awakened, 3);
 
     local amidrassil = {
@@ -92,11 +93,12 @@ do
 
     SetClassSetGroup(aberrus, 1);
 
+    local newRaidItems = awakened;
 
+
+    --[[
     local _, addon = ...
-    local newRaidItems;
-
-    local tempTime = GetTime();
+    local tempTime = time();
 
     if tempTime > 1713916800 then   -- April 24, 2024 12:00:00 AM GMT
         newRaidItems = awakened;
@@ -107,6 +109,7 @@ do
             newRaidItems = aberrus;
         end
     end
+    --]]
 
 
     for _, itemID in pairs(newRaidItems) do

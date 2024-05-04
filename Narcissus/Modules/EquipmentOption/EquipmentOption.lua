@@ -1081,6 +1081,10 @@ function NarciEquipmentListTooltipMixin:AnchorToButton(button)
 end
 
 local function ShouldAnchorToBlizzard()
+    if Narci.deferGemManager then
+        return false
+    end
+
     return NarcissusDB.GemManager and (not Narci_Character:IsShown()) and (not MainFrame:IsShown() or MainFrame.isNarcissusUI)
 end
 

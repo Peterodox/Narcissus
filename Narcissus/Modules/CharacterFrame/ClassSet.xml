@@ -199,7 +199,7 @@
                     </Anchors>
                     <Animations>
                         <AnimationGroup parentKey="Shine">
-                            <Translation offsetX="52" offsetY="-52" duration="0.35" order="1"/>
+                            <Translation offsetX="52" offsetY="-52" duration="0.5" order="1" smoothing="OUT"/>
                             <Scripts>
                                 <OnFinished>
                                     self:GetParent():Hide();

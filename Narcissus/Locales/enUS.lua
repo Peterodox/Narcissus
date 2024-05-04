@@ -156,7 +156,6 @@ L["Screen Effects"] ="Screen Effects";
 
 L["Gemma"] = "\"Gemma\"";   --Don't translate
 L["Gemma Description"] = "Show a list of gems when socketing an item.";
-L["Gem Manager"] = "Gem Manager";
 L["Dressing Room"] = "Dressing Room";
 L["Dressing Room Description"] = "Bigger dressing room with the abilities to view and copy other players' item lists and generate Wowhead dressing room links.";
 L["General"] = "General";   --General options
@@ -743,3 +742,11 @@ L["Leech"] = ITEM_MOD_CR_LIFESTEAL_SHORT or "Leech";
 L["Speed"] = ITEM_MOD_CR_UNUSED_3_SHORT or "Speed";
 L["Format Stat EXP"] = "+%d%% EXP Gain";
 L["Format Rank"] = AZERITE_ESSENCE_RANK or "Rank %d";
+
+
+--Gem Manager--
+L["Gem Manager"] = "Gem Manager";
+L["Pandamonium Gem Category 1"] = "Major";      --Major Cooldown Abilities
+L["Pandamonium Gem Category 2"] = "Tinker";     --Tinker Gem
+L["Pandamonium Gem Category 3"] = PRISMATIC_GEM or "Prismatic";
+L["Click To Activate"] = "Left click to activate";

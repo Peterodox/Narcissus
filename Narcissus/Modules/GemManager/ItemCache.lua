@@ -16,12 +16,10 @@ ItemCache:SetScript("OnEvent", function(self, event, ...)
         if self.callbacks[id] then
             if success then
                 self:CacheItem(id, true);
+                if type(self.callbacks[id]) ~= "boolean" then
+                    self.callbacks[id]:OnItemLoaded(id);
+                end
             end
-
-            if type(self.callbacks[id]) ~= "boolean" then
-                self.callbacks[id]:OnItemLoaded(id);
-            end
-
             self.callbacks[id] = nil;
         end
         self.t = 0;
@@ -72,6 +70,7 @@ function ItemCache:RequestItemData(itemID, object)
     end
 
     self.callbacks[itemID] = object or true;
+
     RequestLoadItemDataByID(itemID);
 end
 
@@ -82,7 +81,7 @@ function ItemCache:CacheItem(itemID, fromEvent, object)
             local icon = GetItemIcon(itemID);
             ItemCache[itemID] = {itemName, icon, quality};
 
-            print(string.format("|T%s:0:0:0:0|t %s", icon, itemName));--debug
+            --print(string.format("|T%s:0:0:0:0|t %s", icon, itemName));--debug
         elseif not fromEvent then
             self:RequestItemData(itemID, object);
         end
@@ -90,7 +89,7 @@ function ItemCache:CacheItem(itemID, fromEvent, object)
 end
 
 function ItemCache:GetCacheItemDataByIndex(itemID, index, object)
-    self:CacheItem(itemID, object);
+    self:CacheItem(itemID, false, object);
 
     if ItemCache[itemID] then
         return ItemCache[itemID][index]
@@ -98,13 +97,13 @@ function ItemCache:GetCacheItemDataByIndex(itemID, index, object)
 end
 
 function ItemCache:GetItemName(itemID, object)
-    return self:GetCacheItemDataByIndex(itemID, 1)
+    return self:GetCacheItemDataByIndex(itemID, 1, object)
 end
 
 function ItemCache:GetItemIcon(itemID, object)
-    return self:GetCacheItemDataByIndex(itemID, 2)
+    return self:GetCacheItemDataByIndex(itemID, 2, object)
 end
 
 function ItemCache:GetItemQuality(itemID, object)
-    return self:GetCacheItemDataByIndex(itemID, 3)
+    return self:GetCacheItemDataByIndex(itemID, 3, object)
 end

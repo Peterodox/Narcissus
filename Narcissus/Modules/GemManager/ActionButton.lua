@@ -16,7 +16,7 @@ local InCombatLockdown = InCombatLockdown;
 
 local UIParent = UIParent;
 
-local ExtractorActionButton;
+local ActionButton;
 
 local EVENTS = {
     "SOCKET_INFO_UPDATE",
@@ -98,24 +98,24 @@ local function PlaceGemInSlot(slotID, gemID, socketIndex)
     --Thank god none of the above requires hardware input :)
 end
 
-local ExtractorMixin = {};
+local ActionButtonMixin = {};
 
-function ExtractorMixin:PreClick()
-    if self.socketFunc then
-        SocketHelper:SuppressItemSocketingFrame();
-        SocketHelper:RegisterEvent("SOCKET_INFO_UPDATE");
-        SocketHelper.mode = "extract";
-        self.socketFunc();
+function ActionButtonMixin:PreClick(button)
+    if button == "LeftButton" then
+        if self.socketFunc then
+            SocketHelper:SuppressItemSocketingFrame();
+            SocketHelper:RegisterEvent("SOCKET_INFO_UPDATE");
+            SocketHelper.mode = "extract";
+            self.socketFunc();
+        end
     end
 end
 
-function ExtractorMixin:PostClick()
-    C_Timer.After(1, function()
-        TTG();
-    end)
+function ActionButtonMixin:PostClick()
+
 end
 
-function ExtractorMixin:ExtractInventoryItem(slotID, socketIndex)
+function ActionButtonMixin:ExtractInventoryItem(slotID, socketIndex)
     if not SPELLNAME_EXTRACT_GEM then
         SPELLNAME_EXTRACT_GEM = GetSpellName();
     end
@@ -127,68 +127,128 @@ function ExtractorMixin:ExtractInventoryItem(slotID, socketIndex)
     SocketHelper:SetExtractSocketIndex(socketIndex);
 
     local macroText = string.format("/cast %s\r/run ClickSocketButton(%d)", SPELLNAME_EXTRACT_GEM, socketIndex);
+    self.macroText = macroText;
     self:SetAttribute("type1", "macro");
     self:SetAttribute("macrotext", macroText);
     self:RegisterForClicks("LeftButtonDown", "LeftButtonUp");
 end
 
-function ExtractorMixin:Init()
-    self.Icon:SetTexture(GetSpellTexture(SPELL_EXTRACT_GEM));
+function ActionButtonMixin:ClearAction()
+    if self.macroText then
+        self.macroText = nil;
+        self:SetAttribute("type", nil);
+        self:SetAttribute("type1", nil);
+        self:SetAttribute("type2", nil);
+        self:SetAttribute("macrotext", nil);
+    end
 end
 
-function ExtractorMixin:Clear()
+function ActionButtonMixin:ClearScripts()
+    self:SetScript("PreClick", nil);
+    self:SetScript("PostClick", nil);
+    self.onEnterFunc = nil;
+    self.onLeaveFunc = nil;
+end
+
+function ActionButtonMixin:Remove()
+    if self:IsShown() then
+
+    else
+        return true
+    end
+
+    if InCombatLockdown() then return false end;
+
     self:Hide();
     self:ClearAllPoints();
     self:SetParent(nil);
+    self:ClearAction();
+    self:ClearScripts();
+
+    return true
 end
 
-function ExtractorMixin:OnShow()
+function ActionButtonMixin:OnShow()
     self:RegisterEvent("PLAYER_REGEN_DISABLED");
 end
 
-function ExtractorMixin:OnHide()
+function ActionButtonMixin:OnHide()
+    self:Remove();
     self:UnregisterEvent("PLAYER_REGEN_DISABLED");
 end
 
-function ExtractorMixin:OnEvent(event, ...)
+function ActionButtonMixin:OnEvent(event, ...)
     if event == "PLAYER_REGEN_DISABLED" then
-        self:Clear();
+        self:Remove();
     end
+end
+
+function ActionButtonMixin:SetParentFrame(object)
+    if self:Remove() then
+        self.parent = object;
+        self.onEnterFunc = object.OnEnter;
+        self.onLeaveFunc = object.OnLeave;
+        self:SetParent(object);
+        self:SetPoint("TOPLEFT", object, "TOPLEFT", 0, 0);
+        self:SetPoint("BOTTOMRIGHT", object, "BOTTOMRIGHT", 0, 0);
+        self:Show();
+    end
+end
+
+function ActionButtonMixin:OnEnter()
+    if self.onEnterFunc then
+        self.onEnterFunc(self.parent, false);
+    end
+end
+
+function ActionButtonMixin:OnLeave()
+    if self.onLeaveFunc then
+        self.onLeaveFunc(self.parent, nil, true);
+    end
+    self:Remove();
 end
 
 local function CreateActionButton()
     local f = CreateFrame("Button", nil, UIParent, "InsecureActionButtonTemplate");
-    f:SetSize(46, 46);
+    f:SetSize(40, 40);
     f:Hide();
 
-    Mixin(f, ExtractorMixin);
+    Mixin(f, ActionButtonMixin);
 
     f:SetScript("PreClick", f.PreClick);
     f:SetScript("PostClick", f.PostClick);
     f:SetScript("OnShow", f.OnShow);
     f:SetScript("OnHide", f.OnHide);
     f:SetScript("OnEvent", f.OnEvent);
+    f:SetScript("OnEnter", f.OnEnter);
+    f:SetScript("OnLeave", f.OnLeave);
 
-    f.Icon = f:CreateTexture(nil, "ARTWORK");
-    f.Icon:SetAllPoints(true);
-
-    f:Init();
+    --debug
+    local bg = f:CreateTexture(nil, "BACKGROUND");
+    bg:SetAllPoints(true);
+    bg:SetColorTexture(1, 0, 0, 0.5);
 
     return f
 end
 
 do
-    local function GetActionButton()
-        if not ExtractorActionButton then
-            ExtractorActionButton = CreateActionButton();
+    local function GetActionButton(parent)
+        if InCombatLockdown() then return end;
+
+        if not ActionButton then
+            ActionButton = CreateActionButton();
+        end
+
+        if ActionButton:SetParentFrame(parent) then
+            return ActionButton
         end
     end
 
     addon.Gemma.GetActionButton = GetActionButton;
 end
 
---local ExtractorActionButton = CreateActionButton();
---ExtractorActionButton:ExtractInventoryItem(10, 1);
+--local ActionButton = CreateActionButton();
+--ActionButton:ExtractInventoryItem(10, 1);
 
 --[[
 function TTG()
