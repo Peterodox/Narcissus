@@ -19,6 +19,14 @@ function AtlasUtil:SetAtlas(texture, name)
     end
 end
 
+function AtlasUtil:GetTexCoord(name)
+    local a = name and Atlas[name];
+
+    if a then
+        return a[4], a[5], a[6], a[7]
+    end
+end
+
 local AtlasInfo = {
     --file, textureWidth, textureHeight, {[atlasName] = {width, height, 4pixelCoords}, ...}
 
@@ -45,6 +53,20 @@ local AtlasInfo = {
         ["gemlist-return"] = {20, 20, 328, 360, 100, 132},
         ["gemlist-prev"] = {14, 14, 292, 324, 100, 132},
         ["gemlist-next"] = {14, 14, 324, 292, 100, 132},
+
+        ["gemma-progressbar-border"] = {200, 24, 146, 546, 514, 562},
+        ["gemma-progressbar-fill"] = {188, 12, 158, 534, 564, 588},
+        ["gemma-progressbar-bg"] = {200, 12, 146, 546, 588, 612},
+        ["gemma-progressbar-fillred"] = {188, 12, 158, 534, 612, 636},
+
+        ["gemma-spinner-circle"] = {80, 80, 578, 738, 514, 674},
+        ["gemma-spinner-dial"] = {128, 128, 768, 1024, 514, 770},
+    }},
+
+    {PATH.."HourglassWidget.png", 256, 256, {
+        ["hourglass-background"] = {48, 48, 0, 64, 0, 64},
+        ["hourglass-drip"] = {5, 24, 66, 74, 0, 32},
+        ["hourglass-shine"] = {18, 48, 140, 164, 0, 64},
     }},
 };
 

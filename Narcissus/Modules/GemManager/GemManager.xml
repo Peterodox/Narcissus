@@ -6,6 +6,55 @@
     <Script file="ActionButton.lua"/>
     <Script file="ItemCache.lua"/>
     <Script file="UI.lua"/>
+    <Script file="StatAssignment.lua"/>
+    <Script file="PaperdollWidget.lua"/>
+
+    <Frame name="NarciGemManagerProgressBarTemplate" virtual="true">
+        <Size x="200" y="18"/>
+        <Layers>
+            <Layer level="OVERLAY" textureSubLevel="3">
+                <Texture parentKey="Border" texelSnappingBias="0.0" snapToPixelGrid="false">
+                    <Anchors>
+                        <Anchor point="CENTER"/>
+                    </Anchors>
+                </Texture>
+                <FontString parentKey="Title" inherits="GameTooltipText" justifyH="CENTER" justifyV="BOTTOM">
+                    <Anchors>
+                        <Anchor point="BOTTOM" relativeKey="$parent" relativePoint="TOP" y="4"/>
+                    </Anchors>
+                </FontString>
+            </Layer>
+            <Layer level="OVERLAY" textureSubLevel="1">
+                <Texture parentKey="Background">
+                    <Anchors>
+                        <Anchor point="CENTER"/>
+                    </Anchors>
+                </Texture>
+            </Layer>
+            <Layer level="OVERLAY" textureSubLevel="2">
+                <Texture parentKey="Fill">
+                    <Anchors>
+                        <Anchor point="LEFT"/>
+                    </Anchors>
+                </Texture>
+            </Layer>
+        </Layers>
+        <Animations>
+            <AnimationGroup parentKey="AnimIn">
+                <Translation offsetY="-12" duration="0" order="1"/>
+                <Alpha fromalpha="0" toalpha="1" duration="0.25" order="1"/>
+                <Translation offsetY="12" duration="0.25" order="1" smoothing="OUT"/>
+            </AnimationGroup>
+            <AnimationGroup parentKey="AnimOut">
+                <Alpha fromalpha="1" toalpha="0" duration="0.5" order="1" startDelay="0" parentKey="Fade"/>
+                <Scripts>
+                    <OnFinished>
+                        self:GetParent():Hide();
+                    </OnFinished>
+                </Scripts>
+            </AnimationGroup>
+        </Animations>
+    </Frame>
 
     <Button name="NarciGemManagerTraitButtonTemplate" registerForClicks="LeftButtonUp, RightButtonUp" virtual="true">
         <Size x="40" y="40"/>
@@ -39,6 +88,30 @@
         </Layers>
     </Button>
 
+    <Button name="NarciGemManagerStatAssignmentTemplate" virtual="true">
+        <Size x="120" y="24"/>
+        <Layers>
+            <Layer level="OVERLAY">
+                <FontString parentKey="Name" inherits="GameTooltipHeaderText" justifyH="LEFT" justifyV="CENTER">
+                    <Anchors>
+                        <Anchor point="LEFT" relativeKey="$parent" relativePoint="LEFT" x="24"/>
+                    </Anchors>
+                </FontString>
+                <FontString parentKey="Point" inherits="GameTooltipHeaderText" justifyH="CENTER" justifyV="CENTER">
+                    <Size x="48" y="24"/>
+                    <Anchors>
+                        <Anchor point="CENTER" relativeKey="$parent" relativePoint="CENTER" x="0"/>
+                    </Anchors>
+                </FontString>
+                <FontString parentKey="Value" inherits="GameTooltipHeaderText" justifyH="RIGHT" justifyV="CENTER">
+                    <Anchors>
+                        <Anchor point="RIGHT" relativeKey="$parent" relativePoint="RIGHT" x="-24"/>
+                    </Anchors>
+                </FontString>
+            </Layer>
+        </Layers>
+    </Button>
+
     <Button name="NarciGemManagerGemListButtonTemplate" registerForClicks="LeftButtonUp, RightButtonUp" virtual="true">
         <Size x="338" y="44"/>
         <Layers>
@@ -58,6 +131,45 @@
             </Layer>
         </Layers>
     </Button>
+
+    <Frame name="NarciGemManagerLoadingSpinnerTemplate" hidden="true" virtual="true">
+        <Size x="80" y="80"/>
+        <Layers>
+            <Layer level="OVERLAY" textureSubLevel="2">
+                <Texture parentKey="Circle">
+                    <Size x="80" y="80"/>
+                    <Anchors>
+                        <Anchor point="CENTER"/>
+                    </Anchors>
+                </Texture>
+            </Layer>
+            <Layer level="OVERLAY" textureSubLevel="1">
+                <Texture parentKey="Dial">
+                    <Size x="128" y="128"/>
+                    <Anchors>
+                        <Anchor point="CENTER"/>
+                    </Anchors>
+                </Texture>
+                <MaskTexture parentKey="DialMask" hWrapMode="CLAMPTOBLACKADDITIVE" vWrapMode="CLAMPTOBLACKADDITIVE">
+                    <Size x="136" y="136"/>
+                    <Anchors>
+                        <Anchor point="CENTER"/>
+                    </Anchors>
+                    <MaskedTextures>
+                        <MaskedTexture childKey="Dial"/>
+                    </MaskedTextures>
+                </MaskTexture>
+            </Layer>
+        </Layers>
+        <Animations>
+            <AnimationGroup parentKey="AnimSpin" looping="REPEAT">
+                <Alpha order="1" childKey="Dial" fromalpha="1" toalpha="0.25" duration="2"/>
+                <Alpha order="1" childKey="Dial" fromalpha="0.25" toalpha="1" startDelay="2" duration="2"/>
+                <Rotation order="1" childKey="Circle" degrees="-360" duration="4"/>
+                <Rotation order="1" childKey="DialMask" degrees="-360" duration="4"/>
+            </AnimationGroup>
+        </Animations>
+    </Frame>
 
     <Frame name="NarciGemManager" Mixin="NarciGemManagerMixin" parent="UIParent" topLevel="true" enableMouse="true" hidden="true">
         <Size x="338" y="424"/>
@@ -244,6 +356,69 @@
         <Scripts>
             <OnLoad method="OnLoad"/>
             <OnShow method="OnShow"/>
+            <OnHide method="OnHide"/>
+            <OnEvent method="OnEvent"/>
         </Scripts>
     </Frame>
+
+    <Button name="NarciGemManagerPaperdollWidget" mixin="NarciGemManagerPaperdollWidgetMixin" frameStrata="HIGH" frameLevel="15" hidden="true">
+        <Size x="48" y="48"/>
+        <Layers>
+            <Layer level="BACKGROUND" textureSubLevel="1">
+                <Texture parentKey="Background"/>
+            </Layer>
+            <Layer level="BACKGROUND" textureSubLevel="2">
+                <Texture parentKey="Drip">
+                    <Size x="6" y="24"/>
+                    <Anchors>
+                        <Anchor point="CENTER" y="6"/>
+                    </Anchors>
+                </Texture>
+                <MaskTexture parentKey="DripMask" hWrapMode="CLAMPTOBLACKADDITIVE" vWrapMode="CLAMPTOBLACKADDITIVE">
+                    <Size x="8" y="10"/>
+                    <Anchors>
+                        <Anchor point="CENTER" relativeKey="$parent" relativePoint="CENTER" y="-2"/>
+                    </Anchors>
+                    <MaskedTextures>
+                        <MaskedTexture childKey="Drip"/>
+                    </MaskedTextures>
+                </MaskTexture>
+            </Layer>
+            <Layer level="ARTWORK">
+                <Texture parentKey="Highlight" alphaMode="ADD" hidden="true">
+                    <Size x="48" y="48"/>
+                    <Anchors>
+                        <Anchor point="RIGHT" relativeKey="$parent" relativePoint="LEFT"/>
+                    </Anchors>
+                    <Animations>
+                        <AnimationGroup parentKey="AnimShine">
+                            <Translation offsetX="66" offsetY="0" duration="0.8" order="1" smoothing="OUT"/>
+                            <Scripts>
+                                <OnFinished>
+                                    self:GetParent():Hide();
+                                </OnFinished>
+                            </Scripts>
+                        </AnimationGroup>
+                    </Animations>
+                </Texture>
+                <MaskTexture parentKey="HighlightMask" hWrapMode="CLAMPTOBLACKADDITIVE" vWrapMode="CLAMPTOBLACKADDITIVE">
+                    <MaskedTextures>
+                        <MaskedTexture childKey="Highlight"/>
+                    </MaskedTextures>
+                </MaskTexture>
+            </Layer>
+        </Layers>
+        <Animations>
+            <AnimationGroup parentKey="AnimDrip" looping="REPEAT">
+                <Translation childKey="Drip" offsetX="0" offsetY="-12" duration="0.6" order="1"/>
+            </AnimationGroup>
+        </Animations>
+        <Scripts>
+            <OnLoad method="OnLoad"/>
+            <OnShow method="OnShow"/>
+            <OnClick method="OnClick"/>
+            <OnEnter method="OnEnter"/>
+            <OnLeave method="OnLeave"/>
+        </Scripts>
+    </Button>
 </Ui>

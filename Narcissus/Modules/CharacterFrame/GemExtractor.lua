@@ -287,10 +287,10 @@ function NarciItemSocketingActionButtonMixin:SetExtractAction()
     local itemID = EXTRACTOR_ITEM_ID;
     if CanPlayerRemoveGem(itemID) then
         local macroText = GetExtractAction();   --string.format("/use item:%s\r/click ItemSocketingSocket1", itemID);
-
         self:SetAttribute("type1", "macro");
         self:SetAttribute("macrotext", macroText);
         self:AttemptToEnable();
+        self:RegisterForClicks("LeftButtonDown", "LeftButtonUp", "RightButtonDown", "RightButtonUp");
     else
         self:DisableButton();
     end

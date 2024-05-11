@@ -43,7 +43,6 @@ local function GetEquippedTraits()
 end
 TimerunningUtil.GetEquippedTraits = GetEquippedTraits;
 
-GETraits = GetEquippedTraits;
 
 do
     local THREAD_CURRENCY = {

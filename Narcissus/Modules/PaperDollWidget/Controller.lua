@@ -13,7 +13,7 @@ local function Delay_OnUpdate(self, elapsed)
     if self.delay >= 0 then
         self.delay = nil;
         self:SetScript("OnUpdate", nil);
-        self:Update();
+        self:UpdateWidgets();
     end
 end
 
@@ -31,7 +31,7 @@ function NarciPaperDollWidgetControllerMixin:Init()
         if self.isEnabled then
             self:ListenEvents(true);
             WidgetContainer:Show();
-            self:Update();
+            self:UpdateWidgets();
         end
     end);
 
@@ -49,7 +49,7 @@ function NarciPaperDollWidgetControllerMixin:Init()
             if self.isEnabled and parentFrame:IsVisible() then
                 self:ListenEvents(true);
                 WidgetContainer:Show();
-                self:Update();
+                self:UpdateWidgets();
             end
         end);
     end
@@ -118,13 +118,31 @@ function NarciPaperDollWidgetControllerMixin:SetEnabled(state)
     end
 end
 
-function NarciPaperDollWidgetControllerMixin:AddWidget(newWidget, index)
+function NarciPaperDollWidgetControllerMixin:AddWidget(newWidget, index, name)
     if not self.widgets then
         self.widgets = {};
     end
-    self.widgets[index] = newWidget;
+
+    if self.widgets[index] then
+        print(string.format("Narcissus: Widget #%s %s already exisit!", index, name or "Unnamed"));
+    else
+        self.widgets[index] = newWidget;
+    end
+
     newWidget.parent = WidgetContainer;
     newWidget:ResetAnchor();
+end
+
+function NarciPaperDollWidgetControllerMixin:RemoveWidget(removedWidget)
+    for index, widget in pairs(self.widgets) do
+        if widget == removedWidget then
+            self.widgets[index] = nil;
+            widget:Hide();
+            widget:ClearAllPoints();
+            widget:SetParent(nil);
+            break
+        end
+    end
 end
 
 function NarciPaperDollWidgetControllerMixin:ResetWidgetPosition()
@@ -152,11 +170,11 @@ function NarciPaperDollWidgetControllerMixin:OnEvent(event, ...)
     self.delay = -0.1;
 end
 
-function NarciPaperDollWidgetControllerMixin:Update()
-    if self.widgets[1]:Update() then
-        self.widgets[2]:Hide();
-    else
-        self.widgets[2]:Update();
+function NarciPaperDollWidgetControllerMixin:UpdateWidgets()
+    local isShown;
+
+    for _, widget in pairs(self.widgets) do
+        isShown = widget:Update();
     end
 end
 

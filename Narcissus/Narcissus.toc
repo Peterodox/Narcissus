@@ -1,5 +1,5 @@
-## Interface: 100206
-## Version: 1.5.5
+## Interface: 100207
+## Version: 1.5.6
 
 ## Title: Narcissus
 
@@ -118,4 +118,5 @@ Modules\PhotoModeNew\LightingPreset.xml
 Modules\Storyboard\Storyboard.xml
 Modules\DragonridingRaces\Main.xml
 Modules\GossipFrame\GossipFrame.xml
+
 #Modules\GemManager\GemManager.xml

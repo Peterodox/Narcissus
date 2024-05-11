@@ -6,6 +6,7 @@ local GetActionButton = Gemma.GetActionButton;
 local DoesItemExistByID = addon.DoesItemExistByID;
 local GetItemIcon = C_Item.GetItemIconByID;
 local GetItemQualityColor = NarciAPI.GetItemQualityColor;
+local InCombatLockdown = InCombatLockdown;
 local C_TooltipInfo = C_TooltipInfo;
 local FadeFrame = NarciFadeUI.Fade;
 local L = Narci.L;
@@ -23,7 +24,7 @@ local FONT_FILE = GameFontNormal:GetFont();
 
 local HEADER_HEIGHT = TAB_BUTTON_HEIGHT + FRAME_PADDING;
 
-local MainFrame, TooltipFrame, SlotHighlight, PointsDisplay, GemList, ListHighlight;
+local MainFrame, TooltipFrame, SlotHighlight, PointsDisplay, GemList, ListHighlight, ProgressBar, Spinner
 
 
 local IS_TRAIT_ACTIVE = {}; --debug
@@ -65,9 +66,34 @@ function Mixin_TraitButton:ShowGameTooltip()
             GameTooltip:SetItemByID(self.itemID)
         end
 
-        GameTooltip:AddLine(" ");
-        GameTooltip:AddLine(L["Click To Activate"], 0, 1, 0, true);
-        GameTooltip:Show();
+        local insertMode = true;
+
+        if insertMode then
+            GameTooltip:AddLine(" ");
+            if InCombatLockdown() then
+                GameTooltip:AddLine(CANNOT_UNEQUIP_COMBAT, 1, 0, 0, true);
+            else
+                GameTooltip:AddLine(L["Gemma Click To Insert"], 0.098, 1, 0.098, true);
+            end
+            GameTooltip:Show();
+        else
+            local canRemove, requirementMet = Gemma:IsGemRemovable(self.itemID);
+            if canRemove then
+                GameTooltip:AddLine(" ");
+                if InCombatLockdown() then
+                    GameTooltip:AddLine(CANNOT_UNEQUIP_COMBAT, 1, 0, 0, true);
+                else
+                    if requirementMet then
+                        GameTooltip:AddLine(L["Gem Removal Instruction"], 0.5, 0.5, 0.5, true); --L["Click To Activate"]
+                    else
+                        GameTooltip:AddLine(L["Gem Removal No Tool"], 0.5, 0.5, 0.5, true);
+                    end
+                end
+    
+                GameTooltip:Show();
+            end
+        end
+
 
         SharedTooltip_SetBackdropStyle(GameTooltip, nil, true);
 
@@ -109,15 +135,17 @@ function Mixin_TraitButton:OnEnter(motion)
 
     if motion then
         local ActionButton = GetActionButton(self);
+        if ActionButton then
+            ActionButton:SetAction_RemoveTinker();  --SetAction_RemoveTinker   SetAction_RemovePrimordialStone
+        end
     end
 end
 
 function Mixin_TraitButton:OnLeave(motion, fromActionButton)
     if (not fromActionButton) and self:IsMouseOver() then return end;
 
-    GameTooltip:Hide();
-    TooltipFrame:Hide();
     SlotHighlight:HighlightSlot(nil);
+    MainFrame:HideTooltip();
 end
 
 function Mixin_TraitButton:SetActive()
@@ -548,8 +576,7 @@ do
 
     function Mixin_ListButton:OnLeave()
         ListHighlight:Hide();
-        GameTooltip:Hide();
-        TooltipFrame:Hide();
+        MainFrame:HideTooltip();
     end
 
     function Mixin_ListButton:SetItem(itemID)
@@ -710,6 +737,162 @@ do
     end
 end
 
+local CreateProgressBar;
+do
+    local Mixin_ProgressBar = {};
+
+    function Mixin_ProgressBar:OnLoad()
+        self:SetSize(200, 18);
+
+        local flag = "OUTLINE";
+        self.Title:SetFont(FONT_FILE, 12, flag);
+        self.Title:SetTextColor(0.88, 0.88, 0.88);
+
+        local Fill = self.Fill;
+        Fill:ClearAllPoints();
+        Fill:SetPoint("LEFT", self, "LEFT", 6, 0);
+
+        local fillAtlas = "gemma-progressbar-fill";
+
+        AtlasUtil:SetAtlas(self.Border, "gemma-progressbar-border");
+        AtlasUtil:SetAtlas(Fill, fillAtlas);
+        AtlasUtil:SetAtlas(self.Background, "gemma-progressbar-bg");
+
+        local left, right, top, bottom = AtlasUtil:GetTexCoord(fillAtlas);
+        self.left = left;
+        self.top = top;
+        self.bottom = bottom;
+        self.fillTexRange = right - left;
+        self.fillFullWidth = 188;
+
+        self:SetScript("OnEvent", self.OnEvent);
+        self:SetScript("OnHide", self.OnHide);
+    end
+
+    function Mixin_ProgressBar:SetCastText(text)
+        self.Title:SetText(text);
+    end
+
+    function Mixin_ProgressBar:SetProgress(progress)
+        if progress <= 0 then
+            progress = 0;
+            self.Fill:Hide();
+            return
+        else
+            self.Fill:Show();
+            if progress > 1 then
+                progress = 1;
+            end
+        end
+
+        self.Fill:SetWidth(self.fillFullWidth * progress);
+        self.Fill:SetTexCoord(self.left, self.left + self.fillTexRange * progress, self.top, self.bottom);
+    end
+
+    function Mixin_ProgressBar:ListenSpellCastEvent(state)
+        if state then
+            --UNIT_SPELLCAST_START is controlled by MainFrame
+            self:RegisterUnitEvent("UNIT_SPELLCAST_SUCCEEDED", "player");
+            self:RegisterUnitEvent("UNIT_SPELLCAST_FAILED", "player");
+            self:RegisterUnitEvent("UNIT_SPELLCAST_INTERRUPTED", "player");
+            self:RegisterUnitEvent("UNIT_SPELLCAST_STOP", "player");
+        else
+            self:UnregisterEvent("UNIT_SPELLCAST_SUCCEEDED");
+            self:UnregisterEvent("UNIT_SPELLCAST_FAILED");
+            self:UnregisterEvent("UNIT_SPELLCAST_INTERRUPTED");
+            self:UnregisterEvent("UNIT_SPELLCAST_STOP");
+        end
+    end
+
+    function Mixin_ProgressBar:OnHide()
+        self.t = 0;
+        self:SetScript("OnUpdate", nil);
+        self:ListenSpellCastEvent(false);
+        Spinner:Hide();
+    end
+
+    function Mixin_ProgressBar:OnEvent(event, ...)
+        --FAILED, INTERRUPTED fire after STOP
+        print(GetTime(), event);    --debug
+
+        if event == "UNIT_SPELLCAST_FAILED" then
+            self:ListenSpellCastEvent(false);
+            self:DispalyErrorMessage(FAILED);
+        elseif event == "UNIT_SPELLCAST_INTERRUPTED" then
+            self:ListenSpellCastEvent(false);
+            self:DispalyErrorMessage(SPELL_FAILED_INTERRUPTED);
+        end
+    end
+
+    function Mixin_ProgressBar:DispalyErrorMessage(error)
+        self:SetCastText(error);
+        self:SetScript("OnUpdate", nil);
+        self:PlayOutro(1);
+        AtlasUtil:SetAtlas(self.Fill, "gemma-progressbar-fillred");
+    end
+
+    local function Fill_OnUpdate(self, elapsed)
+        self.t = self.t + elapsed;
+        if self.t >= self.duration then
+            self.t = 0;
+            self:SetScript("OnUpdate", nil);
+            self:OnSucceeded();
+        else
+            self:SetProgress(self.t / self.duration);
+        end
+    end
+
+    function Mixin_ProgressBar:OnSucceeded()
+        self:SetProgress(1);
+        self:SetScript("OnUpdate", nil);
+        self:PlayOutro();
+    end
+
+    function Mixin_ProgressBar:SetDuration(duration)
+        self.t = 0;
+        self.duration = duration;
+        self:SetProgress(0);
+        self:SetScript("OnUpdate", Fill_OnUpdate);
+    end
+
+    function Mixin_ProgressBar:UpdateSpellCast()
+        local name, text, texture, startTimeMS, endTimeMS, isTradeSkill, castID, notInterruptible, spellID = UnitCastingInfo("player");
+        if name then
+            self:SetCastText(text);
+            self:PlayIntro();
+            self:Show();
+            self:ListenSpellCastEvent(true);
+            self:SetDuration((endTimeMS - startTimeMS)/1000);
+        else
+            self:Hide();
+        end
+    end
+
+    function Mixin_ProgressBar:PlayIntro()
+        self:StopAnimating();
+        self.AnimIn:Play();
+
+        FadeFrame(Spinner, 0.5, 1, 0);
+    end
+
+    function Mixin_ProgressBar:PlayOutro(delay)
+        delay = delay or 0;
+        self:StopAnimating();
+        self.AnimOut.Fade:SetStartDelay(delay);
+        self.AnimOut:Play();
+
+        FadeFrame(Spinner, 0.5, 0);
+    end
+
+    function CreateProgressBar(parent)
+        local f = CreateFrame("Frame", nil, parent, "NarciGemManagerProgressBarTemplate");
+        f:Hide();
+        Mixin(f, Mixin_ProgressBar);
+        f:OnLoad();
+
+        return f
+    end
+end
 
 local SetupModelScene;
 do
@@ -737,6 +920,7 @@ function NarciGemManagerMixin:OnLoad()
     self:SetSize(FRAME_WIDTH, FRAME_HEIGHT);
     self.HeaderFrame:SetHeight(HEADER_HEIGHT);
 
+    Gemma.MainFrame = self;
     MainFrame = self;
     TooltipFrame = self.TooltipFrame;
     SlotHighlight = self.SlotFrame.ButtonHighlight;
@@ -759,6 +943,43 @@ function NarciGemManagerMixin:OnShow()
 
     self:SetDataProviderByName("Pandaria");
     self:AnchorToPaperDollFrame();
+
+    self:RegisterEvent("PLAYER_EQUIPMENT_CHANGED");
+end
+
+function NarciGemManagerMixin:OnHide()
+    self:Hide();
+
+    self:SetWatchedSpell(nil);
+    self:UnregisterEvent("PLAYER_EQUIPMENT_CHANGED");
+    SlotHighlight:Hide();
+
+    if ProgressBar then
+        ProgressBar:Hide();
+    end
+end
+
+function NarciGemManagerMixin:OnEvent(event, ...)
+    if event == "UNIT_SPELLCAST_START" then
+        local _, _, spellID = ...
+        print(spellID)
+        if spellID and spellID == self.watchedSpellID then
+            ProgressBar:UpdateSpellCast();
+        end
+    elseif event == "PLAYER_EQUIPMENT_CHANGED" then
+        --Changing gem in an equipped item doesn't always trigger this
+    end
+
+    print(event)
+end
+
+function NarciGemManagerMixin:SetWatchedSpell(spellID)
+    self.watchedSpellID = spellID;
+    if spellID then
+        self:RegisterUnitEvent("UNIT_SPELLCAST_START", "player");
+    else
+        self:UnregisterEvent("UNIT_SPELLCAST_START");
+    end
 end
 
 function NarciGemManagerMixin:Init()
@@ -793,6 +1014,19 @@ function NarciGemManagerMixin:Init()
     ListHighlight.Texture:SetBlendMode("ADD");
 
     SetupModelScene(self.ModelScene);
+
+
+    ProgressBar = CreateProgressBar(self.SlotFrame);
+    ProgressBar:SetPoint("BOTTOM", self, "BOTTOM", 0, 16);
+
+
+    Spinner = CreateFrame("Frame", nil, self.SlotFrame, "NarciGemManagerLoadingSpinnerTemplate");
+    Spinner:SetPoint("CENTER", UIParent, "CENTER", 0, 0);
+    Spinner:Hide();
+    AtlasUtil:SetAtlas(Spinner.Circle, "gemma-spinner-circle");
+    AtlasUtil:SetAtlas(Spinner.Dial, "gemma-spinner-dial");
+    Spinner.DialMask:SetTexture(PATH.."Mask-Radial", "CLAMPTOBLACKADDITIVE", "CLAMPTOBLACKADDITIVE");
+    Spinner.AnimSpin:Play();
 end
 
 function NarciGemManagerMixin:ReleaseTabs()
@@ -1084,10 +1318,22 @@ function NarciGemManagerMixin:CloseGemList()
     FadeFrame(self.ModelScene, 0.5, 1);
 end
 
+function NarciGemManagerMixin:HideTooltip()
+    GameTooltip:Hide();
+    TooltipFrame:Hide();
+end
 
-C_Timer.After(1, function()
-    MainFrame:Show();
-end)
+function NarciGemManagerMixin:AnchorSpinnerToButton(button)
+    if not button then return end;
+
+    Spinner:ClearAllPoints();
+    Spinner:SetPoint("CENTER", button, "CENTER", 0, 0);
+    Spinner:SetFrameLevel(button:GetFrameLevel() - 1);
+end
+
+function NarciGemManagerMixin:ToggleUI()
+    self:SetShown(not self:IsShown());
+end
 
 
 do

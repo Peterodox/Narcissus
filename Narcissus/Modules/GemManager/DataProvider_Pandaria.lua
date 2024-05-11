@@ -172,6 +172,10 @@ local CUSTOM_SORT_ORDER = {
     [216624] = 3,
 };
 
+local GEM_REMOVAL_TOOL = {"spell", 433397};
+GEM_REMOVAL_TOOL = {"spell", 405805};   --debug
+GEM_REMOVAL_TOOL = {"item", 202087};   --debug
+
 local function SortFunc_UIOrder(a, b)
     if CUSTOM_SORT_ORDER[a] and CUSTOM_SORT_ORDER[b] then
         return CUSTOM_SORT_ORDER[a] < CUSTOM_SORT_ORDER[b]
@@ -181,6 +185,8 @@ local function SortFunc_UIOrder(a, b)
 end
 
 function DataProvider:GetSortedItemList()
+    --Loaded once when used
+
     if self.gemList then return self.gemList end;
 
     local tinsert = table.insert;
@@ -196,6 +202,8 @@ function DataProvider:GetSortedItemList()
     for itemID, data in pairs(GEM_DATA) do
         local gemType = data[1];
         tinsert(tbl[gemType], itemID);
+
+        Gemma:SetGemRemovalTool(itemID, GEM_REMOVAL_TOOL);
     end
 
     for gemType, gems in pairs(tbl) do
@@ -243,7 +251,7 @@ function DataProvider:DoesPlayerHaveHead()
 end
 
 function DataProvider:DoesPlayerHaveFeet()
-    return GetNumSocketsForSlot(SLOT_ID.FEET) > 0
+    return GetNumSocketsForSlot(SLOT_ID.FEET) >= 0  --debug
 end
 
 local function GetItemGemFromSlot(slotID, index)
@@ -265,6 +273,28 @@ function DataProvider:GetGemSpell(itemID)
     if GEM_DATA[itemID] then
         return GEM_DATA[itemID][2]
     end
+end
+
+function DataProvider:GetActiveGems()
+    --debug
+    if not self.debugGemList then
+        local tbl = {};
+        local tinsert = table.insert;
+
+        for i = 1, 2 do
+            local gems = self:GetItemListByType(i);
+            tinsert(tbl, gems[1]);
+        end
+
+        local gems = self:GetItemListByType(3);
+        for i = 1, 12 do
+            tinsert(tbl, gems[i]);
+        end
+
+        self.debugGemList = tbl;
+    end
+
+    return self.debugGemList
 end
 
 
@@ -422,6 +452,8 @@ function GemManagerMixin:ShowMajors()
     end
 
     self.SlotFrame.ButtonHighlight:SetShape(shape);
+
+    self:ShowGemList();
 end
 
 function GemManagerMixin:ShowGemList()
