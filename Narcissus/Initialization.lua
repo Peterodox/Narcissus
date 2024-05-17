@@ -1,7 +1,7 @@
-local NARCI_VERSION_INFO = "1.5.6";
+local NARCI_VERSION_INFO = "1.6.0";
 
-local VERSION_DATE = 1715390000;
-local CURRENT_VERSION = 10506;
+local VERSION_DATE = 1715966000;
+local CURRENT_VERSION = 10600;
 local PREVIOUS_VERSION = CURRENT_VERSION;
 local TIME_SINCE_LAST_UPDATE = 0;
 
@@ -271,19 +271,63 @@ local function LoadSettings()
 end
 
 
-local CallbackList = {};
-CallbackList.PLAYER_ENTERING_WORLD = {};
-CallbackList.LOADING_SCREEN_DISABLED = {};
 
-local function AddFunctionToCallbackList(callback)
-    table.insert(CallbackList.PLAYER_ENTERING_WORLD, callback);
-end
-addon.AddInitializationCallback = AddFunctionToCallbackList;
+local CallbackRegistry = {};
+CallbackRegistry.events = {};
+addon.CallbackRegistry = CallbackRegistry;
 
-local function AddFunctionToCallbackList_LoadingComplete(callback)
-    table.insert(CallbackList.LOADING_SCREEN_DISABLED, callback);
+do
+    local tinsert = table.insert;
+    local type = type;
+    local ipairs = ipairs;
+
+    function CallbackRegistry:Register(event, func, owner)
+        if not self.events[event] then
+            self.events[event] = {};
+        end
+
+        local callbackType;
+
+        --callbackType:
+        --1. Function func(owner)
+        --2. Method owner:func()
+
+        if type(func) == "string" then
+            callbackType = 2;
+        else
+            callbackType = 1;
+        end
+
+        tinsert(self.events[event], {callbackType, func, owner});
+    end
+
+    function CallbackRegistry:Trigger(event, ...)
+        if self.events[event] then
+            for _, cb in ipairs(self.events[event]) do
+                if cb[1] == 1 then
+                    if cb[3] then
+                        cb[2](cb[3], ...);
+                    else
+                        cb[2](...);
+                    end
+                else
+                    cb[3][cb[2]](cb[3], ...);
+                end
+            end
+        end
+    end
 end
-addon.AddLoadingCompleteCallback = AddFunctionToCallbackList_LoadingComplete;
+
+
+local function AddCallback_FirstEnteringWorld(callback)
+    CallbackRegistry:Register("PLAYER_ENTERING_WORLD", callback);
+end
+addon.AddInitializationCallback = AddCallback_FirstEnteringWorld;
+
+local function AddCallback_LoadingComplete(callback)
+    CallbackRegistry:Register("LOADING_SCREEN_DISABLED", callback);
+end
+addon.AddLoadingCompleteCallback = AddCallback_LoadingComplete;
 
 
 local Initialization = CreateFrame("Frame");
@@ -303,23 +347,14 @@ Initialization:SetScript("OnEvent",function(self,event,...)
     elseif event == "PLAYER_ENTERING_WORLD" then
         self:UnregisterEvent(event);
         LoadSettings();
-
-        for i, callback in ipairs(CallbackList.PLAYER_ENTERING_WORLD) do
-            callback();
-        end
-
-        CallbackList.PLAYER_ENTERING_WORLD = nil;
+        CallbackRegistry:Trigger(event);
 
     elseif event == "LOADING_SCREEN_DISABLED" then
         self:UnregisterEvent(event);
 
         C_Timer.After(1, function()
-            for i, callback in ipairs(CallbackList.LOADING_SCREEN_DISABLED) do
-                callback();
-            end
-
+            CallbackRegistry:Trigger(event);
             self:SetScript("OnEvent", nil);
-            CallbackList = nil;
         end)
     end
 end);

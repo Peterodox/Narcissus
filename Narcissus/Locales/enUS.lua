@@ -733,15 +733,16 @@ L["Change Position"] = "Change Position";
 --Timerunning--
 L["Primary Stat"] = "Primary Stat";
 L["Stamina"] = ITEM_MOD_STAMINA_SHORT or "Stamina";
-L["Crit"] = ITEM_MOD_CRIT_RATING_SHOR or "Critical Strike";
+L["Crit"] = ITEM_MOD_CRIT_RATING_SHORT or "Critical Strike";
 L["Haste"] = ITEM_MOD_HASTE_RATING_SHORT or "Haste";
 L["Mastery"] = ITEM_MOD_MASTERY_RATING_SHORT or "Mastery";
 L["Versatility"] = ITEM_MOD_VERSATILITY or "Versatility";
 
 L["Leech"] = ITEM_MOD_CR_LIFESTEAL_SHORT or "Leech";
-L["Speed"] = ITEM_MOD_CR_UNUSED_3_SHORT or "Speed";
+L["Speed"] = ITEM_MOD_CR_SPEED_SHORT or "Speed";
 L["Format Stat EXP"] = "+%d%% EXP Gain";
 L["Format Rank"] = AZERITE_ESSENCE_RANK or "Rank %d";
+L["Cloak Rank"] = "Cloak Rank";
 
 
 --Gem Manager--
@@ -749,7 +750,14 @@ L["Gem Manager"] = "Gem Manager";
 L["Pandamonium Gem Category 1"] = "Major";      --Major Cooldown Abilities
 L["Pandamonium Gem Category 2"] = "Tinker";     --Tinker Gem
 L["Pandamonium Gem Category 3"] = PRISMATIC_GEM or "Prismatic";
-L["Gem Removal Instruction"] = "Right click to remove this gem";
+L["Gem Removal Instruction"] = "<Right click to remove this gem>";
 L["Gem Removal No Tool"] = "You don't have the tool to remove this gem intact.";
-L["Gemma Click To Activate"] = "Left click to activate";
-L["Gemma Click To Insert"] = "Left click to insert";
+L["Gem Removal Bag Full"] = "Free up bag space before removing this gem!";
+L["Gem Removal Combat"] = "Cannot change gem while in combat";
+L["Gemma Click To Activate"] = "<Left click to activate>";
+L["Gemma Click To Insert"] = "<Left click to insert>";
+L["Gemma Click Twice To Insert"] = "<Left click |cffffffffTWICE|r to insert>";
+L["Stat Health Regen"] = "Health Regen";
+L["Gem Uncollected"] = FOLLOWERLIST_LABEL_UNCOLLECTED or "Uncollected";
+L["No Sockets Were Found"] = "No compatible sockets were found.";
+L["Click To Show Gem List"] = "<Click to show gem list>";

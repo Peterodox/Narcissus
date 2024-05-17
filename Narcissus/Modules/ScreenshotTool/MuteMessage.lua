@@ -18,7 +18,9 @@ local function ScreenshotAlert_Override()
         return
     end
 
-    UI_HIDDEN = "";
+    if _G["UI_HIDDEN"] then
+        UI_HIDDEN = "";
+    end
 
     if ScreenshotAlert_CheckRequirements() and (not SCREENSHOT_ALERT_CHANGED) then
         local function OnUpdate(self, elapsed)

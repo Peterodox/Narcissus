@@ -673,3 +673,36 @@ L["Auto Display Quest Item"] = "自动阅读任务物品的文字说明";
 L["Drag To Move"] = "左击并拖动来移动位置";
 L["Middle Click Reset Position"] = "鼠标中键重置位置。"
 L["Change Position"] = "改变位置";
+
+
+--Timerunning--
+L["Primary Stat"] = "主属性";
+L["Stamina"] = "耐力"
+L["Crit"] = "爆击";
+L["Haste"] = "急速";
+L["Mastery"] = "精通";
+L["Versatility"] = "全能";
+
+L["Leech"] = "吸血";
+L["Speed"] = "加速";
+L["Format Stat EXP"] = "+%d%% 经验获取";
+L["Format Rank"] = "等级 %d";
+L["Cloak Rank"] = "披风等级";
+
+
+--Gem Manager--
+L["Gem Manager"] = "宝石管理器";
+L["Pandamonium Gem Category 1"] = "首要";      --Major Cooldown Abilities
+L["Pandamonium Gem Category 2"] = "匠械";     --Tinker Gem
+L["Pandamonium Gem Category 3"] = "棱彩";
+L["Gem Removal Instruction"] = "<右键点击移除此宝石>";
+L["Gem Removal No Tool"] = "你没有能取下这颗宝石的工具。";
+L["Gem Removal Bag Full"] = "背包里需要有空位才能取下此宝石！";
+L["Gem Removal Combat"] = "不能在战斗中更换宝石";
+L["Gemma Click To Activate"] = "<左键点击以激活>";
+L["Gemma Click To Insert"] = "<左键点击以镶嵌>";
+L["Gemma Click Twice To Insert"] = "<左键点击|cffffffff两次|r来镶嵌>";
+L["Stat Health Regen"] = "生命回复";
+L["Gem Uncollected"] = "未收集";
+L["No Sockets Were Found"] = "没有找到合适的插槽。";
+L["Click To Show Gem List"] = "<点击打开宝石列表>";

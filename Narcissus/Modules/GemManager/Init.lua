@@ -9,6 +9,7 @@ local GetItemCount = C_Item.GetItemCount;
 local IsSpellKnownOrOverridesKnown = IsSpellKnownOrOverridesKnown;
 local GetActionInfo = GetActionInfo;
 local HasExtraActionBar = HasExtraActionBar;
+local GetContainerNumFreeSlots = C_Container.GetContainerNumFreeSlots;
 
 
 local GemData = {};
@@ -52,8 +53,38 @@ function Gemma:GetGemSpell(itemID)
     end
 end
 
+function Gemma:GetActionButtonMethod(itemID)
+    if self.activeDataProvider.GetActionButtonMethod then
+        return self.activeDataProvider:GetActionButtonMethod(itemID)
+    end
+end
+
 function Gemma:GetActiveGems()
     return self.activeDataProvider:GetActiveGems();
+end
+
+function Gemma:GetNumAvailableGemForStat(statType)
+    return self.activeDataProvider:GetNumAvailableGemForStat(statType)
+end
+
+function Gemma:GetBestStatGemForAction(statType, direction)
+    return self.activeDataProvider:GetBestStatGemForAction(statType, direction)
+end
+
+function Gemma:CanSwapGemInOneStep(itemID)
+    return self.activeDataProvider:CanSwapGemInOneStep(itemID)
+end
+
+function Gemma:GetGemInventorySlotAndIndex(itemID)
+    return self.activeDataProvider:GetGemInventorySlotAndIndex(itemID)
+end
+
+function Gemma:GetGemPositionInBagEquipment(itemID)
+    return self.activeDataProvider:GetGemPositionInBagEquipment(itemID)
+end
+
+function Gemma:GetBestSlotToPlaceGem(itemID)
+    return self.activeDataProvider:GetBestSlotToPlaceGem(itemID)
 end
 
 function Gemma:SetGemRemovalTool(gemItemID, tool)
@@ -97,4 +128,13 @@ function Gemma:IsGemRemovable(gemItemID)
     end
 
     return canRemove, requirementMet
+end
+
+function Gemma:DoesBagHaveFreeSlot()
+    for bagIndex = 0, 4 do
+        local numFreeSlots, bagType = GetContainerNumFreeSlots(bagIndex);
+        if (numFreeSlots and numFreeSlots > 0) and (bagType == 0 or bagType == 10) then
+            return true
+        end
+    end
 end

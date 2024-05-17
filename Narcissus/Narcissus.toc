@@ -1,5 +1,5 @@
 ## Interface: 100207
-## Version: 1.5.6
+## Version: 1.6.0
 
 ## Title: Narcissus
 
@@ -94,7 +94,7 @@ Modules\PerksProgram\Core.xml
 Modules\Achievement\Core.xml
 Modules\Statistics\Core.lua
 Modules\AddOnError\AddOnError.xml
-Modules\PrimordialStone\Core.xml
+#Modules\PrimordialStone\Core.xml
 
 #Modules\ParticleSystem\ParticleSystem.xml
 
@@ -119,4 +119,4 @@ Modules\Storyboard\Storyboard.xml
 Modules\DragonridingRaces\Main.xml
 Modules\GossipFrame\GossipFrame.xml
 
-#Modules\GemManager\GemManager.xml
+Modules\GemManager\GemManager.xml

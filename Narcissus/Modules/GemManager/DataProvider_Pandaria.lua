@@ -1,12 +1,19 @@
 local _, addon = ...
 local L = Narci.L;
+local DoesItemExistByID = addon.DoesItemExistByID;
 local Gemma = addon.Gemma;
 local AtlasUtil = Gemma.AtlasUtil;
+local BagScan = Gemma.BagScan;
 local DataProvider = {};
 local GemManagerMixin = {};
 DataProvider.GemManagerMixin = GemManagerMixin;
-
 Gemma:AddDataProvider("Pandaria", DataProvider);
+
+local BagUtil = {};
+
+local pairs = pairs;
+local ipairs = ipairs;
+local tsort = table.sort;
 
 local PATH = "Interface/AddOns/Narcissus/Art/Modules/GemManager/";
 local TEXTURE_NAME = "TimerunningPandaria.png";
@@ -15,13 +22,18 @@ local GetItemGemID = C_Item.GetItemGemID;
 local GetItemNumSockets = C_Item.GetItemNumSockets;     --10.2.7
 local IsEquippableItem = C_Item.IsEquippableItem;
 local GetItemInfoInstant = C_Item.GetItemInfoInstant;
+local GetItemCount = C_Item.GetItemCount;
 local GetInventoryItemLink = GetInventoryItemLink;
+
+local MainFrame = MainFrame;
 
 local GEM_TYPES = {
     [1] = "META",
     [2] = "COGWHEEL",
     [3] = "TINKER",
     [4] = "PRISMATIC",
+
+    [5] = "PRIMORDIAL",
 };
 
 local SLOT_ID = {
@@ -46,7 +58,7 @@ local GEM_DATA = {
     --[itemID] = {type, spellID, role, uiOrder}
     --role: bits 000 (Tank/Healer/DPS): Tank 100(4), DPS 001(1), H/D 011(3), H 010(2)
 
-    --Total: 12
+    --Total: 11
     [221982] = {1, 447598, 4, 00},  --Bulwark of the Black Ox: Charge, Taunt, Ward
     [221977] = {1, 447566, 1, 20},  --Funeral Pyre: Stat, Self Harm
     [220211] = {1, 444954, 2, 60},  --Precipice of Madness: Ward
@@ -54,8 +66,8 @@ local GEM_DATA = {
     [220117] = {1, 444622, 2, 90},  --Ward of Salvation: Restore HP, Overhealing to Ward, AoE
     [219878] = {1, 444128, 7, 85},  --Tireless Spirit: Reduce Resouce Cost
     [219386] = {1, 443389, 7, 35},  --Locus of Power: Stats
-    [216974] = {1, 437495, 1, 40},  --Morphing Elements: Summon Portal, AoE
-    [216711] = {1, 426268, 3, 10},  --Chi-ji, the Red Crane
+    --[216974] = {1, 437495, 1, 40},  --Morphing Elements: Summon Portal, AoE
+    [216711] = {1, 426268, 3, 10},  --Chi-ji, the Red Crane --426268, 437018
     [216695] = {1, 437011, 3, 30},  --Lifestorm: Damage then Restore HP and Haste
     [216671] = {1, 426748, 7, 80},  --Thundering Orb: Transform, DR, Movement
     [216663] = {1, 435313, 1, 50},  --Oblivion Sphere: Crit Damage Taken, AoE, Control
@@ -76,112 +88,158 @@ local GEM_DATA = {
     [217983] = {2, 441299, 7, 15},  --Disengage
     [216632] = {2, 427030, 7, 60},  --Sprint
     [216631] = {2, 427026, 7, 40},  --Roll
-    [216630] = {2, 427031, 7, 25},  --Heroic Leap
+    [216630] = {2, 427033, 7, 25},  --Heroic Leap
     [216629] = {2, 427053, 7, 05},  --Blink
 
-    --Total: 25
+    --Total: 36
+    [219801] = {3, 427064, 7, 00},  --Ankh of Reincarnation: Self-rez
+    [212366] = {3, 429270, 3, 28},  --Arcanist's Edge: Consume shield to deal damage *
     [219944] = {3, 444455, 2, 03},  --Bloodthirsty Coral: Damage taken to Healing
     [219818] = {3, 429007, 7, 06},  --Brilliance: Party Resouce Regen
-    [219817] = {3, 429026, 7, 18},  --Freedom: Ckear Loss of Control
-    [219801] = {3, 427064, 7, 00},  --Ankh of Reincarnation: Self-rez
-    [219977] = {3, 428854, 4, 21},  --Grounding: Redirect Harmful Spell
-    [219527] = {3, 443855, 7, 63},  --Vampiric Aura: +Leech, Party Leech
-    [219523] = {3, 443834, 1, 57},  --Storm Overload: AoE, Control
-    [219516] = {3, 443670, 3, 54},  --Static Charge: Heal or Damage
-    [219389] = {3, 443498, 3, 30},  --Lightning Rod: Crit on Ally or Dot on Enemy
-    [217964] = {3, 441209, 2, 27},  --Holy Martyr: Damage Taken to Party Healing
-    [217961] = {3, 441198, 2, 42},  --Righteous Frency: Healing Proc Haste on Ally
-    [217957] = {3, 441165, 2, 15},  --Deliverance: Store Healing. Healing when Low HP
-    [217927] = {3, 441150, 2, 45},  --Savior: Healing Low HP Ally Grants Ward
-    [217907] = {3, 441115, 4, 72},  --Warmth: +Healing Taken, Redistribute Overhealing
-    [217903] = {3, 441092, 3, 69},  --Vindication: Damage Done Heals Allies
-    [216651] = {3, 436586, 3, 48},  --Searing Light: Healing to Heal and AoE Damage
-    [216650] = {3, 436583, 7, 36},  --Memory of Vegeance: For every 10s, gain primary stat for every 5% missing HP 
     [216649] = {3, 436578, 1, 09},  --Brittle: Store Damage Done, Death Trigger AoE
     [216648] = {3, 436577, 7, 12},  --Cold Front: Allies Ward, Enemies Debuff
+    [217957] = {3, 441165, 2, 15},  --Deliverance: Store Healing. Healing when Low HP
+    [212694] = {3, 433362, 3, 29},  --Enkindle: Grant shield, Damage attackers, Increase haste *
+    [212749] = {3, 433361, 1, 102},  --Explosive Barrage: AoE
+    [212365] = {3, 429389, 1, 103},  --Fervor: Consume HP to deal holy damage
+    [219817] = {3, 429026, 7, 18},  --Freedom: Ckear Loss of Control
+    [212916] = {3, 436461, 5, 104},  --Frost Armor: Damage and slow attackers
+    [219777] = {3, 428854, 4, 21},  --Grounding: Redirect Harmful Spell
+    [217964] = {3, 441209, 2, 27},  --Holy Martyr: Damage Taken to Party Healing
     [216647] = {3, 436571, 1, 24},  --Hailstorm: AoE and Debuff
-    [216628] = {3, 436467, 3, 66},  --Victory Fire: Enemy Death trigger AoE Damage and Healing
-    [216627] = {3, 429230, 2, 60},  --Tinkmaster's Shield: Ward after not being damaged for 5s
-    [216626] = {3, 429378, 1, 51},  --Slay: Extra Damage to Low Health Enemy
-    [216625] = {3, 429373, 1, 39},  --Quick Strike: Melee Ability Triggers Additional Autoattacks
+    [212758] = {3, 433360, 1, 105},  --Incendiary Terror: Damage and Horrify
+    [219389] = {3, 443498, 3, 30},  --Lightning Rod: Crit on Ally or Dot on Enemy
     [216624] = {3, 436461, 5, 33},  --Mark of Arrogance: Dot on Attackers
+    [216650] = {3, 436583, 7, 36},  --Memory of Vegeance: For every 10s, gain primary stat for every 5% missing HP
+    [212759] = {3, 433358, 1, 106},  --Metero Storm: AoE and stun
+    [212361] = {3, 427054, 1, 107},  --Opportunist: Grant crit when damaging stunned enemey
+    [216625] = {3, 429373, 1, 39},  --Quick Strike: Melee Ability Triggers Additional Autoattacks
+    [217961] = {3, 441198, 2, 42},  --Righteous Frenzy: Healing Proc Haste on Ally
+    [217927] = {3, 441150, 2, 45},  --Savior: Healing Low HP Ally Grants Ward
+    [216651] = {3, 436586, 3, 48},  --Searing Light: Healing to Heal and AoE Damage
+    [216626] = {3, 429378, 1, 51},  --Slay: Extra Damage to Low Health Enemy
+    [219452] = {3, 443670, 3, 54},  --Static Charge: Heal or Damage
+    [219523] = {3, 443834, 1, 57},  --Storm Overload: AoE, Control
+    [212362] = {3, 436465, 1, 108},  --Sunstrider's Flourish: Crit cause AoE
+    [216627] = {3, 429230, 2, 60},  --Tinkmaster's Shield: Ward after not being damaged for 5s
+    [219527] = {3, 443855, 7, 63},  --Vampiric Aura: +Leech, Party Leech
+    [216628] = {3, 436467, 3, 66},  --Victory Fire: Enemy Death trigger AoE Damage and Healing
+    [217903] = {3, 441092, 3, 69},  --Vindication: Damage Done Heals Allies
+    [217907] = {3, 441115, 4, 72},  --Warmth: +Healing Taken, Redistribute Overhealing
+    [212760] = {3, 433356, 1, 109},  --Wildfire: Dot, Spreading
+    [219516] = {3, 443787, 7, 110},  --Windweaver: +Movement Speed, Falling damage immunity, chance to increase party haste
 
-    [210715] = {4, nil, 0, 32},  --Mastery +
-    [216640] = {4, nil, 0, 22},  --Mastery ++
-    [211106] = {4, nil, 0, 12},  --Mastery +++
-    [211108] = {4, nil, 0, 02},  --Mastery +++, STAM
-    [210714] = {4, nil, 0, 30},  --Crit +
-    [216644] = {4, nil, 0, 20},  --Crit ++
-    [211123] = {4, nil, 0, 10},  --Crit +++
-    [211102] = {4, nil, 0, 00},  --Crit +++, STAM
-    [210681] = {4, nil, 0, 31},  --Haste +
-    [216643] = {4, nil, 0, 21},  --Haste ++
-    [211107] = {4, nil, 0, 11},  --Haste +++
-    [211110] = {4, nil, 0, 01},  --Haste +++, STAM
-    [220371] = {4, nil, 0, 33},  --Vers +
-    [220372] = {4, nil, 0, 23},  --Vers ++
-    [220374] = {4, nil, 0, 13},  --Vers +++
-    [220373] = {4, nil, 0, 03},  --Vers +++, STAM
-    [220367] = {4, nil, 0, 35},  --Armor +
-    [220368] = {4, nil, 0, 25},  --Armor ++
-    [220370] = {4, nil, 0, 15},  --Armor +++
-    [220369] = {4, nil, 0, 05},  --Armor +++, STAM
-    [211109] = {4, nil, 0, 36},  --Regen +
-    [216642] = {4, nil, 0, 26},  --Regen ++
-    [211125] = {4, nil, 0, 16},  --Regen +++
-    [211105] = {4, nil, 0, 06},  --Regen +++, STAM
-    [210717] = {4, nil, 0, 37},  --Leech +
-    [216641] = {4, nil, 0, 27},  --Leech ++
-    [210718] = {4, nil, 0, 17},  --Leech +++
-    [211103] = {4, nil, 0, 07},  --Leech +++, STAM
-    [210716] = {4, nil, 0, 38},  --Speed +
-    [216639] = {4, nil, 0, 28},  --Speed ++
-    [211124] = {4, nil, 0, 18},  --Speed +++
-    [211101] = {4, nil, 0, 08},  --Speed +++, STAM
+
+    [210714] = {4, nil, 1, 30},  --Crit +
+    [216644] = {4, nil, 1, 20},  --Crit ++
+    [211123] = {4, nil, 1, 10},  --Crit +++
+    [211102] = {4, nil, 1, 00},  --Crit +++, STAM
+    [210681] = {4, nil, 2, 31},  --Haste +
+    [216643] = {4, nil, 2, 21},  --Haste ++
+    [211107] = {4, nil, 2, 11},  --Haste +++
+    [211110] = {4, nil, 2, 01},  --Haste +++, STAM
+    [210715] = {4, nil, 3, 32},  --Mastery +
+    [216640] = {4, nil, 3, 22},  --Mastery ++
+    [211106] = {4, nil, 3, 12},  --Mastery +++
+    [211108] = {4, nil, 3, 02},  --Mastery +++, STAM
+    [220371] = {4, nil, 4, 33},  --Vers +
+    [220372] = {4, nil, 4, 23},  --Vers ++
+    [220374] = {4, nil, 4, 13},  --Vers +++
+    [220373] = {4, nil, 4, 03},  --Vers +++, STAM
+    [220367] = {4, nil, 5, 35},  --Armor +
+    [220368] = {4, nil, 5, 25},  --Armor ++
+    [220370] = {4, nil, 5, 15},  --Armor +++
+    [220369] = {4, nil, 5, 05},  --Armor +++, STAM
+    [211109] = {4, nil, 6, 36},  --Regen +
+    [216642] = {4, nil, 6, 26},  --Regen ++
+    [211125] = {4, nil, 6, 16},  --Regen +++
+    [211105] = {4, nil, 6, 06},  --Regen +++, STAM
+    [210717] = {4, nil, 7, 37},  --Leech +
+    [216641] = {4, nil, 7, 27},  --Leech ++
+    [210718] = {4, nil, 7, 17},  --Leech +++
+    [211103] = {4, nil, 7, 07},  --Leech +++, STAM
+    [210716] = {4, nil, 8, 38},  --Speed +
+    [216639] = {4, nil, 8, 28},  --Speed ++
+    [211124] = {4, nil, 8, 18},  --Speed +++
+    [211101] = {4, nil, 8, 08},  --Speed +++, STAM
 };
 
 local CUSTOM_SORT_ORDER = {
-    [219944] = 2,
-    [219818] = 12,
-    [219817] = 8,
-    [219801] = 4,
-    [219977] = 1,
+    [219801] = 3,   --Ankh of Reincarnation
+    [212366] = 26,  --Arcanist's Edge
+    [219944] = 10,  --Bloodthirsty Coral
+    [219818] = 13,  --Brilliance
+    [216649] = 11,  --Brittle
+    [216648] = 16,  --Cold Front
+    [217957] = 36,  --Deliverance
+    [212694] = 8,   --Enkindle
+    [212749] = 30,  --Explosive Barrage
+    [212365] = 32,  --Fervor
+    [219817] = 2,   --Freedom
+    [212916] = 4,   --Frost Armor
+    [219777] = 1,   --Grounding
+    [216647] = 22,  --Hailstorm
+    [217964] = 5,   --Holy Martyr
+    [212758] = 31,  --Incendiary Terror
+    [219389] = 33,  --Lightning Rod
+    [216624] = 7,   --Mark of Arrogance
+    [216650] = 9,   --Memory of Vegeance
+    [212759] = 23,  --Metero Storm
+    [212361] = 12,  --Opportunist
+    [216625] = 29,  --Quick Strike
+    [217961] = 27,  --Righteous Frenzy
+    [217927] = 28,  --Savior
+    [216651] = 35,  --Searing Light
+    [216626] = 19,  --Slay
+    [219452] = 14,  --Static Charge
+    [219523] = 18,  --Storm Overload
+    [212362] = 24,  --Sunstrider's Flourish
+    [216627] = 21,  --Tinkmaster's Shield
+    [219527] = 20,  --Vampiric Aura
+    [216628] = 34,  --Victory Fire
+    [217903] = 25,  --Vindication
+    [217907] = 6,   --Warmth
+    [212760] = 17,  --Wildfire
+    [219516] = 15,  --Windweaver
+};
 
-    [219527] = 24,
-    [219523] = 6,
-    [219516] = 23,
-    [219389] = 13,
-    [217964] = 5,
-
-    [217961] = 14,
-    [217957] = 25,
-    [217927] = 20,
-    [217907] = 9,
-    [217903] = 17,
-
-    [216651] = 18,
-    [216650] = 7,
-    [216649] = 15,
-    [216648] = 11,
-    [216647] = 16,
-
-    [216628] = 22,
-    [216627] = 19,
-    [216626] = 10,
-    [216625] = 21,
-    [216624] = 3,
+local STAT_GEMS = {
+    [1] = {210714, 216644, 211123, 211102},     --Crit
+    [2] = {210681, 216643, 211107, 211110},     --Haste
+    [3] = {210715, 216640, 211106, 211108},     --Mastery
+    [4] = {220371, 220372, 220374, 220373},     --Vers
+    [5] = {220367, 220368, 220370, 220369},     --Armor
+    [6] = {211109, 216642, 211125, 211105},     --Regen
+    [7] = {210717, 216641, 210718, 211103},     --Leech
+    [8] = {210716, 216639, 211124, 211101},     --Speed
 };
 
 local GEM_REMOVAL_TOOL = {"spell", 433397};
-GEM_REMOVAL_TOOL = {"spell", 405805};   --debug
-GEM_REMOVAL_TOOL = {"item", 202087};   --debug
+
+
+local STATS_DATA = {
+    --Data change dynamically
+    --{name, }
+    {STAT_CRITICAL_STRIKE, },
+    {STAT_HASTE, },
+    {STAT_MASTERY, },
+    {STAT_VERSATILITY, },
+    {STAT_ARMOR, },
+    {L["Stat Health Regen"], },
+    {STAT_LIFESTEAL, },
+    {STAT_SPEED},
+};
 
 local function SortFunc_UIOrder(a, b)
     if CUSTOM_SORT_ORDER[a] and CUSTOM_SORT_ORDER[b] then
         return CUSTOM_SORT_ORDER[a] < CUSTOM_SORT_ORDER[b]
     end
 
-    return GEM_DATA[a][4] < GEM_DATA[b][4]
+    if GEM_DATA[a][4] and GEM_DATA[b][4] then
+        return GEM_DATA[a][4] < GEM_DATA[b][4]
+    end
+
+    return a < b
 end
 
 function DataProvider:GetSortedItemList()
@@ -190,7 +248,7 @@ function DataProvider:GetSortedItemList()
     if self.gemList then return self.gemList end;
 
     local tinsert = table.insert;
-    local tsort = table.sort;
+    local tsort = tsort;
 
     local tbl = {};
     local numTypes = #GEM_TYPES;
@@ -200,10 +258,13 @@ function DataProvider:GetSortedItemList()
     end
 
     for itemID, data in pairs(GEM_DATA) do
-        local gemType = data[1];
-        tinsert(tbl[gemType], itemID);
+        if DoesItemExistByID(itemID) then
+            local gemType = data[1];
+            tinsert(tbl[gemType], itemID);
+            Gemma:SetGemRemovalTool(itemID, GEM_REMOVAL_TOOL);
+        else
 
-        Gemma:SetGemRemovalTool(itemID, GEM_REMOVAL_TOOL);
+        end
     end
 
     for gemType, gems in pairs(tbl) do
@@ -229,14 +290,6 @@ function DataProvider:GetItemListByType(gemType)
     return itemList[gemType];
 end
 
-function DataProvider:IsGemActive(itemID)
-    return true
-end
-
-function DataProvider:IsGemCollected(itemID)
-    return true
-end
-
 local function GetNumSocketsForSlot(slotID)
     local itemLink = GetInventoryItemLink("player", slotID);
     if itemLink then
@@ -246,19 +299,19 @@ local function GetNumSocketsForSlot(slotID)
     end
 end
 
-function DataProvider:DoesPlayerHaveHead()
-    return GetNumSocketsForSlot(SLOT_ID.HEAD) > 0
-end
-
-function DataProvider:DoesPlayerHaveFeet()
-    return GetNumSocketsForSlot(SLOT_ID.FEET) >= 0  --debug
-end
-
 local function GetItemGemFromSlot(slotID, index)
     local itemLink = GetInventoryItemLink("player", slotID);
     if itemLink then
         return GetItemGemID(itemLink, index);
     end
+end
+
+function DataProvider:DoesPlayerHaveHead()
+    return GetNumSocketsForSlot(SLOT_ID.HEAD) > 0
+end
+
+function DataProvider:DoesPlayerHaveFeet()
+    return GetNumSocketsForSlot(SLOT_ID.FEET) > 0
 end
 
 function DataProvider:GetHeadGem()
@@ -269,63 +322,374 @@ function DataProvider:GetFeetGem()
     return GetItemGemFromSlot(SLOT_ID.FEET, 1)
 end
 
+function DataProvider:GetGemType(itemID)
+    if GEM_DATA[itemID] then
+        return GEM_DATA[itemID][1]
+    end
+end
+
 function DataProvider:GetGemSpell(itemID)
     if GEM_DATA[itemID] then
         return GEM_DATA[itemID][2]
     end
 end
 
+function DataProvider:GetConflictGemItemID(itemID)
+    local gemType = self:GetGemType(itemID);
+    if gemType == 1 then
+        local existingGem = self:GetHeadGem();
+        if itemID ~= existingGem then
+            return existingGem
+        end
+    elseif gemType == 2 then
+        local existingGem = self:GetFeetGem();
+        if itemID ~= existingGem then
+            return existingGem
+        end
+    end
+end
+
 function DataProvider:GetActiveGems()
-    --debug
-    if not self.debugGemList then
-        local tbl = {};
-        local tinsert = table.insert;
+    return BagUtil.activeGemList
+end
 
-        for i = 1, 2 do
-            local gems = self:GetItemListByType(i);
-            tinsert(tbl, gems[1]);
-        end
 
-        local gems = self:GetItemListByType(3);
-        for i = 1, 12 do
-            tinsert(tbl, gems[i]);
-        end
 
-        self.debugGemList = tbl;
+
+do  --Scan bag and equipment slot
+    function BagUtil:ResetBagInfo()
+        self.gemCount = {};             --Including all locations
+        self.bagGemCount = {};          --including those in equipment
+        self.slotData = {};
+        self.gemTypeAvailable = {};
+        self.activeGemCount = {};
+        self.activeGemList = nil;
     end
 
-    return self.debugGemList
-end
+    local function SortFunc_ActiveTraits(itemID1, itemID2)
+        local type1 = GEM_DATA[itemID1][1];
+        local type2 = GEM_DATA[itemID2][1];
 
+        if type1 ~= type2 then
+            return type1 < type2
+        end
 
+        return itemID1 < itemID2
+    end
 
-function DataProvider:ResetBagInfo()
-    self.gemCount = {};
-end
+    function BagUtil:OnScanComplete()
+        if not self.activeGemCount then return end;
 
-local function BagSearch_ProcessItem(self, itemLink)
-    if IsEquippableItem(itemLink) then
-        for index = 1, GetItemNumSockets(itemLink) do
-            local itemID = GetItemGemID(itemLink, index);
-            if itemID and GEM_DATA[itemID] then
-                if not self.gemCount[itemID] then
-                    self.gemCount[itemID] = 1;
+        local gemType, statType;
+        local traitList = {};
+        local statList = {};
+        local n = 0;
+        for itemID, count in pairs(self.activeGemCount) do
+            gemType = DataProvider:GetGemType(itemID);
+            if gemType then
+                if gemType == 4 then
+                    statType = GEM_DATA[itemID][3];
+                    if not statList[statType] then
+                        local name = STATS_DATA[statType][1];
+                        statList[statType] = {0, name};
+                    end
+
+                    statList[statType][1] = statList[statType][1] + count;
                 else
-                    self.gemCount[itemID] = self.gemCount[itemID] + 1;
+                    n = n + 1;
+                    traitList[n] = itemID;
                 end
             end
         end
-    else
-        local itemID = GetItemInfoInstant(itemLink);
-        if GEM_DATA[itemID] then
-            if not self.gemCount[itemID] then
-                self.gemCount[itemID] = 1;
-            else
-                self.gemCount[itemID] = self.gemCount[itemID] + 1;
+        
+        tsort(traitList, SortFunc_ActiveTraits);
+
+        self.activeGemList = {
+            traits = traitList,
+            stats = statList,
+        };
+
+        if (not Gemma.MainFrame:IsShown()) and Gemma.PaperdollWidget:IsShown() and DataProvider:ShouldShowGreenDot() then
+            Gemma.MainFrame:Show();
+        end
+    end
+
+    local function BagUtil_ProcessItem(itemLink, id1, id2)
+        if IsEquippableItem(itemLink) then
+            local numSockets = GetItemNumSockets(itemLink);
+            local slotData;
+
+            if (not id2) and (numSockets > 0) then
+                --id1: slotID
+                slotData = {
+                    gems = {},
+                    numSockets = numSockets,
+                    numMissing = 0,
+                };
+                BagUtil.slotData[id1] = slotData;
+            end
+
+            for index = 1, numSockets do
+                local itemID = GetItemGemID(itemLink, index);
+                if itemID and GEM_DATA[itemID] then
+                    if not BagUtil.gemCount[itemID] then
+                        BagUtil.gemCount[itemID] = 1;
+                    else
+                        BagUtil.gemCount[itemID] = BagUtil.gemCount[itemID] + 1;
+                    end
+
+                    if id2 then
+                        --when there are supported gems in you bag
+                        local gemType = DataProvider:GetGemType(itemID);
+                        if not BagUtil.gemTypeAvailable[gemType] then
+                            BagUtil.gemTypeAvailable[gemType] = true;
+                        end
+
+                        if not BagUtil.bagGemCount[itemID] then
+                            BagUtil.bagGemCount[itemID] = 0;
+                        end
+                        BagUtil.bagGemCount[itemID] = BagUtil.bagGemCount[itemID] + 1;
+                    else
+                        if not BagUtil.activeGemCount[itemID] then
+                            BagUtil.activeGemCount[itemID] = 0;
+                        end
+                        BagUtil.activeGemCount[itemID] = BagUtil.activeGemCount[itemID] + 1;
+                    end
+                end
+
+                if not id2 then
+                    slotData.gems[index] = itemID;
+                    if not itemID then
+                        slotData.numMissing = slotData.numMissing + 1;
+                    end
+                end
+            end
+        else
+            local itemID = GetItemInfoInstant(itemLink);
+            if GEM_DATA[itemID] then
+                if not BagUtil.gemCount[itemID] then
+                    BagUtil.gemCount[itemID] = 1;
+                else
+                    BagUtil.gemCount[itemID] = BagUtil.gemCount[itemID] + 1;
+                end
+
+                if id2 then
+                    local gemType = DataProvider:GetGemType(itemID);
+                    if not BagUtil.gemTypeAvailable[gemType] then
+                        BagUtil.gemTypeAvailable[gemType] = true;
+                    end
+
+                    if not BagUtil.bagGemCount[itemID] then
+                        BagUtil.bagGemCount[itemID] = 0;
+                    end
+                    BagUtil.bagGemCount[itemID] = BagUtil.bagGemCount[itemID] + 1;
+                end
             end
         end
     end
+
+    local AdditionalScanSlots;
+
+    function BagUtil:InitiateScan()
+        if not AdditionalScanSlots then
+            AdditionalScanSlots = {};
+            local n = 0;
+            for slotName, slotID in pairs(SLOT_ID) do
+                n = n + 1;
+                AdditionalScanSlots[n] = slotID;
+            end
+        end
+
+        BagScan:SetProcessor(BagUtil_ProcessItem, AdditionalScanSlots);
+        BagScan:FullUpdate();
+    end
+
+    function BagUtil:StopScan()
+        BagScan:StopIfProcessorSame(BagUtil_ProcessItem);
+    end
+
+
+    local CallbackRegistry = addon.CallbackRegistry;
+
+    local function PaperdollWidget_OnShow()
+        BagUtil:InitiateScan();
+    end
+
+    local function PaperdollWidget_OnHide()
+        BagUtil:StopScan();
+    end
+
+    CallbackRegistry:Register("PaperdollWidget.Gem.OnShow", PaperdollWidget_OnShow);
+    CallbackRegistry:Register("PaperdollWidget.Gem.OnHide", PaperdollWidget_OnHide);
+
+    CallbackRegistry:Register("GemManager.BagScan.OnStart", BagUtil.ResetBagInfo, BagUtil);
+    CallbackRegistry:Register("GemManager.BagScan.OnStop", BagUtil.OnScanComplete, BagUtil);
 end
+
+do  --Use the result from bag scan
+    local META_SLOT = { SLOT_ID.HEAD };
+
+    local COGWHEEL_SLOT = { SLOT_ID.FEET };
+
+    local TINKER_SLOT = {
+        SLOT_ID.SHOULDER, SLOT_ID.WRIST, SLOT_ID.HANDS, SLOT_ID.WAIST,
+    };
+
+    local PRISMATIC_SLOT = {
+        SLOT_ID.NECK, SLOT_ID.CHEST, SLOT_ID.LEGS, SLOT_ID.RING1, SLOT_ID.RING2, SLOT_ID.TRINKET1, SLOT_ID.TRINKET2,
+    };
+
+
+    function DataProvider:GetSlotSocketsCount(slots, gemType)
+        local slotData = BagUtil.slotData;
+        local totalSockets = 0;
+        local totalMissing = 0;
+
+        for _, slotID in ipairs(slots) do
+            if slotData[slotID] then
+                totalSockets = totalSockets + slotData[slotID].numSockets;
+                totalMissing = totalMissing + slotData[slotID].numMissing;
+            end
+        end
+
+        local anySpareGemInBags = BagUtil.gemTypeAvailable and BagUtil.gemTypeAvailable[gemType]
+
+        return totalSockets, totalMissing, anySpareGemInBags
+    end
+
+    function DataProvider:GetMetaSocketCount()
+        return self:GetSlotSocketsCount(META_SLOT, 1)
+    end
+
+    function DataProvider:GetCogwheelSocketCount()
+        return self:GetSlotSocketsCount(COGWHEEL_SLOT, 2)
+    end
+
+    function DataProvider:GetTinkerSocketCount()
+        return self:GetSlotSocketsCount(TINKER_SLOT, 3)
+    end
+    
+    function DataProvider:GetPrismaticSocketCount()
+        return self:GetSlotSocketsCount(PRISMATIC_SLOT, 4)
+    end
+
+    function DataProvider:GetGemInventorySlotAndIndex(itemID)
+        if not self:IsGemCollected(itemID) then return end;
+
+        for slotID, slotData in pairs(BagUtil.slotData) do
+            for socketIndex = 1, slotData.numSockets do
+                if slotData.gems[socketIndex] == itemID then
+                    return slotID, socketIndex
+                end
+            end
+        end
+    end
+
+    function DataProvider:CanSwapGemInOneStep(itemID)
+        --You will have to perform two actions if the target socket is occupied and
+        --the gem you want to insert is in another equipment
+        local existingGem = self:GetConflictGemItemID(itemID);
+        local inbagCount = self:GetInBagGemCount(itemID);
+        local spareCount = GetItemCount(itemID);
+
+        if existingGem and (inbagCount > 0 and spareCount == 0) then
+            return false
+        end
+
+        return true
+    end
+
+    function DataProvider:GetBestSlotToPlaceGem(itemID)
+        if not self:IsGemCollected(itemID) then return end;
+
+        local gemType = self:GetGemType(itemID);
+        if not gemType then return end;
+
+        local slots;
+
+        if gemType == 1 then
+            slots = META_SLOT;
+        elseif gemType == 2 then
+            slots = COGWHEEL_SLOT;
+        elseif gemType == 3 then
+            slots = TINKER_SLOT;
+        elseif gemType == 4 then
+            slots = PRISMATIC_SLOT;
+        end
+
+        local slotData;
+
+        for _, slotID in pairs(slots) do
+            slotData = BagUtil.slotData[slotID];
+            if slotData then
+                for socketIndex = 1, slotData.numSockets do
+                    if slotData.gems[socketIndex] == nil then
+                        return slotID, socketIndex
+                    end
+                end
+            end
+        end
+    end
+
+    function DataProvider:GetInBagGemCount(itemID)
+        return BagUtil.bagGemCount and BagUtil.bagGemCount[itemID] or 0;
+    end
+
+    function DataProvider:GetOnPlayerGemCount(itemID)
+        return BagUtil.activeGemCount[itemID] and BagUtil.activeGemCount[itemID] or 0;
+    end
+
+    function DataProvider:IsGemActive(itemID)
+        return self:GetOnPlayerGemCount(itemID) > 0
+    end
+
+    function DataProvider:IsGemCollected(itemID)
+        return BagUtil.gemCount[itemID] and BagUtil.gemCount[itemID] > 0
+    end
+
+    function DataProvider:ShouldShowGreenDot()
+        local totalSockets, totalMissing, anySpareGemInBags;
+        local showGreenDot;
+
+        if not showGreenDot then
+            totalSockets, totalMissing, anySpareGemInBags = self:GetMetaSocketCount();
+            showGreenDot = totalMissing > 0 and anySpareGemInBags;
+        end
+
+        if not showGreenDot then
+            totalSockets, totalMissing, anySpareGemInBags = self:GetCogwheelSocketCount();
+            showGreenDot = totalMissing > 0 and anySpareGemInBags;
+        end
+
+        if not showGreenDot then
+            totalSockets, totalMissing, anySpareGemInBags = self:GetTinkerSocketCount();
+            showGreenDot = totalMissing > 0 and anySpareGemInBags;
+        end
+
+        if not showGreenDot then
+            totalSockets, totalMissing, anySpareGemInBags = self:GetPrismaticSocketCount();
+        end
+
+        return showGreenDot
+    end
+end
+
+do
+    local ACTION_BUTTON_METHODS = {
+        [1] = "SetAction_RemovePandariaMetaGem",
+        [2] = "SetAction_RemovePandariaGem",
+    };
+
+    function DataProvider:GetActionButtonMethod(itemID)
+        local gemType = self:GetGemType(itemID);
+        if gemType == 1 or gemType == 2 then
+            return ACTION_BUTTON_METHODS[1]
+        elseif gemType == 3 then
+            return ACTION_BUTTON_METHODS[2]
+        end
+    end
+end
+
 
 DataProvider.schematic = {
     background = "remix-ui-bg",
@@ -353,8 +717,6 @@ DataProvider.schematic = {
             useCustomTooltip = false,
         },
     },
-
-    bagSearchProcessor = BagSearch_ProcessItem,
 };
 
 local BorderTextures_Hexagon = {
@@ -405,7 +767,58 @@ function GemManagerMixin:SetupMajorSlotButton(itemID)
     return button
 end
 
+local function TooltipFunc_EmptyMeta(tooltip)
+    tooltip:SetText(EMPTY_SOCKET_META, 1, 1, 1);
+    tooltip:AddLine(L["Click To Show Gem List"], 0.098, 1.000, 0.098, true);
+    tooltip:Show();
+    return true
+end
+
+local function TooltipFunc_EmptyCogwheel(tooltip)
+    tooltip:SetText(EMPTY_SOCKET_COGWHEEL, 1, 1, 1);
+    tooltip:AddLine(L["Click To Show Gem List"], 0.098, 1.000, 0.098, true);
+    tooltip:Show();
+    return true
+end
+
+local function OnClickFunc_ShowMetaGemList(self, mouseButton)
+    if DataProvider:GetHeadGem() and mouseButton == "RightButton" then
+        MainFrame.autoShowGemList = 1;
+        return false
+    end
+
+    GemManagerMixin.ShowGemList(MainFrame, 1);
+
+    return true
+end
+
+local function OnClickFunc_ShowCogwheelGemList(self, mouseButton)
+    if DataProvider:GetFeetGem() and mouseButton == "RightButton" then
+        MainFrame.autoShowGemList = 2;
+        return false
+    end
+
+    GemManagerMixin.ShowGemList(MainFrame, 2);
+
+    return true
+end
+
+local function OnClickFunc_CloseGemList(self, mouseButton)
+    if mouseButton == "RightButton" then
+        --if not DataProvider:IsGemActive(self.itemID) then
+            MainFrame:CloseGemList();
+            return true
+        --end
+    elseif mouseButton == "LeftButton" then
+        if DataProvider:IsGemActive(self.itemID) then
+            MainFrame:CloseGemList();
+            return true
+        end
+    end
+end
+
 function GemManagerMixin:ShowMajors()
+    MainFrame = self;
     self.useSlotFrame = true;
 
     local shape = "BigSquare";
@@ -414,20 +827,44 @@ function GemManagerMixin:ShowMajors()
     local numButtons = 0;
     local button1, button2;
 
+    local newlyEquippedSocket;
+
     if DataProvider:DoesPlayerHaveHead() then
         local itemID = DataProvider:GetHeadGem();
-        local gems = DataProvider:GetItemListByType(1); --debug
-        itemID = gems[1];
         local button = self:SetupMajorSlotButton(itemID);
 
         numButtons = numButtons + 1;
         button1 = button;
+
+        local typeIcon = self:AcquireTexture("Front");
+        AtlasUtil:SetAtlas(typeIcon, "gemtypeicon-offensive");
+        typeIcon:SetPoint("CENTER", button, "BOTTOM", 0, 0);
+
+        button.onClickFunc = OnClickFunc_ShowMetaGemList;
+
+        if itemID then
+            typeIcon:SetDesaturation(0);
+        else
+            typeIcon:SetDesaturation(1);
+            button.tooltipFunc = TooltipFunc_EmptyMeta;
+            local _, _, anySpareGemInBags = DataProvider:GetPrismaticSocketCount();  --GetMetaSocketCount
+            if anySpareGemInBags then
+                button:SetSelectable();
+            else
+                button:SetUncollected();
+            end
+        end
+
+        if (not self.headGemID) and itemID then
+            newlyEquippedSocket = button;
+        end
+        self.headGemID = itemID;
+    else
+        self.headGemID = nil;
     end
 
     if DataProvider:DoesPlayerHaveFeet() then
         local itemID = DataProvider:GetFeetGem();
-        local gems = DataProvider:GetItemListByType(2); --debug
-        itemID = gems[1];
         local button = self:SetupMajorSlotButton(itemID);
 
         numButtons = numButtons + 1;
@@ -436,10 +873,40 @@ function GemManagerMixin:ShowMajors()
         else
             button2 = button;
         end
+
+        local typeIcon = self:AcquireTexture("Front");
+        AtlasUtil:SetAtlas(typeIcon, "gemtypeicon-movement");
+        typeIcon:SetPoint("CENTER", button, "BOTTOM", 0, 0);
+
+        button.onClickFunc = OnClickFunc_ShowCogwheelGemList;
+
+        if itemID then
+            typeIcon:SetDesaturation(0);
+        else
+            typeIcon:SetDesaturation(1);
+            button.tooltipFunc = TooltipFunc_EmptyCogwheel;
+            local _, _, anySpareGemInBags = DataProvider:GetCogwheelSocketCount();
+            if anySpareGemInBags then
+                button:SetSelectable();
+            else
+                button:SetUncollected();
+            end
+        end
+
+        if (not self.feetGemID) and itemID then
+            if newlyEquippedSocket then
+                newlyEquippedSocket = nil;
+            else
+                newlyEquippedSocket = button;
+            end
+        end
+        self.feetGemID = itemID;
+    else
+        self.feetGemID = nil;
     end
 
     if numButtons == 0 then
-
+        self:ShowNoSocketAlert(true);
     else
         if numButtons == 2 then
             local offsetX = 8;
@@ -449,17 +916,67 @@ function GemManagerMixin:ShowMajors()
         elseif numButtons == 1 then
             button1:SetPoint("CENTER", container, "CENTER", 0, 0);
         end
+        self:ShowNoSocketAlert(false);
     end
 
     self.SlotFrame.ButtonHighlight:SetShape(shape);
+    self.UpdateCurrentTab = self.UpdateMajors;
 
-    self:ShowGemList();
+    if self.autoShowGemList then
+        self:ShowGemList(self.autoShowGemList);
+        self.autoShowGemList = nil;
+    else
+        if newlyEquippedSocket then
+            self:CloseGemList();
+
+            local shine = self.SlotFrame.ButtonShine;
+            shine.Mask:SetTexture(PATH.."IconMask-"..shape, "CLAMPTOBLACKADDITIVE", "CLAMPTOBLACKADDITIVE");
+            shine.Mask:SetSize(53, 53);
+            shine.Texture:SetTexture(PATH.."SlotShine");
+            shine.Texture:SetSize(80, 80);
+            shine.Texture:SetBlendMode("ADD");
+
+            self:ShineSlot(newlyEquippedSocket);
+        else
+            self:UpdateGemList();
+        end
+    end
 end
 
-function GemManagerMixin:ShowGemList()
-    local gemType = 1;
+function GemManagerMixin:UpdateMajors()
+    self:ReleaseContent();
+    self:ShowMajors();
+end
+
+function GemManagerMixin:UpdateGemList()
+    if self.GemList:IsShown() and self.gemType then
+        local activeGemID;
+        if self.gemType == 1 then
+            activeGemID = DataProvider:GetHeadGem();
+        elseif self.gemType == 2 then
+            activeGemID = DataProvider:GetFeetGem();
+        end
+        self.GemList.activeGemID = activeGemID;
+        self.GemList:UpdatePage();
+    end
+end
+
+function GemManagerMixin:ShowGemList(gemType)
+    self.gemType = gemType;
+
+    if not gemType then return end;
+
+    local activeGemID;
+    if gemType == 1 then
+        activeGemID = DataProvider:GetHeadGem();
+    elseif gemType == 2 then
+        activeGemID = DataProvider:GetFeetGem();
+    end
+    self.GemList.activeGemID = activeGemID;
+
     local gems = DataProvider:GetItemListByType(gemType);
-    self.GemList:SetItemList(gems, DataProvider:GetGemTypeName(gemType));
+    self.GemList.onClickFunc = OnClickFunc_CloseGemList;
+    self.GemList:SetItemList(gems, DataProvider:GetGemTypeName(gemType), DataProvider);
 
     self:OpenGemList();
 end
@@ -468,24 +985,23 @@ function GemManagerMixin:ShowTraits()
     self.useSlotFrame = true;
 
     local shape = "Hexagon";
-    local diagonal = 46;
-    local gap = 4;
+    local diagonal = 40;    --46
+    local gap = 1;
     local container = self.SlotFrame;
 
     local deltaXPerRow = ((diagonal * cos(30)) + gap) * 0.5;
     local deltaYPerRow = (diagonal * cos(30) + gap) * cos(30);
     local offsetX = diagonal * cos(30) + gap;
 
-    local contentWidth = 6 * offsetX - gap;
     local contentHeight = 5 * deltaYPerRow + diagonal;
 
     local frameWidth = container:GetWidth();
     local frameHeight = container:GetHeight();
 
-    local paddingX = (frameWidth - contentWidth) * 0.5;
     local paddingY = (frameHeight - contentHeight) * 0.5;
 
     local refX = frameWidth * 0.5;
+    refX = 0;
     local refY = (deltaYPerRow - diagonal * 0.5) - paddingY;
 
     local gemType = 3;  --Tinker
@@ -495,17 +1011,13 @@ function GemManagerMixin:ShowTraits()
     local row = 1;
     local col = 1;
     local maxCol = 1;
-    local fromX, fromY = 0, 0;
+    local fromX, fromY = refX, refY;
     local x, y;
 
     for index, itemID in ipairs(gems) do
         button = self:AcquireSlotButton(shape);
         button:ResetButtonSize();
         button.borderTextures = BorderTextures_Hexagon;
-
-        if row == 1 then
-            col = col + 1;
-        end
 
         if col > maxCol then
             maxCol = maxCol + 1;
@@ -516,41 +1028,54 @@ function GemManagerMixin:ShowTraits()
             fromY = refY - (row - 1) * deltaYPerRow;
         end
 
-        if (row == 7 and col == 1) then
-            col = col + 1;
-        end
-
         x = fromX + (col - 1) * offsetX;
         y = fromY;
-        button:SetPoint("CENTER", self.SlotFrame, "TOPLEFT", x, y);
+        button:SetPoint("CENTER", self.SlotFrame, "TOP", x, y);
         button:SetItem(itemID);
 
         col = col + 1;
     end
 
     self.TooltipFrame:ClearAllPoints();
-    self.TooltipFrame:SetPoint("TOP", container, "CENTER", 0, -contentHeight * 0.5 - 16);
+    self.TooltipFrame:SetPoint("TOP", container, "CENTER", 0, -contentHeight * 0.5 - 44);
     self.TooltipFrame:SetDescriptionLine(6);
 
     self.SlotFrame.ButtonHighlight:SetShape(shape);
 
     local shine = self.SlotFrame.ButtonShine;
     shine.Mask:SetTexture(PATH.."IconMask-"..shape, "CLAMPTOBLACKADDITIVE", "CLAMPTOBLACKADDITIVE");
-    shine.Mask:SetSize(38, 38);
+    shine.Mask:SetSize(32, 32);
     shine.Texture:SetTexture(PATH.."SlotShine");
     shine.Texture:SetSize(48, 48);
     shine.Texture:SetBlendMode("ADD");
 
+    self.UpdateCurrentTab = self.UpdateSlots;
     self:UpdateSlots();
 end
 
 function GemManagerMixin:UpdateSlots()
+    if not self.slotButtons then return end;
+
+    local totalSockets, totalMissing, anySpareGemInBags = DataProvider:GetTinkerSocketCount();
+    self:SetPointDisplayAmount(totalMissing);
+
+    local chooseItem = totalMissing > 0;
+
     for index, button in ipairs(self.slotButtons) do
         if button:IsShown() then
             if DataProvider:IsGemActive(button.itemID) then
-                button:SetActive();
+                if chooseItem then
+                    button:SetDimmed();
+                else
+                    button:SetActive();
+                end
             elseif DataProvider:IsGemCollected(button.itemID) then
-                button:SetInactive();
+                if chooseItem then
+                    button:SetAvailable();
+                else
+                    button:SetInactive();
+                end
+                
             else
                 button:SetUncollected();
             end
@@ -560,13 +1085,126 @@ function GemManagerMixin:UpdateSlots()
     end
 end
 
-function GemManagerMixin:ShowStats()
-    self.useSlotFrame = false;
+
+do  --Stats Assignment Tab
+    function DataProvider:GetNumAvailableGemForStat(statType)
+        local gems = STAT_GEMS[statType];
+        local total = 0;
+
+        if gems then
+            for _, itemID in ipairs(gems) do
+                total = total + self:GetInBagGemCount(itemID);
+            end
+        end
+
+        return total
+    end
+
+    function DataProvider:GetBestStatGemToRemove(statType)
+        --From lower tier to higher
+        local gems = STAT_GEMS[statType];
+        if gems then
+            for _, itemID in ipairs(gems) do
+                if self:IsGemActive(itemID) then
+                    return itemID
+                end
+            end
+        end
+    end
+
+    function DataProvider:GetBestStatGemToInsert(statType)
+        --From higher tier to lower
+        local gems = STAT_GEMS[statType];
+        if gems then
+            local itemID;
+            for i = #gems, 1, -1 do
+                itemID = gems[i];
+                if self:GetInBagGemCount(itemID) > 0 then
+                    return itemID
+                end
+            end
+        end
+    end
+
+    function DataProvider:GetBestStatGemForAction(statType, direction)
+        if direction > 0 then   --Insert gem
+            return self:GetBestStatGemToInsert(statType)
+        else    --remove gem
+            return self:GetBestStatGemToRemove(statType)
+        end
+    end
+
+    function GemManagerMixin:ShowStats()
+        self.useSlotFrame = true;
+
+        local buttonHeight = 24;
+        local gap = 0.2;    --Compensation for IsMouseOver()
+        local numButtons = #STATS_DATA;
+        local container = self.SlotFrame;
+        local fromY = -0.5 * (container:GetHeight() - (numButtons * (buttonHeight + gap) -gap));
+
+        local button;
+
+        for i, statData in ipairs(STATS_DATA) do
+            button = self:AcquireStatButton();
+            button:SetPoint("TOP", container, "TOP", 0, fromY + (1 - i) * (buttonHeight + gap));
+            button:SetName(statData[1]);
+        end
+
+        self.UpdateCurrentTab = self.UpdateStats;
+        self:UpdateStats();
+    end
+
+    function GemManagerMixin:UpdateStats()
+        local totalSockets, totalMissing, anySpareGemInBags = DataProvider:GetPrismaticSocketCount();
+        local isEditMode;
+
+        if totalMissing > 0 then
+            isEditMode = true;
+            self.SlotFrame.PointsDisplay:SetAmount(totalMissing);
+            self.SlotFrame.PointsDisplay:Show();
+        else
+            isEditMode = false;
+            self.SlotFrame.PointsDisplay:Hide();
+        end
+        
+        local activeGems = DataProvider:GetActiveGems();
+        local activeStatsGems = activeGems and activeGems.stats;
+
+        local button, count;
+
+        for i, statData in ipairs(STATS_DATA) do
+            button = self.statButtons[i];
+            count = activeStatsGems[i] and activeStatsGems[i][1] or 0;
+            button:SetCount(count);
+            button:SetPlusButtonVisibility( isEditMode and DataProvider:GetNumAvailableGemForStat(i) > 0 );
+        end
+    end
 end
 
 
-do
-    Gemma.BagSearch:AddOnStartCallback(function()
-        DataProvider:ResetBagInfo();
-    end);
+function GemManagerMixin:UpdateTabGreenDot()
+    BagScan:FullUpdate();
+
+    local totalSockets, totalMissing, anySpareGemInBags;
+    local showGreenDot;
+
+    --Meta and cogwheel are on the same tab
+    totalSockets, totalMissing, anySpareGemInBags = DataProvider:GetMetaSocketCount();
+    showGreenDot = totalMissing > 0 and anySpareGemInBags;
+
+    if not showGreenDot then
+        totalSockets, totalMissing, anySpareGemInBags = DataProvider:GetCogwheelSocketCount();
+        showGreenDot = totalMissing > 0 and anySpareGemInBags;
+    end
+
+    self.tabButtons[1].GreenDot:SetShown(showGreenDot);
+
+    totalSockets, totalMissing, anySpareGemInBags = DataProvider:GetTinkerSocketCount();
+    showGreenDot = totalMissing > 0 and anySpareGemInBags;
+    self.tabButtons[2].GreenDot:SetShown(showGreenDot);
+
+    totalSockets, totalMissing, anySpareGemInBags = DataProvider:GetPrismaticSocketCount();
+    showGreenDot = totalMissing > 0 and anySpareGemInBags;
+    self.tabButtons[3].GreenDot:SetShown(showGreenDot);
 end

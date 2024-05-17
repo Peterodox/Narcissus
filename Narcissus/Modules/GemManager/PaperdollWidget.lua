@@ -1,5 +1,6 @@
 local _, addon = ...
-
+local L = Narci.L;
+local CallbackRegistry = addon.CallbackRegistry;
 local TimerunningUtil = addon.TimerunningUtil;
 local Gemma = addon.Gemma;
 local ItemCache = Gemma.ItemCache;
@@ -7,11 +8,11 @@ local AtlasUtil = Gemma.AtlasUtil;
 
 local GetItemQualityColor = NarciAPI.GetItemQualityColor;
 
-
 NarciGemManagerPaperdollWidgetMixin = {};
 
 function NarciGemManagerPaperdollWidgetMixin:OnLoad()
     NarciPaperDollWidgetController:AddWidget(self, 4, "TimerunningPandaria");
+    Gemma.PaperdollWidget = self;
 end
 
 function NarciGemManagerPaperdollWidgetMixin:OnShow()
@@ -19,7 +20,11 @@ function NarciGemManagerPaperdollWidgetMixin:OnShow()
         self:Init();
     end
 
-    self.AnimDrip:Play();
+    CallbackRegistry:Trigger("PaperdollWidget.Gem.OnShow", self);
+end
+
+function NarciGemManagerPaperdollWidgetMixin:OnHide()
+    CallbackRegistry:Trigger("PaperdollWidget.Gem.OnHide", self);
 end
 
 function NarciGemManagerPaperdollWidgetMixin:Init()
@@ -31,6 +36,8 @@ function NarciGemManagerPaperdollWidgetMixin:Init()
 
     self.DripMask:SetTexture("Interface/AddOns/Narcissus/Art/Modules/GemManager/Mask-Hourglass-Drip", "CLAMPTOBLACKADDITIVE", "CLAMPTOBLACKADDITIVE");
     self.HighlightMask:SetTexture("Interface/AddOns/Narcissus/Art/Modules/GemManager/Mask-Hourglass-Highlight", "CLAMPTOBLACKADDITIVE", "CLAMPTOBLACKADDITIVE");
+
+    self.AnimDrip:Play();
 end
 
 function NarciGemManagerPaperdollWidgetMixin:ResetAnchor()
@@ -110,24 +117,31 @@ function NarciGemManagerPaperdollWidgetMixin:ShowTooltip()
     tooltip:SetOwner(self, "ANCHOR_NONE");
     tooltip:SetPoint("TOPLEFT", self, "TOPRIGHT", 0, 0);
 
-    tooltip:AddDoubleLine("Cloak Level", "128", 0.533, 0.867, 0.867, 1, 1, 1);
+    local rank = TimerunningUtil.GetThreadRank();
+    tooltip:AddDoubleLine(L["Cloak Rank"], rank, 0.902, 0.800, 0.502, 1, 1, 1);
     tooltip:AddLine(" ");
 
-    tooltip:AddLine("Gems:", 0.5, 0.5, 0.5, true);
-
-    --tooltip:AddLine(FormatStats(STAT_CRITICAL_STRIKE, 12));
-    --tooltip:AddLine(FormatStats(STAT_HASTE, 6));
-    --tooltip:AddLine(FormatStats(STAT_MASTERY, 3));
-    tooltip:AddDoubleLine(STAT_CRITICAL_STRIKE, 12, 1, 0.82, 0, 1, 1, 1);
-    tooltip:AddDoubleLine(STAT_HASTE, 6, 1, 0.82, 0, 1, 1, 1);
-    tooltip:AddDoubleLine(STAT_MASTERY, 3, 1, 0.82, 0, 1, 1, 1);
-    tooltip:AddLine(" ");
+    tooltip:AddLine((AUCTION_CATEGORY_GEMS or "Gems")..":", 0.5, 0.5, 0.5, true);
 
     local dataProvider = Gemma:GetDataProviderByName("Pandaria");
     local activeGems = dataProvider:GetActiveGems();
 
     if activeGems then
-        for i, itemID in ipairs(activeGems) do
+        local anyStats = false;
+        local statData;
+        for i = 1, 8 do
+            statData = activeGems.stats[i];
+            if statData then
+                anyStats = true;
+                tooltip:AddLine(FormatStats(statData[2], statData[1]));
+            end
+        end
+
+        if anyStats then
+            tooltip:AddLine(" ");
+        end
+
+        for i, itemID in ipairs(activeGems.traits) do
             local icon = GetItemIcon(itemID);
             local name = ItemCache:GetItemName(itemID, self);
             local quality = ItemCache:GetItemQuality(itemID, self);

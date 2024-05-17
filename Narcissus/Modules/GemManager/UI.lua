@@ -1,227 +1,281 @@
 local _, addon = ...
+local CallbackRegistry = addon.CallbackRegistry;
 local Gemma = addon.Gemma;
 local AtlasUtil = Gemma.AtlasUtil;
 local ItemCache = Gemma.ItemCache;
-local GetActionButton = Gemma.GetActionButton;
+local AcquireActionButton = Gemma.AcquireActionButton;
 local DoesItemExistByID = addon.DoesItemExistByID;
 local GetItemIcon = C_Item.GetItemIconByID;
 local GetItemQualityColor = NarciAPI.GetItemQualityColor;
 local InCombatLockdown = InCombatLockdown;
+local GetSpellCooldown = GetSpellCooldown;
 local C_TooltipInfo = C_TooltipInfo;
 local FadeFrame = NarciFadeUI.Fade;
 local L = Narci.L;
+
 
 local CreateFrame = CreateFrame;
 local Mixin = Mixin;
 local GameTooltip = GameTooltip;
 
 local PATH = "Interface/AddOns/Narcissus/Art/Modules/GemManager/";
-local TRAIT_BUTTON_SIZE = 40;     --Blizzard Talents
+local TRAIT_BUTTON_SIZE = 38;     --40 Blizzard Talents
 local FRAME_PADDING = 8;
 local TAB_BUTTON_HEIGHT = 32;
 local FRAME_WIDTH, FRAME_HEIGHT = 338, 424;
 local FONT_FILE = GameFontNormal:GetFont();
-
-local HEADER_HEIGHT = TAB_BUTTON_HEIGHT + FRAME_PADDING;
-
-local MainFrame, TooltipFrame, SlotHighlight, PointsDisplay, GemList, ListHighlight, ProgressBar, Spinner
-
-
-local IS_TRAIT_ACTIVE = {}; --debug
-
-local Mixin_TraitButton = {};
-
-function Mixin_TraitButton:SetItem(itemID)
-    self.itemID = itemID;
-    self.Icon:SetTexture(GetItemIcon(itemID));
-    self.Icon:SetTexCoord(0.075, 0.925, 0.075, 0.925);
-
-    local name = ItemCache:GetItemName(itemID, self);
-
-    IS_TRAIT_ACTIVE[self.index] = true;
-end
-
-function Mixin_TraitButton:OnItemLoaded(itemID)
-    if itemID == self.itemID then
-        self:SetItem(itemID);
-    end
-end
-
-function Mixin_TraitButton:ClearItem()
-    self.itemID = nil;
-    self:SetEmpty();
-end
-
-function Mixin_TraitButton:SetShape(shape)
-    self.IconMask:SetTexture(PATH.."IconMask-"..shape, "CLAMPTOBLACKADDITIVE", "CLAMPTOBLACKADDITIVE");
-end
-
-function Mixin_TraitButton:ShowGameTooltip()
-    if self.itemID then
-        GameTooltip:SetOwner(self, "ANCHOR_RIGHT");
-        local spellID = Gemma:GetGemSpell(self.itemID);
-        if spellID then
-            GameTooltip:SetSpellByID(spellID);
-        else
-            GameTooltip:SetItemByID(self.itemID)
-        end
-
-        local insertMode = true;
-
-        if insertMode then
-            GameTooltip:AddLine(" ");
-            if InCombatLockdown() then
-                GameTooltip:AddLine(CANNOT_UNEQUIP_COMBAT, 1, 0, 0, true);
-            else
-                GameTooltip:AddLine(L["Gemma Click To Insert"], 0.098, 1, 0.098, true);
-            end
-            GameTooltip:Show();
-        else
-            local canRemove, requirementMet = Gemma:IsGemRemovable(self.itemID);
-            if canRemove then
-                GameTooltip:AddLine(" ");
-                if InCombatLockdown() then
-                    GameTooltip:AddLine(CANNOT_UNEQUIP_COMBAT, 1, 0, 0, true);
-                else
-                    if requirementMet then
-                        GameTooltip:AddLine(L["Gem Removal Instruction"], 0.5, 0.5, 0.5, true); --L["Click To Activate"]
-                    else
-                        GameTooltip:AddLine(L["Gem Removal No Tool"], 0.5, 0.5, 0.5, true);
-                    end
-                end
-    
-                GameTooltip:Show();
-            end
-        end
-
-
-        SharedTooltip_SetBackdropStyle(GameTooltip, nil, true);
-
-
-        local background = TooltipFrame.GameTooltipBackground;
-
-        if not background then
-            background = CreateFrame("Frame", nil, TooltipFrame);
-            TooltipFrame.GameTooltipBackground = background;
-            NarciAPI.NineSliceUtil.SetUpBorder(background, "classTalentTraitTransparent");
-
-            background:SetScript("OnHide", function()
-                background:Hide();
-                background:ClearAllPoints();
-            end);
-        end
-
-        local offset = 2;
-
-        background:ClearAllPoints();
-        background:SetPoint("TOPLEFT", GameTooltip, "TOPLEFT", -offset, offset);
-        background:SetPoint("BOTTOMRIGHT", GameTooltip, "BOTTOMRIGHT", offset, -offset);
-        background:Show();
-        TooltipFrame:Show();
-        TooltipFrame:ClearLines();
-    end
-end
-
-function Mixin_TraitButton:ShowCustomTooltip()
-    TooltipFrame:SetItemByID(self.itemID);
-end
+local ACTIONBLOCKER_DURATION = 0.8;
 
 local TOOLTIP_METHOD = "ShowGameTooltip";
+local MainFrame, TooltipFrame, SlotHighlight, PointsDisplay, GemList, ListHighlight, ProgressBar, Spinner, MouseOverFrame;
 
-function Mixin_TraitButton:OnEnter(motion)
-    SlotHighlight:HighlightSlot(self);
 
-    self[TOOLTIP_METHOD](self);
 
-    if motion then
-        local ActionButton = GetActionButton(self);
-        if ActionButton then
-            ActionButton:SetAction_RemoveTinker();  --SetAction_RemoveTinker   SetAction_RemovePrimordialStone
+
+local function GetColorByIndex(colorIndex)
+    local r, g, b;
+    if colorIndex == 0 then
+        r, g, b = 0.5, 0.5, 0.5;
+    elseif colorIndex == 1 then
+        r, g, b = 1, 0.82, 0;
+    elseif colorIndex == 2 then
+        r, g, b = 0.098, 1.000, 0.098;
+    elseif colorIndex == 3 then
+        r, g, b = 1.000, 0.125, 0.125;
+    else
+        r, g, b = 0.88, 0.88, 0.88;
+    end
+    return r, g, b
+end
+
+
+
+
+local Mixin_TraitButton = {};
+do
+    --traitState:
+    --nil: Empty (Grey, no icon)
+    --  0: Uncollected  (Grey)
+    --  1: Inactive (Dark Yellow)
+    --  2: Active (Yellow)
+    --  3: Available (Green, click to activate)
+    --  4: Empty but Selectable (Click to show gem list)
+
+    function Mixin_TraitButton:SetItem(itemID)
+        self.itemID = itemID;
+        self.iconFile = GetItemIcon(itemID);
+        self.Icon:SetTexture(self.iconFile);
+        self.Icon:SetTexCoord(0.075, 0.925, 0.075, 0.925);
+    end
+
+    function Mixin_TraitButton:OnItemLoaded(itemID)
+        if itemID == self.itemID then
+            self:SetItem(itemID);
         end
     end
-end
 
-function Mixin_TraitButton:OnLeave(motion, fromActionButton)
-    if (not fromActionButton) and self:IsMouseOver() then return end;
+    function Mixin_TraitButton:ClearItem()
+        self.itemID = nil;
+        self.iconFile = nil;
+        self.traitState = nil;
+        self:SetBorderByState("inactive");
+        self:SetIconEmpty();
+    end
 
-    SlotHighlight:HighlightSlot(nil);
-    MainFrame:HideTooltip();
-end
+    function Mixin_TraitButton:SetShape(shape)
+        self.IconMask:SetTexture(PATH.."IconMask-"..shape, "CLAMPTOBLACKADDITIVE", "CLAMPTOBLACKADDITIVE");
+    end
 
-function Mixin_TraitButton:SetActive()
-    self.Icon:SetVertexColor(1, 1, 1);
-    self.Icon:SetDesaturation(0);
-    self:SetBorderByState("active");
-end
+    function Mixin_TraitButton:ShowGameTooltip()
+        if self.itemID then
+            GameTooltip:SetOwner(self, "ANCHOR_RIGHT");
+            local itemID = self.itemID;
+            local spellID = Gemma:GetGemSpell(itemID);
+            if spellID then
+                GameTooltip:SetSpellByID(spellID);
+            else
+                GameTooltip:SetItemByID(itemID);
+            end
 
-function Mixin_TraitButton:SetInactive()
-    self.Icon:SetVertexColor(0.67, 0.67, 0.67);
-    self.Icon:SetDesaturation(1);
-    self:SetBorderByState("inactive");
-end
+            local statusText;
+            local actionText;
+            local colorIndex;   --0:Grey, 1:Yellow, 2:Green, 3:Red
+            local traitState = self.traitState;
 
-function Mixin_TraitButton:SetUncollected()
-    self.Icon:SetVertexColor(0.33, 0.33, 0.33);
-    self.Icon:SetDesaturation(1);
-    self:SetBorderByState("inactive");
-end
+            if traitState == 0 then
+                statusText = L["Gem Uncollected"];
+                colorIndex = 0;
+            elseif traitState == 1 then
+    
+            elseif traitState == 2 then
+                if InCombatLockdown() then
+                    actionText = L["Gem Removal Combat"];
+                    colorIndex = 3;
+                else
+                    if Gemma:DoesBagHaveFreeSlot() then
+                        if not self.isGemListButton then
+                            --Right-clicking on a GemListButton closes gem list
+                            actionText = L["Gem Removal Instruction"];
+                            colorIndex = 1;
+                        end
+                    else
+                        actionText = L["Gem Removal Bag Full"];
+                        colorIndex = 3;
+                    end
+                end
+            elseif traitState == 3 then
+                if InCombatLockdown() then
+                    actionText = L["Gem Removal Combat"];
+                    colorIndex = 3;
+                else
+                    if Gemma:DoesBagHaveFreeSlot() then
+                        if self.isGemListButton and (not Gemma:CanSwapGemInOneStep(itemID)) then
+                            actionText = L["Gemma Click Twice To Insert"];
+                            colorIndex = 2;
+                        else
+                            actionText = L["Gemma Click To Insert"];
+                            colorIndex = 2;
+                        end
+                    else
+                        actionText = L["Gem Removal Bag Full"];
+                        colorIndex = 3;
+                    end
+                end
+            end
 
-function Mixin_TraitButton:SetAvailable()
-    self.Icon:SetVertexColor(1, 1, 1);
-    self.Icon:SetDesaturation(0);
-    self:SetBorderByState("available");
-end
+            if statusText then
+                GameTooltip:AddLine(" ");
+                local r, g, b= GetColorByIndex(colorIndex);
+                GameTooltip:AddLine(statusText, r, g, b, true);
+                GameTooltip:Show();
+            end
 
-function Mixin_TraitButton:SetDimmed()
-    self.Border:SetTexCoord(192/1024, 288/1024, 0/1024, 96/1024);
-    self.Icon:SetVertexColor(120/255, 90/255, 0/255);
-    self.Icon:SetDesaturation(1);
-    self:SetBorderByState("dimmed")
-end
+            if actionText then
+                GameTooltip:AddLine(" ");
+                local r, g, b= GetColorByIndex(colorIndex);
+                GameTooltip:AddLine(actionText, r, g, b, true);
+                GameTooltip:Show();
+            end
 
-function Mixin_TraitButton:SetEmpty()
-    self.Icon:SetVertexColor(1, 1, 1);
-    self.Icon:SetDesaturation(0);
-    self.Icon:SetTexture(PATH.."Gem-Empty");
-    self.Icon:SetTexCoord(0.075, 0.925, 0.075, 0.925);
-    self:SetBorderByState("inactive");
-end
+            TooltipFrame:ShowGameTooltipBackground();
 
-function Mixin_TraitButton:OnClick(button)
-    if button == "LeftButton" then
-        if MainFrame.chooseTrait then
-            IS_TRAIT_ACTIVE[self.index] = true;
-            MainFrame:SetModeChooseTrait(false);
+            local dataInstanceID = (GameTooltip.infoList) and (GameTooltip.infoList[1]) and (GameTooltip.infoList[1].tooltipData) and (GameTooltip.infoList[1].tooltipData.dataInstanceID);
+            TooltipFrame:SetGameTooltipOwner(self, dataInstanceID);
+        elseif self.tooltipFunc then
+            TooltipFrame.gametooltipDataInstanceID = nil;
+            GameTooltip:SetOwner(self, "ANCHOR_RIGHT");
+            if self.tooltipFunc(GameTooltip) then
+                TooltipFrame:ShowGameTooltipBackground();
+            else
+                GameTooltip:Hide();
+            end
+        end
+    end
+
+    function Mixin_TraitButton:ShowCustomTooltip()
+        TooltipFrame.owner = self;
+        TooltipFrame:SetItemByID(self.itemID);
+    end
+
+    function Mixin_TraitButton:OnEnter(motion, fromActionButton)
+        SlotHighlight:HighlightSlot(self);
+        MainFrame:SetFocusedButton(self);
+    end
+
+    function Mixin_TraitButton:OnLeave(motion, fromActionButton)
+        if (not fromActionButton) and (self:IsShown() and self:IsMouseOver()) then return end;
+
+        SlotHighlight:HighlightSlot(nil);
+        MainFrame:HideTooltip();
+        MainFrame:SetFocusedButton(nil);
+    end
+
+    function Mixin_TraitButton:SetActive()
+        if self.traitState == 3 or self.traitState == 4 then
             MainFrame:ShineSlot(self);
+        end
+        self.traitState = 2;
+        self.Icon:SetVertexColor(1, 1, 1);
+        self.Icon:SetDesaturation(0);
+        self:SetBorderByState("active");
+    end
+
+    function Mixin_TraitButton:SetInactive()
+        self.traitState = 1;
+        self.Icon:SetTexture(self.iconFile);
+        self.Icon:SetVertexColor(0.8, 0.8, 0.8);
+        self.Icon:SetDesaturation(1);
+        self:SetBorderByState("inactive");
+    end
+
+    function Mixin_TraitButton:SetUncollected()
+        self.traitState = 0;
+        self:SetBorderByState("inactive");
+        self:SetIconEmpty();  --debug
+        --self.Icon:SetTexture(self.iconFile);
+        --self.Icon:SetVertexColor(0.8, 0.8, 0.8);
+        --self.Icon:SetDesaturation(1);
+    end
+
+    function Mixin_TraitButton:SetAvailable()
+        self.traitState = 3;
+        self.Icon:SetTexture(self.iconFile);
+        self.Icon:SetVertexColor(1, 1, 1);
+        self.Icon:SetDesaturation(0);
+        self:SetBorderByState("available");
+    end
+
+    function Mixin_TraitButton:SetSelectable()
+        self.traitState = 4;
+        self:SetIconEmpty();
+        self:SetBorderByState("available");
+    end
+
+    function Mixin_TraitButton:SetDimmed()
+        if self.traitState == 3 then
+            MainFrame:ShineSlot(self);
+        end
+        self.traitState = 2;
+        self.Icon:SetTexture(self.iconFile);
+        self.Icon:SetVertexColor(167/255, 154/255, 96/255);
+        --self.Icon:SetVertexColor(1, 1, 1);
+        self.Icon:SetDesaturation(1);
+        self:SetBorderByState("dimmed")
+    end
+
+    function Mixin_TraitButton:SetIconEmpty()
+        self.Icon:SetVertexColor(1, 1, 1);
+        self.Icon:SetDesaturation(0);
+        self.Icon:SetTexture(PATH.."Gem-Empty");
+    end
+
+    function Mixin_TraitButton:OnClick(button)
+        if self.onClickFunc and self.onClickFunc(button) then
             return
         end
 
-        IS_TRAIT_ACTIVE[self.index] = not IS_TRAIT_ACTIVE[self.index];
-        if IS_TRAIT_ACTIVE[self.index] then
-            self:SetActive();
-        else
-            self:SetInactive();
+        if button == "LeftButton" then
+
+        elseif button == "RightButton" then
+
         end
-    elseif button == "RightButton" then
-        IS_TRAIT_ACTIVE[self.index] = false;
-        MainFrame:SetModeChooseTrait(true);
     end
-end
 
-function Mixin_TraitButton:SetButtonSize(buttonSize, iconSize)
-    --For unique sized buttons
-    self:SetSize(buttonSize, buttonSize);
-    self.Icon:SetSize(iconSize, iconSize);
-end
+    function Mixin_TraitButton:SetButtonSize(buttonSize, iconSize)
+        --For unique sized buttons
+        self:SetSize(buttonSize, buttonSize);
+        self.Icon:SetSize(iconSize, iconSize);
+    end
 
-function Mixin_TraitButton:ResetButtonSize()
-    self:SetSize(TRAIT_BUTTON_SIZE, TRAIT_BUTTON_SIZE);
-    self.Icon:SetSize(38, 38);
-end
+    function Mixin_TraitButton:ResetButtonSize()
+        self:SetSize(TRAIT_BUTTON_SIZE, TRAIT_BUTTON_SIZE);
+        self.Icon:SetSize(30, 30);  --38
+    end
 
-function Mixin_TraitButton:SetBorderByState(state)
-    if self.borderTextures then
-        AtlasUtil:SetAtlas(self.Border, self.borderTextures[state]);
+    function Mixin_TraitButton:SetBorderByState(state)
+        if self.borderTextures then
+            AtlasUtil:SetAtlas(self.Border, self.borderTextures[state]);
+        end
     end
 end
 
@@ -244,14 +298,45 @@ local function CreateTraitButton(parent, shape)
 end
 
 
+
+
 local Mixin_TooltipFrame = {};
 do
     local gusb = string.gsub;
-    local ON_EQUIP = "^".. (ITEM_SPELL_TRIGGER_ONEQUIP or "Equip:");
+    local ON_EQUIP = "^".. (ITEM_SPELL_TRIGGER_ONEQUIP or "Equip:").."%s?";
 
     function Mixin_TooltipFrame:RemoveOnEquipText(text)
         return gusb(text, ON_EQUIP, "");
     end
+
+    function Mixin_TooltipFrame:ShowGameTooltipBackground()
+        SharedTooltip_SetBackdropStyle(GameTooltip, nil, true);
+
+        local background = self.GameTooltipBackground;
+
+        if not background then
+            background = CreateFrame("Frame", nil, self);
+            self.GameTooltipBackground = background;
+            NarciAPI.NineSliceUtil.SetUpBorder(background, "classTalentTraitTransparent");
+
+            background:SetScript("OnHide", function()
+                background:Hide();
+                background:ClearAllPoints();
+            end);
+
+            background:SetIgnoreParentAlpha(true);
+        end
+
+        local offset = 2;
+
+        background:ClearAllPoints();
+        background:SetPoint("TOPLEFT", GameTooltip, "TOPLEFT", -offset, offset);
+        background:SetPoint("BOTTOMRIGHT", GameTooltip, "BOTTOMRIGHT", offset, -offset);
+        background:Show();
+        self:Show();
+        self:ClearLines();
+    end
+
 
     function Mixin_TooltipFrame:ProcessTooltipInfo()
         local title, titleColor;
@@ -272,10 +357,10 @@ do
             end
         end
 
-        local showFrame;
+        local showBG;
 
         if title and title ~= "" then
-            showFrame = true;
+            showBG = true;
             local r, g, b;
             if titleColor then
                 r, g, b = titleColor:GetRGB();
@@ -289,18 +374,66 @@ do
             desc = self:RemoveOnEquipText(desc);
         end
 
+
+        local statusText;
+        local actionText;
+        local colorIndex;   --0:Grey, 1:Yellow, 2:Green, 3:Red
+        local traitState = self.owner.traitState;
+
+        if traitState == 0 then
+            statusText = L["Gem Uncollected"];
+            colorIndex = 0;
+        elseif traitState == 1 then
+
+        elseif traitState == 2 then
+            if InCombatLockdown() then
+                actionText = L["Gem Removal Combat"];
+                colorIndex = 3;
+            else
+                if Gemma:DoesBagHaveFreeSlot() then
+                    actionText = L["Gem Removal Instruction"];
+                    colorIndex = 1;
+                else
+                    actionText = L["Gem Removal Bag Full"];
+                    colorIndex = 3;
+                end
+            end
+        elseif traitState == 3 then
+            if InCombatLockdown() then
+                actionText = L["Gem Removal Combat"];
+                colorIndex = 3;
+            else
+                actionText = L["Gemma Click To Insert"];
+                colorIndex = 2;
+            end
+        end
+
         self.Header:SetText(title);
         self.Text1:SetText(desc);
         self.Text1:SetTextColor(0.88, 0.88, 0.88);
 
-        if showFrame then
-            local textHeight = self.Header:GetHeight() + self.Text1:GetHeight() + 10;
+        local text2Height;
+
+        if desc and (actionText or statusText) then
+            self.Text2:SetText(actionText or statusText);
+            text2Height = self.Text2:GetHeight() + 20;
+            local r, g, b= GetColorByIndex(colorIndex);
+            self.Text2:SetTextColor(r, g, b);
+        else
+            self.Text2:SetText(nil);
+            text2Height = 0;
+        end
+
+        if showBG then
+            local textHeight = self.Header:GetHeight() + self.Text1:GetHeight() + text2Height + 10;
             local textWidth = math.max(self.Header:GetWrappedWidth(), self.Text1:GetWrappedWidth());
-            self.Background:SetSize(textWidth + 32, textHeight + 32);
+            self.Background:SetSize(textWidth + 96, textHeight + 32);
             self.Background:Show();
         else
             self.Background:Hide();
         end
+
+        FadeFrame(TooltipFrame, 0.15, 1);
     end
 
     function Mixin_TooltipFrame:SetItemByID(itemID)
@@ -318,9 +451,9 @@ do
     end
 
     function Mixin_TooltipFrame:ClearLines()
-        self.dataInstanceID = nil;
         self.Header:SetText(nil);
         self.Text1:SetText(nil);
+        self.Text2:SetText(nil);
         self.Background:Hide();
     end
 
@@ -332,19 +465,32 @@ do
         self.descLineIndex = lineIndex;
     end
 
+    function Mixin_TooltipFrame:SetGameTooltipOwner(slotButton, gametooltipDataInstanceID)
+        self.gametooltipOwner = slotButton;
+        self.gametooltipDataInstanceID = gametooltipDataInstanceID;
+    end
+
     function Mixin_TooltipFrame:OnShow()
         self:RegisterEvent("TOOLTIP_DATA_UPDATE");
     end
 
     function Mixin_TooltipFrame:OnHide()
+        self.dataInstanceID = nil;
+        self.gametooltipDataInstanceID = nil;
         self:UnregisterEvent("TOOLTIP_DATA_UPDATE");
     end
 
     function Mixin_TooltipFrame:OnEvent(event, ...)
         if event == "TOOLTIP_DATA_UPDATE" then
             local dataInstanceID = ...
-            if dataInstanceID and dataInstanceID == self.dataInstanceID then
-                self:UpdateTooltipInfo();
+            if dataInstanceID then
+                if dataInstanceID == self.dataInstanceID then
+                    self:UpdateTooltipInfo();
+                elseif dataInstanceID == self.gametooltipDataInstanceID then
+                    if self.gametooltipOwner and self.gametooltipOwner:IsShown() and self.gametooltipOwner:IsMouseOver() then
+                        self.gametooltipOwner:ShowGameTooltip();
+                    end
+                end
             end
         end
     end
@@ -354,6 +500,7 @@ do
         self:SetHeight(80);
         self.Header:SetWidth(width);
         self.Text1:SetWidth(width);
+        self.Text2:SetWidth(width);
     end
 
     function Mixin_TooltipFrame:OnLoad()
@@ -364,31 +511,56 @@ do
 
         AtlasUtil:SetAtlas(self.Background, "remix-ui-tooltip-bg");
         --self.Background:SetColorTexture(0, 0, 0, 0.5);
+
+        local flag = "OUTLINE";
+        self.Header:SetFont(FONT_FILE, 14, flag);
+        self.Text1:SetFont(FONT_FILE, 12, flag);
+        self.Text2:SetFont(FONT_FILE, 12, flag);
     end
 end
+
+
 
 
 local Mixin_SlotHighlight = {};
 do
     local HIGHLIGHT_TEXTURE = {
         Hexagon = {
-            atlas = "remix-hexagon-highlight",
-            alphaMode = "ADD",
-            alpha = 0.5;
+            Normal = {
+                atlas = "remix-hexagon-highlight",
+                alphaMode = "ADD",
+                alpha = 0.8,
+            },
+
+            Dashed = {
+                atlas = "remix-hexagon-dashedhighlight",
+                alphaMode = "ADD",
+                alpha = 0.8,
+            },
         },
-    
+
         BigSquare = {
-            atlas = "remix-bigsquare-highlight",
-            alphaMode = "ADD",
-            alpha = 0.5;
+            Normal = {
+                atlas = "remix-bigsquare-highlight",
+                alphaMode = "ADD",
+                alpha = 0.5,
+            },
+
+            Dashed = {
+                atlas = "remix-bigsquare-dashedhighlight",
+                alphaMode = "ADD",
+                alpha = 0.67,
+            },
         },
     };
 
     function Mixin_SlotHighlight:SetShape(shape)
         local data = HIGHLIGHT_TEXTURE[shape];
-        AtlasUtil:SetAtlas(self.Texture, data.atlas);
-        self.Texture:SetBlendMode(data.alphaMode);
-        self:SetAlpha(data.alpha);
+        self.data = data;
+        AtlasUtil:SetAtlas(self.Texture, data.Normal.atlas);
+        self.Texture:SetBlendMode(data.Normal.alphaMode);
+        self:SetAlpha(data.Normal.alpha);
+        self.isDashed = false;
     end
 
     function Mixin_SlotHighlight:HighlightSlot(slot)
@@ -397,11 +569,33 @@ do
             self:Show();
             self:SetParent(slot);
             self:SetPoint("CENTER", slot, "CENTER", 0, 0);
+
+            local newStyle;
+
+            if slot.traitState == 3 or slot.traitState == 4 then
+                if not self.isDashed then
+                    self.isDashed = true;
+                    newStyle = self.data.Dashed;
+                end
+            else
+                if self.isDashed then
+                    self.isDashed = false;
+                    newStyle = self.data.Normal;
+                end
+            end
+
+            if newStyle then
+                AtlasUtil:SetAtlas(self.Texture, newStyle.atlas);
+                self.Texture:SetBlendMode(newStyle.alphaMode);
+                self:SetAlpha(newStyle.alpha);
+            end
         else
             self:Hide();
         end
     end
 end
+
+
 
 
 local Mixin_TabButton = {}
@@ -418,6 +612,7 @@ do
         dot:SetTexture(PATH.."GreenDot", nil, nil, "TRILINEAR");
         dot:SetTexelSnappingBias(0);
         dot:SetSnapToPixelGrid(false);
+        dot:Hide();
 
         local flag = "OUTLINE";
         self.Name:SetFont(FONT_FILE, 14, flag);
@@ -463,6 +658,8 @@ do
 end
 
 
+
+
 local Mixin_PointsDisplay = {};
 do
     local NUMBER_SIZE = 28;
@@ -495,6 +692,7 @@ do
         self.Amount:SetTextColor(0, 1, 0);
     end
 end
+
 
 local CreateIconButton;
 do
@@ -538,23 +736,174 @@ do
     end
 end
 
+
+
+
+local Mixin_MouseOverFrame = {};
+do  --Attribute Assignment
+    --See StatAssignment.lua for StatButton methods
+    local MinusPlusButtonMixin = {};
+
+    function MinusPlusButtonMixin:OnClick()
+        MainFrame:ShowActionBlocker();
+    end
+
+    function MinusPlusButtonMixin:OnMouseDown()
+        self.Icon:SetPoint("CENTER", self, "CENTER", 0, -1);
+    end
+
+    function MinusPlusButtonMixin:OnMouseUp()
+        self.Icon:SetPoint("CENTER", self, "CENTER", 0, 0);
+    end
+
+    function MinusPlusButtonMixin:OnEnter(motion, fromActionButton)
+        self.owner:HighlightButton(self);
+        if fromActionButton then return end;
+
+        local itemID = Gemma:GetBestStatGemForAction(self.owner.statType, self.direction);
+        if itemID then
+            local ActionButton = AcquireActionButton(self);
+            if ActionButton then
+                if self.direction < 0 then
+                    ActionButton:SetAction_RemovePandariaPrimaryGem(itemID);
+                else
+                    ActionButton:SetAction_InsertPandariaPrimaryGem(itemID);
+                end
+            end
+        end
+    end
+
+    function MinusPlusButtonMixin:OnLeave(motion, fromActionButton)
+        --if (not fromActionButton) and (self:IsShown() and self:IsMouseOver()) then return end;
+        if (not fromActionButton) and (self:IsShown() and self:IsMouseOver()) then return end;
+
+        self.owner:HighlightButton(nil);
+    end
+
+    local function CreateMinusPlusButton(parent, direction)
+        local button = CreateFrame("Button", nil, parent);
+        button:SetSize(36, 24); --25
+
+        button.Icon = button:CreateTexture(nil, "OVERLAY");
+        button.Icon:SetSize(14, 14);
+        button.Icon:SetPoint("CENTER", button, "CENTER", 0, 0);
+        button.direction = direction;
+        if direction < 0 then
+            AtlasUtil:SetAtlas(button.Icon, "gemma-stats-mouseover-minus");
+        else
+            AtlasUtil:SetAtlas(button.Icon, "gemma-stats-mouseover-plus");
+        end
+
+        Mixin(button, MinusPlusButtonMixin);
+        button:SetScript("OnClick", button.OnClick);
+        button:SetScript("OnMouseDown", button.OnMouseDown);
+        button:SetScript("OnMouseUp", button.OnMouseUp);
+        button:SetScript("OnEnter", button.OnEnter);
+        button:SetScript("OnLeave", button.OnLeave);
+
+        button.owner = parent;
+
+        return button
+    end
+
+    function Mixin_MouseOverFrame:OnLoad()
+        self:SetHeight(24);
+        AtlasUtil:SetAtlas(self.Background, "gemma-stats-mouseover-bg");
+        AtlasUtil:SetAtlas(self.Highlight, "gemma-stats-mouseover-buttonhighlight");
+        self:SetScript("OnHide", self.OnHide);
+
+        if not self.MinusButton then
+            self.MinusButton = CreateMinusPlusButton(self, -1);
+            self.MinusButton:SetPoint("CENTER", self.Count, "LEFT", -12, 0);
+        end
+
+        if not self.PlusButton then
+            self.PlusButton = CreateMinusPlusButton(self, 1);
+            self.PlusButton:SetPoint("CENTER", self.Count, "RIGHT", 12, 0);
+        end
+
+        self.Count:SetFont(FONT_FILE, 16, "");
+        self.Count:SetTextColor(0, 0, 0);
+    end
+
+    function Mixin_MouseOverFrame:OnLeave()
+
+    end
+
+    function Mixin_MouseOverFrame:OnHide()
+        self:Hide();
+        self:HighlightButton(nil);
+    end
+
+    function Mixin_MouseOverFrame:HighlightButton(minusplusButton)
+        self.Highlight:ClearAllPoints();
+        if minusplusButton then
+            self.Highlight:SetPoint("CENTER", minusplusButton, "CENTER", 0, 0);
+            self.Highlight:Show();
+            --FadeFrame(self.Highlight, 0.15, 1, 0);
+        else
+            self.Highlight:Hide();
+
+            if (self.statButton and self.statButton:IsMouseOver()) and (not MainFrame.ActionBlocker:IsShown()) then
+                
+            else
+                self:ShowStatAssignmentDetail(nil);
+            end
+        end
+    end
+
+    function Mixin_MouseOverFrame:ShowStatAssignmentDetail(statButton)
+        self:ClearAllPoints();
+        self.statButton = statButton;
+
+        if statButton then
+            self:SetPoint("CENTER", statButton, "CENTER", 0, 0);
+            self.MinusButton:SetShown(statButton.showMinusButton);
+            self.PlusButton:SetShown(statButton.showPlusButton);
+            self.statType = statButton.index;
+            self:Show();
+            FadeFrame(self, 0.15, 1);
+        else
+            self.statType = nil;
+            --self:Hide();
+            FadeFrame(self, 0.15, 0);
+            return
+        end
+
+        self.Count:SetText(statButton.Count:GetText());
+    end
+end
+
+
+
+
 local Mixin_GemList = {};
 do
     local ITEMS_PER_PAGE = 8;
     local LISTBUTTON_HEIGHT = 44;
     local FROM_Y = -40 -4;
 
-    local Mixin_ListButton = {};
+    local ItemDataProvider;
 
-    function Mixin_ListButton:OnLoad()
+    local Mixin_GemListButton = {};
+
+    function Mixin_GemListButton:OnLoad()
         self:SetScript("OnEnter", self.OnEnter);
         self:SetScript("OnLeave", self.OnLeave);
         self:SetScript("OnClick", self.OnClick);
 
         self.Text1:SetFont(FONT_FILE, 14, "OUTLINE");
+
+        local delay = self.index * 0.05;
+        self.AnimFlyIn.Delay1:SetStartDelay(delay);
+        self.AnimFlyIn.Delay2:SetStartDelay(delay);
+        self.AnimFlyIn.Delay3:SetStartDelay(delay);
+        self.AnimFlyIn.Delay4:SetStartDelay(delay);
+
+        self.isGemListButton = true;
     end
 
-    function Mixin_ListButton:OnClick(button)
+    function Mixin_GemListButton:OnClick(button)
         if button == "RightButton" then
             MainFrame:CloseGemList();
             return
@@ -565,48 +914,78 @@ do
         end
     end
 
-    function Mixin_ListButton:OnEnter()
+    function Mixin_GemListButton:OnEnter()
         ListHighlight:ClearAllPoints();
         ListHighlight:SetPoint("TOPLEFT", self, "TOPLEFT", 0, 0);
         ListHighlight:SetPoint("BOTTOMRIGHT", self, "BOTTOMRIGHT", 0, 0);
         ListHighlight:Show();
 
-        Mixin_TraitButton.ShowGameTooltip(self);
+        --Mixin_TraitButton.ShowGameTooltip(self);
+
+        MainFrame:SetFocusedButton(self);
     end
 
-    function Mixin_ListButton:OnLeave()
+    function Mixin_GemListButton:OnLeave(motion, fromActionButton)
+        if (not fromActionButton) and (self:IsShown() and self:IsMouseOver()) then return end;
         ListHighlight:Hide();
         MainFrame:HideTooltip();
+        MainFrame:SetFocusedButton(nil);
     end
 
-    function Mixin_ListButton:SetItem(itemID)
+    function Mixin_GemListButton:SetItem(itemID)
         self.itemID = itemID;
         self.Icon:SetTexture(GetItemIcon(itemID));
         self.Icon:SetTexCoord(0.075, 0.925, 0.075, 0.925);
-    
+
         local name = ItemCache:GetItemName(itemID, self);
         self.Text1:SetText(name);
 
         local quality = ItemCache:GetItemQuality(itemID, self);
         local r, g, b = GetItemQualityColor(quality);
+
+        if (not ItemDataProvider) or ItemDataProvider:IsGemCollected(itemID) then
+            self.Icon:SetDesaturation(0);
+            self.Icon:SetVertexColor(1, 1, 1);
+            self.traitState = 3;
+        else
+            self.Icon:SetDesaturation(1);
+            self.Icon:SetVertexColor(0.8, 0.8, 0.8);
+            r, g, b = 0.5, 0.5, 0.5;
+            self.traitState = 0;
+        end
+
         self.Text1:SetTextColor(r, g, b);
     end
 
-    function Mixin_ListButton:OnItemLoaded(itemID)
+    function Mixin_GemListButton:OnItemLoaded(itemID)
         if itemID == self.itemID then
             self:SetItem(itemID);
         end
     end
 
-    function Mixin_ListButton:ClearItem()
+    function Mixin_GemListButton:ClearItem()
         self.itemID = nil;
         self:Hide();
     end
 
+    function Mixin_GemListButton:PlayFlyInAnimation()
+        self.AnimFlyIn:Stop();
+        if self:IsShown() then
+            self.AnimFlyIn:Play();
+        end
+    end
+
+    function Mixin_GemListButton:ShowGameTooltip()
+        Mixin_TraitButton.ShowGameTooltip(self);
+    end
+
+
+
+
     function Mixin_GemList:OnLoad()
         local height = 24;
         self.listButtons = {};
-        
+
         local PageText = self:CreateFontString(nil, "OVERLAY", "GameFontNormal");
         self.PageText = PageText;
         PageText:SetWidth(72);
@@ -651,6 +1030,8 @@ do
         button3:SetScript("OnClick", function()
             MainFrame:CloseGemList();
         end);
+
+        AtlasUtil:SetAtlas(self.SelectionFrame.Border, "remix-square-yellow");
     end
 
     function Mixin_GemList:OnMouseDown(button)
@@ -688,23 +1069,41 @@ do
         local fromIndex = (page - 1) * ITEMS_PER_PAGE;
         local dataIndex;
         local button;
+        local itemID;
+
+        self.SelectionFrame:Hide();
+
+        MainFrame:SetFocusedButton(nil);
 
         for i = 1, ITEMS_PER_PAGE do
             dataIndex = fromIndex + i;
             button = self.listButtons[i];
+            itemID = self.itemList[dataIndex];
 
-            if self.itemList[dataIndex] then
+            if itemID then
                 if not button then
                     button = CreateFrame("Button", nil, self, "NarciGemManagerGemListButtonTemplate");
                     self.listButtons[i] = button;
-                    Mixin(button, Mixin_ListButton);
+                    Mixin(button, Mixin_GemListButton);
                     button:SetPoint("TOPLEFT", self, "TOPLEFT", 0, FROM_Y + (1 - i) * LISTBUTTON_HEIGHT);
+                    button.index = i;
                     button:OnLoad();
                 end
 
                 button:Hide();
-                button:SetItem(self.itemList[dataIndex]);
+                button:SetItem(itemID);
+                button.onClickFunc = self.onClickFunc;
                 button:Show();
+
+                if itemID == self.activeGemID then
+                    self.SelectionFrame:ClearAllPoints();
+                    self.SelectionFrame:SetPoint("CENTER", button.Icon, "CENTER", 0, 0);
+                    self.SelectionFrame:Show();
+                    self.SelectionFrame.AnimShrink:Stop();
+                    self.SelectionFrame.AnimShrink:Play();
+                    button.Text1:SetTextColor(1, 0.82, 0);
+                    button.traitState = 2;
+                end
             else
                 if button then
                     button:ClearItem();
@@ -713,19 +1112,38 @@ do
         end
     end
 
-    function Mixin_GemList:SetItemList(itemList, title)
+    function Mixin_GemList:UpdatePage()
+        if self:IsShown() and self.page then
+            self:SetPage(self.page);
+        end
+    end
+
+    function Mixin_GemList:SetItemList(itemList, title, dataProvider)
         self.Title:SetText(title);
 
         if itemList ~= self.itemList then
             self.itemList = itemList;
         else
-            return
+            if self.page then
+                self:SetPage(self.page);
+                return
+            end
+        end
+
+        ItemDataProvider = dataProvider;
+
+        local bestPage = 1;
+        for i, itemID in ipairs(itemList) do
+            if dataProvider:IsGemCollected(itemID) then
+                bestPage = math.floor((i - 1) / ITEMS_PER_PAGE) + 1;
+                break
+            end
         end
 
         local numPages = itemList and #itemList or 0;
         numPages = math.ceil(numPages / ITEMS_PER_PAGE);
         self.numPages = numPages;
-        self:SetPage(1);
+        self:SetPage(bestPage);
 
         local showNavButton = numPages > 1;
         self.PrevButton:SetShown(showNavButton);
@@ -735,7 +1153,16 @@ do
     function Mixin_GemList:Close()
         self:Hide();
     end
+
+    function Mixin_GemList:PlayFlyInAnimation()
+        for i, button in ipairs(self.listButtons) do
+            button:PlayFlyInAnimation();
+        end
+    end
 end
+
+
+
 
 local CreateProgressBar;
 do
@@ -813,7 +1240,7 @@ do
 
     function Mixin_ProgressBar:OnEvent(event, ...)
         --FAILED, INTERRUPTED fire after STOP
-        print(GetTime(), event);    --debug
+        --print(GetTime(), event);    --debug
 
         if event == "UNIT_SPELLCAST_FAILED" then
             self:ListenSpellCastEvent(false);
@@ -868,6 +1295,20 @@ do
         end
     end
 
+    function Mixin_ProgressBar:UpdateSpellCooldown(spellID)
+        local start, duration, enabled, modRate = GetSpellCooldown(spellID);
+        if enabled == 1 and start > 0 and duration > 0 then
+            local cdLeft = start + duration - GetTime();
+            self:SetCastText("");
+            self:PlayIntro();
+            self:Show();
+            self:ListenSpellCastEvent(true);
+            self:SetDuration(cdLeft);
+        else
+            self:Hide();
+        end
+    end
+
     function Mixin_ProgressBar:PlayIntro()
         self:StopAnimating();
         self.AnimIn:Play();
@@ -894,6 +1335,9 @@ do
     end
 end
 
+
+
+
 local SetupModelScene;
 do
     function SetupModelScene(self)
@@ -914,19 +1358,28 @@ do
 end
 
 
+
+
 NarciGemManagerMixin = {};
 
 function NarciGemManagerMixin:OnLoad()
     self:SetSize(FRAME_WIDTH, FRAME_HEIGHT);
-    self.HeaderFrame:SetHeight(HEADER_HEIGHT);
+    local headerHeight = TAB_BUTTON_HEIGHT + FRAME_PADDING;
+    self.HeaderFrame:SetHeight(headerHeight);
 
     Gemma.MainFrame = self;
     MainFrame = self;
     TooltipFrame = self.TooltipFrame;
     SlotHighlight = self.SlotFrame.ButtonHighlight;
     PointsDisplay = self.SlotFrame.PointsDisplay;
+    MouseOverFrame = self.SlotFrame.MouseOverFrame;
     GemList = self.GemList;
     ListHighlight = self.GemList.ButtonHighlight;
+
+    Mixin(SlotHighlight, Mixin_SlotHighlight);
+    Mixin(GemList, Mixin_GemList);
+
+    CallbackRegistry:Register("GemManager.BagScan.OnStart", MainFrame.OnBagUpdateStart, MainFrame);
 end
 
 function NarciGemManagerMixin:AnchorToPaperDollFrame()
@@ -945,24 +1398,33 @@ function NarciGemManagerMixin:OnShow()
     self:AnchorToPaperDollFrame();
 
     self:RegisterEvent("PLAYER_EQUIPMENT_CHANGED");
+
+    self:UpdateTabGreenDot();
+    self:AutoSelectBestTab();
 end
 
 function NarciGemManagerMixin:OnHide()
     self:Hide();
 
-    self:SetWatchedSpell(nil);
     self:UnregisterEvent("PLAYER_EQUIPMENT_CHANGED");
+
+    self:SetWatchedSpell(nil);
+    self:SetFocusedButton(nil);
+    self:HideTooltip();
+
     SlotHighlight:Hide();
 
     if ProgressBar then
         ProgressBar:Hide();
     end
+
+    self:CloseGemList();
 end
 
 function NarciGemManagerMixin:OnEvent(event, ...)
     if event == "UNIT_SPELLCAST_START" then
         local _, _, spellID = ...
-        print(spellID)
+        --print(spellID)
         if spellID and spellID == self.watchedSpellID then
             ProgressBar:UpdateSpellCast();
         end
@@ -970,7 +1432,7 @@ function NarciGemManagerMixin:OnEvent(event, ...)
         --Changing gem in an equipped item doesn't always trigger this
     end
 
-    print(event)
+    --print(event)
 end
 
 function NarciGemManagerMixin:SetWatchedSpell(spellID)
@@ -986,15 +1448,8 @@ function NarciGemManagerMixin:Init()
     self.Init = nil;
 
     Mixin(TooltipFrame, Mixin_TooltipFrame);
-    TooltipFrame:SetMaxWdith(FRAME_WIDTH - 48);
+    TooltipFrame:SetMaxWdith(FRAME_WIDTH - 60);
     TooltipFrame:OnLoad();
-
-    local flag = "OUTLINE";
-
-    TooltipFrame.Header:SetFont(FONT_FILE, 14, flag);
-    TooltipFrame.Text1:SetFont(FONT_FILE, 12, flag);
-
-    Mixin(SlotHighlight, Mixin_SlotHighlight);
 
     local TabButtonSelection = self.HeaderFrame.TabButtonContainer.Selection;
     TabButtonSelection:SetTexture(PATH.."TabButtonSelection");
@@ -1003,12 +1458,14 @@ function NarciGemManagerMixin:Init()
     Mixin(PointsDisplay, Mixin_PointsDisplay);
     PointsDisplay:OnLoad();
     PointsDisplay:ClearAllPoints();
-    PointsDisplay:SetPoint("TOP", self.HeaderFrame, "BOTTOM", 0, -16);
+    PointsDisplay:SetPoint("TOP", self.HeaderFrame, "BOTTOM", 0, -20);
     PointsDisplay:SetLabel("Points Available");
     PointsDisplay:SetAmount(3);
 
-    Mixin(GemList, Mixin_GemList);
     GemList:OnLoad();
+
+    Mixin(MouseOverFrame, Mixin_MouseOverFrame);
+    MouseOverFrame:OnLoad();
 
     AtlasUtil:SetAtlas(ListHighlight.Texture, "remix-listbutton-highlight");
     ListHighlight.Texture:SetBlendMode("ADD");
@@ -1027,6 +1484,78 @@ function NarciGemManagerMixin:Init()
     AtlasUtil:SetAtlas(Spinner.Dial, "gemma-spinner-dial");
     Spinner.DialMask:SetTexture(PATH.."Mask-Radial", "CLAMPTOBLACKADDITIVE", "CLAMPTOBLACKADDITIVE");
     Spinner.AnimSpin:Play();
+
+
+    self.ActionBlocker:SetScript("OnUpdate", function(f, elapsed)
+        f.t = f.t + elapsed;
+        if f.t > ACTIONBLOCKER_DURATION then
+            f.t = 0;
+            f:Hide();
+            FadeFrame(self.LoadingIndicator, 0.15, 0);
+        end
+    end);
+
+    AtlasUtil:SetAtlas(self.LoadingIndicator.Icon, "remix-ui-loadingicon");
+    self.LoadingIndicator.AnimLoading:Play();
+    self:CenterLoadingIndicator(false);
+
+    local Alert = self.SlotFrame.NoSocketAlert;
+    Alert:SetFont(FONT_FILE, 14, "OUTLINE");
+    Alert:SetShadowOffset(1, -1);
+    Alert:SetShadowColor(0, 0, 0);
+    Alert:SetTextColor(0.5, 0.5, 0.5);
+    Alert:SetText(L["No Sockets Were Found"]);
+end
+
+
+
+
+do  --Process OnEnter after a short delay
+    local MouseOverSolver;
+    local FocusedButton;
+
+    local function ProcessFocusedButton()
+        if not (FocusedButton and FocusedButton:IsVisible()) then return end;
+
+        Mixin_TraitButton[TOOLTIP_METHOD](FocusedButton);
+
+        local itemID = FocusedButton.itemID;
+        local traitState = FocusedButton.traitState;
+        if itemID and (traitState == 2 or traitState == 3) then
+            --2: Active, 3:Available(Select)
+            local ActionButton = AcquireActionButton(FocusedButton);
+            if ActionButton then
+                local method = Gemma:GetActionButtonMethod(itemID);
+                ActionButton[method](ActionButton, itemID);  --SetAction_RemoveTinker   SetAction_RemovePrimordialStone
+            end
+        end
+    end
+
+    local function MouseOverSolver_OnUpdate(self, elapsed)
+        self.t = self.t + elapsed;
+        if self.t > 0.033 then
+            self.t = 0;
+            self:SetScript("OnUpdate", nil);
+            ProcessFocusedButton();
+        end
+    end
+
+    function NarciGemManagerMixin:SetFocusedButton(button, forceUpdate)
+        if button == FocusedButton and (not forceUpdate) then return end;
+        FocusedButton = button;
+
+        if not MouseOverSolver then
+            MouseOverSolver = CreateFrame("Frame", nil, self);
+        end
+
+        MouseOverSolver.t = 0;
+
+        if button ~= nil then
+            MouseOverSolver:SetScript("OnUpdate", MouseOverSolver_OnUpdate);
+        else
+            MouseOverSolver:SetScript("OnUpdate", nil);
+        end
+    end
 end
 
 function NarciGemManagerMixin:ReleaseTabs()
@@ -1127,11 +1656,14 @@ function NarciGemManagerMixin:SetTabData(tabData)
 end
 
 function NarciGemManagerMixin:ReleaseSlots()
-    if self.slotButtons then
+    if self.slotButtons and self.numSlotButtons ~= 0 then
         for _, button in pairs(self.slotButtons) do
             button:Hide();
             button:ClearAllPoints();
             button.itemID = nil;
+            button.traitState = nil;
+            button.tooltipFunc = nil;
+            button.onClickFunc = nil;
         end
         self.numSlotButtons = 0;
     end
@@ -1162,8 +1694,11 @@ end
 
 function NarciGemManagerMixin:ReleaseContent()
     self:ReleaseSlots();
+    self:ReleaseStatButtons();
     self:ReleaseTextures();
     self:ShineSlot(nil);
+    self:ShowStatAssignmentDetail(nil);
+    self:ShowNoSocketAlert(false);
     TooltipFrame:Hide();
     SlotHighlight:Hide();
     PointsDisplay:Hide();
@@ -1204,7 +1739,7 @@ function NarciGemManagerMixin:AcquireTexture(depth, drawLayer)
             self.fronTextures = {};
             self.numfronTextures = 0;
         end
-        container = self.SlotFrame.FontFrame;
+        container = self.SlotFrame.FrontFrame;
         pool = self.fronTextures;
         index = self.numfronTextures + 1;
         self.numfronTextures = index;
@@ -1222,7 +1757,7 @@ function NarciGemManagerMixin:AcquireTexture(depth, drawLayer)
     local texture = pool[index];
 
     if not texture then
-        texture = container:CreateTexture(nil, drawLayer)
+        texture = container:CreateTexture(nil, drawLayer);
         pool[index] = texture;
     end
 
@@ -1230,34 +1765,6 @@ function NarciGemManagerMixin:AcquireTexture(depth, drawLayer)
     texture:SetDrawLayer(drawLayer);
 
     return texture
-end
-
-function NarciGemManagerMixin:SetModeChooseTrait(state)
-    self.chooseTrait = state;
-
-    if state then
-        for index, slot in ipairs(self.slotButtons) do
-            if slot:IsShown() then
-                if not IS_TRAIT_ACTIVE[index] then
-                    slot:SetAvailable();
-                else
-                    slot:SetDimmed();
-                end
-            end
-        end
-        PointsDisplay:Show();
-    else
-        for index, slot in ipairs(self.slotButtons) do
-            if slot:IsShown() then
-                if IS_TRAIT_ACTIVE[index] then
-                    slot:SetActive();
-                else
-                    slot:SetInactive();
-                end
-            end
-        end
-        PointsDisplay:Hide();
-    end
 end
 
 function NarciGemManagerMixin:ShineSlot(slot)
@@ -1294,20 +1801,33 @@ function NarciGemManagerMixin:SetDataProviderByName(name)
     AtlasUtil:SetAtlas(self.HeaderFrame.Divider, schematic.topDivider);
 end
 
-function NarciGemManagerMixin:UpdateSlots()
+function NarciGemManagerMixin:UpdateCurrentTab()
+
+end
+
+function NarciGemManagerMixin:UpdateTabGreenDot()
 
 end
 
 
 function NarciGemManagerMixin:OpenGemList()
-    GemList:Show();
+    self.gemListShown = true;
+    self.autoShowGemList = nil;
     self.SlotFrame:Hide();
     self.HeaderFrame.TabButtonContainer:Hide();
-
-    FadeFrame(self.ModelScene, 0, 0.2);
+    SlotHighlight:HighlightSlot(nil);
+    self:SetFocusedButton(nil);
+    self:HideTooltip();
+    GemList:Show();
+    GemList:PlayFlyInAnimation();
+    FadeFrame(self.ModelScene, 0.1, 0.2);
+    self:CenterLoadingIndicator(true);
 end
 
 function NarciGemManagerMixin:CloseGemList()
+    if not self.gemListShown then return end;
+
+    self.gemListShown = nil;
     GemList:Close();
     self.HeaderFrame.TabButtonContainer:Show();
 
@@ -1316,11 +1836,15 @@ function NarciGemManagerMixin:CloseGemList()
     end
 
     FadeFrame(self.ModelScene, 0.5, 1);
+
+    self:CenterLoadingIndicator(false);
+    self:HideTooltip();
 end
 
 function NarciGemManagerMixin:HideTooltip()
     GameTooltip:Hide();
-    TooltipFrame:Hide();
+    --TooltipFrame:Hide();
+    FadeFrame(TooltipFrame, 0.2, 0);
 end
 
 function NarciGemManagerMixin:AnchorSpinnerToButton(button)
@@ -1335,18 +1859,67 @@ function NarciGemManagerMixin:ToggleUI()
     self:SetShown(not self:IsShown());
 end
 
+function NarciGemManagerMixin:SetPointDisplayAmount(amount)
+    PointsDisplay:SetAmount(amount);
+    if amount > 0 then
+        PointsDisplay:Show();
+    else
+        PointsDisplay:Hide();
+    end
+end
 
-do
-    local function DLIN()
-        local itemList = Gemma:GetSortedItemList()
-        local name;
-        for gemType, gems in ipairs(itemList) do
-            for index, itemID in ipairs(gems) do
-                name = ItemCache:GetItemName(itemID);
-                if name then
-                    print(name)
-                end
+function NarciGemManagerMixin:ShowActionBlocker()
+    self.ActionBlocker.t = 0;
+    self.ActionBlocker:Show();
+    Gemma.HideActionButton();
+    self:SetFocusedButton(nil);
+    self:HideTooltip();
+    --MouseOverFrame:Hide();
+
+    FadeFrame(self.LoadingIndicator, 0.15, 1);
+end
+
+function NarciGemManagerMixin:OnBagUpdateStart()
+    self:ShowActionBlocker();
+end
+
+function NarciGemManagerMixin:OnBagUpdateComplete()
+    self:UpdateCurrentTab();
+    self:UpdateTabGreenDot();
+
+    --self.ActionBlocker:Hide();
+end
+
+function NarciGemManagerMixin:AutoSelectBestTab()
+    if self.tabButtons then
+        for id, button in ipairs(self.tabButtons) do
+            if button.GreenDot:IsShown() then
+                self:SelectTabByID(id);
+                return
             end
         end
+    end
+
+    if not self.tabID then
+        self:SelectTabByID(1);
+    end
+end
+
+function NarciGemManagerMixin:ShowNoSocketAlert(state)
+    self.SlotFrame.NoSocketAlert:SetShown(state);
+end
+
+function NarciGemManagerMixin:ShowStatAssignmentDetail(statButton)
+    if MouseOverFrame.ShowStatAssignmentDetail then
+        MouseOverFrame:ShowStatAssignmentDetail(statButton);
+    end
+end
+
+function NarciGemManagerMixin:CenterLoadingIndicator(isCentered)
+    self.LoadingIndicator:ClearAllPoints();
+    if isCentered then
+        self.LoadingIndicator:SetPoint("CENTER", self.SlotFrame, "CENTER", 0, 0);
+    else
+        self.LoadingIndicator:SetPoint("CENTER", self, "BOTTOM", 0, 40);
     end
 end

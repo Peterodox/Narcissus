@@ -1,4 +1,4 @@
---Coutesy of ZamestoTV. Thank you!    --Translator: ZamestoTV as of 1.5.4
+--Coutesy of ZamestoTV. Thank you!    --Translator: ZamestoTV as of 1.5.6
 
 if not (GetLocale() == "ruRU") then
     return;
@@ -159,7 +159,6 @@ L["Screen Effects"] ="Экранные эффекты";
 
 L["Gemma"] = "\"Камни\"";   --Don't translate
 L["Gemma Description"] = "Показать список камней, когда вы носите экипировку.";
-L["Gem Manager"] = "Управлять камнями";
 L["Dressing Room"] = "Гардеробная"
 L["Dressing Room Description"] = "Большая панель гардеробной с возможностью просмотра и копирования списков предметов других игроков и создания ссылок на гардеробную Wowhead.";
 L["General"] = "Общие";   --General options
@@ -746,3 +745,14 @@ L["Leech"] = ITEM_MOD_CR_LIFESTEAL_SHORT or "Самоисцеление";
 L["Speed"] = ITEM_MOD_CR_UNUSED_3_SHORT or "Скорость передвижения";
 L["Format Stat EXP"] = "+%d%% EXP Прирост";
 L["Format Rank"] = AZERITE_ESSENCE_RANK or "Ранг %d";
+
+
+--Gem Manager--
+L["Gem Manager"] = "Управлять камнями";
+L["Pandamonium Gem Category 1"] = "Главный";      --Major Cooldown Abilities
+L["Pandamonium Gem Category 2"] = "Гаджет";     --Tinker Gem
+L["Pandamonium Gem Category 3"] = PRISMATIC_GEM or "Радужный";
+L["Gem Removal Instruction"] = "Щелкните ПКМ, чтобы удалить этот драгоценный камень";
+L["Gem Removal No Tool"] = "У вас нет инструмента, чтобы удалить этот драгоценный камень целиком.";
+L["Gemma Click To Activate"] = "Щелкните ЛКМ, чтобы активировать";
+L["Gemma Click To Insert"] = "Щелкните ЛКМ, чтобы вставить";

@@ -585,7 +585,6 @@ do
             end
 
             return id1, id2;
-
         else
             for bagID = 0, (NUM_BAG_SLOTS or 4) do
                 for slotID = 1, GetContainerNumSlots(bagID) do

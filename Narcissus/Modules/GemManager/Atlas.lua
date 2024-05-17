@@ -27,28 +27,35 @@ function AtlasUtil:GetTexCoord(name)
     end
 end
 
+local HS = 40;    --48;
+
 local AtlasInfo = {
     --file, textureWidth, textureHeight, {[atlasName] = {width, height, 4pixelCoords}, ...}
 
     {PATH.."TimerunningPandaria.png", 1024, 1024, {
         ["remix-ui-bg"] = {338, 424, 616, 1024, 0, 512},
         ["remix-ui-divider"] = {338, 16, 0, 408, 256, 280},
-        ["remix-ui-tinker-bg"] = {290, 290, 0, 144, 96, 240},
+        ["remix-ui-tinker-bg"] = {312, 312, 0, 144, 96, 240},
         ["remix-ui-tooltip-bg"] = {204, 86, 0, 204, 282, 368},
+        ["remix-ui-loadingicon"] = {24, 24, 162, 194, 164, 196},
 
         ["remix-listbutton-highlight"] = {256, 64, 292, 548, 282, 346},
 
-        ["remix-hexagon-yellow"] = {48, 48, 0, 96, 0, 96},
-        ["remix-hexagon-green"] = {48, 48, 96, 192, 0, 96},
-        ["remix-hexagon-darkyellow"] = {48, 48, 192, 288, 0, 96},
-        ["remix-hexagon-grey"] = {48, 48, 288, 384, 0, 96},
-        ["remix-hexagon-highlight"] = {48, 48, 384, 480, 0, 96},
+        ["remix-hexagon-yellow"] = {HS, HS, 0, 96, 0, 96},
+        ["remix-hexagon-green"] = {HS, HS, 96, 192, 0, 96},
+        ["remix-hexagon-darkyellow"] = {HS, HS, 192, 288, 0, 96},
+        ["remix-hexagon-grey"] = {HS, HS, 288, 384, 0, 96},
+        ["remix-hexagon-highlight"] = {HS, HS, 384, 480, 0, 96},
+        ["remix-hexagon-dashedhighlight"] = {HS, HS, 480, 576, 0, 96},
 
         ["remix-bigsquare-yellow"] = {72, 72, 0, 144, 368, 512},
         ["remix-bigsquare-green"] = {72, 72, 144, 288, 368, 512},
         ["remix-bigsquare-grey"] = {72, 72, 288, 432, 368, 512},
         ["remix-bigsquare-highlight"] = {72, 72, 432, 576, 368, 512},
+        ["remix-bigsquare-dashedhighlight"] = {72, 72, 0, 144, 770, 914},
         ["remix-bigsquare-shadow"] = {144, 144, 0, 144, 512, 656},
+
+        ["remix-square-yellow"] = {48, 48, 194, 290, 674, 770},
 
         ["gemlist-return"] = {20, 20, 328, 360, 100, 132},
         ["gemlist-prev"] = {14, 14, 292, 324, 100, 132},
@@ -61,6 +68,17 @@ local AtlasInfo = {
 
         ["gemma-spinner-circle"] = {80, 80, 578, 738, 514, 674},
         ["gemma-spinner-dial"] = {128, 128, 768, 1024, 514, 770},
+
+        ["gemma-stats-bg"] = {306, 24, 158, 464, 136, 160},
+        ["gemma-stats-minus"] = {14, 14, 364, 396, 100, 132},
+        ["gemma-stats-plus"] = {14, 14, 400, 432, 100, 132},
+        ["gemma-stats-mouseover-bg"] = {314, 32, 158, 472, 196, 228},
+        ["gemma-stats-mouseover-minus"] = {18, 18, 472, 512, 100, 140},
+        ["gemma-stats-mouseover-plus"] = {18, 18, 516, 556, 100, 140},
+        ["gemma-stats-mouseover-buttonhighlight"] = {24, 24, 560, 600, 100, 140},
+
+        ["gemtypeicon-movement"] = {24, 24, 0, 48, 674, 722},
+        ["gemtypeicon-offensive"] = {24, 24, 48, 96, 674, 722},
     }},
 
     {PATH.."HourglassWidget.png", 256, 256, {

@@ -1,10 +1,10 @@
 <Ui xsi:schemaLocation="http://www.blizzard.com/wow/ui/..\FrameXML\UI.xsd">
     <Script file="Init.lua"/>
     <Script file="Atlas.lua"/>
-    <Script file="BagSearch.lua"/>
+    <Script file="ItemCache.lua"/>
+    <Script file="BagScan.lua"/>
     <Script file="DataProvider_Pandaria.lua"/>
     <Script file="ActionButton.lua"/>
-    <Script file="ItemCache.lua"/>
     <Script file="UI.lua"/>
     <Script file="StatAssignment.lua"/>
     <Script file="PaperdollWidget.lua"/>
@@ -88,29 +88,44 @@
         </Layers>
     </Button>
 
-    <Button name="NarciGemManagerStatAssignmentTemplate" virtual="true">
-        <Size x="120" y="24"/>
+    <Frame name="NarciGemManagerStatAssignmentTemplate" virtual="true">
+        <Size x="306" y="24"/>
         <Layers>
+            <Layer level="BACKGROUND">
+                <Texture parentKey="Background" setAllPoints="true"/>
+            </Layer>
             <Layer level="OVERLAY">
                 <FontString parentKey="Name" inherits="GameTooltipHeaderText" justifyH="LEFT" justifyV="CENTER">
                     <Anchors>
                         <Anchor point="LEFT" relativeKey="$parent" relativePoint="LEFT" x="24"/>
                     </Anchors>
                 </FontString>
-                <FontString parentKey="Point" inherits="GameTooltipHeaderText" justifyH="CENTER" justifyV="CENTER">
-                    <Size x="48" y="24"/>
+                <FontString parentKey="Count" inherits="GameTooltipHeaderText" justifyH="CENTER" justifyV="CENTER">
+                    <Size x="40" y="24"/>
                     <Anchors>
-                        <Anchor point="CENTER" relativeKey="$parent" relativePoint="CENTER" x="0"/>
+                        <Anchor point="RIGHT" relativeKey="$parent" relativePoint="RIGHT" x="-32"/>
                     </Anchors>
                 </FontString>
-                <FontString parentKey="Value" inherits="GameTooltipHeaderText" justifyH="RIGHT" justifyV="CENTER">
+                <!--FontString parentKey="Value" inherits="GameTooltipHeaderText" justifyH="RIGHT" justifyV="CENTER">
                     <Anchors>
                         <Anchor point="RIGHT" relativeKey="$parent" relativePoint="RIGHT" x="-24"/>
                     </Anchors>
-                </FontString>
+                </FontString-->
+                <Texture parentKey="PlusButton">
+                    <Size x="24" y="24"/>
+                    <Anchors>
+                        <Anchor point="CENTER" relativeKey="$parent.Count" relativePoint="RIGHT" x="12"/>
+                    </Anchors>
+                </Texture>
+                <Texture parentKey="MinusButton">
+                    <Size x="24" y="24"/>
+                    <Anchors>
+                        <Anchor point="CENTER" relativeKey="$parent.Count" relativePoint="LEFT" x="-12"/>
+                    </Anchors>
+                </Texture>
             </Layer>
         </Layers>
-    </Button>
+    </Frame>
 
     <Button name="NarciGemManagerGemListButtonTemplate" registerForClicks="LeftButtonUp, RightButtonUp" virtual="true">
         <Size x="338" y="44"/>
@@ -130,6 +145,18 @@
                 </FontString>
             </Layer>
         </Layers>
+        <Animations>
+            <AnimationGroup parentKey="AnimFlyIn">
+                <Alpha order="1" childKey="Icon" fromalpha="0" toalpha="0" duration="0"/>
+                <Alpha order="1" childKey="Icon" fromalpha="0" toalpha="1" duration="0.2" startDelay="0" parentKey="Delay1"/>
+                <Translation offsetX="-16" offsetY="0" duration="0" order="1" childKey="Icon"/>
+                <Translation offsetX="16" offsetY="0" duration="0.2" order="1" childKey="Icon" smoothing="OUT" parentKey="Delay2"/>
+                <Alpha order="1" childKey="Text1" fromalpha="0" toalpha="0" duration="0"/>
+                <Alpha order="1" childKey="Text1" fromalpha="0" toalpha="1" duration="0.2" startDelay="0" parentKey="Delay3"/>
+                <Translation offsetX="-16" offsetY="0" duration="0" order="1" childKey="Text1"/>
+                <Translation offsetX="16" offsetY="0" duration="0.2" order="1" childKey="Text1" smoothing="OUT" parentKey="Delay4"/>
+            </AnimationGroup>
+        </Animations>
     </Button>
 
     <Frame name="NarciGemManagerLoadingSpinnerTemplate" hidden="true" virtual="true">
@@ -227,6 +254,14 @@
                             </Anchors>
                         </Texture>
                     </Layer>
+                    <Layer level="OVERLAY">
+                        <FontString parentKey="NoSocketAlert" inherits="GameTooltipHeaderText" justifyH="CENTER" justifyV="CENTER" hidden="true">
+                            <Size x="256" y="0"/>
+                            <Anchors>
+                                <Anchor point="CENTER" relativeKey="$parent" relativePoint="CENTER" x="0"/>
+                            </Anchors>
+                        </FontString>
+                    </Layer>
                 </Layers>
                 <Frames>
                     <Frame parentKey="ButtonHighlight" useParentLevel="true" hidden="true">
@@ -255,8 +290,7 @@
                                 <MaskTexture parentKey="Mask" hWrapMode="CLAMPTOBLACKADDITIVE" vWrapMode="CLAMPTOBLACKADDITIVE">
                                     <Size x="40" y="40"/>
                                     <Anchors>
-                                        <Anchor point="TOPLEFT" relativeKey="$parent.Icon" relativePoint="TOPLEFT"/>
-                                        <Anchor point="BOTTOMRIGHT" relativeKey="$parent.Icon" relativePoint="BOTTOMRIGHT"/>
+                                        <Anchor point="CENTER" relativeKey="$parent" relativePoint="CENTER"/>
                                     </Anchors>
                                     <MaskedTextures>
                                         <MaskedTexture childKey="Texture"/>
@@ -297,6 +331,34 @@
                     </Frame>
                     <Frame parentKey="FrontFrame" frameLevel="18">
                     </Frame>
+                    <Frame parentKey="MouseOverFrame" frameLevel="16" hidden="true">
+                        <Size x="306" y="24"/>
+                        <Layers>
+                            <Layer level="BACKGROUND">
+                                <Texture parentKey="Background">
+                                    <Anchors>
+                                        <Anchor point="CENTER"/>
+                                    </Anchors>
+                                </Texture>
+                            </Layer>
+                            <Layer level="BACKGROUND" textureSubLevel="1">
+                                <Texture parentKey="Highlight" hidden="true">
+                                    <Size x="24" y="24"/>
+                                    <Anchors>
+                                        <Anchor point="CENTER"/>
+                                    </Anchors>
+                                </Texture>
+                            </Layer>
+                            <Layer level="OVERLAY">
+                                <FontString parentKey="Count" inherits="GameTooltipHeaderText" justifyH="CENTER" justifyV="CENTER">
+                                    <Size x="40" y="24"/>
+                                    <Anchors>
+                                        <Anchor point="RIGHT" relativeKey="$parent" relativePoint="RIGHT" x="-32"/>
+                                    </Anchors>
+                                </FontString>
+                            </Layer>
+                        </Layers>
+                    </Frame>
                 </Frames>
             </Frame>
 
@@ -319,6 +381,26 @@
                             </Layer>
                         </Layers>
                     </Frame>
+
+                    <Frame parentKey="SelectionFrame" frameLevel="27" hidden="true">
+                        <Size x="32" y="32"/>
+                        <Layers>
+                            <Layer level="OVERLAY">
+                                <Texture parentKey="Border">
+                                    <Size x="48" y="48"/>
+                                    <Anchors>
+                                        <Anchor point="CENTER" relativeKey="$parent" relativePoint="CENTER" x="0" y="0"/>
+                                    </Anchors>
+                                </Texture>
+                            </Layer>
+                        </Layers>
+						<Animations>
+							<AnimationGroup parentKey="AnimShrink">
+								<Scale childKey="Border" smoothing="OUT" order="1" duration="0.2" fromScaleX="1.2" toScaleX="1" fromScaleY="1.2" toScaleY="1"/>
+								<Alpha childKey="Border" order="1" fromAlpha="0" toAlpha="1" duration="0.2"/>
+							</AnimationGroup>
+						</Animations>
+                    </Frame>
                 </Frames>
             </Frame>
 
@@ -333,6 +415,11 @@
                         <FontString parentKey="Text1" inherits="GameTooltipText" justifyH="CENTER" justifyV="TOP" spacing="2">
                             <Anchors>
                                 <Anchor point="TOP" relativeKey="$parent.Header" relativePoint="BOTTOM" y="-10"/>
+                            </Anchors>
+                        </FontString>
+                        <FontString parentKey="Text2" inherits="GameTooltipText" justifyH="CENTER" justifyV="TOP" spacing="2">
+                            <Anchors>
+                                <Anchor point="TOP" relativeKey="$parent.Text1" relativePoint="BOTTOM" y="-10"/>
                             </Anchors>
                         </FontString>
                     </Layer>
@@ -352,6 +439,36 @@
                     <Anchor point="BOTTOMRIGHT" relativeKey="$parent" relativePoint="BOTTOMRIGHT" x="-2" y="2"/>
                 </Anchors>
             </ModelScene>
+
+            <Frame parentKey="ActionBlocker" setAllPoints="true" frameLevel="80" hidden="true">
+                <Scripts>
+                    <OnEnter>
+                    
+                    </OnEnter>
+                    <OnMouseWheel>
+
+                    </OnMouseWheel>
+                </Scripts>
+            </Frame>
+
+            <Frame parentKey="LoadingIndicator" frameLevel="81" alpha="0" hidden="true">
+                <Size x="16" y="16"/>
+                <Layers>
+                    <Layer level="OVERLAY">
+                        <Texture parentKey="Icon" alpha="0.67">
+                            <Size x="16" y="16"/>
+                            <Anchors>
+                                <Anchor point="CENTER" relativeKey="$parent" relativePoint="CENTER" x="0" y="0"/>
+                            </Anchors>
+                        </Texture>
+                    </Layer>
+                </Layers>
+                <Animations>
+                    <AnimationGroup parentKey="AnimLoading" looping="REPEAT">
+                        <Rotation order="1" childKey="Icon" degrees="-360" duration="1"/>
+                    </AnimationGroup>
+                </Animations>
+            </Frame>
         </Frames>
         <Scripts>
             <OnLoad method="OnLoad"/>
@@ -416,6 +533,7 @@
         <Scripts>
             <OnLoad method="OnLoad"/>
             <OnShow method="OnShow"/>
+            <OnHide method="OnHide"/>
             <OnClick method="OnClick"/>
             <OnEnter method="OnEnter"/>
             <OnLeave method="OnLeave"/>
