@@ -743,7 +743,7 @@ local function CameraOrbitToggle_OnValueChanged(self, state)
 end
 
 local function CameraSafeToggle_IsValid()
-    if IsAddOnLoaded("DynamicCam") then
+    if C_AddOns.IsAddOnLoaded("DynamicCam") then
         return false
     else
         return true

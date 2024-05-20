@@ -125,6 +125,7 @@ local DropDownOptions = {
         {"15", 15},
         {"16", 16},
         {"18", 18},
+        {"20", 20},
         method = "SetFontWeight",
     };
 };

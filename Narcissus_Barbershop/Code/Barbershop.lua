@@ -2076,7 +2076,7 @@ EventListener:SetScript("OnEvent", function(self, event, ...)
         --Blizzard_BarbershopUI
         if name == "Narcissus_Barbershop" then --Narcissus_Barbershop
             self:UnregisterEvent(event);
-            if not (IsAddOnLoaded("Blizzard_BarbershopUI") and BarberShopFrame) then
+            if not (BarberShopFrame) then
                 print("Narcissus Error: Blizzard_BarbershopUI not loaded!");
                 self:UnregisterAllEvents();
                 return

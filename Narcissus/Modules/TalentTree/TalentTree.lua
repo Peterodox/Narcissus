@@ -2135,7 +2135,7 @@ EventCenter.onEvent = function(self, event, ...)
         LayoutUtil:UpdatePixel();
 
         --AddOn Compatibility
-        if IsAddOnLoaded("TinyInspect") or IsAddOnLoaded("TinyInspect-Reforged") then
+        if C_AddOns.IsAddOnLoaded("TinyInspect") or C_AddOns.IsAddOnLoaded("TinyInspect-Reforged") then
             MainFrame.offsetH = 328 + 2;
         end
 

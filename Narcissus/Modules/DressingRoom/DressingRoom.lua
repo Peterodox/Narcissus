@@ -482,7 +482,7 @@ end
 local Adaptor = {};
 
 function Adaptor:IsBetterWardrobeDressingRoomEnabled()
-    local hasBW = IsAddOnLoaded("BetterWardrobe");
+    local hasBW = C_AddOns.IsAddOnLoaded("BetterWardrobe");
     if hasBW then
         local db = BetterWardrobe_Options;
         if db then
@@ -502,7 +502,7 @@ function Adaptor:IsBetterWardrobeDressingRoomEnabled()
 end
 
 function Adaptor:IsAddOnDressUpEnabled()
-    return IsAddOnLoaded("DressUp");
+    return C_AddOns.IsAddOnLoaded("DressUp");
 end
 
 function Adaptor:IsConflictedAddOnLoaded()

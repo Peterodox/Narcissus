@@ -945,7 +945,9 @@ function Narci:SetUseCorruptionTooltip()
     local BlizzardCorruptionWidget = ItemLevelFrame.Corruption;
     if not BlizzardCorruptionWidget then return end
 
+    local IsAddOnLoaded = C_AddOns.IsAddOnLoaded;
     local state = NarcissusDB.CorruptionTooltip;
+
     if state then
         GameTooltip_Hide();
         if IsAddOnLoaded("CorruptionTooltips") then

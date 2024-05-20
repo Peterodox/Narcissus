@@ -3297,7 +3297,7 @@ local function NPCBrowser_OnLoad(self)
 
         if not self.isDatabaseLoaded then
             local addOnName = "Narcissus_Database_NPC";
-            if IsAddOnLoaded(addOnName) then
+            if C_AddOns.IsAddOnLoaded(addOnName) then
                 self.isDatabaseLoaded = true;
             else
                 local timeStart = 0;

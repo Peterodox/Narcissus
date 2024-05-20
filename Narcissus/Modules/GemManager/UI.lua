@@ -12,6 +12,7 @@ local GetSpellCooldown = GetSpellCooldown;
 local C_TooltipInfo = C_TooltipInfo;
 local FadeFrame = NarciFadeUI.Fade;
 local L = Narci.L;
+local After = C_Timer.After;
 
 
 local CreateFrame = CreateFrame;
@@ -487,9 +488,11 @@ do
                 if dataInstanceID == self.dataInstanceID then
                     self:UpdateTooltipInfo();
                 elseif dataInstanceID == self.gametooltipDataInstanceID then
-                    if self.gametooltipOwner and self.gametooltipOwner:IsShown() and self.gametooltipOwner:IsMouseOver() then
-                        self.gametooltipOwner:ShowGameTooltip();
-                    end
+                    After(0, function()
+                        if self.gametooltipOwner and self.gametooltipOwner:IsShown() and self.gametooltipOwner:IsMouseOver() then
+                            self.gametooltipOwner:ShowGameTooltip();
+                        end
+                    end)
                 end
             end
         end
@@ -1383,10 +1386,22 @@ function NarciGemManagerMixin:OnLoad()
 end
 
 function NarciGemManagerMixin:AnchorToPaperDollFrame()
+    if self.positionSet then
+        return
+    else
+        self.positionSet = true;
+    end
+
     self:ClearAllPoints();
-    local f = PaperDollFrame;
-    self:SetParent(f);
-    self:SetPoint("TOPLEFT", f, "TOPRIGHT", 24, 0);
+    self:SetParent(PaperDollFrame);
+
+    if CharacterStatsPaneilvl and Gemma.PaperdollWidget then    --Chonky Character Sheet
+        local f = Gemma.PaperdollWidget;
+        self:SetPoint("TOPLEFT", f, "TOPRIGHT", 0, 0);
+    else
+        local f = PaperDollFrame;
+        self:SetPoint("TOPLEFT", f, "TOPRIGHT", 24, 0);
+    end
 end
 
 function NarciGemManagerMixin:OnShow()

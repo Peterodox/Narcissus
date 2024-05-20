@@ -63,8 +63,8 @@ local function UpdatePosition_OnShow()
     if CharacterStatsPaneilvl then
         --Chonky Character Sheet    wago.io/bRl2gJIgz
         WidgetContainer:ClearAllPoints();
-        WidgetContainer:SetPoint("CENTER", CharacterStatsPaneilvl, "RIGHT", 12, 0);     --anchor changed after swapping items, IDK why
-    elseif IsAddOnLoaded("DejaCharacterStats") then
+        WidgetContainer:SetPoint("CENTER", CharacterStatsPaneilvl, "RIGHT", 22, 0);     --anchor changed after swapping items, IDK why
+    elseif C_AddOns.IsAddOnLoaded("DejaCharacterStats") then
         WidgetContainer:ClearAllPoints();
         WidgetContainer:SetPoint("CENTER", PaperDollFrame, "TOPRIGHT", -1, -84);
     elseif CharacterFrame and CharacterStatsPane and CharacterStatsPane.ItemLevelFrame then

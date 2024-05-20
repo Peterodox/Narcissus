@@ -119,7 +119,7 @@ local function FindPrimarySearchBox()
     };
 
     local _G = _G;
-    local IsAddOnLoaded = IsAddOnLoaded;
+    local IsAddOnLoaded = C_AddOns.IsAddOnLoaded;
     local addonName;
     local primaryBag;
     local alienSerach;  --addon is using its own search method

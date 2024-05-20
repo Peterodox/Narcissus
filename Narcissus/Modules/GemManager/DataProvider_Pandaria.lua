@@ -24,8 +24,10 @@ local IsEquippableItem = C_Item.IsEquippableItem;
 local GetItemInfoInstant = C_Item.GetItemInfoInstant;
 local GetItemCount = C_Item.GetItemCount;
 local GetInventoryItemLink = GetInventoryItemLink;
+local GetCVarBool = C_CVar.GetCVarBool;
 
-local MainFrame = MainFrame;
+
+local MainFrame;
 
 local GEM_TYPES = {
     [1] = "META",
@@ -55,7 +57,7 @@ local SLOT_ID = {
 };
 
 local GEM_DATA = {
-    --[itemID] = {type, spellID, role, uiOrder}
+    --[itemID] = {type, spellID, role, uiOrder, scaleWithIlvl}
     --role: bits 000 (Tank/Healer/DPS): Tank 100(4), DPS 001(1), H/D 011(3), H 010(2)
 
     --Total: 11
@@ -1038,7 +1040,12 @@ function GemManagerMixin:ShowTraits()
 
     self.TooltipFrame:ClearAllPoints();
     self.TooltipFrame:SetPoint("TOP", container, "CENTER", 0, -contentHeight * 0.5 - 44);
-    self.TooltipFrame:SetDescriptionLine(6);
+
+    if GetCVarBool("colorblindMode") then
+        self.TooltipFrame:SetDescriptionLine(7);
+    else
+        self.TooltipFrame:SetDescriptionLine(6);
+    end
 
     self.SlotFrame.ButtonHighlight:SetShape(shape);
 

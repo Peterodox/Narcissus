@@ -47,6 +47,10 @@ local FallbackFonts = {
     rm = "Interface\\AddOns\\Narcissus\\Font\\SourceSansPro-Semibold.ttf",
     cn = "Interface\\AddOns\\Narcissus\\Font\\NotoSansCJKsc-Medium.otf",
     ru = "Interface\\AddOns\\Narcissus\\Font\\NotoSans-Medium.ttf",
+
+    zhCN = "Fonts\\ARKai_T.TTF",
+    zhTW = "Fonts\\bKAI00M.TTF",
+    koKR = "Fonts\\2002.ttf",
 };
 
 
@@ -99,4 +103,23 @@ function UniversalFontUtil.Create()
 		end
 	end
     return tbl
+end
+
+
+do
+    local locale = GetLocale();
+    local SYSTEM_FONT;
+
+    if locale == "zhCN" or locale == "zhTW" or locale == "koKR" then
+        SYSTEM_FONT = FallbackFonts[locale];
+    end
+
+    local function GetSystemFontIfNecessary(fontFile)
+        if SYSTEM_FONT then
+            return SYSTEM_FONT
+        else
+            return fontFile
+        end
+    end
+    addon.GetSystemFontIfNecessary = GetSystemFontIfNecessary;
 end

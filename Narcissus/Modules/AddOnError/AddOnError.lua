@@ -11,6 +11,9 @@ local ErrorDB;
 local EventListener = CreateFrame("Frame");
 EventListener:RegisterEvent("PLAYER_ENTERING_WORLD");
 
+local IsAddOnLoaded = C_AddOns.IsAddOnLoaded;
+
+
 --[[
 local INCONSEQUENTIAL_ERROR = {
     ["CopyToClipboard()"] = true,
@@ -462,7 +465,6 @@ local function GenerateReport()
     local format = string.format;
     local GetAddOnInfo = (C_AddOns and C_AddOns.GetAddOnInfo) or GetAddOnInfo;
     local GetAddOnMetadata = (C_AddOns and C_AddOns.GetAddOnMetadata) or GetAddOnMetadata;
-    local IsAddOnLoaded = (C_AddOns and C_AddOns.GetAddOnMetadata) or IsAddOnLoaded;
 
     local line1 = format("Date: %s", date());
     local osName = (IsWindowsClient() and "Windows") or (IsMacClient() and "Mac") or (IsLinuxClient() and "Linux");
@@ -519,7 +521,7 @@ local function GenerateReport()
 
     local addonList;
     local addonName;
-    for i = 1, GetNumAddOns() do
+    for i = 1, C_AddOns.GetNumAddOns() do
         if IsAddOnLoaded(i) then
             addonName = GetAddOnInfo(i);
             addonVersion = GetAddOnMetadata(i, "version");

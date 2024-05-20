@@ -1,7 +1,7 @@
-local NARCI_VERSION_INFO = "1.6.0";
+local NARCI_VERSION_INFO = "1.6.1";
 
-local VERSION_DATE = 1715966000;
-local CURRENT_VERSION = 10600;
+local VERSION_DATE = 1716210000;
+local CURRENT_VERSION = 10601;
 local PREVIOUS_VERSION = CURRENT_VERSION;
 local TIME_SINCE_LAST_UPDATE = 0;
 
@@ -55,7 +55,7 @@ local DefaultValues = {
     MissingEnchantAlert = false,                --Show alert if the item isn't enchanted
 
     -- Photo Mode --
-    HideTextsWithUI = true,                     --Hide all texts when UI is hidden
+    HideTextsWithUI = false,                     --Hide all texts when UI is hidden
     UseEntranceVisual = true,
     ModelPanelScale = 1,
     ShrinkArea = 0,                             --Reduce the width of the area where you can control the model
@@ -539,3 +539,5 @@ do
 
     addon.CreateZoneTriggeredModule = CreateZoneTriggeredModule;
 end
+
+C_AddOns.LoadAddOn("Blizzard_ActionBarController")
