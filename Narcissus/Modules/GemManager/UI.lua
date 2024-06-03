@@ -1251,6 +1251,7 @@ function NarciGemManagerMixin:AnchorToPaperDollFrame()
     if CharacterStatsPaneilvl and Gemma.PaperdollWidget then    --Chonky Character Sheet
         local f = Gemma.PaperdollWidget;
         self:SetPoint("TOPLEFT", f, "TOPRIGHT", 0, 0);
+        self:SetFrameStrata("HIGH");
     else
         local f = PaperDollFrame;
         self:SetPoint("TOPLEFT", f, "TOPRIGHT", 24, 0);

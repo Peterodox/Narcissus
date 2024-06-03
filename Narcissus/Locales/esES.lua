@@ -1,4 +1,4 @@
---Coutesy of Romanv. Thank you!    --Translator: Romanv as of 1.3.5
+--Coutesy of Romanv. Thank you!    --Translator: Romanv as of 1.6.2
 
 if not (GetLocale() == "esES") then
     return;
@@ -256,8 +256,8 @@ L["New Option"] = NARCI_NEW_ENTRY_PREFIX.." NEW".."|r"
 
 --Model Control--
 L["Ranged Weapon"] = "Arma a distancia";
-L["Melee Animation"] = "Animación cuerpo a cuerpo";
-L["Spellcasting"] = "Spellcasting";
+L["Melee Animation"] = "Cuerpo a cuerpo";
+L["Spellcasting"] = "Taumaturgo";
 L["Link Light Sources"] = "Vincular fuentes de luz";
 L["Link Model Scales"] = "Vincular escalas de modelo";
 L["Hidden"] = "Ocultar";
@@ -272,7 +272,7 @@ L["Actor Index Tooltip"] = "Arrastre un botón de índice para cambiar la capa d
 L["Play Button Tooltip"] = NARCI_MOUSE_BUTTON_ICON_1.."Reproducir esta animación\n"..NARCI_MOUSE_BUTTON_ICON_2.."Reanudar todos los modelos\animaciones";
 L["Pause Button Tooltip"] = NARCI_MOUSE_BUTTON_ICON_1.."Pausar esta animación\n"..NARCI_MOUSE_BUTTON_ICON_2.."Pausar todos los modelos\animaciones";
 L["Save Layers"] = "Guardar capas";
-L["Save Layers Tooltip"] = "Captura automáticamente 6 capturas de pantalla para la composición de imágenes.\nNo mueva el cursor ni haga clic en ningún botón durante este proceso. De lo contrario, tu personaje podría volverse invisible después de salir del complemento. Si eso sucediera, usa este comando:\n/console showplayer";
+L["Save Layers Tooltip"] = "Captura automáticamente 6 capturas de pantalla para la composición de imágenes.\nNo muevas el cursor ni hagas click en ningún botón durante este proceso. De lo contrario, tu personaje podría volverse invisible después de salir del complemento. Si eso sucediera, usa este comando:\n/console showplayer";
 L["Ground Shadow"] = "Sombra del suelo";
 L["Ground Shadow Tooltip"] = "Agrega una sombra de suelo móvil debajo de tu modelo.";
 L["Hide Player"] = "Ocultar jugador";
@@ -282,9 +282,9 @@ L["Virtual Actor Tooltip"] = "Only the spell visual on this model is visible."
 L["Self"] = "Self";
 L["Target"] = "Objetivo";
 L["Compact Mode Tooltip"] = "Solo usa la parte izquierda de la pantalla para presentar tu transfiguración.";
-L["Toggle Equipment Slots"] = "Alternar ranuras de equipo";
+L["Toggle Equipment Slots"] = "Click para mostrar/ocultar las ranuras de equipo";
 L["Toggle Text Mask"] = "Alternar máscara de texto";
-L["Toggle 3D Model"] = "Alternar modelo 3D";
+L["Toggle 3D Model"] = "Click para mostrar/ocultar el modelo 3D";
 L["Toggle Model Mask"] = "Alternar máscara de modelo";
 L["Show Color Sliders"] = "Mostrar controles deslizantes de color";
 L["Show Color Presets"] = "Mostrar ajustes preestablecidos de color";
@@ -308,30 +308,30 @@ L["Reset Slider"] = "Restablecer a cero";
 
 
 --Spell Visual Browser--
-L["Visuals"] = "Visuales";
-L["Visual ID"] = "Visual ID";
+L["Visuals"] = "Efectos";
+L["Visual ID"] = "Efecto ID";
 L["Animation ID Abbre"] = "Anim. ID";
 L["Category"] = "Categoría";
 L["Sub-category"] = "Subcategoría";
 L["My Favorites"] = "Mis favoritos";
-L["Reset Visual Tooltip"] = "Eliminar elementos visuales no aplicados";
-L["Remove Visual Tooltip"] = "Left-click: Remove a selected visual\nLong-click: Remove all applied visuals";
+L["Reset Visual Tooltip"] = "Eliminar efectos no aplicados";
+L["Remove Visual Tooltip"] = "Click: eliminar un efecto seleccionado\nClick sostenido: eliminar todos los efectos aplicados";
 L["Apply"] = "Aplicar";
 L["Applied"] = "Aplicada";   --Viusals that were "Applied" to the model
 L["Remove"] = "Eliminar";
 L["Rename"] = "Renombrar";
 L["Refresh Model"] = "Actualizar modelo";
-L["Toggle Browser"] = "Toggle spell visual browser";
+L["Toggle Browser"] = "Explorador de efectos especiales";
 L["Next And Previous"] = NARCI_MOUSE_BUTTON_ICON_1.."Ir al siguiente\n"..NARCI_MOUSE_BUTTON_ICON_2.."Ir al anterior";
 L["New Favorite"] = "Nuevo favorito";
 L["Favorites Add"] = "Agregar a mis favoritos";
 L["Favorites Remove"] = "Quitar de favoritos";
 L["Auto-play"] = "Auto-play";   --Auto-play suggested animation
-L["Auto-play Tooltip"] = "Reproducir automáticamente la animación\nque está vinculada a la visual seleccionada.";
+L["Auto-play Tooltip"] = "Reproducir automáticamente la animación\nque está vinculada al efecto seleccionado.";
 L["Delete Entry Plural"] = "Eliminará %s entradas";
 L["Delete Entry Singular"] = "Eliminará %s entrada";
-L["History Panel Note"] = "Las visuales aplicadas se mostrarán aquí";
-L["Return"] = "Return";
+L["History Panel Note"] = "Los efectos aplicados se mostrarán aquí";
+L["Return"] = "Regresar";
 L["Close"] = "Cerrar";
 L["Change Pack"] = "Cambiar paquete";
 
@@ -352,7 +352,7 @@ L["Switch Form To Visage"] = "Cambiar a la forma|cffffffff Rostro|r";
 L["Switch Form To Dracthyr"] = "Cambiar a la forma|cffffffff Dracthyr|r";
 L["Switch Form To Worgen"] = "Cambiar a la forma|cffffffff Huargen|r";
 L["Switch Form To Human"] = "Cambiar a la forma|cffffffff Humana|r";
-L["InGame Command"] = "In-Game Command";
+L["InGame Command"] = "Comando en el juego";
 
 --NPC Browser--
 NARCI_NPC_BROWSER_TITLE_LEVEL = ".*%?%?.?";      --Level ?? --Use this to check if the second line of the tooltip is NPC's title or unit type
@@ -426,14 +426,14 @@ L["Corruption Effect Format4"] = "Struck by the Thing From Beyond triggers other
 L["Corruption Effect Format5"] = "|cffffffff%s%%|r damage\\healing taken modified";
 
 --Text Overlay Frame
-L["Text Overlay"] = "Text Overlay";
-L["Text Overlay Button Tooltip1"] = "Globo de diálogo simple";
-L["Text Overlay Button Tooltip2"] = "Globo de diálogo avanzado";
-L["Text Overlay Button Tooltip3"] = "Globo de diálogo en la cabeza";
+L["Text Overlay"] = "Sup. de texto";
+L["Text Overlay Button Tooltip1"] = "Bocadillo de diálogo simple";
+L["Text Overlay Button Tooltip2"] = "Bocadillo de diálogo avanzado";
+L["Text Overlay Button Tooltip3"] = "Busto parlante";
 L["Text Overlay Button Tooltip4"] = "Subtítulo flotante";
-L["Text Overlay Button Tooltip5"] = "Subtítulo de barra negra";
+L["Text Overlay Button Tooltip5"] = "Subtítulo cinemático";
 L["Visibility"] = "Visibilidad";
-L["Photo Mode Frame"] = "Frame";    --Frame for photo
+L["Photo Mode Frame"] = "Marco";    --Frame for photo
 
 --Achievement Frame--
 L["Use Achievement Panel"] = "Usar como panel de logros principal";
@@ -449,10 +449,10 @@ L["Show Dates"] = "Mostrar fecha";
 L["Hide Dates"] = "Ocultar fecha";
 L["Pinned Entries"] = "Entradas fijadas";
 L["Pinned Entry Format"] = "Fijadas  %d/%d";
-L["Create A New Entry"] = "Create A New Entry";
-L["Custom Achievement"] = "Custom Achievement";
-L["Custom Achievement Description"] = "This is the description.";
-L["Custom Achievement Select And Edit"] = "Select an entry to edit.";
+L["Create A New Entry"] = "Crear una nueva entrada";
+L["Custom Achievement"] = "Logro personalizado";
+L["Custom Achievement Description"] = "Esta es la descripción.";
+L["Custom Achievement Select And Edit"] = "Selecciona una entrada para editar.";
 L["Cancel"] = "Cancelar";
 L["Color"] = "Color";
 L["Icon"] = "Icono";
@@ -461,6 +461,9 @@ L["Points"] = "Puntos";
 L["Reward"] = "Recompensa";
 L["Date"] = "Fecha";
 L["Click And Hold"] = "Click and Hold";
+L["To Do List"] = "Por hacer";
+L["Error Alert Bookmarks Too Many"] = "You may only bookmark %d achievements at a time.";
+L["Instruction Add To To Do List"] = string.format("%s Left Click on an unearned achievement to add it to your to-do list.", NARCI_MODIFIER_ALT);
 
 --Barbershop--
 L["Save New Look"] = "Guardar el nuevo aspecto";
@@ -494,6 +497,12 @@ L["Decode Good"] = "Decodificado con éxito.";
 L["Barbershop Export Tooltip"] = "Codifica la personalización utilizada actualmente en una cadena que se puede compartir en línea.\n\nPuedes cambiar cualquier texto antes de los dos puntos (:)";
 L["Settings And Share"] = (SETTINGS or "Ajustes") .." & ".. (SOCIAL_SHARE_TEXT or "Share");
 L["Loading Portraits"] = "Cargando retratos";
+L["Private Profile"] = "Privado";   --used by the current character
+L["Public Profile"] = "Público";     --shared among all your characters
+L["Profile Type Tooltip"] = "Selecciona el perfil que se utilizará en este personaje.\n\nPrivate:|cffedd100 Perfil creado por el personaje actual|r\n\nPúblico:|cffedd100 Perfil compartido entre todos tus personajes|r";
+L["No Saves"] = "Sin guardar";
+L["Profile Migration Tooltip"] = "Puedes copiar los preajustes existentes en el perfil público.";
+L["Profile Migration Okay"] = "Okey makey";
 
 --Tutorial--
 L["Alert"] = "Advertencia";
@@ -501,17 +510,17 @@ L["Race Change"] = "Cambio de raza/género";
 L["Race Change Line1"] = "Puedes volver a cambiar tu raza y género. Pero hay algunas limitaciones:\n1. Tus armas desaparecerán.\n2. Los efectos de hechizos ya no se pueden eliminar..\n3. No funciona con otros jugadores o NPC.";
 L["Guide Spell Headline"] = "Probar o aplicar";
 L["Guide Spell Criteria1"] = "Click para PROBAR";
-L["Guide Spell Criteria2"] = "Click derecho para APPLICAR";
-L["Guide Spell Line1"] = "Most spell visuals that you add by clicking left button will fade away in seconds, while those you add by clicking right button will not.\n\nNow please move to an entry then:";
-L["Guide Spell Choose Category"] = "You can add spell visuals to your model. Choose any category you like. Then choose a subcategory.";
+L["Guide Spell Criteria2"] = "Click derecho para APLICAR";
+L["Guide Spell Line1"] = "La mayoría de las ilusiones de hechizos que añadas al hacer click desaparecerán en segundos, mientras que las que añadas al hacer click derecho no desaparecerán..\n\nAhora por favor pasar a una entrada a continuación:";
+L["Guide Spell Choose Category"] = "Puedes aplicar ilusiones de hechizo a tu modelo. Elige la categoría que quieras. A continuación, elige una subcategoría.";
 L["Guide History Headline"] = "Panel de historia";
-L["Guide History Line1"] = "Aquí se pueden conservar como máximo 5 visuales aplicadas recientemente. Puede seleccionar una y eliminarla haciendo click en el botón Eliminar del extremo derecho.";
-L["Guide Refresh Line1"] = "Usa este botón para eliminar todas las visuales de hechizos no aplicadas. Las que estaban en el panel del historial se volverán a aplicar.";
+L["Guide History Line1"] = "Aquí se pueden conservar como máximo 5 ilusiones aplicadas recientemente. Puede seleccionar una y eliminarla haciendo click en el botón Eliminar del extremo derecho.";
+L["Guide Refresh Line1"] = "Usa este botón para eliminar todas las ilusiones de hechizos no aplicadas. Las que estaban en el panel del historial se volverán a aplicar.";
 L["Guide Input Headline"] = "Entrada manual";
 L["Guide Input Line1"] = "You may also input a SpellVisualKitID yourself. As of 9.0, Its cap is around 155,000.\nYou can use your mousewheel to try the next/previous ID.\nVery few IDs can crash the game.";
 L["Guide Equipment Manager Line1"] = "Doble click: Usar un conjunto\nClick derecho: Editar un conjunto.\n\nLa función anterior de este botón se ha movido a Preferencias.";
 L["Guide Model Control Headline"] = "Control de modelo";
-L["Guide Model Control Line1"] = format("Este modelo comparte las mismas acciones del mouse que usas en el probador, plus:\n\n1.Hold %s and Left Button: Girar el modelo alrededor Y-axis.\n2.Hold %s and Right Button: Ejecutar zoom de barrido.", NARCI_MODIFIER_ALT, NARCI_MODIFIER_ALT);
+L["Guide Model Control Line1"] = format("Este modelo comparte las mismas acciones del ratón que usas en el probador, plus:\n\n1.Mantener presionado %s y botón izquierdo: Girar el modelo alrededor Y-axis.\n2.Mantener presionado %s y botón derecho: Ejecutar zoom de barrido.", NARCI_MODIFIER_ALT, NARCI_MODIFIER_ALT);
 L["Guide Minimap Button Headline"] = "Botón Minimapa";
 L["Guide Minimap Button Line1"] = "El botón del minimapa de Narcissus ahora puede ser manejado por otros complementos.\nPuedes cambiar esta opción en el Panel de Preferencias. Puede requerir una recarga de UI."
 L["Guide NPC Entrance Line1"] = "Puedes agregar cualquier NPC a tu escena."
@@ -605,6 +614,8 @@ L["Socket Occupied"] = "Socket Occupied";       --Indicates that there is an (im
 S["Narcissus Played"] = "Tiempo total gastado en Narcissus";
 S["Format Since"] = "(desde %s)";
 S["Screenshots"] = "Capturas de pantalla tomadas con Narcissus";
+S["Shadowlands Quests"] = "Misiones de Shadowlands";
+S["Quest Text Reading Speed Format"] = "Completed: %s (%s words)  Reading: %s (%s wpm)";
 
 --Turntable Showcase--
 L["Turntable"] = "Base giratoria";
@@ -633,11 +644,11 @@ L["Lower Level"] = "Enviar hacia atras";
 L["Show Mount"] = "Mostrar montura";
 L["Hide Mount"] = "Ocultar montura";
 L["Loop Animation On"] = "Bucle";
-L["Click To Continue"] = "click para continuar";
+L["Click To Continue"] = "Click para continuar";
 L["Showcase Splash 1"] = "Crea animaciones en movimiento para enseñar tu transfiguración con Narcissus y la grabadora de pantalla.";
 L["Showcase Splash 2"] = "Click en el botón de abajo para copiar elementos del probador.";
 L["Showcase Splash 3"] = "Click en el botón de abajo para girar tu personaje.";
-L["Showcase Splash 4"] = "Graba la pantalla con el software de grabación y luego conviértela a GIF.";
+L["Showcase Splash 4"] = "Graba la pantalla con un software de grabación y luego conviértela a GIF.";
 L["Loop Animation Alert Kultiran"] = "Bucle - actualmente roto en Kultirano hombre";
 L["Loop Animation"] = "Animación en bucle";
 
@@ -706,5 +717,76 @@ L["Perks Program Unearned Tender Format"] = "- Tienes |cffffffff%s|r  cupones si
 L["Perks Program Item Added In Format"] = "Añadido en %s";
 L["Perks Program Item Unavailable"] = "Este item no está disponible actualmente.";
 L["Perks Program See Wares"] = "Ver articulos";
-L["Perks Program No Cache Alert"] = "Habla con los vendedores del Puesto Comercial para ver las mercancías de este mes..";
+L["Perks Program No Cache Alert"] = "Habla con los vendedores del Puesto Comercial para ver las mercancías de este mes...";
 L["Perks Program Using Cache Alert"] = "Se usa tu última visita como referencia. Los datos de precios pueden no ser exactos.";
+L["Modify Default Pose"] = "Cambiar la pose predeterminada";   --Change the default pose/animation/camera yaw when viewing transmog items
+
+--Quest--
+L["Auto Display Quest Item"] = "Visualización automática de la descripción de los items de misiones";
+L["Drag To Move"] = "Arrastrar para mover";
+L["Middle Click Reset Position"] = "Click central para restablecer la posición."
+L["Change Position"] = "Cambiar posición";
+
+
+--Timerunning--
+L["Primary Stat"] = "Estadística primaria";
+L["Stamina"] = ITEM_MOD_STAMINA_SHORT or "Aguante";
+L["Crit"] = ITEM_MOD_CRIT_RATING_SHORT or "Golpe crítico";
+L["Haste"] = ITEM_MOD_HASTE_RATING_SHORT or "Celeridad";
+L["Mastery"] = ITEM_MOD_MASTERY_RATING_SHORT or "Maestría";
+L["Versatility"] = ITEM_MOD_VERSATILITY or "Versatilidad";
+
+L["Leech"] = ITEM_MOD_CR_LIFESTEAL_SHORT or "Parasitar";
+L["Speed"] = ITEM_MOD_CR_SPEED_SHORT or "Velocidad";
+L["Format Stat EXP"] = "+%d%% EXP Ganada";
+L["Format Rank"] = AZERITE_ESSENCE_RANK or "Rango %d";
+L["Cloak Rank"] = "Hilos del tiempo:";
+
+
+--Gem Manager--
+L["Gem Manager"] = "Gestor de gemas";
+L["Pandamonium Gem Category 1"] = "Meta";      --Major Cooldown Abilities
+L["Pandamonium Gem Category 2"] = "Manitas";     --Tinker Gem
+L["Pandamonium Gem Category 3"] = PRISMATIC_GEM or "Prismática";
+L["Pandamonium Slot Category 1"] = (INVTYPE_CHEST or "Torso")..", "..(INVTYPE_LEGS or "Piernas");
+L["Pandamonium Slot Category 2"] = INVTYPE_TRINKET or "Abalorio";
+L["Pandamonium Slot Category 3"] = (INVTYPE_NECK or "Cuello")..", "..(INVTYPE_FINGER or "Dedo");
+L["Gem Removal Instruction"] = "<Click derecho para remover esta gema>";
+L["Gem Removal No Tool"] = "No tienes la herramienta para remover esta gema intacta.";
+L["Gem Removal Bag Full"] = "¡Libera espacio en la bolsa antes de retirar esta gema!";
+L["Gem Removal Combat"] = "No se puede cambiar la gema durante el combate.";
+L["Gemma Click To Activate"] = "<Click para activar>";
+L["Gemma Click To Insert"] = "<Click para insertar>";
+L["Gemma Click Twice To Insert"] = "<Click |cffffffffTWICE|r para insertar>";
+L["Gemma Click To Select"] = "<Click para seleccionar>";
+L["Gemma Click To Deselect"] = "<Click derecho para deseleccionar>";
+L["Stat Health Regen"] = "Regeneración de salud";
+L["Gem Uncollected"] = FOLLOWERLIST_LABEL_UNCOLLECTED or "Sin conseguir";
+L["No Sockets Were Found"] = "No se han encontrado ranuras compatibles.";
+L["Click To Show Gem List"] = "<Click para mostrar la lista de gemas>";
+L["Remix Gem Manager"] = "Remix Gestor de gemas";
+L["Select A Loadout"] = "Selecciona un conjunto";
+L["Loadout Equipped"] = "Equipado";
+L["Loadout Equipped Partially"] = "Parcialmente equipado";
+L["Last Used Loadout"] = "Último utilizado";
+L["New Loadout"] = TALENT_FRAME_DROP_DOWN_NEW_LOADOUT or "Nuevo conjunto";
+L["New Loadout Blank"] = "Crear un conjunto en blanco";
+L["New Loadout From Equipped"] = "Usar configuración actual";
+L["Edit Loadout"] = EDIT or "Editar";
+L["Delete Loadout One Click"] = DELETE or "Borrar";
+L["Delete Loadout Long Click"] = "|cffff4800"..(DELETE or "Borrar").."|r\n|cffcccccc(click and hold)|r";
+L["Select Gems"] = LFG_LIST_SELECT or "Seleccionar";
+L["Equipping Gems"] = "Equipando...";
+L["Pandamonium Sockets Available"] = "Puntos disponibles";
+L["Click To Open Gem Manager"] = "Click para abrir/cerrar el gestor de gemas";
+L["Loadout Save Failure Incomplete Choices"] = "|cffff4800Tienes gemas no seleccionadas.|r";
+L["Loadout Save Failure Dupe Loadout Format"] = "|cffff4800Esta carga es la misma que|r %s";
+L["Loadout Save Failure Dupe Name Format"] = "|cffff4800A El conjunto con ese nombre ya existe..|r";
+L["Loadout Save Failure No Name"] = "|cffff4800".. (TALENT_FRAME_DROP_DOWN_NEW_LOADOUT_PROMPT or "Introduce un nombre para el nuevo conjunto.") .."|r";
+
+L["Format Equipping Progress"] = "Equipando %d/%d";
+L["Format Click Times To Equip Singular"] = "Click |cff19ff19%d|r Time to Equip";
+L["Format Click Times To Equip Plural"] = "Click |cff19ff19%d|r Times to Equip";   --|4Time:Times; cannot coexist with color code?
+L["Format Free Up Bag Slot"] = "Libera %d espacios en las bolsas primero";
+L["Format Number Items Selected"] = "%d Seleccionado";
+L["Format Gem Slot Stat Budget"] = "Las gemas en %s son %s%% efectivas."  --e.g. Gems in trinket are 75% effective

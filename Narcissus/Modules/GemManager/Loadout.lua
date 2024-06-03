@@ -120,6 +120,8 @@ do
             return
         end
 
+        tsort(gemInfo.tinker);
+
         local data = {};
         data.name = name;
         data.gemInfo = gemInfo;
@@ -1764,12 +1766,18 @@ do
                 if i == self.equippedIndex then
                     ListRightIcon:SetEquipped();
                     ListRightIcon:AnchorToLoadoutButton(button);
+                    return
                 elseif i == self.lastAppliedIndex then
                     ListRightIcon:SetLastApplied();
                     ListRightIcon:AnchorToLoadoutButton(button);
+                    return
                 end
+            else
+                break
             end
         end
+
+        ListRightIcon:Hide();
     end
 
     function LoadoutFrameMixin:UpdateLoadoutList()
@@ -1778,8 +1786,8 @@ do
         local button;
         local data;
 
-        self.LoadoutList.NewButton:Hide();
-        ListRightIcon:Hide();
+        local NewButton = self.LoadoutList.NewButton;
+        NewButton:Hide();
 
         local equippedIndex = LoadoutUtil:GetEquippedLoadoutIndex();
         local lastAppliedIndex;
@@ -1789,6 +1797,8 @@ do
 
         self.equippedIndex = equippedIndex;
         self.lastAppliedIndex = lastAppliedIndex;
+
+
 
         for i = 1, MAX_SAVES do
             data = LoadoutUtil:GetLoadoutData(i);
@@ -1811,13 +1821,12 @@ do
                 end
 
                 if i == newButtonIndex then
-                    button = self.LoadoutList.NewButton;
-                    button:ClearAllPoints();
-                    button:Show();
+                    NewButton:ClearAllPoints();
+                    NewButton:Show();
                     if i == 1 then
-                        button:SetPoint("TOP", self.LoadoutList, "TOP", 0, 0);
+                        NewButton:SetPoint("TOP", self.LoadoutList, "TOP", 0, 0);
                     else
-                        button:SetPoint("TOP", self.loadoutButtons[i - 1], "BOTTOM", 0, 0);
+                        NewButton:SetPoint("TOP", self.loadoutButtons[i - 1], "BOTTOM", 0, 0);
                     end
                 end
             end
@@ -1826,6 +1835,7 @@ do
         self:SetTitle(L["Loadout"].."  |cff808080"..numSaves.."/"..MAX_SAVES.."|r");
 
         self:UpdateRightIcon();
+
 
         MouseOverFrame:UpdateBackground();
         MouseOverFrame:UpdateLoadout();
@@ -2339,6 +2349,8 @@ do
         bar:SetWidth(1);
         bar:SetHeight(4);
         bar:SetPoint("BOTTOMLEFT", self, "TOPLEFT", 0, 4);
+
+        self:OnLeave();
     end
 
     function DeleteButtonMixin:OnEnter()

@@ -310,3 +310,14 @@ do
         Controller:SetEnabled(state);
     end
 end
+
+
+do
+    --ChonkyCharacterSheet supports this widget in our addon that we no longer use
+    local widgetName = "NarciCharacterFrameDominationIndicator";
+    if not _G[widgetName] then
+        local f = CreateFrame("Frame", widgetName, UIParent);
+        f:SetSize(4, 4);
+        f:Hide();
+    end
+end

@@ -541,6 +541,7 @@ end
 local TINKER_SLOT = {
     SLOT_ID.SHOULDER, SLOT_ID.WRIST, SLOT_ID.HANDS, SLOT_ID.WAIST,
 };
+
 do  --Use the result from bag scan
     local META_SLOT = { SLOT_ID.HEAD };
 
@@ -1052,17 +1053,6 @@ function GemManagerMixin:ShowTraits()
         col = col + 1;
     end
 
-    if self.TooltipFrame then
-        self.TooltipFrame:ClearAllPoints();
-        self.TooltipFrame:SetPoint("TOP", container, "CENTER", 0, -contentHeight * 0.5 - 44);
-
-        if GetCVarBool("colorblindMode") then
-            self.TooltipFrame:SetDescriptionLine(7);
-        else
-            self.TooltipFrame:SetDescriptionLine(6);
-        end
-    end
-
     if self.SlotFrame.ButtonHighlight then
         self.SlotFrame.ButtonHighlight:SetShape(shape);
     end
@@ -1079,6 +1069,17 @@ function GemManagerMixin:ShowTraits()
     self.UpdateCurrentTab = self.UpdateSlots;
 
     if not self.isLoadoutPlanner then
+        if self.TooltipFrame then
+            self.TooltipFrame:ClearAllPoints();
+            self.TooltipFrame:SetPoint("TOP", container, "CENTER", 0, -contentHeight * 0.5 - 44);
+    
+            if GetCVarBool("colorblindMode") then
+                self.TooltipFrame:SetDescriptionLine(7);
+            else
+                self.TooltipFrame:SetDescriptionLine(6);
+            end
+        end
+
         self:UpdateSlots();
     end
 end
