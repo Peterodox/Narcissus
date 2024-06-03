@@ -32,7 +32,7 @@ local tremove = table.remove;
 
 local FadeFrame = NarciFadeUI.Fade;
 local NarciAPI = NarciAPI;
-local IsItemDominationShard = NarciAPI.IsItemDominationShard;
+--local IsItemDominationShard = NarciAPI.IsItemDominationShard;
 local RemoveColorString = NarciAPI.RemoveColorString;
 local GetCachedItemTooltipTextByLine = NarciAPI.GetCachedItemTooltipTextByLine;
 local GetItemTempEnchantRequirement = NarciAPI.GetItemTempEnchantRequirement;
@@ -976,7 +976,7 @@ function NarciEquipmentListTooltipMixin:SetItem(itemID)
             self:SetSpell(spellID);
         else
             local line;
-            if IsItemDominationShard(itemID) then
+            if false then  --IsItemDominationShard(itemID)
                 line = 5;
             else
                 if DataProvider:IsItemPrimordialStone(itemID) then

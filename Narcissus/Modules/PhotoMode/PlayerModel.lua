@@ -6,7 +6,7 @@ local GetModelLight = addon.TransitionAPI.GetModelLight;
 local SetGradient = addon.TransitionAPI.SetGradient;
 local SetModelByUnit = addon.TransitionAPI.SetModelByUnit;
 local SetModelCameraPosition = addon.TransitionAPI.SetCameraPosition;
-
+local CopyTable = addon.CopyTable;
 local GetAlternateFormInfo = C_PlayerInfo.GetAlternateFormInfo or HasAlternateForm;
 
 local Narci = Narci;
@@ -3374,15 +3374,6 @@ local function ModelIndexButton_ShowSelfLabelAndHideOthers(self)
 		ShowIndexButtonLabel(button, false);
 	end
 	ShowIndexButtonLabel(self, true);
-end
-
-local function CopyTable(table)
-	if not table then return; end;
-	local newTable = {};
-	for k, v in pairs(table) do
-		newTable[k] = v;
-	end
-	return newTable;
 end
 
 local function UpdateButtonOrder(button, newOrder)

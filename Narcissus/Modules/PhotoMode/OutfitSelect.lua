@@ -958,19 +958,6 @@ function NarciPhotoModeOutfitSelectMixin:Init()
     self.Init = nil;
 end
 
-local function CopyTable(settings)
-    --Blizzard TableUtil.lua
-	local copy = {};
-	for k, v in pairs(settings) do
-		if type(v) == "table" then
-			copy[k] = CopyTable(v);
-		else
-			copy[k] = v;
-		end
-	end
-	return copy;
-end
-
 function NarciPhotoModeOutfitSelectMixin:AddPlayerActor(unit, model)
     if not model.GetItemTransmogInfoList then return end;
 

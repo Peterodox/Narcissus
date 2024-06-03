@@ -24,11 +24,11 @@ local TRAIT_BUTTON_SIZE = 38;     --40 Blizzard Talents
 local FRAME_PADDING = 8;
 local TAB_BUTTON_HEIGHT = 32;
 local FRAME_WIDTH, FRAME_HEIGHT = 338, 424;
-local FONT_FILE = GameFontNormal:GetFont();
 local ACTIONBLOCKER_DURATION = 0.8;
+local ACTIONBLOCKER_WHEN_BAG_UPDATE = true;
 
 local TOOLTIP_METHOD = "ShowGameTooltip";
-local MainFrame, TooltipFrame, SlotHighlight, PointsDisplay, GemList, ListHighlight, ProgressBar, Spinner, MouseOverFrame;
+local MainFrame, TooltipFrame, SlotHighlight, PointsDisplay, GemList, ListHighlight, ProgressBar, Spinner, MouseOverFrame, ModeFrame, LoadoutFrame;
 
 
 
@@ -212,7 +212,7 @@ do
     function Mixin_TraitButton:SetUncollected()
         self.traitState = 0;
         self:SetBorderByState("inactive");
-        self:SetIconEmpty();  --debug
+        self:SetIconEmpty();
         --self.Icon:SetTexture(self.iconFile);
         --self.Icon:SetVertexColor(0.8, 0.8, 0.8);
         --self.Icon:SetDesaturation(1);
@@ -326,6 +326,7 @@ do
             end);
 
             background:SetIgnoreParentAlpha(true);
+            background:SetFrameStrata("TOOLTIP");
         end
 
         local offset = 2;
@@ -428,12 +429,13 @@ do
         if showBG then
             local textHeight = self.Header:GetHeight() + self.Text1:GetHeight() + text2Height + 10;
             local textWidth = math.max(self.Header:GetWrappedWidth(), self.Text1:GetWrappedWidth());
-            self.Background:SetSize(textWidth + 96, textHeight + 32);
+            self.Background:SetSize(textWidth + 112, textHeight + 32);   --tooltipwidth
             self.Background:Show();
         else
             self.Background:Hide();
         end
 
+        TooltipFrame.visible = true;
         FadeFrame(TooltipFrame, 0.15, 1);
     end
 
@@ -459,7 +461,9 @@ do
     end
 
     function Mixin_TooltipFrame:UpdateTooltipInfo()
-        self:ProcessTooltipInfo();
+        if TooltipFrame.visible then
+            self:ProcessTooltipInfo();
+        end
     end
 
     function Mixin_TooltipFrame:SetDescriptionLine(lineIndex)
@@ -514,87 +518,6 @@ do
 
         AtlasUtil:SetAtlas(self.Background, "remix-ui-tooltip-bg");
         --self.Background:SetColorTexture(0, 0, 0, 0.5);
-
-        local flag = "OUTLINE";
-        self.Header:SetFont(FONT_FILE, 14, flag);
-        self.Text1:SetFont(FONT_FILE, 12, flag);
-        self.Text2:SetFont(FONT_FILE, 12, flag);
-    end
-end
-
-
-
-
-local Mixin_SlotHighlight = {};
-do
-    local HIGHLIGHT_TEXTURE = {
-        Hexagon = {
-            Normal = {
-                atlas = "remix-hexagon-highlight",
-                alphaMode = "ADD",
-                alpha = 0.8,
-            },
-
-            Dashed = {
-                atlas = "remix-hexagon-dashedhighlight",
-                alphaMode = "ADD",
-                alpha = 0.8,
-            },
-        },
-
-        BigSquare = {
-            Normal = {
-                atlas = "remix-bigsquare-highlight",
-                alphaMode = "ADD",
-                alpha = 0.5,
-            },
-
-            Dashed = {
-                atlas = "remix-bigsquare-dashedhighlight",
-                alphaMode = "ADD",
-                alpha = 0.67,
-            },
-        },
-    };
-
-    function Mixin_SlotHighlight:SetShape(shape)
-        local data = HIGHLIGHT_TEXTURE[shape];
-        self.data = data;
-        AtlasUtil:SetAtlas(self.Texture, data.Normal.atlas);
-        self.Texture:SetBlendMode(data.Normal.alphaMode);
-        self:SetAlpha(data.Normal.alpha);
-        self.isDashed = false;
-    end
-
-    function Mixin_SlotHighlight:HighlightSlot(slot)
-        self:ClearAllPoints();
-        if slot then
-            self:Show();
-            self:SetParent(slot);
-            self:SetPoint("CENTER", slot, "CENTER", 0, 0);
-
-            local newStyle;
-
-            if slot.traitState == 3 or slot.traitState == 4 then
-                if not self.isDashed then
-                    self.isDashed = true;
-                    newStyle = self.data.Dashed;
-                end
-            else
-                if self.isDashed then
-                    self.isDashed = false;
-                    newStyle = self.data.Normal;
-                end
-            end
-
-            if newStyle then
-                AtlasUtil:SetAtlas(self.Texture, newStyle.atlas);
-                self.Texture:SetBlendMode(newStyle.alphaMode);
-                self:SetAlpha(newStyle.alpha);
-            end
-        else
-            self:Hide();
-        end
     end
 end
 
@@ -604,7 +527,7 @@ end
 local Mixin_TabButton = {}
 do
     function Mixin_TabButton:OnLoad()
-        self.Name = self:CreateFontString(nil, "OVERLAY", "GameFontNormal");
+        self.Name = self:CreateFontString(nil, "OVERLAY", "NarciGemmaFontLarge");
         self.Name:SetJustifyH("CENTER");
         self.Name:SetPoint("CENTER", self, "CENTER", 0, 0);
 
@@ -617,13 +540,13 @@ do
         dot:SetSnapToPixelGrid(false);
         dot:Hide();
 
-        local flag = "OUTLINE";
-        self.Name:SetFont(FONT_FILE, 14, flag);
         self:SetHeight(TAB_BUTTON_HEIGHT);
 
         self:SetScript("OnEnter", self.OnEnter);
         self:SetScript("OnLeave", self.OnLeave);
         self:SetScript("OnClick", self.OnClick);
+        self:SetScript("OnMouseDown", self.OnMouseDown);
+        self:SetScript("OnMouseUp", self.OnMouseUp);
     end
 
     function Mixin_TabButton:OnEnter()
@@ -651,91 +574,22 @@ do
         MainFrame:SelectTabByID(self.id);
     end
 
+    function Mixin_TabButton:OnMouseDown(button)
+        if button == "LeftButton" and (not self.isSelected) then
+            self.Name:SetPoint("CENTER", 0, -1);
+        end
+    end
+
+    function Mixin_TabButton:OnMouseUp()
+        self.Name:SetPoint("CENTER", 0, 0);
+    end
+
     function Mixin_TabButton:SetName(name)
         self.Name:SetText(name);
         local width = self.Name:GetWrappedWidth();
         local buttonWidth = math.max(width, 64);
         self:SetWidth(buttonWidth);
         return buttonWidth
-    end
-end
-
-
-
-
-local Mixin_PointsDisplay = {};
-do
-    local NUMBER_SIZE = 28;
-    local NUMBER_LABEL_GAP = 6;
-
-    function Mixin_PointsDisplay:OnLoad()
-        local flag = "OUTLINE";
-
-        self.Amount:SetFont(FONT_FILE, NUMBER_SIZE, flag);
-        self.Label:SetFont(FONT_FILE, 12, flag);
-        self.Label:ClearAllPoints();
-        self.Label:SetPoint("LEFT", self, "LEFT", NUMBER_SIZE + NUMBER_LABEL_GAP, 0);
-        self.Amount:ClearAllPoints();
-        self.Amount:SetPoint("RIGHT", self.Label, "LEFT", -NUMBER_LABEL_GAP, -1)
-
-        self.Label:SetTextColor(0.88, 0.88, 0.88);
-        self:SetHeight(NUMBER_SIZE);
-    end
-
-    function Mixin_PointsDisplay:SetLabel(text)
-        text = string.upper(text);
-        self.Label:SetText(text);
-        local textWidth = self.Label:GetWrappedWidth();
-        local frameWidth = NUMBER_SIZE + NUMBER_LABEL_GAP + textWidth;
-        self:SetWidth(frameWidth);
-    end
-
-    function Mixin_PointsDisplay:SetAmount(amount)
-        self.Amount:SetText(amount);
-        self.Amount:SetTextColor(0, 1, 0);
-    end
-end
-
-
-local CreateIconButton;
-do
-    local Mixin_IconButton = {};
-
-    function Mixin_IconButton:OnEnter()
-        self.Icon:SetVertexColor(1, 1, 1);
-    end
-
-    function Mixin_IconButton:OnLeave()
-        self.Icon:SetVertexColor(0.5, 0.5, 0.5);
-    end
-
-    function Mixin_IconButton:OnDisable()
-        self.Icon:SetVertexColor(0.1, 0.1, 0.1);
-    end
-
-    function Mixin_IconButton:OnEnable()
-        if self:IsMouseOver() then
-            self:OnEnter();
-        else
-            self:OnLeave();
-        end
-    end
-
-    function CreateIconButton(parent)
-        local button = CreateFrame("Button", nil, parent);
-        button.Icon = button:CreateTexture(nil, "OVERLAY");
-        button.Icon:SetSize(16, 16);
-        button.Icon:SetPoint("CENTER", button, "CENTER", 0, 0);
-
-        Mixin(button, Mixin_IconButton);
-        button:SetScript("OnEnter", button.OnEnter);
-        button:SetScript("OnLeave", button.OnLeave);
-        button:SetScript("OnDisable", button.OnDisable);
-        button:SetScript("OnEnable", button.OnEnable);
-
-        button:Disable();
-
-        return button
     end
 end
 
@@ -825,7 +679,8 @@ do  --Attribute Assignment
             self.PlusButton:SetPoint("CENTER", self.Count, "RIGHT", 12, 0);
         end
 
-        self.Count:SetFont(FONT_FILE, 16, "");
+        local font = NarciSystemFont_Medium_Outline:GetFont();
+        self.Count:SetFont(font, 16, "");
         self.Count:SetTextColor(0, 0, 0);
     end
 
@@ -860,6 +715,7 @@ do  --Attribute Assignment
         self.statButton = statButton;
 
         if statButton then
+            self.Count:SetText(statButton.Count:GetText());
             self:SetPoint("CENTER", statButton, "CENTER", 0, 0);
             self.MinusButton:SetShown(statButton.showMinusButton);
             self.PlusButton:SetShown(statButton.showPlusButton);
@@ -872,8 +728,6 @@ do  --Attribute Assignment
             FadeFrame(self, 0.15, 0);
             return
         end
-
-        self.Count:SetText(statButton.Count:GetText());
     end
 end
 
@@ -894,8 +748,6 @@ do
         self:SetScript("OnEnter", self.OnEnter);
         self:SetScript("OnLeave", self.OnLeave);
         self:SetScript("OnClick", self.OnClick);
-
-        self.Text1:SetFont(FONT_FILE, 14, "OUTLINE");
 
         local delay = self.index * 0.05;
         self.AnimFlyIn.Delay1:SetStartDelay(delay);
@@ -989,24 +841,20 @@ do
         local height = 24;
         self.listButtons = {};
 
-        local PageText = self:CreateFontString(nil, "OVERLAY", "GameFontNormal");
+        local PageText = self:CreateFontString(nil, "OVERLAY", "NarciGemmaFontMedium");
         self.PageText = PageText;
         PageText:SetWidth(72);
         PageText:SetHeight(height);
         PageText:SetJustifyH("CENTER");
         PageText:SetPoint("BOTTOM", self, "BOTTOM", 0, 3);
-
-        local flag = "OUTLINE";
-        PageText:SetFont(FONT_FILE, 12, flag);
         PageText:SetTextColor(0.88, 0.88, 0.88);
+
+        self.Title:SetTextColor(0.88, 0.88, 0.88);
 
         self:SetScript("OnMouseDown", self.OnMouseDown);
         self:SetScript("OnMouseWheel", self.OnMouseWheel);
 
-        self.Title:SetFont(FONT_FILE, 14, flag);
-        self.Title:SetTextColor(0.88, 0.88, 0.88);
-
-        local button1 = CreateIconButton(self);
+        local button1 = Gemma.CreateIconButton(self);
         self.PrevButton = button1;
         AtlasUtil:SetAtlas(button1.Icon, "gemlist-prev");
         button1:SetSize(height, height);
@@ -1015,7 +863,7 @@ do
             self:OnMouseWheel(1);
         end);
 
-        local button2 = CreateIconButton(self);
+        local button2 = Gemma.CreateIconButton(self);
         self.NextButton = button2;
         AtlasUtil:SetAtlas(button2.Icon, "gemlist-next");
         button2:SetSize(height, height);
@@ -1024,7 +872,7 @@ do
             self:OnMouseWheel(-1);
         end);
 
-        local button3 = CreateIconButton(self);
+        local button3 = Gemma.CreateIconButton(self);
         self.ReturnButton = button3;
         AtlasUtil:SetAtlas(button3.Icon, "gemlist-return");
         button3:SetSize(60, TAB_BUTTON_HEIGHT);
@@ -1121,8 +969,12 @@ do
         end
     end
 
+    function Mixin_GemList:SetTitle(text)
+        self.Title:SetText(text);
+    end
+
     function Mixin_GemList:SetItemList(itemList, title, dataProvider)
-        self.Title:SetText(title);
+        self:SetTitle(title);
 
         if itemList ~= self.itemList then
             self.itemList = itemList;
@@ -1167,174 +1019,154 @@ end
 
 
 
-local CreateProgressBar;
-do
-    local Mixin_ProgressBar = {};
+local Mixin_ModeFrame = {};
+do  --On the bottom of the UI
+    local BUTTON_HEIGHT = 32;
+    local BUTTON_MIN_WIDTH = 48;
 
-    function Mixin_ProgressBar:OnLoad()
-        self:SetSize(200, 18);
+    local Mixin_ModeButton = {};
 
-        local flag = "OUTLINE";
-        self.Title:SetFont(FONT_FILE, 12, flag);
-        self.Title:SetTextColor(0.88, 0.88, 0.88);
+    function Mixin_ModeButton:OnLoad()
+        self:SetSize(BUTTON_MIN_WIDTH, BUTTON_HEIGHT);
 
-        local Fill = self.Fill;
-        Fill:ClearAllPoints();
-        Fill:SetPoint("LEFT", self, "LEFT", 6, 0);
+        self.Name = self:CreateFontString(nil, "OVERLAY", "NarciGemmaFontSmall");
+        self.Name:SetJustifyH("CENTER");
+        self.Name:SetPoint("CENTER", self, "CENTER", 0, 0);
 
-        local fillAtlas = "gemma-progressbar-fill";
+        self.Left = self:CreateTexture(nil, "BACKGROUND");
+        self.Center = self:CreateTexture(nil, "BACKGROUND");
+        self.Right = self:CreateTexture(nil, "BACKGROUND");
 
-        AtlasUtil:SetAtlas(self.Border, "gemma-progressbar-border");
-        AtlasUtil:SetAtlas(Fill, fillAtlas);
-        AtlasUtil:SetAtlas(self.Background, "gemma-progressbar-bg");
+        self.Left:SetPoint("BOTTOMLEFT", self, "BOTTOMLEFT", 0, 0);
+        self.Right:SetPoint("BOTTOMRIGHT", self, "BOTTOMRIGHT", 0, 0);
+        self.Center:SetPoint("TOPLEFT", self.Left, "TOPRIGHT", 0, 0);
+        self.Center:SetPoint("BOTTOMRIGHT", self.Right, "BOTTOMLEFT", 0, 0);
 
-        local left, right, top, bottom = AtlasUtil:GetTexCoord(fillAtlas);
-        self.left = left;
-        self.top = top;
-        self.bottom = bottom;
-        self.fillTexRange = right - left;
-        self.fillFullWidth = 188;
+        AtlasUtil:SetAtlas(self.Left, "remix-modebutton-left");
+        AtlasUtil:SetAtlas(self.Right, "remix-modebutton-right");
 
-        self:SetScript("OnEvent", self.OnEvent);
-        self:SetScript("OnHide", self.OnHide);
+        --local tileH = true;
+        AtlasUtil:SetAtlas(self.Center, "remix-modebutton-center");
+
+        self:SetScript("OnEnter", self.OnEnter);
+        self:SetScript("OnLeave", self.OnLeave);
+        self:SetScript("OnClick", self.OnClick);
+        self:SetScript("OnMouseDown", self.OnMouseDown);
+        self:SetScript("OnMouseUp", self.OnMouseUp);
     end
 
-    function Mixin_ProgressBar:SetCastText(text)
-        self.Title:SetText(text);
+    function Mixin_ModeButton:OnEnter()
+        self.Name:SetTextColor(1, 1, 1);
     end
 
-    function Mixin_ProgressBar:SetProgress(progress)
-        if progress <= 0 then
-            progress = 0;
-            self.Fill:Hide();
-            return
+    function Mixin_ModeButton:OnLeave()
+        self:UpdateColor();
+    end
+
+    function Mixin_ModeButton:UpdateColor()
+        if self.isSelected then
+            self.Name:SetTextColor(1, 1, 1);
         else
-            self.Fill:Show();
-            if progress > 1 then
-                progress = 1;
+            self.Name:SetTextColor(0.67, 0.67, 0.67);
+        end
+    end
+
+    function Mixin_ModeButton:SetSelected(isSelected)
+        self.isSelected = isSelected or false;
+        self:UpdateColor();
+
+        if self.isSelected then
+            AtlasUtil:SetAtlas(self.Left, "remix-modebutton-highlighted-left");
+            AtlasUtil:SetAtlas(self.Right, "remix-modebutton-highlighted-right");
+            AtlasUtil:SetAtlas(self.Center, "remix-modebutton-highlighted-center", true);
+        else
+            AtlasUtil:SetAtlas(self.Left, "remix-modebutton-left");
+            AtlasUtil:SetAtlas(self.Right, "remix-modebutton-right");
+            AtlasUtil:SetAtlas(self.Center, "remix-modebutton-center", true);
+        end
+    end
+
+    function Mixin_ModeButton:OnClick()
+        MainFrame:SelectModeByID(self.id);
+    end
+
+    function Mixin_ModeButton:SetName(name)
+        self.Name:SetText(name);
+        local width = self.Name:GetWrappedWidth();
+        local buttonWidth = math.max(math.ceil(width + 20) , BUTTON_MIN_WIDTH);
+        self:SetWidth(buttonWidth);
+        return buttonWidth
+    end
+
+    function Mixin_ModeButton:OnMouseDown(button)
+        if button == "LeftButton" and (not self.isSelected) then
+            self.Name:SetPoint("CENTER", 0, -1);
+        end
+    end
+
+    function Mixin_ModeButton:OnMouseUp()
+        self.Name:SetPoint("CENTER", 0, 0);
+    end
+
+
+
+
+    local TEST_MODES = {
+        GENERAL,
+        L["Loadout"],
+    };
+
+    function Mixin_ModeFrame:OnLoad()
+        self:SetSize(BUTTON_MIN_WIDTH, BUTTON_HEIGHT);
+    end
+
+    function Mixin_ModeFrame:SetModeData(modeData)
+        modeData = TEST_MODES;
+
+        if self.modeButtons then
+            for _, button in ipairs(self.modeButtons) do
+                button:Hide();
             end
         end
 
-        self.Fill:SetWidth(self.fillFullWidth * progress);
-        self.Fill:SetTexCoord(self.left, self.left + self.fillTexRange * progress, self.top, self.bottom);
-    end
-
-    function Mixin_ProgressBar:ListenSpellCastEvent(state)
-        if state then
-            --UNIT_SPELLCAST_START is controlled by MainFrame
-            self:RegisterUnitEvent("UNIT_SPELLCAST_SUCCEEDED", "player");
-            self:RegisterUnitEvent("UNIT_SPELLCAST_FAILED", "player");
-            self:RegisterUnitEvent("UNIT_SPELLCAST_INTERRUPTED", "player");
-            self:RegisterUnitEvent("UNIT_SPELLCAST_STOP", "player");
-        else
-            self:UnregisterEvent("UNIT_SPELLCAST_SUCCEEDED");
-            self:UnregisterEvent("UNIT_SPELLCAST_FAILED");
-            self:UnregisterEvent("UNIT_SPELLCAST_INTERRUPTED");
-            self:UnregisterEvent("UNIT_SPELLCAST_STOP");
-        end
-    end
-
-    function Mixin_ProgressBar:OnHide()
-        self.t = 0;
-        self:SetScript("OnUpdate", nil);
-        self:ListenSpellCastEvent(false);
-        Spinner:Hide();
-    end
-
-    function Mixin_ProgressBar:OnEvent(event, ...)
-        --FAILED, INTERRUPTED fire after STOP
-        --print(GetTime(), event);    --debug
-
-        if event == "UNIT_SPELLCAST_FAILED" then
-            self:ListenSpellCastEvent(false);
-            self:DispalyErrorMessage(FAILED);
-        elseif event == "UNIT_SPELLCAST_INTERRUPTED" then
-            self:ListenSpellCastEvent(false);
-            self:DispalyErrorMessage(SPELL_FAILED_INTERRUPTED);
-        end
-    end
-
-    function Mixin_ProgressBar:DispalyErrorMessage(error)
-        self:SetCastText(error);
-        self:SetScript("OnUpdate", nil);
-        self:PlayOutro(1);
-        AtlasUtil:SetAtlas(self.Fill, "gemma-progressbar-fillred");
-    end
-
-    local function Fill_OnUpdate(self, elapsed)
-        self.t = self.t + elapsed;
-        if self.t >= self.duration then
-            self.t = 0;
-            self:SetScript("OnUpdate", nil);
-            self:OnSucceeded();
-        else
-            self:SetProgress(self.t / self.duration);
-        end
-    end
-
-    function Mixin_ProgressBar:OnSucceeded()
-        self:SetProgress(1);
-        self:SetScript("OnUpdate", nil);
-        self:PlayOutro();
-    end
-
-    function Mixin_ProgressBar:SetDuration(duration)
-        self.t = 0;
-        self.duration = duration;
-        self:SetProgress(0);
-        self:SetScript("OnUpdate", Fill_OnUpdate);
-    end
-
-    function Mixin_ProgressBar:UpdateSpellCast()
-        local name, text, texture, startTimeMS, endTimeMS, isTradeSkill, castID, notInterruptible, spellID = UnitCastingInfo("player");
-        if name then
-            self:SetCastText(text);
-            self:PlayIntro();
+        if modeData and #modeData > 0 then
             self:Show();
-            self:ListenSpellCastEvent(true);
-            self:SetDuration((endTimeMS - startTimeMS)/1000);
+            if not self.modeButtons then
+                self.modeButtons = {};
+            end
+
+            local button, buttonWidth;
+            local totalWidth = 0;
+            local gap = 2;
+
+            for i, data in ipairs(modeData) do
+                button = self.modeButtons[i];
+                if not button then
+                    button = CreateFrame("Button", nil, self);
+                    self.modeButtons[i] = button;
+                    Mixin(button, Mixin_ModeButton);
+                    button:OnLoad();
+                    button.id = i;
+                end
+                
+                buttonWidth = button:SetName(data);
+                button:ClearAllPoints();
+                button:SetPoint("TOPLEFT", self, "TOPLEFT", totalWidth, 0);
+                totalWidth = totalWidth + buttonWidth + gap;
+            end
+            
+            self:SetSize(totalWidth, BUTTON_HEIGHT);
         else
             self:Hide();
         end
     end
 
-    function Mixin_ProgressBar:UpdateSpellCooldown(spellID)
-        local start, duration, enabled, modRate = GetSpellCooldown(spellID);
-        if enabled == 1 and start > 0 and duration > 0 then
-            local cdLeft = start + duration - GetTime();
-            self:SetCastText("");
-            self:PlayIntro();
-            self:Show();
-            self:ListenSpellCastEvent(true);
-            self:SetDuration(cdLeft);
-        else
-            self:Hide();
+    function Mixin_ModeFrame:SelectModeButton(id)
+        if not self.modeButtons then return end;
+
+        for i, button in ipairs(self.modeButtons) do
+            button:SetSelected(i == id);
         end
-    end
-
-    function Mixin_ProgressBar:PlayIntro()
-        self:StopAnimating();
-        self.AnimIn:Play();
-
-        FadeFrame(Spinner, 0.5, 1, 0);
-    end
-
-    function Mixin_ProgressBar:PlayOutro(delay)
-        delay = delay or 0;
-        self:StopAnimating();
-        self.AnimOut.Fade:SetStartDelay(delay);
-        self.AnimOut:Play();
-
-        FadeFrame(Spinner, 0.5, 0);
-    end
-
-    function CreateProgressBar(parent)
-        local f = CreateFrame("Frame", nil, parent, "NarciGemManagerProgressBarTemplate");
-        f:Hide();
-        Mixin(f, Mixin_ProgressBar);
-        f:OnLoad();
-
-        return f
     end
 end
 
@@ -1342,6 +1174,7 @@ end
 
 
 local SetupModelScene;
+local SetModelSceneVisiblity;
 do
     function SetupModelScene(self)
         self:SetSize(FRAME_WIDTH, FRAME_HEIGHT);
@@ -1358,6 +1191,14 @@ do
             actor:SetUseCenterForOrigin(true, true, true);
         end
     end
+
+    function SetModelSceneVisiblity(state)
+        if state then
+            FadeFrame(MainFrame.ModelScene, 0.5, 1);
+        else
+            FadeFrame(MainFrame.ModelScene, 0.1, 0.2);
+        end
+    end
 end
 
 
@@ -1366,6 +1207,8 @@ end
 NarciGemManagerMixin = {};
 
 function NarciGemManagerMixin:OnLoad()
+    self.modeID = 1;
+
     self:SetSize(FRAME_WIDTH, FRAME_HEIGHT);
     local headerHeight = TAB_BUTTON_HEIGHT + FRAME_PADDING;
     self.HeaderFrame:SetHeight(headerHeight);
@@ -1373,14 +1216,24 @@ function NarciGemManagerMixin:OnLoad()
     Gemma.MainFrame = self;
     MainFrame = self;
     TooltipFrame = self.TooltipFrame;
-    SlotHighlight = self.SlotFrame.ButtonHighlight;
-    PointsDisplay = self.SlotFrame.PointsDisplay;
+
+    SlotHighlight = Gemma.CreateSlotHighlight(self.SlotFrame);
+    self.SlotFrame.ButtonHighlight = SlotHighlight;
+    SlotHighlight:SetLayerFront(true);
+
     MouseOverFrame = self.SlotFrame.MouseOverFrame;
     GemList = self.GemList;
     ListHighlight = self.GemList.ButtonHighlight;
+    LoadoutFrame = self.LoadoutFrame;
+    ModeFrame = self.ModeFrame;
 
-    Mixin(SlotHighlight, Mixin_SlotHighlight);
     Mixin(GemList, Mixin_GemList);
+    Mixin(ModeFrame, Mixin_ModeFrame);
+    Mixin(LoadoutFrame, Gemma.LoadoutFrameMixin);
+
+    Mixin(TooltipFrame, Mixin_TooltipFrame);
+    TooltipFrame:SetMaxWdith(FRAME_WIDTH - 60);
+    TooltipFrame:OnLoad();
 
     CallbackRegistry:Register("GemManager.BagScan.OnStart", MainFrame.OnBagUpdateStart, MainFrame);
 end
@@ -1404,13 +1257,40 @@ function NarciGemManagerMixin:AnchorToPaperDollFrame()
     end
 end
 
+function NarciGemManagerMixin:AnchorToGWUI()
+    if self.positionSet then
+        return
+    else
+        self.positionSet = true;
+    end
+
+    self:ClearAllPoints();
+    self:SetParent(GwDressingRoomGear);
+    self:SetPoint("TOPLEFT", GwDressingRoomGear, "TOPRIGHT", 32, 0);
+end
+
+function NarciGemManagerMixin:UpdateAnchor()
+    if self.positionSet then return end;
+
+    if GwDressingRoomGear then
+        self:AnchorToGWUI();
+    else
+        self:AnchorToPaperDollFrame();
+    end
+end
+
 function NarciGemManagerMixin:OnShow()
     if self.Init then
         self:Init();
+
+        self:SetDataProviderByName("Pandaria");
+
+        if NarcissusDB.PandariaGemManagerDefaultMode then
+            self:SelectModeByID(NarcissusDB.PandariaGemManagerDefaultMode);
+        end
     end
 
-    self:SetDataProviderByName("Pandaria");
-    self:AnchorToPaperDollFrame();
+    self:UpdateAnchor();
 
     self:RegisterEvent("PLAYER_EQUIPMENT_CHANGED");
 
@@ -1446,8 +1326,6 @@ function NarciGemManagerMixin:OnEvent(event, ...)
     elseif event == "PLAYER_EQUIPMENT_CHANGED" then
         --Changing gem in an equipped item doesn't always trigger this
     end
-
-    --print(event)
 end
 
 function NarciGemManagerMixin:SetWatchedSpell(spellID)
@@ -1462,20 +1340,16 @@ end
 function NarciGemManagerMixin:Init()
     self.Init = nil;
 
-    Mixin(TooltipFrame, Mixin_TooltipFrame);
-    TooltipFrame:SetMaxWdith(FRAME_WIDTH - 60);
-    TooltipFrame:OnLoad();
-
     local TabButtonSelection = self.HeaderFrame.TabButtonContainer.Selection;
     TabButtonSelection:SetTexture(PATH.."TabButtonSelection");
     TabButtonSelection:SetBlendMode("ADD");
 
-    Mixin(PointsDisplay, Mixin_PointsDisplay);
-    PointsDisplay:OnLoad();
+    PointsDisplay = Gemma.CreatePointsDisplay(self.SlotFrame);
+    self.PointsDisplay = PointsDisplay;
     PointsDisplay:ClearAllPoints();
     PointsDisplay:SetPoint("TOP", self.HeaderFrame, "BOTTOM", 0, -20);
-    PointsDisplay:SetLabel("Points Available");
-    PointsDisplay:SetAmount(3);
+    PointsDisplay:SetLabel(L["Pandamonium Sockets Available"]);
+    PointsDisplay:SetAmount(0);
 
     GemList:OnLoad();
 
@@ -1488,17 +1362,10 @@ function NarciGemManagerMixin:Init()
     SetupModelScene(self.ModelScene);
 
 
-    ProgressBar = CreateProgressBar(self.SlotFrame);
+    Spinner = Gemma.CreateProgressSpinner(self.SlotFrame);
+    ProgressBar = Gemma.CreateProgressBar(self.SlotFrame);
     ProgressBar:SetPoint("BOTTOM", self, "BOTTOM", 0, 16);
-
-
-    Spinner = CreateFrame("Frame", nil, self.SlotFrame, "NarciGemManagerLoadingSpinnerTemplate");
-    Spinner:SetPoint("CENTER", UIParent, "CENTER", 0, 0);
-    Spinner:Hide();
-    AtlasUtil:SetAtlas(Spinner.Circle, "gemma-spinner-circle");
-    AtlasUtil:SetAtlas(Spinner.Dial, "gemma-spinner-dial");
-    Spinner.DialMask:SetTexture(PATH.."Mask-Radial", "CLAMPTOBLACKADDITIVE", "CLAMPTOBLACKADDITIVE");
-    Spinner.AnimSpin:Play();
+    ProgressBar.Spinner = Spinner;
 
 
     self.ActionBlocker:SetScript("OnUpdate", function(f, elapsed)
@@ -1512,14 +1379,18 @@ function NarciGemManagerMixin:Init()
 
     AtlasUtil:SetAtlas(self.LoadingIndicator.Icon, "remix-ui-loadingicon");
     self.LoadingIndicator.AnimLoading:Play();
-    self:CenterLoadingIndicator(false);
+    self:SetLoadingIndicatorPosition(0);
 
     local Alert = self.SlotFrame.NoSocketAlert;
-    Alert:SetFont(FONT_FILE, 14, "OUTLINE");
     Alert:SetShadowOffset(1, -1);
     Alert:SetShadowColor(0, 0, 0);
     Alert:SetTextColor(0.5, 0.5, 0.5);
     Alert:SetText(L["No Sockets Were Found"]);
+
+    ModeFrame:SetModeData();    --debug
+    ModeFrame:SelectModeButton(1);
+
+    LoadoutFrame:OnLoad();
 end
 
 
@@ -1659,7 +1530,6 @@ function NarciGemManagerMixin:SetTabData(tabData)
             button:SetPoint("LEFT", self.tabButtons[i - 1], "RIGHT", gap, 0);
         end
 
-        --debug
         button:SetSelected(i == 1);
     end
 
@@ -1835,8 +1705,8 @@ function NarciGemManagerMixin:OpenGemList()
     self:HideTooltip();
     GemList:Show();
     GemList:PlayFlyInAnimation();
-    FadeFrame(self.ModelScene, 0.1, 0.2);
-    self:CenterLoadingIndicator(true);
+    SetModelSceneVisiblity(false);
+    self:SetLoadingIndicatorPosition(1);
 end
 
 function NarciGemManagerMixin:CloseGemList()
@@ -1850,15 +1720,16 @@ function NarciGemManagerMixin:CloseGemList()
         self.SlotFrame:Show();
     end
 
-    FadeFrame(self.ModelScene, 0.5, 1);
+    SetModelSceneVisiblity(true)
 
-    self:CenterLoadingIndicator(false);
+    self:SetLoadingIndicatorPosition(0);
     self:HideTooltip();
 end
 
 function NarciGemManagerMixin:HideTooltip()
     GameTooltip:Hide();
     --TooltipFrame:Hide();
+    TooltipFrame.visible = false;
     FadeFrame(TooltipFrame, 0.2, 0);
 end
 
@@ -1895,7 +1766,9 @@ function NarciGemManagerMixin:ShowActionBlocker()
 end
 
 function NarciGemManagerMixin:OnBagUpdateStart()
-    self:ShowActionBlocker();
+    if ACTIONBLOCKER_WHEN_BAG_UPDATE then
+        self:ShowActionBlocker();
+    end
 end
 
 function NarciGemManagerMixin:OnBagUpdateComplete()
@@ -1930,11 +1803,48 @@ function NarciGemManagerMixin:ShowStatAssignmentDetail(statButton)
     end
 end
 
-function NarciGemManagerMixin:CenterLoadingIndicator(isCentered)
+function NarciGemManagerMixin:SetLoadingIndicatorPosition(position)
     self.LoadingIndicator:ClearAllPoints();
-    if isCentered then
+    if position == 1 then   --center
         self.LoadingIndicator:SetPoint("CENTER", self.SlotFrame, "CENTER", 0, 0);
+    elseif position == 2 then   --Loadout EquipButton
+        self.LoadingIndicator:SetPoint("CENTER", self, "BOTTOMLEFT", 34, 34);
     else
         self.LoadingIndicator:SetPoint("CENTER", self, "BOTTOM", 0, 40);
     end
+end
+
+function NarciGemManagerMixin:SelectModeByID(id)
+    if id == self.modeID then
+        return
+    else
+        self.modeID = id;
+    end
+
+    ModeFrame:SelectModeButton(id);
+
+    if id == 1 then --General
+        if self.useSlotFrame then
+            self.SlotFrame:Show();
+        end
+
+        SetModelSceneVisiblity(true);
+        self.HeaderFrame.TabButtonContainer:Show();
+        LoadoutFrame:Hide();
+        self:SetLoadingIndicatorPosition(0);
+        ACTIONBLOCKER_WHEN_BAG_UPDATE = true;
+        ACTIONBLOCKER_DURATION = 0.8;
+    else    --Loadout
+        self:CloseGemList();
+        TooltipFrame:Hide();
+        self.SlotFrame:Hide();
+        SetModelSceneVisiblity(false);
+        self.HeaderFrame.TabButtonContainer:Hide();
+        LoadoutFrame:Show();
+        self:SetLoadingIndicatorPosition(2);
+        ACTIONBLOCKER_WHEN_BAG_UPDATE = false;
+        ACTIONBLOCKER_DURATION = 0.51;
+    end
+
+    NarcissusDB.PandariaGemManagerDefaultMode = id;
 end

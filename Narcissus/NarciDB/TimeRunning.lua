@@ -162,5 +162,5 @@ end
 
     Total
     Prism:  21 = 7*3
-    Tinker: 12 = 4*3 (Pool: 25)
+    Tinker: 12 = 4*3
 ]]

@@ -779,6 +779,13 @@ local function PaperDollWidgetToggle_OnValueChanged(self, state)
     SettingFunctions.EnablePaperDollWidget(state);
 end
 
+local function PaperDollWidget_Update()
+    local f = NarciPaperDollWidgetController;
+    if f  then
+        f:UpdateIfEnabled();
+    end
+end
+
 local function ConduitTooltipToggle_OnValueChanged(self, state)
     SettingFunctions.EnableConduitTooltip(state);
 end
@@ -2062,11 +2069,13 @@ local Categories = {
     {name = L["Extensions"], level = 0, key = "extensions",
         widgets = {
             {type = "header", level = 0, text = L["Extensions"]},
-            {type = "checkbox", level = 1, key = "GemManager", text = L["Gem Manager"], onValueChangedFunc = GemManagerToggle_OnValueChanged, description = L["Gemma Description"]},
+            {type = "checkbox", level = 1, key = "GemManager", text = L["Gem List"], onValueChangedFunc = GemManagerToggle_OnValueChanged, description = L["Gemma Description"]},
             {type = "checkbox", level = 1, key = "DressingRoom", text = L["Dressing Room"], onValueChangedFunc = DressingRoomToggle_OnValueChanged, description = L["Dressing Room Description"]},
             {type = "checkbox", level = 1, key = "SoloQueueLFRDetails", text = L["LFR Wing Details"], onValueChangedFunc = LFRWingDetails_OnValueChanged, description = L["LFR Wing Details Description"]},
             {type = "subheader", level = 1, text = L["Expansion Features"], extraTopPadding = 1},
             {type = "checkbox", level = 1, key = "PaperDollWidget", text = L["Paperdoll Widget"], onValueChangedFunc = PaperDollWidgetToggle_OnValueChanged, showFeaturePreview = true, onEnterFunc = FeaturePreview.ShowPreview, onLeaveFunc = FeaturePreview.HidePreview},
+                {type = "checkbox", level = 2, key = "PaperDollWidget_ClassSet", text = L["Class Set Indicator"], isChild = true, onValueChangedFunc = PaperDollWidget_Update},
+                {type = "checkbox", level = 2, key = "PaperDollWidget_Remix", text = L["Remix Gem Manager"], isChild = true, onValueChangedFunc = PaperDollWidget_Update},
             --{type = "checkbox", level = 1, key = "ConduitTooltip", text = L["Conduit Tooltip"], onValueChangedFunc = ConduitTooltipToggle_OnValueChanged, showFeaturePreview = true, onEnterFunc = FeaturePreview.ShowPreview, onLeaveFunc = FeaturePreview.HidePreview},
         },
     },

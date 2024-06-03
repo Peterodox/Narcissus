@@ -1,7 +1,7 @@
-local NARCI_VERSION_INFO = "1.6.1";
+local NARCI_VERSION_INFO = "1.6.2";
 
-local VERSION_DATE = 1716210000;
-local CURRENT_VERSION = 10601;
+local VERSION_DATE = 1717405000;
+local CURRENT_VERSION = 10602;
 local PREVIOUS_VERSION = CURRENT_VERSION;
 local TIME_SINCE_LAST_UPDATE = 0;
 
@@ -81,8 +81,10 @@ local DefaultValues = {
     GemManager = true,                          --Enable gem manager for Blizzard item socketing frame
     OnlyShowOwnedUpgradeItem = true,            --Filter for gems/enchant scrolls
     ConduitTooltip = false,                     --Show conduit effects of higher ranks
-    PaperDollWidget = true,                     --Show Domination/Class Set indicator on the Blizzard character pane
     SoloQueueLFRDetails = true,                 --Show LFR boss names and lockouts on GossipFrame 
+    PaperDollWidget = true,                     --Show Domination/Class Set indicator on the Blizzard character pane
+        PaperDollWidget_ClassSet = true,
+        PaperDollWidget_Remix = true,
 
     -- Talent Tree --
     TalentTreeForInspection = true,
@@ -160,9 +162,11 @@ local TutorialMarkers = {
     "WeaponBrowser",
 };
 
+local DB;
+
 local function LoadDatabase()
     NarcissusDB = NarcissusDB or {};                            --Account-wide Variables
-    local db = NarcissusDB;
+    DB = NarcissusDB;
 
     NarciCreatureOptions = NarciCreatureOptions or {};          --Creature Database
     NarciAchievementOptions = NarciAchievementOptions or {};    --Achievement Settings
@@ -170,24 +174,30 @@ local function LoadDatabase()
     NarcissusDB_PC = NarcissusDB_PC or {};                      --Character-specific Variables
     NarcissusDB_PC.EquipmentSetDB = NarcissusDB_PC.EquipmentSetDB or {};
 
-    db.MinimapButton = db.MinimapButton or {};
-    db.MinimapButton.Position = db.MinimapButton.Position or math.rad(150);     --From 3 O'clock, counter-clockwise
+    DB.MinimapButton = DB.MinimapButton or {};
+    DB.MinimapButton.Position = DB.MinimapButton.Position or math.rad(150);     --From 3 O'clock, counter-clockwise
 
 
     --Migrate deprecated variables
-    if db.HideTextsWithUI == nil then
-        if db.PhotoModeButton and db.PhotoModeButton.HideTexts ~= nil then
-            db.HideTextsWithUI = db.PhotoModeButton.HideTexts;
+    if DB.HideTextsWithUI == nil then
+        if DB.PhotoModeButton and DB.PhotoModeButton.HideTexts ~= nil then
+            DB.HideTextsWithUI = DB.PhotoModeButton.HideTexts;
         end
     end
 
+    if DB.PaperDollWidget_ClassSet == nil then
+        --Each widget now has a separate toggle
+        if not DB.PaperDollWidget then
+            PaperDollWidget_ClassSet = false;
+        end
+    end
 
     ---- Preference ----
     local type = type;
 
     for k, v in pairs(DefaultValues) do
-        if db[k] == nil or type(db[k]) ~= type(v) then
-            db[k] = v;
+        if DB[k] == nil or type(DB[k]) ~= type(v) then
+            DB[k] = v;
         end
     end
 
@@ -211,8 +221,8 @@ local function LoadDatabase()
 
 
     ---- Tutorial Markers ----
-    db.Tutorials = db.Tutorials or {};
-    local Tutorials = db.Tutorials;
+    DB.Tutorials = DB.Tutorials or {};
+    local Tutorials = DB.Tutorials;
     for _, v in pairs(TutorialMarkers) do
         if Tutorials[v] == nil then
             Tutorials[v] = true;   --True ~ will show tutorial
@@ -221,32 +231,32 @@ local function LoadDatabase()
 
 
     ---- Addon Update Info ----
-    if (not db.Version) or (type(db.Version) ~= "number") then    --Used for showing patch notes when opening Narcissus after an update
-        db.Version = 10000;
+    if (not DB.Version) or (type(DB.Version) ~= "number") then    --Used for showing patch notes when opening Narcissus after an update
+        DB.Version = 10000;
     end
 
-    if CURRENT_VERSION > db.Version then
-        PREVIOUS_VERSION = db.Version;
+    if CURRENT_VERSION > DB.Version then
+        PREVIOUS_VERSION = DB.Version;
         --wake SplashFrame
     end
 
-    if not db.installTime or type(db.installTime) ~= "number" then
-        db.installTime = (time and time()) or VERSION_DATE;
+    if not DB.installTime or type(DB.installTime) ~= "number" then
+        DB.installTime = (time and time()) or VERSION_DATE;
     end
 
     DefaultValues = nil;
     AchievementOptions = nil;
     TutorialMarkers = nil;
 
-    if db.SearchRelatives or db.TranslateName then
+    if DB.SearchRelatives or DB.TranslateName then
         C_Timer.After(0, function()
-            LoadAddOn("Narcissus_Database_NPC");
+            C_AddOns.LoadAddOn("Narcissus_Database_NPC");
         end)
     end
 
-    if db.SearchSuggestEnable then
+    if DB.SearchSuggestEnable then
         C_Timer.After(0, function()
-            LoadAddOn("Narcissus_BagFilter");
+            C_AddOns.LoadAddOn("Narcissus_BagFilter");
         end)
     end
 
@@ -259,10 +269,8 @@ local function LoadSettings()
         LoadDatabase();
     end
 
-    local db = NarcissusDB;
-
     for _, func in pairs(SettingFunctions) do
-        func(nil, db);
+        func(nil, DB);
     end
 
     C_Timer.After(0.08, function()
@@ -373,7 +381,7 @@ local function GetAddOnVersionInfo(versionOnly)
         day = tonumber(day);
         month = tonumber(month);
         year = tonumber(year);
-        dateString = FormatShortDate(day, month, year);
+        dateString = (FormatShortDate and FormatShortDate(day, month, year)) or (string.join("/", day, month, year));
     end
 
     -- time since last update
@@ -540,4 +548,14 @@ do
     addon.CreateZoneTriggeredModule = CreateZoneTriggeredModule;
 end
 
-C_AddOns.LoadAddOn("Blizzard_ActionBarController")
+
+do  --DB Settings
+    local function IsModuleEnabled(dbKey)
+        if dbKey then
+            return DB[dbKey] == true
+        else
+            return false
+        end
+    end
+    addon.IsModuleEnabled = IsModuleEnabled;
+end

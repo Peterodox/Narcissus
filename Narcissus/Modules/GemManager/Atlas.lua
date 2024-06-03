@@ -7,11 +7,11 @@ local Atlas = {};
 local AtlasUtil = {};
 Gemma.AtlasUtil = AtlasUtil;
 
-function AtlasUtil:SetAtlas(texture, name)
+function AtlasUtil:SetAtlas(texture, name, tileH, tileV)
     local a = name and Atlas[name];
 
     if a then
-        texture:SetTexture(a[1]);
+        texture:SetTexture(a[1], tileH, tileV);
         texture:SetSize(a[2], a[3]);
         texture:SetTexCoord(a[4], a[5], a[6], a[7]);
     else
@@ -79,12 +79,48 @@ local AtlasInfo = {
 
         ["gemtypeicon-movement"] = {24, 24, 0, 48, 674, 722},
         ["gemtypeicon-offensive"] = {24, 24, 48, 96, 674, 722},
+
+        ["remix-modebutton-left"] = {8, 32, 292, 308, 674, 738},
+        ["remix-modebutton-center"] = {32, 32, 308, 372, 674, 738},    --Dynamic
+        ["remix-modebutton-right"] = {8, 32, 372, 388, 674, 738},
+        ["remix-modebutton-highlighted-left"] = {8, 32, 396, 412, 674, 738},
+        ["remix-modebutton-highlighted-center"] = {32, 32, 412, 476, 674, 738},    --Dynamic
+        ["remix-modebutton-highlighted-right"] = {8, 32, 476, 492, 674, 738},
+
+        ["remix-loadout-checkmark"] = {24, 24, 0, 48, 722, 770},
+        ["remix-loadout-bluestar"] = {24, 24, 48, 96, 722, 770},
+        ["remix-loadout-plus"] = {16, 16, 436, 468, 100, 132},
+
+        ["remix-loadout-detail-bg"] = {322, 56, 146, 554, 774, 838},    --338
+        ["remix-loadout-detail-selection-regular"] = {322, 56, 146, 554, 842, 906},
+        ["remix-loadout-detail-selection-equipped"] = {322, 56, 146, 554, 910, 974},
+
+        ["remix-loadout-equip-left"] = {10, 40, 560, 576, 774, 838},
+        ["remix-loadout-equip-center"] = {40, 40, 576, 924, 774, 838},
+        ["remix-loadout-equip-right"] = {10, 40, 924, 940, 774, 838},
+        ["remix-loadout-equip-hl-left"] = {10, 40, 560, 576, 842, 906},
+        ["remix-loadout-equip-hl-center"] = {40, 40, 576, 924, 842, 906},
+        ["remix-loadout-equip-hl-right"] = {10, 40, 924, 940, 842, 906},
+        ["remix-loadout-equip-breathlight"] = {254, 40, 560, 940, 914, 974},
+        ["remix-loadout-equip-linelight"] = {160, 40, 560, 816, 976, 1024},
+        --["remix-loadout-equip-feedbacklight"] = {160, 40, 560, 816, 976, 1024},
+
+        ["remix-loadout-edit-bg"] = {32, 32, 960, 1024, 774, 838},
+        ["remix-loadout-edit-highlight"] = {32, 32, 960, 1024, 842, 906},
+        ["remix-loadout-edit-setting"] = {28, 28, 96, 144, 674, 722},
+        ["remix-loadout-edit-delete"] = {28, 28, 96, 144, 722, 770},
+
+        ["remix-loadout-editbox-bg"] = {224, 32, 0, 224, 992, 1024},
     }},
 
     {PATH.."HourglassWidget.png", 256, 256, {
         ["hourglass-background"] = {48, 48, 0, 64, 0, 64},
         ["hourglass-drip"] = {5, 24, 66, 74, 0, 32},
         ["hourglass-shine"] = {18, 48, 140, 164, 0, 64},
+    }},
+
+    {PATH.."SimpleTooltipBackground.tga", 32, 32, {
+        ["simpletooltip-bg"] = {32, 32, 0, 32, 0, 32},
     }},
 };
 

@@ -1,5 +1,5 @@
 ## Interface: 100207
-## Version: 1.6.1
+## Version: 1.6.2
 
 ## Title: Narcissus
 
@@ -40,7 +40,7 @@ Constants\Constants.xml
 
 Bridge\Bridge.xml
 
-Modules\CharacterFrame\Domination.xml
+#Modules\CharacterFrame\Domination.xml
 Modules\CharacterFrame\ItemLevelFrame.lua
 Modules\CharacterFrame\Enchant.lua
 Modules\CharacterFrame\TemporaryEnchant.xml

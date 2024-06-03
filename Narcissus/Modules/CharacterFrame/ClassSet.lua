@@ -476,7 +476,7 @@ function NarciClassSetIndicatorMixin:OnLoad()
     PaperDollIndicator = self;
 
     self.numOwned = 0;
-    PDWC:AddWidget(self, 2);
+    PDWC:AddWidget(self, 2, "PaperDollWidget_ClassSet");
 
     self:SetNotification(Narci.L["Theme Changed"]);
 end
@@ -685,7 +685,8 @@ function NarciClassSetIndicatorSplash:Init()
             end
             self:ShowStep(2);
         else
-            PDWC:SetEnabled(false);
+            NarcissusDB.PaperDollWidget_ClassSet = false;
+            PDWC:UpdateIfEnabled();
         end
     end
 

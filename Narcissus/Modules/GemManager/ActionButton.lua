@@ -6,21 +6,23 @@ local SPELL_EXTRACT_GEM = 433397;
 local SPELLNAME_EXTRACT_GEM;
 
 local GetItemBagPosition = NarciAPI.GetItemBagPosition;
+local IsSocketOccupied = Gemma.IsSocketOccupied;
 local PickupContainerItem = C_Container.PickupContainerItem;
 local SocketContainerItem = C_Container.SocketContainerItem
 local GetItemSpell = C_Item.GetItemSpell;
+local GetItemGemID = C_Item.GetItemGemID;
+local GetItemNumSockets = C_Item.GetItemNumSockets;
+local GetInventoryItemLink = GetInventoryItemLink;
 local SocketInventoryItem = SocketInventoryItem;
 local ClearCursor = ClearCursor;
 local ClickSocketButton = ClickSocketButton;
 local AcceptSockets = AcceptSockets;
 local CloseSocketInfo = CloseSocketInfo;
-local GetExistingSocketInfo = GetExistingSocketInfo;
-local GetNewSocketInfo = GetNewSocketInfo;
 local GetSpellInfo = GetSpellInfo;
 local InCombatLockdown = InCombatLockdown;
 local GetCVarBool = C_CVar.GetCVarBool;
 local After = C_Timer.After;
-
+local ipairs = ipairs;
 
 local UIParent = UIParent;
 
@@ -39,15 +41,22 @@ local function GetSpellName()
 end
 addon.AddLoadingCompleteCallback(GetSpellName);
 
-local function IsSocketOccupied(socketIndex)
-    local a = GetExistingSocketInfo(socketIndex);
-    local b = GetNewSocketInfo(socketIndex);
-    return a or b
-end
 
 local function IsUsingKeyDown()
     return GetCVarBool("ActionButtonUseKeyDown");
 end
+
+local BLIZZARD_UI_LOADED = false;
+local function LoadBlizzardUI()
+    if not BLIZZARD_UI_LOADED then
+        if C_AddOns.IsAddOnLoaded("Blizzard_ItemSocketingUI") then
+            BLIZZARD_UI_LOADED = true;
+        else
+            BLIZZARD_UI_LOADED = C_AddOns.LoadAddOn("Blizzard_ItemSocketingUI");
+        end
+    end
+end
+
 
 local SocketHelper = CreateFrame("Frame");
 local BagEventWatcher = CreateFrame("Frame");
@@ -75,13 +84,15 @@ do  --Stop listening bag after 1.5s
         end
     end
 end
+
 function SocketHelper:SuppressItemSocketingFrame()
     if not self.suppressed then
         self.suppressed = true;
         UIParent:UnregisterEvent("SOCKET_INFO_UPDATE");
-        UIParent:UnregisterEvent("ADDON_ACTION_FORBIDDEN");
+        --UIParent:UnregisterEvent("ADDON_ACTION_FORBIDDEN");
         if ItemSocketingFrame then
             ItemSocketingFrame:UnregisterEvent("SOCKET_INFO_UPDATE");
+            ItemSocketingFrame:UnregisterEvent("SOCKET_INFO_ACCEPT");
         end
         self:ListenEvents(true);
     end
@@ -90,13 +101,14 @@ end
 function SocketHelper:UnsuppressItemSocketingFrame()
     CloseSocketInfo();
     if self.suppressed then
+        self:ListenEvents(false);
         self.suppressed = nil;
         UIParent:RegisterEvent("SOCKET_INFO_UPDATE");
-        UIParent:RegisterEvent("ADDON_ACTION_FORBIDDEN");
+        --UIParent:RegisterEvent("ADDON_ACTION_FORBIDDEN");
         if ItemSocketingFrame then
             ItemSocketingFrame:RegisterEvent("SOCKET_INFO_UPDATE");
+            ItemSocketingFrame:RegisterEvent("SOCKET_INFO_ACCEPT");
         end
-        self:ListenEvents(false);
     end
 end
 
@@ -114,11 +126,11 @@ function SocketHelper:ListenEvents(state)
     end
 end
 
-local function PlaceGemInSlot(gemItemID, slotID, socketIndex)
+local function PlaceGemInSlot(gemItemID, slotID, socketIndex, customLockDuration)
     if SocketHelper:IsActionLocked() then
         return
     else
-        SocketHelper:LockAction(0.25);
+        SocketHelper:LockAction(customLockDuration or 0.25);
     end
 
     ClearCursor();
@@ -142,6 +154,8 @@ local function PlaceGemInSlot(gemItemID, slotID, socketIndex)
     end
 
     SocketHelper:UnsuppressItemSocketingFrame();
+
+    return true
 
     --Thank god none of the above requires hardware input :)
     --I jinx it :(
@@ -181,10 +195,7 @@ local function RemoveGemInSlot(arg1, arg2, arg3)
         SocketInventoryItem(slot);
     end
 
-    ClickSocketButton(socketIndex);
-    ClearCursor();
-
-    SocketHelper:UnsuppressItemSocketingFrame();
+    --ClickSocketButton(socketIndex);
 end
 
 local function PlaceGemInSlot_EventDriven(gemItemID, slotID, socketIndex)
@@ -239,30 +250,11 @@ end
 
 function SocketHelper:OnEvent(event, ...)
     if event == "SOCKET_INFO_CLOSE" then
-        UIParent:RegisterEvent("SOCKET_INFO_UPDATE");
-        if ItemSocketingFrame then
-            ItemSocketingFrame:RegisterEvent("SOCKET_INFO_UPDATE");
-        end
-        self:ListenEvents(false);
+        self:UnregisterEvent(event);
+        self:UnsuppressItemSocketingFrame();
+
     elseif event == "SOCKET_INFO_UPDATE" then
         self:UnregisterEvent(event);
-
-        --[[
-        if self.mode == "in" then
-            if IsSocketOccupied(self.socketIndex) then
-                --Something went wrong. Socket isn't empty
-            else
-                ClickSocketButton(self.socketIndex);
-                ClearCursor();
-                AcceptSockets();
-            end
-        elseif self.mode == "out" then
-            ClickSocketButton(self.socketIndex);
-            print("CLICK", self.socketIndex)
-            ClearCursor();
-        end
-        --]]
-
         if not self.pauseUpdate then
             self.pauseUpdate = true;
             After(0, function()
@@ -274,7 +266,7 @@ function SocketHelper:OnEvent(event, ...)
         --self:UnregisterEvent(event);
         if not self.pauseBagUpdate then
             self.pauseBagUpdate = true;
-            After(0.0, function()
+            After(0, function()
                 self.pauseBagUpdate = nil;
                 if self.pendingGemID then
                     if self:PlaceGemInBestSlot(self.pendingGemID, true) then
@@ -303,8 +295,6 @@ function ActionButtonMixin:PreClick(button)
     end
 
     if self.socketFunc then
-        SocketHelper:SuppressItemSocketingFrame();
-        SocketHelper:RegisterEvent("SOCKET_INFO_UPDATE");
         self.socketFunc(button);
     end
 
@@ -312,12 +302,23 @@ function ActionButtonMixin:PreClick(button)
 end
 
 function ActionButtonMixin:PostClick()
-    --Gemma.MainFrame:HideTooltip();
     Gemma.MainFrame:AnchorSpinnerToButton(self.parent);
     if self.showActionBlockerAfterClick then
         Gemma.MainFrame:ShowActionBlocker();
     end
-    --print("POST CLICK")
+    self:OnMouseUp();
+end
+
+function ActionButtonMixin:OnMouseDown(button)
+    if self.parent.OnMouseDown then
+        self.parent:OnMouseDown(button);
+    end
+end
+
+function ActionButtonMixin:OnMouseUp()
+    if self.parent.OnMouseUp then
+        self.parent:OnMouseUp();
+    end
 end
 
 function ActionButtonMixin:SetMacroText(macroText, mouseButton)
@@ -459,6 +460,8 @@ local function CreateActionButton()
     f:SetScript("OnEvent", f.OnEvent);
     f:SetScript("OnEnter", f.OnEnter);
     f:SetScript("OnLeave", f.OnLeave);
+    f:SetScript("OnMouseDown", f.OnMouseDown);
+    f:SetScript("OnMouseUp", f.OnMouseUp);
 
     --debug
     local bg = f:CreateTexture(nil, "BACKGROUND");
@@ -559,11 +562,11 @@ do
         --self:SetExtractSocketIndex(socketIndex);
         --SocketInventoryItem(slot);
 
-        After(0, function()
+        --After(0, function()
             RemoveGemInSlot(slot, socketIndex)
-        end);
+        --end);
 
-        return true
+        return true, socketIndex
     end
 
     function SocketHelper:ExtractGemFromContainer(gemItemID)
@@ -579,12 +582,22 @@ do
         --self:SetExtractSocketIndex(index);
         --SocketInventoryItem(slot);
 
-        After(0, function()
+        --After(0, function()
             self:SetPendingGem(gemItemID);
             RemoveGemInSlot(bag, slot, socketIndex);
-        end);
+        --end);
 
-        return true
+        return true, socketIndex
+    end
+
+    function SocketHelper:SocketInventorySlot(slot)
+        self:SuppressItemSocketingFrame();
+        SocketInventoryItem(slot);
+    end
+
+    function SocketHelper:SocketContainerSlot(bag, slot)
+        self:SuppressItemSocketingFrame();
+        SocketContainerItem(bag, slot);
     end
 
     function SocketHelper:SetPendingGem(gemItemID)
@@ -620,8 +633,9 @@ do
         local spellID = 405805; --Pluck Out Primordial Stone
 
         self.socketFunc = function(button)
+            SocketHelper:SuppressItemSocketingFrame();
+
             if button == "RightButton" and SocketHelper:ExtractGemFromInventorySlot(itemID) then
-                --SocketHelper.mode = "extract";
                 local macroText = "/stopspelltarget\r/click ExtraActionButton1";
                 self:SetMacroText(macroText, "RightButton");
             elseif button == "LeftButton" then
@@ -638,7 +652,6 @@ do
             end
         end;
 
-        --local macroText = string.format("/click ExtraActionButton1\r/run ClickSocketButton(%d)\r/stopspelltarget", socketIndex);
         local macroText = "";
         self:SetMacroText(macroText, "AnyButton");
         self:SetWatchedSpell(spellID);
@@ -651,24 +664,59 @@ do
         return string.format("/stopspelltarget\r/cast %s", SPELLNAME_EXTRACT_GEM);
     end
 
+    local function GetRemoveSocketMacro(socketIndex)
+        --For Remix Gem, Blizzard ties spellcasting to clicking socket button so removing gems caused error
+        --So we load Blizzard_ItemSocketingUI here and /click button in the macro
+        --Please notice three ItemSocketingSocket buttons are disabled upon "SOCKET_INFO_ACCEPT", see "ItemSocketingFrame_DisableSockets"
+
+        LoadBlizzardUI();
+
+        if not SPELLNAME_EXTRACT_GEM then
+            SPELLNAME_EXTRACT_GEM = GetSpellName();
+        end
+
+        return string.format("/stopspelltarget\r/cast %s\r/click ItemSocketingSocket%s", SPELLNAME_EXTRACT_GEM, socketIndex);
+    end
+
+    function ActionButtonMixin:SetMacro_RemovePandariaGem_Equipped(itemID, mouseButton)
+        local found, socketIndex = SocketHelper:ExtractGemFromInventorySlot(itemID);
+
+        if found then
+            local macroText = GetRemoveSocketMacro(socketIndex);
+            self:SetMacroText(macroText, mouseButton);
+        else
+            self:SetMacroText(nil, mouseButton);
+        end
+
+        return found
+    end
+
+    function ActionButtonMixin:SetMacro_RemovePandariaGem_InBag(itemID, mouseButton)
+        local found, socketIndex = SocketHelper:ExtractGemFromContainer(itemID);
+
+        if found then
+            local macroText = GetRemoveSocketMacro(socketIndex);
+            self:SetMacroText(macroText, mouseButton);
+        else
+            self:SetMacroText(nil, mouseButton);
+        end
+
+        return found
+    end
+
     function ActionButtonMixin:SetAction_RemovePandariaGem(itemID)
         local spellID = 433397;
 
         self.socketFunc = function(button)
-            if button == "RightButton" and SocketHelper:ExtractGemFromInventorySlot(itemID) then
-                --SocketHelper.mode = "extract";
-                local macroText = GetSpellCastMacro();
-                self:SetMacroText(macroText, "RightButton");
+            SocketHelper:SuppressItemSocketingFrame();
+
+            if button == "RightButton" then
+                self:SetMacro_RemovePandariaGem_Equipped(itemID, button);
             elseif button == "LeftButton" then
                 if SocketHelper:PlaceGemInBestSlot(itemID) then
 
                 else
-                    if SocketHelper:ExtractGemFromContainer(itemID) then
-                        local macroText = GetSpellCastMacro();
-                        self:SetMacroText(macroText, "LeftButton");
-                    else
-                        self:SetMacroText(nil, "LeftButton");
-                    end
+                    self:SetMacro_RemovePandariaGem_InBag(itemID, button);
                 end
             end
         end;
@@ -682,31 +730,22 @@ do
         local spellID = 433397;
 
         self.socketFunc = function(button)
-            if button == "RightButton" and SocketHelper:ExtractGemFromInventorySlot(itemID) then
-                local macroText = GetSpellCastMacro();
-                self:SetMacroText(macroText, "RightButton");
+            SocketHelper:SuppressItemSocketingFrame();
+
+            if button == "RightButton" then
+                self:SetMacro_RemovePandariaGem_Equipped(itemID, button);
             elseif button == "LeftButton" then
                 local dataProvider = Gemma:GetDataProviderByName("Pandaria");
                 local existingGem = dataProvider:GetConflictGemItemID(itemID);
 
                 if existingGem then
-                    if SocketHelper:ExtractGemFromInventorySlot(existingGem) then
-                        local macroText = GetSpellCastMacro();
-                        self:SetMacroText(macroText, "LeftButton");
-                        SocketHelper:SetPendingGem(itemID);
-                    else
-                        self:SetMacroText(nil, "LeftButton");
-                    end
+                    self:SetMacro_RemovePandariaGem_Equipped(existingGem, button);
+                    SocketHelper:SetPendingGem(itemID);
                 else
                     if SocketHelper:PlaceGemInBestSlot(itemID) then
 
                     else
-                        if SocketHelper:ExtractGemFromContainer(itemID) then
-                            local macroText = GetSpellCastMacro();
-                            self:SetMacroText(macroText, "LeftButton");
-                        else
-                            self:SetMacroText(nil, "LeftButton");
-                        end
+                        self:SetMacro_RemovePandariaGem_InBag(itemID, button);
                     end
                 end
             end
@@ -721,9 +760,10 @@ do
         local spellID = 433397;
 
         self.socketFunc = function(button)
-            if button == "LeftButton" and SocketHelper:ExtractGemFromInventorySlot(itemID) then
-                local macroText = GetSpellCastMacro();
-                self:SetMacroText(macroText, "LeftButton");
+            SocketHelper:SuppressItemSocketingFrame();
+
+            if button == "LeftButton" then
+                self:SetMacro_RemovePandariaGem_Equipped(itemID, button);
             else
                 self:SetMacroText(nil, "RightButton");
             end
@@ -736,16 +776,13 @@ do
 
     function ActionButtonMixin:SetAction_InsertPandariaPrimaryGem(itemID)
         self.socketFunc = function(button)
+            SocketHelper:SuppressItemSocketingFrame();
+
             if button == "LeftButton" then
                 if SocketHelper:PlaceGemInBestSlot(itemID) then
 
                 else
-                    if SocketHelper:ExtractGemFromContainer(itemID) then
-                        local macroText = GetSpellCastMacro();
-                        self:SetMacroText(macroText, "LeftButton");
-                    else
-                        self:SetMacroText(nil, "LeftButton");
-                    end
+                    self:SetMacro_RemovePandariaGem_InBag(itemID, button);
                 end
             else
                 self:SetMacroText(nil, "RightButton");
@@ -755,5 +792,97 @@ do
         local macroText = "";
         self:SetMacroText(macroText, "AnyButton");
         self:SetWatchedSpell(nil);
+    end
+
+
+
+    --Loadout
+    function ActionButtonMixin:SetAction_RemovePandariaGemOnPlayer(slotID, socketIndex)
+        self.socketFunc = function(button)
+            if button == "LeftButton" then
+                SocketHelper:SocketInventorySlot(slotID);
+                local macroText = GetRemoveSocketMacro(socketIndex);
+                self:SetMacroText(macroText, button);
+            else
+                self:SetMacroText(nil, "RightButton");
+            end
+        end
+
+        local macroText = "";
+        self:SetMacroText(macroText, "AnyButton");
+
+        local spellID = 433397;
+        self:SetWatchedSpell(spellID);
+    end
+
+    function ActionButtonMixin:SetAction_RemovePandariaGemInBag(gemItemID)
+        self.socketFunc = function(button)
+            if button == "LeftButton" then
+                local bag, slot, socketIndex = BagScan:GetGemPositionInBagEquipment(gemItemID);
+                if bag and slot then
+                    SocketHelper:SocketContainerSlot(bag, slot);
+                    local macroText = GetRemoveSocketMacro(socketIndex);
+                    self:SetMacroText(macroText, button);
+                else
+                    self:SetMacroText(nil, "LeftButton");
+                end
+            else
+                self:SetMacroText(nil, "RightButton");
+            end
+        end
+
+        local macroText = "";
+        self:SetMacroText(macroText, "AnyButton");
+
+        local spellID = 433397;
+        self:SetWatchedSpell(spellID);
+    end
+end
+
+
+do  --Remove All Sockets
+    local SOCKETABLE_SLOTS = {
+        1, 2, 3, 5, 9,
+        10, 6, 7, 8,
+        11, 12, 13, 14,
+    };
+
+    local function GetSlotForExtract()
+        local itemLink;
+        for _, slotID in ipairs(SOCKETABLE_SLOTS) do
+            itemLink = GetInventoryItemLink("player", slotID);
+            if itemLink and GetItemNumSockets(itemLink) > 0 then
+                for socketIndex = 1, 3 do
+                    if GetItemGemID(itemLink, socketIndex) then
+                        return slotID
+                    end
+                end
+            end
+        end
+    end
+
+    function ActionButtonMixin:SetAction_RemoveAllPandariaGems()
+        self.socketFunc = function(button)
+            if button == "LeftButton" then
+                local slotID = GetSlotForExtract();
+                if slotID then
+                    if not SPELLNAME_EXTRACT_GEM then
+                        SPELLNAME_EXTRACT_GEM = GetSpellName();
+                    end
+                    local macroText = string.format("/stopspelltarget\r/cast %s\r/use %s", SPELLNAME_EXTRACT_GEM, slotID);
+                    self:SetMacroText(macroText, "LeftButton");
+                else
+                    self:SetMacroText(nil, "LeftButton");
+                end
+            else
+                self:SetMacroText(nil, "RightButton");
+            end
+        end
+
+        local macroText = "";
+        self:SetMacroText(macroText, "AnyButton");
+
+        local spellID = 433397;
+        self:SetWatchedSpell(spellID);
     end
 end

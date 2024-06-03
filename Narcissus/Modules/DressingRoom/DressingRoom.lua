@@ -1,6 +1,7 @@
 local _, addon = ...
 
 local TransitionAPI = addon.TransitionAPI;
+local CopyTable = addon.CopyTable;
 
 local _G = _G;
 local L = Narci.L;

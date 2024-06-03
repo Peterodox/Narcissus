@@ -3249,6 +3249,20 @@ local function DoesItemExistByID(itemID)
 end
 addon.DoesItemExistByID = DoesItemExistByID;
 
+local function CopyTable(tbl)
+    --Blizzard TableUtil.lua
+    if not tbl then return; end;
+	local copy = {};
+	for k, v in pairs(tbl) do
+		if type(v) == "table" then
+			copy[k] = CopyTable(v);
+		else
+			copy[k] = v;
+		end
+	end
+	return copy;
+end
+addon.CopyTable = CopyTable;
 
 --[[
     /script DEFAULT_CHAT_FRAME:AddMessage("\124Hitem:narcissus:0:\124h[Test Link]\124h\124r");

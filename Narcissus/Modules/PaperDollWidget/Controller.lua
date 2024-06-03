@@ -1,10 +1,12 @@
 --[[ includes: (order)
 
-    1.Domination
-    2.Class Set
-
+    1. Domination (Deprecated)
+    2. Class Set
+    3. Remix Gem
 --]]
 
+local _, addon = ...
+local IsModuleEnabled = addon.IsModuleEnabled;
 local Controller, WidgetContainer;
 
 
@@ -58,6 +60,24 @@ function NarciPaperDollWidgetControllerMixin:Init()
     NarciPaperDollWidgetControllerMixin.Init = nil;
 end
 
+local function UpdateParent()
+    if GwDressingRoomGear then
+        local parent = GwDressingRoomGear;
+        WidgetContainer:SetParent(parent);
+        parent:HookScript("OnShow", function()
+            if Controller.isEnabled then
+                Controller:ListenEvents(true);
+                WidgetContainer:Show();
+                Controller:UpdateWidgets();
+            end
+        end);
+    
+        parent:HookScript("OnHide", function()
+            Controller:ListenEvents(false);
+        end);
+    end
+end
+
 local function UpdatePosition_OnShow()
     --adjustment for serveral addons/WA
     if CharacterStatsPaneilvl then
@@ -67,6 +87,10 @@ local function UpdatePosition_OnShow()
     elseif C_AddOns.IsAddOnLoaded("DejaCharacterStats") then
         WidgetContainer:ClearAllPoints();
         WidgetContainer:SetPoint("CENTER", PaperDollFrame, "TOPRIGHT", -1, -84);
+    elseif GwDressingRoomGear then   --GW2 UI
+        WidgetContainer:SetParent(GwDressingRoomGear);
+        WidgetContainer:ClearAllPoints();
+        WidgetContainer:SetPoint("CENTER", GwDressingRoomGear, "TOPRIGHT", 12, -60);
     elseif CharacterFrame and CharacterStatsPane and CharacterStatsPane.ItemLevelFrame then
         --A universal approach to align to the ItemLevelFrame center    (DejaCharStats)
         local anchor = CharacterStatsPane.ItemLevelFrame;
@@ -97,6 +121,9 @@ function NarciPaperDollWidgetControllerMixin:Enable()
 
     self.isEnabled = true;
     NarcissusDB.PaperDollWidget = true;
+
+
+    UpdateParent();
 end
 
 
@@ -118,18 +145,25 @@ function NarciPaperDollWidgetControllerMixin:SetEnabled(state)
     end
 end
 
-function NarciPaperDollWidgetControllerMixin:AddWidget(newWidget, index, name)
+function NarciPaperDollWidgetControllerMixin:UpdateIfEnabled()
+    if self.isEnabled and self:IsVisible() then
+        self:UpdateWidgets();
+    end
+end
+
+function NarciPaperDollWidgetControllerMixin:AddWidget(newWidget, index, dbKey)
     if not self.widgets then
         self.widgets = {};
     end
 
     if self.widgets[index] then
-        print(string.format("Narcissus: Widget #%s %s already exisit!", index, name or "Unnamed"));
+        print(string.format("Narcissus: Widget #%s %s already exisit!", index, dbKey or "Unnamed"));
     else
         self.widgets[index] = newWidget;
     end
 
     newWidget.parent = WidgetContainer;
+    newWidget.dbKey = dbKey;
     newWidget:ResetAnchor();
 end
 
@@ -174,7 +208,11 @@ function NarciPaperDollWidgetControllerMixin:UpdateWidgets()
     local isShown;
 
     for _, widget in pairs(self.widgets) do
-        isShown = widget:Update();
+        if IsModuleEnabled(widget.dbKey) then
+            isShown = widget:Update();
+        else
+            widget:Hide();
+        end
     end
 end
 
@@ -265,8 +303,6 @@ end
 
 
 do
-    local _, addon = ...
-
     function addon.SettingFunctions.EnablePaperDollWidget(state, db)
         if state == nil then
             state = db["PaperDollWidget"];

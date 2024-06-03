@@ -10,9 +10,12 @@ local IsSpellKnownOrOverridesKnown = IsSpellKnownOrOverridesKnown;
 local GetActionInfo = GetActionInfo;
 local HasExtraActionBar = HasExtraActionBar;
 local GetContainerNumFreeSlots = C_Container.GetContainerNumFreeSlots;
+local GetExistingSocketInfo = GetExistingSocketInfo;
+local GetNewSocketInfo = GetNewSocketInfo;
 
 
 local GemData = {};
+
 
 function Gemma:AddDataProvider(name, dataProvider)
     self.dataProviders[name] = dataProvider;
@@ -137,4 +140,23 @@ function Gemma:DoesBagHaveFreeSlot()
             return true
         end
     end
+end
+
+function Gemma:DoesBagHaveEnoughSpace(requiredBagSpace)
+    local totalFree = 0;
+
+    for bagIndex = 0, 4 do
+        local numFreeSlots, bagType = GetContainerNumFreeSlots(bagIndex);
+        if (bagType == 0 or bagType == 10) then
+            totalFree = totalFree + numFreeSlots;
+        end
+    end
+
+    return totalFree >= requiredBagSpace
+end
+
+function Gemma.IsSocketOccupied(socketIndex)
+    local a = GetExistingSocketInfo(socketIndex);
+    local b = GetNewSocketInfo(socketIndex);
+    return a or b
 end

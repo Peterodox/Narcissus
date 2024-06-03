@@ -16,7 +16,6 @@ local ipairs = ipairs;
 local tsort = table.sort;
 
 local PATH = "Interface/AddOns/Narcissus/Art/Modules/GemManager/";
-local TEXTURE_NAME = "TimerunningPandaria.png";
 
 local GetItemGemID = C_Item.GetItemGemID;
 local GetItemNumSockets = C_Item.GetItemNumSockets;     --10.2.7
@@ -34,8 +33,6 @@ local GEM_TYPES = {
     [2] = "COGWHEEL",
     [3] = "TINKER",
     [4] = "PRISMATIC",
-
-    [5] = "PRIMORDIAL",
 };
 
 local SLOT_ID = {
@@ -152,18 +149,18 @@ local GEM_DATA = {
     [220368] = {4, nil, 5, 25},  --Armor ++
     [220370] = {4, nil, 5, 15},  --Armor +++
     [220369] = {4, nil, 5, 05},  --Armor +++, STAM
-    [211109] = {4, nil, 6, 36},  --Regen +
-    [216642] = {4, nil, 6, 26},  --Regen ++
-    [211125] = {4, nil, 6, 16},  --Regen +++
-    [211105] = {4, nil, 6, 06},  --Regen +++, STAM
-    [210717] = {4, nil, 7, 37},  --Leech +
-    [216641] = {4, nil, 7, 27},  --Leech ++
-    [210718] = {4, nil, 7, 17},  --Leech +++
-    [211103] = {4, nil, 7, 07},  --Leech +++, STAM
-    [210716] = {4, nil, 8, 38},  --Speed +
-    [216639] = {4, nil, 8, 28},  --Speed ++
-    [211124] = {4, nil, 8, 18},  --Speed +++
-    [211101] = {4, nil, 8, 08},  --Speed +++, STAM
+    --[211109] = {4, nil, 6, 36},  --Regen +
+    --[216642] = {4, nil, 6, 26},  --Regen ++
+    --[211125] = {4, nil, 6, 16},  --Regen +++
+    --[211105] = {4, nil, 6, 06},  --Regen +++, STAM
+    [210717] = {4, nil, 6, 37},  --Leech +
+    [216641] = {4, nil, 6, 27},  --Leech ++
+    [210718] = {4, nil, 6, 17},  --Leech +++
+    [211103] = {4, nil, 6, 07},  --Leech +++, STAM
+    [210716] = {4, nil, 7, 38},  --Speed +
+    [216639] = {4, nil, 7, 28},  --Speed ++
+    [211124] = {4, nil, 7, 18},  --Speed +++
+    [211101] = {4, nil, 7, 08},  --Speed +++, STAM
 };
 
 local CUSTOM_SORT_ORDER = {
@@ -211,9 +208,9 @@ local STAT_GEMS = {
     [3] = {210715, 216640, 211106, 211108},     --Mastery
     [4] = {220371, 220372, 220374, 220373},     --Vers
     [5] = {220367, 220368, 220370, 220369},     --Armor
-    [6] = {211109, 216642, 211125, 211105},     --Regen
-    [7] = {210717, 216641, 210718, 211103},     --Leech
-    [8] = {210716, 216639, 211124, 211101},     --Speed
+    --[6] = {211109, 216642, 211125, 211105},     --Regen
+    [6] = {210717, 216641, 210718, 211103},     --Leech
+    [7] = {210716, 216639, 211124, 211101},     --Speed
 };
 
 local GEM_REMOVAL_TOOL = {"spell", 433397};
@@ -227,7 +224,7 @@ local STATS_DATA = {
     {STAT_MASTERY, },
     {STAT_VERSATILITY, },
     {STAT_ARMOR, },
-    {L["Stat Health Regen"], },
+    --{L["Stat Health Regen"], },
     {STAT_LIFESTEAL, },
     {STAT_SPEED},
 };
@@ -336,6 +333,12 @@ function DataProvider:GetGemSpell(itemID)
     end
 end
 
+function DataProvider:GetStatType(itemID)
+    if self:GetGemType(itemID) == 4 then
+        return GEM_DATA[itemID][3]
+    end
+end
+
 function DataProvider:GetConflictGemItemID(itemID)
     local gemType = self:GetGemType(itemID);
     if gemType == 1 then
@@ -361,7 +364,8 @@ end
 do  --Scan bag and equipment slot
     function BagUtil:ResetBagInfo()
         self.gemCount = {};             --Including all locations
-        self.bagGemCount = {};          --including those in equipment
+        self.bagGemCount = {};          --Including those in equipment
+        self.bagUsedGemCount = {};      --Gems in your bag equipment
         self.slotData = {};
         self.gemTypeAvailable = {};
         self.activeGemCount = {};
@@ -403,7 +407,7 @@ do  --Scan bag and equipment slot
                 end
             end
         end
-        
+
         tsort(traitList, SortFunc_ActiveTraits);
 
         self.activeGemList = {
@@ -451,6 +455,11 @@ do  --Scan bag and equipment slot
                             BagUtil.bagGemCount[itemID] = 0;
                         end
                         BagUtil.bagGemCount[itemID] = BagUtil.bagGemCount[itemID] + 1;
+
+                        if not BagUtil.bagUsedGemCount[itemID] then
+                            BagUtil.bagUsedGemCount[itemID] = 0;
+                        end
+                        BagUtil.bagUsedGemCount[itemID] = BagUtil.bagUsedGemCount[itemID] + 1;
                     else
                         if not BagUtil.activeGemCount[itemID] then
                             BagUtil.activeGemCount[itemID] = 0;
@@ -472,7 +481,7 @@ do  --Scan bag and equipment slot
                 if not BagUtil.gemCount[itemID] then
                     BagUtil.gemCount[itemID] = 1;
                 else
-                    BagUtil.gemCount[itemID] = BagUtil.gemCount[itemID] + 1;
+                    BagUtil.gemCount[itemID] = BagUtil.gemCount[itemID] + 1;    --stackCount of stat gem isn't relevant here
                 end
 
                 if id2 then
@@ -528,17 +537,17 @@ do  --Scan bag and equipment slot
     CallbackRegistry:Register("GemManager.BagScan.OnStop", BagUtil.OnScanComplete, BagUtil);
 end
 
+
+local TINKER_SLOT = {
+    SLOT_ID.SHOULDER, SLOT_ID.WRIST, SLOT_ID.HANDS, SLOT_ID.WAIST,
+};
 do  --Use the result from bag scan
     local META_SLOT = { SLOT_ID.HEAD };
 
     local COGWHEEL_SLOT = { SLOT_ID.FEET };
 
-    local TINKER_SLOT = {
-        SLOT_ID.SHOULDER, SLOT_ID.WRIST, SLOT_ID.HANDS, SLOT_ID.WAIST,
-    };
-
     local PRISMATIC_SLOT = {
-        SLOT_ID.NECK, SLOT_ID.CHEST, SLOT_ID.LEGS, SLOT_ID.RING1, SLOT_ID.RING2, SLOT_ID.TRINKET1, SLOT_ID.TRINKET2,
+        SLOT_ID.CHEST, SLOT_ID.LEGS, SLOT_ID.TRINKET1, SLOT_ID.TRINKET2, SLOT_ID.NECK, SLOT_ID.RING1, SLOT_ID.RING2
     };
 
 
@@ -621,7 +630,7 @@ do  --Use the result from bag scan
 
         local slotData;
 
-        for _, slotID in pairs(slots) do
+        for _, slotID in ipairs(slots) do
             slotData = BagUtil.slotData[slotID];
             if slotData then
                 for socketIndex = 1, slotData.numSockets do
@@ -635,6 +644,10 @@ do  --Use the result from bag scan
 
     function DataProvider:GetInBagGemCount(itemID)
         return BagUtil.bagGemCount and BagUtil.bagGemCount[itemID] or 0;
+    end
+
+    function DataProvider:GetInBagUsedGemCount(itemID)
+        return BagUtil.bagUsedGemCount and BagUtil.bagUsedGemCount[itemID] or 0;
     end
 
     function DataProvider:GetOnPlayerGemCount(itemID)
@@ -670,6 +683,7 @@ do  --Use the result from bag scan
 
         if not showGreenDot then
             totalSockets, totalMissing, anySpareGemInBags = self:GetPrismaticSocketCount();
+            showGreenDot = totalMissing > 0 and anySpareGemInBags;
         end
 
         return showGreenDot
@@ -1038,26 +1052,35 @@ function GemManagerMixin:ShowTraits()
         col = col + 1;
     end
 
-    self.TooltipFrame:ClearAllPoints();
-    self.TooltipFrame:SetPoint("TOP", container, "CENTER", 0, -contentHeight * 0.5 - 44);
+    if self.TooltipFrame then
+        self.TooltipFrame:ClearAllPoints();
+        self.TooltipFrame:SetPoint("TOP", container, "CENTER", 0, -contentHeight * 0.5 - 44);
 
-    if GetCVarBool("colorblindMode") then
-        self.TooltipFrame:SetDescriptionLine(7);
-    else
-        self.TooltipFrame:SetDescriptionLine(6);
+        if GetCVarBool("colorblindMode") then
+            self.TooltipFrame:SetDescriptionLine(7);
+        else
+            self.TooltipFrame:SetDescriptionLine(6);
+        end
     end
 
-    self.SlotFrame.ButtonHighlight:SetShape(shape);
+    if self.SlotFrame.ButtonHighlight then
+        self.SlotFrame.ButtonHighlight:SetShape(shape);
+    end
 
     local shine = self.SlotFrame.ButtonShine;
-    shine.Mask:SetTexture(PATH.."IconMask-"..shape, "CLAMPTOBLACKADDITIVE", "CLAMPTOBLACKADDITIVE");
-    shine.Mask:SetSize(32, 32);
-    shine.Texture:SetTexture(PATH.."SlotShine");
-    shine.Texture:SetSize(48, 48);
-    shine.Texture:SetBlendMode("ADD");
+    if shine then
+        shine.Mask:SetTexture(PATH.."IconMask-"..shape, "CLAMPTOBLACKADDITIVE", "CLAMPTOBLACKADDITIVE");
+        shine.Mask:SetSize(32, 32);
+        shine.Texture:SetTexture(PATH.."SlotShine");
+        shine.Texture:SetSize(48, 48);
+        shine.Texture:SetBlendMode("ADD");
+    end
 
     self.UpdateCurrentTab = self.UpdateSlots;
-    self:UpdateSlots();
+
+    if not self.isLoadoutPlanner then
+        self:UpdateSlots();
+    end
 end
 
 function GemManagerMixin:UpdateSlots()
@@ -1141,6 +1164,37 @@ do  --Stats Assignment Tab
         end
     end
 
+    function DataProvider:GetAvailableGemListForStat(statType)
+        --Used in Loadout Action
+        local gems = STAT_GEMS[statType];
+        local statGemCount = {};
+
+        if gems then
+            local itemID, inBagCount, spareCount;
+            local n = 0;
+
+            for i = #gems, 1, -1 do
+                itemID = gems[i];
+
+                inBagCount = self:GetInBagUsedGemCount(itemID);
+                spareCount = GetItemCount(itemID);
+
+                --if inBagCount > 0 or spareCount > 0 then
+                    local tbl = {
+                        itemID = itemID,
+                        inBagCount = inBagCount,
+                        spareCount = spareCount,
+                    };
+
+                    n = n + 1;
+                    statGemCount[n] = tbl;
+                --end
+            end
+        end
+
+        return statGemCount
+    end
+
     function GemManagerMixin:ShowStats()
         self.useSlotFrame = true;
 
@@ -1159,7 +1213,10 @@ do  --Stats Assignment Tab
         end
 
         self.UpdateCurrentTab = self.UpdateStats;
-        self:UpdateStats();
+
+        if not self.isLoadoutPlanner then
+            self:UpdateStats();
+        end
     end
 
     function GemManagerMixin:UpdateStats()
@@ -1168,11 +1225,11 @@ do  --Stats Assignment Tab
 
         if totalMissing > 0 then
             isEditMode = true;
-            self.SlotFrame.PointsDisplay:SetAmount(totalMissing);
-            self.SlotFrame.PointsDisplay:Show();
+            self.PointsDisplay:SetAmount(totalMissing);
+            self.PointsDisplay:Show();
         else
             isEditMode = false;
-            self.SlotFrame.PointsDisplay:Hide();
+            self.PointsDisplay:Hide();
         end
         
         local activeGems = DataProvider:GetActiveGems();
@@ -1214,4 +1271,82 @@ function GemManagerMixin:UpdateTabGreenDot()
     totalSockets, totalMissing, anySpareGemInBags = DataProvider:GetPrismaticSocketCount();
     showGreenDot = totalMissing > 0 and anySpareGemInBags;
     self.tabButtons[3].GreenDot:SetShown(showGreenDot);
+end
+
+
+
+
+do --Loadout
+    local function AddSlotGemCountToTable(tbl, slotID, gemType)
+        local itemLink = GetInventoryItemLink("player", slotID);
+        if itemLink then
+            local gemItemID, statType;
+            for socketIndex = 1, GetItemNumSockets(itemLink) do
+                gemItemID = GetItemGemID(itemLink, socketIndex);
+                if gemItemID then
+                    --local gemType = DataProvider:GetGemType(gemItemID);
+                    if gemType == 3 then
+                        table.insert(tbl, gemItemID);
+                    elseif gemType == 4 then
+                        statType = DataProvider:GetStatType(gemItemID);
+                        if not tbl[statType] then
+                            tbl[statType] = 0;
+                        end
+                        tbl[statType] = tbl[statType] + 1;
+                    end
+                end
+            end
+        end
+    end
+
+    function DataProvider:GetEquippedLoadoutGemInfo()
+        --[[--Structure:
+            {
+                head = 221977,
+                feet = 218110,
+                tinker = {219801, 212366, 219944, 219818},
+                stats1 = {  --Chest Legs
+                    crit = 1,
+                    haste = 2,
+                },
+
+                stats2 = {}, --Trinkets
+                stats3 = {}, --Neck/Rings
+            }
+        --]]
+
+        local gemInfo = {};
+
+        gemInfo.head = self:GetHeadGem();
+        gemInfo.feet = self:GetFeetGem();
+
+
+        gemInfo.tinker = {};
+        for _, slotID in ipairs(TINKER_SLOT) do
+            AddSlotGemCountToTable(gemInfo.tinker, slotID, 3);
+        end
+
+        tsort(gemInfo.tinker);
+
+        gemInfo.stats1 = {};
+        AddSlotGemCountToTable(gemInfo.stats1, SLOT_ID.CHEST, 4);
+        AddSlotGemCountToTable(gemInfo.stats1, SLOT_ID.LEGS, 4);
+
+        gemInfo.stats2 = {};
+        AddSlotGemCountToTable(gemInfo.stats2, SLOT_ID.TRINKET1, 4);
+        AddSlotGemCountToTable(gemInfo.stats2, SLOT_ID.TRINKET2, 4);
+
+        gemInfo.stats3 = {};
+        AddSlotGemCountToTable(gemInfo.stats3, SLOT_ID.NECK, 4);
+        AddSlotGemCountToTable(gemInfo.stats3, SLOT_ID.RING1, 4);
+        AddSlotGemCountToTable(gemInfo.stats3, SLOT_ID.RING2, 4);
+
+        return gemInfo
+    end
+
+    function DataProvider:IsLeftStatGemBetter(gem1, gem2)
+        if GEM_DATA[gem1][3] == GEM_DATA[gem2][3] then
+            return GEM_DATA[gem1][4] < GEM_DATA[gem2][4]
+        end
+    end
 end

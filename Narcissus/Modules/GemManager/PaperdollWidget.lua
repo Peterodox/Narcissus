@@ -11,8 +11,8 @@ local GetItemQualityColor = NarciAPI.GetItemQualityColor;
 NarciGemManagerPaperdollWidgetMixin = {};
 
 function NarciGemManagerPaperdollWidgetMixin:OnLoad()
-    NarciPaperDollWidgetController:AddWidget(self, 4, "TimerunningPandaria");
     Gemma.PaperdollWidget = self;
+    NarciPaperDollWidgetController:AddWidget(self, 4, "PaperDollWidget_Remix");
 end
 
 function NarciGemManagerPaperdollWidgetMixin:OnShow()
@@ -154,7 +154,7 @@ function NarciGemManagerPaperdollWidgetMixin:ShowTooltip()
     end
 
     tooltip:AddLine(" ");
-    tooltip:AddLine("Left click to open gem manager", 0.5, 0.5, 0.5, true);
+    tooltip:AddLine(L["Click To Open Gem Manager"], 0.5, 0.5, 0.5, true);
 
     tooltip:Show();
 end

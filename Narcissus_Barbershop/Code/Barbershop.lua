@@ -2278,7 +2278,7 @@ local function ProfileTab_Setup(tab)
             local Instruction = IntroFrame:CreateFontString(nil, "OVERLAY", "SystemFont_Tiny");
             Instruction:SetWidth(tabWidth*0.8);
             Instruction:SetJustifyH("CENTER");
-            Instruction:SetJustifyH("TOP");
+            Instruction:SetJustifyV("TOP");
             Instruction:SetPoint("TOP", tab, "TOP", 0, 0);
             Instruction:SetTextColor(0.8, 0.8, 0.8);
             Instruction:SetText(L["Profile Migration Tooltip"]);
@@ -2381,14 +2381,14 @@ local function ProfileTab_Setup(tab)
         local PageText = LookList:CreateFontString(nil, "OVERLAY", "SystemFont_Tiny");
         PageText:SetHeight(BUTTON_HEIGHT);
         PageText:SetJustifyH("CENTER");
-        PageText:SetJustifyH("MIDDLE");
+        PageText:SetJustifyV("MIDDLE");
         PageText:SetPoint("BOTTOM", LookList, "BOTTOM", 0, 0);
         PageText:SetTextColor(0.5, 0.5, 0.5);
 
         local CountText = LookList:CreateFontString(nil, "OVERLAY", "SystemFont_Tiny");
         CountText:SetHeight(BUTTON_HEIGHT);
         CountText:SetJustifyH("RIGHT");
-        CountText:SetJustifyH("MIDDLE");
+        CountText:SetJustifyV("MIDDLE");
         CountText:SetPoint("BOTTOMRIGHT", LookList, "TOPRIGHT", -BUTTON_TEXT_OFFSET, 0.5 * widgetHeight);
         CountText:SetTextColor(0.5, 0.5, 0.5);
 
