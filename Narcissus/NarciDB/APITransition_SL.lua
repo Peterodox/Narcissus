@@ -4,9 +4,8 @@ if addon.IsDragonflight() then
     return
 end
 
-local TransitionAPI = {};
-addon.TransitionAPI = TransitionAPI;
-NarciAPI.TransitionAPI = TransitionAPI;
+local TransitionAPI = addon.TransitionAPI;
+
 
 function TransitionAPI.IsDragonflight()
     return false

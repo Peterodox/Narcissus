@@ -9,6 +9,8 @@ local Modules = {
     {name = "Narcissus_GamePad", triggerEvent = "GAME_PAD_CONNECTED", },
 };
 
+local LoadAddOn = C_AddOns.LoadAddOn;
+local EnableAddOn = C_AddOns.EnableAddOn;
 
 local Manager = CreateFrame("Frame");
 addon.ModuleManager = Manager;

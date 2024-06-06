@@ -1,5 +1,5 @@
 local _, addon = ...;
-local GetItemCount = GetItemCount;
+local GetItemCount = C_Item.GetItemCount;
 local unpack = unpack;
 
 --[[

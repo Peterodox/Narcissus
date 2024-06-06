@@ -38,10 +38,11 @@ local NarciAPI = NarciAPI;
 local TEXT_LOCALE = GetLocale();
 
 local GetItemInfoInstant = C_Item.GetItemInfoInstant;
-local GetItemGem = GetItemGem;
-local GetItemStats = GetItemStats or C_Item.GetItemStats;
+local GetItemGem = C_Item.GetItemGem;
+local GetItemStats = C_Item.GetItemStats;
 local GetInventoryItemLink = GetInventoryItemLink;
 local StripHyperlinks = StripHyperlinks;    --Added in 10.1.0
+local GetSpellInfo = addon.TransitionAPI.GetSpellInfo;
 
 local function IsArtifactRelic(item)
     --an alternative to IsArtifactRelicItem()

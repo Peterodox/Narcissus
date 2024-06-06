@@ -1,6 +1,7 @@
 local _, addon = ...
 
 local SetModelLight = addon.TransitionAPI.SetModelLight;
+local GetMouseFocus = addon.TransitionAPI.GetMouseFocus;
 
 local BACKGROUND_INSET = 3.5;
 local TEXT_INSET = 16;

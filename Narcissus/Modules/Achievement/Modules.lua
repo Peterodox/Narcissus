@@ -279,8 +279,8 @@ end)
 
 function Loader:LoadAchievementPanel()
     Loader:RegisterEvent("ADDON_LOADED");
-    EnableAddOn(MODULE_NAME);    --Forced Enable
-    local loaded, reason = LoadAddOn(MODULE_NAME);
+    C_AddOns.EnableAddOn(MODULE_NAME);    --Forced Enable
+    local loaded, reason = C_AddOns.LoadAddOn(MODULE_NAME);
 end
 
 function Loader:OnAddOnLoaded()

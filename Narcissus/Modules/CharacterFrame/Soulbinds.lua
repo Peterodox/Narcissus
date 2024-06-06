@@ -29,7 +29,7 @@ QUALITY_COLORS[1] = {0.8, 0.8, 0.8};
 
 local C_Item = C_Item;
 local C_Soulbinds = C_Soulbinds;
-local GetSpellInfo = GetSpellInfo;
+local GetSpellInfo = addon.TransitionAPI.GetSpellInfo;
 local GetSpellTexture = GetSpellTexture;
 
 local MainFrame, NodesContainer, CollectionFrame, ConduitTooltip;
@@ -1473,7 +1473,7 @@ end
 
 ----------------------------------------------
 --Conduit Collection
-local GetMouseFocus = GetMouseFocus;
+local GetMouseFocus = addon.TransitionAPI.GetMouseFocus;
 local delayExecute = NarciAPI_CreateAnimationFrame(0.65);
 delayExecute:SetScript("OnUpdate", function(self, elapsed)
     self.total = self.total + elapsed;

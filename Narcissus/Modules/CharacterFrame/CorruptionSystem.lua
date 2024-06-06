@@ -12,12 +12,15 @@ local CorruptionEffectInfo = {
     [5] = {["name"] = "Inevitable Doom", ["description"] = "All damage taken is magnified and healing received is reduced, increasing with further Corruption."},
 };
 
-local oldCorruptionLevel;
+
+local _, addon = ...
+local OLD_CURRUPTION_LEVEL;
 
 local L = Narci.L;
 local FadeFrame = NarciAPI_FadeFrame;
 local GetCorruptionResistance = GetCorruptionResistance;
 local GetCorruption = GetCorruption;
+local GetSpellInfo = addon.TransitionAPI.GetSpellInfo;
 local pi = math.pi;
 local cos = math.cos;
 local max = math.max;
@@ -132,10 +135,10 @@ local function SmoothHeight(height, newCorruptionLevel, totalCorruption)
     AnimFrame:Hide();
     AnimFrame.startHeight = AnimFrame.Bar:GetHeight();
 
-    if newCorruptionLevel > oldCorruptionLevel then
+    if newCorruptionLevel > OLD_CURRUPTION_LEVEL then
         AnimFrame.endHeight = FILLED_BAR_HEIGHT;
         function CallBackFunc(self)
-            oldCorruptionLevel = newCorruptionLevel;
+            OLD_CURRUPTION_LEVEL = newCorruptionLevel;
             AnimFrame.t = 0;
             AnimFrame.startHeight = 0;
             AnimFrame.endHeight = height;
@@ -148,10 +151,10 @@ local function SmoothHeight(height, newCorruptionLevel, totalCorruption)
                 self:Hide();
             end
         end
-    elseif newCorruptionLevel < oldCorruptionLevel then
+    elseif newCorruptionLevel < OLD_CURRUPTION_LEVEL then
         AnimFrame.endHeight = 0.01;
         function CallBackFunc(self)
-            oldCorruptionLevel = newCorruptionLevel;
+            OLD_CURRUPTION_LEVEL = newCorruptionLevel;
             AnimFrame.t = 0;
             AnimFrame.startHeight = FILLED_BAR_HEIGHT;
             AnimFrame.endHeight = height;
@@ -167,7 +170,7 @@ local function SmoothHeight(height, newCorruptionLevel, totalCorruption)
     else 
         AnimFrame.endHeight = height;
         function CallBackFunc(self)
-            oldCorruptionLevel = newCorruptionLevel;
+            OLD_CURRUPTION_LEVEL = newCorruptionLevel;
             self:Hide();
         end
         SetBarTexts(newCorruptionLevel, totalCorruption);
@@ -236,7 +239,7 @@ function Narci_SetCorruptionBar(self, smooth)
     else
         self.Fluid:SetHeight(barHeight);
         SetBarTexts(corruptionLevel, totalCorruption);
-        oldCorruptionLevel = corruptionLevel;
+        OLD_CURRUPTION_LEVEL = corruptionLevel;
         if corruptionLevel == 0 then
             self.Fluid:SetTexCoord(0.875, 0.9375, 0, 1);
         else

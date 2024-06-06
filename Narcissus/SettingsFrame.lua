@@ -2141,7 +2141,7 @@ if IS_DRAGONFLIGHT then
     
     local function NarciBagItemFilter_LoadAddOn()
         if not NarciBagItemFilterSettings then
-            LoadAddOn("Narcissus_BagFilter");
+            C_AddOns.LoadAddOn("Narcissus_BagFilter");
         end
     end
 

@@ -10,6 +10,7 @@ local UIFrameFadeIn = UIFrameFadeIn;
 local UIFrameFadeOut = UIFrameFadeOut;
 local FadeFrame = NarciFadeUI.Fade;
 local PlaySound = PlaySound;
+local GetMouseFocus = addon.TransitionAPI.GetMouseFocus;
 
 local find = string.find;
 local match = string.match;
@@ -362,7 +363,7 @@ Narci_FontColor = {
     ["Corrupt"] = {0.584, 0.428, 0.82, "|cff946dd1"},
 };
 
-local customQualityColors= {
+local CustomQualityColors= {
 	[0] = "9d9d9d",	--Poor
 	[1] = "ffffff",	--Common
 	[2] = "1eff00",	--Uncommon
@@ -375,15 +376,15 @@ local customQualityColors= {
 	[9] = "ffffff",
 };
 
-for index, hex in pairs(customQualityColors) do
-	customQualityColors[index] = NarciAPI_ConvertHexColorToRGB(hex, true);
+for index, hex in pairs(CustomQualityColors) do
+	CustomQualityColors[index] = NarciAPI_ConvertHexColorToRGB(hex, true);
 end
 
 local function GetCustomQualityColor(itemQuality)
-    if (not itemQuality) or (not customQualityColors[itemQuality]) then
+    if (not itemQuality) or (not CustomQualityColors[itemQuality]) then
         itemQuality = 1;
     end
-    return customQualityColors[itemQuality][1], customQualityColors[itemQuality][2], customQualityColors[itemQuality][3];
+    return CustomQualityColors[itemQuality][1], CustomQualityColors[itemQuality][2], CustomQualityColors[itemQuality][3];
 end
 
 NarciAPI.GetItemQualityColor = GetCustomQualityColor;
@@ -397,10 +398,10 @@ end
 NarciAPI.GetItemQualityColorByItemID = GetCustomQualityColorByItemID;
 
 local function GetCustomQualityHexColor(itemQuality)
-    if (not itemQuality) or (not customQualityColors[itemQuality]) then
+    if (not itemQuality) or (not CustomQualityColors[itemQuality]) then
         itemQuality = 1;
     end
-    return customQualityColors[itemQuality][4]
+    return CustomQualityColors[itemQuality][4]
 end
 
 NarciAPI.GetItemQualityHexColor = GetCustomQualityHexColor;
@@ -408,7 +409,7 @@ NarciAPI.GetItemQualityHexColor = GetCustomQualityHexColor;
 
 NarciAPI.GetItemQualityColorTable = function()
     local newTable = {};
-    for k, v in pairs(customQualityColors) do
+    for k, v in pairs(CustomQualityColors) do
         newTable[k] = v;
     end
     return newTable;
@@ -457,8 +458,8 @@ local EnchantInfo = Narci.EnchantData;
 local DoesItemExist = C_Item.DoesItemExist;
 local GetCurrentItemLevel = C_Item.GetCurrentItemLevel;
 local GetItemLink = C_Item.GetItemLink
-local GetItemStats = GetItemStats or C_Item.GetItemStats;
-local GetItemGem = GetItemGem;
+local GetItemStats = C_Item.GetItemStats;
+local GetItemGem = C_Item.GetItemGem;
 
 function NarciAPI_GetItemStats(itemLocation)
     local statsTable = {};
@@ -564,7 +565,7 @@ do
     local GetContainerItemID = (C_Container and C_Container.GetContainerItemID) or GetContainerItemID;
     local GetContainerItemLink = (C_Container and C_Container.GetContainerItemLink) or GetContainerItemLink;
     local GetInventoryItemID = GetInventoryItemID;
-    local GetItemCount = GetItemCount;
+    local GetItemCount = C_Item.GetItemCount;
 
     local function GetItemBagPosition(itemID, findHighestItemLevel)
         if findHighestItemLevel then

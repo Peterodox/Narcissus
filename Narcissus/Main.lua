@@ -54,6 +54,7 @@ local IsPlayerInAlteredForm = TransitionAPI.IsPlayerInAlteredForm;
 local InCombatLockdown = InCombatLockdown;
 local GetInventoryItemTexture = GetInventoryItemTexture;
 local GetCameraZoom = GetCameraZoom;
+local GetSpellInfo = TransitionAPI.GetSpellInfo;
 
 local floor = math.floor;
 local max = math.max;

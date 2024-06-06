@@ -23,6 +23,8 @@ local GetPlayerAuraBySpellID = GetPlayerAuraBySpellID;
 local GetBestMapForUnit = C_Map.GetBestMapForUnit;
 local GetMapInfo = C_Map.GetMapInfo;
 local GetShardEffect = NarciAPI.GetDominationShardEffect;
+local GetSpellInfo = addon.TransitionAPI.GetSpellInfo;
+
 
 local function IsZoneValidForDomination()
     --Shard of Domination is only functioning in the Maw since 9.2
@@ -219,35 +221,6 @@ dominationItems = nil;
 local function DoesItemHaveDomationSocket(itemID)
     return isDominationItem[itemID]
 end
-
---[[
-local function GetItemDominationGem(itemLink)
-    if not itemLink then return; end
-
-    local gemName, gemLink = GetItemGem(itemLink, 1);
-    if gemLink then
-        return (gemName or "Retrieving"), gemLink;
-    end
-
-    local tex, texID;
-    for i = 1, 3 do
-        tex = _G["NarciVirtualTooltip".."Texture"..i]
-        if tex then
-            tex = tex:SetTexture(nil);
-        end
-    end
-
-    TP:SetHyperlink(itemLink);
-
-    for i = 1, 3 do
-        tex = _G["NarciVirtualTooltip".."Texture"..i]
-        texID = tex and tex:GetTexture();
-        if texID == 4095404 then
-            return "Empty", nil;
-        end
-    end
-end
---]]
 
 local function GetItemDominationGem(itemLink)   --the old method is subjective to cache issue?
     if not itemLink then return; end
@@ -921,7 +894,3 @@ function NarciDominationNoEffectAlertMixin:ShowAlert()
         self:OnShow();
     end
 end
-
---/dump UnitBuff("player", 6)
---/script local itemLocation = ItemLocation:CreateFromEquipmentSlot(1);local itemLink=C_Item.GetItemLink(itemLocation);print(GetItemGem(itemLink, 1));
---Narcissus UI

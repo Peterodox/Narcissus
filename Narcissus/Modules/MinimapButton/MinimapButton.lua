@@ -14,7 +14,7 @@ local sin = math.sin;
 local sqrt = math.sqrt;
 local atan2 = math.atan2;
 
-local GetMouseFocus = GetMouseFocus;
+local GetMouseFocus = addon.TransitionAPI.GetMouseFocus;
 
 local MiniButton;
 

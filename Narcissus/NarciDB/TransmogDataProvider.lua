@@ -6,7 +6,7 @@ local IsAppearanceFavorite = MogAPI.GetIsAppearanceFavorite;
 local GetSourceInfo = MogAPI.GetSourceInfo;
 
 local CreateItemTransmogInfo = ItemUtil.CreateItemTransmogInfo;
-local GetItemInfoInstant = GetItemInfoInstant;
+local GetItemInfoInstant = C_Item.GetItemInfoInstant;
 local strsplit = strsplit;
 
 local LocalizedData = addon.LocalizedData;

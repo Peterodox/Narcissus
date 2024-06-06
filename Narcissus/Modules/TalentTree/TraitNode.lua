@@ -4,9 +4,9 @@ local OnEnterDelay = addon.TalentTreeOnEnterDelay;
 local ClassTalentTooltipUtil = addon.ClassTalentTooltipUtil;
 
 local GetDefinitionInfo = C_Traits.GetDefinitionInfo;
-local GetSpellInfo = GetSpellInfo;
+local GetSpellInfo = addon.TransitionAPI.GetSpellInfo;
 local GetPvpTalentInfoByID = GetPvpTalentInfoByID;
-local IsPassiveSpell = IsPassiveSpell;
+local IsSpellPassive = addon.TransitionAPI.IsSpellPassive;
 
 local select = select;
 
@@ -109,6 +109,8 @@ function NarciTalentTreeNodeMixin:SetNodeType(typeID, ranksPurchased)
 end
 
 function NarciTalentTreeNodeMixin:SetDefinitionID(definitionID)
+    if not definitionID then return end;
+
     local info = GetDefinitionInfo(definitionID);
     self.definitionID = definitionID;
     SetNodeIcon(self, info);
@@ -188,7 +190,7 @@ function NarciTalentTreeNodeMixin:SetPvPTalent(talentID)
         local _, _, icon, _, _, spellID = GetPvpTalentInfoByID(talentID);
         self.Icon:SetTexture(icon);
         self:SetActive(true);
-        if IsPassiveSpell(spellID) then
+        if IsSpellPassive(spellID) then
             self:SetNodeType(1);
         else
             self:SetNodeType(0);

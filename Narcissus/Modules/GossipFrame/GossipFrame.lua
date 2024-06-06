@@ -3,7 +3,7 @@ local _, addon = ...
 local TooltipFrame = addon.UIFrameTooltip;
 local DataProvider = addon.GossipOptionsDataProvider;
 
-local GetMouseFocus = GetMouseFocus;
+local GetMouseFocus = addon.TransitionAPI.GetMouseFocus;
 local GossipFrame = GossipFrame;
 local GossipOptionOnClick = GossipOptionButtonMixin and GossipOptionButtonMixin.OnClick;
 local find = string.find;

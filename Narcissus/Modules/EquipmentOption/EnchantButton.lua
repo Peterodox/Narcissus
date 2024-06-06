@@ -13,7 +13,7 @@ local GetItemTempEnchantType = NarciAPI.GetItemTempEnchantType;
 local IsWeaponValidForEnchant = NarciAPI.IsWeaponValidForEnchant;
 
 local C_Item = C_Item;
-local GetSpellInfo = GetSpellInfo;
+local GetSpellInfo = addon.TransitionAPI.GetSpellInfo;
 local GetSpellDescription = GetSpellDescription;
 local GetItemCount = C_Item.GetItemCount;
 local GetItemIcon = C_Item.GetItemIconByID;

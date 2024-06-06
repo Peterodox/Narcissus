@@ -1,3 +1,4 @@
+local _, addon = ...
 local currentVersion = 10500;
 local lastMajorVersion = 0;
 local _, _, _, tocversion = GetBuildInfo();
@@ -16,6 +17,7 @@ local After = C_Timer.After;
 local FadeFrame = NarciAPI_FadeFrame;
 local UIFrameFadeIn = UIFrameFadeIn;
 local UIFrameFadeOut = UIFrameFadeOut;
+local GetMouseFocus = addon.TransitionAPI.GetMouseFocus;
 local pi = math.pi;
 local sin = math.sin;
 local cos = math.cos;

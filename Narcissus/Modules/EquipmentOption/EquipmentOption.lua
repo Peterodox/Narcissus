@@ -24,8 +24,8 @@ else
     TOOLTIP_PREFIX = "";
 end
 
-local GetSpellDescription = GetSpellDescription;
-local GetItemSpell = GetItemSpell;
+local GetSpellDescription = addon.TransitionAPI.GetSpellDescription;
+local GetItemSpell = C_Item.GetItemSpell;
 
 local tinsert = table.insert;
 local tremove = table.remove;
@@ -39,7 +39,7 @@ local GetItemTempEnchantRequirement = NarciAPI.GetItemTempEnchantRequirement;
 local GetSocketTypes = GetSocketTypes;
 local C_Item = C_Item;
 
-local GetContainerItemLink = (C_Container and C_Container.GetContainerItemLink) or GetContainerItemLink;    --Dragonflight
+local GetContainerItemLink = C_Container.GetContainerItemLink;    --Dragonflight
 local GetInventoryItemLink = GetInventoryItemLink;
 
 

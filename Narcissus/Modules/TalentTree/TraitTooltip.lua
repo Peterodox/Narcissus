@@ -14,9 +14,9 @@ local GetTraitEntryTooltip = NarciAPI.GetTraitEntryTooltip;
 local GetPvpTalentTooltip = NarciAPI.GetPvpTalentTooltip
 
 local C_Traits = C_Traits;
-local GetSpellInfo = GetSpellInfo;
+local GetSpellInfo = addon.TransitionAPI.GetSpellInfo;
 local C_Spell = C_Spell;
-local IsPassiveSpell = IsPassiveSpell;
+local IsSpellPassive = addon.TransitionAPI.IsSpellPassive;
 local GetActiveSpecGroup = GetActiveSpecGroup;
 local GetPvpTalentInfoByID = GetPvpTalentInfoByID;
 local GetCursorDelta = GetCursorDelta;
@@ -356,7 +356,7 @@ local function Tooltip_SetTraitEntry(tooltip, entryID, rank, definitionID, ranks
             if not icon then
                 icon = originalIcon;
             end
-            isPassive = IsPassiveSpell(spellID);
+            isPassive = IsSpellPassive(spellID);
         end
     else
         print("NarcissusTalentTree: Missing DefinitionID");
@@ -465,7 +465,7 @@ local function Tooltip_SetPvpTalent(tooltip, talentID, isInspecting, slotIndex)
     local isPassive;
 
     if spellID then
-        isPassive = IsPassiveSpell(spellID);
+        isPassive = IsSpellPassive(spellID);
     end
     if isPassive then
         if not tooltip.isPassive then

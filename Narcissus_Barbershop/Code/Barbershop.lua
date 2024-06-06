@@ -29,7 +29,7 @@ local wipe = wipe;
 local tostring = tostring;
 
 local IsMouseButtonDown = IsMouseButtonDown;
-local GetMouseFocus = GetMouseFocus;
+local GetMouseFocus = NarciAPI.TransitionAPI.GetMouseFocus;;
 local PlaySound = PlaySound;
 local CreateFrame = CreateFrame;
 

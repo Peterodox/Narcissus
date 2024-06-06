@@ -1,8 +1,8 @@
 local Narci = Narci;
 
 local After = C_Timer.After;
-local GetContainerNumFreeSlots = (C_Container and C_Container.GetContainerNumFreeSlots) or GetContainerNumFreeSlots;
-local GetItemCount = GetItemCount;
+local GetContainerNumFreeSlots = C_Container.GetContainerNumFreeSlots;
+local GetItemCount = C_Item.GetItemCount;
 local NUM_BAGS = NUM_BAG_SLOTS or 4;
 
 local REQUIREMENT_FORMAT = "|cff808080"..REQUIRES_LABEL.." %s|r";

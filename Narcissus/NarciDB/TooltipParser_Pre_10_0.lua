@@ -21,9 +21,10 @@ local _G = _G;
 local L = Narci.L;
 local TEXT_LOCALE = GetLocale();
 
-local GetItemInfoInstant = GetItemInfoInstant;
-local GetItemGem = GetItemGem;
-local GetItemStats = GetItemStats;
+local GetItemInfoInstant = C_Item.GetItemInfoInstant;
+local GetItemGem = C_Item.GetItemGem;
+local GetItemStats = C_Item.GetItemStats;
+local GetSpellInfo = addon.TransitionAPI.GetSpellInfo;
 
 local function IsArtifactRelic(item)
     --an alternative to IsArtifactRelicItem()

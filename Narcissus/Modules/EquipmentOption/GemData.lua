@@ -1,5 +1,5 @@
 local _, addon = ...;
-local GetItemCount = GetItemCount;
+local GetItemCount = C_Item.GetItemCount;
 
 local PrismaticGems = {
     ----10 DF---- itemID order: better-lower quality

@@ -13,11 +13,9 @@ local GetSourceInfo = MogAPI.GetSourceInfo;
 local GetAppearanceSourceDrops = MogAPI.GetAppearanceSourceDrops;
 local IsAppearanceFavorite = MogAPI.GetIsAppearanceFavorite;
 local IsHiddenVisual = MogAPI.IsAppearanceHiddenVisual;
-
-local GetItemInfoInstant = GetItemInfoInstant;
-
+local GetItemQualityColor = addon.TransitionAPI.GetItemQualityColor;
+local GetItemInfoInstant = C_Item.GetItemInfoInstant;
 local GetSlotVisualID = NarciAPI.GetSlotVisualID;
-
 local FadeFrame = NarciFadeUI.Fade;
 local GetSlotIDByInvType = NarciAPI.GetSlotIDByInvType;
 

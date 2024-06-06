@@ -1,9 +1,8 @@
 local MAX_DISPLAYED_TALENTS = 9;
 
 local _, addon = ...;
-
+local GetSpellInfo = addon.TransitionAPI.GetSpellInfo;
 local After = C_Timer.After;
---local GetAllSelectedTalentIDsAndIcons = NarciAPI.GetAllSelectedTalentIDsAndIcons;
 
 
 NarciTalentFlatButtonMixin = CreateFromMixins(NarciShewedRectButtonMixin);

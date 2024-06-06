@@ -185,12 +185,6 @@ local function LoadDatabase()
         end
     end
 
-    if DB.PaperDollWidget_ClassSet == nil then
-        --Each widget now has a separate toggle
-        if not DB.PaperDollWidget then
-            PaperDollWidget_ClassSet = false;
-        end
-    end
 
     ---- Preference ----
     local type = type;

@@ -1,42 +1,44 @@
+local _, addon = ...
 local ESM = Narci_EquipmentSetManager;      --defined in EquipmentSetManager.lua
+
+local IsSpellPassive = addon.TransitionAPI.IsSpellPassive;
+
 local IconPresets = {};
+IconPresets.tank = {
+    951819,     --Shield_draenorcrafted_d_02_b_alliance
+    951820,     --Shield_draenorcrafted_d_02_b_horde
+    2398168,    --Inv_shield_1h_bloodelfguard_d_01
+};
 
-    IconPresets.tank = {
-        951819,     --Shield_draenorcrafted_d_02_b_alliance
-        951820,     --Shield_draenorcrafted_d_02_b_horde
-        
-        2398168,    --Inv_shield_1h_bloodelfguard_d_01
-    };
+IconPresets.healer = {
+    460955,     --Priest_icon_innewill
+    215433,     --spell_priest_chakra
+    537099,     --Spell_priest_angelicbulwark
+    135913,     --Spell_holy_greaterheal
+    135930,     --Spell_holy_lesserheal02
+};
 
-    IconPresets.healer = {
-        460955,     --Priest_icon_innewill
-        215433,     --spell_priest_chakra
-        537099,     --Spell_priest_angelicbulwark
-        135913,     --Spell_holy_greaterheal
-        135930,     --Spell_holy_lesserheal02
-    };
-
-    IconPresets.pvp = {
-        236335,     --Achievement_arena_3v3_6
-        236328,     --Achievement_arena_2v2_6
-        236340,     --Achievement_arena_5v5_4
-        236357,     --Achievement_bg_kill_carrier_opposing_flagroom
-        236349,     --Achievement_bg_captureflag_eos
-        236320,     --Ability_wintergrasp_rank1
-        458242,     --Trade_archaeology_generalbeauregardslaststand
+IconPresets.pvp = {
+    236335,     --Achievement_arena_3v3_6
+    236328,     --Achievement_arena_2v2_6
+    236340,     --Achievement_arena_5v5_4
+    236357,     --Achievement_bg_kill_carrier_opposing_flagroom
+    236349,     --Achievement_bg_captureflag_eos
+    236320,     --Ability_wintergrasp_rank1
+    458242,     --Trade_archaeology_generalbeauregardslaststand
 
 
-    };
+};
 
-    IconPresets.dungeon = {
-        236387,     --Achievement_bg_winab_underxminutes
-        2011140,    --Achievement_dungeon_skycapnkragg
-        2011149,    --Achievement_dungeon_toldagor
-        1518644,    --Inv_misc_diachest03
-        136180,     --Spell Disruption
-        525134,     --Inv_relics_hourglass [Keystone]
-        236353,     --Achievement_bg_grab_cap_flagunderxseconds
-    }
+IconPresets.dungeon = {
+    236387,     --Achievement_bg_winab_underxminutes
+    2011140,    --Achievement_dungeon_skycapnkragg
+    2011149,    --Achievement_dungeon_toldagor
+    1518644,    --Inv_misc_diachest03
+    136180,     --Spell Disruption
+    525134,     --Inv_relics_hourglass [Keystone]
+    236353,     --Achievement_bg_grab_cap_flagunderxseconds
+};
 
 
 
@@ -133,7 +135,7 @@ local function GetStaticIcons()
         local _, _, tabOffset, numEntries = GetSpellTabInfo(i);     --1:General 2:Current Spec
         for j =  (tabOffset + 1) , (tabOffset + numEntries) do
             _, spellID = GetSpellBookItemInfo(j, "spell");
-            if spellID and (not IsPassiveSpell(spellID) ) then
+            if spellID and (not IsSpellPassive(spellID) ) then
                 icon = GetSpellBookItemTexture(j, "spell");
                 staticIcons[icon] = true;
             end
@@ -178,7 +180,7 @@ local function GenerateIcons()                             --Passive talent only
     local MaxTiers = GetMaxTalentTier();                   --based on the character's level
     local talentGroup = GetActiveSpecGroup();
     local talentID, icon, spellID, name;
-    local IsPassiveSpell = IsPassiveSpell;
+    local IsSpellPassive = IsSpellPassive;
     
     --from Inventory
     local itemLocation = ItemLocation:CreateFromEquipmentSlot(16);   --Main Hand
@@ -210,7 +212,7 @@ local function GenerateIcons()                             --Passive talent only
     local _, _, tabOffset, numEntries = GetSpellTabInfo(2)      --1:General 2:Current Spec
     for i = (tabOffset + numEntries) , tabOffset + 1 , -1 do    --Passive spell sits in the back
         _, spellID = GetSpellBookItemInfo(i, "spell");
-        if spellID and IsPassiveSpell(spellID) then
+        if spellID and IsSpellPassive(spellID) then
             icon = GetSpellBookItemTexture(i, "spell");
             if IsUniqueIcon(icon) then
                 tinsert(icons, icon);
@@ -229,7 +231,7 @@ local function GenerateIcons()                             --Passive talent only
             _, column = GetTalentTierInfo(tier, talentGroup);
             if column then
                 talentID, name, icon, _, _, spellID = GetTalentInfo(tier, column, talentGroup);
-                if spellID and IsPassiveSpell(spellID) and IsUniqueIcon(icon) then
+                if spellID and IsSpellPassive(spellID) and IsUniqueIcon(icon) then
                     tinsert(icons, icon);
                     tinsert(names, name);
                 end
@@ -242,7 +244,7 @@ local function GenerateIcons()                             --Passive talent only
     if talentIDs and #talentIDs > 1 then
         for i = 2, #talentIDs do
             _, name, icon, _, _, spellID = GetPvpTalentInfoByID(talentIDs[i]);
-            if spellID and IsPassiveSpell(spellID) and IsUniqueIcon(icon) then
+            if spellID and IsSpellPassive(spellID) and IsUniqueIcon(icon) then
                 tinsert(icons, icon);
                 tinsert(names, name);
             end
@@ -273,7 +275,7 @@ local function GetPassiveSpellIcons()
     local _, _, tabOffset, numEntries = GetSpellTabInfo(2)      --1:General 2:Current Spec
     for i = (tabOffset + numEntries) , tabOffset + 1 , -1 do    --Passive spell sits in the back
         _, spellID = GetSpellBookItemInfo(i, "spell");
-        if spellID and IsPassiveSpell(spellID) then
+        if spellID and IsSpellPassive(spellID) then
             icon = GetSpellBookItemTexture(i, "spell");
             if IsUniqueIcon(icon) then
                 tinsert(icons, icon);

@@ -1412,10 +1412,10 @@ function NarciWeaponBrowserMixin:Open()
         --Enable Database
         After(0.2, function()
             local addOnName = "Narcissus_Database_Item";
-            if GetAddOnEnableState( UnitName("player"), addOnName ) == 0 then
-                EnableAddOn(addOnName);
+            if C_AddOns.GetAddOnEnableState( UnitName("player"), addOnName ) == 0 then
+                C_AddOns.EnableAddOn(addOnName);
             end
-            local loaded, reason = LoadAddOn(addOnName);
+            local loaded, reason = C_AddOns.LoadAddOn(addOnName);
         end);
     end
 end

@@ -1,5 +1,5 @@
-## Interface: 100207
-## Version: 1.6.2
+## Interface: 100207, 110000
+## Version: 1.6.3
 
 ## Title: Narcissus
 
@@ -21,7 +21,7 @@ Locales\Localization.xml
 LocalizedData\Localization.xml
 
 
-NarciDB\ExpansionTransition.xml
+NarciDB\APITransition.xml
 
 
 NarciDB\TitleManagerDB.lua

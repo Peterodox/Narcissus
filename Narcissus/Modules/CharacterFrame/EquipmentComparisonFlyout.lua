@@ -23,9 +23,10 @@ local GetItemQuality = C_Item.GetItemQuality;
 local RequestLoadItemData = C_Item.RequestLoadItemData;
 local GetCombatRating = GetCombatRating;
 local GetItemInfoInstant = C_Item.GetItemInfoInstant;
+local GetSpellInfo = addon.TransitionAPI.GetSpellInfo;
 
 local GetGemBorderTexture = NarciAPI.GetGemBorderTexture;
-local DoesItemHaveDomationSocket = NarciAPI.DoesItemHaveDomationSocket;
+--local DoesItemHaveDomationSocket = NarciAPI.DoesItemHaveDomationSocket;
 local GetDominationBorderTexture = NarciAPI.GetDominationBorderTexture;
 local GetItemDominationGem = NarciAPI.GetItemDominationGem;
 local GetSlotNameAndTexture = NarciAPI.GetSlotNameAndTexture;
@@ -536,7 +537,7 @@ function Narci_Comparison_SetComparison(itemLocation, itemButton)
 
 
     --Gem check
-    local isDominationItem = DoesItemHaveDomationSocket(itemID);
+    local isDominationItem = false; --DoesItemHaveDomationSocket(itemID);
     local GemName, GemLink;
     if isDominationItem then
         GemName, GemLink = GetItemDominationGem(itemLink);
@@ -596,7 +597,7 @@ function Narci_Comparison_SetComparison(itemLocation, itemButton)
     end
 
     if headline then
-        if IsCorruptedItem(itemLink) then   --Corrupted Items
+        if false then   --IsCorruptedItem(itemLink) Corrupted Items
             str = str.."|cff959595"..ITEM_MOD_CORRUPTION.."|r "..stats.corruption;
             local corruptionDiff = stats.corruption - baseStats.corruption;
             if corruptionDiff >= 0 then
