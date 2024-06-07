@@ -3,7 +3,7 @@
 	<Script file="ProductList.lua"/>
 	<Script file="PerksProgramUI.lua"/>
 
-	<Button name="NarciPerksProgramItemDetailButtonTemplate" mixin="NarciPerksProgramItemDetailButtonMixin" virtual="true">
+	<Button name="NarciPerksProgramItemDetailButtonTemplate" mixin="NarciPerksProgramItemDetailButtonMixin" registerForClicks="LeftButtonUp, RightButtonUp" virtual="true">
 		<Size x="32" y="32"/>
 		<HitRectInsets>
 			<AbsInset left="-2" right="-2" top="-2" bottom="-2"/>
@@ -19,7 +19,13 @@
 				<Texture parentKey="RedEye" file="Interface\AddOns\Narcissus\Art\Modules\DressingRoom\RedEye" hidden="true">
 					<Size x="20" y="20"/>
 					<Anchors>
-						<Anchor point="CENTER" relativeKey="$parent" relativePoint="CENTER" x="0" y="-14"/>
+						<Anchor point="CENTER" relativeKey="$parent" relativePoint="TOP" x="0" y="-2"/>
+					</Anchors>
+				</Texture>
+				<Texture parentKey="GreenCheck" file="Interface\AddOns\Narcissus\Art\Modules\PerksProgram\GreenCheck" hidden="true">
+					<Size x="16" y="16"/>
+					<Anchors>
+						<Anchor point="CENTER" relativeKey="$parent" relativePoint="BOTTOM" x="0" y="3"/>
 					</Anchors>
 				</Texture>
 			</Layer>
@@ -132,11 +138,48 @@
 						<Anchor point="TOP"/>
 					</Anchors>
 				</FontString>
+
+				<Texture parentKey="Pointer" file="Interface\AddOns\Narcissus\Art\Modules\PerksProgram\Pointer" hidden="true">
+					<Size x="12" y="12"/>
+				</Texture>
 			</Layer>
 		</Layers>
+		<Frames>
+			<Frame parentKey="HeaderMouseoverFrame">
+				<Size x="320" y="32"/>
+				<Anchors>
+					<Anchor point="CENTER" relativeKey="$parent.HeaderText" relativePoint="CENTER" y="2"/>
+				</Anchors>
+			</Frame>
+
+			<Button parentKey="AutoTryOnToggle" hidden="true">
+				<Size x="256" y="24"/>
+				<Anchors>
+					<Anchor point="BOTTOM"/>
+				</Anchors>
+				<Layers>
+					<Layer level="OVERLAY">
+						<Texture parentKey="Checkbox" file="Interface\AddOns\Narcissus\Art\Modules\PerksProgram\TwoStateCheckbox">
+							<Size x="40" y="40"/>
+							<TexCoords left="0.5" right="1" top="0" bottom="1"/>
+							<Anchors>
+								<Anchor point="LEFT"/>
+							</Anchors>
+						</Texture>
+						<FontString parentKey="ButtonText" justifyH="LEFT" justifyV="MIDDLE" inherits="GameFontNormalMed3">
+							<Color r="0.8" g="0.8" b="0.8"/>
+							<Anchors>
+								<Anchor point="LEFT" x="40"/>
+							</Anchors>
+						</FontString>
+					</Layer>
+				</Layers>
+			</Button>
+		</Frames>
 		<Scripts>
 			<OnLoad method="OnLoad"/>
 			<OnEvent method="OnEvent"/>
+			<OnHide method="OnHide"/>
 		</Scripts>
 	</Frame>
 	

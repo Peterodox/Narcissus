@@ -512,13 +512,12 @@ local function PreviewModel_DisplayTransmogSetItem(transmogSetID, index, noFadeI
 
     local sourceID = itemModifiedAppearanceIDs[i];
     local itemID = C_TransmogCollection.GetSourceItemID(sourceID);
+    local cameraID = C_TransmogCollection.GetAppearanceCameraIDBySource(sourceID);
+    PreviewModel.cameraID = cameraID;
+
     if NarciAPI.IsHoldableItem(itemID) then
-        local cameraID = C_TransmogCollection.GetAppearanceCameraIDBySource(sourceID);
-        PreviewModel.cameraID = cameraID;
         PreviewModel:SetItem(itemID, sourceID);
     else
-        local cameraID = C_TransmogCollection.GetAppearanceCameraIDBySource(sourceID);
-        PreviewModel.cameraID = cameraID;
         PreviewModel:Undress();
         TransitionAPI.SetModelByUnit(PreviewModel, "player");
         PreviewModel:FreezeAnimation(0, 0, 0);

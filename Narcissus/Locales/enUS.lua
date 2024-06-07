@@ -724,6 +724,12 @@ L["Perks Program See Wares"] = "Show wares";
 L["Perks Program No Cache Alert"] = "Speak with the Trading Posts vendors to see this month\'s wares.";
 L["Perks Program Using Cache Alert"] = "Using the cache from your last visit. The price data may not be accurate.";
 L["Modify Default Pose"] = "Modify Default Pose";   --Change the default pose/animation/camera yaw when viewing transmog items
+L["Include Header"] = "Includes:";  --The transmog set includes...
+L["Auto Try On All Items"] = "Auto Try On All Items";
+L["Full Set Cost"] = "Full Set Cost";   --Purchasing the full set will cost you x Trader's Tender
+L["You Will Receive One Item"] = "You will receive |cffffffffONE|r item:";
+L["Format Item Belongs To Set"] = "This item belongs to transmog set |cffffffff[%s]|r";
+
 
 --Quest--
 L["Auto Display Quest Item"] = "Auto Display Quest Item Descriptions";

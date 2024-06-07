@@ -197,6 +197,18 @@ function DataProvider:GetVendorItemTransmogSetID(vendorItemID)
     end
 end
 
+function DataProvider:GetVendorItemTransmogSourceID(vendorItemID)
+    local info = self:GetAndCacheVendorItemInfo(vendorItemID);
+    if info and info.itemModifiedAppearanceID ~= 0 then
+        return info.itemModifiedAppearanceID
+    else
+        local cachedData = self:GetVendorItemInfoFromDatabase(vendorItemID);
+        if cachedData and cachedData.itemModifiedAppearanceID and cachedData.itemModifiedAppearanceID ~= 0 then
+            return cachedData.itemModifiedAppearanceID
+        end
+    end
+end
+
 function DataProvider:IsVendorItemPurchased(vendorItemID)
     local info = self:GetAndCacheVendorItemInfo(vendorItemID);
     if info then
@@ -263,6 +275,17 @@ function DataProvider:IsVendorItemPurchased(vendorItemID)
         end
 
         return info.purchased
+    end
+end
+
+function DataProvider:GetVendorItemPriceBySourceID(sourceID)
+    local vendorItemIDs = self:GetCurrentMonthItems();
+    if vendorItemIDs then
+        for _, vendorItemID in ipairs(vendorItemIDs) do
+            if self:GetVendorItemTransmogSourceID(vendorItemID) == sourceID then
+                return self:GetVendorItemPrice(vendorItemID), self:IsVendorItemPurchased(vendorItemID)
+            end
+        end
     end
 end
 
@@ -480,6 +503,29 @@ function DataProvider:IsValidItem(vendorItemID)
     return categoryID and categoryID ~=0 and categoryID ~= 128
 end
 
+
+do
+    local date = date;
+    local time = time;
+
+    function DataProvider:SetTimeLimitedData(dataKey, data)
+        --Data saved in DB that expire next month
+        local tbl = {};
+        tbl.timeChanged = time();
+        tbl.data = data;
+        DB[dataKey] = tbl;
+    end
+
+    function DataProvider:GetTimeLimitedData(dataKey)
+        if DB[dataKey] then
+            local currentDate = NarciAPI.EpochToDate(time());
+            local oldDate =  NarciAPI.EpochToDate(DB[dataKey].timeChanged);
+            if currentDate.month == oldDate.month then
+                return DB[dataKey].data
+            end
+        end
+    end
+end
 
 
 local function LoadDatabase()

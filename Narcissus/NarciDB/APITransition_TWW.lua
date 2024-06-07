@@ -60,8 +60,8 @@ do  --System
         local GetMouseFoci = GetMouseFoci;
 
         local function GetMouseFocus()
-            local object = GetMouseFoci();
-            return object and object[1]
+            local objects = GetMouseFoci();
+            return objects and objects[1]
         end
         TransitionAPI.GetMouseFocus = GetMouseFocus;
     end

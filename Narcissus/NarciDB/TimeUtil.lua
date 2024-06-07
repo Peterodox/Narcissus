@@ -2,6 +2,7 @@ local match = string.match;
 local floor = math.floor;
 local mod = math.fmod;
 local tonumber = tonumber;
+local date = date;
 
 local RemoveNumberBracket;
 
@@ -196,3 +197,14 @@ local function GetCalendarTimeDifference(lhsCalendarTime, rhsCalendarTime)
     return second2 - second1
 end
 NarciAPI.GetCalendarTimeDifference = GetCalendarTimeDifference;
+
+local function EpochToDate(second)
+    local timeString = date("%d %m %y", second)
+    local day, month, year = string.split(" ", timeString);
+    local calendarTime = {};
+    calendarTime.year = tonumber(year or 0);
+    calendarTime.month = tonumber(month or 0);
+    calendarTime.day = tonumber(day or 0);
+    return calendarTime
+end
+NarciAPI.EpochToDate = EpochToDate;
