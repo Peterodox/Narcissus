@@ -19,6 +19,7 @@ local C_Item = C_Item;
 local GetItemInfoInstant = C_Item.GetItemInfoInstant;
 local C_PerksProgram = C_PerksProgram;
 local C_TransmogCollection = C_TransmogCollection;
+local EventRegistry = EventRegistry;
 
 
 -- User Settings --
@@ -614,7 +615,9 @@ function NarciPerksProgramItemDetailExtraFrameMixin:OnLoad()
     self:RegisterEvent("PERKS_PROGRAM_OPEN");
     self:RegisterEvent("PERKS_PROGRAM_CLOSE");
     self:SetEnsembleHeaderText();
+
     EventRegistry:RegisterCallback("PerksProgramModel.OnProductSelectedAfterModel", OnProductSelectedAfterModel, ExtraDetailFrame);
+    EventRegistry:RegisterCallback("PerksProgramFrame.OnShow", self.LoadUserSettings, self);
 end
 
 function NarciPerksProgramItemDetailExtraFrameMixin:Init()
@@ -632,6 +635,12 @@ function NarciPerksProgramItemDetailExtraFrameMixin:Init()
                 self:HidePurchaseAlert();
             end);
         end
+    end
+
+    if BlizzardFrame.ToggleHideArmorSetting then
+        hooksecurefunc(BlizzardFrame, "ToggleHideArmorSetting", function(_, playerArmorSetting)
+            DataProvider:SaveUserData("hidePlayerArmorSetting", playerArmorSetting);
+        end)
     end
 
     local att = self.AutoTryOnToggle;
@@ -718,7 +727,12 @@ function NarciPerksProgramItemDetailExtraFrameMixin:Init()
                     tooltip:Hide();
                     tooltip:SetOwner(self, "ANCHOR_NONE");
                     tooltip:SetPoint("BOTTOMRIGHT", self, "TOPLEFT", -8, 0);
-                    tooltip:AddDoubleLine(L["Full Set Cost"], totalCosts..CURRENCY_MARKUP, 1, 0.82, 0, 1, 1, 1);
+
+                    if totalCosts > 0 then
+                        tooltip:AddDoubleLine(L["Full Set Cost"], totalCosts..CURRENCY_MARKUP, 1, 0.82, 0, 1, 1, 1);
+                    else
+                        tooltip:AddDoubleLine(L["Full Set Cost"], "|A:perks-owned-small:0:0|a", 1, 0.82, 0, 1, 1, 1);
+                    end
 
                     for _, data in ipairs(itemCosts) do
                         if data[2] > 0 then
@@ -754,14 +768,16 @@ function NarciPerksProgramItemDetailExtraFrameMixin:Init()
 end
 
 function NarciPerksProgramItemDetailExtraFrameMixin:OnEvent(event, ...)
-    if event == "PERKS_PROGRAM_OPEN" then
+    if event == "PERKS_PROGRAM_OPEN" then   --Alawys ON
         self:UnregisterEvent(event);
         Initialize();
         self:Init();
-    elseif event == "PERKS_PROGRAM_CLOSE" then
+        self:LoadUserSettings();
+    elseif event == "PERKS_PROGRAM_CLOSE" then  --Alawys ON
         SELECTED_DATA = nil;
         TransmogDataProvider:ClearTransmogSetCache();
-    elseif event == "PERKS_PROGRAM_PURCHASE_SUCCESS" or event == "PERKS_PROGRAM_REFUND_SUCCESS" then
+        self:SaveUserSettings();
+    elseif event == "PERKS_PROGRAM_PURCHASE_SUCCESS" or event == "PERKS_PROGRAM_REFUND_SUCCESS" then    --Dynamic
         self:UpdateItemButtons();
     end
 end
@@ -1113,6 +1129,18 @@ function NarciPerksProgramItemDetailExtraFrameMixin:HidePurchaseAlert()
     end
 end
 
+function NarciPerksProgramItemDetailExtraFrameMixin:SaveUserSettings()
+    --Save the status
+end
+
+function NarciPerksProgramItemDetailExtraFrameMixin:LoadUserSettings()
+    if not BlizzardFrame then return end;
+
+    if DataProvider:GetUserData("hidePlayerArmorSetting") and not BlizzardFrame.hidePlayerArmorSetting then
+        BlizzardFrame.hidePlayerArmorSetting = true;
+        EventRegistry:TriggerEvent("PerksProgram.OnPlayerHideArmorToggled");
+    end
+end
 
 --Transmog Item Source
 local function TransmogItemButton_OnEnter(self)

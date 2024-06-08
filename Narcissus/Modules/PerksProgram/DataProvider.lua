@@ -505,23 +505,32 @@ end
 
 
 do
-    local date = date;
     local time = time;
+    local EpochToDate = NarciAPI.EpochToDate;
+
+    function DataProvider:SaveUserData(dataKey, data)
+        DB[dataKey] = data;
+    end
+
+    function DataProvider:GetUserData(dataKey)
+        return DB[dataKey]
+    end
 
     function DataProvider:SetTimeLimitedData(dataKey, data)
         --Data saved in DB that expire next month
         local tbl = {};
         tbl.timeChanged = time();
         tbl.data = data;
-        DB[dataKey] = tbl;
+        self:SaveUserData(dataKey, tbl);
     end
 
     function DataProvider:GetTimeLimitedData(dataKey)
-        if DB[dataKey] then
-            local currentDate = NarciAPI.EpochToDate(time());
-            local oldDate =  NarciAPI.EpochToDate(DB[dataKey].timeChanged);
+        local data = self:GetUserData(dataKey);
+        if data then
+            local currentDate = EpochToDate(time());
+            local oldDate =  EpochToDate(data.timeChanged);
             if currentDate.month == oldDate.month then
-                return DB[dataKey].data
+                return data.data
             end
         end
     end
