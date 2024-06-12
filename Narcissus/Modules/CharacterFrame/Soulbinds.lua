@@ -30,7 +30,7 @@ QUALITY_COLORS[1] = {0.8, 0.8, 0.8};
 local C_Item = C_Item;
 local C_Soulbinds = C_Soulbinds;
 local GetSpellInfo = addon.TransitionAPI.GetSpellInfo;
-local GetSpellTexture = GetSpellTexture;
+local GetSpellTexture = addon.TransitionAPI.GetSpellTexture;
 
 local MainFrame, NodesContainer, CollectionFrame, ConduitTooltip;
 

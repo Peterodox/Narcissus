@@ -1,10 +1,12 @@
+local _, addon = ...
+
 local THEME_KEY = "ClassSetTheme_DF_1";     --Former: ClassTheme,
 local TEXTURE_PATH = "Interface\\AddOns\\Narcissus\\Art\\Widgets\\Progenitor\\";
 
 local GetInventoryItemID = GetInventoryItemID;
-local GetSpellDescription = GetSpellDescription;
+local GetSpellDescription = addon.TransitionAPI.GetSpellDescription;
 local GetSpecializationInfo = GetSpecializationInfo;
-local GetSetBonusesForSpecializationByItemID = C_Item.GetSetBonusesForSpecializationByItemID or GetSetBonusesForSpecializationByItemID;     --Deprecated
+local GetSetBonusesForSpecializationByItemID = C_Item.GetSetBonusesForSpecializationByItemID;     --Deprecated
 local GetNumSpecializations = GetNumSpecializations;
 local InCombatLockdown = InCombatLockdown;
 
@@ -257,16 +259,7 @@ end
 function NarciClassSetTooltipMixin:OnEvent(event, ...)
     if event == "SPELL_DATA_LOAD_RESULT" then
         local spellID, success = ...
-        if spellID == self.spell1 then
-            self.spell1 = nil;
-            self:DisplayBonus(self.specIndex);
-        elseif spellID == self.spell2 then
-            self.spell2 = nil;
-            self:DisplayBonus(self.specIndex);
-        end
-        if not (self.spell1 or self.spell2) then
-            self:UnregisterEvent(event);
-        end
+        self:Refresh();
     end
 end
 
@@ -363,6 +356,7 @@ function NarciClassSetTooltipMixin:DisplayBonus(specIndex)
     end
 
     local fullyLoaded;
+
     if text1 and text1 ~= "" then
         fullyLoaded = true;
         self.spell1 = nil;
@@ -370,6 +364,7 @@ function NarciClassSetTooltipMixin:DisplayBonus(specIndex)
         self.spell1 = spell1;
         C_Spell.RequestLoadSpellData(spell1);
     end
+
     if text2 and text2 ~= "" then
         fullyLoaded = fullyLoaded and true;
         self.spell2 = nil;
@@ -377,6 +372,7 @@ function NarciClassSetTooltipMixin:DisplayBonus(specIndex)
         self.spell2 = spell2;
         C_Spell.RequestLoadSpellData(spell2);
     end
+
     if fullyLoaded then
         self:UnregisterEvent("SPELL_DATA_LOAD_RESULT");
     else
@@ -390,6 +386,12 @@ function NarciClassSetTooltipMixin:DisplayBonus(specIndex)
     SetCountIcon(self.Count2, 4, numOwned);
 
     self:UpdateSize();
+end
+
+function NarciClassSetTooltipMixin:Refresh()
+    if self:IsVisible() and self.specIndex then
+        self:DisplayBonus(self.specIndex);
+    end
 end
 
 function NarciClassSetTooltipMixin:UpdateSize()

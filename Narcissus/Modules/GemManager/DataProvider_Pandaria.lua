@@ -202,6 +202,16 @@ local CUSTOM_SORT_ORDER = {
     [219516] = 15,  --Windweaver
 };
 
+local FALLBACK_TINKERS = {
+    --When player doesn't own all saved tinkers and have empty sockets. Prioritize DPS gem
+    216626, 219389, 212694, 219516, 212749, 212365,
+    212758, 216647, 212362, 212760, 216649, 212759,
+    219818, 216648, 219523, 219452, 216651, 216628,
+    212916, 212366, 219801, 219944, 217957, 219817,
+    219777, 217964, 216624, 216650, 212361, 216625,
+    217961, 217927, 216627, 219527, 217903, 217907,
+};
+
 local STAT_GEMS = {
     [1] = {210714, 216644, 211123, 211102},     --Crit
     [2] = {210681, 216643, 211107, 211110},     --Haste
@@ -1349,5 +1359,42 @@ do --Loadout
         if GEM_DATA[gem1][3] == GEM_DATA[gem2][3] then
             return GEM_DATA[gem1][4] < GEM_DATA[gem2][4]
         end
+    end
+
+    function DataProvider:GetFallbackTinkers(numEmptySockets, requiredTinker)
+        local tbl = {};
+        local n = 0;
+
+        requiredTinker = requiredTinker or {};
+
+        for _, itemID in ipairs(FALLBACK_TINKERS) do
+            if (not requiredTinker[itemID]) and (self:IsGemCollected(itemID) and not self:IsGemActive(itemID)) then
+                n = n + 1;
+                if n <= numEmptySockets then
+                    tbl[n] = itemID;
+                else
+                    break
+                end
+            end
+        end
+
+        return tbl
+    end
+
+    function DataProvider:GetFallbackMajorGem(gemType, requiredGem)
+        local gems = self:GetItemListByType(gemType);
+        for _, itemID in ipairs(gems) do
+            if (itemID ~= requiredGem) and (self:IsGemCollected(itemID) and not self:IsGemActive(itemID)) then
+                return itemID;
+            end
+        end
+    end
+
+    function DataProvider:GetFallbackMeta(requiredGem)
+        return self:GetFallbackMajorGem(1, requiredGem)
+    end
+
+    function DataProvider:GetFallbackCogwheel(requiredGem)
+        return self:GetFallbackMajorGem(2, requiredGem)
     end
 end

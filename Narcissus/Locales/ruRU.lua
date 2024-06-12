@@ -1,4 +1,4 @@
---Coutesy of ZamestoTV. Thank you!    --Translator: ZamestoTV as of 1.5.6
+--Coutesy of ZamestoTV. Thank you!    --Translator: ZamestoTV as of 1.6.3
 
 if not (GetLocale() == "ruRU") then
     return;
@@ -157,6 +157,7 @@ L["Open Narcissus"] = "Открыть Narcissus";
 L["Character Panel"] = "Панель персонажей";
 L["Screen Effects"] ="Экранные эффекты";
 
+L["Gem List"] = "Список камней";
 L["Gemma"] = "\"Камни\"";   --Don't translate
 L["Gemma Description"] = "Показать список камней, когда вы носите экипировку.";
 L["Dressing Room"] = "Гардеробная"
@@ -657,6 +658,7 @@ L["Loop Animation Alert Kultiran"] = "Виток - в настоящее вре�
 L["Loop Animation"] = "Циклическая анимация";									   
 
 --Item Sets--
+L["Class Set Indicator"] = "Индикатор набора классов";
 L["Cycle Spec"] = "Нажмите Tab, чтобы посмотреть специализацию";
 L["Paperdoll Splash 1"] = "Включить индикатор классовых наборов?";
 L["Paperdoll Splash 2"] = "Выберите тему";
@@ -725,6 +727,12 @@ L["Perks Program See Wares"] = "Показать товары";
 L["Perks Program No Cache Alert"] = "Поговорите с продавцами торговой лавки, чтобы увидеть товары этого месяца.";
 L["Perks Program Using Cache Alert"] = "Использование кеша с вашего последнего посещения. Данные о цене могут быть неточными.";
 L["Modify Default Pose"] = "Изменить позу по умолчанию";   --Change the default pose/animation/camera yaw when viewing transmog items
+L["Include Header"] = "Включает:";  --The transmog set includes...
+L["Auto Try On All Items"] = "Автоматическая примерка всех предметов";
+L["Full Set Cost"] = "Стоимость полного комплекта";   --Purchasing the full set will cost you x Trader's Tender
+L["You Will Receive One Item"] = "Вы получите |cffffffffОДИН|r предмет:";
+L["Format Item Belongs To Set"] = "Этот предмет входит в набор трансмогрификации |cffffffff[%s]|r";
+
 
 --Quest--
 L["Auto Display Quest Item"] = "Автоматическое отображение описаний предметов заданий";
@@ -745,6 +753,7 @@ L["Leech"] = ITEM_MOD_CR_LIFESTEAL_SHORT or "Самоисцеление";
 L["Speed"] = ITEM_MOD_CR_UNUSED_3_SHORT or "Скорость передвижения";
 L["Format Stat EXP"] = "+%d%% EXP Прирост";
 L["Format Rank"] = AZERITE_ESSENCE_RANK or "Ранг %d";
+L["Cloak Rank"] = "Ранг плаща";
 
 
 --Gem Manager--
@@ -752,7 +761,45 @@ L["Gem Manager"] = "Управлять камнями";
 L["Pandamonium Gem Category 1"] = "Главный";      --Major Cooldown Abilities
 L["Pandamonium Gem Category 2"] = "Гаджет";     --Tinker Gem
 L["Pandamonium Gem Category 3"] = PRISMATIC_GEM or "Радужный";
-L["Gem Removal Instruction"] = "Щелкните ПКМ, чтобы удалить этот драгоценный камень";
-L["Gem Removal No Tool"] = "У вас нет инструмента, чтобы удалить этот драгоценный камень целиком.";
+L["Pandamonium Slot Category 1"] = (INVTYPE_CHEST or "Грудь")..", "..(INVTYPE_LEGS or "Ноги");
+L["Pandamonium Slot Category 2"] = INVTYPE_TRINKET or "Аксессуары";
+L["Pandamonium Slot Category 3"] = (INVTYPE_NECK or "Шея")..", "..(INVTYPE_FINGER or "Кольца");
+L["Gem Removal Instruction"] = "Щелкните ПКМ, чтобы удалить этот камень";
+L["Gem Removal No Tool"] = "У вас нет инструмента, чтобы удалить этот камень целиком.";
+L["Gem Removal Bag Full"] = "Освободите место в сумке, прежде чем вынимать этот камень!";
+L["Gem Removal Combat"] = "Невозможно сменить драгоценный камень во время боя.";
 L["Gemma Click To Activate"] = "Щелкните ЛКМ, чтобы активировать";
 L["Gemma Click To Insert"] = "Щелкните ЛКМ, чтобы вставить";
+L["Gemma Click Twice To Insert"] = "<ЛКМ |cffffffffДВАЖДЫ|r чтобы вставить>";
+L["Gemma Click To Select"] = "<ЛКМ, чтобы выбрать>";
+L["Gemma Click To Deselect"] = "<ПКМ, чтобы отменить выбор>";
+L["Stat Health Regen"] = "Регенерация здоровья";
+L["Gem Uncollected"] = FOLLOWERLIST_LABEL_UNCOLLECTED or "Несобранный";
+L["No Sockets Were Found"] = "Совместимые камни не найдены.";
+L["Click To Show Gem List"] = "<Нажмите, чтобы показать список камней>";
+L["Remix Gem Manager"] = "Remix Управление камнями";
+L["Select A Loadout"] = "Выберите загрузку";
+L["Loadout Equipped"] = "Экипировано";
+L["Loadout Equipped Partially"] = "Частично экипировано";
+L["Last Used Loadout"] = "Последний используемый";
+L["New Loadout"] = TALENT_FRAME_DROP_DOWN_NEW_LOADOUT or "Новая загрузка";
+L["New Loadout Blank"] = "Создайте пустую загрузку";
+L["New Loadout From Equipped"] = "Использовать текущую настройку";
+L["Edit Loadout"] = EDIT or "Редактировать";
+L["Delete Loadout One Click"] = DELETE or "Удалить";
+L["Delete Loadout Long Click"] = "|cffff4800"..(DELETE or "Удалить").."|r\n|cffcccccc(нажмите и удерживайте)|r";
+L["Select Gems"] = LFG_LIST_SELECT or "Выбирать";
+L["Equipping Gems"] = "Экипировано...";
+L["Pandamonium Sockets Available"] = "Доступные пункты";
+L["Click To Open Gem Manager"] = "ЛКМ, чтобы открыть управление камней.";
+L["Loadout Save Failure Incomplete Choices"] = "|cffff4800У вас есть невыбранные камни.|r";
+L["Loadout Save Failure Dupe Loadout Format"] = "|cffff4800Эта загрузка такая же, как|r %s";
+L["Loadout Save Failure Dupe Name Format"] = "|cffff4800Загрузка с таким названием уже существует.|r";
+L["Loadout Save Failure No Name"] = "|cffff4800".. (TALENT_FRAME_DROP_DOWN_NEW_LOADOUT_PROMPT or "Введите название для новой загрузки") .."|r";
+
+L["Format Equipping Progress"] = "Экипировано %d/%d";
+L["Format Click Times To Equip Singular"] = "Нажмите |cff19ff19%d|r Время экипироваться";
+L["Format Click Times To Equip Plural"] = "Нажмите |cff19ff19%d|r Время для экипировки";   --|4Time:Times; cannot coexist with color code?
+L["Format Free Up Bag Slot"] = "Освободить %d слоты для сумки в первую очередь";
+L["Format Number Items Selected"] = "%d Выбрано";
+L["Format Gem Slot Stat Budget"] = "Камни в %s являются %s%% эффективными."  --e.g. Gems in trinket are 75% effective

@@ -166,6 +166,9 @@ API.GetChrModelName = GetChrModelName;
 --Camera Profiles---
 local CAMERA_DATA_FILEID = {
     --/dump DressUpFrame.ModelScene:GetPlayerActor():GetModelFileID()
+    [5548261] = {3.14, -0.11, -1.56, 0.52},     --Earthen M
+    [5548259] = {3.25, -0.01, -1.56, 0.44},     --Earthen F
+
     [4207724] = {3.1, -0.58, -2.6, 0.52},       --Dracthyr 1554
     [4395382] = {3.38, 0.07, -1.88, 0.43},      --Visage M Dracthyr-alt 1583 (Void Elf)
     [4220488] = {3.51, -0.025, -1.745, 0.43},   --Visage F (Human)

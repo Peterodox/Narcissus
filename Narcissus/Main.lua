@@ -4,6 +4,7 @@ local MsgAlertContainer = addon.MsgAlertContainer;
 local TransitionAPI = addon.TransitionAPI;
 local SlotButtonOverlayUtil = addon.SlotButtonOverlayUtil;
 local TimerunningUtil = addon.TimerunningUtil;
+local TalentTreeDataProvider = addon.TalentTreeDataProvider;
 
 local Narci = Narci;
 
@@ -440,15 +441,22 @@ do
 		PLAYER_RACE_ID = 7;
 	elseif PLAYER_RACE_ID == 22 then
 		CameraUtil.GetRaceKey = CameraUtil.GetRaceKey_Worgen;
-	elseif PLAYER_RACE_ID == 52 or PLAYER_RACE_ID == 70 then
-		PLAYER_RACE_ID = 52;								--Dracthyr Horde -> Alliance
+	elseif PLAYER_RACE_ID == 52 or PLAYER_RACE_ID == 70 then	--Dracthyr Horde -> Alliance
+		PLAYER_RACE_ID = 52;
 		CameraUtil.GetRaceKey = CameraUtil.GetRaceKey_Dracthyr;
+	elseif PLAYER_RACE_ID == 84 or PLAYER_RACE_ID == 85 then	--Earthen
+		PLAYER_RACE_ID = 3;
 	end
 
 	local _, _, playerClassID = UnitClass("player");
 	if playerClassID == 11 then
 		CameraUtil.UpdateParameters = CameraUtil.UpdateParameters_Druid;
 		table.insert(EL.EVENTS_DYNAMIC, "UPDATE_SHAPESHIFT_FORM");
+	end
+
+	if not ZoomValuebyRaceID[PLAYER_RACE_ID] then
+		print(("Narcissus: You are using race %d that doesn't have camera parameters"):format(PLAYER_RACE_ID))
+		PLAYER_RACE_ID = 1;
 	end
 end
 
@@ -2130,191 +2138,25 @@ end
 function NarciItemLevelFrameMixin:OnLoad()
 	--Declared in Modules\CharacterFrame\ItemLevelFrame.lua
 	ItemLevelFrame = self;
-
-	local function SideButton_OnEnter(f)
-		if f.onEnterFunc then
-			f.onEnterFunc(f);
-			FadeFrame(f.Highlight, 0.15, 1);
-		end
-	end
-
-	local function SideButton_OnLeave(f)
-		Narci:HideButtonTooltip();
-		FadeFrame(f.Highlight, 0.25, 0);
-	end
-
-	local function SideButton_ShowDetailedItemLevel(f)
-		if f.isSameLevel then
-			f.tooltipHeadline = string.format(f.tooltipFormat, f.Level:GetText());
-		else
-			f.tooltipHeadline = string.format(f.tooltipFormat, f.Level:GetText()) .. string.format("  (max %s)", f.avgItemLevel);
-		end
-		if f.avgItemLevelPvp and f.avgItemLevelPvp ~= 0 then
-			f.tooltipSpecial = string.format(STAT_AVERAGE_PVP_ITEM_LEVEL, f.avgItemLevelPvp);
-		else
-			f.tooltipSpecial = nil;
-		end
-		Narci_ShowButtonTooltip(f);
-	end
-
-	local function SideButton_ShowMajorFactionInfo(f)
-		DefaultTooltip:HideTooltip();
-		DefaultTooltip:SetOwner(f, "ANCHOR_NONE");
-		DefaultTooltip:SetPoint("BOTTOM", f, "TOP", 0, 2);
-		DefaultTooltip:SetText(DRAGONFLIGHT_LANDING_PAGE_TITLE);
-	
-		local factionIDs = C_MajorFactions.GetMajorFactionIDs();
-		local factionList = {};
-		if factionIDs and #factionIDs > 0 then
-			local factionData;
-			for _, majorFactionID in ipairs(factionIDs) do
-				factionData = C_MajorFactions.GetMajorFactionData(majorFactionID);
-				if factionData then
-					table.insert(factionList, factionData);
-				end
-			end
-
-			local function UnlockOrderSort(faction1, faction2)
-				if faction1.uiPriority then
-					return faction1.uiPriority < faction2.uiPriority;
-				else
-					return faction1.unlockOrder < faction2.unlockOrder;
-				end
-			end
-
-			table.sort(factionList, UnlockOrderSort);
-
-			--Embedded Frame
-			if not f.FactionListFrame then
-				f.FactionListFrame = CreateFrame("Frame", nil, f);
-				f.factionButtons = {};
-				f.FactionListFrame:SetWidth(154);
-			end
-
-			for i = 1, #f.factionButtons do
-				f.factionButtons[i]:Hide();
-			end
-
-			local maxTextWidth = 0;
-			local description, level, textWidth;
-			for i, data in ipairs(factionList) do
-				if not f.factionButtons[i] then
-					f.factionButtons[i] = CreateFrame("Frame", nil, f.FactionListFrame, "NarciGameTooltipEmbeddedIconTextFrame");
-					if i == 1 then
-						f.factionButtons[i]:SetPoint("TOPLEFT", f.FactionListFrame, "TOPLEFT", 0, 0);
-					else
-						f.factionButtons[i]:SetPoint("TOPLEFT", f.factionButtons[i - 1], "BOTTOMLEFT", 0, -6);
-					end
-				end
-				level = data.renownLevel or 0;
-				if level < 10 then
-					level = level.."  ";
-				end
-				if not data.isUnlocked then
-					description = MAJOR_FACTION_BUTTON_FACTION_LOCKED;
-				elseif C_MajorFactions.HasMaximumRenown(data.factionID) then
-					if C_Reputation.IsFactionParagon(data.factionID) then
-						local totalEarned, threshold = C_Reputation.GetFactionParagonInfo(data.factionID);
-						if totalEarned and threshold and threshold ~= 0 then
-							local paragonLevel = floor(totalEarned / threshold);
-							local currentValue = totalEarned - paragonLevel * threshold;
-							description = string.format("|cff00ccffP%s|r  %d/%d", paragonLevel, currentValue, threshold);
-						else
-							description = MAJOR_FACTION_MAX_RENOWN_REACHED;
-						end
-					else
-						description = MAJOR_FACTION_MAX_RENOWN_REACHED;
-					end
-				else
-					description = string.format("|cffffd100%s|r  %d/%d", level, data.renownReputationEarned, data.renownLevelThreshold);
-				end
-				f.factionButtons[i].Icon:SetAtlas(string.format("majorFactions_icons_%s512", data.textureKit), false);
-				f.factionButtons[i].Text:SetText(string.format("|cffffffff%s|r\n%s", data.name, description));
-				f.factionButtons[i].Text:SetTextColor(0.5, 0.5, 0.5);
-				f.factionButtons[i]:Show();
-
-				textWidth = f.factionButtons[i].Text:GetWrappedWidth();
-				if textWidth and textWidth > maxTextWidth then
-					maxTextWidth = textWidth;
-				end
-			end
-			local numButtons = #factionList;
-			f.FactionListFrame:SetHeight((28 + 6)*numButtons - 12);
-			f.FactionListFrame:SetWidth(floor(maxTextWidth + 0.5) + 28 + 6);
-
-			local function GameTooltip_InsertFrame(tooltipFrame, frame, verticalPadding)	-- this is an exact copy of GameTooltip_InsertFrame to avoid "Execution tainted"
-				verticalPadding = verticalPadding or 0;
-				local textSpacing = tooltipFrame:GetCustomLineSpacing() or 2;
-				local textHeight = Round(_G[tooltipFrame:GetName().."TextLeft2"]:GetLineHeight());
-				local neededHeight = Round(frame:GetHeight() + verticalPadding);
-				local numLinesNeeded = math.ceil(neededHeight / (textHeight + textSpacing));
-				local currentLine = tooltipFrame:NumLines();
-
-				if numLinesNeeded ~= nil then
-					for i = 1, numLinesNeeded do
-						tooltipFrame:AddLine(" ");
-					end
-				end
-
-				frame:SetParent(tooltipFrame);
-				frame:ClearAllPoints();
-				frame:SetPoint("TOPLEFT", tooltipFrame:GetName().."TextLeft"..(currentLine + 1), "TOPLEFT", 0, -verticalPadding);
-				if not tooltipFrame.insertedFrames then
-					tooltipFrame.insertedFrames = { };
-				end
-				local frameWidth = frame:GetWidth();
-				if tooltipFrame:GetMinimumWidth() < frameWidth then
-					tooltipFrame:SetMinimumWidth(frameWidth);
-				end
-				frame:Show();
-				tinsert(tooltipFrame.insertedFrames, frame);
-				return (numLinesNeeded * textHeight) + (numLinesNeeded - 1) * textSpacing;
-			end
-
-			GameTooltip_InsertFrame(DefaultTooltip, f.FactionListFrame, 6);
-		else
-			DefaultTooltip:AddLine(MAJOR_FACTION_BUTTON_FACTION_LOCKED, 0.5, 0.5, 0.5, true);
-		end
-		DefaultTooltip:Show();
-		DefaultTooltip:FadeIn();
-	end
-
-	local LeftButton = self.LeftButton;
-	LeftButton:SetScript("OnEnter", SideButton_OnEnter);
-	LeftButton:SetScript("OnLeave", SideButton_OnLeave);
-	LeftButton.onEnterFunc = SideButton_ShowDetailedItemLevel;
-	LeftButton.tooltipFormat = L["Equipped Item Level Format"];
-	LeftButton.tooltipLine1 = STAT_AVERAGE_ITEM_LEVEL_TOOLTIP;
-
-	local RightButton = self.RightButton;
-	RightButton:SetScript("OnEnter", SideButton_OnEnter);
-	RightButton:SetScript("OnLeave", SideButton_OnLeave);
-	RightButton.onEnterFunc = SideButton_ShowMajorFactionInfo;
+	self:Init();
 end
 
 
 local function UpdateCharacterInfoFrame(newLevel)
 	local level = newLevel or UnitLevel("player");
 
-	local _, currentSpecName;
-	local currentSpec = GetSpecialization();
-	if currentSpec then
-	   _, currentSpecName = GetSpecializationInfo(currentSpec);
-	else
-		currentSpecName = " ";
-	end
+	local specClassName = TalentTreeDataProvider:GetPlayerSpecClassName(true);	--colorized
 
-	local className, englishClass = UnitClass("player");
-	local _, _, _, rgbHex = GetClassColor(englishClass);
-	local frame = Narci_PlayerInfoFrame;
-	if currentSpecName then
+	if specClassName then
+		local frame = Narci_PlayerInfoFrame;
+		local levelNumber = "|cFFFFD100"..level.."|r";
 		local titleID = GetCurrentTitle();
 		local titleName = GetTitleName(titleID);
 		if titleName and titleName ~= "" then
 			titleName = strtrim(titleName); --delete the space in Title
-			frame.Miscellaneous:SetText(titleName.."  |  ".."|cFFFFD100"..level.."|r  ".."|c"..rgbHex..currentSpecName.." "..className.."|r");
+			frame.Miscellaneous:SetText(titleName.."  |  "..levelNumber.."  "..specClassName);
 		else
-			frame.Miscellaneous:SetText("Level".." |cFFFFD100"..level.."|r  ".."|c"..rgbHex..currentSpecName.." "..className.."|r");
+			frame.Miscellaneous:SetText("|cFFFFD100Level|r "..levelNumber.."  "..specClassName);
 		end
 	end
 

@@ -85,6 +85,7 @@ local function UpdatePortraitCamera(model)
         local targetX, targetY, targetZ = TransitionAPI.TransformCameraSpaceToModelSpace(model, 0, 0, 0);
         TransitionAPI.SetCameraPosition(model, cameraX, cameraY, cameraZ);
         TransitionAPI.SetCameraTarget(model, targetX, targetY, targetZ);
+
         return true
     else
         return false

@@ -15,6 +15,7 @@ do  --Spell
         TransitionAPI.GetSpellInfo = GetSpellInfo;
         TransitionAPI.GetSpellDescription = GetSpellDescription;
         TransitionAPI.IsSpellPassive = IsPassiveSpell;
+        TransitionAPI.GetSpellTexture = GetSpellTexture;
     else
         local GetSpellInfo_Table = C_Spell.GetSpellInfo;
         local SPELL_INFO_KEYS = {"name", "rank", "iconID", "castTime", "minRange", "maxRange", "spellID", "originalIconID"};
@@ -34,6 +35,7 @@ do  --Spell
 
         TransitionAPI.GetSpellDescription = C_Spell.GetSpellDescription;
         TransitionAPI.IsSpellPassive = C_Spell.IsSpellPassive;
+        TransitionAPI.GetSpellTexture = C_Spell.GetSpellTexture;
     end
 end
 

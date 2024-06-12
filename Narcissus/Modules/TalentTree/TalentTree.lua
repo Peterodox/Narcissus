@@ -1,3 +1,5 @@
+local INPSECT_CONFIG_ID = -1;
+
 local HIDE_INACTIVE_NODE = false;
 local USE_CLASS_BACKGROUND = false;
 
@@ -512,7 +514,7 @@ function NarciMiniTalentTreeMixin:ShowConfig(configID, isPreviewing)
     self.configID = configID;
     self.isDirty = nil;
 
-    local isInspecting = self:IsInspecting() and (configID == -1);
+    local isInspecting = self:IsInspecting() and (configID == INPSECT_CONFIG_ID);
     local canShowComparison = isInspecting and DataProvider:IsInpsectSameSpec();
     local comparisonMode = self.showTalentDifferences and canShowComparison;   --if the inspected unit and player have the same spec
 
@@ -802,7 +804,7 @@ function NarciMiniTalentTreeMixin:ShowInspecting(inspectUnit)
     DataProvider:ClearComparisonCache();
     DataProvider:SetPlayerActiveConfigID();
     self.configID = nil;
-    self:ShowConfig(-1);
+    self:ShowConfig(INPSECT_CONFIG_ID);
 end
 
 function NarciMiniTalentTreeMixin:SetInspectDisplayMode(id)

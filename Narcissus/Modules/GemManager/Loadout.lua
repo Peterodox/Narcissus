@@ -745,55 +745,77 @@ do
         local slotID, socketIndex;
 
 
-        --Meta
         if not searchStatsOnly then
+            --Meta
             slotID = 1;
             socketIndex = 1;
-            equippedGemID = currentSlotGems[slotID][socketIndex];
-            requiredGemID = gemInfo.head;
+            if currentSlotGems[slotID] then
+                equippedGemID = currentSlotGems[slotID][socketIndex];
+                requiredGemID = gemInfo.head;
 
-            if requiredGemID and (equippedGemID and equippedGemID ~= requiredGemID) then
-                if DataProvider:IsGemCollected(requiredGemID) then
-                    if equippedGemID ~= NO_GEM_ID then
-                        tinsert(slotActions.remove,
-                            {slotID, socketIndex, equippedGemID}
-                        );
-                    end
-                    tinsert(slotActions.insert, {slotID, socketIndex, requiredGemID});
+                if requiredGemID and (equippedGemID and equippedGemID ~= requiredGemID) then
+                    if DataProvider:IsGemCollected(requiredGemID) then
+                        if equippedGemID ~= NO_GEM_ID then
+                            tinsert(slotActions.remove,
+                                {slotID, socketIndex, equippedGemID}
+                            );
+                        end
+                        tinsert(slotActions.insert, {slotID, socketIndex, requiredGemID});
 
-                    if not DoesPlayerHaveSparedItem(requiredGemID) then
-                        tinsert(removeBagItem, requiredGemID);
+                        if not DoesPlayerHaveSparedItem(requiredGemID) then
+                            tinsert(removeBagItem, requiredGemID);
+                        end
+                    else
+                        tinsert(errors, {1, requiredGemID});
+
+                        if equippedGemID == NO_GEM_ID then
+                            local gemItemID = DataProvider:GetFallbackMeta();
+                            tinsert(slotActions.insert, {slotID, socketIndex, gemItemID});
+                            if not DoesPlayerHaveSparedItem(gemItemID) then
+                                tinsert(removeBagItem, gemItemID);
+                            end
+                        end
                     end
-                else
-                    tinsert(errors, {1, requiredGemID});
                 end
             end
 
             --Cogwheel
             slotID = 8;
             socketIndex = 1;
-            equippedGemID = currentSlotGems[slotID][socketIndex];
-            requiredGemID = gemInfo.feet;
-            if requiredGemID and (equippedGemID and equippedGemID ~= requiredGemID) then
-                if DataProvider:IsGemCollected(requiredGemID) then
-                    if equippedGemID ~= NO_GEM_ID then
-                        tinsert(slotActions.remove,
-                            {slotID, socketIndex, equippedGemID}
-                        );
-                    end
-                    tinsert(slotActions.insert, {slotID, socketIndex, requiredGemID});
+            if currentSlotGems[slotID] then
+                equippedGemID = currentSlotGems[slotID][socketIndex];
+                requiredGemID = gemInfo.feet;
+                if requiredGemID and (equippedGemID and equippedGemID ~= requiredGemID) then
+                    if DataProvider:IsGemCollected(requiredGemID) then
+                        if equippedGemID ~= NO_GEM_ID then
+                            tinsert(slotActions.remove,
+                                {slotID, socketIndex, equippedGemID}
+                            );
+                        end
+                        tinsert(slotActions.insert, {slotID, socketIndex, requiredGemID});
 
-                    if not DoesPlayerHaveSparedItem(requiredGemID) then
-                        tinsert(removeBagItem, requiredGemID);
+                        if not DoesPlayerHaveSparedItem(requiredGemID) then
+                            tinsert(removeBagItem, requiredGemID);
+                        end
+                    else
+                        tinsert(errors, {1, requiredGemID});
+
+                        if equippedGemID == NO_GEM_ID then
+                            local gemItemID = DataProvider:GetFallbackCogwheel();
+                            tinsert(slotActions.insert, {slotID, socketIndex, gemItemID});
+                            if not DoesPlayerHaveSparedItem(gemItemID) then
+                                tinsert(removeBagItem, gemItemID);
+                            end
+                        end
                     end
-                else
-                    tinsert(errors, {1, requiredGemID});
                 end
             end
 
 
             --Tinker
             local requiredTinker = {};
+            local numEmptyTinkerSockets = 0;
+
             for _, gemItemID in ipairs(gemInfo.tinker) do
                 if DataProvider:IsGemCollected(gemItemID) then
                     requiredTinker[gemItemID] = true;
@@ -813,6 +835,7 @@ do
                             local candidate = {slotID, socketIndex};
                             if gemItemID == NO_GEM_ID then
                                 candidate.isEmpty = true;
+                                numEmptyTinkerSockets = numEmptyTinkerSockets + 1;
                             else
                                 candidate[3] = gemItemID;
                             end
@@ -830,7 +853,9 @@ do
                 if not equippedTinker[gemItemID] then
                     local candidate = tremove(removalCandidate);
                     if candidate then
-                        if not candidate.isEmpty then
+                        if candidate.isEmpty then
+                            numEmptyTinkerSockets = numEmptyTinkerSockets - 1;
+                        else
                             tinsert(slotActions.remove, candidate);
                         end
                         slotID = candidate[1];
@@ -843,6 +868,31 @@ do
                     else
                         --Not enough slot to equip
                         break
+                    end
+                end
+            end
+
+            --Fill up empty sockets if players don't the items saved in their loadout
+            if numEmptyTinkerSockets > 0 then
+                local fallbackGems = DataProvider:GetFallbackTinkers(numEmptyTinkerSockets, requiredTinker);
+                local index = 0;
+                for _, candidate in ipairs(removalCandidate) do
+                    if candidate.isEmpty then
+                        index = index + 1;
+                        local gemItemID = fallbackGems[index];
+                        if gemItemID then
+                            slotID = candidate[1];
+                            socketIndex = candidate[2];
+                            tinsert(slotActions.insert, {slotID, socketIndex, gemItemID});
+
+                            if not DoesPlayerHaveSparedItem(gemItemID) then
+                                tinsert(removeBagItem, gemItemID);
+                            end
+
+                            --print("Use Fallback Tinker", gemItemID, ItemCache:GetItemName(gemItemID))
+                        else
+                            break
+                        end
                     end
                 end
             end

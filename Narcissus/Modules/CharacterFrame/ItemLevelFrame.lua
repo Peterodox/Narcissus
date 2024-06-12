@@ -4,8 +4,10 @@ local FadeFrame = NarciFadeUI.Fade;
 local GetNumClassSetItems = NarciAPI.GetNumClassSetItems;
 local floor = math.floor;
 local After = C_Timer.After;
-
 local outSine = addon.EasingFunctions.outSine;
+
+local MAJORFACTION_EXPANSION = 9;
+
 
 local function RoundLevel(lvl)
 	return floor(lvl * 100 + 0.5)/100
@@ -197,10 +199,35 @@ function NarciItemLevelFrameMixin:UpdateCovenantRenownLevel(newLevel)
 end
 
 function NarciItemLevelFrameMixin:UpdateRenownLevel()
-	local factionIDs = C_MajorFactions.GetMajorFactionIDs();
+	if not self.majorFactionIDs then
+		local bestExpansionID;
+		local playerLevel = UnitLevel("player");
+
+		if playerLevel and playerLevel > 70 then
+			bestExpansionID = 10;
+			self.majorFactionLandingPageTitle = WAR_WITHIN_LANDING_PAGE_TITLE;
+		else
+			bestExpansionID = 9;
+			self.majorFactionLandingPageTitle = DRAGONFLIGHT_LANDING_PAGE_TITLE;
+		end
+
+		local tbl = {};
+		local factionIDs = C_MajorFactions.GetMajorFactionIDs();
+
+		for _, majorFactionID in ipairs(factionIDs) do
+			local data = C_MajorFactions.GetMajorFactionData(majorFactionID);
+			if data and data.expansionID >= bestExpansionID then
+				table.insert(tbl, majorFactionID);
+			end
+		end
+
+		self.majorFactionIDs = tbl;
+	end
+
 	local level, primaryFactionID;
 	local maxLevel = 0;
-	for _, majorFactionID in ipairs(factionIDs) do
+
+	for _, majorFactionID in ipairs(self.majorFactionIDs) do
 		level = C_MajorFactions.GetCurrentRenownLevel(majorFactionID);
 		if level > maxLevel then
 			primaryFactionID = majorFactionID;
@@ -413,6 +440,176 @@ function NarciItemLevelFrameMixin:ToggleExtraInfo(state, replayAnimation)
 		self.animFrame:Show();
 	end
 end
+
+function NarciItemLevelFrameMixin:Init()
+	local function SideButton_OnEnter(f)
+		if f.onEnterFunc then
+			f.onEnterFunc(f);
+			FadeFrame(f.Highlight, 0.15, 1);
+		end
+	end
+
+	local function SideButton_OnLeave(f)
+		Narci:HideButtonTooltip();
+		FadeFrame(f.Highlight, 0.25, 0);
+	end
+
+	local function SideButton_ShowDetailedItemLevel(f)
+		if f.isSameLevel then
+			f.tooltipHeadline = string.format(f.tooltipFormat, f.Level:GetText());
+		else
+			f.tooltipHeadline = string.format(f.tooltipFormat, f.Level:GetText()) .. string.format("  (max %s)", f.avgItemLevel);
+		end
+		if f.avgItemLevelPvp and f.avgItemLevelPvp ~= 0 then
+			f.tooltipSpecial = string.format(STAT_AVERAGE_PVP_ITEM_LEVEL, f.avgItemLevelPvp);
+		else
+			f.tooltipSpecial = nil;
+		end
+		Narci_ShowButtonTooltip(f);
+	end
+
+	local function SideButton_ShowMajorFactionInfo(f)
+		local DefaultTooltip = NarciGameTooltip;
+		DefaultTooltip:HideTooltip();
+
+		if not self.majorFactionIDs then
+			self:UpdateRenownLevel();
+		end
+
+		DefaultTooltip:SetOwner(f, "ANCHOR_NONE");
+		DefaultTooltip:SetPoint("BOTTOM", f, "TOP", 0, 2);
+		DefaultTooltip:SetText(self.majorFactionLandingPageTitle);
+
+		local factionIDs = self.majorFactionIDs;
+		local factionList = {};
+
+		if factionIDs and #factionIDs > 0 then
+			local factionData;
+			for _, majorFactionID in ipairs(factionIDs) do
+				factionData = C_MajorFactions.GetMajorFactionData(majorFactionID);
+				if factionData then
+					table.insert(factionList, factionData);
+				end
+			end
+
+			local function UnlockOrderSort(faction1, faction2)
+				if faction1.uiPriority then
+					return faction1.uiPriority < faction2.uiPriority;
+				else
+					return faction1.unlockOrder < faction2.unlockOrder;
+				end
+			end
+
+			table.sort(factionList, UnlockOrderSort);
+
+			--Embedded Frame
+			if not f.FactionListFrame then
+				f.FactionListFrame = CreateFrame("Frame", nil, f);
+				f.factionButtons = {};
+				f.FactionListFrame:SetWidth(154);
+			end
+
+			for i = 1, #f.factionButtons do
+				f.factionButtons[i]:Hide();
+			end
+
+			local maxTextWidth = 0;
+			local description, level, textWidth;
+			for i, data in ipairs(factionList) do
+				if not f.factionButtons[i] then
+					f.factionButtons[i] = CreateFrame("Frame", nil, f.FactionListFrame, "NarciGameTooltipEmbeddedIconTextFrame");
+					if i == 1 then
+						f.factionButtons[i]:SetPoint("TOPLEFT", f.FactionListFrame, "TOPLEFT", 0, 0);
+					else
+						f.factionButtons[i]:SetPoint("TOPLEFT", f.factionButtons[i - 1], "BOTTOMLEFT", 0, -6);
+					end
+				end
+				level = data.renownLevel or 0;
+				if level < 10 then
+					level = level.."  ";
+				end
+				if not data.isUnlocked then
+					description = MAJOR_FACTION_BUTTON_FACTION_LOCKED;
+				elseif C_MajorFactions.HasMaximumRenown(data.factionID) then
+					if C_Reputation.IsFactionParagon(data.factionID) then
+						local totalEarned, threshold = C_Reputation.GetFactionParagonInfo(data.factionID);
+						if totalEarned and threshold and threshold ~= 0 then
+							local paragonLevel = floor(totalEarned / threshold);
+							local currentValue = totalEarned - paragonLevel * threshold;
+							description = string.format("|cff00ccffP%s|r  %d/%d", paragonLevel, currentValue, threshold);
+						else
+							description = MAJOR_FACTION_MAX_RENOWN_REACHED;
+						end
+					else
+						description = MAJOR_FACTION_MAX_RENOWN_REACHED;
+					end
+				else
+					description = string.format("|cffffd100%s|r  %d/%d", level, data.renownReputationEarned, data.renownLevelThreshold);
+				end
+				f.factionButtons[i].Icon:SetAtlas(string.format("majorFactions_icons_%s512", data.textureKit), false);
+				f.factionButtons[i].Text:SetText(string.format("|cffffffff%s|r\n%s", data.name, description));
+				f.factionButtons[i].Text:SetTextColor(0.5, 0.5, 0.5);
+				f.factionButtons[i]:Show();
+
+				textWidth = f.factionButtons[i].Text:GetWrappedWidth();
+				if textWidth and textWidth > maxTextWidth then
+					maxTextWidth = textWidth;
+				end
+			end
+			local numButtons = #factionList;
+			f.FactionListFrame:SetHeight((28 + 6)*numButtons - 12);
+			f.FactionListFrame:SetWidth(floor(maxTextWidth + 0.5) + 28 + 6);
+
+			local function GameTooltip_InsertFrame(tooltipFrame, frame, verticalPadding)	-- this is an exact copy of GameTooltip_InsertFrame to avoid "Execution tainted"
+				verticalPadding = verticalPadding or 0;
+				local textSpacing = tooltipFrame:GetCustomLineSpacing() or 2;
+				local textHeight = Round(_G[tooltipFrame:GetName().."TextLeft2"]:GetLineHeight());
+				local neededHeight = Round(frame:GetHeight() + verticalPadding);
+				local numLinesNeeded = math.ceil(neededHeight / (textHeight + textSpacing));
+				local currentLine = tooltipFrame:NumLines();
+
+				if numLinesNeeded ~= nil then
+					for i = 1, numLinesNeeded do
+						tooltipFrame:AddLine(" ");
+					end
+				end
+
+				frame:SetParent(tooltipFrame);
+				frame:ClearAllPoints();
+				frame:SetPoint("TOPLEFT", tooltipFrame:GetName().."TextLeft"..(currentLine + 1), "TOPLEFT", 0, -verticalPadding);
+				if not tooltipFrame.insertedFrames then
+					tooltipFrame.insertedFrames = { };
+				end
+				local frameWidth = frame:GetWidth();
+				if tooltipFrame:GetMinimumWidth() < frameWidth then
+					tooltipFrame:SetMinimumWidth(frameWidth);
+				end
+				frame:Show();
+				table.insert(tooltipFrame.insertedFrames, frame);
+				return (numLinesNeeded * textHeight) + (numLinesNeeded - 1) * textSpacing;
+			end
+
+			GameTooltip_InsertFrame(DefaultTooltip, f.FactionListFrame, 6);
+		else
+			DefaultTooltip:AddLine(MAJOR_FACTION_BUTTON_FACTION_LOCKED, 0.5, 0.5, 0.5, true);
+		end
+		DefaultTooltip:Show();
+		DefaultTooltip:FadeIn();
+	end
+
+	local LeftButton = self.LeftButton;
+	LeftButton:SetScript("OnEnter", SideButton_OnEnter);
+	LeftButton:SetScript("OnLeave", SideButton_OnLeave);
+	LeftButton.onEnterFunc = SideButton_ShowDetailedItemLevel;
+	LeftButton.tooltipFormat = Narci.L["Equipped Item Level Format"];
+	LeftButton.tooltipLine1 = STAT_AVERAGE_ITEM_LEVEL_TOOLTIP;
+
+	local RightButton = self.RightButton;
+	RightButton:SetScript("OnEnter", SideButton_OnEnter);
+	RightButton:SetScript("OnLeave", SideButton_OnLeave);
+	RightButton.onEnterFunc = SideButton_ShowMajorFactionInfo;
+end
+
 
 
 NarciItemLevelCenterButtonMixin = {};
