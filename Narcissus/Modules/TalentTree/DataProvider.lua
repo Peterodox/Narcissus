@@ -4,6 +4,7 @@ local DataProvider = {};
 addon.TalentTreeDataProvider = DataProvider;
 
 local GetSpellTexture = addon.TransitionAPI.GetSpellTexture;
+local GetSpellInfo = addon.TransitionAPI.GetSpellInfo;
 local C_ClassTalents = C_ClassTalents;
 local C_Traits = C_Traits;
 local GetNodeInfo = C_Traits.GetNodeInfo;
@@ -591,6 +592,14 @@ end
 NarciAPI.GetEndOfLineTraitInfo = DataProvider.GetEndOfLineTraits;
 
 
+function DataProvider:GetTraitNameByDefinitionID(definitionID)
+    local definitionInfo = C_Traits.GetDefinitionInfo(definitionID);
+    local spellID = definitionInfo and (definitionInfo.spellID or definitionInfo.overriddenSpellID);
+    local spellName = GetSpellInfo(spellID);
+    return spellName
+end
+
+
 do  --Hero Talents
     function DataProvider:GetActiveHeroTalentTreeInfo(configID, specID)
         if configID ~= INPSECT_CONFIG_ID then
@@ -603,7 +612,6 @@ do  --Hero Talents
         for _, subTreeID in ipairs(subTreeIDs) do
             local subTreeInfo = C_Traits.GetSubTreeInfo(configID, subTreeID);   --TWW Cache This
             if subTreeInfo and subTreeInfo.isActive then
-                --SI = subTreeInfo  --debug
                 if configID ~= INPSECT_CONFIG_ID then
                     self.activeSubTreeID = subTreeID;
                 end
@@ -614,9 +622,16 @@ do  --Hero Talents
     end
 
     function DataProvider:GetPlayerActiveHeroTalentTreeInfo()
-        local configID = self:GetPlayerActiveConfigID();
-        local specID = self:GetCurrentSpecID();
-        return self:GetActiveHeroTalentTreeInfo(configID, specID)
+        --local configID = C_ClassTalents.GetActiveConfigID()
+        --local specID = self:GetCurrentSpecID();
+        --return self:GetActiveHeroTalentTreeInfo(configID, specID)
+
+        local configID = C_ClassTalents.GetActiveConfigID()
+        local subTreeID = self:GetPlayerActiveSubTreeID();
+
+        if subTreeID then
+            return C_Traits.GetSubTreeInfo(configID, subTreeID)
+        end
     end
 
     function DataProvider:GetInspectActiveHeroTalentTreeInfo()
@@ -625,34 +640,49 @@ do  --Hero Talents
         return self:GetActiveHeroTalentTreeInfo(configID, specID)
     end
 
+    function DataProvider:GetActiveSubTreeID(configID, specID)
+        local subTreeIDs, requiredPlayerLevel = C_ClassTalents.GetHeroTalentSpecsForClassSpec(configID, specID);
+        if not subTreeIDs then return end;
+
+        for _, subTreeID in ipairs(subTreeIDs) do
+            local subTreeInfo = C_Traits.GetSubTreeInfo(configID, subTreeID);
+            if subTreeInfo and subTreeInfo.isActive then
+                return subTreeID
+            end
+        end
+    end
+
+    function DataProvider:GetPlayerActiveSubTreeID()
+        --local configID = C_ClassTalents.GetActiveConfigID()
+        --local specID = self:GetCurrentSpecID();
+        --return self:GetActiveSubTreeID(configID, specID)
+        return C_ClassTalents.GetActiveHeroTalentSpec();
+    end
+
+    function DataProvider:GetInspectActiveSubTreeID()
+        local configID = INPSECT_CONFIG_ID;
+        local specID = self:GetInspectSpecID();
+        return self:GetActiveSubTreeID(configID, specID)
+    end
+
     do
         if addon.TransitionAPI.IsTWW() then
-            local EventListener = CreateFrame("Frame");
-
-            EventListener:SetScript("OnEvent", function(self, event, ...)
-                if event == "TRAIT_SUB_TREE_CHANGED" then
-                    local subTreeID = ...
-                    if (subTreeID == DataProvider.activeSubTreeID) or (DataProvider.activeSubTreeID == nil) then
-                        self:UnregisterEvent(event);
-                        DataProvider.playerHeroSpecName = nil;
-                    end
-                end
-            end);
-
             function DataProvider:GetPlayerHeroSpecName()
-                if not self.playerHeroSpecName then
-                    local subTreeInfo = self:GetPlayerActiveHeroTalentTreeInfo();
-                    if subTreeInfo then
-                        self.playerHeroSpecName = subTreeInfo.name;
-                    end
+                local subTreeInfo = self:GetPlayerActiveHeroTalentTreeInfo();
+                if subTreeInfo then
+                    return subTreeInfo.name;
                 end
-
-                EventListener:RegisterEvent("TRAIT_SUB_TREE_CHANGED");
-
-                return self.playerHeroSpecName
             end
         else
             function DataProvider:GetPlayerHeroSpecName()
+                return nil
+            end
+
+            function DataProvider:GetActiveSubTreeID(configID, specID)
+                return nil
+            end
+
+            function DataProvider:GetPlayerActiveSubTreeID()
                 return nil
             end
         end

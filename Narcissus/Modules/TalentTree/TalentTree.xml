@@ -3,7 +3,7 @@
     <Script file="DataProvider.lua"/>
     <Script file="TextButton.lua"/>
     <Script file="LoadingBar.lua"/>
-    <Script file="MacroForge.lua"/>
+    <!--Script file="MacroForge.lua"/-->
     <Script file="SideTab.lua"/>
     <Script file="TraitTooltip.lua"/>
     <Script file="TraitNode.lua"/>
@@ -632,7 +632,7 @@
 
             <Frame parentKey="MotionBlocker" enableMouse="true" setAllPoints="true" hidden="true" frameLevel="10"/>
 
-            <Frame parentKey="MacroForge" mixin="NarciMiniTalentTreeMacroForgeMixin" frameLevel="40" setAllPoints="true" hidden="true" alpha="0">
+            <!--Frame parentKey="MacroForge" mixin="NarciMiniTalentTreeMacroForgeMixin" frameLevel="40" setAllPoints="true" hidden="true" alpha="0">
                 <Layers>
                     <Layer level="BACKGROUND">
                         <Texture parentKey="Background">
@@ -921,7 +921,7 @@
                     <OnHide method="OnHide"/>
                     <OnEvent method="OnEvent"/>
                 </Scripts>
-            </Frame>
+            </Frame-->
 
             <Frame parentKey="AnimationFrame" frameLevel="6" hidden="true" setAllPoints="true">
                 <Layers>

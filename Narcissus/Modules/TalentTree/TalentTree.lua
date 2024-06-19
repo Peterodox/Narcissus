@@ -13,7 +13,7 @@ local TextButtonUtil = addon.TalentTreeTextButtonUtil;
 local TextureUtil = addon.TalentTreeTextureUtil;
 local UniversalFont = addon.UniversalFontUtil.Create();
 local NodeUtil = addon.TalentTreeNodeUtil;
-local ActionBarUtil = addon.TalentTreeActionBarUtil;
+--local ActionBarUtil = addon.TalentTreeActionBarUtil;
 
 local L = Narci.L;
 
@@ -135,19 +135,26 @@ function LayoutUtil:UpdateNodePosition()
     for i = 1, MainFrame.numAcitveNodes do
         node = Nodes[i];
         node:ClearAllPoints();
+        y = -(node.iY - leftMinY) * tileSize + fromOffsetY;
         if node.isLeft then
             x = (node.iX - leftMinX) * tileSize + leftFromOffsetX;
-            y = -(node.iY - leftMinY) * tileSize + fromOffsetY;
+            --y = -(node.iY - leftMinY) * tileSize + fromOffsetY;
             --node.Order:SetText(node.iX - leftMinX)
         else
             x = (node.iX - rightMinX) * tileSize + rightFromOffsetX;
-            y = -(node.iY - rightMinY) * tileSize + fromOffsetY;
-            node:SetPoint("TOPLEFT", container, "TOPLEFT", x, y);
+            --y = -(node.iY - rightMinY) * tileSize + fromOffsetY;
             --node.Order:SetText(node.iX - rightMinX)
         end
         node:SetPoint("TOPLEFT", container, "TOPLEFT", x, y);
         node.x, node.y = x, y;
     end
+
+    --print("Left Span", leftSpanX);
+    --print("Right Span", rightSpanX);
+
+    local middleOffsetX = (0.5*(leftMaxX + rightMinX) - leftMinX) * tileSize + leftFromOffsetX;
+
+    return middleOffsetX, fromOffsetY
 end
 
 function LayoutUtil:SetNodeTileIndex(node, isLeft, iX, iY)
@@ -197,7 +204,7 @@ function LayoutUtil:UpdatePixel()
 
     f.PvPTalentFrame:UpdatePixel();
     f.SideTab:UpdatePixel(px);
-    f.MacroForge:UpdatePixel(px);
+    --f.MacroForge:UpdatePixel(px);
 
     f.Divider:ClearAllPoints();
     f.Divider:SetPoint("TOPLEFT", f, "TOPLEFT", SECTOR_WIDTH * BUTTON_SIZE, -BUTTON_SIZE/2 -HEADER_SIZE);
@@ -243,8 +250,12 @@ end
 
 
 local function CalculateNormalizedPosition(posX, posY)
-    posX = posX - 1800;
-    posY = 1200 - posY;
+    --posX = posX - 1800;
+    --posY = 1200 - posY;
+
+    --debug
+    posX = posX;
+    posY = -posY
     
     posX = floor(posX/DISTANCE_UNIT + 0.5);
     posY = floor(posY/DISTANCE_UNIT + 0.5);
@@ -505,6 +516,32 @@ function NarciMiniTalentTreeMixin:ShowActiveBuild()
     self:ShowConfig(configID);
 end
 
+local function IsValidEntryType(entryType)
+    return entryType == nil or entryType == 0 or entryType == 1 or entryType == 2
+end
+
+local function IsValidNodeInfo(nodeInfo)
+    return (nodeInfo) and (nodeInfo.type ~= 3) and (nodeInfo.isVisible) and (nodeInfo.posY >= 0) and (not nodeInfo.subTreeID)
+end
+
+local function IsSubTreeNode(nodeInfo, activeSubTreeID)
+    if nodeInfo and nodeInfo.isVisible and nodeInfo.subTreeID then
+        if activeSubTreeID then
+            return nodeInfo.subTreeID == activeSubTreeID
+        else
+            return true
+        end
+    end
+end
+
+local function SortFunc_SubTreeNode(a, b)
+    if a.posY ~= b.posY then
+        return a.posY > b.posY
+    end
+
+    return a.posX < b.posX
+end
+
 function NarciMiniTalentTreeMixin:ShowConfig(configID, isPreviewing)
     if not configID then return end;
 
@@ -533,125 +570,132 @@ function NarciMiniTalentTreeMixin:ShowConfig(configID, isPreviewing)
 	local nodeIDs = C_Traits.GetTreeNodes(treeID);
     self.treeID = treeID;
 
+    local activeSubTreeID;
 
-    local node, nodeInfo, activeEntryID, entryInfo, talentType, iX, iY, isLeftSide;
+    local node, nodeInfo, activeEntryID, entryInfo, entryType, iX, iY, isLeftSide;
     local GetNodeInfo, GetEntryInfo;
+    local borderColor;
+
     if isInspecting then
+        borderColor = 2;
         GetNodeInfo = DataProvider.GetComparisonNodeInfo;
         GetEntryInfo = DataProvider.GetComparisonEntryInfo;
+        activeSubTreeID = DataProvider:GetInspectActiveSubTreeID();
     else
+        borderColor = 1;
         DataProvider:SetPlayerActiveConfigID(configID);
         GetNodeInfo = DataProvider.GetPlayerNodeInfo;
         GetEntryInfo = DataProvider.GetPlayerEntryInfo;
+        activeSubTreeID = DataProvider:GetPlayerActiveSubTreeID();
     end
 
-    if not comparisonMode then
-        local borderColor = (isInspecting and 2) or 1;
 
+    if not comparisonMode then
         for i, nodeID in ipairs(nodeIDs) do
             nodeInfo = GetNodeInfo(nodeID);
 
-            if nodeInfo.isVisible and nodeInfo.posY >= 0 then   ----Dracthyr has a Button that is out-of-bound for some reason
+            if IsValidNodeInfo(nodeInfo) then   ----Dracthyr has a Button that is out-of-bound for some reason
                 activeEntryID = nodeInfo.activeEntry and nodeInfo.activeEntry.entryID or nil;
                 entryInfo = (activeEntryID ~= nil) and GetEntryInfo(activeEntryID) or nil;
-                talentType = (entryInfo ~= nil) and entryInfo.type or nil;
-            
-                node = self:AcquireNode();
-                node:SetBorderColor(borderColor);
-            
-                iX, iY, isLeftSide = CalculateNormalizedPosition(nodeInfo.posX, nodeInfo.posY);
-            
-                if (nodeInfo.ranksPurchased > 0) or (nodeInfo.activeRank > 0) or (DataProvider:IsAutoGrantedTalent(nodeID)) then
-                    --ranksPurchased is 0 for freely-granted talent (some talent in the first row)
-                    node.active = true;
-                    if nodeInfo.ranksPurchased == 0 then
-                        node.currentRank = 1;
+                entryType = (entryInfo ~= nil) and entryInfo.type or nil;
+
+                if IsValidEntryType(entryType) then
+                    node = self:AcquireNode();
+                    node:SetBorderColor(borderColor);
+                
+                    iX, iY, isLeftSide = CalculateNormalizedPosition(nodeInfo.posX, nodeInfo.posY);
+                
+                    if (nodeInfo.ranksPurchased > 0) or (nodeInfo.activeRank > 0) or (DataProvider:IsAutoGrantedTalent(nodeID)) then
+                        --ranksPurchased is 0 for freely-granted talent (some talent in the first row)
+                        node.active = true;
+                        if nodeInfo.ranksPurchased == 0 then
+                            node.currentRank = 1;
+                        else
+                            node.currentRank = nodeInfo.ranksPurchased;
+                        end
                     else
-                        node.currentRank = nodeInfo.ranksPurchased;
+                        if HIDE_INACTIVE_NODE then
+                            node:Hide();
+                        end
+                        node.active = nil;
+                        node.currentRank = 0;
                     end
-                else
-                    if HIDE_INACTIVE_NODE then
-                        node:Hide();
-                    end
-                    node.active = nil;
-                    node.currentRank = 0;
-                end
-                node.maxRanks = nodeInfo.maxRanks;
-            
-                LayoutUtil:SetNodeTileIndex(node, isLeftSide, iX, iY);
-            
-                NodeIDxNode[nodeID] = node;
-            
-                if nodeInfo.type == 2 then
-                    node.entryIDs = nodeInfo.entryIDs;
-                    if activeEntryID == nodeInfo.entryIDs[1] then
-                        node:SetNodeType(2, 1);
-                    elseif activeEntryID == nodeInfo.entryIDs[2] then
-                        node:SetNodeType(2, 2);
+                    node.maxRanks = nodeInfo.maxRanks;
+                
+                    LayoutUtil:SetNodeTileIndex(node, isLeftSide, iX, iY);
+                
+                    NodeIDxNode[nodeID] = node;
+                
+                    if nodeInfo.type == 2 then
+                        node.entryIDs = nodeInfo.entryIDs;
+                        if activeEntryID == nodeInfo.entryIDs[1] then
+                            node:SetNodeType(2, 1);
+                        elseif activeEntryID == nodeInfo.entryIDs[2] then
+                            node:SetNodeType(2, 2);
+                        else
+                            node:SetNodeType(2, 0);
+                            node.Icon:SetTexture(nil);
+                        end
                     else
-                        node:SetNodeType(2, 0);
-                        node.Icon:SetTexture(nil);
-                    end
-                else
-                    node.entryIDs = nil;
-                    if talentType == 0 then
-                        --*Warrior Why do some passive traits use this type?
-                        node:SetNodeType(1, 0);
-                    elseif talentType == 1 then --square
-                        node:SetNodeType(0, 1);
-                    elseif talentType == 2 then --circle
-                        if nodeInfo.type == 0 then
-                            if nodeInfo.maxRanks == 1 then  --1/1
-                                node:SetNodeType(1, 0);
-                            elseif nodeInfo.maxRanks == 2 then
-                                if nodeInfo.ranksPurchased == 1 then    --1/2
-                                    node:SetNodeType(1, 1);
-                                else    --2/2
+                        node.entryIDs = nil;
+                        if entryType == 0 then
+                            --*Warrior Why do some passive traits use this type?
+                            node:SetNodeType(1, 0);
+                        elseif entryType == 1 then --square
+                            node:SetNodeType(0, 1);
+                        elseif entryType == 2 then --circle
+                            if nodeInfo.type == 0 then
+                                if nodeInfo.maxRanks == 1 then  --1/1
                                     node:SetNodeType(1, 0);
-                                end
-                            elseif nodeInfo.maxRanks == 3 then
-                                if nodeInfo.ranksPurchased == 1 then    --1/3
-                                    node:SetNodeType(1, 1);
-                                elseif nodeInfo.ranksPurchased == 2 then    --2/3
-                                    node:SetNodeType(1, 2);
-                                else    --3/3
+                                elseif nodeInfo.maxRanks == 2 then
+                                    if nodeInfo.ranksPurchased == 1 then    --1/2
+                                        node:SetNodeType(1, 1);
+                                    else    --2/2
+                                        node:SetNodeType(1, 0);
+                                    end
+                                elseif nodeInfo.maxRanks == 3 then
+                                    if nodeInfo.ranksPurchased == 1 then    --1/3
+                                        node:SetNodeType(1, 1);
+                                    elseif nodeInfo.ranksPurchased == 2 then    --2/3
+                                        node:SetNodeType(1, 2);
+                                    else    --3/3
+                                        node:SetNodeType(1, 0);
+                                    end
+                                else
+                                    --0/4?
+                                    node.Symbol:SetVertexColor(1, 0, 0);
                                     node:SetNodeType(1, 0);
                                 end
                             else
-                                --0/4?
-                                node.Symbol:SetVertexColor(1, 0, 0);
-                                node:SetNodeType(1, 0);
+                                node:Hide();
                             end
                         else
-                            node:Hide();
+                            --nil is unselected octagon
+                            node.Symbol:SetVertexColor(1, 0, 0);
+                            --print(entryType, "Unknown type")
                         end
-                    else
-                        --nil is unselected octagon
-                        node.Symbol:SetVertexColor(1, 0, 0);
-                        --print(talentType, "Unknown type")
                     end
+                
+                    if node.active then
+                        node.Symbol:SetVertexColor(0.67, 0.67, 0.67);
+                        node:SetActive(true);
+                    else
+                        node.Symbol:SetVertexColor(0.160, 0.160, 0.160);
+                        node:SetActive(false);
+                    end
+                
+                    if entryInfo then
+                        node:SetDefinitionID(entryInfo.definitionID);
+                    end
+                
+                    node.nodeID = nodeID;
+                    node.entryID = activeEntryID;
+                    node.rank = nodeInfo.ranksPurchased;
                 end
-            
-                if node.active then
-                    node.Symbol:SetVertexColor(0.67, 0.67, 0.67);
-                    node:SetActive(true);
-                else
-                    node.Symbol:SetVertexColor(0.160, 0.160, 0.160);
-                    node:SetActive(false);
-                end
-            
-                if entryInfo then
-                    node:SetDefinitionID(entryInfo.definitionID);
-                end
-            
-                node.nodeID = nodeID;
-                node.entryID = activeEntryID;
-                node.rank = nodeInfo.ranksPurchased;
             end
         end
 
         self:CreateBranches(nodeIDs);
-
 
     else
         local playerNodeInfo, playerEntryInfo, playerEntryID;
@@ -665,110 +709,112 @@ function NarciMiniTalentTreeMixin:ShowConfig(configID, isPreviewing)
             nodeInfo = GetNodeInfo(nodeID);
             playerNodeInfo = GetPlayerNodeInfo(nodeID);
 
-            if nodeInfo.isVisible and nodeInfo.posY >= 0 then   ----Dracthyr has a Button that is out-of-bound for some reason
+            if IsValidNodeInfo(nodeInfo) then   ----Dracthyr has a Button that is out-of-bound for some reason
                 activeEntryID = nodeInfo.activeEntry and nodeInfo.activeEntry.entryID or nil;
                 entryInfo = (activeEntryID ~= nil) and GetEntryInfo(activeEntryID) or nil;
-                talentType = (entryInfo ~= nil) and entryInfo.type or nil;
+                entryType = (entryInfo ~= nil) and entryInfo.type or nil;
             
-                playerEntryID = playerNodeInfo.activeEntry and playerNodeInfo.activeEntry.entryID or nil;
-                playerEntryInfo = (playerEntryID ~= nil) and GetPlayerEntryInfo(playerEntryID) or nil;
+                if IsValidEntryType(entryType) then
+                    playerEntryID = playerNodeInfo.activeEntry and playerNodeInfo.activeEntry.entryID or nil;
+                    playerEntryInfo = (playerEntryID ~= nil) and GetPlayerEntryInfo(playerEntryID) or nil;
 
-                node = self:AcquireNode();
-                iX, iY, isLeftSide = CalculateNormalizedPosition(nodeInfo.posX, nodeInfo.posY);
-            
-                targetRank = nodeInfo.ranksPurchased or 0;
-                playerRank = playerNodeInfo.ranksPurchased or 0;
-
-                if DataProvider:IsAutoGrantedTalent(nodeID) then
-                    targetRank = 1;
-                    playerRank = 1;
-                end
-
-                if targetRank == playerRank then
-                    node.active = nil;
-                    node.currentRank = targetRank;
-                else
-                    if nodeInfo.ranksPurchased == 0 then
-                        node.currentRank = 1;
-                    else
-                        node.currentRank = nodeInfo.ranksPurchased;
-                    end
-                    node.active = (targetRank > 0) or (playerRank > 0);
-                end
-                node:SetBorderColor(3);
-
-                node.maxRanks = nodeInfo.maxRanks;
-            
-                LayoutUtil:SetNodeTileIndex(node, isLeftSide, iX, iY);
-            
-                NodeIDxNode[nodeID] = node;
-            
-                if nodeInfo.type == 2 then
-                    node.entryIDs = nodeInfo.entryIDs;
-                    if activeEntryID == nodeInfo.entryIDs[1] then
-                        targetChoice = 1;
-                    elseif activeEntryID == nodeInfo.entryIDs[2] then
-                        targetChoice = 2;
-                    else
-                        targetChoice = 0;
-                    end
-
-                    if playerEntryID == playerNodeInfo.entryIDs[1] then
-                        playerChoice = 1;
-                    elseif playerEntryID == playerNodeInfo.entryIDs[2] then
-                        playerChoice = 2;
-                    else
-                        playerChoice = 0;
-                    end
-
-                    if targetChoice ~= playerChoice and targetChoice ~= 0 then
-                        node.active = true;
-                    end
-
-                    node:SetComparison(2, targetChoice, playerChoice);
-                    if targetChoice == 0 and playerChoice ~= 0 and playerEntryInfo then
-                        node:SetDefinitionID(playerEntryInfo.definitionID);
-                    end
-                else
-                    node.entryIDs = nil;
-                    if talentType == 0 then
-                        nodeTypeID = 1;
-                    elseif talentType == 1 then --square
-                        nodeTypeID = 0;
-                    elseif talentType == 2 then --circle
-                        nodeTypeID = 1;
-                    else
-                        nodeTypeID = 2;
-                        --nil is unselected octagon
-                        node.Symbol:SetVertexColor(1, 0, 0);
-                        --print(talentType, "Unknown type")
-                    end
-
-                    node:SetComparison(nodeTypeID, targetRank, playerRank);
-                end
-
-                if node.active then
-                    node.Symbol:SetVertexColor(0.67, 0.67, 0.67);
-                    node.IconBorder:SetDesaturated(false);
-                    node.IconBorder:SetVertexColor(1, 1, 1);
-                    node.Icon:SetDesaturation(0.5);
-                    node.Icon:SetVertexColor(0.67, 0.67, 0.67);
-                    node.isActive = nil;
-                else
-                    node.Symbol:SetVertexColor(0.160, 0.160, 0.160);
-                    node:SetActive(false);
-                end
-
-                if entryInfo then
-                    node:SetDefinitionID(entryInfo.definitionID);
-                end
-            
-                node.nodeID = nodeID;
-                node.entryID = activeEntryID;
-                node.rank = targetRank;
+                    node = self:AcquireNode();
+                    iX, iY, isLeftSide = CalculateNormalizedPosition(nodeInfo.posX, nodeInfo.posY);
                 
-                if playerRank == 0 and targetRank == 0 then
-                    node.Icon:SetTexture(nil);
+                    targetRank = nodeInfo.ranksPurchased or 0;
+                    playerRank = playerNodeInfo.ranksPurchased or 0;
+
+                    if DataProvider:IsAutoGrantedTalent(nodeID) then
+                        targetRank = 1;
+                        playerRank = 1;
+                    end
+
+                    if targetRank == playerRank then
+                        node.active = nil;
+                        node.currentRank = targetRank;
+                    else
+                        if nodeInfo.ranksPurchased == 0 then
+                            node.currentRank = 1;
+                        else
+                            node.currentRank = nodeInfo.ranksPurchased;
+                        end
+                        node.active = (targetRank > 0) or (playerRank > 0);
+                    end
+                    node:SetBorderColor(3);
+
+                    node.maxRanks = nodeInfo.maxRanks;
+                
+                    LayoutUtil:SetNodeTileIndex(node, isLeftSide, iX, iY);
+                
+                    NodeIDxNode[nodeID] = node;
+                
+                    if nodeInfo.type == 2 then
+                        node.entryIDs = nodeInfo.entryIDs;
+                        if activeEntryID == nodeInfo.entryIDs[1] then
+                            targetChoice = 1;
+                        elseif activeEntryID == nodeInfo.entryIDs[2] then
+                            targetChoice = 2;
+                        else
+                            targetChoice = 0;
+                        end
+
+                        if playerEntryID == playerNodeInfo.entryIDs[1] then
+                            playerChoice = 1;
+                        elseif playerEntryID == playerNodeInfo.entryIDs[2] then
+                            playerChoice = 2;
+                        else
+                            playerChoice = 0;
+                        end
+
+                        if targetChoice ~= playerChoice and targetChoice ~= 0 then
+                            node.active = true;
+                        end
+
+                        node:SetComparison(2, targetChoice, playerChoice);
+                        if targetChoice == 0 and playerChoice ~= 0 and playerEntryInfo then
+                            node:SetDefinitionID(playerEntryInfo.definitionID);
+                        end
+                    else
+                        node.entryIDs = nil;
+                        if entryType == 0 then
+                            nodeTypeID = 1;
+                        elseif entryType == 1 then --square
+                            nodeTypeID = 0;
+                        elseif entryType == 2 then --circle
+                            nodeTypeID = 1;
+                        else
+                            nodeTypeID = 2;
+                            --nil is unselected octagon
+                            node.Symbol:SetVertexColor(1, 0, 0);
+                            --print(entryType, "Unknown type")
+                        end
+
+                        node:SetComparison(nodeTypeID, targetRank, playerRank);
+                    end
+
+                    if node.active then
+                        node.Symbol:SetVertexColor(0.67, 0.67, 0.67);
+                        node.IconBorder:SetDesaturated(false);
+                        node.IconBorder:SetVertexColor(1, 1, 1);
+                        node.Icon:SetDesaturation(0.5);
+                        node.Icon:SetVertexColor(0.67, 0.67, 0.67);
+                        node.isActive = nil;
+                    else
+                        node.Symbol:SetVertexColor(0.160, 0.160, 0.160);
+                        node:SetActive(false);
+                    end
+
+                    if entryInfo then
+                        node:SetDefinitionID(entryInfo.definitionID);
+                    end
+                
+                    node.nodeID = nodeID;
+                    node.entryID = activeEntryID;
+                    node.rank = targetRank;
+                    
+                    if playerRank == 0 and targetRank == 0 then
+                        node.Icon:SetTexture(nil);
+                    end
                 end
             end
         end
@@ -776,7 +822,71 @@ function NarciMiniTalentTreeMixin:ShowConfig(configID, isPreviewing)
         self:RemoveBranches();
     end
 
-    LayoutUtil:UpdateNodePosition();
+    local middleX, middleY = LayoutUtil:UpdateNodePosition();
+
+
+    --Subtree
+    local subTreeNodes;
+
+    for i, nodeID in ipairs(nodeIDs) do
+        nodeInfo = GetNodeInfo(nodeID);
+        if IsSubTreeNode(nodeInfo, activeSubTreeID) then
+        --Only Show Choice Node
+            if nodeInfo.type == 2 then
+                activeEntryID = nodeInfo.activeEntry and nodeInfo.activeEntry.entryID;
+                if activeEntryID then
+                    entryInfo = GetEntryInfo(activeEntryID);
+                    if entryInfo and entryInfo.definitionID then
+                        if not subTreeNodes then
+                            subTreeNodes = {};
+                        end
+
+                        table.insert(subTreeNodes, {
+                            nodeID = nodeID,
+                            entryID = activeEntryID;
+                            entryIDs = nodeInfo.entryIDs,
+                            definitionID = entryInfo.definitionID,
+                            selectLeft = activeEntryID == nodeInfo.entryIDs[1],
+                            posX = nodeInfo.posX,
+                            posY = nodeInfo.posY,
+                        });
+                    end
+                end
+            end
+        end
+    end
+
+    if subTreeNodes then
+        table.sort(subTreeNodes, SortFunc_SubTreeNode);
+
+        local tileSize = BUTTON_SIZE;
+
+        for i, nodeData in ipairs(subTreeNodes) do
+            --print(i, DataProvider:GetTraitNameByDefinitionID(nodeData.definitionID));
+            node = self:AcquireNode();
+            node:SetBorderColor(borderColor);
+            node:SetPoint("TOP", self, "TOPLEFT", middleX, middleY + (1- i)*tileSize);
+
+            if nodeData.selectLeft then
+                node:SetNodeType(2, 1);
+            else
+                node:SetNodeType(2, 2);
+            end
+
+            node.nodeID = nodeData.nodeID;
+            node.entryID = nodeData.entryID;
+            node.entryIDs = nodeData.entryIDs;
+            node.rank = 1;
+            node.currentRank = 1;
+            node.maxRanks = 1;
+            node:SetDefinitionID(nodeData.definitionID);
+            node:SetActive(true);
+        end
+
+        self.Divider:Hide();
+    else
+        self.Divider:Show();
+    end
 
     if not isPreviewing and not isInspecting then
         UniversalFont:SetText(self.LoadoutToggle.ButtonText, DataProvider:GetActiveLoadoutName());
@@ -880,7 +990,7 @@ function NarciMiniTalentTreeMixin:SetInspectMode(state)
         TextButtonUtil:SetButtonIcon(self.SideTabToggle, "arrowRight");
     end
 
-    self.MacroForge:HideFrame();
+    --self.MacroForge:HideFrame();
 end
 
 function NarciMiniTalentTreeMixin:ReleaseAllNodes()
@@ -1093,11 +1203,7 @@ local function BranchUpdater_OnUpdate_OneFrame(self, elapsed)
                         rd = atan2(y2 - y1, x2 - x1);
                         b:SetWidth(d);
                         b:ClearAllPoints();
-                        if fromNode.isLeft then
-                            b:SetPoint("CENTER", container, "TOPLEFT", (x1+x2)*0.5, (y1+y2)*0.5);
-                        else
-                            b:SetPoint("CENTER", container, "TOPLEFT", (x1+x2)*0.5, (y1+y2)*0.5);
-                        end
+                        b:SetPoint("CENTER", container, "TOPLEFT", (x1+x2)*0.5, (y1+y2)*0.5);
                         b:SetRotation(rd);
                         b:Show();
                         SetBranchColor(b, fromNode.active and targetNode.active);
@@ -1146,7 +1252,7 @@ function NarciMiniTalentTreeMixin:RequestUpdate()
             DataProvider:SetPlayerActiveConfigID(configID);
         end
     end
-    ActionBarUtil:RequestUpdate();
+    --ActionBarUtil:RequestUpdate();
 end
 
 function NarciMiniTalentTreeMixin:OnShow()
@@ -1154,7 +1260,7 @@ function NarciMiniTalentTreeMixin:OnShow()
         self:Init();
     end
     DataProvider:StopCacheWipingCountdown();
-    EventCenter:RegisterEvent("CURSOR_CHANGED");
+    --EventCenter:RegisterEvent("CURSOR_CHANGED");
     EventCenter:RegisterUnitEvent("UNIT_SPELLCAST_SUCCEEDED", "player");
 
     self:RegisterEvent("PLAYER_STARTED_MOVING");
@@ -1176,7 +1282,7 @@ end
 function NarciMiniTalentTreeMixin:OnHide()
     self.activationAnimDelay = nil;
     DataProvider:StartCacheWipingCountdown();
-    EventCenter:UnregisterEvent("CURSOR_CHANGED");
+    --EventCenter:UnregisterEvent("CURSOR_CHANGED");
     EventCenter:UnregisterEvent("UNIT_SPELLCAST_SUCCEEDED");
 
     self:UnregisterEvent("PLAYER_STARTED_MOVING");
@@ -1304,7 +1410,7 @@ function NarciMiniTalentTreeMixin:RaiseActiveNodesFrameLevel(state)
     local activeLevel;
 
     if state then
-        activeLevel = self.MacroForge.MotionBlocker:GetFrameLevel() + 1;
+        --activeLevel = self.MacroForge.MotionBlocker:GetFrameLevel() + 1;
         NodeUtil:SetModePickIcon();
     else
         activeLevel = baseLevel;
@@ -2148,7 +2254,7 @@ EventCenter.onEvent = function(self, event, ...)
         MainFrame.PvPTalentFrame:RequestUpdate();
 
     elseif event == "CURSOR_CHANGED" then
-        MainFrame.MacroForge:OnCursorChanged(...);
+        --MainFrame.MacroForge:OnCursorChanged(...);
 
     elseif event == "UNIT_SPELLCAST_SUCCEEDED" then
         local spellID = select(3, ...);

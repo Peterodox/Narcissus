@@ -288,7 +288,7 @@
 		<Frames>
 			<Slider inherits="NarciSimpleSliderTemplate"/>
 
-			<Frame parentKey="ClipFrame" clipChildren="true">
+			<Frame parentKey="ClipFrame" clipChildren="false">
 				<Anchors>
 					<Anchor point="TOPLEFT" relativePoint="TOPLEFT" x="-40" y="80"/>
 					<Anchor point="BOTTOMRIGHT" relativePoint="BOTTOMRIGHT" x="100" y="-80"/>

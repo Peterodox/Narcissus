@@ -766,7 +766,7 @@ local function DressingRoomOverlayFrame_Initialize()
         OutfitIconSelect.SelectionFrame:Show();
     end
 
-    local OutfitFrame = WardrobeOutfitFrame;
+    local OutfitFrame = WardrobeOutfitFrame;    --Removed in TWW
     if OutfitFrame then
         local protected1, protected2 = OutfitFrame:IsProtected();
         if not(protected1 or protected2) then
@@ -809,7 +809,7 @@ local function DressingRoomOverlayFrame_Initialize()
     --]]
 
     local popupInfo = StaticPopupDialogs["NAME_TRANSMOG_OUTFIT"];
-    if popupInfo then
+    if popupInfo and OutfitFrame then
         --!! Override "WardrobeOutfitFrameMixin:NewOutfit(name)" to provide the ability to select icon
         local function SaveNewOutfit(popup)
             local name = popup.editBox:GetText();
@@ -858,7 +858,7 @@ local function DressingRoomOverlayFrame_Initialize()
             if ValidPopupNames[name] then
                 --assume it's StaticPopup1
                 local popup = LocateTransmogPopup();
-                if popup and OutfitFrame.itemTransmogInfoList then
+                if popup and OutfitFrame and OutfitFrame.itemTransmogInfoList then
                     local editbox = popup.editBox;
                     editbox:ClearAllPoints();
                     if popup.text then

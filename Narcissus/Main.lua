@@ -454,7 +454,7 @@ do
 		table.insert(EL.EVENTS_DYNAMIC, "UPDATE_SHAPESHIFT_FORM");
 	end
 
-	if not ZoomValuebyRaceID[PLAYER_RACE_ID] then
+	if (not ZoomValuebyRaceID[PLAYER_RACE_ID]) and (PLAYER_RACE_ID ~= 22 and PLAYER_RACE_ID ~= 52) then
 		print(("Narcissus: You are using race %d that doesn't have camera parameters"):format(PLAYER_RACE_ID))
 		PLAYER_RACE_ID = 1;
 	end

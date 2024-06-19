@@ -1,4 +1,4 @@
---Coutesy of ZamestoTV. Thank you!    --Translator: ZamestoTV as of 1.6.3
+--Coutesy of ZamestoTV. Thank you!    --Translator: ZamestoTV as of 1.6.4
 
 if not (GetLocale() == "ruRU") then
     return;
