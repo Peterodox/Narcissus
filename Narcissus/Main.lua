@@ -3721,11 +3721,15 @@ do
 		local c, m;
 
 		hooksecurefunc("ChatEdit_HandleChatType", function(editBox, msg, command, send)
-			c = command;
+			c = command;	--Auto capitalized by the game
 			m = msg;
 			if send == 1 then
-				if c and VALID_COMMANDS[c] then
-					callback(m);
+				if c then
+					if c == "/NARCISSUSGAMEPAD" then
+						Narci_Open();
+					elseif VALID_COMMANDS[c] then
+						callback(m);
+					end
 				end
 
 				c = nil;

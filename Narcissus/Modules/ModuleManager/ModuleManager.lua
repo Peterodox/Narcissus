@@ -57,7 +57,7 @@ function Manager:OnGamePadActiveChanged(isActive)
         self:RegisterEvent("GLOBAL_MOUSE_DOWN");
     else
         self:UnregisterEvent("GLOBAL_MOUSE_DOWN");
-        ClearCursor();
+        --ClearCursor();    --This affect ConsolePort behavior so we no longer use it. And I forgot what issue I was trying to fix when I put it here :(
     end
 end
 

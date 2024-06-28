@@ -433,12 +433,3 @@ Loader:SetScript("OnEvent", function(self, event, ...)
         self:OnDisconnected(...);
     end
 end)
-
-
-
-SlashCmdList['NARCISSUSGAMEPAD'] = function(msg)
-	msg = string.lower(msg);
-    Narci_Open();
-end
-
-SLASH_NARCISSUSGAMEPAD1 = '/narcissusgamepad';
