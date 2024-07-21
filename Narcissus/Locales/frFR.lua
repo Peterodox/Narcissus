@@ -4,6 +4,39 @@ end
 
 local L = Narci.L
 
+local L = Narci.L;
+local S = Narci.L.S;
+
+NARCI_GRADIENT = "|cffA236EFN|r|cff9448F1a|r|cff865BF2r|r|cff786DF4c|r|cff6A80F6i|r|cff5D92F7s|r|cff4FA4F9s|r|cff41B7FAu|r|cff33C9FCs|r"
+MYMOG_GRADIENT = "|cffA236EFM|cff9448F1y |cff865BF2T|cff786DF4r|cff6A80F6a|cff5D92F7n|cff4FA4F9s|cff41B7FAm|cff33C9FCo|cff32c9fbg|r"
+
+NARCI_DEVELOPER_INFO = "Developed by Peterodox";
+
+NARCI_NEW_ENTRY_PREFIX = "|cff40C7EB";
+NARCI_COLOR_GREY_85 = "|cffd8d8d8";
+NARCI_COLOR_GREY_70 = "|cffb3b3b3";
+NARCI_COLOR_RED_MILD = "|cffff5050";
+NARCI_COLOR_GREEN_MILD = "|cff7cc576";
+NARCI_COLOR_YELLOW = "|cfffced00";
+NARCI_COLOR_CYAN_DARK = "5385a5";
+NARCI_COLOR_PINK_DARK = "da9bc3";
+
+NARCI_MODIFIER_CONTROL = "Ctrl";
+NARCI_MODIFIER_ALT = "Alt";   --Windows
+NARCI_SHORTCUTS_COPY = "Ctrl+C";
+
+NARCI_MOUSE_BUTTON_ICON_1 = "|TInterface\\AddOns\\Narcissus\\Art\\Keyboard\\Mouse-Small:16:16:0:0:64:16:0:16:0:16|t";   --Left Button
+NARCI_MOUSE_BUTTON_ICON_2 = "|TInterface\\AddOns\\Narcissus\\Art\\Keyboard\\Mouse-Small:16:16:0:0:64:16:16:32:0:16|t";   --Right Button
+NARCI_MOUSE_BUTTON_ICON_3 = "|TInterface\\AddOns\\Narcissus\\Art\\Keyboard\\Mouse-Small:16:16:0:0:64:16:32:48:0:16|t";   --Middle Button
+
+if IsMacClient() then
+    --Mac OS
+	NARCI_MODIFIER_CONTROL = "Команды";
+    NARCI_MODIFIER_ALT = "Вариант";
+    NARCI_SHORTCUTS_COPY = "Команда+C";
+end
+
+NARCI_WORDBREAK_COMMA = ", ";	
 L["Heritage Armor"] = "Armure Ancestrale";
 
 --Model Control--
