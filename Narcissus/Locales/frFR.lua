@@ -31,10 +31,11 @@ NARCI_MOUSE_BUTTON_ICON_3 = "|TInterface\\AddOns\\Narcissus\\Art\\Keyboard\\Mous
 
 if IsMacClient() then
     --Mac OS
-	NARCI_MODIFIER_CONTROL = "Команды";
-    NARCI_MODIFIER_ALT = "Вариант";
-    NARCI_SHORTCUTS_COPY = "Команда+C";
+    NARCI_MODIFIER_CONTROL = "Command";
+    NARCI_MODIFIER_ALT = "Option";
+    NARCI_SHORTCUTS_COPY = "Command+C";
 end
+
 
 NARCI_WORDBREAK_COMMA = ", ";	
 L["Heritage Armor"] = "Armure Ancestrale";
