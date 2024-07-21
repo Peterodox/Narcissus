@@ -36,7 +36,6 @@ if IsMacClient() then
     NARCI_SHORTCUTS_COPY = "Command+C";
 end
 
-
 NARCI_WORDBREAK_COMMA = ", ";	
 L["Heritage Armor"] = "Armure Ancestrale";
 
