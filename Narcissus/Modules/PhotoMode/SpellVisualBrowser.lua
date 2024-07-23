@@ -3,7 +3,7 @@ local _, addon = ...
 local TransitionAPI = addon.TransitionAPI;
 
 ------------------------------------------------------------------------
-local VISUAL_ID_MAX = 190000;
+local VISUAL_ID_MAX = 220000;
 local TAB_WIDTH = 116;
 local NUM_MAX_HISTORY = 5;
 local MODEL_SETTINGS_FRAME_WIDTH = 440;

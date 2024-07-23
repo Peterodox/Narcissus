@@ -212,11 +212,11 @@ function NarciItemLevelFrameMixin:UpdateRenownLevel()
 		end
 
 		local tbl = {};
-		local factionIDs = C_MajorFactions.GetMajorFactionIDs();
+		local factionIDs = C_MajorFactions.GetMajorFactionIDs(bestExpansionID);
 
 		for _, majorFactionID in ipairs(factionIDs) do
 			local data = C_MajorFactions.GetMajorFactionData(majorFactionID);
-			if data and data.expansionID >= bestExpansionID then
+			if data then
 				table.insert(tbl, majorFactionID);
 			end
 		end

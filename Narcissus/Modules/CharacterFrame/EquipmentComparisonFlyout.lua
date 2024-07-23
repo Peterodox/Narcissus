@@ -30,6 +30,9 @@ local GetGemBorderTexture = NarciAPI.GetGemBorderTexture;
 local GetDominationBorderTexture = NarciAPI.GetDominationBorderTexture;
 local GetItemDominationGem = NarciAPI.GetItemDominationGem;
 local GetSlotNameAndTexture = NarciAPI.GetSlotNameAndTexture;
+local GetItemQualityColor = NarciAPI.GetItemQualityColor;
+
+local AbbreviateNumbers = AbbreviateNumbers;
 
 local CR_ConvertRatio = {      --Combat Rating number/percent
     ["stamina"] = 20,              -- 1 stamina = 20 HP
@@ -37,7 +40,6 @@ local CR_ConvertRatio = {      --Combat Rating number/percent
 
 Narci.ConvertRatio = CR_ConvertRatio;
 
-local GetItemQualityColor = NarciAPI.GetItemQualityColor;
 
 local function SetCombatRatingRatio()
     local _;
@@ -91,7 +93,7 @@ local function SetCombatRatingRatio()
         CR_ConvertRatio.versatility = GetCombatRatingBonus(CR_VERSATILITY_DAMAGE_DONE) / versatility;
     end
 
-    CR_ConvertRatio.stamina = Health / stamina;
+    --CR_ConvertRatio.stamina = Health / stamina;
     --[[
     print(STAT_CRITICAL_STRIKE.." "..floor(1/CR_ConvertRatio.crit + 0.5))
     print(STAT_HASTE.." "..floor(1/CR_ConvertRatio.haste + 0.5))
@@ -222,7 +224,7 @@ local function DisplayComparison(key, name, number, baseNumber, ratio, CustomCol
         if name ~= STAMINA_STRING then
             Textframe.PctDiff:SetText(string.format(FORMAT_DIGIT, ratio*differentialNumber).."%");
         else
-            Textframe.PctDiff:SetText(FormatLargeNumbers(ratio*differentialNumber));
+            Textframe.PctDiff:SetText(AbbreviateNumbers(ratio*differentialNumber));    --FormatLargeNumbers
         end
     else
         Textframe.PctDiff:SetText("");
