@@ -436,7 +436,7 @@
 					</Layer>
 				</Layers>
 			</Frame>
-			<ModelScene parentKey="ModelScene" clipChildren="true" mixin="NarciShowcaseModelSceneMixin">
+			<ModelScene parentKey="ModelScene" clipChildren="false" mixin="NarciShowcaseModelSceneMixin">
 				<Size x="226" y="300"/>
 				<Anchors>
 					<Anchor point="TOPLEFT" relativeKey="$parent" relativePoint="TOPLEFT"/>

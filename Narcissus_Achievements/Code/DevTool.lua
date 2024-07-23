@@ -10,7 +10,6 @@ local ITERATION_PER_FRAME = 5;
 local outputTable;
 local playerCategories = {};
 local guildCategories = {};
-local parentAchievementData = {};
 
 local function BuildCategories(isGuild)
     local categories;

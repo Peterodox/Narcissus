@@ -1,3 +1,23 @@
+---- 10.0.2 ----
+161648  Cleanse Dispel
+161863  Magic Tome
+161881  Emerald Body Globe
+162100  ZZZ sleep
+162117  Body Lava Tentacle
+162542  Box (Anim: 1284)
+162548  Torch
+162563  Body Swirl Slow
+162576  Arcane Hands
+162625  Visage  (146252 Red Tint lingers)
+172117  Emerald Body Swirl  (162707, 162709, 162713, 162673, 162625)
+172122  Red Flame Hands
+172124  Emerald Hands
+172145  Frost Spell With Contour Effect
+172222  Storm Limbs
+172235  Wind Hands
+172424  Fire Breath
+172117
+----------------------------------------------
 120270  8.2.5
 105518  8.0.1
 94942   7.3.5
@@ -15,6 +35,7 @@ Spell Visual Kit ID
 
 ----------------------------------------------
 Game Crash IDs:
+162582, 162524 162479 161622
 23254 ~ 23256 ~ 23263 
 
 

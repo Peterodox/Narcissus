@@ -2,7 +2,7 @@ local AFK_MSG = string.format(MARKED_AFK_MESSAGE, DEFAULT_AFK_MESSAGE);
 
 local AFK = CreateFrame("Frame");
 
---local UnitIsAFK = UnitIsAFK;
+local UnitIsAFK = UnitIsAFK;
 
 do
     local _, addon = ...
@@ -23,12 +23,17 @@ end
 
 local function CanShowAFKScreen()
     --IsInCinematicScene() or InCinematic()
-    return not(C_PvP.IsActiveBattlefield() or CinematicFrame:IsShown() or MovieFrame:IsShown() or InCombatLockdown() or (BarberShopFrame and BarberShopFrame:IsShown()))
+    local canShow = not(C_PvP.IsActiveBattlefield() or CinematicFrame:IsShown() or MovieFrame:IsShown() or InCombatLockdown() or (BarberShopFrame and BarberShopFrame:IsShown()));
+    if C_PlayerInteractionManager and C_PlayerInteractionManager.IsInteractingWithNpcOfType then
+        canShow = canShow and C_PlayerInteractionManager.IsInteractingWithNpcOfType(0);
+    end
+    return canShow
 end
 
 local function ShowAFKScreen()
     if not Narci.isActive then
-        securecall("CloseAllWindows");
+        --securecall("CloseAllWindows");    --cause taint?
+        CloseWindows();
         Narci_MinimapButton:Click();
         Narci.isAFK = true;
     end
@@ -41,6 +46,7 @@ local AFKCountdownFrame;
 local function CreateAFKCountdown()
     AFKCountdownFrame = CreateFrame("Frame", nil, UIParent, "NarciAFKCoundownFrame");
     local f = AFKCountdownFrame;
+    f:SetFrameStrata("FULLSCREEN");
 
     local fontPath = NarciFontMedium12Outline:GetFont();
 
@@ -69,6 +75,11 @@ local function CreateAFKCountdown()
     end
 
     local function Countdown_OnFinished(self)
+        if not UnitIsAFK("player") then --Jumping doesn't trigger Moving
+            f:Hide();
+            return
+        end
+
         f.t = f.t - 1;
         if f.t <= 0 then
             f:Hide();

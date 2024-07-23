@@ -7,8 +7,8 @@ local buttonData = {
     {"Equipment", function() NavBar:SelectTab(1) end},
     {"Title", function() local b = Narci_TitleManager_Switch; if not b.isOn then b:Click() end end},
     {"Sets",  function() NavBar:SelectTab(2) end},
-    {"Soulbinds",  function() NavBar:SelectTab(3) end},
-    {"M+",  function() NavBar:SelectTab(4) end},
+    --{"Soulbinds",  function() NavBar:SelectTab(3) end},
+    {"M+",  function() NavBar:SelectTab(3) end},
 };
 
 NarciGamePadNavBarButtonMixin = {};

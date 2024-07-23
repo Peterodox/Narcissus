@@ -17,5 +17,6 @@
 
     <!--Dev Tool-->
     <!--Script file="CreatureIDxModelFileID.lua"/>
-    <Script file="DevTool.lua"/-->
+    <Script file="DevTool.lua"/>
+    <Script file="DevTool_GetNPCList.lua"/-->
 </Ui>

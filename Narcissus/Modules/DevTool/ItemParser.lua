@@ -256,7 +256,8 @@ function NarciDevToolItemParserMixin:Init()
 
     local locale = GetLocale();
     local version, build, date, tocversion = GetBuildInfo();
-    self.ClientInfo:SetText(locale.."  "..version.."."..build.."  "..NARCI_VERSION_INFO);
+    local narciVersion = NarciAPI.GetAddOnVersionInfo(true);
+    self.ClientInfo:SetText(locale.."  "..version.."."..build.."  "..narciVersion);
 
     ItemTooltip = CreateFrame("GameTooltip", TOOLTIP_NAME, self, "GameTooltipTemplate");
     local t = ItemTooltip;

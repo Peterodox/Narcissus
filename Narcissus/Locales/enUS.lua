@@ -4,10 +4,9 @@ Narci.L.S = {};     --Statistics;
 local L = Narci.L;
 local S = Narci.L.S;
 
-NARCI_GRADIENT = "|cffA236EFN|r|cff9448F1a|r|cff865BF2r|r|cff786DF4c|r|cff6A80F6i|r|cff5D92F7s|r|cff4FA4F9s|r|cff41B7FAu|r|cff33C9FCs|r"
-MYMOG_GRADIENT = "|cffA236EFM|cff9448F1y |cff865BF2T|cff786DF4r|cff6A80F6a|cff5D92F7n|cff4FA4F9s|cff41B7FAm|cff33C9FCo|cff32c9fbg|r"
+NARCI_GRADIENT = "|cffd177ffN|cffc480fba|cffb787f6r|cffa98ef2c|cff9a94edi|cff8a9ae9s|cff789fe5s|cff63a4e0u|cff48a8dcs|r";
 
-NARCI_DEVELOPER_INFO = "Developed by Peterodox";
+L["Developer Info"] = "Developed by Peterodox";
 
 NARCI_NEW_ENTRY_PREFIX = "|cff40C7EB";
 NARCI_COLOR_GREY_85 = "|cffd8d8d8";
@@ -45,7 +44,10 @@ L["A Year Ago"] = "1 year ago";
 L["Format Years Ago"] = "%d years ago";
 L["Version Colon"] = (GAME_VERSION_LABEL or "Version")..": ";
 L["Date Colon"] = "Date: ";
-
+L["Day Plural"] = "Days";
+L["Day Singular"] = "Day";
+L["Hour Plural"] = "Hours";
+L["Hour Singular"] = "Hour";
 
 L["Swap items"] = "Swap items";
 L["Press Copy"] = NARCI_COLOR_GREY_70.. "Press |r".. NARCI_SHORTCUTS_COPY.. NARCI_COLOR_GREY_70 .." to Copy";
@@ -85,7 +87,7 @@ L["Toolbar Preferences Button Tooltip"] = "Open Preferences panel.";
 L["Heritage Armor"] = "Heritage Armor";
 L["Secret Finding"] = "Secret Finding";
 
-NARCI_HEART_QUOTE_1 = "what is essential is invisible to the eye.";
+L["Heart Azerite Quote"] = "what is essential is invisible to the eye.";
 
 --Title Manager--
 L["Open Title Manager"] = "Open Title Manager";
@@ -96,7 +98,7 @@ L["Use Alias"] = "Switch to Alias";
 L["Use Player Name"] = "Switch to "..CALENDAR_PLAYER_NAME;
 
 L["Minimap Tooltip Double Click"] = "Double-tap";
-L["Minimap Tooltip Left Click"] = "Left-click|r";
+L["Minimap Tooltip Left Click"] = "Left-click";
 L["Minimap Tooltip To Open"] = "|cffffffffOpen "..CHARACTER_INFO;
 L["Minimap Tooltip Module Panel"] = "|cffffffffOpen Module Panel";
 L["Minimap Tooltip Right Click"] = "Right-click";
@@ -108,7 +110,6 @@ L["Minimap Tooltip Set Scale"] = "Set Scale: |cffffffff/narci [scale 0.8~1.2]";
 L["Corrupted Item Parser"] = "|cffffffffToggle Corrupted Item Parser|r";
 L["Toggle Dressing Room"] = "|cffffffffToggle "..DRESSUP_FRAME.."|r";
 
-NARCI_CLIPBOARD = "Clipboard";
 L["Layout"] = "Layout";
 L["Symmetry"] = "Symmetry";
 L["Asymmetry"] = "Asymmetry";
@@ -118,17 +119,13 @@ L["Plain Text"] = "Plain Text";
 L["BB Code"] = "BB Code";
 L["Markdown"] = "Markdown";
 L["Export Includes"] = "Export Includes...";
-NARCI_ITEM_ID = "Item ID";
 
 L["3D Model"] = "3D Model";
-NARCI_EQUIPMENTSLOTS = "Equipment Slots";
+L["Equipment Slots"] = "Equipment Slots";
 
 --Preferences--
-
-NARCI_PHOTO_MODE = L["Photo Mode"];
-NARCI_OVERRIDE = "Override";
-NARCI_INVALID_KEY = "Invalid key combination.";
-NARCI_REQUIRE_RELOAD = NARCI_COLOR_RED_MILD.. "UI reload is required.|r";
+L["Override"] = "Override";
+L["Invalid Key"] = "Invalid key combination.";
 
 L["Preferences"] = "Preferences";
 L["Preferences Tooltip"] = "Click to open Preferences Panel.";
@@ -149,7 +146,7 @@ L["Transmog Layout1"] = "Symmetry, 1 Model";
 L["Transmog Layout2"] = "2 Models";
 L["Transmog Layout3"] = "Compact Mode";
 L["Always Show Model"] = "Show 3D Model While Using Symmetry Layout";
-L["AFK Screen Description"] = "Open Narcissus when yo go AFK";
+L["AFK Screen Description"] = "Open Narcissus when u go AFK";
 L["AFK Screen Description Extra"] = "This will override ElvUI AFK Mode.";
 L["AFK Screen Delay"] = "After a Cancellable Delay";
 L["Item Names"] = "Item Names";
@@ -157,10 +154,10 @@ L["Open Narcissus"] = "Open Narcissus";
 L["Character Panel"] = "Character Panel";
 L["Screen Effects"] ="Screen Effects";
 
+L["Gem List"] = "Gem List";
 L["Gemma"] = "\"Gemma\"";   --Don't translate
 L["Gemma Description"] = "Show a list of gems when socketing an item.";
-L["Gem Manager"] = "Gem Manager";
-L["Dressing Room"] = "Dressing Room"
+L["Dressing Room"] = "Dressing Room";
 L["Dressing Room Description"] = "Bigger dressing room with the abilities to view and copy other players' item lists and generate Wowhead dressing room links.";
 L["General"] = "General";   --General options
 L["Interface"] = "Interface";
@@ -253,20 +250,20 @@ L["Developer Colon"] = "Developer: ";
 L["Project Page"] = "Project Page";
 L["Press Copy Yellow"] = "Press |cffffd100".. NARCI_SHORTCUTS_COPY .."|r to Copy";
 L["New Option"] = NARCI_NEW_ENTRY_PREFIX.." NEW".."|r"
+L["Expansion Features"] = "Expansion Features";
+L["LFR Wing Details"] = "LFR Wing Details";
+L["LFR Wing Details Description"] = "Show boss names and lockouts when you talk with solo queue LFR NPCs.";
+L["Speedy Screenshot Alert"] = "Make Screenshot Message Disappear Faster";
 
 --Model Control--
-NARCI_STAND_IDLY = "Stand Idly";
-NARCI_RANGED_WEAPON = "Ranged Weapon";
-NARCI_MELEE_WEAPON = "Melee Weapon";
-NARCI_SPELLCASTING = "Spellcasting";
-NARCI_ANIMATION_ID = "Animation ID";
-NARCI_LINK_LIGHT_SETTINGS = "Link Light Sources";
-NARCI_LINK_MODEL_SCALE = "Link Model Scales";
-NARCI_GROUP_PHOTO_AVAILABLE = "Now available in Narcissus";
-NARCI_GROUP_PHOTO_NOTIFICATION = "Please select a target.";
-NARCI_GROUP_PHOTO_STATUS_HIDDEN = "Hidden";
-NARCI_DIRECTIONAL_AMBIENT_LIGHT = "Directional/Ambient Light";
-NARCI_DIRECTIONAL_AMBIENT_LIGHT_TOOLTIP = "Switch between\n- Directional light that can be blocked by object and cast shadow\n- Ambient light that influences the entire model";
+L["Ranged Weapon"] = "Ranged Weapon";
+L["Melee Animation"] = "Melee Animation";
+L["Spellcasting"] = "Spellcasting";
+L["Link Light Sources"] = "Link Light Sources";
+L["Link Model Scales"] = "Link Model Scales";
+L["Hidden"] = "Hidden";
+L["Light Types"] = "Directional/Ambient Light";
+L["Light Types Tooltip"] = "Switch between\n- Directional light that can be blocked by object and cast shadow\n- Ambient light that influences the entire model";
 
 L["Group Photo"] = "Group Photo";
 L["Reset"] = "Reset";
@@ -276,7 +273,7 @@ L["Actor Index Tooltip"] = "Drag an index button to change the model's layer.";
 L["Play Button Tooltip"] = NARCI_MOUSE_BUTTON_ICON_1.."Play this animation\n"..NARCI_MOUSE_BUTTON_ICON_2.."Resume all models\' animations";
 L["Pause Button Tooltip"] = NARCI_MOUSE_BUTTON_ICON_1.."Pause this animation\n"..NARCI_MOUSE_BUTTON_ICON_2.."Pause all models\' animations";
 L["Save Layers"] = "Save Layers";
-L["Save Layers Tooltip"] = "Automatically capture 6 screenshots for picture compositing.\nPlease do not move your cursor or click any buttons during this process. Otherwise, your character could becomes invisible after exiting the addon. Should it happen, use this command:\n/console showplayer";
+L["Save Layers Tooltip"] = "Automatically capture 4 screenshots for picture compositing.\nPlease do not move your cursor or click any buttons during this process. Otherwise, your character could becomes invisible after exiting the addon. Should it happen, use this command:\n/console showplayer";
 L["Ground Shadow"] = "Ground Shadow";
 L["Ground Shadow Tooltip"] = "Add a movable ground shadow beneath you model.";
 L["Hide Player"] = "Hide Player";
@@ -293,15 +290,16 @@ L["Toggle Model Mask"] = "Toggle model mask";
 L["Show Color Sliders"] = "Show color sliders";
 L["Show Color Presets"] = "Show color presets";
 L["Keep Current Form"] = "Hold "..NARCI_MODIFIER_ALT.." to keep shapeshift form.";
-L["Race Change Tooltip"] = "Change to another playerable race";
-L["Sex Change Tooltip"] = "Change sex";
+L["Race Sex Change Bug"] = NARCI_COLOR_RED_MILD.."\nThis feature has a bug that cannot be fixed at the moment.|r";
+L["Race Change Tooltip"] = "Change to another playerable race"..L["Race Sex Change Bug"];
+L["Sex Change Tooltip"] = "Change sex"..L["Race Sex Change Bug"];
 L["Show More options"] = "Show More options";
 L["Show Less Options"] = "Show Less Options";
 L["Shadow"] = "Shadow";
 L["Light Source"] = "Light Source";
 L["Light Source Independent"] = "Independent";
 L["Light Source Interconnected"] = "Interconnected";
-
+L["Adjustment"] = "Adjustment";
 
 --Animation Browser--
 L["Animation"] = "Animation";
@@ -351,6 +349,11 @@ L["Add to MogIt Wishlist"] = "Add to MogIt Wishlist";
 L["Show Taint Solution"] = "How to solve this issue?";
 L["Taint Solution Step1"] = "1. Reload your UI.";
 L["Taint Solution Step2"] = "2. "..NARCI_MODIFIER_CONTROL.." + Left-click on an item to open the dressing room.";
+L["Switch Form To Visage"] = "Switch to|cffffffff Visage|r form";
+L["Switch Form To Dracthyr"] = "Switch to|cffffffff Dracthyr|r form";
+L["Switch Form To Worgen"] = "Switch to|cffffffff Worgen|r form";
+L["Switch Form To Human"] = "Switch to|cffffffff Human|r form";
+L["InGame Command"] = "In-Game Command";
 
 --NPC Browser--
 NARCI_NPC_BROWSER_TITLE_LEVEL = ".*%?%?.?";      --Level ?? --Use this to check if the second line of the tooltip is NPC's title or unit type
@@ -392,8 +395,8 @@ L["Don't Update Talents"] = "Don't Update Talents";
 L["Old Icon"] = "Old Icon";
 L["NavBar Saved Sets"] = "Saved";   --A Saved Equipment Set
 L["NavBar Incomplete Sets"] = INCOMPLETE;
-NARCI_ICON_SELECTOR = "Icon Selector";
-NARCI_DELETE_SET_WITH_LONG_CLICK = "Delete Set\n|cff808080(click and hold)|r";
+L["Icon Selector"] = "Icon Selector";
+L["Delete Equipment Set Tooltip"] = "Delete Set\n|cff808080(click and hold)|r";
 
 --Corruption System
 L["Corruption System"] = "Corruption";
@@ -424,12 +427,14 @@ L["Corruption Effect Format4"] = "Struck by the Thing From Beyond triggers other
 L["Corruption Effect Format5"] = "|cffffffff%s%%|r damage\\healing taken modified";
 
 --Text Overlay Frame
+L["Text Overlay"] = "Text Overlay";
 L["Text Overlay Button Tooltip1"] = "Simple Speech Balloon";
 L["Text Overlay Button Tooltip2"] = "Advanced Speech Balloon";
 L["Text Overlay Button Tooltip3"] = "Talking Head";
 L["Text Overlay Button Tooltip4"] = "Floating Subtitle";
 L["Text Overlay Button Tooltip5"] = "Black Bar Subtitle";
 L["Visibility"] = "Visibility";
+L["Photo Mode Frame"] = "Frame";    --Frame for photo
 
 --Achievement Frame--
 L["Use Achievement Panel"] = "Use As Primary Achievement Panel";
@@ -445,15 +450,29 @@ L["Show Dates"] = "Show Dates";
 L["Hide Dates"] = "Hide Dates";
 L["Pinned Entries"] = "Pinned Entries";
 L["Pinned Entry Format"] = "Pinned  %d/%d";
-
+L["Create A New Entry"] = "Create A New Entry";
+L["Custom Achievement"] = "Custom Achievement";
+L["Custom Achievement Description"] = "This is the description.";
+L["Custom Achievement Select And Edit"] = "Select an entry to edit.";
+L["Cancel"] = "Cancel";
+L["Color"] = "Color";
+L["Icon"] = "Icon";
+L["Description"] = "Description";
+L["Points"] = "Points";
+L["Reward"] = "Reward";
+L["Date"] = "Date";
+L["Click And Hold"] = "Click and Hold";
+L["To Do List"] = "To-Do";
+L["Error Alert Bookmarks Too Many"] = "You may only bookmark %d achievements at a time.";
+L["Instruction Add To To Do List"] = string.format("%s Left Click on an unearned achievement to add it to your to-do list.", NARCI_MODIFIER_ALT);
 
 --Barbershop--
 L["Save New Look"] = "Save New Look";
 L["No Available Slot"] = "No Available Save Slot";
 L["Look Saved"] = "Look Saved";
-L["Cannot Save Forms"] = "Cannot Save Forms";
-L["Profiles"] = SOCIAL_SHARE_TEXT or "Share";
-L["Share"] = "Share";
+L["Cannot Save Forms"] = "Cannot Save This Form";
+L["Profile"] = "Profile";
+L["Share"] =  SOCIAL_SHARE_TEXT or "Share";
 L["Save Notify"] = "Notify You to Save New Appearance";
 L["Save Notify Tooltip"] = "Notify you to save the customization after clicking Accept button.";
 L["Show Randomize Button"] = "Show Randomize Appearance Button";
@@ -480,6 +499,12 @@ L["Decode Good"] = "Decoded successfully.";
 L["Barbershop Export Tooltip"] = "Encodes the currently used customization into a string that can be shared online.\n\nYou may change any texts before the colon (:)";
 L["Settings And Share"] = (SETTINGS or "Settings") .." & ".. (SOCIAL_SHARE_TEXT or "Share");
 L["Loading Portraits"] = "Loading Portraits";
+L["Private Profile"] = "Private";   --used by the current character
+L["Public Profile"] = "Public";     --shared among all your characters
+L["Profile Type Tooltip"] = "Select the profile to use on this character.\n\nPrivate:|cffedd100 Profile created by the current character|r\n\nPublic:|cffedd100 Profile shared among all your characters|r";
+L["No Saves"] = "No Saves";
+L["Profile Migration Tooltip"] = "You can copy existing presets to the public profile.";
+L["Profile Migration Okay"] = "Okey dokey";
 
 --Tutorial--
 L["Alert"] = "Warning";
@@ -497,15 +522,14 @@ L["Guide Input Headline"] = "Manual Input";
 L["Guide Input Line1"] = "You may also input a SpellVisualKitID yourself. As of 9.0, Its cap is around 155,000.\nYou can use your mousewheel to try the next/previous ID.\nVery few IDs can crash the game.";
 L["Guide Equipment Manager Line1"] = "Double-click: Use a set\nRight-click: Edit a set.\n\nThis button's previous function has been moved to Preferences.";
 L["Guide Model Control Headline"] = "Model Control";
-L["Guide Model Control Line1"] = format("This model shares the same mouse actions you use in the dressing room, plus:\n\n1.Hold %s and Left Button: Rotate model around Y-axis.\n2.Hold %s and Right Button: Execute scrubby zoom.", NARCI_MODIFIER_ALT, NARCI_MODIFIER_ALT);
+L["Guide Model Control Line1"] = string.format("This model shares the same mouse actions you use in the dressing room, plus:\n\n1.Hold %s and Left Button: Rotate model around Y-axis.\n2.Hold %s and Right Button: Execute scrubby zoom.", NARCI_MODIFIER_ALT, NARCI_MODIFIER_ALT);
 L["Guide Minimap Button Headline"] = "Minimap Button";
 L["Guide Minimap Button Line1"] = "Narcissus minimap button can now be handled by other addons.\nYou can change this option in the Preferences Panel. It may require a UI reload."
 L["Guide NPC Entrance Line1"] = "You can add any NPC into your scene."
 L["Guide NPC Browser Line1"] = "Notable NPCs are listed in the catalog below.\nYou can also search for ANY creatures by name or ID.\nNotice that the first time you use the search function this login, it could take a few seconds to build the search table and your screen might freeze as well.\nYou may untoggle the \"Load on Demand\" option in the Preference Pane so that the database will be constructed right after you log in.";
 
-
 --Splash--
-NARCI_SPLASH_WHATS_NEW_FORMAT = "What's New in Narcissus %s";
+L["Splash Whats New Format"] = "What's New in Narcissus %s";
 L["See Ads"] = "See ads from our authentic sponsor";    --Not real ads!
 L["Splash Category1"] = L["Photo Mode"];
 L["Splash Content1 Name"] = "Weapon Browser";
@@ -525,14 +549,7 @@ L["Splash Content7 Name"] = "Visuals";
 L["Splash Content7 Description"] = "-The hexagon item border gets a new look. Certain items have unique appearances.";
 
 --Project Details--
-NARCI_ALL_PROJECTS = "All Projects";
-NARCI_PROJECT_AAA_TITLE = "|cff008affA|cff0d8ef2z|cff1a92e5e|cff2696d9r|cff339acco|cff409ebft|cff4da1b2h |cff59a5a6A|cff66a999d|cff73ad8cv|cff7fb180e|cff8cb573n|cff99b966t|cffa6bd59u|cffb2c14dr|cffbfc440e |cffccc833A|cffd9cc26l|cffe5d01ab|cfff2d40du|cffffd800m|r";
-NARCI_PROJECT_AAA_SUMMARY = "Explore places of interest and collect lores and photos from all across Azeroth.|cff636363";
-NARCI_PROJECT_NARCISSUS_SUMMARY = "An immersive character pane and your ultimate screenshot tool.";
-
 L["AboutTab Developer Note"] = "Thank you for trying this add-on! If you have any issues, suggestions, ideas, please leave a comment on the curseforge page or contact me on...";
-
-
 
 --Conversation--
 L["Q1"] = "What is this?";
@@ -570,6 +587,7 @@ L["Combat Error"] = NARCI_COLOR_RED_MILD.."Leave combat to continue".."|r";
 L["Extract Shard"] = "Extract Shard";
 L["No Service"] = "No Service";
 L["Shards Disabled"] = "Shards of Domination are disabled outside the Maw.";
+L["Unsocket Gem"] = "Unsocket Gem";
 
 --Mythic+ Leaderboard--
 L["Mythic Plus"] = "Mythic+";
@@ -592,11 +610,14 @@ L["Item Socketing Tooltip"] = "Click and hold to embed";
 L["No Available Gem"] = "|cffd8d8d8No available gem|r";
 L["Missing Enchant Alert"] = "Missing Enchant Alert";
 L["Missing Enchant"] = NARCI_COLOR_RED_MILD.."No Enchant".."|r";
+L["Socket Occupied"] = "Socket Occupied";       --Indicates that there is an (important) gem in the socket and you need to remove it first
 
 --Statistics--
 S["Narcissus Played"] = "Total time spent in Narcissus";
 S["Format Since"] = "(since %s)";
 S["Screenshots"] = "Screenshots Taken In Narcissus";
+S["Shadowlands Quests"] = "Shadowlands Quests";
+S["Quest Text Reading Speed Format"] = "Completed: %s (%s words)  Reading: %s (%s wpm)";
 
 --Turntable Showcase--
 L["Turntable"] = "Turntable";
@@ -630,11 +651,15 @@ L["Showcase Splash 1"] = "Create turntable animations to showcase your transmog 
 L["Showcase Splash 2"] = "Click the button below to copy items from the Dressing Room.";
 L["Showcase Splash 3"] = "Click the button below to spin your character.";
 L["Showcase Splash 4"] = "Record the screen with video recording software then convert it to GIF.";
+L["Loop Animation Alert Kultiran"] = "Loop - currently broken on Kultiran male";
+L["Loop Animation"] = "Loop Animation";
 
 --Item Sets--
-L["Cycle Spec"] = "Press Tab to cycle through specs";
+L["Class Set Indicator"] = "Class Set Indicator";
+L["Cycle Spec"] = "Scroll to cycle through specs";
 L["Paperdoll Splash 1"] = "Enable class set indicator?";
 L["Paperdoll Splash 2"] = "Choose a theme";
+L["Theme Changed"] = "Theme Changed";   --the color theme has been changed
 
 --Outfit Select--
 L["Outfit"] = "Outfit";
@@ -654,9 +679,124 @@ L["Mini Talent Tree"] = "Mini Talent Tree";
 L["Show Talent Tree When"] = "Show Talent Tree When You...";
 L["Show Talent Tree Paperdoll"] = "Open Paper Doll";
 L["Show Talent Tree Inspection"] = "Inspect Other Players";
-L["Truncate Talent Description"] = "Truncate Talent Description";
+L["Show Talent Tree Equipment Manager"] = "Access Equipment Manager";
 L["Appearance"] = "Appearance";
-L["Use Class Background"] = "Use Class Background";
+L["Use Class Background"] = "Class Background";
+L["Use Bigger UI"] = "Bigger UI";
 L["Empty Loadout Name"] = "Name";
 L["No Save Slot Red"] = NARCI_COLOR_RED_MILD.. "No Save Slot" .."|r";
 L["Save"] = "Save";
+L["Create Macro Wrong Spec"] = "This set has been assigned to another specialization!";
+L["Create Marco No Slot"] = "Cannot create more character specific macros.";
+L["Create Macro Instruction 1"] = "Drop the set in the box below to combine it with \n|cffebebeb%s|r";
+L["Create Macro Instruction Edit"] = "Drop the set in the box below to edit macro\n|cffebebeb%s|r";
+L["Create Macro Instruction 2"] = "Select a |cff53a9ffsecondary icon|r for this macro.";
+L["Create Macro Instruction 3"] = "Name this macro\n ";
+L["Create Macro Instruction 4"] = "Drag this macro onto your action bar.";
+L["Create Macro In Combat"] = "Cannot Create macro during combat.";
+L["Create Macro Next"] = "NEXT";
+L["Create Marco Created"] = "CREATED";
+L["Place UI"] = "Place the UI...";
+L["Place Talent UI Right"] = "to the Right of Paper Doll";
+L["Place Talent UI Bottom"] = "Below Paper Doll";
+L["Loadout"] = "Loadout";
+L["No Loadout"] = "No Loadout";
+L["PvP"] = "PvP";
+
+
+--Bag Item Filter--
+L["Bag Item Filter"] = "Bag Item Filter";
+L["Bag Item Filter Enable"] = "Enable Search Suggestion and Auto Filter";
+L["Place Window"] = "Place the window...";
+L["Below Search Box"] = "Below Search Box";
+L["Above Search Box"] = "Above Search Box";
+L["Auto Filter Case"] = "Automatically filters items when you...";
+L["Send Mails"] = "Send Mails";
+L["Create Auctions"] = "Create Auctions";
+L["Socket Items"] = "Socket Items";
+
+--Perks Program--
+L["Perks Program Unclaimed Tender Format"] = "- You have |cffffffff%s|r uncollected tender in the Collector's Cache.";     --PERKS_PROGRAM_UNCOLLECTED_TENDER
+L["Perks Program Unearned Tender Format"] = "- You have |cffffffff%s|r unearned tender from the Traveler's Log.";     --PERKS_PROGRAM_ACTIVITIES_UNEARNED
+L["Perks Program Item Added In Format"] = "Added in %s";
+L["Perks Program Item Unavailable"] = "This item is not currently available.";
+L["Perks Program See Wares"] = "Show wares";
+L["Perks Program No Cache Alert"] = "Speak with the Trading Posts vendors to see this month\'s wares.";
+L["Perks Program Using Cache Alert"] = "Using the cache from your last visit. The price data may not be accurate.";
+L["Modify Default Pose"] = "Modify Default Pose";   --Change the default pose/animation/camera yaw when viewing transmog items
+L["Include Header"] = "Includes:";  --The transmog set includes...
+L["Auto Try On All Items"] = "Auto Try On All Items";
+L["Full Set Cost"] = "Full Set Cost";   --Purchasing the full set will cost you x Trader's Tender
+L["You Will Receive One Item"] = "You will receive |cffffffffONE|r item:";
+L["Format Item Belongs To Set"] = "This item belongs to transmog set |cffffffff[%s]|r";
+
+
+--Quest--
+L["Auto Display Quest Item"] = "Auto Display Quest Item Descriptions";
+L["Drag To Move"] = "Drag to Move";
+L["Middle Click Reset Position"] = "Middle-click to reset position."
+L["Change Position"] = "Change Position";
+
+
+--Timerunning--
+L["Primary Stat"] = "Primary Stat";
+L["Stamina"] = ITEM_MOD_STAMINA_SHORT or "Stamina";
+L["Crit"] = ITEM_MOD_CRIT_RATING_SHORT or "Critical Strike";
+L["Haste"] = ITEM_MOD_HASTE_RATING_SHORT or "Haste";
+L["Mastery"] = ITEM_MOD_MASTERY_RATING_SHORT or "Mastery";
+L["Versatility"] = ITEM_MOD_VERSATILITY or "Versatility";
+
+L["Leech"] = ITEM_MOD_CR_LIFESTEAL_SHORT or "Leech";
+L["Speed"] = ITEM_MOD_CR_SPEED_SHORT or "Speed";
+L["Format Stat EXP"] = "+%d%% EXP Gain";
+L["Format Rank"] = AZERITE_ESSENCE_RANK or "Rank %d";
+L["Cloak Rank"] = "Cloak Rank";
+
+
+--Gem Manager--
+L["Gem Manager"] = "Gem Manager";
+L["Pandamonium Gem Category 1"] = "Major";      --Major Cooldown Abilities
+L["Pandamonium Gem Category 2"] = "Tinker";     --Tinker Gem
+L["Pandamonium Gem Category 3"] = PRISMATIC_GEM or "Prismatic";
+L["Pandamonium Slot Category 1"] = (INVTYPE_CHEST or "Chest")..", "..(INVTYPE_LEGS or "Legs");
+L["Pandamonium Slot Category 2"] = INVTYPE_TRINKET or "Trinket";
+L["Pandamonium Slot Category 3"] = (INVTYPE_NECK or "Neck")..", "..(INVTYPE_FINGER or "Finger");
+L["Gem Removal Instruction"] = "<Right click to remove this gem>";
+L["Gem Removal No Tool"] = "You don't have the tool to remove this gem intact.";
+L["Gem Removal Bag Full"] = "Free up bag space before removing this gem!";
+L["Gem Removal Combat"] = "Cannot change gem while in combat";
+L["Gemma Click To Activate"] = "<Left click to activate>";
+L["Gemma Click To Insert"] = "<Left click to insert>";
+L["Gemma Click Twice To Insert"] = "<Left click |cffffffffTWICE|r to insert>";
+L["Gemma Click To Select"] = "<Left click to select>";
+L["Gemma Click To Deselect"] = "<Right click to deselect>";
+L["Stat Health Regen"] = "Health Regen";
+L["Gem Uncollected"] = FOLLOWERLIST_LABEL_UNCOLLECTED or "Uncollected";
+L["No Sockets Were Found"] = "No compatible sockets were found.";
+L["Click To Show Gem List"] = "<Click to show gem list>";
+L["Remix Gem Manager"] = "Remix Gem Manager";
+L["Select A Loadout"] = "Select a Loadout";
+L["Loadout Equipped"] = "Equipped";
+L["Loadout Equipped Partially"] = "Partially Equipped";
+L["Last Used Loadout"] = "Last Used";
+L["New Loadout"] = TALENT_FRAME_DROP_DOWN_NEW_LOADOUT or "New Loadout";
+L["New Loadout Blank"] = "Create a Blank Loadout";
+L["New Loadout From Equipped"] = "Use Current Setup";
+L["Edit Loadout"] = EDIT or "Edit";
+L["Delete Loadout One Click"] = DELETE or "Delete";
+L["Delete Loadout Long Click"] = "|cffff4800"..(DELETE or "Delete").."|r\n|cffcccccc(click and hold)|r";
+L["Select Gems"] = LFG_LIST_SELECT or "Select";
+L["Equipping Gems"] = "Equipping...";
+L["Pandamonium Sockets Available"] = "Points Available";
+L["Click To Open Gem Manager"] = "Left click to open gem manager";
+L["Loadout Save Failure Incomplete Choices"] = "|cffff4800You have unselected gems.|r";
+L["Loadout Save Failure Dupe Loadout Format"] = "|cffff4800This loadout is the same as|r %s";
+L["Loadout Save Failure Dupe Name Format"] = "|cffff4800A loadout with that name already exists.|r";
+L["Loadout Save Failure No Name"] = "|cffff4800".. (TALENT_FRAME_DROP_DOWN_NEW_LOADOUT_PROMPT or "Enter a name for the new loadout") .."|r";
+
+L["Format Equipping Progress"] = "Equipping %d/%d";
+L["Format Click Times To Equip Singular"] = "Click |cff19ff19%d|r Time to Equip";
+L["Format Click Times To Equip Plural"] = "Click |cff19ff19%d|r Times to Equip";   --|4Time:Times; cannot coexist with color code?
+L["Format Free Up Bag Slot"] = "Free Up %d Bag Slots First";
+L["Format Number Items Selected"] = "%d Selected";
+L["Format Gem Slot Stat Budget"] = "Gems in %s are %s%% effective."  --e.g. Gems in trinket are 75% effective

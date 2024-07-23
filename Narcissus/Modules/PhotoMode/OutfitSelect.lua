@@ -418,20 +418,26 @@ function NarciPhotoModeOutfitButtonMixin:OnClick()
                         end
                     end
                     --model:SetItemTransmogInfo(transmogInfo, slotID);
+                    --[[
                     if slotID == 16 or slotID == 17 then
                         model:TryOn(transmogInfo.appearanceID, (slotID == 16 and "MAINHANDSLOT") or "SECONDARYHANDSLOT", transmogInfo.illusionID);    --ME FIXED?
                     else
                         model:SetItemTransmogInfo(transmogInfo);
                     end
+                    --]]
+                    model:SetItemTransmogInfo(transmogInfo, slotID, slotID ~= 16)
                 end
             else
                 for slotID, transmogInfo in pairs(infoList) do
                     --model:SetItemTransmogInfo(transmogInfo, slotID);
+                    --[[
                     if slotID == 16 or slotID == 17 then
                         model:TryOn(transmogInfo.appearanceID, (slotID == 16 and "MAINHANDSLOT") or "SECONDARYHANDSLOT", transmogInfo.illusionID);    --ME FIXED?
                     else
                         model:SetItemTransmogInfo(transmogInfo);
                     end
+                    --]]
+                    model:SetItemTransmogInfo(transmogInfo, slotID, slotID ~= 16)
                 end
             end
             Narci_PhotoModeWeaponFrame:SetItemFromActor(model);
@@ -950,19 +956,6 @@ function NarciPhotoModeOutfitSelectMixin:Init()
     end
 
     self.Init = nil;
-end
-
-local function CopyTable(settings)
-    --Blizzard TableUtil.lua
-	local copy = {};
-	for k, v in pairs(settings) do
-		if type(v) == "table" then
-			copy[k] = CopyTable(v);
-		else
-			copy[k] = v;
-		end
-	end
-	return copy;
 end
 
 function NarciPhotoModeOutfitSelectMixin:AddPlayerActor(unit, model)

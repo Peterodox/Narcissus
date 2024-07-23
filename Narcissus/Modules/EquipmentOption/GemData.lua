@@ -1,7 +1,46 @@
 local _, addon = ...;
-local GetItemCount = GetItemCount;
+local GetItemCount = C_Item.GetItemCount;
 
 local PrismaticGems = {
+    ----10 DF---- itemID order: better-lower quality
+    --Unique-Equipped: Primalist Gem (1) BoP
+    192982, 192981, 192980,     --Inscribed Illimited Diamond Primary + Crit
+    192985, 192984, 192983,     --Fierce Illimited Diamond Primary + Haste
+    192991, 192990, 192989,     --Resplendent Illimited Diamond Primary + Versa
+    192988, 192987, 192986,     --Skillful Illimited Diamond Primary + Mastery
+
+    192928, 192927, 192926,     --Deadly Alexstraszite Crit
+    192919, 192918, 192917,     --Crafty Alexstraszite Crit + Haste
+    192925, 192924, 192923,     --Radiant Alexstraszite Crit + Versa
+    192922, 192921, 192920,     --Sensei's Alexstraszite Crit + Mastery
+
+    192945, 192944, 192943,     --Crafty Ysemerald Haste + Crit
+    192955, 192954, 192953,     --Quick Ysemerald Haste
+    192952, 192951, 192950,     --Energized Ysemerald Haste + Versa
+    192948, 192947, 192946,     --Keen Ysemerald Haste + Mastery
+
+    192932, 192931, 192929,     --Radiant Malygite Versa + Crit
+    192935, 192934, 192933,     --Energized Malygite Versa + Haste
+    192942, 192941, 192940,     --Stormy Malygite Versa
+    192938, 192937, 192936,     --Zen Malygite Versa + Mastery
+
+    192958, 192957, 192956,     --Sensei's Neltharite Mastery + Crit
+    192961, 192960, 192959,     --Keen Neltharite Mastery + Haste
+    192964, 192963, 192962,     --Zen Neltharite Mastery + Versa
+    192967, 192966, 192965,     --Fractured Neltharite Mastery
+
+    192970, 192969, 192968,     --Jagged Nozdorite Stamina + Crit
+    192973, 192972, 192971,     --Forceful Nozdorite Stamina + Haste
+    192979, 192978, 192977,     --Steady Nozdorite Stamina + Versa
+    192976, 192975, 192974,     --Puissant Nozdorite Stamina + Mastery
+
+    192902, 192901, 192900,     --Crafty Queen's Ruby Crit + Haste
+    192908, 192907, 192906,     --Energized Vibrant Emerald Haste + Versa
+    192905, 192904, 192903,     --Zen Mystic Sapphire Versa + Mastery
+    192912, 192911, 192910,     --Sensei's Sundered Onyx Mastery + Crit
+    192916, 192914, 192913,     --Solid Eternity Amber Stamina
+
+    ----9 SL----
     173127,     --Deadly Jewel Cluster
     173128,     --Quick Jewel Cluster
     173129,     --Versatile Jewel Cluster
@@ -21,9 +60,9 @@ local PrismaticGems = {
     168638,     --Leviathan's Eye of Intellect
 
     168639,     --Deadly Lava Lazuli
-    168640,     --Masterful Sea Currant
     168641,     --Quick Sand Spinel
     168642,     --Versatile Dark Opal
+    168640,     --Masterful Sea Currant
     169220,     --***Straddling Sage Agate
 
     154126,     --Deadly Amberblaze
@@ -169,46 +208,113 @@ local MetaGems = {
     32409, 25901, 34220, 25893, 25896, 25897, 32641, 28557, 25894, 25898, 35503, 35501, 28556, 32410, 25895, 25899, 25890, 32640,
 };
 
-
-local SocketTypeNameID = {
-    PRISMATIC = 1,
-    DOMINATION = 2,
-    CYPHER = 3,
-
-    RED = 4,
-    YELLOW = 5,
-    BLUE = 6,
-    META = 7,
+local TinkerModules = {
+    198291, 198290, 198289,     --Tinker: Alarm-O-Turret
+    201409, 201408, 201407,     --Tinker: Arclight Vital Correctors
+    199190, 199189, 199188,     --Tinker: Polarity Amplifier
+    198303, 198302, 198301,     --Tinker: Supercollide-O-Tron
+    198297, 198296, 198295,     --Tinker: Breath of Neltharion
+    198306, 198305, 198304,     --Tinker: Grounded Circuitry
+    198300, 198299, 198298,     --Tinker: Plane Displacer
 };
 
+local PrimordialStones = {
+    204012,
+    204010,
+    204027,
+    204001,
+    204005,
+    204013,
+    204002,
+    204011,
+    204009,
+    204019,
+    204018,
+    204006,
+    204021,
+    204025,
+    204022,
+    204008,
+    204029,
+    204003,
+    204004,
+    204007,
+    204014,
+    204000,
+    204015,
+    204020,
+    204030,
+
+    --In database but not implemented
+    --204016,
+    --204026,
+    --204024,
+    --204017,
+    --204023,
+    --204028,
+};
+
+local IsPrimordialStone;
+
+local GemData = {
+    prismatic = PrismaticGems,
+    domination = DominationGems,
+    cypher = CypherGems,    --Crystallic
+    blue = BlueGems,
+    yellow = YellowGems,
+    red = RedGems,
+    meta = MetaGems,
+    tinker = TinkerModules,
+    primordial = PrimordialStones,
+};
+
+local SocketNameXTypeName = {};
+
+do
+    local postfixes = {
+        "BLUE", "COGWHEEL", "HYDRAULIC", "META", "PRISMATIC", "PUNCHCARDBLUE", "PUNCHCARDRED", "PUNCHCARDYELLOW",
+        "RED", "TINKER", "YELLOW", "PRIMORDIAL",
+    };
+
+    local localizedName;
+
+    for _, postfix in ipairs(postfixes) do
+        localizedName = _G["EMPTY_SOCKET_"..postfix];
+        if localizedName then
+            SocketNameXTypeName[localizedName] = string.lower(postfix);
+        end
+    end
+end
 
 local DataProvider = {};
 addon.GemDataProvider = DataProvider;
 
 DataProvider.filteredData = {};
 
-local subset = {};
+local SUB_SET = {};
 
-function DataProvider:SetSubset(dataSetID)
-    self.isDominationItem = dataSetID == 2;
-    if dataSetID == 1 then
-        subset = PrismaticGems or {};
-    elseif dataSetID == 2 then
-        subset = DominationGems or {};
-    elseif dataSetID == 3 then
-        subset = CypherGems or {};
-
-    elseif dataSetID == 4 then
-        subset = RedGems or {};
-    elseif dataSetID == 5 then
-        subset = YellowGems or {};
-    elseif dataSetID == 6 then
-        subset = BlueGems or {};
-    elseif dataSetID == 7 then
-        subset = MetaGems or {};
-    else
-        subset = {};
+function DataProvider:GetSocketTypeByLocalizedName(localizedName)
+    if localizedName then
+        return SocketNameXTypeName[localizedName];
     end
+end
+
+function DataProvider:SetSubsetBySocketName(englishName)
+    if englishName then
+        englishName = string.lower(englishName);
+        self.isDominationItem = englishName == "domination";
+        SUB_SET = GemData[englishName];
+    end
+    if not SUB_SET then
+        SUB_SET = {};
+    end
+
+    return englishName
+end
+
+function DataProvider:SetSubsetBySocketLocalizedName(localizedName)
+    local englishName = self:GetSocketTypeByLocalizedName(localizedName);
+    self:SetSubsetBySocketName(englishName);
 end
 
 function DataProvider:ApplyFilter(ownedOnly)
@@ -231,16 +337,16 @@ function DataProvider:ApplyFilter(ownedOnly)
                 startIndex = startIndex + 5;
             end
         else
-            for i = 1, #subset do
-                if GetItemCount(subset[i]) > 0 then
+            for i = 1, #SUB_SET do
+                if GetItemCount(SUB_SET[i]) > 0 then
                     numData = numData + 1;
-                    self.filteredData[numData] = subset[i];
+                    self.filteredData[numData] = SUB_SET[i];
                 end
             end
         end
         return numData
     else
-        self.filteredData = subset;
+        self.filteredData = SUB_SET;
         return #self.filteredData
     end
 end
@@ -249,9 +355,159 @@ function DataProvider:GetDataByIndex(index)
     return self.filteredData[index];
 end
 
-function DataProvider:SetSubsetBySocketName(englishName)
-    englishName = string.upper(englishName);
-    local dataSetID = SocketTypeNameID[englishName];
-    self:SetSubset(dataSetID);
-    return dataSetID
+function DataProvider:IsItemPrimordialStone(itemID)
+    if not IsPrimordialStone then
+        IsPrimordialStone = {};
+        for _, id in pairs(PrimordialStones) do
+            IsPrimordialStone[id] = true;
+        end
+    end
+
+    return IsPrimordialStone[itemID]
 end
+
+function DataProvider:GetPrimordialStones()
+    return PrimordialStones
+end
+
+--[[
+---- Debug ----
+function SortPrimodrialStones()
+    local name;
+    local names = {};
+
+    for i, itemID in ipairs(PrimordialStones) do
+        name = NarciAPI.GetColorizedPrimordialStoneName(itemID);
+        if name and name ~= "" then
+            table.insert(names, {name, itemID});
+        else
+            C_Timer.After(0.2, SortPrimodrialStones);
+            return
+        end
+    end
+
+    local function SortByName(a, b)
+        return a[1] < b[1]
+    end
+
+    table.sort(names, SortByName);
+
+    local total = 0;
+
+    for k, v in ipairs(names) do
+        print(v[2],v[1]);
+        total = total + 1;
+    end
+
+    print("Total: ", total);
+end
+
+
+
+---- Loot List ----
+
+local function GetLatestTier()
+    local numTiers = EJ_GetNumTiers();
+    return numTiers
+end
+
+local function FindHighestStats(s1, s2, s3, s4)
+    local h1 = math.max(s1, s2, s3, s4);
+    local h2;
+
+    if s1 > 0 and s1 < h1 then
+        h2 = s1;
+    end
+
+    if s2 > 0 and s2 < h1 then
+        h2 = s2;
+    end
+
+    if s3 > 0 and s3 < h1 then
+        h2 = s3;
+    end
+
+    if s4 > 0 and s4 < h1 then
+        h2 = s4;
+    end
+
+    return h1, h2
+end
+
+function GetInstanceForTier()
+    local tier = GetLatestTier();
+    EJ_SelectTier(tier);
+
+    local showRaid = false;
+    local dataIndex = 1;
+
+    local instanceID, name, _ = EJ_GetInstanceByIndex(dataIndex, showRaid);
+
+    if not instanceID then
+        return
+    end
+
+    local instances = {};
+    local instanceNames = {};
+    local encounterID;
+
+    while instanceID do
+        if C_EncounterJournal.InstanceHasLoot(instanceID) then
+            table.insert(instances, instanceID);
+            instanceNames[instanceID] = name;
+        end
+        --print(name)
+        dataIndex = dataIndex + 1;
+        instanceID, name = EJ_GetInstanceByIndex(dataIndex, showRaid);
+    end
+
+    local difficulty = DifficultyUtil.ID.DungeonChallenge;
+    local _, _, classID = UnitClass("player");
+
+    EJ_SetDifficulty(difficulty);
+    EJ_SetLootFilter(classID, 0);
+
+    for i, instanceID in ipairs(instances) do
+        print(instanceID, instanceNames[instanceID]);
+        EJ_SelectInstance(instanceID);
+
+        if false then
+            dataIndex = 1;
+            name, _, encounterID = EJ_GetEncounterInfoByIndex(dataIndex);
+            if encounterID then
+                print(name);
+            end
+
+            while encounterID do
+                dataIndex = dataIndex + 1;
+                name, _, encounterID = EJ_GetEncounterInfoByIndex(dataIndex);
+
+                if encounterID then
+                    print(name);
+                end
+            end
+        end
+
+        local itemInfo, itemLink, stats;
+        local crit, haste, mastery, versa;
+        local stat1, stat2;
+
+        for i = 1, EJ_GetNumLoot() do
+            itemInfo = C_EncounterJournal.GetLootInfoByIndex(i);
+            itemLink = itemInfo.link;
+            if itemLink then
+                stats = GetItemStats(itemLink);
+                crit = stats.ITEM_MOD_CRIT_RATING_SHORT or 0;
+                haste = stats.ITEM_MOD_HASTE_RATING_SHORT or 0;
+                mastery = stats.ITEM_MOD_MASTERY_RATING_SHORT or 0;
+                versa = stats.ITEM_MOD_VERSATILITY or 0;
+                stat1, stat2 = FindHighestStats(crit, haste, mastery, versa);
+                print(itemInfo.itemID, itemInfo.name, stat1, "/", stat2);
+            end
+            
+        end
+
+        print("----")
+    end
+end
+--]]

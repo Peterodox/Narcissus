@@ -12,6 +12,7 @@ local FadeFrame = NarciFadeUI.Fade;
 
 local GetStablePetInfo = GetStablePetInfo;
 local SetPetStablePaperdoll = SetPetStablePaperdoll;
+local NEW_GetStablePetInfo = C_StableInfo and C_StableInfo.GetStablePetInfo;
 
 local MainFrame, PetModel, ModelShadow, Tooltip, SelectionOverlay, PageText, PageControl, DropDownButtons, PetSlots;
 local TARGET_MODEL_INDEX;
@@ -19,7 +20,14 @@ local ACTOR_CREATED = false;
 
 -----------------------------------------------------
 local function SetPetModel(model, index)
-    SetPetStablePaperdoll(model, index);
+    if SetPetStablePaperdoll then
+        SetPetStablePaperdoll(model, index);
+    elseif NEW_GetStablePetInfo then
+        local petInfo = C_StableInfo.GetStablePetInfo(index);
+		if petInfo and petInfo.displayID then
+			model:SetDisplayInfo(petInfo.displayID);
+		end
+    end
 end
 
 --UI Animations

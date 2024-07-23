@@ -66,11 +66,11 @@
 	<Button name="Narci_SquareButtonWithTooltip_Template" inherits="Narci_SquareButton_Template" virtual="true">
 		<Scripts>
 			<OnEnter>
-				NarciTooltip:ShowTooltip(self, 0, nil, 1);
+				NarciTooltip:ShowButtonTooltip(self);
 				self.Highlight:Show();
 			</OnEnter>
 			<OnLeave>
-				NarciTooltip:FadeOut();
+				NarciTooltip:HideTooltip();
 				self.Highlight:Hide();
 			</OnLeave>
 			<OnMouseDown>
@@ -147,7 +147,7 @@
 			<OnEnter>
 				self.Highlight:Show();
 				if self.tooltip then
-					NarciTooltip:ShowTooltip(self, nil, nil, 1);
+					NarciTooltip:ShowButtonTooltip(self);
 				end
 			</OnEnter>
 			<OnLeave>
@@ -284,14 +284,14 @@
 		<Scripts>
 			<OnEnter>
 				self.Icon:SetAlpha(1);
-				NarciTooltip:ShowTooltip(self, nil, nil, 1);
+				NarciTooltip:ShowButtonTooltip(self);
 			</OnEnter>
 			<OnLeave>
-				NarciTooltip:JustHide();
+				NarciTooltip:HideTooltip();
 				self.Icon:SetAlpha(0.4);
 			</OnLeave>
 			<OnMouseDown>
-				NarciTooltip:JustHide();
+				NarciTooltip:HideTooltip();
 				self.Icon:SetSize(14, 14);
 			</OnMouseDown>
 			<OnMouseUp>
@@ -512,7 +512,7 @@
 						<Scripts>
 							<OnLoad>
 								self.Icon:SetTexCoord(0.5, 0.75, 0, 0.25);
-								self.tooltip = Narci.L["Refresh Model"];
+								self.tooltipDescription = Narci.L["Refresh Model"];
 							</OnLoad>
 						</Scripts>
 					</Button>
@@ -523,7 +523,7 @@
 						<Scripts>
 							<OnLoad>
 								self.Icon:SetTexCoord(0.25, 0.5, 0, 0.25);
-								self.tooltip = Narci.L["Apply"];
+								self.tooltipDescription = Narci.L["Apply"];
 							</OnLoad>
 						</Scripts>
 					</Button>
@@ -534,7 +534,7 @@
 						<Scripts>
 							<OnLoad>
 								self.Icon:SetTexCoord(0, 0.25, 0, 0.25);
-								self.tooltip = Narci.L["Next And Previous"];
+								self.tooltipDescription = Narci.L["Next And Previous"];
 							</OnLoad>
 						</Scripts>
 					</Button>
@@ -896,7 +896,7 @@
 										self.EnabledText = Narci.L["Auto-play"];
 										self:GetParent().Label:SetText(Narci.L["Animation ID Abbre"]);
 										self.DisabledText = "|cffa7a7a7"..Narci.L["Auto-play"];
-										self.tooltip = Narci.L["Auto-play Tooltip"];
+										self.tooltipDescription = Narci.L["Auto-play Tooltip"];
 									</OnLoad>
 								</Scripts>
 							</Button>
@@ -1073,7 +1073,7 @@
 														<Scripts>
 															<OnLoad>
 																self.Icon:SetTexCoord(0.75, 1, 0, 0.25);
-																self.tooltip = Narci.L["Remove"];
+																self.tooltipDescription = Narci.L["Remove"];
 															</OnLoad>
 														</Scripts>
 													</Button>
@@ -1084,7 +1084,7 @@
 														<Scripts>
 															<OnLoad>
 																self.Icon:SetTexCoord(0.25, 0.5, 0.25, 0.5);
-																self.tooltip = Narci.L["Rename"];
+																self.tooltipDescription = Narci.L["Rename"];
 																self.IsOn = false;
 															</OnLoad>
 														</Scripts>
@@ -1273,19 +1273,19 @@
 		<Scripts>
 			<OnLoad>
 				self.isActive = false;
-				self.tooltip = Narci.L["Toggle Browser"];
+				self.tooltipDescription = Narci.L["Toggle Browser"];
 				self.Label:SetText(Narci.L["Visuals"]);
 				self:SetParent(Narci_ModelSettings.BasicPanel);
 				self.parentObject = Narci_ModelSettings;
 			</OnLoad>
 			<OnEnter>
-				NarciTooltip:ShowTooltip(self);
+				NarciTooltip:ShowButtonTooltip(self);
 				self.Background:SetTexCoord(0, 0.42578125, 0.21875, 0.4375);
 				self.RightArrow:SetTexCoord(0.7734375, 1, 0.21875, 0.4375);
 				self.parentObject:OnEnter();
 			</OnEnter>
 			<OnLeave>
-				NarciTooltip:FadeOut();
+				NarciTooltip:HideTooltip();
 				self.Background:SetTexCoord(0, 0.42578125, 0, 0.21875);
 				self.RightArrow:SetTexCoord(0.7734375, 1, 0, 0.21875);
 				self.parentObject:OnLeave();
@@ -1295,7 +1295,7 @@
 				return;
 			</OnDoubleClick>
 			<OnMouseDown>
-				NarciTooltip:JustHide();
+				NarciTooltip:HideTooltip();
 			</OnMouseDown>
 		</Scripts>
 	</Button>

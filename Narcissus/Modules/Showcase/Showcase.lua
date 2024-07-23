@@ -6,9 +6,11 @@ local GetModelOffsetZ = addon.GetModelOffsetZ;
 local UseCurrentClassBackground = addon.UseCurrentClassBackground;
 local UseCurrentRaceBackground = addon.UseCurrentRaceBackground;
 local UseModelBackgroundImage = addon.UseModelBackgroundImage;
+local IsPlayerInAlteredForm = addon.TransitionAPI.IsPlayerInAlteredForm;
 
 local FadeFrame = NarciFadeUI.Fade;
 local GetAnimationName = NarciAnimationInfo.GetOfficialName;
+local IsSlotValidForTransmog = NarciAPI.IsSlotValidForTransmog;
 
 local IsShiftKeyDown = IsShiftKeyDown;
 local GetCursorPosition = GetCursorPosition;
@@ -123,6 +125,7 @@ local DropDownOptions = {
         {"15", 15},
         {"16", 16},
         {"18", 18},
+        {"20", 20},
         method = "SetFontWeight",
     };
 };
@@ -1448,15 +1451,16 @@ local function UpdateMountActor(resetModel)
     if MountJournal and MountJournal:IsVisible() and MountJournal.selectedMountID then
         mountID = MountJournal.selectedMountID;
     elseif IsMounted() then
-        local UnitBuff = UnitBuff;
+        local UnitBuff = C_UnitAuras.GetBuffDataByIndex;
         local GetMountFromSpell = C_MountJournal.GetMountFromSpell;
         local i = 1;
-        local _, count, duration;
         local spellID = 0;
+        local auraData;
         while spellID do
-            _, _, count, _, duration, _, _, _, _, spellID = UnitBuff("player", i, "PLAYER");
+            auraData = UnitBuff("player", i, "HELPFUL");
+            spellID = auraData and auraData.spellId;
             if spellID then
-                if count == 0 and duration == 0 then
+                if auraData.duration == 0 then
                     mountID = GetMountFromSpell(spellID);
                     if mountID then
                         break
@@ -1487,7 +1491,6 @@ local function UpdateMountActor(resetModel)
             MountActor:SetUseCenterForOrigin(false, false, false);
             MountActor:SetPosition(0, 0, 0);
             --MountActor:SetParticleOverrideScale(0);
-            MA = MountActor;
         end
 
         if resetModel then
@@ -1496,14 +1499,16 @@ local function UpdateMountActor(resetModel)
 
         MountActor:Show();
         MountActor:SetYaw(0);
-        MountActor:SetModelByCreatureDisplayID(creatureDisplayID);
+
+        local showCustomization = true;
+        MountActor:SetModelByCreatureDisplayID(creatureDisplayID, showCustomization);
         MountActor.creatureName = C_MountJournal.GetMountInfoByID(mountID);
 
         if (isSelfMount) then
-            MountActor:SetAnimationBlendOperation(1);   --LE_MODEL_BLEND_OPERATION_NONE
+            MountActor:SetAnimationBlendOperation(0);   --LE_MODEL_BLEND_OPERATION_NONE
             MountActor:SetAnimation(618);
         else
-            MountActor:SetAnimationBlendOperation(2);    --LE_MODEL_BLEND_OPERATION_ANIM
+            MountActor:SetAnimationBlendOperation(1);    --LE_MODEL_BLEND_OPERATION_ANIM
             MountActor:SetAnimation(0);
         end
 
@@ -1526,6 +1531,8 @@ local function UpdateMountActor(resetModel)
 
     end
 end
+
+--/script local a = DressUpFrame.ModelScene:GetPlayerActor();if a then a:TryOn(78416) end
 
 ------------------------------------------------------------
 
@@ -1779,9 +1786,10 @@ end
 function NarciOutfitShowcaseMixin:SyncModel()
     --retrieve the outfit data from dressing room
     --/run NarciOutfitShowcase:SyncModel()
-    local isSheathed = PlayerActor:GetSheathed();
+    local sheatheWeapons = PlayerActor:GetSheathed();
+    local useNativeForm = not IsPlayerInAlteredForm();
     PlayerActor:SetScale(1);
-    PlayerActor:SetModelByUnit("player", isSheathed);
+    PlayerActor:SetModelByUnit("player", sheatheWeapons, nil, nil, useNativeForm);  --autoDress, hideWeapons
     PlayerActor.bowData = nil;
 
     local sourceActor;
@@ -1812,7 +1820,7 @@ function NarciOutfitShowcaseMixin:SyncModel()
     else
         return
     end
-    PlayerActor:SheatheWeapon(isSheathed);
+    PlayerActor:SheatheWeapon(sheatheWeapons);
 
     if self.mountMode then
         UpdateMountActor(true);
@@ -1822,7 +1830,9 @@ function NarciOutfitShowcaseMixin:SyncModel()
 end
 
 local function IsValidTransmogInfo(slotID, info)
-    return (info.appearanceID > 0) and ((slotID ~= 5 and slotID ~= 19) or ( not IsHiddenVisual(info.appearanceID) ));  --skip hidden tabard/shirt
+    if IsSlotValidForTransmog(slotID) then
+        return (info.appearanceID > 0) and ((slotID ~= 5 and slotID ~= 19) or ( not IsHiddenVisual(info.appearanceID) ));  --skip hidden tabard/shirt
+    end
 end
 
 function NarciOutfitShowcaseMixin:UpdateItemText(transmogInfoList)
@@ -2727,12 +2737,19 @@ NarciShowcaseLoopToggleMixin = {};
 
 function NarciShowcaseLoopToggleMixin:OnLoad()
     LoopToggle = self;
+
+    local _, _, raceID = UnitRace("player");
+    local sex = UnitSex("player");
+    self.isKultiran = (sex == 2 and raceID == 32) or nil;
 end
 
 function NarciShowcaseLoopToggleMixin:OnEnter()
     self.Icon:SetVertexColor(1, 1, 1);
-    local tooltipText = L["Loop Animation On"];
-    SetUpTooltipText(self, tooltipText, 8);
+    if self.isKultiran then
+        SetUpTooltipText(self, L["Loop Animation Alert Kultiran"], 8);
+    else
+        SetUpTooltipText(self, L["Loop Animation On"], 8);
+    end
 end
 
 function NarciShowcaseLoopToggleMixin:OnLeave()

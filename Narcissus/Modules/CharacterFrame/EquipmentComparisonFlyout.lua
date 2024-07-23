@@ -1,10 +1,14 @@
 --Parent: Narci_EquipmentFlyoutFrame (Narcissus.xml)
+local _, addon = ...
+
 local EquipmentFlyoutFrame;
 local hasGapAdjusted = false;
 local STAMINA_STRING = SPELL_STAT3_NAME;
 local COMPARISON_HEIGHT = 160;
 local FORMAT_DIGIT = "%.2f";
 local floor = math.floor;
+
+local ItemCacheUtil = addon.ItemCacheUtil;
 
 local FormatLargeNumbers = NarciAPI.FormatLargeNumbers --BreakUpLargeNumbers;
 local GetItemExtraEffect = NarciAPI.GetItemExtraEffect;
@@ -16,13 +20,13 @@ local GetItemID = C_Item.GetItemID;
 local GetItemIcon = C_Item.GetItemIcon;
 local GetItemName = C_Item.GetItemName;
 local GetItemQuality = C_Item.GetItemQuality;
-local IsItemDataCached = C_Item.IsItemDataCached;
 local RequestLoadItemData = C_Item.RequestLoadItemData;
 local GetCombatRating = GetCombatRating;
-local GetItemInfoInstant = GetItemInfoInstant;
+local GetItemInfoInstant = C_Item.GetItemInfoInstant;
+local GetSpellInfo = addon.TransitionAPI.GetSpellInfo;
 
 local GetGemBorderTexture = NarciAPI.GetGemBorderTexture;
-local DoesItemHaveDomationSocket = NarciAPI.DoesItemHaveDomationSocket;
+--local DoesItemHaveDomationSocket = NarciAPI.DoesItemHaveDomationSocket;
 local GetDominationBorderTexture = NarciAPI.GetDominationBorderTexture;
 local GetItemDominationGem = NarciAPI.GetItemDominationGem;
 local GetSlotNameAndTexture = NarciAPI.GetSlotNameAndTexture;
@@ -399,6 +403,20 @@ local function BuildAzeiteTraitsFrame(TraitsFrame, itemLocation, itemButton)
 end
 
 
+local function ComparisonFrame_OnUpdate(self, elapsed)
+    self.t = self.t + elapsed;
+    if self.t > 0.1 then
+        self:SetScript("OnUpdate", nil);
+        if self.watchID then
+            self.watchID = nil;
+            if self.itemButton then
+                Narci_Comparison_SetComparison(self.itemButton.itemLocation, self.itemButton);
+                self.itemButton = nil;
+            end
+        end
+    end
+end
+
 local function ComparisonFrame_OnEvent(self, event, ...)
     local itemID, result = ...
     if itemID == self.watchID then
@@ -412,6 +430,8 @@ local function ComparisonFrame_OnEvent(self, event, ...)
 end
 
 function Narci_Comparison_SetComparison(itemLocation, itemButton)
+    if not itemLocation then return end;
+
     local frame = Narci_Comparison;
     local FlyOut = EquipmentFlyoutFrame;
     local slotName, slotTexture = GetSlotNameAndTexture(FlyOut.slotID);
@@ -423,11 +443,12 @@ function Narci_Comparison_SetComparison(itemLocation, itemButton)
         frame.Icon:SetTexture(slotTexture);
         frame.BonusButton1:Hide();
         frame.BonusButton2:Hide();
+        frame.SubTooltip:Hide();
+        frame.PawnText:Hide();
         EmptyComparison();
         return;
     end
 
-    --print("location"..C_Item.GetItemInventoryType(itemLocation))
     local itemLink = GetItemLink(itemLocation);
     local itemID = GetItemID(itemLocation);
     local itemIcon = GetItemIcon(itemLocation);
@@ -435,17 +456,20 @@ function Narci_Comparison_SetComparison(itemLocation, itemButton)
     local quality = GetItemQuality(itemLocation);
     local r, g, b = GetItemQualityColor(quality);
 
-    if not IsItemDataCached(itemLocation) then
+    if not ItemCacheUtil:IsItemDataCached(itemLocation) then
         frame.watchID = itemID;
         frame.itemButton = itemButton;
         frame:RegisterEvent("ITEM_DATA_LOAD_RESULT");
-        frame:SetScript("OnEvent", ComparisonFrame_OnEvent);
+        --frame:SetScript("OnEvent", ComparisonFrame_OnEvent);
+        frame.t = 0;
+        frame:SetScript("OnUpdate", ComparisonFrame_OnUpdate);
         RequestLoadItemData(itemLocation);
     elseif frame.watchID then
         frame.watchID = nil;
         frame.itemButton = nil;
         frame:UnregisterEvent("ITEM_DATA_LOAD_RESULT");
-        frame:SetScript("OnEvent", nil);
+        --frame:SetScript("OnEvent", nil);
+        frame:SetScript("OnUpdate", nil);
     end
 
     local stats = ItemStats(itemLocation);
@@ -471,8 +495,6 @@ function Narci_Comparison_SetComparison(itemLocation, itemButton)
     DisplayComparison("haste", STAT_HASTE, stats.haste, baseStats.haste, CR_ConvertRatio.haste);
     DisplayComparison("mastery", STAT_MASTERY, stats.mastery, baseStats.mastery, CR_ConvertRatio.mastery);
     DisplayComparison("versatility", STAT_VERSATILITY, stats.versatility, baseStats.versatility, CR_ConvertRatio.versatility);
-
-    --NarciRefVirtualTooltip:SetHyperlink(itemLink)    --Used to hook the Pawn upgrade notification (if supported)
 
     local iconPos;
     if stats.GemIcon and stats.GemPos then
@@ -515,7 +537,7 @@ function Narci_Comparison_SetComparison(itemLocation, itemButton)
 
 
     --Gem check
-    local isDominationItem = DoesItemHaveDomationSocket(itemID);
+    local isDominationItem = false; --DoesItemHaveDomationSocket(itemID);
     local GemName, GemLink;
     if isDominationItem then
         GemName, GemLink = GetItemDominationGem(itemLink);
@@ -575,7 +597,7 @@ function Narci_Comparison_SetComparison(itemLocation, itemButton)
     end
 
     if headline then
-        if IsCorruptedItem(itemLink) then   --Corrupted Items
+        if false then   --IsCorruptedItem(itemLink) Corrupted Items
             str = str.."|cff959595"..ITEM_MOD_CORRUPTION.."|r "..stats.corruption;
             local corruptionDiff = stats.corruption - baseStats.corruption;
             if corruptionDiff >= 0 then
@@ -598,7 +620,15 @@ function Narci_Comparison_SetComparison(itemLocation, itemButton)
 
     UntruncateText(SubTooltip, SubTooltip.Description)
 
-    ----
+    ---- Pawn ----
+    frame.PawnText:Hide();
+    if PawnGetItemData and PawnIsItemAnUpgrade and PawnAddValuesToTooltip then
+        local Item = PawnGetItemData(itemLink);
+        if Item then
+            local UpgradeInfo, ItemLevelIncrease, BestItemFor, SecondBestItemFor, NeedsEnhancements = PawnIsItemAnUpgrade(Item);
+            PawnAddValuesToTooltip(frame, Item.Values, UpgradeInfo, BestItemFor, SecondBestItemFor, NeedsEnhancements, Item.InvType);
+        end
+    end
 end
 
 --FlyOut Tooltip
@@ -658,8 +688,7 @@ end)
 
 
 function Narci_ShowComparisonTooltip(tooltip)
-    --local extraHeight = floor(tooltip.PawnText:GetHeight() + tooltip.ItemName:GetHeight() + 0.5)
-    local extraHeight = floor(tooltip.ItemName:GetHeight() + 0.5)
+    local extraHeight = floor(tooltip.ItemName:GetHeight() + 0.5);
     tooltip:SetHeight(COMPARISON_HEIGHT + extraHeight);
     tooltip.Icon:SetWidth(COMPARISON_HEIGHT + extraHeight);
     tooltip:Show();
@@ -716,27 +745,41 @@ end
 NarciAPI.ConvertRatingToPercentage = ConvertRatingToPercentage;
 
 
---[[
-hooksecurefunc("DressUpItemLink", function(link)
-    local str = string.match(link, "item[%-?%d:]+")
-    local _, a = string.find(link, ":%d+:.-:")
-    local _, b = string.find(link, ":%d+:")
-    local strp = nil;
-    if b + 1 < a -1 then
-        strp = string.sub(link, b+1, a-1)
-    end
+NarciEquipmentComparisonMixin = {};
 
-    --local EnchantID = strp.match(strp, "%d%d+")
-    --print(str)
-    --print(strp)
-end)
---]]
-
---[[
-function PrintStats(slotID)
-    --GetItemStats(C_Item.GetItemLink(ItemLocation:CreateFromEquipmentSlot(slotID)))
-    local _, GemLink = GetItemGem(C_Item.GetItemLink(ItemLocation:CreateFromEquipmentSlot(slotID)), 1)
-    print(GemLink)
-    GemStats = GetItemStats(GemLink);
+function NarciEquipmentComparisonMixin:OnSizeChanged()
+    self.Icon:SetWidth(self:GetHeight());
 end
---]]
+
+function NarciEquipmentComparisonMixin:OnShow()
+    self.Icon:SetAlpha(0.06);
+    self:StopAnimating();
+    self.animIn:Play();
+end
+
+function NarciEquipmentComparisonMixin:OnHide()
+    self:Hide();
+    self:SetScript("OnUpdate", nil);
+end
+
+function NarciEquipmentComparisonMixin:AddPawnText(text)
+    if text then
+        self.PawnText:Show();
+        self.PawnText:SetText(text);
+
+        local extraHeight = floor(self.PawnText:GetHeight() + self.ItemName:GetHeight() + 8);
+        self:SetHeight(COMPARISON_HEIGHT + extraHeight);
+    else
+        self.PawnText:Hide();
+    end
+end
+
+function NarciEquipmentComparisonMixin:AddLine(text, r, g, b, wrap)
+    self:AddPawnText(text);
+end
+
+function NarciEquipmentComparisonMixin:AddDoubleLine(leftText, rightText, leftR, leftG, leftB, rightR, rightG, rightB)
+    if leftText and rightText then
+        self:AddPawnText(leftText.." "..rightText);
+    end
+end

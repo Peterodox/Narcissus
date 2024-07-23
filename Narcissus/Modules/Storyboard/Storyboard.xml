@@ -1,0 +1,327 @@
+<Ui xsi:schemaLocation="http://www.blizzard.com/wow/ui/..\FrameXML\UI.xsd">
+    <Script file="Controller.lua"/>
+    <Script file="UI.lua"/>
+
+    <Frame name="NarciStoryboardTemplate" mixin="NarciStoryboardMixin" virtual="true" frameStrata="HIGH" hidden="true" parent="UIParent" ignoreParentScale="true" ignoreParentAlpha="true">
+        <Size x="320" y="320"/>
+        <Anchors>
+            <Anchor point="LEFT" x="160" y="80"/>
+        </Anchors>
+        <Frames>
+            <ModelScene parentKey="ModelScene">
+                <Size x="320" y="320"/>
+                <Anchors>
+                    <Anchor point="TOP"/>
+                </Anchors>
+            </ModelScene>
+
+            <Frame parentKey="DescriptionFrame">
+                <Size y="80"/>
+                <Anchors>
+                    <Anchor point="BOTTOMLEFT"/>
+                    <Anchor point="BOTTOMRIGHT"/>
+                </Anchors>
+                <Layers>
+                    <Layer level="BACKGROUND">
+                        <Texture parentKey="Texture" file="Interface\AddOns\Narcissus\Art\Modules\Storyboard\Paper"/>
+                    </Layer>
+                    <Layer level="OVERLAY">
+                        <FontString inherits="GameFontBlackMedium" parentKey="Text" justifyH="CENTER" justifyV="MIDDLE" maxLines="3" spacing="2">
+                            <Anchors>
+                                <Anchor point="LEFT" relativeKey="$parent" relativePoint="LEFT" x="16"/>
+                                <Anchor point="RIGHT" relativeKey="$parent" relativePoint="RIGHT" x="-16"/>
+                            </Anchors>
+                        </FontString>
+                    </Layer>
+                </Layers>
+            </Frame>
+
+            <Frame parentKey="SpeechBalloon" frameLevel="10">
+                <Size x="128" y="100"/>
+                <Anchors>
+                    <Anchor point="TOPRIGHT" relativeKey="$parent" relativePoint="TOPRIGHT" x="-32" y="-32"/>
+                </Anchors>
+                <Layers>
+                    <Layer level="BACKGROUND">
+                        <Texture parentKey="Balloon" file="Interface\AddOns\Narcissus\Art\Modules\Storyboard\SpeechBalloon_This_Is_Fine">
+                            <TexCoords left="0" right="1" top="0" bottom="0.78125"/>
+                        </Texture>
+                    </Layer>
+                    <Layer level="OVERLAY">
+                        <Texture parentKey="Text" file="Interface\AddOns\Narcissus\Art\Modules\Storyboard\SpeechBalloon_This_Is_Fine">
+                            <Size x="128" y="16"/>
+                            <TexCoords left="0" right="1" top="0.875" bottom="1"/>
+                            <Anchors>
+                                <Anchor point="CENTER" relativeKey="$parent" relativePoint="TOP" y="-32"/>
+                            </Anchors>
+                        </Texture>
+                    </Layer>
+                </Layers>
+                <Animations>
+                    <AnimationGroup parentKey="AnimIn">
+                        <Alpha fromAlpha="0" toAlpha="0" duration="1.25" order="1" childKey="Text"/>
+                        <Alpha fromAlpha="0" toAlpha="0" duration="1.25" order="1" childKey="Balloon"/>
+                        <Alpha fromAlpha="0" toAlpha="0" duration="0" order="2" childKey="Text"/>
+                        <Alpha fromAlpha="0" toAlpha="1" duration="0.2" order="2" childKey="Balloon"/>
+                        <Scale fromScaleX="0.2" toScaleX="1" fromScaleY="0.2" toScaleY="1" duration="0.5" childKey="Balloon" order="2" smoothing="OUT">
+                            <Origin point="BOTTOMLEFT"/>
+                        </Scale>
+                        <Alpha startDelay="0.5" fromAlpha="0" toAlpha="1" duration="0.5" order="3" childKey="Text"/>
+                    </AnimationGroup>
+                </Animations>
+                <Scripts>
+                    <OnMouseDown>
+                        self:StopAnimating();
+                        self.AnimIn:Play();
+                    </OnMouseDown>
+                </Scripts>
+            </Frame>
+
+            <Frame parentKey="Border" frameLevel="20">
+                <Anchors>
+                    <Anchor point="TOPLEFT"/>
+                    <Anchor point="BOTTOMRIGHT"/>
+                </Anchors>
+                <Frames>
+                    <Button parentKey="CloseButton">
+                        <Size x="48" y="48"/>
+                        <Anchors>
+                            <Anchor point="CENTER" relativeKey="$parent.$parent" relativePoint="TOPRIGHT" x="-6" y="-6"/>
+                        </Anchors>
+                        <Layers>
+                            <Layer level="OVERLAY">
+                                <Texture parentKey="Texture" file="Interface\AddOns\Narcissus\Art\Frames\RedCloseButtonCircle">
+					                <TexCoords left="0" right="0.75" top="0" bottom="0.75"/>
+                                </Texture>
+                            </Layer>
+                            <Layer level="HIGHLIGHT">
+                                <Texture parentKey="Highlight" file="Interface\AddOns\Narcissus\Art\Frames\RedCloseButtonHighlight" alphaMode="ADD"/>
+                            </Layer>
+                        </Layers>
+                    </Button>
+                </Frames>
+
+                <Layers>
+                    <Layer level="BACKGROUND" textureSubLevel="-3">
+                        <Texture parentKey="BlackOverlay" alpha="1">
+                            <Color r="0.0" g="0.0" b="0.0"/>
+                            <Animations>
+                                <AnimationGroup parentKey="FadeOut" setToFinalAlpha="true">
+                                    <Alpha fromAlpha="1" toAlpha="0" duration="0.25" order="1"/>
+                                </AnimationGroup>
+                            </Animations>
+                        </Texture>
+                    </Layer>
+
+                    <Layer level="OVELRAY" textureSubLevel="5">
+                        <Texture parentKey="LeftSheen" file="Interface\AddOns\Narcissus\Art\Modules\Storyboard\BorderSheenV" alphaMode="ADD" alpha="0">
+                            <Size x="4" y="128"/>
+                            <Anchors>
+                                <Anchor point="CENTER" relativeKey="$parent" relativePoint="LEFT" x="-2" y="-160"/>
+                            </Anchors>
+                        </Texture>
+                        <Texture parentKey="RightSheen" file="Interface\AddOns\Narcissus\Art\Modules\Storyboard\BorderSheenV" alphaMode="ADD" alpha="0">
+                            <Size x="4" y="128"/>
+                            <Anchors>
+                                <Anchor point="CENTER" relativeKey="$parent" relativePoint="RIGHT" x="2" y="160"/>
+                            </Anchors>
+                        </Texture>
+
+                        <Texture parentKey="TopSheen" file="Interface\AddOns\Narcissus\Art\Modules\Storyboard\BorderSheenH" alphaMode="ADD" alpha="0">
+                            <Size x="128" y="4"/>
+                            <Anchors>
+                                <Anchor point="CENTER" relativeKey="$parent" relativePoint="TOP" x="-116" y="2"/>
+                            </Anchors>
+                        </Texture>
+
+                        <Texture parentKey="BottomSheen" file="Interface\AddOns\Narcissus\Art\Modules\Storyboard\BorderSheenH" alphaMode="ADD" alpha="0">
+                            <Size x="128" y="4"/>
+                            <Anchors>
+                                <Anchor point="CENTER" relativeKey="$parent" relativePoint="BOTTOM" x="116" y="-2"/>
+                            </Anchors>
+                        </Texture>
+                    </Layer>
+                </Layers>
+                <Animations>
+                    <AnimationGroup parentKey="AnimSheen" looping="REPEAT">
+                        <Translation offsetY="160" duration="4" order="1" childKey="LeftSheen"/>
+                        <Alpha fromAlpha="0" toAlpha="0.67" duration="1" order="1" childKey="LeftSheen"/>
+                        <Translation offsetY="160" duration="4" order="2" childKey="LeftSheen"/>
+                        <Alpha startDelay="2" fromAlpha="0.67" toAlpha="0" duration="2" order="2" childKey="LeftSheen"/>
+
+                        <Translation offsetY="-160" duration="4" order="1" childKey="RightSheen"/>
+                        <Alpha fromAlpha="0" toAlpha="0.67" duration="1" order="1" childKey="RightSheen"/>
+                        <Translation offsetY="-160" duration="4" order="2" childKey="RightSheen"/>
+                        <Alpha startDelay="2" fromAlpha="0.67" toAlpha="0" duration="2" order="2" childKey="RightSheen"/>
+
+                        <Alpha fromAlpha="0" toAlpha="0" duration="0" order="1" childKey="TopSheen"/>
+                        <Translation offsetX="116" duration="2.9" order="3" childKey="TopSheen"/>
+                        <Alpha fromAlpha="0" toAlpha="0.67" duration="1" order="3" childKey="TopSheen"/>
+                        <Translation offsetX="116" duration="2.9" order="4" childKey="TopSheen"/>
+                        <Alpha fromAlpha="0.67" toAlpha="0" duration="4" order="4" childKey="TopSheen"/>
+
+                        <Alpha fromAlpha="0" toAlpha="0" duration="0" order="1" childKey="BottomSheen"/>
+                        <Translation offsetX="-116" duration="2.9" order="3" childKey="BottomSheen"/>
+                        <Alpha fromAlpha="0" toAlpha="0.67" duration="1" order="3" childKey="BottomSheen"/>
+                        <Translation offsetX="-116" duration="2.9" order="4" childKey="BottomSheen"/>
+                        <Alpha fromAlpha="0.67" toAlpha="0" duration="4" order="4" childKey="BottomSheen"/>
+                    </AnimationGroup>
+                </Animations>
+            </Frame>
+        </Frames>
+
+        <Animations>
+            <AnimationGroup parentKey="AnimIn">
+                <Alpha duration="0.25" order="2" fromAlpha="0" toAlpha="1"/>
+                <Translation duration="0" order="2" offsetX="320" offsetY="0"/>
+                <!--Scale fromScaleX="0.2" toScaleX="1" fromScaleY="0.2" toScaleY="1" duration="0.25" order="1"/-->
+                <Path curve="SMOOTH" duration="0.8" order="2">
+                    <ControlPoints>
+                        <ControlPoint offsetX="-330" offsetY="0"/>
+                        <ControlPoint offsetX="-320" offsetY="0"/>
+                        <!--ControlPoint offsetX="0" offsetY="0"/-->
+                    </ControlPoints>
+                </Path>
+            </AnimationGroup>
+        </Animations>
+
+        <Scripts>
+            <OnLoad method="OnLoad"/>
+            <OnShow method="OnShow"/>
+            <OnHide method="OnHide"/>
+        </Scripts>
+    </Frame>
+
+    <Frame name="NarciQuestItemDisplay" mixin="NarciQuestItemDisplayMixin" frameStrata="HIGH" hidden="true" parent="UIParent" ignoreParentScale="true" ignoreParentAlpha="true" clampedToScreen="true" movable="true">
+        <Size x="320" y="320"/>
+        <Anchors>
+            <Anchor point="LEFT" x="160" y="80"/>
+        </Anchors>
+        <Layers>
+            <Layer level="BACKGROUND">
+                <Texture parentKey="Background" file="Interface\AddOns\Narcissus\Art\Modules\Storyboard\Paper"/>
+            </Layer>
+            <Layer level="ARTWORK">
+                <Texture parentKey="ItemIcon">
+                    <Size x="56" y="56"/>
+                    <TexCoords left="0.0625" right="0.9375" top="0.0625" bottom="0.9375"/>
+                    <Anchors>
+                        <Anchor point="TOPLEFT" relativeKey="$parent" relativePoint="TOPLEFT" x="16" y="-16"/>
+                    </Anchors>
+                </Texture>
+            </Layer>
+            <Layer level="OVERLAY">
+                <Texture parentKey="ItemBorder" file="Interface\AddOns\Narcissus\Art\Modules\Storyboard\StoryboardIconBorder">
+                    <Size x="128" y="128"/>
+                    <Anchors>
+                        <Anchor point="CENTER" relativeKey="$parent.ItemIcon" relativePoint="CENTER" x="0" y="0"/>
+                    </Anchors>
+                </Texture>
+                <FontString inherits="GameFontBlackMedium" parentKey="ItemName" justifyH="LEFT" justifyV="TOP" spacing="3">
+                    <Anchors>
+                        <Anchor point="TOPLEFT" relativeKey="$parent" relativePoint="TOPLEFT" x="0"/>
+                    </Anchors>
+                </FontString>
+                <FontString inherits="GameFontBlackMedium" parentKey="Description" justifyH="LEFT" justifyV="TOP" spacing="3">
+                    <Anchors>
+                        <Anchor point="TOPLEFT" relativeKey="$parent.ItemName" relativePoint="BOTTOMLEFT" y="-4"/>
+                    </Anchors>
+                </FontString>
+            </Layer>
+        </Layers>
+        <Frames>
+            <Frame parentKey="Border" frameLevel="20">
+                <Anchors>
+                    <Anchor point="TOPLEFT"/>
+                    <Anchor point="BOTTOMRIGHT"/>
+                </Anchors>
+                <Frames>
+                    <Button parentKey="CloseButton">
+                        <Size x="48" y="48"/>
+                        <Anchors>
+                            <Anchor point="CENTER" relativeKey="$parent.$parent" relativePoint="TOPRIGHT" x="-6" y="-6"/>
+                        </Anchors>
+                        <Layers>
+                            <Layer level="OVERLAY">
+                                <Texture parentKey="Texture" file="Interface\AddOns\Narcissus\Art\Frames\RedCloseButtonCircle">
+					                <TexCoords left="0" right="0.75" top="0" bottom="0.75"/>
+                                </Texture>
+                            </Layer>
+                            <Layer level="HIGHLIGHT">
+                                <Texture parentKey="Highlight" file="Interface\AddOns\Narcissus\Art\Frames\RedCloseButtonHighlight" alphaMode="ADD"/>
+                            </Layer>
+                        </Layers>
+                        <Frames>
+                            <Cooldown parentKey="Countdown" hidden="true" hideCountdownNumbers="true" reverse="true">
+                                <Size x="32" y="32"/>
+                                <Anchors>
+                                    <Anchor point="CENTER"/>
+                                </Anchors>	
+                                <SwipeTexture file="Interface\AddOns\Narcissus\Art\Frames\RedCloseButtonSwipe"/>
+                                <KeyValues>
+                                    <KeyValue key="noCooldownCount" value="true" type="boolean"/>
+                                </KeyValues>
+                            </Cooldown>
+                        </Frames>
+                    </Button>
+                </Frames>
+
+                <Layers>
+                    <Layer level="OVELRAY" textureSubLevel="5">
+                        <Texture parentKey="TopSheen" file="Interface\AddOns\Narcissus\Art\Modules\Storyboard\BorderSheenH" alphaMode="ADD" alpha="0">
+                            <Size x="128" y="4"/>
+                            <Anchors>
+                                <Anchor point="CENTER" relativeKey="$parent" relativePoint="TOP" x="-116" y="2"/>
+                            </Anchors>
+                        </Texture>
+
+                        <Texture parentKey="BottomSheen" file="Interface\AddOns\Narcissus\Art\Modules\Storyboard\BorderSheenH" alphaMode="ADD" alpha="0">
+                            <Size x="128" y="4"/>
+                            <Anchors>
+                                <Anchor point="CENTER" relativeKey="$parent" relativePoint="BOTTOM" x="116" y="-2"/>
+                            </Anchors>
+                        </Texture>
+                    </Layer>
+                </Layers>
+                <Animations>
+                    <AnimationGroup parentKey="AnimSheen" looping="REPEAT">
+                        <Alpha fromAlpha="0" toAlpha="0" duration="0" order="1" childKey="TopSheen"/>
+                        <Translation offsetX="116" duration="2.9" order="2" childKey="TopSheen"/>
+                        <Alpha fromAlpha="0" toAlpha="0.67" duration="1" order="2" childKey="TopSheen"/>
+                        <Translation offsetX="116" duration="2.9" order="3" childKey="TopSheen"/>
+                        <Alpha fromAlpha="0.67" toAlpha="0" duration="4" order="3" childKey="TopSheen"/>
+
+                        <Alpha fromAlpha="0" toAlpha="0" duration="0" order="1" childKey="BottomSheen"/>
+                        <Translation offsetX="-116" duration="2.9" order="2" childKey="BottomSheen"/>
+                        <Alpha fromAlpha="0" toAlpha="0.67" duration="1" order="2" childKey="BottomSheen"/>
+                        <Translation offsetX="-116" duration="2.9" order="3" childKey="BottomSheen"/>
+                        <Alpha fromAlpha="0.67" toAlpha="0" duration="4" order="3" childKey="BottomSheen"/>
+                    </AnimationGroup>
+                </Animations>
+            </Frame>
+        </Frames>
+
+        <Animations>
+            <AnimationGroup parentKey="AnimIn">
+                <Alpha duration="0.25" order="1" fromAlpha="0" toAlpha="1"/>
+                <Translation duration="0" order="1" offsetY="-48" offsetX="0"/>
+                <Path curve="SMOOTH" duration="0.5" order="1">
+                    <ControlPoints>
+                        <ControlPoint offsetY="56" offsetX="0"/>
+                        <ControlPoint offsetY="48" offsetX="0"/>
+                    </ControlPoints>
+                </Path>
+            </AnimationGroup>
+            <AnimationGroup parentKey="AnimOut">
+                <Alpha duration="0.4" order="1" fromAlpha="1" toAlpha="0"/>
+                <Alpha fromAlpha="0" toAlpha="0" duration="1" order="2"/>
+            </AnimationGroup>
+        </Animations>
+
+        <Scripts>
+            <OnLoad method="OnLoad"/>
+            <OnShow method="OnShow"/>
+            <OnHide method="OnHide"/>
+        </Scripts>
+    </Frame>
+</Ui>

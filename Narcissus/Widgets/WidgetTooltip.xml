@@ -1,0 +1,72 @@
+<Ui xsi:schemaLocation="http://www.blizzard.com/wow/ui/..\FrameXML\UI.xsd">
+	<Script file="WidgetTooltip.lua"/>
+
+	<Frame name="NarciGenericWidgetTooltipTemplate" mixin="NarciGenericWidgetTooltipMixin" hidden="true" clampedToScreen="true" virtual="true">
+		<Size x="300" y="200"/>
+		<Layers>
+			<Layer level="BORDER">
+				<Texture parentKey="Background">
+					<Color r="0" g="0" b="0"/>
+					<Gradient orientation="VERTICAL">
+						<MaxColor r="0.4" g="0.4" b="0.4"/>
+						<MinColor r="1" g="1" b="1"/>
+					</Gradient>
+					<Anchors>
+						<Anchor point="TOPLEFT" relativeKey="$parent" relativePoint="TOPLEFT" x="0" y="0"/>
+						<Anchor point="BOTTOMRIGHT" relativeKey="$parent" relativePoint="BOTTOMRIGHT" x="0" y="0"/>
+					</Anchors>
+				</Texture>
+			</Layer>
+			<Layer level="BORDER" textureSubLevel="-1">
+				<Texture parentKey="Tail" file="Interface\AddOns\Narcissus\Art\Modules\ScreenshotTool\TooltipTail">
+					<Color r="0" g="0" b="0"/>
+					<Size x="16" y="16"/>
+					<Anchors>
+						<Anchor point="CENTER" relativeKey="$parent" relativePoint="BOTTOM"/>
+					</Anchors>
+				</Texture>
+			</Layer>
+			<Layer level="OVERLAY">
+				<Texture parentKey="Image" hidden="true">
+					<Size y="100"/>
+					<Anchors>
+						<Anchor point="TOPLEFT" relativeKey="$parent" relativePoint="TOPLEFT" x="0" y="0"/>
+						<Anchor point="TOPRIGHT" relativeKey="$parent" relativePoint="TOPRIGHT" x="0" y="0"/>
+					</Anchors>
+				</Texture>
+				<FontString inherits="NarciFontMedium12" justifyH="LEFT" justifyV="TOP" parentKey="Header">
+					<Size x="0" y="0"/>
+					<Color r="1" g="0.82" b="0"/>
+					<Anchors>
+						<Anchor point="TOPLEFT" relativeKey="$parent" relativePoint="TOPLEFT" x="0" y="0"/>
+					</Anchors>
+				</FontString>
+				<FontString inherits="NarciFontThin12" justifyH="LEFT" justifyV="TOP" parentKey="TextLine1" spacing="2">
+					<Size x="0" y="0"/>
+					<Color r="0.8" g="0.8" b="0.8"/>
+					<Anchors>
+						<Anchor point="TOPLEFT" relativeKey="$parent" relativePoint="TOPLEFT" x="0" y="0"/>
+					</Anchors>
+				</FontString>
+			</Layer>
+			<Layer level="ARTWORK">
+				<Texture parentKey="BackgroundArt" file="Interface\AddOns\Narcissus\Art\Modules\ScreenshotTool\TooltipArt" alphaMode="ADD" hidden="true">
+					<Size x="80" y="80"/>
+					<TexCoords left="0" right="0.25" top="0" bottom="1"/>
+					<Anchors>
+						<Anchor point="BOTTOMRIGHT"/>
+					</Anchors>
+				</Texture>
+			</Layer>
+		</Layers>
+		<Scripts>
+			<OnLoad method="OnLoad"/>
+			<OnShow method="OnShow"/>
+			<OnHide method="OnHide"/>
+			<OnEvent method="OnEvent"/>
+		</Scripts>
+	</Frame>
+
+
+	<Frame name="NarciTooltip" inherits="NarciGenericWidgetTooltipTemplate"/>
+</Ui>

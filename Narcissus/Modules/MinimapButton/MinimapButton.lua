@@ -5,6 +5,7 @@ local outSine = addon.EasingFunctions.outSine;
 local inOutSine = addon.EasingFunctions.inOutSine
 local FadeFrame = NarciFadeUI.Fade;
 local L = Narci.L;
+local IsAddOnLoaded = C_AddOns.IsAddOnLoaded;
 
 local Minimap = Minimap;
 local After = C_Timer.After;
@@ -13,8 +14,9 @@ local sin = math.sin;
 local sqrt = math.sqrt;
 local atan2 = math.atan2;
 
-local MiniButton;
+local GetMouseFocus = addon.TransitionAPI.GetMouseFocus;
 
+local MiniButton;
 
 local DURATION_LOCK = 1;
 
@@ -87,6 +89,8 @@ NarciMinimapButtonMixin = {};
 
 function NarciMinimapButtonMixin:CreatePanel()
 	local Panel = self.Panel;
+	Panel.narciWidget = true;
+
 	local button;
 	local buttons = {};
 
@@ -98,7 +102,7 @@ function NarciMinimapButtonMixin:CreatePanel()
         function()
 		    Narci_OpenGroupPhoto();
         end,
-		
+
 		function()
 			Narci_ShowDressingRoom();
 		end,
@@ -116,6 +120,20 @@ function NarciMinimapButtonMixin:CreatePanel()
 			end
 		end
 	};
+
+	local menuInfo = {};
+	self.menuInfo = menuInfo;
+
+	for i = 1, #LOCALIZED_NAMES do
+		if func[i] then
+			table.insert(menuInfo, {
+				text = LOCALIZED_NAMES[i],
+				func = func[i],
+				notCheckable = true,
+			}
+		);
+		end
+	end
 
 	local numButtons = #LOCALIZED_NAMES;
 
@@ -139,6 +157,10 @@ function NarciMinimapButtonMixin:CreatePanel()
 	Panel:SetScript("OnLeave", function(frame)
 		if not frame:IsMouseOver() then
 			self:ShowPopup(false);
+		else
+			if not self:IsFocused() then
+				self:ShowPopup(false);
+			end
 		end
 	end)
 	Panel:SetScript("OnHide", function(frame)
@@ -250,7 +272,7 @@ function NarciMinimapButtonMixin:CreatePanel()
 			FadeFrame(ClipFrame, 0.2, 0);
 			ResetCursor();
 		end
-		if not Panel:IsMouseOver() then
+		if not self:IsFocused() then
 			self:ShowPopup(false);
 		end
 	end
@@ -277,6 +299,7 @@ function NarciMinimapButtonMixin:CreatePanel()
 		button.BlackText:SetParent(ClipFrame);
 		button.index = i;
 		button.func = func[i];
+		button.narciWidget = true;
 
 		if i == 1 then
 			button:SetPoint("TOP", Panel.Middle, "TOP", 0, button1OffsetY);
@@ -302,7 +325,21 @@ function NarciMinimapButtonMixin:CreatePanel()
 	end
 	self.buttons = buttons;
 
+	Panel.Version:SetText(NarciAPI.GetAddOnVersionInfo(true));
 	self.CreatePanel = nil;
+end
+
+function NarciMinimapButtonMixin:IsFocused()
+	if self:IsShown() then
+		if self.Panel:IsShown()then
+			if self.Panel:IsMouseOver() then
+				local obj = GetMouseFocus();
+				if obj and obj.narciWidget then
+					return true
+				end
+			end
+		end
+	end
 end
 
 function NarciMinimapButtonMixin:OnLoad()
@@ -313,7 +350,7 @@ function NarciMinimapButtonMixin:OnLoad()
 	self:RegisterForClicks("LeftButtonUp","RightButtonUp","MiddleButtonUp");
 	self:RegisterForDrag("LeftButton");
 	self.endAlpha = 1;
-
+	self.narciWidget = true;
 	self:CreatePanel();
 
 	--Create Popup Delay
@@ -571,7 +608,7 @@ function NarciMinimapButtonMixin:OnEnter()
 			tooltip:AddLine(L["Minimap Tooltip Shift Right Click"].." "..L["Minimap Tooltip Hide Button"], nil, nil, nil, true);
 			tooltip:AddLine(L["Minimap Tooltip Middle Button"], nil, nil, nil, true);
 			tooltip:AddLine(" ", nil, nil, nil, true);
-			tooltip:AddDoubleLine(NARCI_VERSION_INFO, NARCI_DEVELOPER_INFO, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8);
+			tooltip:AddDoubleLine(NarciAPI.GetAddOnVersionInfo(true), L["Developer Info"], 0.8, 0.8, 0.8, 0.8, 0.8, 0.8);
 			tooltip:AddLine("https://wow.curseforge.com/projects/narcissus", 0.5, 0.5, 0.5, false);
 
 			tooltip:Show();
@@ -605,10 +642,8 @@ function NarciMinimapButtonMixin:OnLeave()
 	if self.PositionUpdator:IsShown() then
 		return;
 	end
-	if self:IsShown() then
-		if not (self.Panel:IsMouseOver() and self.Panel:IsShown() ) then
-			self:ShowPopup(false);
-		end
+	if not self:IsFocused() then
+		self:ShowPopup(false);
 	else
 		self.Color:SetAlpha(0);
 	end
@@ -671,7 +706,7 @@ function NarciMinimapButtonMixin:Init()
     local cornerRadius = 10;
 
     --Optimize this minimap button's radial offset
-    local IsAddOnLoaded = IsAddOnLoaded;
+
     if IsAddOnLoaded("AzeriteUI") then
         cornerRadius = 18;
         iconSize = 48;
@@ -696,6 +731,10 @@ function NarciMinimapButtonMixin:Init()
     self:RegisterEvent("UI_SCALE_CHANGED");
 
     self.Init = nil;
+end
+
+function NarciMinimapButtonMixin:GetMenuInfo()
+	return self.menuInfo
 end
 
 

@@ -6,6 +6,20 @@ local DataProvider = addon.TalentTreeDataProvider;
 local GetPixelForWidget = NarciAPI.GetPixelForWidget;
 local SetSpecialization = SetSpecialization;
 
+
+local FONT_PIXEL_SIZE = 16;
+local BUTTON_PIXEL_HEIGHT = 56;
+local TAB_PIXEL_WIDTH = 216;
+
+do
+    local function ChangePixelSize(sizeInfo)
+        FONT_PIXEL_SIZE = sizeInfo.fontHeight;
+        BUTTON_PIXEL_HEIGHT = sizeInfo.specButtonHeight;
+        TAB_PIXEL_WIDTH = sizeInfo.specTabWidth;
+    end
+    addon.TalentTreeTextureUtil:AddSizeChangedCallback(ChangePixelSize);
+end
+
 local SideFrame, Clipboard;
 local SpecButtons = {};
 
@@ -82,7 +96,11 @@ local function SpecButton_OnClick(self, button)
         SideFrame.SpecTab.t = 2;
         if ActionValidityCheck:IsValid() then
             LoadingBarUtil:SetFromSpecButton(self);
-            SetSpecialization(self.specIndex, false);
+            if ClassTalentHelper and ClassTalentHelper.SwitchToSpecializationByIndex then
+                ClassTalentHelper.SwitchToSpecializationByIndex(self.specIndex);
+            else
+                SetSpecialization(self.specIndex, false);
+            end
         end
     end
 end
@@ -141,14 +159,14 @@ function NarciTalentTreeSideTabMixin:Init()
     --/run NarciMiniTalentTree.SideTab:ShowFrame()
 
     local px = GetPixelForWidget(self, 1);
-    local FONT_HEIGHT = 16 * px;
-    local BUTTON_HEIGHT = 56 * px;
-    local BUTTON_WIDTH = 216 * px;
+    local FONT_HEIGHT = FONT_PIXEL_SIZE * px;
+    local BUTTON_HEIGHT = BUTTON_PIXEL_HEIGHT * px;
+    local BUTTON_WIDTH = TAB_PIXEL_WIDTH * px;
     local PX2 = 2 * px;
 
     local height = self:GetHeight();
     local heightPixel = height/px;
-    self.ClipFrame.Background:SetTexCoord(0, 216/256, 0, heightPixel/512);
+    self.ClipFrame.Background:SetTexCoord(0, TAB_PIXEL_WIDTH/256, 0, heightPixel/512);
     self:SetWidth(BUTTON_WIDTH);
     self.fullWidth = BUTTON_WIDTH;
 
@@ -194,22 +212,23 @@ end
 
 function NarciTalentTreeSideTabMixin:UpdatePixel(px)
     local font = self.InspectTab.DividerText:GetFont();
-    local FONT_HEIGHT = 16 * px;
-    local BUTTON_HEIGHT = 56 * px;
-    local BUTTON_WIDTH = 216 * px;
+    local FONT_HEIGHT = FONT_PIXEL_SIZE * px;
+    local BUTTON_HEIGHT = BUTTON_PIXEL_HEIGHT * px;
+    local BUTTON_WIDTH = TAB_PIXEL_WIDTH * px;
     local PX2 = 2 * px;
 
     local height = self:GetHeight();
     local heightPixel = height/px;
-    self.ClipFrame.Background:SetTexCoord(0, 216/256, 0, heightPixel/512);
+    self.ClipFrame.Background:SetTexCoord(0, TAB_PIXEL_WIDTH/256, 0, heightPixel/512);
     self:SetWidth(BUTTON_WIDTH);
     self.fullWidth = BUTTON_WIDTH;
 
     for i, b in ipairs(SpecButtons) do
         b.Name:SetFont(font, FONT_HEIGHT, "");
         b.Icon:SetSize(BUTTON_HEIGHT, BUTTON_HEIGHT);
-        b:SetHeight(BUTTON_HEIGHT);
+        b:SetSize(BUTTON_WIDTH, BUTTON_HEIGHT);
         b.Divider:SetHeight(PX2);
+        b.Underline:SetWidth(b.Name:GetWrappedWidth());
         b.Underline:SetHeight(PX2);
         b.Underline:SetPoint("TOPLEFT", b.Name, "BOTTOMLEFT", 0, -PX2);
         b:SetPoint("TOPLEFT", self, "TOPLEFT", 0, (1 - i) * (BUTTON_HEIGHT + PX2));
@@ -225,7 +244,7 @@ function NarciTalentTreeSideTabMixin:UpdatePixel(px)
     self.InspectTab.DividerText:SetPoint("CENTER", self, "TOP", 0, px*((Clipboard.defaultOffsetY + self.InspectTab.LoadoutNameEditBox.defaultOffsetY)*0.5 - 2));
     self.InspectTab.DividerLeft:SetHeight(px);
     self.InspectTab.DividerRight:SetHeight(px);
-    local lineWidth = (216 - 20 - 20*2)*px*0.5;
+    local lineWidth = (TAB_PIXEL_WIDTH - 20 - 20*2)*px*0.5;
     self.InspectTab.DividerLeft:SetPoint("RIGHT", self.InspectTab.DividerText, "LEFT", -4*px, 0);
     self.InspectTab.DividerRight:SetPoint("LEFT", self.InspectTab.DividerText, "RIGHT", 4*px, 0);
     self.InspectTab.DividerLeft:SetWidth(lineWidth);
@@ -253,10 +272,10 @@ function NarciTalentTreeSideTabMixin:ShowFrame()
         self.t = 0;
         self.d = 0.35;
         self.buttonLocked = true;
-        self:LockSpecButtons(true);
         self:SetScript("OnUpdate", ShowFrame_OnUpdate);
         self:Show();
         self:RegisterEvent("GLOBAL_MOUSE_DOWN");
+        self:LockSpecButtons(true);
 
         if self.activeButton then
             self.activeButton.Underline.AnimIn:Stop();

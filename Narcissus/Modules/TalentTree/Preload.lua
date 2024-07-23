@@ -52,6 +52,7 @@ local SpecIDXBackgroundFile = {
     -- Evoker
     [1467] = "evoker-devastation",
     [1468] = "evoker-preservation",
+    [1473] = "evoker-Augmentation",
 
     -- Hunter
     [253] = "hunter-beastmastery",
@@ -134,4 +135,45 @@ function TextureUtil:CalculateTexCoord(cropWidth, cropHeight, alignment)
     end
 
     return l, r, t, b
+end
+
+
+local WidgetPixelSize = {
+    normal = {
+        buttonSize = 32,
+        fontHeight = 16,
+        smallFontHeight = 15,
+        iconSize = 24,
+        specButtonHeight = 56,
+        specTabWidth = 216;
+    },
+
+    large = {
+        buttonSize = 40,
+        fontHeight = 18,
+        smallFontHeight = 16,
+        iconSize = 30,
+        specButtonHeight = 56,
+        specTabWidth = 256;
+    },
+};
+
+function TextureUtil:UpdateWidgetSize(large)
+    local sizeInfo;
+    if large then
+        sizeInfo = WidgetPixelSize.large;
+    else
+        sizeInfo = WidgetPixelSize.normal;
+    end
+
+    for i, callback in pairs(self.callbacks) do
+        callback(sizeInfo);
+    end
+end
+
+function TextureUtil:AddSizeChangedCallback(callback)
+    if not self.callbacks then
+        self.callbacks = {};
+    end
+    table.insert(self.callbacks, callback);
 end

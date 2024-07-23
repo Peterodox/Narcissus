@@ -206,10 +206,10 @@ function NarciAchievementRewardModelMixin:SetItem(itemID, breakLoop)
             fromZoom = 15;
             toZoom = 12;
             if (isSelfMount) then
-                actor:SetAnimationBlendOperation(LE_MODEL_BLEND_OPERATION_NONE);
+                actor:SetAnimationBlendOperation(0);    --Enum.ModelBlendOperation.None
                 actor:SetAnimation(618); -- MountSelfIdle
             else
-                actor:SetAnimationBlendOperation(LE_MODEL_BLEND_OPERATION_ANIM);
+                actor:SetAnimationBlendOperation(1);
                 actor:SetAnimation(0);
             end
             --ModelScene:AttachPlayerToMount(actor, animID, isSelfMount, disablePlayerMountPreview);
@@ -217,7 +217,7 @@ function NarciAchievementRewardModelMixin:SetItem(itemID, breakLoop)
         else
             fromZoom = 24;
             toZoom = 15;
-            actor:SetAnimationBlendOperation(LE_MODEL_BLEND_OPERATION_NONE);
+            actor:SetAnimationBlendOperation(0);
             actor:SetAnimation(0, -1);
             ModelScene:SetViewInsets(0, 0, 80, 0);
         end

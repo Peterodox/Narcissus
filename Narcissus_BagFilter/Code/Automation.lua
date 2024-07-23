@@ -28,7 +28,9 @@ function Automation:OnEvent(event, ...)
                 self:OnBagOpened();
             elseif event == "ITEM_SOCKETING_FRAME_SHOW" then
                 --this is a custom event
-                self:OnBagOpened();
+                if API.IsPrimaryBagOpened() then
+                    self:OnBagOpened();
+                end
             elseif event == "SEARCH_CHANGED_MANUALLY" then
                 MANUALLY_CHANGED = true;
             end
@@ -84,9 +86,14 @@ function Automation:HookAuctionHouse()
 end
 
 function Automation:OnBagOpened()
-    if self.enableGem and API.IsSocketingItem() then
-        MANUALLY_CHANGED = false;
-        ItemFilter.ShowGem();
+    if self.enableGem then
+        if API.IsUsingPrimodialStoneSystem() then
+            MANUALLY_CHANGED = false;
+            ItemFilter.ShowPrimordialStones();
+        elseif API.IsSocketingItem() then
+            MANUALLY_CHANGED = false;
+            ItemFilter.ShowGem();
+        end
     end
 end
 

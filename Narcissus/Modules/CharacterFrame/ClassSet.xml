@@ -1,0 +1,375 @@
+<Ui xsi:schemaLocation="http://www.blizzard.com/wow/ui/..\FrameXML\UI.xsd">
+    <Script file="ClassSet.lua"/>
+
+    <Frame name="NarciClassSetIndicatorNodeTemplate" virtual="true" parentArray="Nodes">
+        <Size x="52" y="52"/>
+        <Layers>
+            <Layer level="ARTWORK">
+                <Texture parentKey="NormalTexture" file="Interface\AddOns\Narcissus\Art\Widgets\Progenitor\ProgenitorGem">
+                    <TexCoords left="0.75" right="1" top="0.75" bottom="1"/>
+                </Texture>
+            </Layer>
+            <Layer level="OVERLAY">
+                <Texture parentKey="HighlightTexture" file="Interface\AddOns\Narcissus\Art\Widgets\Progenitor\ProgenitorGemHighlight" alphaMode="ADD" hidden="false" alpha="0">
+                    <TexCoords left="0" right="0.5" top="0" bottom="0.5"/>
+                    <Animations>
+                        <AnimationGroup parentKey="Shine">
+                            <Alpha fromAlpha="0" toAlpha="1" duration="0.15" order="1"/>
+                            <Alpha fromAlpha="1" toAlpha="0" duration="0.75" order="2"/>
+                        </AnimationGroup>
+                        <AnimationGroup parentKey="FadeIn" setToFinalAlpha="true">
+                            <Alpha fromAlpha="0" toAlpha="1" duration="0.2" order="1"/>
+                        </AnimationGroup>
+                        <AnimationGroup parentKey="FadeOut" setToFinalAlpha="true">
+                            <Alpha fromAlpha="1" toAlpha="0" duration="0.2" order="1"/>
+                        </AnimationGroup>
+                    </Animations>
+                </Texture>
+            </Layer>
+        </Layers>
+        <Scripts>
+            <OnHide>
+                self:StopAnimating();
+                self.HighlightTexture:SetAlpha(0);
+            </OnHide>
+        </Scripts>
+    </Frame>
+
+    <Frame name="NarciClassSetTooltip" mixin="NarciClassSetTooltipMixin" frameStrata="TOOLTIP" hidden="true" alpha="0" ignoreParentScale="true">
+        <Size x="288" y="288"/>
+        <Layers>
+            <Layer level="BACKGROUND">
+                <Texture parentKey="Background">
+                    <Color r="0.1" g="0.1" b="0.1"/>
+                </Texture>
+            </Layer>
+            <Layer level="OVERLAY">
+                <FontString parentKey="Effect1" inherits="NarciFontMedium12" justifyH="LEFT" justifyV="TOP" text="Bonus #1" spacing="2">
+                    <Color r="0.5" g="0.5" b="0.5"/>
+                    <Size x="270" y="0"/>
+                    <Anchors>
+                        <Anchor point="TOPLEFT" relativeKey="$parent" relativePoint="TOPLEFT" x="30" y="-20"/>
+                    </Anchors>
+                </FontString>
+                <Texture parentKey="Count1" file="Interface\AddOns\Narcissus\Art\Widgets\ItemLevel\Neltharion\TooltipCountIcon">
+                    <Size x="16" y="16"/>
+                    <TexCoords left="0" right="0.5" top="0" bottom="0.25"/>
+                    <Anchors>
+                        <Anchor point="TOPRIGHT" relativeKey="$parent.Effect1" relativePoint="TOPLEFT" x="-8" y="-1"/>
+                    </Anchors>
+                </Texture>
+                <FontString parentKey="Effect2" inherits="NarciFontMedium12" justifyH="LEFT" justifyV="TOP" text="Bonus #2" spacing="2">
+                    <Color r="0.5" g="0.5" b="0.5"/>
+                    <Size x="270" y="0"/>
+                    <Anchors>
+                        <Anchor point="TOPLEFT" relativeKey="$parent.Effect1" relativePoint="BOTTOMLEFT" x="0" y="-10"/>
+                    </Anchors>
+                </FontString>
+                <Texture parentKey="Count2" file="Interface\AddOns\Narcissus\Art\Widgets\ItemLevel\Neltharion\TooltipCountIcon">
+                    <Size x="16" y="16"/>
+                    <TexCoords left="0" right="0.5" top="0.5" bottom="0.75"/>
+                    <Anchors>
+                        <Anchor point="TOPRIGHT" relativeKey="$parent.Effect2" relativePoint="TOPLEFT" x="-8" y="-1"/>
+                    </Anchors>
+                </Texture>
+
+                <Texture parentKey="Divider" file="Interface\AddOns\Narcissus\Art\Widgets\Progenitor\TooltipDivider">
+                    <Size x="280" y="1"/>
+                    <!--Color r="0.24" g="0.204" b="0.169"/-->
+                    <Anchors>
+                        <Anchor point="TOP" relativeKey="$parent.Effect2" relativePoint="BOTTOM" x="-5" y="-20"/>
+                    </Anchors>
+                </Texture>
+
+                <FontString parentKey="CycleNote" inherits="NarciFontNormal10" justifyH="CENTER" justifyV="TOP" text="Press Tab to cycle through specs" spacing="4">
+                    <Color r="0.5" g="0.5" b="0.5"/>
+                    <Size x="320" y="0"/>
+                    <Anchors>
+                        <Anchor point="TOP" relativeKey="$parent.Divider" relativePoint="CENTER" x="0" y="-10"/>
+                    </Anchors>
+                </FontString>
+
+                <Texture parentKey="Selection" hidden="true">
+                    <Color r="0.855" g="0.843" b="0.69"/>
+                    <Size x="28" y="28"/>
+                    <Anchors>
+                        <Anchor point="CENTER"/>
+                    </Anchors>
+                </Texture>
+                <MaskTexture parentKey="Exclusion" file="Interface\AddOns\Narcissus\Art\Masks\Exclusion" hWrapMode="CLAMPTOWHITE" vWrapMode="CLAMPTOWHITE">
+                    <Size x="26" y="26"/>
+                    <Anchors>
+                        <Anchor point="CENTER" relativeKey="$parent.Selection" relativePoint="CENTER"/>
+                    </Anchors>
+                    <MaskedTextures>
+                        <MaskedTexture childKey="Selection"/>
+                    </MaskedTextures>
+                </MaskTexture>
+            </Layer>
+
+            <Layer level="BORDER">
+                <Texture parentKey="Decor1" file="Interface\AddOns\Narcissus\Art\Widgets\Progenitor\TooltipDecor">
+                    <TexCoords left="0" right="0.5" top="1" bottom="0.5"/>
+                    <Anchors>
+                        <Anchor point="TOPLEFT" relativeKey="$parent" relativePoint="TOPLEFT"/>
+                    </Anchors>
+                </Texture>
+                <Texture parentKey="Decor3" file="Interface\AddOns\Narcissus\Art\Widgets\Progenitor\TooltipDecor">
+                    <TexCoords left="0.5" right="0" top="1" bottom="0.5"/>
+                    <Anchors>
+                        <Anchor point="TOPRIGHT" relativeKey="$parent" relativePoint="TOPRIGHT"/>
+                    </Anchors>
+                </Texture>
+                <Texture parentKey="Decor7" file="Interface\AddOns\Narcissus\Art\Widgets\Progenitor\TooltipDecor">
+                    <TexCoords left="0" right="0.5" top="0.5" bottom="1"/>
+                    <Anchors>
+                        <Anchor point="BOTTOMLEFT" relativeKey="$parent" relativePoint="BOTTOMLEFT"/>
+                    </Anchors>
+                </Texture>
+                <Texture parentKey="Decor9" file="Interface\AddOns\Narcissus\Art\Widgets\Progenitor\TooltipDecor">
+                    <TexCoords left="0.5" right="0" top="0.5" bottom="1"/>
+                    <Anchors>
+                        <Anchor point="BOTTOMRIGHT" relativeKey="$parent" relativePoint="BOTTOMRIGHT"/>
+                    </Anchors>
+                </Texture>
+                <Texture parentKey="Decor2" file="Interface\AddOns\Narcissus\Art\Widgets\Progenitor\TooltipDecor">
+                    <TexCoords left="0.5" right="1" top="1" bottom="0.5"/>
+                    <Anchors>
+                        <Anchor point="TOPLEFT" relativeKey="$parent.Decor1" relativePoint="TOPRIGHT"/>
+                        <Anchor point="BOTTOMRIGHT" relativeKey="$parent.Decor3" relativePoint="BOTTOMLEFT"/>
+                    </Anchors>
+                </Texture>
+                <Texture parentKey="Decor4" file="Interface\AddOns\Narcissus\Art\Widgets\Progenitor\TooltipDecor">
+                    <TexCoords left="0" right="0.5" top="0" bottom="0.5"/>
+                    <Anchors>
+                        <Anchor point="TOPLEFT" relativeKey="$parent.Decor1" relativePoint="BOTTOMLEFT"/>
+                        <Anchor point="BOTTOMRIGHT" relativeKey="$parent.Decor7" relativePoint="TOPRIGHT"/>
+                    </Anchors>
+                </Texture>
+                <Texture parentKey="Decor6" file="Interface\AddOns\Narcissus\Art\Widgets\Progenitor\TooltipDecor">
+                    <TexCoords left="0.5" right="0" top="0" bottom="0.5"/>
+                    <Anchors>
+                        <Anchor point="TOPLEFT" relativeKey="$parent.Decor3" relativePoint="BOTTOMLEFT"/>
+                        <Anchor point="BOTTOMRIGHT" relativeKey="$parent.Decor9" relativePoint="TOPRIGHT"/>
+                    </Anchors>
+                </Texture>
+                <Texture parentKey="Decor8" file="Interface\AddOns\Narcissus\Art\Widgets\Progenitor\TooltipDecor">
+                    <TexCoords left="0.5" right="1" top="0.5" bottom="1"/>
+                    <Anchors>
+                        <Anchor point="TOPLEFT" relativeKey="$parent.Decor7" relativePoint="TOPRIGHT"/>
+                        <Anchor point="BOTTOMRIGHT" relativeKey="$parent.Decor9" relativePoint="BOTTOMLEFT"/>
+                    </Anchors>
+                </Texture>
+            </Layer>
+        </Layers>
+        <Scripts>
+            <OnEvent method="OnEvent"/>
+            <OnHide method="OnHide"/>
+        </Scripts>
+    </Frame>
+
+
+    <Frame name="NarciCharacterFrameClassSetIndicator" mixin="NarciClassSetIndicatorMixin" frameStrata="HIGH" hidden="true" frameLevel="10">
+        <Size x="48" y="48"/>
+        <Layers>
+            <!--Layer level="BACKGROUND" textureSubLevel="-1">
+                <Texture file="Interface\AddOns\Narcissus\Art\Widgets\Domination\IndicatorUI" parentKey="Highlight" hidden="true">
+                    <TexCoords left="0.5" right="0.75" top="0" bottom="0.25"/>
+                </Texture>
+            </Layer-->
+            <Layer level="BACKGROUND">
+                <Texture file="Interface\AddOns\Narcissus\Art\Widgets\Progenitor\PaperDollBase" parentKey="Background">
+                    <TexCoords left="0" right="0.25" top="0" bottom="1"/>
+                </Texture>
+                <MaskTexture file="Interface\AddOns\Narcissus\Art\Widgets\Progenitor\PaperDollBaseMask" hWrapMode="CLAMPTOBLACKADDITIVE" vWrapMode="CLAMPTOBLACKADDITIVE" parentKey="BackgroundMask">
+                    <MaskedTextures>
+                        <MaskedTexture childKey="Background"/>
+                    </MaskedTextures>
+                </MaskTexture>
+            </Layer>
+            <Layer level="BACKGROUND" textureSubLevel="1">
+                <Texture file="Interface\AddOns\Narcissus\Art\Widgets\Progenitor\PaperDollRedundancyTexture" parentKey="Redundancy" hidden="true">
+                </Texture>
+            </Layer>
+            <Layer level="ARTWORK">
+                <Texture file="Interface\AddOns\Narcissus\Art\Widgets\Progenitor\PaperDollShine" parentKey="Highlight" alphaMode="ADD" hidden="true">
+                    <Size x="52" y="52"/>
+                    <Anchors>
+                        <Anchor point="CENTER" relativeKey="$parent" relativePoint="TOPLEFT"/>
+                    </Anchors>
+                    <Animations>
+                        <AnimationGroup parentKey="Shine">
+                            <Translation offsetX="52" offsetY="-52" duration="0.5" order="1" smoothing="OUT"/>
+                            <Scripts>
+                                <OnFinished>
+                                    self:GetParent():Hide();
+                                </OnFinished>
+                            </Scripts>
+                        </AnimationGroup>
+                    </Animations>
+                </Texture>
+                <MaskTexture file="Interface\AddOns\Narcissus\Art\Widgets\Progenitor\PaperDollHighlightMask" hWrapMode="CLAMPTOBLACKADDITIVE" vWrapMode="CLAMPTOBLACKADDITIVE" parentKey="HighlightMask">
+                    <MaskedTextures>
+                        <MaskedTexture childKey="Highlight"/>
+                    </MaskedTextures>
+                </MaskTexture>
+            </Layer>
+            <Layer level="OVERLAY">
+                <FontString parentKey="Notification" inherits="GameFontHighlightSmall" justifyH="CENTER" justifyV="BOTTOM" hidden="true">
+                    <Color r="1" g="1" b="1"/>
+                    <Size x="0" y="0"/>
+                    <Anchors>
+                        <Anchor point="BOTTOM" relativeKey="$parent" relativePoint="TOP" x="0" y="0"/>
+                    </Anchors>
+                    <Animations>
+                        <AnimationGroup parentKey="FadeOut" setToFinalAlpha="true">
+                            <Alpha fromAlpha="0" toAlpha="1" duration="0.1" order="1"/>
+                            <Alpha fromAlpha="1" toAlpha="0" startDelay="2" duration="0.25" order="2"/>
+                            <Scripts>
+                                <OnFinished>
+                                    self:GetParent():Hide();
+                                </OnFinished>
+                            </Scripts>
+                        </AnimationGroup>
+                    </Animations>
+                </FontString>
+            </Layer>
+        </Layers>
+        <Frames>
+            <Frame parentKey="Splash" mixin="NarciClassSetIndicatorSplash" hidden="true" frameStrata="LOW" enableMouse="true">
+                <Size x="256" y="64"/>
+                <Anchors>
+                    <Anchor point="LEFT" relativeKey="$parent" relativePoint="CENTER"/>
+                </Anchors>
+                <Layers>
+                    <Layer level="BACKGROUND">
+                        <Texture parentKey="Background">
+                            <Color r="0.1" g="0.1" b="0.1" a="0.9"/>
+                        </Texture>
+                        <Texture parentKey="Tail">
+                            <Size x="40"/>
+                            <Anchors>
+                                <Anchor point="TOPLEFT" relativeKey="$parent.Background" relativePoint="TOPRIGHT"/>
+                                <Anchor point="BOTTOMLEFT" relativeKey="$parent.Background" relativePoint="BOTTOMIRIGHT"/>
+                            </Anchors>
+                            <Color r="0.1" g="0.1" b="0.1" a="0.9"/>
+                            <Gradient orientation="HORIZONTAL">
+                                <MinColor a="1" r="1" g="1" b="1"/>
+                                <MaxColor a="0" r="1" g="1" b="1"/>
+                            </Gradient>
+                        </Texture>
+                    </Layer>
+                </Layers>
+                <Frames>
+                    <Frame parentKey="Step1">
+                        <Anchors>
+                            <Anchor point="TOPLEFT" x="10"/>
+                            <Anchor point="BOTTOMRIGHT" x="10"/>
+                        </Anchors>
+                        <Layers>
+                            <Layer level="OVERLAY">
+                                <FontString parentKey="Header" inherits="NarciFontMedium12" justifyH="CENTER" justifyV="TOP" text="Enable Class Set Indicator?">
+                                    <Color r="0.8" g="0.8" b="0.8"/>
+                                    <Size x="0" y="0"/>
+                                    <Anchors>
+                                        <Anchor point="TOP" relativeKey="$parent" relativePoint="TOP" x="0" y="-12"/>
+                                    </Anchors>
+                                </FontString>
+                            </Layer>
+                        </Layers>
+                        <Frames>
+                            <Button parentKey="YesButton">
+                                <Size x="24" y="24"/>
+                                <HitRectInsets>
+                                    <AbsInset left="-4" right="-4" top="-4" bottom="-4"/>
+                                </HitRectInsets>
+                                <Anchors>
+                                    <Anchor point="BOTTOM" relativeKey="$parent" relativePoint="BOTTOM" x="-24" y="10"/>
+                                </Anchors>
+                                <Layers>
+                                    <Layer level="OVERLAY">
+                                        <Texture parentKey="Texture" file="Interface\AddOns\Narcissus\Art\Buttons\YesNoButton">
+                                            <TexCoords left="0" right="0.5" top="0.5" bottom="1"/>
+                                            <Color r="0.6" g="0.6" b="0.6"/>
+                                        </Texture>
+                                    </Layer>
+                                </Layers>
+                                <Frames>
+                                    <Cooldown parentKey="CountDown" hidden="true" hideCountdownNumbers="true" reverse="true">
+                                        <Size x="24" y="24"/>
+                                        <Anchors>
+                                            <Anchor point="CENTER"/>
+                                        </Anchors>	
+                                        <SwipeTexture file="Interface\AddOns\Narcissus\Art\Buttons\YesButtonSwipe"/>
+                                        <Scripts>
+                                        </Scripts>
+                                    </Cooldown>
+                                </Frames>
+                            </Button>
+                            <Button parentKey="NoButton">
+                                <Size x="24" y="24"/>
+                                <HitRectInsets>
+                                    <AbsInset left="-4" right="-4" top="-4" bottom="-4"/>
+                                </HitRectInsets>
+                                <Anchors>
+                                    <Anchor point="BOTTOM" relativeKey="$parent" relativePoint="BOTTOM" x="24" y="10"/>
+                                </Anchors>
+                                <Layers>
+                                    <Layer level="OVERLAY">
+                                        <Texture parentKey="Texture" file="Interface\AddOns\Narcissus\Art\Buttons\YesNoButton">
+                                            <TexCoords left="0.5" right="1" top="0.5" bottom="1"/>
+                                            <Color r="0.6" g="0.6" b="0.6"/>
+                                        </Texture>
+                                    </Layer>
+                                </Layers>
+                            </Button>
+                        </Frames>
+                    </Frame>
+                    <Frame parentKey="Step2" hidden="true">
+                        <Anchors>
+                            <Anchor point="TOPLEFT" x="10"/>
+                            <Anchor point="BOTTOMRIGHT" x="10"/>
+                        </Anchors>
+                        <Layers>
+                            <Layer level="OVERLAY">
+                                <FontString parentKey="Header" inherits="NarciFontMedium12" justifyH="CENTER" justifyV="TOP" text=" ">
+                                    <Color r="0.8" g="0.8" b="0.8"/>
+                                    <Size x="0" y="0"/>
+                                    <Anchors>
+                                        <Anchor point="TOP" relativeKey="$parent" relativePoint="TOP" x="0" y="-12"/>
+                                    </Anchors>
+                                </FontString>
+                                <FontString parentKey="ThemeName" inherits="NarciFontMedium12" justifyH="CENTER" justifyV="BOTTOM" text=" ">
+                                    <Color r="0.855" g="0.843" b="0.69"/>
+                                    <Size x="0" y="0"/>
+                                    <Anchors>
+                                        <Anchor point="BOTTOM" relativeKey="$parent" relativePoint="BOTTOM" x="0" y="12"/>
+                                    </Anchors>
+                                </FontString>
+                            </Layer>
+                        </Layers>
+                    </Frame>
+                </Frames>
+                <Animations>
+                    <AnimationGroup parentKey="Shrink">
+                        <Scale fromScaleX="1" toScaleX="1" fromScaleY="1" toScaleY="0.1" duration="0.5" order="1">
+                            <Origin point="LEFT"/>
+                        </Scale>
+                    </AnimationGroup>
+                </Animations>
+                <Scripts>
+                    <OnLoad method="OnLoad"/>
+                    <OnShow method="OnShow"/>
+                </Scripts>
+            </Frame>
+        </Frames>
+        <Scripts>
+            <OnLoad method="OnLoad"/>
+            <OnEnter method="OnEnter"/>
+            <OnLeave method="OnLeave"/>
+            <OnShow method="OnShow"/>
+            <OnHide method="OnHide"/>
+            <OnMouseDown method="OnMouseDown"/>
+        </Scripts>
+    </Frame>
+</Ui>

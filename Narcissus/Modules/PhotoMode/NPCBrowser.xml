@@ -287,7 +287,7 @@
 			</Layer-->
 		</Layers>
 		<Frames>
-			<Frame inherits="NarciGreyBorderTemplate" frameLevel="81"/>
+			<Frame inherits="NarciPhotoModeUIBorderTemplate" frameLevel="81"/>
 
 			<Frame parentKey="Container" clipChildren="true">
 				<Anchors>
@@ -396,18 +396,18 @@
 								</Layers>
 								<Scripts>
 									<OnLoad>
-										self.tooltip = Narci.L["NPC Has Weapons"];
+										self.tooltipDescription = Narci.L["NPC Has Weapons"];
 									</OnLoad>
 									<OnEnter>
-										NarciTooltip:ShowTooltip(self);
+										NarciTooltip:ShowButtonTooltip(self);
 										self.Icon:SetAlpha(1);
 									</OnEnter>
 									<OnLeave>
-										NarciTooltip:FadeOut();
+										NarciTooltip:HideTooltip();
 										self.Icon:SetAlpha(0.6);
 									</OnLeave>
 									<OnMouseDown>
-										NarciTooltip:FadeOut();
+										NarciTooltip:HideTooltip();
 										self.Icon:SetSize(11, 11);
 									</OnMouseDown>
 									<OnMouseUp>
@@ -492,7 +492,7 @@
 									<AbsInset left="-6" right="0" top="-1" bottom="0"/>
 								</HitRectInsets>
 								<Anchors>
-									<Anchor point="RIGHT" relativeKey="$parent" relativePoint="RIGHT" x="-1" y="0"/> 
+									<Anchor point="RIGHT" relativeKey="$parent" relativePoint="RIGHT" x="-2" y="0"/> 
 								</Anchors>
 								<Scripts>
 									<OnLoad>

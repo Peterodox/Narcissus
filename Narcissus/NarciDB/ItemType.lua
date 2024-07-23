@@ -1,33 +1,38 @@
 local _;
+local FORMAT_REQUIRES = ITEM_REQ_SPECIALIZATION;
 local floor = math.floor;
 local format = string.format;
-local GetItemInfoInstant = GetItemInfoInstant;
-local FORMAT_REQUIRES = ITEM_REQ_SPECIALIZATION;
+local GetItemInfoInstant = C_Item.GetItemInfoInstant;
+local GetContainerNumSlots = C_Container.GetContainerNumSlots;
+local GetContainerItemID = C_Container.GetContainerItemID;
+local GetInventoryItemID = GetInventoryItemID;
 
-local slotData = {
-    --[slotID] = {InventorySlotName, Localized Name, invType, texture, validForTransmog}    --GetInventorySlotInfo("SlotName")
-    [1] = {"HeadSlot", HEADSLOT, "INVTYPE_HEAD", 0, true},
-    [2] = {"NeckSlot", NECKSLOT, "INVSLOT_NECK", 0},
-    [3] = {"ShoulderSlot", SHOULDERSLOT, "INVTYPE_SHOULDER", 0, true},
+local SlotData = {
+    --[slotID] = {InventorySlotName, Localized Name, invType, texture, validForTransmog, ItemEnchancementSubclassID}    --GetInventorySlotInfo("SlotName")
+    --Added in 10.2: ItemEnchancementSubclassID https://warcraft.wiki.gg/wiki/ItemType#8:_Item_Enhancement
+    --Weapon Enchants depend on, surprisingly, weapons!
+    [1] = {"HeadSlot", HEADSLOT, "INVTYPE_HEAD", 0, true, 0},
+    [2] = {"NeckSlot", NECKSLOT, "INVSLOT_NECK", 0, 1},
+    [3] = {"ShoulderSlot", SHOULDERSLOT, "INVTYPE_SHOULDER", 0, true, 2},
     [4] = {"ShirtSlot", SHIRTSLOT, "INVTYPE_BODY", 0, true},
-    [5] = {"ChestSlot", CHESTSLOT, "INVTYPE_CHEST", 0, true},
-    [6] = {"WaistSlot", WAISTSLOT, "INVTYPE_WAIST", 0, true},
-    [7] = {"LegsSlot", LEGSSLOT, "INVTYPE_LEGS", 0, true},
-    [8] = {"FeetSlot", FEETSLOT, "INVTYPE_FEET", 0, true},
-    [9] = {"WristSlot", WRISTSLOT, "INVTYPE_WRIST", 0, true},
-    [10]= {"HandsSlot", HANDSSLOT, "INVTYPE_HAND", 0, true},
-    [11]= {"Finger0Slot", FINGER0SLOT_UNIQUE, "INVSLOT_FINGER1", 0},
-    [12]= {"Finger1Slot", FINGER1SLOT_UNIQUE, "INVSLOT_FINGER2", 0},
+    [5] = {"ChestSlot", CHESTSLOT, "INVTYPE_CHEST", 0, true, 4},
+    [6] = {"WaistSlot", WAISTSLOT, "INVTYPE_WAIST", 0, true, 7},
+    [7] = {"LegsSlot", LEGSSLOT, "INVTYPE_LEGS", 0, true, 8},
+    [8] = {"FeetSlot", FEETSLOT, "INVTYPE_FEET", 0, true, 9},
+    [9] = {"WristSlot", WRISTSLOT, "INVTYPE_WRIST", 0, true, 5},
+    [10]= {"HandsSlot", HANDSSLOT, "INVTYPE_HAND", 0, true, 6},
+    [11]= {"Finger0Slot", FINGER0SLOT_UNIQUE, "INVSLOT_FINGER1", 0, 10},
+    [12]= {"Finger1Slot", FINGER1SLOT_UNIQUE, "INVSLOT_FINGER2", 0, 10},
     [13]= {"Trinket0Slot", TRINKET0SLOT_UNIQUE, "INVSLOT_TRINKET1", 0},
     [14]= {"Trinket1Slot", TRINKET1SLOT_UNIQUE, "INVSLOT_TRINKET2", 0},
-    [15]= {"BackSlot", BACKSLOT, "INVTYPE_CLOAK", 0, true},
-    [16]= {"MainHandSlot", MAINHANDSLOT, "INVTYPE_WEAPONMAINHAND", 0, true},
-    [17]= {"SecondaryHandSlot", SECONDARYHANDSLOT, "INVTYPE_WEAPONOFFHAND", 0, true},
+    [15]= {"BackSlot", BACKSLOT, "INVTYPE_CLOAK", 0, true, 3},
+    [16]= {"MainHandSlot", MAINHANDSLOT, "INVTYPE_WEAPONMAINHAND", 0, true, 128},
+    [17]= {"SecondaryHandSlot", SECONDARYHANDSLOT, "INVTYPE_WEAPONOFFHAND", 0, true, 128},
     [18]= {"AmmoSlot", RANGEDSLOT, "INVSLOT_RANGED", 0},
     [19]= {"TabardSlot", TABARDSLOT, "INVTYPE_TABARD", 0, true},
 }
 
-local invTypeSlotID = {
+local InvTypeXSlotID = {
     INVTYPE_WEAPON = 16,
     INVTYPE_2HWEAPON = 16,
     INVTYPE_SHIELD = 17,
@@ -38,35 +43,46 @@ local invTypeSlotID = {
     INVTYPE_TRINKET = 13,
 };
 
-for slotID, info in pairs(slotData) do
+local HoldableItem = {
+    INVTYPE_WEAPON = true,
+    INVTYPE_2HWEAPON = true,
+    INVTYPE_SHIELD = true,
+    INVTYPE_HOLDABLE = true,
+    INVTYPE_RANGED = true,
+    INVTYPE_RANGEDRIGHT = true,
+    INVTYPE_WEAPONMAINHAND = true,
+    INVTYPE_WEAPONOFFHAND = true,
+};
+
+for slotID, info in pairs(SlotData) do
     _, info[4] = GetInventorySlotInfo(info[1]);  --texture
-    invTypeSlotID[ info[3] ] = slotID;
+    InvTypeXSlotID[ info[3] ] = slotID;
 end
 
 local function GetSlotIDByInvType(invType)
-    return invTypeSlotID[invType]
+    return InvTypeXSlotID[invType]
 end
 
 local function GetSlotIDByItemID(itemID)
     local _, _, _, invType = GetItemInfoInstant(itemID);
-    return invTypeSlotID[invType]
+    return InvTypeXSlotID[invType]
 end
 
 local function GetSlotNameAndTexture(slotID)
-    if slotData[slotID] then
-        return slotData[slotID][2], slotData[slotID][4]
+    if SlotData[slotID] then
+        return SlotData[slotID][2], SlotData[slotID][4]
     end
 end
 
 local function GetInventorySlotNameBySlotID(slotID)
-    if slotData[slotID] then
-        return slotData[slotID][1]
+    if SlotData[slotID] then
+        return SlotData[slotID][1]
     end
 end
 
 local function GetSlotButtonNameBySlotID(slotID)
-    if slotData[slotID] then
-        return "Character"..slotData[slotID][1];
+    if SlotData[slotID] then
+        return "Character"..SlotData[slotID][1];
     end
 end
 
@@ -101,7 +117,7 @@ local function ConvertTableToBool(list)
     return tbl
 end
 
-local itemTypes = {
+local ItemTypes = {
     -- {classID, subclassID, exampleItemID(then placed by type name)}
     Axe1H = {2, 0, 37},
     Axe2H = {2, 1, 12282},
@@ -124,11 +140,11 @@ local itemTypes = {
 
 local typeIDKeys = {};
 
-for key, data in pairs(itemTypes) do
+for key, data in pairs(ItemTypes) do
     local classID, subclassID, tempItemID = unpack(data);
     local itemID, itemType, itemSubType = GetItemInfoInstant(tempItemID);
     if itemID then
-        itemTypes[key][3] = itemSubType;
+        ItemTypes[key][3] = itemSubType;
         local guid = toGUID(classID, subclassID);
         typeIDKeys[guid] = key;
     else
@@ -170,8 +186,8 @@ local isEnchantableWeapon = ConvertTableToBool(enchantableWeapons);
 
 local function GetItemTypeNameByGUID(guid)
     local key = typeIDKeys[guid];
-    if key and itemTypes[key] then
-        return itemTypes[key][3]
+    if key and ItemTypes[key] then
+        return ItemTypes[key][3]
     end
 end
 
@@ -234,10 +250,91 @@ local function GetItemTempEnchantRequirement(typeID)
 end
 
 local function IsSlotValidForTransmog(slotID)
-    return slotID and slotData[slotID][5]
+    return slotID and SlotData[slotID][5]
+end
+
+local function IsHoldableItem(item)
+    if item then
+        local _, _, _, itemEquipLoc = GetItemInfoInstant(item);
+        return HoldableItem[itemEquipLoc];
+    end
 end
 
 NarciAPI.GetItemTempEnchantType = GetItemTempEnchantType;
 NarciAPI.GetItemTempEnchantRequirement = GetItemTempEnchantRequirement;
 NarciAPI.IsWeaponValidForEnchant = IsWeaponValidForEnchant;
 NarciAPI.IsSlotValidForTransmog = IsSlotValidForTransmog;
+NarciAPI.IsHoldableItem = IsHoldableItem;
+
+
+
+
+--Find bag items by Class/Subclass ID
+local function GetItemEnchancementSubclassIDFromSlot(slotID)
+    local subclassID;
+
+    if slotID == 16 or slotID == 17 then
+        --Weapon Slots
+        local itemID = GetInventoryItemID("player", slotID);
+        if itemID then
+            local classID, itemSubclassID = select(6, GetItemInfoInstant(itemID));
+            if classID == 4 and itemSubclassID == 6 then
+                subclassID = 13;    --Shield
+            elseif classID == 2 then
+                if itemSubclassID == 2 or itemSubclassID == 3 or itemSubclassID == 18 then
+                    subclassID = 12;    --Hunter ranged weapon is deemed Two-Handed Weapon
+                elseif itemSubclassID == 20 then
+                    subclassID = 14;    --Misc Tools Fishingpole
+                else
+                    subclassID = 11;
+                end
+            end
+        end
+    else
+        subclassID = SlotData[slotID][6];
+    end
+
+    return subclassID
+end
+
+local function GetBagItemsByItemType(condition)
+    --Doesn't work on Wrath reputation enchants like [Arcanum of X]
+    --Don't appear to cause any stutter
+    local _, itemID, classID, subclassID;
+    local n = 0;
+    local itemFound = {};
+    local itemList = {};
+    for i = 0, 4 do     --NUM_BAG_SLOTS
+        for j = 1, GetContainerNumSlots(i) do
+            itemID = GetContainerItemID(i, j);
+            if itemID then
+                itemID, _, _, _, _, classID, subclassID = GetItemInfoInstant(itemID);
+                if condition(classID, subclassID) then
+                    if not itemFound[itemID] then
+                        itemFound[itemID] = true;
+                        n = n + 1;
+                        itemList[n] = itemID;
+                    end
+                end
+            end
+        end
+    end
+
+    return itemList, n
+end
+
+local function GetBagItemEnchancementForSlot(slotID)
+    local subclassID = GetItemEnchancementSubclassIDFromSlot(slotID);
+    if subclassID then
+        local condition = function(itemClassID, itemSubclassID)
+            return itemClassID == 8 and itemSubclassID == subclassID;
+        end
+        return GetBagItemsByItemType(condition);
+    else
+        return nil, 0
+    end
+end
+
+
+NarciAPI.GetBagItemsByItemType = GetBagItemsByItemType;
+NarciAPI.GetBagItemEnchancementForSlot = GetBagItemEnchancementForSlot;

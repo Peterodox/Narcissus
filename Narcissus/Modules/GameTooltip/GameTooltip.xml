@@ -2,6 +2,7 @@
     <Script file="Delay.lua"/>
     <Script file="EmbededGemFrame.lua"/>
     <Script file="EmbededSpellFrame.lua"/>
+    <Script file="SpecialItems.lua"/>
     <Script file="GameTooltip.lua"/>
 
     <GameTooltip name="NarciGameTooltip" hidden="true" clampedToScreen="true" mixin="NarciGameTooltipMixin">
@@ -23,23 +24,23 @@
                         <Anchor point="RIGHT" relativeKey="$parent.TextLeft1" relativePoint="LEFT" x="40" y="0"/>
                     </Anchors>
                 </FontString>
-                <FontString name="$parentTextLeft2" parentKey="TextLeft2" inherits="NarciFontNormal10"  justifyH="LEFT"/>
+                <FontString name="$parentTextLeft2" parentKey="TextLeft2" inherits="NarciFontNormal10" justifyH="LEFT"/>
                 <FontString name="$parentTextRight2" parentKey="TextRight2" inherits="NarciFontNormal10" justifyH="RIGHT">
                     <Anchors>
                         <Anchor point="RIGHT" relativeKey="$parent.TextLeft2" relativePoint="LEFT" x="40" y="0"/>
                     </Anchors>
                 </FontString>
                 <Texture name="$parentTexture1">
-                    <Size x="4" y="4"/>
+                    <Size x="12" y="12"/>
                 </Texture>
                 <Texture name="$parentTexture2">
-                    <Size x="4" y="4"/>
+                    <Size x="12" y="12"/>
                 </Texture>
                 <Texture name="$parentTexture3">
-                    <Size x="4" y="4"/>
+                    <Size x="12" y="12"/>
                 </Texture>
                 <Texture name="$parentTexture4">
-                    <Size x="4" y="4"/>
+                    <Size x="12" y="12"/>
                 </Texture>
             </Layer>
         </Layers>
@@ -54,6 +55,7 @@
             <OnShow method="OnShow"/>
             <OnHide method="OnHide"/>
             <OnSizeChanged method="OnSizeChanged"/>
+            <OnTooltipCleared method="OnTooltipCleared"/>
         </Scripts>
     </GameTooltip>
  
@@ -192,7 +194,7 @@
                 </Layers>
             </Frame>
             <Frame parentKey="FlavorTextFrame" hidden="true"/>
-            <DressUpModel parentKey="ItemModel" hidden="true" useParentLevel="true" ignoreParentAlpha="false">
+            <DressUpModel parentKey="ItemModel" hidden="true" useParentLevel="true" ignoreParentAlpha="true">
                 <Size x="78" y="102"/>
                 <Anchors>
                     <Anchor point="BOTTOMRIGHT" relativeKey="$parent.HeaderFrame" relativePoint="BOTTOMRIGHT" x="-24" y="1"/>
@@ -206,8 +208,8 @@
                 </Layers>
                 <Animations>
                     <AnimationGroup parentKey="FadeIn">
-                        <Alpha fromAlpha="0" toAlpha="0" duration="1" order="1" parentKey="Hold"/>
-                        <Alpha fromAlpha="0" toAlpha="1" duration="0.25" order="2"/>
+                        <Alpha fromAlpha="0" toAlpha="0" duration="0" order="1"/>
+                        <Alpha startDelay="0.1" fromAlpha="0" toAlpha="1" duration="0.2" order="2"/>
                     </AnimationGroup>
                 </Animations>
             </DressUpModel>
@@ -222,5 +224,25 @@
             <OnLoad method="OnLoad"/>
             <OnShow method="OnShow"/>
         </Scripts>
+    </Frame>
+
+    <Frame name="NarciGameTooltipEmbeddedIconTextFrame" virtual="true">
+        <Size x="154" y="28"/>
+        <Layers>
+            <Layer level="OVERLAY">
+                <Texture parentKey="Icon">
+                    <Size x="24" y="24"/>
+                    <Anchors>
+                        <Anchor point="LEFT"/>
+                    </Anchors>
+                </Texture>
+                <FontString parentKey="Text" inherits="NarciFontNormal10" justifyH="LEFT" justifyV="MIDDLE" spacing="2">
+                    <Size x="0" y="0"/>
+                    <Anchors>
+                        <Anchor point="LEFT" relativeKey="$parent.Icon" relativePoint="RIGHT" x="6"/>
+                    </Anchors>
+                </FontString>
+            </Layer>
+        </Layers>
     </Frame>
 </Ui>

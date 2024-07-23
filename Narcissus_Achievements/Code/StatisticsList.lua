@@ -790,10 +790,14 @@ local function GetScreenshotsTaken()
 end
 
 local function GetQuestReading()
-    local locale, numQuests, numWords, timeReading, speed = NarciAPI.GetQuestStatistics();
-    if locale then
-        local f = "Completed: %s (%s words)  Reading: %s (%s wpm)";
-        return string.format(f, numQuests, numWords, timeReading, speed);
+    if NarciStatisticsDB.SLQuestReadingTime then
+        local locale, numQuests, numWords, timeReading, speed = unpack(NarciStatisticsDB.SLQuestReadingTime);
+        if locale then
+            local f = S["Quest Text Reading Speed Format"];
+            return string.format(f, numQuests, numWords, timeReading, speed);
+        else
+            return NONE;
+        end
     else
         return NONE;
     end
@@ -814,7 +818,7 @@ local customStatData = {
 
     [12080003] = {
         --Reading Quest
-        name = "Shadowlands Quests",
+        name = S["Shadowlands Quests"],
         valueFunc = GetQuestReading,
     }
 }

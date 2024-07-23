@@ -7,9 +7,9 @@ local FadeFrame = NarciFadeUI.Fade;
 
 local GemIDList = {};
 local DominationShardIDs = {};
-local GetItemIcon = GetItemIcon;
-local GetItemCount = GetItemCount;
-local GetItemInfo = GetItemInfo;
+local GetItemIcon = C_Item.GetItemIconByID;
+local GetItemCount = C_Item.GetItemCount;
+local GetItemInfo = C_Item.GetItemInfo;
 local NUM_EXAMPLE_GEMS = 3;
 
 for gemID, info in pairs(Narci.GemData) do
@@ -200,7 +200,7 @@ end
 function NarciGemSlotMixin:LoadGemList()
     self:CountGems();
     SOCKETED_ITEM_LEVEL = self.ItemLevel;
-    if self.numGems == 0 and not self.isDomiationSocket then return; end;
+    --if self.numGems == 0 and not self.isDomiationSocket then return; end;
     Narci_EquipmentOption:SetGemListFromSlotButton(self:GetParent());
     FadeFrame(Narci_GearEnhancement_Tooltip, 0.15, 0);
 end

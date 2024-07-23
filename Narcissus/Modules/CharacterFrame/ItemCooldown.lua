@@ -67,7 +67,10 @@ function NarciItemCooldownFrameMixin:SetCooldown(start, duration)
         end)
 
         After(0, function()
-            self.ClockFrame.Pointer:SetVertexColor(unpack(self:GetParent().itemNameColor));
+            local color = self:GetParent().itemNameColor;
+            if color then
+                self.ClockFrame.Pointer:SetVertexColor(unpack(color));
+            end
         end);
     end
 

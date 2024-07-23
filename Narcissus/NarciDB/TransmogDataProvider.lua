@@ -4,9 +4,10 @@ local MogAPI = C_TransmogCollection;
 local PlayerHasTransmog = MogAPI.PlayerHasTransmogItemModifiedAppearance;
 local IsAppearanceFavorite = MogAPI.GetIsAppearanceFavorite;
 local GetSourceInfo = MogAPI.GetSourceInfo;
+local C_TransmogSets = C_TransmogSets;
 
 local CreateItemTransmogInfo = ItemUtil.CreateItemTransmogInfo;
-local GetItemInfoInstant = GetItemInfoInstant;
+local GetItemInfoInstant = C_Item.GetItemInfoInstant;
 local strsplit = strsplit;
 
 local LocalizedData = addon.LocalizedData;
@@ -446,6 +447,71 @@ function DataProvider:ConvertBWOutfitToString(outfit)
     return transmogString
 end
 
+
+do  --Find if an item is a piece of Transmog Set    --Debug
+    local SourceIDXTransmogSetID;
+
+    function DataProvider:GetOwnerSetID(sourceID)
+        if not sourceID then return end;
+
+        if not SourceIDXTransmogSetID then
+            SourceIDXTransmogSetID = {};
+
+            local ipairs = ipairs;
+            local GetSetInfo = C_TransmogSets.GetSetInfo;
+            local GetAllSourceIDs = C_TransmogSets.GetAllSourceIDs;
+            local info, expansionID, sources;
+
+            for setID = 5000, 1, -1 do
+                info = GetSetInfo(setID);
+                if info then
+                    expansionID = info.expansionID;
+                    if expansionID and expansionID >= 9 then
+                        sources = GetAllSourceIDs(setID);
+                        if sources then
+                            for _, id in ipairs(sources) do
+                                SourceIDXTransmogSetID[id] = setID;
+                            end
+                        end
+                    else
+                        break
+                    end
+                end
+            end
+        end
+
+        return SourceIDXTransmogSetID[sourceID]
+    end
+
+    function DataProvider:IsSoucePartOfTransmogSet(sourceID)
+        return self:GetOwnerSetID(sourceID) ~= nil
+    end
+
+    function DataProvider:GetOwnerSetName(sourceID)
+        local setID = self:GetOwnerSetID(sourceID);
+        if setID then
+            local info = C_TransmogSets.GetSetInfo(setID);
+            return info.name
+        end
+    end
+
+    function DataProvider:GetOwnerSetInfo(sourceID)
+        local setID = self:GetOwnerSetID(sourceID);
+        if setID then
+            local customInfo = {};
+            local info = C_TransmogSets.GetSetInfo(setID);
+            customInfo.name = info.name;
+            customInfo.sources = C_TransmogSets.GetAllSourceIDs(setID);
+            return customInfo
+        end
+    end
+
+    function DataProvider:ClearTransmogSetCache()
+        --Called by our PerksProgram Module
+        SourceIDXTransmogSetID = nil;
+    end
+end
+
 --Debug
 --[[
 function GetTransmogStringByOutfitID(outfitID)
@@ -676,8 +742,6 @@ local ArtifactSourceIDXArtifactSetID = {
     [76173] = 46,
     [77409] = 46,
     [76530] = 47,
-    [76335] = 48,
-    [73655] = 48,
     [76529] = 50,
     [76527] = 51,
     [77351] = 51,
@@ -868,10 +932,6 @@ local ArtifactSourceIDXArtifactSetID = {
     [77427] = 85,
     [76192] = 85,
     [77428] = 85,
-    [76335] = 48,
-    [73655] = 48,
-    [76335] = 48,
-    [73655] = 48,
     [76335] = 48,
     [73655] = 48,
     [76336] = 48,
@@ -1093,14 +1153,8 @@ local ArtifactSourceIDXArtifactSetID = {
     [77021] = 110,
     [76524] = 91,
     [73667] = 91,
-    [76524] = 91,
-    [73667] = 91,
-    [76524] = 91,
-    [73667] = 91,
     [77023] = 91,
     [77235] = 91,
-    [76524] = 91,
-    [73667] = 91,
     [77024] = 91,
     [77236] = 91,
     [96451] = 112,

@@ -42,10 +42,37 @@ local MAP_UI_INFO = {
     [234] = {name = 'return-to-karazhan', barColor = '68abe0'},    --Upper
     [166] = {name = 'grimrail-depot', barColor = 'b79266'},
     [169] = {name = 'iron-docks', barColor = 'b79266'},
+
+    [165] = {name = 'shadowmoon-burial-grounds', },
+    [399] = {name = 'ruby-life-pools', },
+    [400] = {name = 'the-nokhud-offensive', },
+    [401] = {name = 'the-azure-vault', },
+    [200] = {name = 'halls-of-valor', },
+    [210] = {name = 'court-of-stars', },
+    [402] = {name = 'algethar-academy', },
+    [2] = {name = 'temple-of-the-jade-serpent', },
+
+    [438] = {name = 'the-vortex-pinnacle', },
+    [403] = {name = 'uldaman-legacy-of-tyr', },
+    [404] = {name = 'neltharus', },
+    [406] = {name = 'halls-of-infusion', },
+    [251] = {name = 'the-underrot', },
+    [245] = {name = 'freehold', },
+    [206] = {name = 'neltharions-lair', },
+    [405] = {name = 'brackenhide-hollow', },
+
+    [244] = {name = 'ataldazar', },
+    [199] = {name = 'black-rook-hold', },
+    [198] = {name = 'darkheart-thicket', },
+    [168] = {name = 'the-everbloom', },
+    [456] = {name = 'throne-of-the-tides', },
+    [248] = {name = 'waycrest-manor', },
+    [463] = {name = 'dawn-of-the-infinite', },  --Galakrond
+    [464] = {name = 'dawn-of-the-infinite', },  --Murozond
 };
 
-local SEASON_MAPS = {391, 392, 234, 227, 370, 369, 169, 166};
-
+local SEASON_MAPS = {244, 199, 198, 168, 463, 464, 456, 248};
+local IS_MAP_THIS_SEASON = {};
 
 local function ShowNewDungeons()
     --Use this to get season map
@@ -316,17 +343,16 @@ function NarciMythicPlusRatingCardMixin:SetUpByMapID(mapID)
     if (overallScore and overallScore > 0) and (affixScores and #affixScores > 0) then
         local name, duration, overTime, level, score;
         local info1, info2;
-        if #affixScores == 1 then
-            name = affixScores[1].name;
+
+        for i = 1, #affixScores do
+            name = affixScores[i].name;
             if name == AFFIX_TYRANNICAL then
-                info1 = affixScores[1];
+                info1 = affixScores[i];
             else
-                info2 = affixScores[1];
+                info2 = affixScores[i];
             end
-        else
-            info1 = affixScores[1];
-            info2 = affixScores[2];
         end
+
         local info = {info1, info2};
         local data, v;
         for i = 1, 2 do
@@ -557,6 +583,9 @@ function NarciMythicPlusDisplayMixin:Init()
             self.maps = SEASON_MAPS;
         end
 
+        for _, mapID in ipairs(self.maps) do
+            IS_MAP_THIS_SEASON[mapID] = true;
+        end
     end
 
     local numRows = math.ceil(#self.maps * 0.5);
@@ -694,9 +723,17 @@ function NarciMythicPlusDisplayMixin:PostUpdate()
     local text = overallScore;
     local runHistory = C_MythicPlus.GetRunHistory(true, true);
     if runHistory then
-        local numRuns = #runHistory;
-        if numRuns > 0 then
-            text = text.."     ".. Narci.L["Total Runs"] .."|cffffffff"..numRuns.."|r";
+        local total = 0;
+
+        for i, info in ipairs(runHistory) do
+            if info.mapChallengeModeID and IS_MAP_THIS_SEASON[info.mapChallengeModeID] then
+                --Only count the ones that are in the current map pool
+                total = total + 1;
+            end
+        end
+
+        if total > 0 then
+            text = text.."     ".. Narci.L["Total Runs"] .."|cffffffff"..total.."|r";
         end
     end
 
@@ -953,7 +990,7 @@ function NarciMythicPlusDisplayMixin:SetMapDetail(mapID, useIntimeOrOvertime)
             f.Duration:SetTextColor(1, 1, 1);
             f.Level:SetText( data.level );
             f.Level:SetTextColor(1, 1, 1);
-            f.Date:SetText( FormatShortDate(data.completionDate.day, data.completionDate.month, data.completionDate.year) );
+            f.Date:SetText( FormatShortDate(data.completionDate.day, (data.completionDate.month or 0) + 1, data.completionDate.year) ); --month starts from zero why?
             f.Score:SetText( data.dungeonScore );
             local color = C_ChallengeMode.GetSpecificDungeonScoreRarityColor(data.dungeonScore);
             if (not color) then
@@ -1088,7 +1125,7 @@ function NarciMythicPlusHistogrameMixin:SetData(mapID, intimeRun, overtimeRun, n
     local sum = normalizedRun--(intimeRun + overtimeRun);
     self.MapName:SetText(DataProvider:GetMapName(mapID));
     local r, g, b;
-    if MAP_UI_INFO[mapID] then
+    if MAP_UI_INFO[mapID] and MAP_UI_INFO[mapID].barColor then
         r, g, b = unpack(ConvertHexColorToRGB(MAP_UI_INFO[mapID].barColor));
     else
         r, g, b = 0.8, 0.8, 0.8;

@@ -7,7 +7,7 @@ local BagProcessor = addon.BagProcessor;
 local ItemFilter = addon.ItemFilter;
 local PrimarySearchBox = addon.PrimarySearchBox;
 
-local GetMouseFocus = GetMouseFocus;
+local GetMouseFocus = NarciAPI.TransitionAPI.GetMouseFocus;
 local IsMouseButtonDown = IsMouseButtonDown;
 
 local PAGE_FORMAT = COLLECTION_PAGE_NUMBER or "Page %s / %s";
@@ -671,8 +671,6 @@ function NarciBagItemSearchPopupButtonMixin:OnClick()
     if self.hideUIAfterClick then
         MainFrame:HideUI();
     end
-
-
 
     if notSearch then
         

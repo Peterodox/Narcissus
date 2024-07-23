@@ -28,7 +28,7 @@ local MainFrame, BackdropContainer, FocusedButton, SelectionFrame, HighlightFram
 local SELECTED_INDEX, PREVIEW_INDEX;
 
 local AreaData = {
-    --[index] = {fileName, areaID},     --see https://wow.tools/dbc/?dbc=areatable
+    --[index] = {fileName, areaID},     --see https://wago.tools/db2/AreaTable
     --/script local s=7900;local n;for i = s, s+100 do n=C_Map.GetAreaInfo(i) if n then print(i.. "  "..n) end end
     {"stormwind_cathedral", 5151},
     {"ironforge", 809},

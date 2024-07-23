@@ -41,7 +41,6 @@ L["Heritage Armor"] = "Armure Ancestrale";
 
 --Model Control--
 NARCI_GROUP_PHOTO = "Photo de Groupe";
-NARCI_GROUP_PHOTO_NOTIFICATION = "S'il vous plaît sélectionner un joueur.";
 
 --NPC Browser--
 NARCI_NPC_BROWSER_TITLE_LEVEL = ".iveau.*"
@@ -681,3 +680,8 @@ L["Use Class Background"] = "Utiliser l'arrière-plan de classe";
 L["Empty Loadout Name"] = "Nom";
 L["No Save Slot Red"] = NARCI_COLOR_RED_MILD.. "Pas d'emplacement de sauvegarde" .."|r";
 L["Save"] = "Sauvegarder";
+
+L["Day Plural"] = "jours";
+L["Day Singular"] = "jour";
+L["Hour Plural"] = "heures";
+L["Hour Singular"] = "heure";

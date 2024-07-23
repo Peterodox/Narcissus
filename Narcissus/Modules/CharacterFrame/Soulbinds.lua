@@ -29,8 +29,8 @@ QUALITY_COLORS[1] = {0.8, 0.8, 0.8};
 
 local C_Item = C_Item;
 local C_Soulbinds = C_Soulbinds;
-local GetSpellInfo = GetSpellInfo;
-local GetSpellTexture = GetSpellTexture;
+local GetSpellInfo = addon.TransitionAPI.GetSpellInfo;
+local GetSpellTexture = addon.TransitionAPI.GetSpellTexture;
 
 local MainFrame, NodesContainer, CollectionFrame, ConduitTooltip;
 
@@ -86,8 +86,12 @@ end
 local QueueFrame = NarciAPI.CreateProcessor();
 
 local ReferenceTooltip = CreateFrame("GameTooltip", "NarciSoulbindsConduitReferenceTooltip", UIParent, "GameTooltipTemplate");
-ReferenceTooltip:SetScript("OnTooltipAddMoney", nil);
-ReferenceTooltip:SetScript("OnTooltipCleared", nil);
+if ReferenceTooltip:HasScript("OnTooltipAddMoney") then --dragonflight
+    ReferenceTooltip:SetScript("OnTooltipAddMoney", nil);
+end
+if ReferenceTooltip:HasScript("OnTooltipCleared") then
+    ReferenceTooltip:SetScript("OnTooltipCleared", nil);
+end
 
 local DataProvider = {};
 DataProvider.conduitItemIDs = {};
@@ -1469,7 +1473,7 @@ end
 
 ----------------------------------------------
 --Conduit Collection
-local GetMouseFocus = GetMouseFocus;
+local GetMouseFocus = addon.TransitionAPI.GetMouseFocus;
 local delayExecute = NarciAPI_CreateAnimationFrame(0.65);
 delayExecute:SetScript("OnUpdate", function(self, elapsed)
     self.total = self.total + elapsed;

@@ -356,10 +356,10 @@ end
 ---- Feature Preview Pictures ----
 local FeaturePreview = {
     --textureKey[same as DB key] = {fileName, imageWidth, imageWidth, effectiveWidth, effectiveHeight}
-    PaperDollWidget = {"Preview-PaperDollWidget", 512, 256, 250, 185},
-    ConduitTooltip = {"Preview-ConduitTooltip", 512, 256, 256, 188},
-    NameTranslationPosition1 = {"Preview-TranslationOnTooltip", 256, 256, 149, 193},
-    NameTranslationPosition2 = {"Preview-TranslationOnNameplate", 256, 256, 149, 193},
+    PaperDollWidget = {"Preview-PaperDollWidget.png", 512, 256, 250, 185},
+    ConduitTooltip = {"Preview-ConduitTooltip.png", 512, 256, 256, 188},
+    NameTranslationPosition1 = {"Preview-TranslationOnTooltip.png", 256, 256, 149, 193},
+    NameTranslationPosition2 = {"Preview-TranslationOnNameplate.png", 256, 256, 149, 193},
 };
 
 function FeaturePreview.FadeIn_OnUpdate(f, elapsed)
@@ -679,6 +679,14 @@ local function ModelPanelScale_OnValueChanged(self, value)
     SettingFunctions.SetModelPanelScale(value);
 end
 
+local function LoopAnimation_OnValueChanged(self, value)
+    SettingFunctions.SetModelLoopAnimation(value);
+end
+
+local function SpeedyScreenshotAlert_OnValueChanged(self, value)
+    SettingFunctions.SpeedyScreenshotAlert(value);
+end
+
 local function GetOppositeValue(value)
     value = Round0(value);
     if value > 0 then
@@ -735,7 +743,7 @@ local function CameraOrbitToggle_OnValueChanged(self, state)
 end
 
 local function CameraSafeToggle_IsValid()
-    if IsAddOnLoaded("DynamicCam") then
+    if C_AddOns.IsAddOnLoaded("DynamicCam") then
         return false
     else
         return true
@@ -763,8 +771,19 @@ local function DressingRoomToggle_OnValueChanged(self, state)
     end
 end
 
+local function LFRWingDetails_OnValueChanged(self, state)
+    SettingFunctions.EnableGossipFrameSoloQueueLFRDetails(state);
+end
+
 local function PaperDollWidgetToggle_OnValueChanged(self, state)
     SettingFunctions.EnablePaperDollWidget(state);
+end
+
+local function PaperDollWidget_Update()
+    local f = NarciPaperDollWidgetController;
+    if f  then
+        f:UpdateIfEnabled();
+    end
 end
 
 local function ConduitTooltipToggle_OnValueChanged(self, state)
@@ -843,14 +862,20 @@ end
 
 
 function CreditList:CreateList(parent, anchorTo, fromOffsetY)
-    local active = {"Albator S.", "Solanya", "Erik Shafer", "Celierra&Darvian", "Pierre-Yves Bertolus", "Terradon", "Alex Boehm", "Miroslav Kovac", "Ryan Zerbin", "Nisutec"};
-    local inactive = {"Elexys", "Ben Ashley", "Knightlord", "Brian Haberer", "Andrew Phoenix", "Nantangitan", "Blastflight", "Lars Norberg", "Valnoressa", "Nimrodan", "Brux",
-        "Karl", "Webb", "acein", "Christian Williamson", "Tzutzu", "Anthony Cordeiro", "Nina Recchia", "heiteo", "Psyloken", "Jesse Blick", "Victor Torres"};
-    local special = {"Marlamin | WoW.tools", "Keyboardturner | Avid Bug Finder(Generator)", "Meorawr | Wondrous Wisdomball", "Hubbotu | Translator - Russian", "Romanv | Translator - Spanish"};
+    local active = {"Albator S.", "Lala.Marie", "Erik Shafer", "Celierra&Darvian", "Pierre-Yves Bertolus", "Terradon", "Miroslav Kovac", "Ryan Zerbin", "Helene Rigo", "Kit M"};
+    local inactive = {"Alex Boehm", "Solanya", "Elexys", "Ben Ashley", "Knightlord", "Brian Haberer", "Andrew Phoenix", "Nantangitan", "Blastflight", "Lars Norberg", "Valnoressa", "Nimrodan", "Brux",
+        "Karl", "Webb", "acein", "Christian Williamson", "Tzutzu", "Anthony Cordeiro", "Nina Recchia", "heiteo", "Psyloken", "Jesse Blick", "Victor Torres", "Nisutec", "Tezenari", "Gina"};
+    local special = {"Marlamin | WoW.tools", "Keyboardturner | Avid Bug Finder(Generator)", "Meorawr | Wondrous Wisdomball", "Ghost | Real Person", "Hubbotu | Translator - Russian", "Romanv | Translator - Spanish", "Onizenos | Translator - Portuguese"};
+
+    local aciveColor = "|cff914270";
 
     local numTotal = #active;
     local mergedList = active;
     local totalHeight;
+
+    for i = 1, #active do
+        active[i] = aciveColor ..active[i].."|r";
+    end
 
     for i = 1, #inactive do
         numTotal = numTotal + 1;
@@ -858,9 +883,10 @@ function CreditList:CreateList(parent, anchorTo, fromOffsetY)
     end
 
     local upper = string.upper;
+    local gsub = string.gsub;
 
     table.sort(mergedList, function(a, b)
-        return upper(a) < upper(b)
+        return upper( gsub(a, aciveColor, "") ) < upper( gsub(b, aciveColor, "") )
     end);
 
 
@@ -2019,10 +2045,12 @@ local Categories = {
     {name = L["Photo Mode"], level = 0, key = "photoMode",
         widgets = {
             {type = "header", level = 0, text = L["Photo Mode"]},
+            {type = "checkbox", level = 1, key = "LoopAnimation", text = L["Loop Animation"], onValueChangedFunc = LoopAnimation_OnValueChanged},
             {type = "slider", level = 1, key = "screenshotQuality", text = L["Sceenshot Quality"], onValueChangedFunc = ScreenshotQuality_OnValueChanged, minValue = 3, maxValue = 10, getValueFunc = ScreenshotQuality_GetValue, valueFormatFunc = Round0, convertionFunc = Round0},
             {type = "subheader", level = 1, text = L["Screenshot Quality Description"]},
             {type = "slider", level = 1, key = "ModelPanelScale", text = L["Panel Scale"], onValueChangedFunc = ModelPanelScale_OnValueChanged, minValue = 0.8, maxValue = 1, valueStep = 0.1, extraTopPadding = 1, valueFormatFunc = Round1},
             {type = "slider", level = 1, key = "ShrinkArea", text = L["Interactive Area"], onValueChangedFunc = ModelHitRectShrinkage_OnValueChanged, minValue = 0, maxValue = MAX_MODEL_SHRINKAGE, valueFormatFunc = GetOppositeValue, convertionFunc = Round0},
+            {type = "checkbox", level = 1, key = "SpeedyScreenshotAlert", text = L["Speedy Screenshot Alert"], onValueChangedFunc = SpeedyScreenshotAlert_OnValueChanged},
         },
     },
 
@@ -2040,12 +2068,15 @@ local Categories = {
 
     {name = L["Extensions"], level = 0, key = "extensions",
         widgets = {
-            {type = "header", level = 0, text = "Extensions"},
-            {type = "checkbox", level = 1, key = "GemManager", text = L["Gem Manager"], onValueChangedFunc = GemManagerToggle_OnValueChanged, description = L["Gemma Description"]},
+            {type = "header", level = 0, text = L["Extensions"]},
+            {type = "checkbox", level = 1, key = "GemManager", text = L["Gem List"], onValueChangedFunc = GemManagerToggle_OnValueChanged, description = L["Gemma Description"]},
             {type = "checkbox", level = 1, key = "DressingRoom", text = L["Dressing Room"], onValueChangedFunc = DressingRoomToggle_OnValueChanged, description = L["Dressing Room Description"]},
-            {type = "subheader", level = 1, text = "Expansion Features", extraTopPadding = 1},
+            {type = "checkbox", level = 1, key = "SoloQueueLFRDetails", text = L["LFR Wing Details"], onValueChangedFunc = LFRWingDetails_OnValueChanged, description = L["LFR Wing Details Description"]},
+            {type = "subheader", level = 1, text = L["Expansion Features"], extraTopPadding = 1},
             {type = "checkbox", level = 1, key = "PaperDollWidget", text = L["Paperdoll Widget"], onValueChangedFunc = PaperDollWidgetToggle_OnValueChanged, showFeaturePreview = true, onEnterFunc = FeaturePreview.ShowPreview, onLeaveFunc = FeaturePreview.HidePreview},
-            {type = "checkbox", level = 1, key = "ConduitTooltip", text = L["Conduit Tooltip"], onValueChangedFunc = ConduitTooltipToggle_OnValueChanged, showFeaturePreview = true, onEnterFunc = FeaturePreview.ShowPreview, onLeaveFunc = FeaturePreview.HidePreview},
+                {type = "checkbox", level = 2, key = "PaperDollWidget_ClassSet", text = L["Class Set Indicator"], isChild = true, onValueChangedFunc = PaperDollWidget_Update},
+                {type = "checkbox", level = 2, key = "PaperDollWidget_Remix", text = L["Remix Gem Manager"], isChild = true, onValueChangedFunc = PaperDollWidget_Update},
+            --{type = "checkbox", level = 1, key = "ConduitTooltip", text = L["Conduit Tooltip"], onValueChangedFunc = ConduitTooltipToggle_OnValueChanged, showFeaturePreview = true, onEnterFunc = FeaturePreview.ShowPreview, onLeaveFunc = FeaturePreview.HidePreview},
         },
     },
 
@@ -2059,6 +2090,9 @@ local Categories = {
     },
 };
 
+local function InsertCategory(newCategory)
+    table.insert(Categories, #Categories -1, newCategory);
+end
 
 if IS_DRAGONFLIGHT then
     local function ShowTreeCase1(self, state)
@@ -2069,26 +2103,56 @@ if IS_DRAGONFLIGHT then
         SettingFunctions.ShowMiniTalentTreeForInspection(state);
     end
 
+    local function ShowTreeCase3(self, state)
+        SettingFunctions.ShowMiniTalentTreeForEquipmentManager(state);
+    end
+
+    local function TalentTreeSetPosition(self, id)
+        SettingFunctions.SetTalentTreePosition(id);
+    end
+
     local function TalentTreeUseClassBackground(self, state)
         SettingFunctions.SetUseClassBackground(state);
     end
 
-    local talentCategory = {name = TALENTS or "Talents", level = 1, key = "talents",
-    widgets = {
-        {type = "header", level = 0, text = L["Mini Talent Tree"]},
-        {type = "subheader", level = 1, text = L["Show Talent Tree When"]},
-        {type = "checkbox", level = 1, key = "TalentTreeForPaperDoll",text = L["Show Talent Tree Paperdoll"], onValueChangedFunc = ShowTreeCase1},
-        {type = "checkbox", level = 1, key = "TalentTreeForInspection", text = L["Show Talent Tree Inspection"],  onValueChangedFunc = ShowTreeCase2},
-        {type = "subheader", level = 1, text = L["Appearance"], extraTopPadding = 1},
-        {type = "checkbox", level = 1, key = "TalentTreeUseClassBackground", text = L["Use Class Background"],  onValueChangedFunc = TalentTreeUseClassBackground},
-    }};
+    local function TalentTreeUseBiggerUI(self, state)
+        SettingFunctions.SetUseBiggerUI(state);
+    end
 
-    table.insert(Categories, #Categories -1, talentCategory);
+    local talentCategory = {name = TALENTS or "Talents", level = 1, key = "talents",
+        widgets = {
+            {type = "header", level = 0, text = L["Mini Talent Tree"]},
+            {type = "subheader", level = 1, text = L["Show Talent Tree When"]},
+            {type = "checkbox", level = 1, key = "TalentTreeForPaperDoll",text = L["Show Talent Tree Paperdoll"], onValueChangedFunc = ShowTreeCase1},
+            {type = "checkbox", level = 1, key = "TalentTreeForInspection", text = L["Show Talent Tree Inspection"],  onValueChangedFunc = ShowTreeCase2},
+            {type = "checkbox", level = 1, key = "TalentTreeForEquipmentManager", text = L["Show Talent Tree Equipment Manager"],  onValueChangedFunc = ShowTreeCase3},
+
+            {type = "subheader", level = 1, text = L["Place UI"], extraTopPadding = 1},
+            {type = "radio", level = 1, key = "TalentTreeAnchor", texts = {L["Place Talent UI Right"], L["Place Talent UI Bottom"]},  onValueChangedFunc = TalentTreeSetPosition},
+
+            {type = "subheader", level = 1, text = L["Appearance"], extraTopPadding = 1},
+            {type = "checkbox", level = 1, key = "TalentTreeUseClassBackground", text = L["Use Class Background"],  onValueChangedFunc = TalentTreeUseClassBackground},
+            {type = "checkbox", level = 1, key = "TalentTreeBiggerUI", text = L["Use Bigger UI"],  onValueChangedFunc = TalentTreeUseBiggerUI},
+        }
+    };
+
+    InsertCategory(talentCategory);
 
     
+    local function NarciBagItemFilter_LoadAddOn()
+        if not NarciBagItemFilterSettings then
+            C_AddOns.LoadAddOn("Narcissus_BagFilter");
+        end
+    end
 
     local function ItemSearchToggle_OnValueChanged(self, state)
-        NarciBagItemFilterSettings.SetEnableSearchSuggestion(state);
+        if state then
+            NarciBagItemFilter_LoadAddOn();
+        end
+
+        if NarciBagItemFilterSettings then
+            NarciBagItemFilterSettings.SetEnableSearchSuggestion(state);
+        end
     end
     
     local function ItemSearchDirectionButton_OnValueChanged(self, id)
@@ -2123,24 +2187,81 @@ if IS_DRAGONFLIGHT then
     end
 
     local function IsBagItemFilterAddOnLoaded()
-        return NarciBagItemFilterSettings ~= nil
+        --return NarciBagItemFilterSettings ~= nil
+        return true     --changed this module to load-on-demand, so we need to keep its settings visible
     end
 
-    local bagCategory = {name = "Bag Item Filter", level = 1, key = "bagitemfilter", validityCheckFunc = IsBagItemFilterAddOnLoaded,
+    local bagCategory = {name = L["Bag Item Filter"], level = 1, key = "bagitemfilter", validityCheckFunc = IsBagItemFilterAddOnLoaded,
     widgets = {
-        {type = "header", level = 0, text = "Bag Item Filter"},
-        {type = "checkbox", level = 1, key = "SearchSuggestEnable", text = "Enable Search Suggetion and Auto Filter", onValueChangedFunc = ItemSearchToggle_OnValueChanged},
-        {type = "subheader", level = 3, text = "Place the window...", extraTopPadding = 1, isChild = true},
-        {type = "radio", level = 3, key = "SearchSuggestDirection", texts = {"Below Search Box", "Above Search Box"}, onValueChangedFunc = ItemSearchDirectionButton_OnValueChanged, setupFunc = ItemSearchDirection_Setup,
-            previewImage = "PopupPositionPreview", previewWidth = 200, previewHeight = 162, previewOffsetY = 28, isChild = true
+        {type = "header", level = 0, text = L["Bag Item Filter"]},
+        {type = "checkbox", level = 1, key = "SearchSuggestEnable", text = L["Bag Item Filter Enable"], onValueChangedFunc = ItemSearchToggle_OnValueChanged},
+        {type = "subheader", level = 3, text = L["Place Window"], extraTopPadding = 1, isChild = true},
+        {type = "radio", level = 3, key = "SearchSuggestDirection", texts = {L["Below Search Box"], L["Above Search Box"]}, onValueChangedFunc = ItemSearchDirectionButton_OnValueChanged, setupFunc = ItemSearchDirection_Setup,
+            previewImage = "Preview-PopupPosition.png", previewWidth = 200, previewHeight = 162, previewOffsetY = 28, isChild = true
         },
-        {type = "subheader", level = 3, text = "Automatically filters items when you...", extraTopPadding = 1, isChild = true},
-        {type = "checkbox", level = 3, key = "AutoFilterMail", text = "Send Mails", onValueChangedFunc = AutoFilterMail_OnValueChanged, isChild = true},
-        {type = "checkbox", level = 3, key = "AutoFilterAuction", text = "Create Auctions", onValueChangedFunc = AutoFilterAuction_OnValueChanged, isChild = true},
-        {type = "checkbox", level = 3, key = "AutoFilterGem", text = "Socket Items", onValueChangedFunc = AutoFilterGem_OnValueChanged, isChild = true},
+        {type = "subheader", level = 3, text = L["Auto Filter Case"], extraTopPadding = 1, isChild = true},
+        {type = "checkbox", level = 3, key = "AutoFilterMail", text = L["Send Mails"], onValueChangedFunc = AutoFilterMail_OnValueChanged, isChild = true},
+        {type = "checkbox", level = 3, key = "AutoFilterAuction", text = L["Create Auctions"], onValueChangedFunc = AutoFilterAuction_OnValueChanged, isChild = true},
+        {type = "checkbox", level = 3, key = "AutoFilterGem", text = L["Socket Items"], onValueChangedFunc = AutoFilterGem_OnValueChanged, isChild = true},
     }};
 
-    table.insert(Categories, #Categories -1, bagCategory);
+    InsertCategory(bagCategory);
+
+
+    local function AutoDisplayQuestItemToggle_OnValueChanged(self, state)
+        SettingFunctions.SetAutoDisplayQuestItem(state);
+    end
+
+    local function QuestCardStyleButton_OnValueChanged(self, id)
+        if id == 2 then
+            self.preview:SetTexCoord(0, 1, 0.375, 0.75);
+        else
+            self.preview:SetTexCoord(0, 1, 0, 0.375);
+        end
+
+        NarciQuestItemDisplay:SetTheme(id);
+    end
+    
+    local function QuestCardStyle_Setup(radioButton)
+        if radioButton.preview then
+            if DB and DB.QuestCardTheme == 2 then
+                radioButton.preview:SetTexCoord(0, 1, 0.375, 0.75);
+            else
+                radioButton.preview:SetTexCoord(0, 1, 0, 0.375);
+            end
+        end
+    end
+
+    local function QuestCardPositionButton_Setup(f)
+        f:SetScript("OnClick", function ()
+            NarciQuestItemDisplay:ChangePosition()
+        end)
+
+        function f:UpdateState()
+            return
+        end
+
+        f.Border:SetTexture("Interface\\AddOns\\Narcissus\\Art\\SettingsFrame\\FourWayArrow");
+        f.Border:SetTexCoord(0, 1, 0, 1);
+        f.Selection:Hide();
+        f.Selection:SetTexture(nil);
+        f.Highlight:SetTexture(nil);
+        f.Background:Hide();
+        f.Background:SetTexture(nil);
+    end
+
+    local questCategory = {name = TRANSMOG_SOURCE_2 or "Quest", level = 1, key = "quest",
+    widgets = {
+        {type = "header", level = 0, text = TRANSMOG_SOURCE_2 or "Quest"},
+        {type = "checkbox", level = 1, key = "AutoDisplayQuestItem", text = L["Auto Display Quest Item"], onValueChangedFunc = AutoDisplayQuestItemToggle_OnValueChanged},
+        {type = "subheader", level = 3, text = L["Appearance"], extraTopPadding = 1, isChild = true},
+        {type = "radio", level = 3, key = "QuestCardTheme", texts = {L["Border Theme Bright"], L["Border Theme Dark"]}, onValueChangedFunc = QuestCardStyleButton_OnValueChanged, setupFunc = QuestCardStyle_Setup,
+            previewImage = "Preview-QuestCardTheme.png", previewWidth = 200, previewHeight = 75, previewOffsetY = 10, isChild = true
+        },
+        {type = "checkbox", level = 3, text = L["Change Position"], isChild = true, setupFunc = QuestCardPositionButton_Setup},
+    }};
+
+    InsertCategory(questCategory);
 end
 
 
@@ -2367,14 +2488,14 @@ function NarciSettingsFrameMixin:ShowUI(mode, alignToCenter, navigateTo)
     SetupFrame();
 
     mode = mode or "default";
-    if mode ~= self.mode then
+    --if mode ~= self.mode then
         self.mode = mode;
         if mode == "blizzard" then
             self:AnchorToInterfaceOptions();
         else
             self:AnchorToDefault(alignToCenter);
         end
-    end
+    --end
 
     CreditList:StopAnimation();
 
@@ -3106,7 +3227,7 @@ function NarciSettingsKeybindingButton:OnHide()
 end
 
 function NarciSettingsKeybindingButton:IsFocused()
-    return self:IsMouseOver() and self:IsVisible();
+    return (self:IsMouseOver() and self:IsVisible()) or (AlertMessageFrame:IsVisible() and AlertMessageFrame:IsMouseOver());
 end
 
 function NarciSettingsKeybindingButton:ExitAndShowInvalidKey(key)
@@ -3434,16 +3555,16 @@ local function AlertFrameButton_Yes_OnClick(self)
     self:GetParent().parentButton:AttemptToBind(true);
 end
 
-local function AlertFrameButton_No_OnClick(self)
-    self:GetParent():Hide();
-end
-
 local function Countdown_OnFinished()
     AlertMessageFrame:Hide();
     local keybindingButton = AlertMessageFrame:GetParent();
     if keybindingButton and keybindingButton.StopListening then
         keybindingButton:StopListening();
     end
+end
+
+local function AlertFrameButton_No_OnClick(self)
+    Countdown_OnFinished();
 end
 
 function NarciSettingsAlertMessageFrameMixin:OnLoad()

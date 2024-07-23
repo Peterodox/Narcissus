@@ -1,0 +1,781 @@
+<Ui xsi:schemaLocation="http://www.blizzard.com/wow/ui/..\FrameXML\UI.xsd">
+    <Font name="NarciGemmaFontLarge" inherits="NarciSystemFont_Large_Outline" virtual="true">
+        <Color r="1.0" g="1.0" b="1.0"/>
+    </Font>
+
+    <Font name="NarciGemmaFontMedium" inherits="NarciSystemFont_Medium_Outline" virtual="true">
+        <Color r="1.0" g="1.0" b="1.0"/>
+    </Font>
+
+    <Font name="NarciGemmaFontSmall" inherits="NarciSystemFont_Small_Outline" virtual="true">
+        <Color r="1.0" g="1.0" b="1.0"/>
+    </Font>
+
+
+    <Script file="Init.lua"/>
+    <Script file="Atlas.lua"/>
+    <Script file="ItemCache.lua"/>
+    <Script file="BagScan.lua"/>
+    <Script file="Template.lua"/>
+    <!--Script file="ItemLinkGenerator.lua"/-->
+    <Script file="DataProvider_Pandaria.lua"/>
+    <Script file="ActionButton.lua"/>
+    <Script file="LoadoutPlanner.lua"/>
+    <Script file="Loadout.lua"/>
+    <Script file="UI.lua"/>
+    <Script file="StatAssignment.lua"/>
+    <Script file="PaperdollWidget.lua"/>
+
+
+    <Frame name="NarciGemManagerProgressBarTemplate" virtual="true">
+        <Size x="200" y="18"/>
+        <Layers>
+            <Layer level="OVERLAY" textureSubLevel="3">
+                <Texture parentKey="Border" texelSnappingBias="0.0" snapToPixelGrid="false">
+                    <Anchors>
+                        <Anchor point="CENTER"/>
+                    </Anchors>
+                </Texture>
+                <FontString parentKey="Title" inherits="NarciGemmaFontMedium" justifyH="CENTER" justifyV="BOTTOM">
+                    <Anchors>
+                        <Anchor point="BOTTOM" relativeKey="$parent" relativePoint="TOP" y="4"/>
+                    </Anchors>
+                </FontString>
+            </Layer>
+            <Layer level="OVERLAY" textureSubLevel="1">
+                <Texture parentKey="Background">
+                    <Anchors>
+                        <Anchor point="CENTER"/>
+                    </Anchors>
+                </Texture>
+            </Layer>
+            <Layer level="OVERLAY" textureSubLevel="2">
+                <Texture parentKey="Fill">
+                    <Anchors>
+                        <Anchor point="LEFT"/>
+                    </Anchors>
+                </Texture>
+            </Layer>
+        </Layers>
+        <Animations>
+            <AnimationGroup parentKey="AnimIn">
+                <Translation offsetY="-12" duration="0" order="1"/>
+                <Alpha fromalpha="0" toalpha="1" duration="0.25" order="1"/>
+                <Translation offsetY="12" duration="0.25" order="1" smoothing="OUT"/>
+            </AnimationGroup>
+            <AnimationGroup parentKey="AnimOut">
+                <Alpha fromalpha="1" toalpha="0" duration="0.5" order="1" startDelay="0" parentKey="Fade"/>
+                <Scripts>
+                    <OnFinished>
+                        self:GetParent():Hide();
+                    </OnFinished>
+                </Scripts>
+            </AnimationGroup>
+        </Animations>
+    </Frame>
+
+    <Button name="NarciGemManagerTraitButtonTemplate" registerForClicks="LeftButtonUp, RightButtonUp" virtual="true">
+        <Size x="40" y="40"/>
+        <Layers>
+            <Layer level="ARTWORK">
+                <Texture parentKey="Icon">
+                    <Size x="40" y="40"/>
+                    <Anchors>
+                        <Anchor point="CENTER"/>
+                    </Anchors>
+                </Texture>
+                <MaskTexture parentKey="IconMask" hWrapMode="CLAMPTOBLACKADDITIVE" vWrapMode="CLAMPTOBLACKADDITIVE">
+                    <Size x="40" y="40"/>
+                    <Anchors>
+                        <Anchor point="TOPLEFT" relativeKey="$parent.Icon" relativePoint="TOPLEFT"/>
+                        <Anchor point="BOTTOMRIGHT" relativeKey="$parent.Icon" relativePoint="BOTTOMRIGHT"/>
+                    </Anchors>
+                    <MaskedTextures>
+                        <MaskedTexture childKey="Icon"/>
+                    </MaskedTextures>
+                </MaskTexture>
+            </Layer>
+            <Layer level="OVERLAY">
+                <Texture parentKey="Border" setAllPoints="true" texelSnappingBias="0.0" snapToPixelGrid="false">
+                    <Size x="40" y="46"/>
+                    <Anchors>
+                        <Anchor point="CENTER"/>
+                    </Anchors>
+                </Texture>
+            </Layer>
+        </Layers>
+    </Button>
+
+    <Frame name="NarciGemManagerStatAssignmentTemplate" virtual="true">
+        <Size x="306" y="24"/>
+        <Layers>
+            <Layer level="BACKGROUND">
+                <Texture parentKey="Background" setAllPoints="true"/>
+            </Layer>
+            <Layer level="OVERLAY">
+                <FontString parentKey="Name" inherits="NarciGemmaFontLarge" justifyH="LEFT" justifyV="CENTER">
+                    <Anchors>
+                        <Anchor point="LEFT" relativeKey="$parent" relativePoint="LEFT" x="24"/>
+                    </Anchors>
+                </FontString>
+                <FontString parentKey="Count" inherits="NarciGemmaFontLarge" justifyH="CENTER" justifyV="CENTER">
+                    <Size x="40" y="24"/>
+                    <Anchors>
+                        <Anchor point="RIGHT" relativeKey="$parent" relativePoint="RIGHT" x="-32"/>
+                    </Anchors>
+                </FontString>
+                <!--FontString parentKey="Value" inherits="NarciGemmaFontLarge" justifyH="RIGHT" justifyV="CENTER">
+                    <Anchors>
+                        <Anchor point="RIGHT" relativeKey="$parent" relativePoint="RIGHT" x="-24"/>
+                    </Anchors>
+                </FontString-->
+                <Texture parentKey="PlusButton">
+                    <Size x="24" y="24"/>
+                    <Anchors>
+                        <Anchor point="CENTER" relativeKey="$parent.Count" relativePoint="RIGHT" x="12"/>
+                    </Anchors>
+                </Texture>
+                <Texture parentKey="MinusButton">
+                    <Size x="24" y="24"/>
+                    <Anchors>
+                        <Anchor point="CENTER" relativeKey="$parent.Count" relativePoint="LEFT" x="-12"/>
+                    </Anchors>
+                </Texture>
+            </Layer>
+        </Layers>
+    </Frame>
+
+    <Button name="NarciGemManagerGemListButtonTemplate" registerForClicks="LeftButtonUp, RightButtonUp" virtual="true">
+        <Size x="338" y="44"/>
+        <Layers>
+            <Layer level="ARTWORK">
+                <Texture parentKey="Icon">
+                    <Size x="32" y="32"/>
+                    <Anchors>
+                        <Anchor point="LEFT" relativeKey="$parent" relativePoint="LEFT" x="16"/>
+                    </Anchors>
+                </Texture>
+                <FontString parentKey="Text1" inherits="NarciGemmaFontLarge" justifyH="LEFT" justifyV="CENTER">
+                    <Anchors>
+                        <Anchor point="LEFT" relativeKey="$parent.Icon" relativePoint="RIGHT" x="8"/>
+                        <Anchor point="RIGHT" relativeKey="$parent" relativePoint="RIGHT" x="-16"/>
+                    </Anchors>
+                </FontString>
+            </Layer>
+        </Layers>
+        <Animations>
+            <AnimationGroup parentKey="AnimFlyIn">
+                <Alpha order="1" childKey="Icon" fromalpha="0" toalpha="0" duration="0"/>
+                <Alpha order="1" childKey="Icon" fromalpha="0" toalpha="1" duration="0.2" startDelay="0" parentKey="Delay1"/>
+                <Translation offsetX="-16" offsetY="0" duration="0" order="1" childKey="Icon"/>
+                <Translation offsetX="16" offsetY="0" duration="0.2" order="1" childKey="Icon" smoothing="OUT" parentKey="Delay2"/>
+                <Alpha order="1" childKey="Text1" fromalpha="0" toalpha="0" duration="0"/>
+                <Alpha order="1" childKey="Text1" fromalpha="0" toalpha="1" duration="0.2" startDelay="0" parentKey="Delay3"/>
+                <Translation offsetX="-16" offsetY="0" duration="0" order="1" childKey="Text1"/>
+                <Translation offsetX="16" offsetY="0" duration="0.2" order="1" childKey="Text1" smoothing="OUT" parentKey="Delay4"/>
+            </AnimationGroup>
+        </Animations>
+    </Button>
+
+    <Frame name="NarciGemManagerLoadingSpinnerTemplate" hidden="true" virtual="true">
+        <Size x="80" y="80"/>
+        <Layers>
+            <Layer level="OVERLAY" textureSubLevel="2">
+                <Texture parentKey="Circle">
+                    <Size x="80" y="80"/>
+                    <Anchors>
+                        <Anchor point="CENTER"/>
+                    </Anchors>
+                </Texture>
+            </Layer>
+            <Layer level="OVERLAY" textureSubLevel="1">
+                <Texture parentKey="Dial">
+                    <Size x="128" y="128"/>
+                    <Anchors>
+                        <Anchor point="CENTER"/>
+                    </Anchors>
+                </Texture>
+                <MaskTexture parentKey="DialMask" hWrapMode="CLAMPTOBLACKADDITIVE" vWrapMode="CLAMPTOBLACKADDITIVE">
+                    <Size x="136" y="136"/>
+                    <Anchors>
+                        <Anchor point="CENTER"/>
+                    </Anchors>
+                    <MaskedTextures>
+                        <MaskedTexture childKey="Dial"/>
+                    </MaskedTextures>
+                </MaskTexture>
+            </Layer>
+        </Layers>
+        <Animations>
+            <AnimationGroup parentKey="AnimSpin" looping="REPEAT">
+                <Alpha order="1" childKey="Dial" fromalpha="1" toalpha="0.25" duration="2"/>
+                <Alpha order="1" childKey="Dial" fromalpha="0.25" toalpha="1" startDelay="2" duration="2"/>
+                <Rotation order="1" childKey="Circle" degrees="-360" duration="4"/>
+                <Rotation order="1" childKey="DialMask" degrees="-360" duration="4"/>
+            </AnimationGroup>
+        </Animations>
+    </Frame>
+
+    <Frame name="NarciGemManagerButtonHighlightTemplate" useParentLevel="true" hidden="true" virtual="true">
+        <Size x="40" y="40"/>
+        <Layers>
+            <Layer level="ARTWORK">
+                <Texture parentKey="Texture">
+                    <Anchors>
+                        <Anchor point="CENTER"/>
+                    </Anchors>
+                </Texture>
+            </Layer>
+        </Layers>
+    </Frame>
+
+    <Frame name="NarciGemManagerSelectionVisualTemplate" hidden="true" virtual="true">
+        <Size x="32" y="32"/>
+        <Layers>
+            <Layer level="OVERLAY">
+                <Texture parentKey="Border">
+                    <Size x="48" y="48"/>
+                    <Anchors>
+                        <Anchor point="CENTER" relativeKey="$parent" relativePoint="CENTER" x="0" y="0"/>
+                    </Anchors>
+                </Texture>
+            </Layer>
+        </Layers>
+        <Animations>
+            <AnimationGroup parentKey="AnimShrink">
+                <Scale childKey="Border" smoothing="OUT" order="1" duration="0.2" fromScaleX="1.2" toScaleX="1" fromScaleY="1.2" toScaleY="1"/>
+                <Alpha childKey="Border" order="1" fromAlpha="0" toAlpha="1" duration="0.2"/>
+            </AnimationGroup>
+        </Animations>
+    </Frame>
+
+
+    <Frame name="NarciGemManagerWindowTemplate" enableMouse="true" virtual="true">
+        <Size x="338" y="424"/>
+        <Layers>
+            <Layer level="BACKGROUND">
+                <Texture parentKey="Background"/>
+            </Layer>
+            <Layer level="OVERLAY">
+                <FontString parentKey="Title" inherits="NarciGemmaFontLarge" justifyH="CENTER" justifyV="MIDDLE">
+                    <Anchors>
+                        <Anchor point="CENTER" relativeKey="$parent" relativePoint="TOP" y="-22"/>
+                    </Anchors>
+                    <Color r="0.88" g="0.88" b="0.88"/>
+                </FontString>
+
+                <Texture parentKey="HeaderDivider">
+                    <Anchors>
+                        <Anchor point="CENTER" relativeKey="$parent" relativePoint="TOP" y="-40"/>
+                    </Anchors>
+                </Texture>
+
+                <Texture parentKey="FooterDivider">
+                    <Anchors>
+                        <Anchor point="CENTER" relativeKey="$parent" relativePoint="BOTTOM" y="65"/>
+                    </Anchors>
+                </Texture>
+            </Layer>
+        </Layers>
+        <Frames>
+            <Frame parentKey="ButtonHighlight" useParentLevel="true" hidden="true">
+                <Size x="40" y="40"/>
+                <Layers>
+                    <Layer level="ARTWORK">
+                        <Texture parentKey="Texture"/>
+                    </Layer>
+                </Layers>
+            </Frame>
+        </Frames>
+    </Frame>
+
+    <Frame name="NarciGemManagerStatsMouseOverFrame" hidden="true" virtual="true">
+        <Size x="306" y="24"/>
+        <Layers>
+            <Layer level="BACKGROUND">
+                <Texture parentKey="Background">
+                    <Anchors>
+                        <Anchor point="CENTER"/>
+                    </Anchors>
+                </Texture>
+            </Layer>
+            <Layer level="BACKGROUND" textureSubLevel="1">
+                <Texture parentKey="Highlight" hidden="true">
+                    <Size x="24" y="24"/>
+                    <Anchors>
+                        <Anchor point="CENTER"/>
+                    </Anchors>
+                </Texture>
+            </Layer>
+            <Layer level="OVERLAY">
+                <FontString parentKey="Count" inherits="NarciGemmaFontLarge" justifyH="CENTER" justifyV="CENTER">
+                    <Size x="40" y="24"/>
+                    <Anchors>
+                        <Anchor point="RIGHT" relativeKey="$parent" relativePoint="RIGHT" x="-32"/>
+                    </Anchors>
+                </FontString>
+            </Layer>
+        </Layers>
+    </Frame>
+
+    <Frame name="NarciGemManagerSliceFrameTemplate" virtual="true">
+        <Size x="32" y="32"/>
+        <Layers>
+            <Layer level="BACKGROUND" textureSubLevel="-1">
+                <Texture parentKey="Background" setAllPoints="true" texelSnappingBias="0.5" snapToPixelGrid="true">
+                    <TextureSliceMode mode="Tiled"/>
+                    <TextureSliceMargins left="8" right="8" top="8" bottom="8"/>
+                </Texture>
+            </Layer>
+        </Layers>
+    </Frame>
+
+    <Frame name="NarciGemManager" Mixin="NarciGemManagerMixin" parent="UIParent" topLevel="true" frameLevel="11" enableMouse="true" hidden="true">
+        <Size x="338" y="424"/>
+        <Anchors>
+            <Anchor point="CENTER"/>
+        </Anchors>
+        <Layers>
+            <Layer level="BACKGROUND">
+                <Texture parentKey="Background">
+
+                </Texture>
+            </Layer>
+        </Layers>
+        <Frames>
+            <Frame parentKey="HeaderFrame" frameLevel="30">
+                <Anchors>
+                    <Anchor point="TOPLEFT" relativeKey="$parent" relativePoint="TOPLEFT"/>
+                    <Anchor point="TOPRIGHT" relativeKey="$parent" relativePoint="TOPRIGHT"/>
+                </Anchors>
+                <Layers>
+                    <Layer level="OVERLAY">
+                        <Texture parentKey="Divider">
+                            <Anchors>
+                                <Anchor point="CENTER" relativeKey="$parent" relativePoint="BOTTOM" y="0"/>
+                            </Anchors>
+                        </Texture>
+                    </Layer>
+                </Layers>
+                <Frames>
+                    <Frame parentKey="TabButtonContainer">
+                        <Layers>
+                            <Layer level="ARTWORK">
+                                <Texture parentKey="Selection" hidden="true">
+                                    <Size y="24"/>
+                                    <Anchors>
+                                        <Anchor point="BOTTOM" relativeKey="$parent" relativePoint="BOTTOM" y="0"/>
+                                    </Anchors>
+                                </Texture>
+                            </Layer>
+                        </Layers>
+                    </Frame>
+                </Frames>
+            </Frame>
+
+            <Frame parentKey="SlotFrame" frameLevel="20">
+                <Anchors>
+                    <Anchor point="TOPLEFT" relativeKey="$parent.HeaderFrame" relativePoint="BOTTOMLEFT"/>
+                    <Anchor point="BOTTOMRIGHT" relativeKey="$parent" relativePoint="BOTTOMRIGHT"/>
+                </Anchors>
+                <Layers>
+                    <Layer level="BACKGROUND">
+                        <Texture parentKey="Background">
+                            <Anchors>
+                                <Anchor point="CENTER"/>
+                            </Anchors>
+                        </Texture>
+                    </Layer>
+                    <Layer level="OVERLAY">
+                        <FontString parentKey="NoSocketAlert" inherits="NarciGemmaFontLarge" justifyH="CENTER" justifyV="CENTER" hidden="true">
+                            <Size x="256" y="0"/>
+                            <Anchors>
+                                <Anchor point="CENTER" relativeKey="$parent" relativePoint="CENTER" x="0"/>
+                            </Anchors>
+                        </FontString>
+                    </Layer>
+                </Layers>
+                <Frames>
+                    <Frame parentKey="ButtonShine" useParentLevel="true" hidden="true">
+                        <Size x="40" y="40"/>
+                        <Layers>
+                            <Layer level="ARTWORK" textureSubLevel="7">
+                                <Texture parentKey="Texture">
+                                    <Size x="40" y="40"/>
+                                    <Anchors>
+                                        <Anchor point="CENTER" relativeKey="$parent" relativePoint="TOPLEFT"/>
+                                    </Anchors>
+                                </Texture>
+                                <MaskTexture parentKey="Mask" hWrapMode="CLAMPTOBLACKADDITIVE" vWrapMode="CLAMPTOBLACKADDITIVE">
+                                    <Size x="40" y="40"/>
+                                    <Anchors>
+                                        <Anchor point="CENTER" relativeKey="$parent" relativePoint="CENTER"/>
+                                    </Anchors>
+                                    <MaskedTextures>
+                                        <MaskedTexture childKey="Texture"/>
+                                    </MaskedTextures>
+                                </MaskTexture>
+                            </Layer>
+                        </Layers>
+                        <Animations>
+                            <AnimationGroup parentKey="AnimShine">
+                                <Translation offsetX="52" offsetY="-52" duration="0.8" order="1" childKey="Texture" smoothing="OUT"/>
+                                <Scripts>
+                                    <OnFinished>
+                                        self:GetParent():Hide();
+                                    </OnFinished>
+                                </Scripts>
+                            </AnimationGroup>
+                        </Animations>
+                    </Frame>
+                    <!--Frame parentKey="PointsDisplay" hidden="true">
+                        <Size x="80" y="28"/>
+                        <Layers>
+                            <Layer level="OVERLAY">
+                                <FontString parentKey="Label" inherits="NarciGemmaFontMedium" justifyH="LEFT" justifyV="MIDDLE" spacing="0" maxLines="2">
+                                    <Size x="128"/>
+                                    <Anchors>
+                                        <Anchor point="TOP"/>
+                                    </Anchors>
+                                </FontString>
+                                <FontString parentKey="Amount" inherits="NarciGemmaFontLarge" justifyH="RIGHT" justifyV="MIDDLE">
+                                    <Anchors>
+                                        <Anchor point="TOP" relativeKey="$parent.Header" relativePoint="BOTTOM" y="-10"/>
+                                    </Anchors>
+                                </FontString>
+                            </Layer>
+                        </Layers>
+                    </Frame-->
+                    <Frame parentKey="BackFrame" useParentLevel="true">
+                    </Frame>
+                    <Frame parentKey="FrontFrame" frameLevel="28">
+                    </Frame>
+                    <Frame parentKey="MouseOverFrame" inherits="NarciGemManagerStatsMouseOverFrame" frameLevel="26" hidden="true"/>
+                </Frames>
+            </Frame>
+
+            <Frame parentKey="GemList" frameLevel="35" hidden="true" setAllPoints="true">
+                <Layers>
+                    <Layer level="OVERLAY">
+                        <FontString parentKey="Title" inherits="NarciGemmaFontLarge" justifyH="CENTER" justifyV="MIDDLE">
+                            <Anchors>
+                                <Anchor point="CENTER" relativeKey="$parent" relativePoint="TOP" y="-22"/>
+                            </Anchors>
+                        </FontString>
+                    </Layer>
+                </Layers>
+                <Frames>
+                    <Frame parentKey="ButtonHighlight" useParentLevel="true" hidden="true">
+                        <Size x="40" y="40"/>
+                        <Layers>
+                            <Layer level="ARTWORK">
+                                <Texture parentKey="Texture"/>
+                            </Layer>
+                        </Layers>
+                    </Frame>
+
+                    <Frame parentKey="SelectionFrame" frameLevel="37" hidden="true" inherits="NarciGemManagerSelectionVisualTemplate"/>
+                </Frames>
+            </Frame>
+
+            <Frame parentKey="TooltipFrame" frameLevel="40" hidden="true">
+                <Layers>
+                    <Layer level="OVERLAY">
+                        <FontString parentKey="Header" inherits="NarciGemmaFontLarge" justifyH="CENTER" justifyV="TOP">
+                            <Anchors>
+                                <Anchor point="TOP"/>
+                            </Anchors>
+                        </FontString>
+                        <FontString parentKey="Text1" inherits="NarciGemmaFontMedium" justifyH="CENTER" justifyV="TOP" spacing="2">
+                            <Anchors>
+                                <Anchor point="TOP" relativeKey="$parent.Header" relativePoint="BOTTOM" y="-10"/>
+                            </Anchors>
+                        </FontString>
+                        <FontString parentKey="Text2" inherits="NarciGemmaFontMedium" justifyH="CENTER" justifyV="TOP" spacing="2">
+                            <Anchors>
+                                <Anchor point="TOP" relativeKey="$parent.Text1" relativePoint="BOTTOM" y="-10"/>
+                            </Anchors>
+                        </FontString>
+                    </Layer>
+                    <Layer level="ARTWORK">
+                        <Texture parentKey="Background">
+                            <Anchors>
+                                <Anchor point="TOP" relativeKey="$parent.Header" relativePoint="TOP"/>
+                            </Anchors>
+                        </Texture>
+                    </Layer>
+                </Layers>
+            </Frame>
+
+            <ModelScene parentKey="ModelScene">
+                <Anchors>
+                    <Anchor point="TOPLEFT" relativeKey="$parent" relativePoint="TOPLEFT" x="2" y="-2"/>
+                    <Anchor point="BOTTOMRIGHT" relativeKey="$parent" relativePoint="BOTTOMRIGHT" x="-2" y="2"/>
+                </Anchors>
+            </ModelScene>
+
+            <Frame parentKey="ActionBlocker" setAllPoints="true" frameLevel="90" hidden="true">
+                <Scripts>
+                    <OnEnter>
+                    
+                    </OnEnter>
+                    <OnMouseWheel>
+
+                    </OnMouseWheel>
+                </Scripts>
+            </Frame>
+
+            <Frame parentKey="LoadingIndicator" frameLevel="91" alpha="0" hidden="true">
+                <Size x="16" y="16"/>
+                <Layers>
+                    <Layer level="OVERLAY">
+                        <Texture parentKey="Icon" alpha="0.67">
+                            <Size x="16" y="16"/>
+                            <Anchors>
+                                <Anchor point="CENTER" relativeKey="$parent" relativePoint="CENTER" x="0" y="0"/>
+                            </Anchors>
+                        </Texture>
+                    </Layer>
+                </Layers>
+                <Animations>
+                    <AnimationGroup parentKey="AnimLoading" looping="REPEAT">
+                        <Rotation order="1" childKey="Icon" degrees="-360" duration="1"/>
+                    </AnimationGroup>
+                </Animations>
+            </Frame>
+
+            <Frame parentKey="LoadoutFrame" frameLevel="30" hidden="true" setAllPoints="true">
+                <Layers>
+                    <Layer level="OVERLAY">
+                        <FontString parentKey="Title" inherits="NarciGemmaFontLarge" justifyH="CENTER" justifyV="MIDDLE">
+                            <Anchors>
+                                <Anchor point="CENTER" relativeKey="$parent" relativePoint="TOP" y="-22"/>
+                            </Anchors>
+                        </FontString>
+
+                        <Texture parentKey="Divider">
+                            <Anchors>
+                                <Anchor point="CENTER" relativeKey="$parent" relativePoint="BOTTOM" y="65"/>
+                            </Anchors>
+                        </Texture>
+                    </Layer>
+                </Layers>
+                <Frames>
+                    <Button parentKey="EquipButton">
+                        <Size x="338" y="52"/>
+                        <Anchors>
+                            <Anchor point="BOTTOM" relativeKey="$parent" relativePoint="BOTTOM" y="8"/>
+                        </Anchors>
+                        <Layers>
+                            <Layer level="OVERLAY">
+                                <Texture parentKey="Feedback" setAllPoints="true" alpha="0"/>
+                                <FontString parentKey="ButtonText" inherits="NarciGemmaFontLarge" justifyH="CENTER" justifyV="MIDDLE" spacing="2">
+                                    <Color r="1" g="1" b="1"/>
+                                    <Anchors>
+                                        <Anchor point="CENTER" relativeKey="$parent" relativePoint="CENTER" x="0" y="0"/>
+                                    </Anchors>
+                                </FontString>
+                            </Layer>
+                        </Layers>
+                        <Frames>
+                            <Frame parentKey="HighlightFrame" useParentLevel="true" setAllPoints="true" hidden="true">
+                                <Layers>
+                                    <Layer level="ARTWORK" textureSubLevel="2">
+                                        <Texture parentKey="LineLight" setAllPoints="true" alpha="0"/>
+                                    </Layer>
+                                    <Layer level="ARTWORK" textureSubLevel="1">
+                                        <Texture parentKey="BreathLight" setAllPoints="true" alpha="0"/>
+                                    </Layer>
+                                </Layers>
+                            </Frame>
+                        </Frames>
+						<Animations>
+							<AnimationGroup parentKey="AnimSelect">
+                                <!--Scale childKey="Feedback" order="1" duration="0.0" scaleX="0.8" scaleY="1"/-->
+                                <Alpha childKey="Feedback" order="2" duration="0.15" fromAlpha="0" toAlpha="0.5"/>
+								<Scale childKey="Feedback" order="2" duration="0.3" scaleX="1.25" scaleY="1.0"/>
+                                <Alpha childKey="Feedback" order="2" startDelay="0" duration="0.35" fromAlpha="0.5" toAlpha="0"/>
+							</AnimationGroup>
+							<AnimationGroup parentKey="AnimPushed">
+								<Translation childKey="ButtonText" offsetY="-2" duration="0.05" order="1"/>
+								<Translation childKey="ButtonText" offsetY="-2" duration="0.1" order="2"/>
+								<Translation childKey="ButtonText" duration="0.2" order="3" parentKey="Hold"/>
+								<Translation childKey="ButtonText" offsetY="2" duration="0.05" order="4"/>
+								<Translation childKey="ButtonText" offsetY="2" duration="0.1" order="5"/>
+							</AnimationGroup>
+						</Animations>
+                    </Button>
+
+                    <Button parentKey="EditButton">
+                        <Size x="52" y="52"/>
+                        <Anchors>
+                            <Anchor point="BOTTOMRIGHT" relativeKey="$parent" relativePoint="BOTTOMRIGHT" x="-8" y="8"/>
+                        </Anchors>
+                    </Button>
+
+                    <Frame parentKey="LoadoutList">
+                        <Size x="338" y="16"/>
+                        <Anchors>
+                            <Anchor point="TOP" relativeKey="$parent" relativePoint="TOP" y="-46"/>
+                            <Anchor point="BOTTOM" relativeKey="$parent" relativePoint="BOTTOM" y="70"/>
+                        </Anchors>
+
+                        <Frames>
+                            <Button parentKey="NewButton" hidden="true">
+                                <Size x="322" y="28"/>
+                                <Layers>
+                                    <Layer level="OVERLAY">
+                                        <Texture parentKey="Icon">
+                                            <Size x="16" y="16"/>
+                                            <Anchors>
+                                                <Anchor point="LEFT" relativeKey="$parent" relativePoint="LEFT" x="30"/>
+                                            </Anchors>
+                                        </Texture>
+                                        <FontString parentKey="Text" inherits="NarciGemmaFontLarge" justifyH="LEFT" justifyV="MIDDLE">
+                                            <Color r="1" g="1" b="1"/>
+                                            <Anchors>
+                                                <Anchor point="LEFT" relativeKey="$parent.Icon" relativePoint="RIGHT" x="4" y="0"/>
+                                            </Anchors>
+                                        </FontString>
+                                    </Layer>
+                                </Layers>
+                            </Button>
+
+                            <Frame parentKey="RightIcon" hidden="true" passThroughButtons="LeftButton">
+                                <Size x="28" y="28"/>
+                                <Layers>
+                                    <Layer level="OVERLAY">
+                                        <Texture parentKey="Icon">
+                                            <Size x="24" y="24"/>
+                                            <Anchors>
+                                                <Anchor point="CENTER"/>
+                                            </Anchors>
+                                        </Texture>
+                                    </Layer>
+                                </Layers>
+                            </Frame>
+                        </Frames>
+                    </Frame>
+
+                    <Frame parentKey="MouseOverFrame" hidden="true" useParentLevel="true">
+                        <Size x="40" y="40"/>
+                        <Layers>
+                            <Layer level="ARTWORK">
+                                <Texture parentKey="Background" setAllPoints="true"/>
+                            </Layer>
+                            <Layer level="OVERLAY">
+                                <FontString parentKey="Name" inherits="NarciGemmaFontLarge" justifyH="LEFT" justifyV="TOP">
+                                    <Color r="1" g="1" b="1"/>
+                                    <Anchors>
+                                        <Anchor point="TOPLEFT" relativeKey="$parent" relativePoint="TOPLEFT" x="16" y="-8"/>
+                                    </Anchors>
+                                </FontString>
+                                <FontString parentKey="StatText" inherits="NarciGemmaFontMedium" justifyH="LEFT" justifyV="CENTER">
+                                    <Color r="0.5" g="0.5" b="0.5"/>
+                                    <Anchors>
+                                        <Anchor point="TOPLEFT" relativeKey="$parent" relativePoint="TOPLEFT" x="16" y="8"/>
+                                    </Anchors>
+                                </FontString>
+                            </Layer>
+                        </Layers>
+						<Animations>
+							<AnimationGroup parentKey="AnimSelect">
+                                <Scale childKey="Background" order="1" duration="0.06" scaleX="0.95" scaleY="0.9"/>
+								<Scale childKey="Background" order="2" duration="0.1" scaleX="1.1" scaleY="1.2"/>
+                                <Scale childKey="Background" smoothing="OUT" order="3" duration="0.2" scaleX="0.96" scaleY="0.926"/>
+							</AnimationGroup>
+						</Animations>
+                    </Frame>
+
+                    <Frame parentKey="ButtonHighlight" useParentLevel="true" hidden="true">
+                        <Size x="40" y="40"/>
+                        <Layers>
+                            <Layer level="ARTWORK">
+                                <Texture parentKey="Texture"/>
+                            </Layer>
+                        </Layers>
+                    </Frame>
+
+                    <Frame parentKey="SelectionFrame" frameLevel="32" hidden="true">
+                        <Size x="32" y="32"/>
+                    </Frame>
+                </Frames>
+            </Frame>
+
+            <Frame parentKey="ModeFrame" frameLevel="9" hidden="true">
+                <Size x="48" y="32"/>
+                <Anchors>
+                    <Anchor point="TOPLEFT" relativeKey="$parent" relativePoint="BOTTOMLEFT" x="24" y="4"/>
+                </Anchors>
+            </Frame>
+        </Frames>
+        <Scripts>
+            <OnLoad method="OnLoad"/>
+            <OnShow method="OnShow"/>
+            <OnHide method="OnHide"/>
+            <OnEvent method="OnEvent"/>
+        </Scripts>
+    </Frame>
+
+    <Button name="NarciGemManagerPaperdollWidget" mixin="NarciGemManagerPaperdollWidgetMixin" frameStrata="HIGH" frameLevel="15" hidden="true">
+        <Size x="48" y="48"/>
+        <Layers>
+            <Layer level="BACKGROUND" textureSubLevel="1">
+                <Texture parentKey="Background"/>
+            </Layer>
+            <Layer level="BACKGROUND" textureSubLevel="2">
+                <Texture parentKey="Drip">
+                    <Size x="6" y="24"/>
+                    <Anchors>
+                        <Anchor point="CENTER" y="6"/>
+                    </Anchors>
+                </Texture>
+                <MaskTexture parentKey="DripMask" hWrapMode="CLAMPTOBLACKADDITIVE" vWrapMode="CLAMPTOBLACKADDITIVE">
+                    <Size x="8" y="10"/>
+                    <Anchors>
+                        <Anchor point="CENTER" relativeKey="$parent" relativePoint="CENTER" y="-2"/>
+                    </Anchors>
+                    <MaskedTextures>
+                        <MaskedTexture childKey="Drip"/>
+                    </MaskedTextures>
+                </MaskTexture>
+            </Layer>
+            <Layer level="ARTWORK">
+                <Texture parentKey="Highlight" alphaMode="ADD" hidden="true">
+                    <Size x="48" y="48"/>
+                    <Anchors>
+                        <Anchor point="RIGHT" relativeKey="$parent" relativePoint="LEFT"/>
+                    </Anchors>
+                    <Animations>
+                        <AnimationGroup parentKey="AnimShine">
+                            <Translation offsetX="66" offsetY="0" duration="0.8" order="1" smoothing="OUT"/>
+                            <Scripts>
+                                <OnFinished>
+                                    self:GetParent():Hide();
+                                </OnFinished>
+                            </Scripts>
+                        </AnimationGroup>
+                    </Animations>
+                </Texture>
+                <MaskTexture parentKey="HighlightMask" hWrapMode="CLAMPTOBLACKADDITIVE" vWrapMode="CLAMPTOBLACKADDITIVE">
+                    <MaskedTextures>
+                        <MaskedTexture childKey="Highlight"/>
+                    </MaskedTextures>
+                </MaskTexture>
+            </Layer>
+        </Layers>
+        <Animations>
+            <AnimationGroup parentKey="AnimDrip" looping="REPEAT">
+                <Translation childKey="Drip" offsetX="0" offsetY="-12" duration="0.6" order="1"/>
+            </AnimationGroup>
+        </Animations>
+        <Scripts>
+            <OnLoad method="OnLoad"/>
+            <OnShow method="OnShow"/>
+            <OnHide method="OnHide"/>
+            <OnClick method="OnClick"/>
+            <OnEnter method="OnEnter"/>
+            <OnLeave method="OnLeave"/>
+        </Scripts>
+    </Button>
+</Ui>

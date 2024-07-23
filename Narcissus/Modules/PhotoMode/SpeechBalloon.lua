@@ -1,6 +1,7 @@
 local _, addon = ...
 
 local SetModelLight = addon.TransitionAPI.SetModelLight;
+local GetMouseFocus = addon.TransitionAPI.GetMouseFocus;
 
 local BACKGROUND_INSET = 3.5;
 local TEXT_INSET = 16;
@@ -2454,7 +2455,7 @@ local function SetUpOverlayFrame()
     local VisibilityButton = frame.VisibilityButton;
     VisibilityButton.Icon:SetTexture(TEXTURE_PATH_PREFIX.."Icons", nil, nil, "TRILINEAR");
     VisibilityButton.Icon:SetTexCoord(0, 0.125, 0, 0.5);
-    VisibilityButton.tooltip = L["Visibility"];
+    VisibilityButton.tooltipDescription = L["Visibility"];
 
     VisibilityButton:SetScript("OnClick", function(self)
         local visible = not Container:IsShown();
@@ -2488,11 +2489,11 @@ local function SetUpOverlayFrame()
     end)
     VisibilityButton:SetScript("OnEnter", function(self)
         self.Highlight:Show();
-        NarciTooltip:ShowTooltip(self, 0, 0, 1);
+        NarciTooltip:ShowButtonTooltip(self);
     end)
     VisibilityButton:SetScript("OnLeave", function(self)
         self.Highlight:Hide();
-        NarciTooltip:FadeOut();
+        NarciTooltip:HideTooltip();
     end)
     --
     frame.Tooltip:SetGradientExtraWidth(10);
@@ -2521,6 +2522,7 @@ NarciTextOverlayFrameMixin = {};
 
 function NarciTextOverlayFrameMixin:OnLoad()
     Narci_ModelSettings:AddSubFrame(self, "TextOverlayMenu");
+    self.Label:SetText(Narci.L["Text Overlay"]);
 end
 
 function NarciTextOverlayFrameMixin:OnShow()

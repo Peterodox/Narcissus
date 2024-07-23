@@ -170,7 +170,7 @@ end)
 
 KeyListener:SetScript("OnGamePadButtonDown", function(self, key)
     --print("|cFF8cd964"..key);
-    if key == "PADBACK" then
+    if key == "PADBACK" or key == "PADSYSTEM" then
         Narci:CloseCharacterUI();
         return
     end
@@ -183,6 +183,7 @@ KeyListener:SetScript("OnGamePadButtonDown", function(self, key)
     else
         Repeater:Stop();
     end
+
     self:SetPropagateKeyboardInput(propagate);
     if SIGNAL_PRESS[key] then
         GamePadButtonPool:SignalPress(key);
@@ -216,6 +217,10 @@ function KeyListener:ProcessKeyDown(key, isRepeated)
         end
     else
         hold, propagate = ActiveGroup:KeyDown(key);
+    end
+
+    if propagate == nil then
+        propagate = false;
     end
 
     return hold, propagate
@@ -329,7 +334,7 @@ function Loader:Init()
     hooksecurefunc("Narci_Open", function()
         if Narci.isActive then
             KeyListener:Activate();
-            SelectActionGroup("CharacterFrame");
+            SelectActionGroup("EquipmentSlot");  --CharacterFrame
         else
             self:ExitGamePadMode();
         end
@@ -363,9 +368,9 @@ function Loader:Init()
         elseif tabID == 2 then
             SelectActionGroup("SetManager");
         elseif tabID == 3 then
-            SelectActionGroup("Soulbind");
-        elseif tabID == 4 then
             SelectActionGroup("MythicPlus");
+        elseif tabID == 4 then
+            --SelectActionGroup("Soulbind");
         end
     end);
 
@@ -428,12 +433,3 @@ Loader:SetScript("OnEvent", function(self, event, ...)
         self:OnDisconnected(...);
     end
 end)
-
-
-
-SlashCmdList['NARCISSUSGAMEPAD'] = function(msg)
-	msg = string.lower(msg);
-    Narci_Open();
-end
-
-SLASH_NARCISSUSGAMEPAD1 = '/narcissusgamepad';

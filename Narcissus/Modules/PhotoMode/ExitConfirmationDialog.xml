@@ -289,10 +289,7 @@
 		<Scripts>
 			<OnLoad>
 				local function OnSize(self)
-					local _, screenHeight = GetPhysicalScreenSize();
-					local uiScale = self:GetEffectiveScale(); 
-					local pixel = (768/screenHeight)/uiScale;
-					local d = pixel * 2;
+					local d = NarciAPI.GetPixelForWidget(self, 2);
 					self.Background.Border:SetPoint("TOPLEFT", self.Background.Bound, "TOPLEFT", -d, d);
 					self.Background.Border:SetPoint("BOTTOMRIGHT", self.Background.Bound, "BOTTOMRIGHT", d, -d);
 					self.Background.Divider:SetHeight(d);

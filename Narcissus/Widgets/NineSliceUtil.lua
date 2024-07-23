@@ -4,6 +4,11 @@ NarciAPI.NineSliceUtil = NineSliceUtil;
 
 local AddPixelPerfectTexture = NarciAPI.AddPixelPerfectTexture; --(frame, texture, pixelWidth, pixelHeight)
 
+local function DisableSharpening(texture)
+    texture:SetTexelSnappingBias(0);
+    texture:SetSnapToPixelGrid(false);
+end
+
 --Texture order ↓
 -- 1 | 2 | 3
 -- 4 | 5 | 6
@@ -123,6 +128,68 @@ local TextureData = {
         cornerSize = 24,
         cornerCoord = 0.25,
     },
+
+    whiteBorder = {
+        file = "Modules\\BagItemSearchSuggest\\BorderNineSlice",
+        cornerSize = 24,
+        cornerCoord = 0.25,
+    },
+
+    genericChamferedBorder = {
+        file = "Frames\\GenericChamferedBorder",
+        cornerSize = 32,
+        cornerCoord = 0.25,
+        pixelPerfect = true,
+        useCenterForAlignment = true,
+    },
+
+    genericChamferedBackground = {
+        file = "Frames\\GenericChamferedBackground",
+        cornerSize = 32,
+        cornerCoord = 0.25,
+        pixelPerfect = true,
+        useCenterForAlignment = true,
+    },
+
+    ChamferedBevelBorderThick = {
+        file = "Frames\\ChamferedBevelBorderThick",
+        cornerSize = 32,
+        cornerCoord = 0.25,
+        pixelPerfect = false,
+        useCenterForAlignment = true,
+    },
+
+    dispersiveShadow = {
+        file = "Frames\\NineSliceShadowR32",
+        cornerSize = 32,
+        cornerCoord = 0.25,
+        pixelPerfect = false,
+        useCenterForAlignment = true,
+    },
+
+    blizzardTooltipBorder = {
+        file = "Frames\\NineSliceBlizzardTooltipBorder",
+        cornerSize = 24,
+        cornerCoord = 0.25,
+        disableSharpening = true;
+        useCenterForAlignment = true,
+    },
+
+    focus = {
+        file = "Frames\\NineSliceFocus",
+        cornerSize = 12,
+        cornerCoord = 0.25,
+        disableSharpening = true;
+        useCenterForAlignment = true,
+    },
+
+    photoModeUIBorder = {
+        file = "Frames\\NineSlicePhotoModeGreyBorder",
+        cornerSize = 16,
+        cornerCoord = 0.25,
+        useCenterForAlignment = true,
+        disableSharpening = true;
+    }
 };
 
 function NineSliceUtil.SetUp(frame, textureKey, layer, shrink, customLayerSubLevel)
@@ -171,6 +238,9 @@ function NineSliceUtil.SetUp(frame, textureKey, layer, shrink, customLayerSubLev
         end
         tex = group[key];
         tex:SetTexture(file, nil, nil, "LINEAR"); --NEAREST LINEAR
+        if data.disableSharpening then
+            DisableSharpening(tex)
+        end
         if key == 2 or key == 8 then
             --tex:SetHeight(size);
             if key == 2 then
@@ -242,33 +312,52 @@ function NineSliceUtil.SetUp(frame, textureKey, layer, shrink, customLayerSubLev
     end
 end
 
-function NineSliceUtil.SetBackdropColor(frame, r, g, b)
-    if frame.backdropTextures then
+function NineSliceUtil.SetBackdropColor(frame, r, g, b, a)
+    if frame and frame.backdropTextures then
+        a = a or 1;
         for i = 1, 9 do
             frame.backdropTextures[i]:SetVertexColor(r, g, b);
+            frame.backdropTextures[i]:SetAlpha(a);
         end
     end
 end
 
-function NineSliceUtil.SetBorderColor(frame, r, g, b)
-    if frame.borderTextures then
+function NineSliceUtil.SetBorderColor(frame, r, g, b, a)
+    if frame and frame.borderTextures then
+        a = a or 1;
         for i = 1, 9 do
             frame.borderTextures[i]:SetVertexColor(r, g, b);
+            frame.borderTextures[i]:SetAlpha(a);
         end
     end
 end
 
-function NineSliceUtil.SetUpBackdrop(frame, textureKey, shrink, r, g, b, customLayerSubLevel)
+function NineSliceUtil.SetUpBackdrop(frame, textureKey, shrink, r, g, b, a, customLayerSubLevel)
     NineSliceUtil.SetUp(frame, textureKey, "backdrop", shrink, customLayerSubLevel);
     if r and g and b then
-        NineSliceUtil.SetBackdropColor(frame, r, g, b);
+        NineSliceUtil.SetBackdropColor(frame, r, g, b, a);
     end
 end
 
-function NineSliceUtil.SetUpBorder(frame, textureKey, shrink, r, g, b, customLayerSubLevel)
+function NineSliceUtil.SetUpBorder(frame, textureKey, shrink, r, g, b, a, customLayerSubLevel)
     NineSliceUtil.SetUp(frame, textureKey, "border", shrink, customLayerSubLevel);
     if r and g and b then
-        NineSliceUtil.SetBorderColor(frame, r, g, b);
+        NineSliceUtil.SetBorderColor(frame, r, g, b, a);
+    end
+end
+
+function NineSliceUtil.SetUpOverlay(frame, textureKey, shrink, r, g, b, a, customLayerSubLevel)
+    local container = frame.NineSliceOverlay;
+
+    if not container then
+        container = CreateFrame("Frame", nil, frame);
+        container:SetAllPoints(true);
+        frame.NineSliceOverlay = container;
+    end
+
+    NineSliceUtil.SetUp(container, textureKey, "border", shrink, customLayerSubLevel);
+    if r and g and b then
+        NineSliceUtil.SetBorderColor(container, r, g, b, a);
     end
 end
 

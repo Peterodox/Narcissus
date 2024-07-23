@@ -1,0 +1,245 @@
+<Ui xsi:schemaLocation="http://www.blizzard.com/wow/ui/..\FrameXML\UI.xsd">
+	<Script file="DataProvider.lua"/>
+	<Script file="WorldMapPin.lua"/>
+
+	<Frame name="NarciDragonridingRaceTimeDisplayTemplate" mixin="NarciDragonridingRaceTimeDisplayMixin" parentArray="TimeDisplays" virtual="true">
+		<Size x="60" y="32"/>
+		<Layers>
+			<Layer level="OVERLAY">
+				<!--Texture>
+					<Color r="1" g="0" b="0"/>
+				</Texture-->
+				<FontString parentKey="LeftNum" inherits="GameFontNormal" justifyH="LEFT" justifyV="BOTTOM" maxLines="1">
+					<Color r="1" g="1" b="1"/>
+					<Anchors>
+						<Anchor point="BOTTOMLEFT" relativeKey="$parent" relativePoint="BOTTOMLEFT" x="0" y="0"/>
+					</Anchors>
+				</FontString>
+				<FontString parentKey="RightNum" inherits="GameFontNormal" justifyH="LEFT" justifyV="BOTTOM" maxLines="1">
+					<Color r="1" g="1" b="1"/>
+					<Anchors>
+						<Anchor point="BOTTOMLEFT" relativeKey="$parent.LeftNum" relativePoint="BOTTOMRIGHT" x="-3" y="0"/>
+					</Anchors>
+				</FontString>
+				<FontString parentKey="Label" inherits="GameFontNormal" justifyH="CENTER" justifyV="TOP" maxLines="1">
+					<Color r="1" g="1" b="1"/>
+					<Anchors>
+						<Anchor point="TOP" relativeKey="$parent" relativePoint="TOP" x="0" y="0"/>
+					</Anchors>
+				</FontString>
+			</Layer>
+		</Layers>
+		<Scripts>
+			<OnLoad method="OnLoad"/>
+		</Scripts>
+	</Frame>
+
+	<Frame name="NarciWorldMapPinTemplate" inherits="BaseHighlightableMapPoiPinTemplate" mixin="NarciWorldMapPinMixin" virtual="true">
+		<Layers>
+			<Layer level="OVERLAY" textureSubLevel="2">
+				<Texture parentKey="GlowTexture" hidden="true">
+					<Anchors>
+						<Anchor point="TOPLEFT" relativeKey="$parent.Texture"/>
+						<Anchor point="BOTTOMRIGHT" relativeKey="$parent.Texture"/>
+					</Anchors>
+					<Color r="1.0" g="1.0" b="1.0" a="0.4"/>
+				</Texture>
+			</Layer>
+		</Layers>
+		<Animations>
+			<AnimationGroup parentKey="AnimGlow" setToFinalAlpha="false" looping="REPEAT">
+				<Alpha childKey="GlowTexture" smoothing="NONE" duration="0.4" order="1" fromAlpha="0.4" toAlpha="1"/>
+				<Alpha childKey="GlowTexture" duration="0.4" order="2" fromAlpha="1" toAlpha="0.4"/>
+			</AnimationGroup>
+		</Animations>
+	</Frame>
+
+	<Button name="NarciWorldMapDragonridingRaceListButtonTemplate" mixin="NarciWorldMapDragonridingRaceListButtonMixin" registerForClicks="LeftButtonUp, RightButtonUp" virtual="true">
+		<Size x="200" y="20"/>
+		<Layers>
+			<Layer level="OVERLAY">
+				<FontString parentKey="ButtonText" inherits="GameFontNormal" justifyH="LEFT" maxLines="1">
+					<Size x="150"/>
+					<Color r="0.8" g="0.8" b="0.8"/>
+					<Anchors>
+						<Anchor point="LEFT" relativeKey="$parent" relativePoint="LEFT" x="8" y="0"/>
+					</Anchors>
+				</FontString>
+
+				<Texture parentKey="RedDot" file="Interface\AddOns\Narcissus\Art\BasicShapes\Circle16" hidden="false">
+					<Size x="4" y="4"/>
+					<Color r="0.82" g="0.30" b="0.30"/>
+					<Anchors>
+						<Anchor point="RIGHT" relativeKey="$parent" relativePoint="RIGHT" x="-8" y="0"/>
+					</Anchors>
+				</Texture>
+			</Layer>
+		</Layers>
+		<Scripts>
+			<OnEnter method="OnEnter"/>
+			<OnLeave method="OnLeave"/>
+			<OnClick method="OnClick"/>
+		</Scripts>
+	</Button>
+
+	<Frame name="NarciWorldMapDragonridingRaceUITemplate" mixin="NarciWorldMapDragonridingRaceUIMixin" frameStrata="HIGH" virtual="true" hidden="true">
+		<Size x="200" y="20"/>
+		<Frames>
+			<Button parentKey="ToggleButton">
+				<Size x="32" y="32"/>
+				<Anchors>
+					<Anchor point="BOTTOMLEFT" relativeKey="$parent" relativePoint="BOTTOMLEFT" x="0" y="0"/>
+				</Anchors>
+				<Layers>
+					<Layer level="OVERLAY">
+						<Texture parentKey="Icon" file="Interface\AddOns\Narcissus\Art\Modules\DragonridingRaces\TourListToggle">
+							<TexCoords left="0" right="0.375" top="0" bottom="0.375"/>
+							<Size x="36" y="36"/>
+							<Anchors>
+								<Anchor point="CENTER"/>
+							</Anchors>
+						</Texture>
+					</Layer>
+					<Layer level="BORDER">
+						<Texture parentKey="Shade" file="Interface\AddOns\Narcissus\Art\Modules\DragonridingRaces\TourListToggle">
+							<TexCoords left="0" right="0.5" top="0.5" bottom="1"/>
+							<Size x="64" y="64"/>
+							<Anchors>
+								<Anchor point="BOTTOMLEFT" relativeKey="$parent.$parent" relativePoint="BOTTOMLEFT" x="0" y="0"/>
+							</Anchors>
+						</Texture>
+					</Layer>
+				</Layers>
+			</Button>
+
+			<ScrollFrame parentKey="BackgroundFrame">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeKey="$parent" relativePoint="TOPLEFT"/>
+					<Anchor point="BOTTOMRIGHT" relativeKey="$parent" relativePoint="BOTTOMRIGHT"/>
+				</Anchors>
+				<Layers>
+					<Layer level="ARTWORK">
+						<Texture parentKey="Gradient">
+							<Color r="1" g="1" b="1" a="1"/>
+							<Gradient orientation="HORIZONTAL">
+								<MinColor a="0.8" r="0.08" g="0.05" b="0.03"/>
+								<MaxColor a="0.5" r="0.17" g="0.12" b="0.08"/>
+							</Gradient>
+						</Texture>
+					</Layer>
+				</Layers>
+				<ScrollChild>
+					<Frame parentKey="BlurredMap" useParentLevel="true"/>
+				</ScrollChild>
+			</ScrollFrame>
+
+			<Frame parentKey="ListFrame" frameLevel="8">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeKey="$parent" relativePoint="TOPLEFT"/>
+					<Anchor point="BOTTOMRIGHT" relativeKey="$parent" relativePoint="BOTTOMRIGHT"/>
+				</Anchors>
+				<Layers>
+					<Layer level="ARTWORK">
+						<Texture parentKey="ButtonHighlight" file="Interface\AddOns\Narcissus\Art\Modules\DragonridingRaces\ButtonHighlight" hidden="true">
+							<Color r="0.86" g="0.69" b="0.25" a="1"/>
+							<TexCoords left="0" right="0.9375" top="0" bottom="0.75"/>
+							<Size x="200" y="20"/>
+							<Anchors>
+								<Anchor point="CENTER"/>
+							</Anchors>
+						</Texture>
+					</Layer>
+				</Layers>
+				<Frames>
+					<Frame parentKey="RecordFrame" hidden="true">
+						<Size x="200" y="48"/>
+						<Anchors>
+							<Anchor point="TOPLEFT" relativeKey="$parent.$parent" relativePoint="TOPLEFT"/>
+							<Anchor point="TOPRIGHT" relativeKey="$parent.$parent" relativePoint="TOPRIGHT"/>
+						</Anchors>
+						<Frames>
+							<Frame inherits="NarciDragonridingRaceTimeDisplayTemplate">
+								<Anchors>
+									<Anchor point="CENTER" relativeKey="$parent" relativePoint="LEFT" x="36" y="-4"/>
+								</Anchors>
+							</Frame>
+							<Frame inherits="NarciDragonridingRaceTimeDisplayTemplate">
+								<Anchors>
+									<Anchor point="CENTER" relativeKey="$parent" relativePoint="CENTER" x="0" y="-4"/>
+								</Anchors>
+							</Frame>
+							<Frame inherits="NarciDragonridingRaceTimeDisplayTemplate">
+								<Anchors>
+									<Anchor point="CENTER" relativeKey="$parent" relativePoint="RIGHT" x="-36" y="-4"/>
+								</Anchors>
+							</Frame>
+						</Frames>
+					</Frame>
+
+					<Frame parentKey="TournamentInfo">
+						<Size x="200" y="48"/>
+						<Anchors>
+							<Anchor point="TOPLEFT" relativeKey="$parent.$parent" relativePoint="TOPLEFT"/>
+							<Anchor point="TOPRIGHT" relativeKey="$parent.$parent" relativePoint="TOPRIGHT"/>
+						</Anchors>
+						<Frames>
+							<Frame inherits="NarciDragonridingRaceTimeDisplayTemplate" parentKey="DurationDisplay">
+								<Anchors>
+									<Anchor point="CENTER" relativeKey="$parent" relativePoint="CENTER" x="0" y="-4"/>
+								</Anchors>
+							</Frame>
+						</Frames>
+					</Frame>
+
+					<Button parentKey="PinToggle">
+						<Size x="32" y="32"/>
+						<HitRectInsets>
+							<AbsInset left="-8" right="0" top="0" bottom="0"/>
+						</HitRectInsets>
+						<Anchors>
+							<Anchor point="BOTTOMRIGHT" relativeKey="$parent" relativePoint="BOTTOMRIGHT" x="0"/>
+						</Anchors>
+						<Layers>
+							<Layer level="OVERLAY">
+								<Texture parentKey="Icon" file="Interface\AddOns\Narcissus\Art\Modules\DragonridingRaces\PinToggleIcon">
+									<Size x="24" y="24"/>
+									<TexCoords left="0" right="0.5" top="0" bottom="1"/>
+									<Anchors>
+										<Anchor point="CENTER"/>
+									</Anchors>
+								</Texture>
+							</Layer>
+						</Layers>
+					</Button>
+
+					<Button parentKey="CloseButton">
+						<Size x="32" y="32"/>
+						<HitRectInsets>
+							<AbsInset left="0" right="-8" top="0" bottom="0"/>
+						</HitRectInsets>
+						<Anchors>
+							<Anchor point="BOTTOMLEFT" relativeKey="$parent" relativePoint="BOTTOMLEFT" x="0"/>
+						</Anchors>
+						<Layers>
+							<Layer level="OVERLAY">
+								<Texture parentKey="Icon" file="Interface\AddOns\Narcissus\Art\Modules\DragonridingRaces\CollapseLeftIcon">
+									<Size x="24" y="24"/>
+									<Anchors>
+										<Anchor point="CENTER"/>
+									</Anchors>
+								</Texture>
+							</Layer>
+						</Layers>
+					</Button>
+				</Frames>
+			</Frame>
+		</Frames>
+		<Scripts>
+			<OnLoad method="OnLoad"/>
+			<OnEnter method="OnEnter"/>
+			<OnLeave method="OnLeave"/>
+			<OnMouseDown method="OnMouseDown"/>
+			<OnShow method="OnShow"/>
+		</Scripts>
+	</Frame>
+</Ui>

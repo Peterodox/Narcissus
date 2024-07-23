@@ -153,7 +153,7 @@ function NarciGroundShadowOptionMixin:OnLoad()
     local usedWidth = w1 + w2 + 2*gap;
     Sector:SetPoint("TOPLEFT", relativeTo, "TOPLEFT", usedWidth, 0);
     Sector:SetSize(totalWidth - usedWidth, 68);
-    Sector.Label:SetText("Ajustment");
+    Sector.Label:SetText(L["Adjustment"]);
     local numSectors = #self.sectors;
 
     local fullHeight = h2;  --68

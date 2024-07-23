@@ -9,7 +9,7 @@ local fadingFrames = {};
 
 local f = CreateFrame("Frame", "NarciFadeUI");
 
-local function OnUpdate(self, elpased)
+local function OnUpdate(self, elapsed)
     local i = 1;
     local frame, info, timer, alpha;
     local isComplete = true;
@@ -17,7 +17,7 @@ local function OnUpdate(self, elpased)
         frame = fadingFrames[i];
         info = fadeInfo[frame];
         if info then
-            timer = info.timer + elpased;
+            timer = info.timer + elapsed;
             if timer >= info.duration then
                 alpha = info.toAlpha;
                 fadeInfo[frame] = nil;
@@ -175,3 +175,75 @@ end
 
 f.Fade = UIFrameFade;       --from current alpha
 f.FadeIn = UIFrameFadeIn;   --from 0 to 1
+
+
+
+
+--Add FadeIn, FadeOut methods to a frame
+local FadeMixin = {};
+
+local function FadeController_OnUpdate(self, elapsed)
+    self.t = self.t + elapsed;
+    if self.t > 0 then
+        self.alpha = self.alpha + self.delta*elapsed;
+        if self.alpha >= 1 then
+            self.alpha = 1;
+            self:SetScript("OnUpdate", nil);
+        elseif self.alpha <= 0 then
+            self.alpha = 0;
+            self:SetScript("OnUpdate", nil);
+            if not self.keepInvisibleFrame then
+                self.owner:Hide();
+            end
+        end
+        self.owner:SetAlpha(self.alpha);
+    end
+end
+
+function FadeMixin:FadeIn(duration, delay)
+    local alpha = self:GetAlpha();
+
+    if alpha >= 1 then
+        self.fadeController:SetScript("OnUpdate", nil);
+    else
+        duration = duration or 0.15;
+        delay = (delay and -delay) or 0;
+        self.fadeController.t = delay;
+        self.fadeController.delta = 1 / duration;
+        self.fadeController.alpha = alpha;
+        self.fadeController:SetScript("OnUpdate", FadeController_OnUpdate);
+    end
+end
+
+function FadeMixin:FadeOut(duration, delay)
+    if not self:IsShown() then
+        self:SetAlpha(0);
+        self.fadeController:SetScript("OnUpdate", nil);
+        return
+    end
+
+    local alpha = self:GetAlpha();
+
+    if alpha <= 0 then
+        self.fadeController:SetScript("OnUpdate", nil);
+    else
+        duration = duration or 0.15;
+        delay = (delay and -delay) or 0;
+        self.fadeController.t = delay;
+        self.fadeController.delta = -1 / duration;
+        self.fadeController.alpha = alpha;
+        self.fadeController:SetScript("OnUpdate", FadeController_OnUpdate);
+    end
+end
+
+local function CreateFadeObject(owner, keepInvisibleFrame)
+    if not (owner.fadeController or owner.FadeIn or owner.FadeOut) then
+        local f = CreateFrame("Frame", nil, owner);
+        owner.fadeController = f
+        f.owner = owner;
+        f.keepInvisibleFrame = keepInvisibleFrame;
+        owner.FadeIn = FadeMixin.FadeIn;
+        owner.FadeOut = FadeMixin.FadeOut;
+    end
+end
+f.CreateFadeObject = CreateFadeObject;

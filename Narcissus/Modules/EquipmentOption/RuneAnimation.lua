@@ -27,6 +27,7 @@ end
 
 function NarciRuneAnimationMixin:OnHide()
     self:Hide();
+    self:StopAnimating();
 end
 
 function NarciRuneAnimationMixin:SetRuneTexture(i, letter)
@@ -77,11 +78,19 @@ function NarciRuneAnimationMixin:PlayAnimation()
 end
 
 function NarciRuneAnimationMixin:StopAnimation()
+    local anyPlaying = false;
+
     for i = 1, NUM_RUNES do
-        self["Rune"..i].Anim:Pause();
+        local rune = self["Rune"..i];
+        if rune.Anim:IsPlaying() then
+            anyPlaying = true;
+            rune.Anim:Pause();
+        end
     end
     self.Shine.Anim:Pause();
-    self.FadeOut:Play();
+    if self:IsShown() and anyPlaying then
+        self.FadeOut:Play();
+    end
 end
 
 function NarciRuneAnimationMixin:SetDirection(d)

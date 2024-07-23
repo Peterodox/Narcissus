@@ -4,11 +4,31 @@ local OnEnterDelay = addon.TalentTreeOnEnterDelay;
 local ClassTalentTooltipUtil = addon.ClassTalentTooltipUtil;
 
 local GetDefinitionInfo = C_Traits.GetDefinitionInfo;
-local GetSpellInfo = GetSpellInfo;
+local GetSpellInfo = addon.TransitionAPI.GetSpellInfo;
 local GetPvpTalentInfoByID = GetPvpTalentInfoByID;
-local IsPassiveSpell = IsPassiveSpell;
+local IsSpellPassive = addon.TransitionAPI.IsSpellPassive;
 
 local select = select;
+
+local Handler;
+
+local NodeUtil = {};
+addon.TalentTreeNodeUtil = NodeUtil;
+
+function NodeUtil:SetModeNormal()
+    self.clickable = false;
+end
+
+NodeUtil:SetModeNormal();
+
+function NodeUtil:SetModePickIcon()
+    self.clickable = true;
+end
+
+function NodeUtil:AssignHandler(frame)
+    Handler = frame;
+end
+
 
 NarciTalentTreeNodeMixin = {};
 
@@ -44,7 +64,7 @@ function NarciTalentTreeNodeMixin:SetNodeType(typeID, ranksPurchased)
             self.IconMask:SetTexture("Interface\\AddOns\\Narcissus\\Art\\Modules\\TalentTree\\NodeMaskCircle");
             self.IconBorder:SetTexCoord(0.25, 0.5, 0, 0.5);
             self.Symbol:SetTexCoord(0, 0.25, 0.25, 0.5);
-        else
+        else    --2
             self.IconMask:SetTexture("Interface\\AddOns\\Narcissus\\Art\\Modules\\TalentTree\\NodeMaskOctagon");
             self.Symbol:SetTexCoord(0.75, 1, 0, 0.25);
             self.IconBorder:SetTexCoord(0, 0.25, 0.5, 1);
@@ -89,6 +109,8 @@ function NarciTalentTreeNodeMixin:SetNodeType(typeID, ranksPurchased)
 end
 
 function NarciTalentTreeNodeMixin:SetDefinitionID(definitionID)
+    if not definitionID then return end;
+
     local info = GetDefinitionInfo(definitionID);
     self.definitionID = definitionID;
     SetNodeIcon(self, info);
@@ -130,7 +152,11 @@ end
 
 
 function NarciTalentTreeNodeMixin:OnEnter()
-    --print("definitionID: "..self.definitionID)
+    if NodeUtil.clickable then
+        Handler:HighlightButton(self);
+        return
+    end
+
     OnEnterDelay:WatchButton(self);
     ClassTalentTooltipUtil:UpdateCursorDelta();
 end
@@ -144,8 +170,18 @@ function NarciTalentTreeNodeMixin:OnEnterCallback()
 end
 
 function NarciTalentTreeNodeMixin:OnLeave()
+    if NodeUtil.clickable then
+        Handler:HighlightButton();
+    end
+
     OnEnterDelay:ClearWatch();
     ClassTalentTooltipUtil.HideTooltip();
+end
+
+function NarciTalentTreeNodeMixin:OnMouseDown()
+    if NodeUtil.clickable then
+        Handler:SetSecondaryIcon(self.Icon:GetTexture(), true);
+    end
 end
 
 function NarciTalentTreeNodeMixin:SetPvPTalent(talentID)
@@ -154,7 +190,7 @@ function NarciTalentTreeNodeMixin:SetPvPTalent(talentID)
         local _, _, icon, _, _, spellID = GetPvpTalentInfoByID(talentID);
         self.Icon:SetTexture(icon);
         self:SetActive(true);
-        if IsPassiveSpell(spellID) then
+        if IsSpellPassive(spellID) then
             self:SetNodeType(1);
         else
             self:SetNodeType(0);

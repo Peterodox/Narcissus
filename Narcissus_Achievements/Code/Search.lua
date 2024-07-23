@@ -24,8 +24,10 @@ local IS_ACHIEVEMENT = true;
 function TabUtil:EnableSearchBox(state)
     if state then
         SearchBox:Enable();
+        SearchBox.Instructions:SetText(SEARCH or "Search");
     else
         SearchBox:Disable();
+        SearchBox.Instructions:SetText("N/A");
     end
 end
 
@@ -70,6 +72,7 @@ function NarciAchievementSearchBoxMixin:OnLoad()
 	self.Instructions:ClearAllPoints();
 	self.Instructions:SetPoint("TOPLEFT", self, "TOPLEFT", 16, 0);
 	self.Instructions:SetPoint("BOTTOMRIGHT", self, "BOTTOMRIGHT", -20, 0);
+    self.Instructions:SetMaxLines(1);
 	self.SearchIcon:SetVertexColor(0.6, 0.6, 0.6);
 
 

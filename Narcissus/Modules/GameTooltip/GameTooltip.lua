@@ -7,29 +7,31 @@ local gsub = string.gsub;
 local format = string.format;
 local match = string.match;
 local strtrim = strtrim;
+local unpack = unpack;
 
 local _G = _G;
 local NarciAPI = NarciAPI;
 local FadeFrame = NarciFadeUI.Fade;
-local GetItemStats = GetItemStats;
-local GetItemSpell = GetItemSpell;
-local GetItemInfo = GetItemInfo;
-local GetItemInfoInstant = GetItemInfoInstant;
-local GetDetailedItemLevelInfo = GetDetailedItemLevelInfo;
+local C_Item = C_Item;
+local GetItemStats = C_Item.GetItemStats;
+local GetItemSpell = C_Item.GetItemSpell;
+local GetItemInfo = C_Item.GetItemInfo;
+local GetItemInfoInstant = C_Item.GetItemInfoInstant;
+local GetDetailedItemLevelInfo = C_Item.GetDetailedItemLevelInfo;
 local GetInventoryItemLink = GetInventoryItemLink;
 local GetInventoryItemDurability = GetInventoryItemDurability;
 local Model_ApplyUICamera = Model_ApplyUICamera;
 local C_TransmogCollection = C_TransmogCollection;
-local C_Item = C_Item;
 local GetSlotVisualInfo = C_Transmog.GetSlotVisualInfo;
 local EJ_SetSearch = EJ_SetSearch;
 
 local GetItemQualityColor = NarciAPI.GetItemQualityColor;
-local GetSlotVisualID = NarciAPI.GetSlotVisualID;
 
 local SharedTooltipDelay = addon.SharedTooltipDelay;
 local TransmogDataProvider = addon.TransmogDataProvider;
 local SetModelByUnit = addon.TransitionAPI.SetModelByUnit;
+local ItemCacheUtil = addon.ItemCacheUtil;
+local SetupSpecialItemTooltip = addon.SetupSpecialItemTooltip;
 
 local PT_EQUIPMENT_SETS = gsub(EQUIPMENT_SETS, ".cFF.+", "");
 local PT_ITEM_SOULBOUND = ITEM_SOULBOUND;
@@ -56,6 +58,7 @@ end
     GetSpellBaseCooldown
     GetItemSpell
     
+    C_TradeSkillUI.GetItemCraftedQualityByItemInfo(itemLink)
 --]]
 local function Round(a)
     return tonumber(format("%.2f", floor(a*100+0.5)*0.01 ))
@@ -114,7 +117,11 @@ end
 function NarciGameTooltipMixin:OnHide()
     SharedTooltipDelay:Kill();
     self:SetScript("OnUpdate", nil);
-    --GameTooltip_ClearMoney(self);
+end
+
+function NarciGameTooltipMixin:OnTooltipCleared()
+    GameTooltip_ClearMoney(self);
+    SharedTooltip_ClearInsertedFrames(self);
 end
 
 function NarciGameTooltipMixin:OnSizeChanged(w, h)
@@ -241,7 +248,6 @@ end
 ---- Equipment Tooltip (for displaying gears/mogs in character frame) ----
 
 local function OnModelLoaded(self)
-    self.FadeIn.Hold:SetDuration(0);
     if self.cameraID then
         Model_ApplyUICamera(self, self.cameraID);
     end
@@ -298,34 +304,66 @@ local function AppendItemID(tooltip)
     if spellID then
         tooltip:AddDoubleLine(format("|cff545454ItemID|r |cff808080%s|r", tooltip.itemID), format("|cff545454SpellID|r |cff808080%s|r", spellID), 1, 1, 1, (tooltip.numLines > 0 and - SEG_INSETS));
     else
-        tooltip:AddLine(format("|cff545454ID|r |cff808080%s|r", tooltip.itemID), 1, 1, 1, (tooltip.numLines > 0 and - SEG_INSETS));
+        tooltip:AddLine(format("|cff545454ItemID|r |cff808080%s|r", tooltip.itemID), 1, 1, 1, (tooltip.numLines > 0 and - SEG_INSETS));
     end
 end
 
 local ADDTIONAL_SETUP_FUNC = VoidFunc;
 
 
-local ItemCache = {};
+local ItemDropLocation = {};
 
-function ItemCache:SetItemDropLocation(itemID, locationText)
+function ItemDropLocation:SetDropLocation(itemID, locationText)
     if not self.items then
         self.items = {};
     end
     self.items[itemID] = locationText or "";
 end
 
-function ItemCache:GetItemDropLocation(itemID)
+function ItemDropLocation:GetItemDropLocation(itemID)
     if itemID and self.items then
         return self.items[itemID];
     end
 end
 
-function ItemCache:IsItemCached(itemID)
+function ItemDropLocation:IsItemCached(itemID)
     return itemID and self.items and self.items[itemID];
 end
 
-function ItemCache:DoesItemHaveDropLocation(itemID)
+function ItemDropLocation:DoesItemHaveDropLocation(itemID)
     return self:IsItemCached(itemID) and self.items[itemID] ~= ""
+end
+
+
+local ItemLoader = CreateFrame("Frame");
+
+local function ItemLoader_OnUpdate(self, elapased)
+    self.t = self.t + elapased;
+    if self.t >= 0 then
+        self:SetScript("OnUpdate", nil);
+        self.t = nil;
+        EquipmentTooltip:OnDataLoaded();
+    end
+end
+
+function ItemLoader:QueryData(itemLink, itemID)
+    self.t = -0.2;
+    self.pendingItemID = itemID;
+    self:SetScript("OnUpdate", ItemLoader_OnUpdate);
+    C_Item.RequestLoadItemDataByID(itemLink);
+end
+
+function ItemLoader:LoadItemData(link, itemID, forceUpdateItemData)
+    if forceUpdateItemData or (not ItemCacheUtil:IsItemDataCached(itemID)) then
+        if C_Item.DoesItemExistByID(link) then
+            self:QueryData(link, itemID);
+        end
+    else
+        if self.pendingItemID then
+            self.pendingItemID = nil;
+            self:SetScript("OnUpdate", nil);
+        end
+    end
 end
 
 
@@ -408,7 +446,7 @@ function NarciEquipmentTooltipMixin:OnHide()
     SharedTooltipDelay:Kill();
 end
 
-function NarciEquipmentTooltipMixin:UpdateMaxWidth(width)
+function NarciEquipmentTooltipMixin:EvaluateMaxWidth(width)
     if width > self.maxWidth then
         self.maxWidth = width;
     end
@@ -437,10 +475,15 @@ function NarciEquipmentTooltipMixin:AddLine(text, r, g, b, offsetY)
     end
     self.leftTexts[n]:SetWidth(self.textWidth);
     self.leftTexts[n]:SetText(text);
-    self.leftTexts[n]:SetTextColor(r or 0.8863, g or 0.8863, b or 0.8863);
+    self.leftTexts[n]:SetTextColor(r or 0.8863, g or 0.8863, b or 0.8863, 1);
     self.leftTexts[n]:Show();
     self.maxWidth = CompareWidth(self.leftTexts[n], self.maxWidth);
     self.bottomObject = self.leftTexts[n];
+end
+
+function NarciEquipmentTooltipMixin:AddColoredText(text, colorIndex, offsetY)
+    local r, g, b = GetColorByIndex(colorIndex);
+    self:AddLine(text, r, g, b, offsetY);
 end
 
 function NarciEquipmentTooltipMixin:IsBottomObjectFontString()
@@ -513,6 +556,8 @@ function NarciEquipmentTooltipMixin:ClearLines()
 
     self.HeaderFrame.ItemLevel:SetText(nil);
     self.HeaderFrame.LevelSubText:SetText(nil);
+    self.HeaderFrame.CraftingQualityIcon:Hide();
+
     self.GemFrame:Clear();
     self.SpellFrame:Clear();
 end
@@ -564,23 +609,23 @@ function NarciEquipmentTooltipMixin:SetInventoryItem(slotID)
 
     local link = GetInventoryItemLink("player", slotID);
     if link then
-        local itemData = NarciAPI.GetCompleteItemDataFromSlot(slotID);
-        self:DisplayItemData(link, itemData, slotID);
+        local itemData, requestEmbededData = NarciAPI.GetCompleteItemDataFromSlot(slotID);
+        self:DisplayItemData(link, itemData, slotID, nil, nil, requestEmbededData);
         itemData = nil;
     else
         self:Hide();
     end
 end
 
-function NarciEquipmentTooltipMixin:DisplayItemData(link, itemData, slotID, visualID, sourceID)
+function NarciEquipmentTooltipMixin:DisplayItemData(link, itemData, slotID, visualID, sourceID, forceUpdateItemData)
     --link: the itemlink,  itemData: data obatined by scanning tooltip, slotID: if the item is an inventory item (equipped)
     link = string.match(link, "(item:[%-?%d:]+)");
-    self:LoadItemData(link);
+    local itemID, itemType, itemSubType, itemEquipLoc, icon, classID, subclassID = GetItemInfoInstant(link);
+    ItemLoader:LoadItemData(link, itemID, forceUpdateItemData);
     local quality = link and C_Item.GetItemQualityByID(link);
     if quality then
         self.HeaderFrame.ItemName:SetTextColor( GetItemQualityColor(quality) );
     end
-    local itemID, itemType, itemSubType, itemEquipLoc, icon, classID, subclassID = GetItemInfoInstant(link);
     local itemName = GetItemInfo(link);
     local itemLevel = GetDetailedItemLevelInfo(link);
     self.HeaderFrame.ItemName:SetText(itemName);
@@ -591,6 +636,7 @@ function NarciEquipmentTooltipMixin:DisplayItemData(link, itemData, slotID, visu
     self.itemName = itemName;
     self.itemIcon = icon;
     self.isWeapon = classID == 2;
+    self.quality = quality;
     local validForTransmog = visualID or NarciAPI.IsSlotValidForTransmog(slotID);
     if validForTransmog ~= self.showItemModel then
         if validForTransmog then
@@ -621,27 +667,55 @@ function NarciEquipmentTooltipMixin:DisplayItemData(link, itemData, slotID, visu
             levelSubtext = itemData.context;
         end
 
-        if itemData.upgradeLevel then
+        if itemData.upgradeString then
+            levelSubtext = itemData.upgradeString;
+        elseif itemData.upgradeLevel then
             levelSubtext = format("%s/%s", itemData.upgradeLevel[1], itemData.upgradeLevel[2]);
+        end
+
+        if levelSubtext and itemData.fullyUpgradedItemLevel then
+            local level1, level2 = match(levelSubtext, "(%d)/(%d)");
+            if level1 and level2 and level1 ~= level2 then
+                levelSubtext = levelSubtext.." |cff808080("..itemData.fullyUpgradedItemLevel..")|r";
+            end
+        end
+
+        if levelSubtext then
+            local temp = levelSubtext;
+            local _, numNewLines = gsub(temp, "|n", " ");
+            if numNewLines and numNewLines > 1 then
+                --Remove one line break (10.2.0, old season item has very long subtext. e.g. "Raid Finder Dragonflight Season 2 Upgrade Level Veteran 8/8")
+                levelSubtext = gsub(levelSubtext, "|n", " ", 1);
+            end
         end
         self.HeaderFrame.LevelSubText:SetText(levelSubtext);
 
         if itemData.craftingQuality then
+            local qualityTexture = self.HeaderFrame.CraftingQualityIcon;
             local craftingQuality = itemData.craftingQuality;
             local qualityAtlas = format("Professions-Icon-Quality-Tier%d-Small", craftingQuality);
-            self.HeaderFrame.CraftingQualityIcon:ClearAllPoints();
+            qualityTexture:ClearAllPoints();
+
+            local offsetY;
             if craftingQuality == 2 then
-                self.HeaderFrame.CraftingQualityIcon:SetSize(18, 18);
-                self.HeaderFrame.CraftingQualityIcon:SetPoint("TOPLEFT", self.HeaderFrame.ItemLevel, "TOPRIGHT", 4, 2);
+                qualityTexture:SetSize(18, 18);
+                offsetY = 2;
             elseif craftingQuality == 3 then
-                self.HeaderFrame.CraftingQualityIcon:SetSize(16, 16);
-                self.HeaderFrame.CraftingQualityIcon:SetPoint("TOPLEFT", self.HeaderFrame.ItemLevel, "TOPRIGHT", 4, -1);
+                qualityTexture:SetSize(16, 16);
+                offsetY = -1;
             else
-                self.HeaderFrame.CraftingQualityIcon:SetSize(12, 12);
-                self.HeaderFrame.CraftingQualityIcon:SetPoint("TOPLEFT", self.HeaderFrame.ItemLevel, "TOPRIGHT", 4, -1);
+                qualityTexture:SetSize(12, 12);
+                offsetY = -1;
             end
-            self.HeaderFrame.CraftingQualityIcon:SetAtlas(qualityAtlas, false);
-            self.HeaderFrame.CraftingQualityIcon:Show();
+
+            qualityTexture:SetAtlas(qualityAtlas, false);
+            qualityTexture:Show();
+
+            if levelSubtext ~= nil and levelSubtext ~= "" then
+                qualityTexture:SetPoint("LEFT", self.HeaderFrame.LevelSubText, "RIGHT", 4, 0);
+            else
+                qualityTexture:SetPoint("TOPLEFT", self.HeaderFrame.ItemLevel, "TOPRIGHT", 4, offsetY);
+            end
         else
             self.HeaderFrame.CraftingQualityIcon:Hide();
         end
@@ -693,9 +767,10 @@ function NarciEquipmentTooltipMixin:DisplayItemData(link, itemData, slotID, visu
             self:AddLine(format(ENCHANTED_TOOLTIP_LINE, itemData.enchant), r, g, b, -SEG_INSETS);
         end
 
-        local anySocket = self.GemFrame:SetSocketInfo(itemData.socketInfo);
+        local anySocket, frameHeight, lineWidth = self.GemFrame:SetSocketInfo(itemData.socketInfo);
         if anySocket then
             self:InsertFrame(self.GemFrame);
+            self:EvaluateMaxWidth(lineWidth);
         end
 
         if itemData.effects then
@@ -703,9 +778,10 @@ function NarciEquipmentTooltipMixin:DisplayItemData(link, itemData, slotID, visu
             for i = 1, #itemData.effects do
                 if itemData.effects[i][1] == "use" then
                     self.SpellFrame:SetSpellEffect(link, itemData.effects[i][2], itemData.effects[i][3], itemData.effects[i][4]);
-                    self:InsertFrame(self.SpellFrame);
+                    --self:InsertFrame(self.SpellFrame);
                 else
                     local r, g, b = GetColorByIndex((itemData.effects[i][3] and 2) or 4);
+                    --C_Item.GetFirstTriggeredSpellForItem(itemID, quality)
                     splitLines = {string.split("\n", itemData.effects[i][2])};  --adjust multiline spacing
                     for j = 1, #splitLines do
                         lineText = strtrim(splitLines[j]);
@@ -753,7 +829,7 @@ function NarciEquipmentTooltipMixin:DisplayItemData(link, itemData, slotID, visu
     end
     self:SearchDropLocation(itemName, itemID, self.baseSourceID);
 
-    ADDTIONAL_SETUP_FUNC(self);
+    self:SetAdditionalInfo(itemID);
 
     self:UpdateSize();
     self:SetItemModel();
@@ -764,7 +840,6 @@ function NarciEquipmentTooltipMixin:SetTransmogSource(appliedSourceID)
     self:ClearLines();
     self:SetUseTransmogLayout(true);
 
-    --local appliedSourceID, appliedVisualID, hasSecondaryAppearance = GetSlotVisualID(slotID);
     if appliedSourceID and appliedSourceID > 0 then
         local sourceInfo = C_TransmogCollection.GetSourceInfo(appliedSourceID);
         local itemName = sourceInfo and sourceInfo.name;
@@ -781,6 +856,7 @@ function NarciEquipmentTooltipMixin:SetTransmogSource(appliedSourceID)
         self.HeaderFrame.ItemIcon:SetTexture(icon);
         self.HeaderFrame.ItemIcon:SetVertexColor(0.6, 0.6, 0.6);
         self.isWeapon = classID == 2;
+        self.quality = quality;
         if not self.showItemModel then
             self.showItemModel = true;
             self.textWidth = self.textWidthDefault;
@@ -839,13 +915,19 @@ function NarciEquipmentTooltipMixin:SetTransmogSource(appliedSourceID)
         self.ItemModel.cameraID = cameraID;
         self.ItemModel:RefreshCamera();
         Model_ApplyUICamera(self.ItemModel, cameraID);
-        self.ItemModel.FadeIn.Hold:SetDuration(1);
+        --self.ItemModel.FadeIn.Hold:SetDuration(1);
         --self.ItemModel.FadeIn:Play();
         if not self.isWeapon then
-            SetModelByUnit(self.ItemModel, "player");
-            self.ItemModel:TryOn(appliedSourceID);
+            if appliedSourceID ~= self.ItemModel.id then
+                self.ItemModel.id = appliedSourceID;
+                SetModelByUnit(self.ItemModel, "player");
+                self.ItemModel:TryOn(appliedSourceID);
+            end
         else
-            self.ItemModel:SetItemAppearance(appliedVisualID);
+            if appliedVisualID ~= self.ItemModel.id then
+                self.ItemModel.id = appliedVisualID;
+                self.ItemModel:SetItemAppearance(appliedVisualID);
+            end
         end
         self.ItemModel:Show();
         self.HeaderFrame.ItemIcon:Hide();
@@ -885,7 +967,7 @@ local function PauseSearching_OnUpdate(self, elapsed)
 end
 
 function NarciEquipmentTooltipMixin:SearchDropLocation(itemName, itemID, baseSourceID)
-    if ItemCache:IsItemCached(itemID) then
+    if ItemDropLocation:IsItemCached(itemID) then
         self:InsertDropLocation(itemID);
         self:SetScript("OnUpdate", nil);
         self.t = nil;
@@ -920,7 +1002,7 @@ function NarciEquipmentTooltipMixin:SearchDropLocation(itemName, itemID, baseSou
                 end
                 --]]
             end
-            ItemCache:SetItemDropLocation(itemID, sourceText);
+            ItemDropLocation:SetDropLocation(itemID, sourceText);
             self:InsertDropLocation(itemID);
         else
             --for trinket/ring/necklace
@@ -935,8 +1017,8 @@ function NarciEquipmentTooltipMixin:InsertDropLocation(itemID, locationText)
     if itemID then
         if locationText then
             self:AddLine(locationText, 0.5, 0.5, 0.5, -SEG_INSETS);
-        elseif ItemCache:DoesItemHaveDropLocation(itemID) then
-            locationText = ItemCache:GetItemDropLocation(itemID);
+        elseif ItemDropLocation:DoesItemHaveDropLocation(itemID) then
+            locationText = ItemDropLocation:GetItemDropLocation(itemID);
             self:AddLine(locationText, 0.5, 0.5, 0.5, -SEG_INSETS);
         end
         return
@@ -960,14 +1042,14 @@ function NarciEquipmentTooltipMixin:InsertDropLocation(itemID, locationText)
                             FadeFrame(fontString, 0.25, 1, 0);
                         end
                         self:UpdateSize();
-                        ItemCache:SetItemDropLocation(self.itemID, locationText)
+                        ItemDropLocation:SetDropLocation(self.itemID, locationText)
                         return
                     end
                 end
             end
         end
     end
-    ItemCache:SetItemDropLocation(self.itemID, nil);
+    ItemDropLocation:SetDropLocation(self.itemID, nil);
 end
 
 function NarciEquipmentTooltipMixin:CalculateHeightAbove()
@@ -979,7 +1061,14 @@ function NarciEquipmentTooltipMixin:CalculateHeightAbove()
 end
 
 function NarciEquipmentTooltipMixin:GetItemSpellID()
-    return self.SpellFrame.spellID;
+    local spellID1 = self.itemID and self.quality and C_Item.GetFirstTriggeredSpellForItem(self.itemID, self.quality);
+    local spellID2 = self.SpellFrame.spellID;
+
+    if spellID1 and spellID2 and spellID1 ~= spellID2 then
+        return spellID1..", "..spellID2
+    else
+        return spellID1 or spellID2
+    end
 end
 
 function NarciEquipmentTooltipMixin:SetItemModel()
@@ -1004,13 +1093,19 @@ function NarciEquipmentTooltipMixin:SetItemModel()
         self.ItemModel.cameraID = cameraID;
         self.ItemModel:RefreshCamera();
         Model_ApplyUICamera(self.ItemModel, cameraID);
-        self.ItemModel.FadeIn.Hold:SetDuration(1);
+        --self.ItemModel.FadeIn.Hold:SetDuration(1);
         --self.ItemModel.FadeIn:Play();
         if self.isWeapon then
-            self.ItemModel:SetItemAppearance(self.baseVisualID);
+            if self.ItemModel.id ~= self.baseVisualID then
+                self.ItemModel.id = self.baseVisualID;
+                self.ItemModel:SetItemAppearance(self.baseVisualID);
+            end
         else
-            SetModelByUnit(self.ItemModel, "player")
-            self.ItemModel:TryOn(self.baseSourceID);
+            if self.ItemModel.id ~= self.baseSourceID then
+                self.ItemModel.id = self.baseSourceID;
+                SetModelByUnit(self.ItemModel, "player");
+                self.ItemModel:TryOn(self.baseSourceID);
+            end
         end
         self.HeaderFrame.ItemIcon:Hide();
         self.HeaderFrame.ItemIconMask:Hide();
@@ -1031,6 +1126,7 @@ function NarciEquipmentTooltipMixin:SetUseTransmogLayout(state)
             self.HeaderFrame.ItemName:SetPoint("TOPLEFT", self.HeaderFrame, "TOPLEFT", TOOLTIP_PADDING, -36);
             self.HeaderFrame.ItemType:SetPoint("TOPLEFT", self.HeaderFrame.ItemName, "BOTTOMLEFT", 0, -4);
             self.headerPadding = 48 + SEG_INSETS;
+            self.HeaderFrame.CraftingQualityIcon:Hide();
         else
             self.HeaderFrame.ItemName:SetPoint("TOPLEFT", self.HeaderFrame, "TOPLEFT", TOOLTIP_PADDING, -TOOLTIP_PADDING);
             self.HeaderFrame.ItemType:SetPoint("TOPLEFT", self.HeaderFrame.ItemLevel, "BOTTOMLEFT", 0, -2);
@@ -1108,23 +1204,27 @@ function NarciEquipmentTooltipMixin:AnchorToSlotButton(slotButton, offsetX, offs
     self.offsetX, self.offsetY = offsetX, offsetY;
 end
 
-function NarciEquipmentTooltipMixin:SetFromSlotButton(slotButton, offsetX, offsetY, delay)
+function NarciEquipmentTooltipMixin:SetFromSlotButton(slotButton, offsetX, offsetY, delay, noFadeIn)
     if delay then
         SharedTooltipDelay:Setup(slotButton, delay, self.SetFromSlotButton, self, slotButton, offsetX, offsetY);
     else
         self:AnchorToSlotButton(slotButton, offsetX, offsetY);
         self:SetInventoryItem(slotButton.slotID);
+        if not noFadeIn then
+            self:FadeIn();
+        end
+    end
+end
+
+function NarciEquipmentTooltipMixin:SetTransmogFromSlotButton(slotButton, offsetX, offsetY, noFadeIn)
+    self:AnchorToSlotButton(slotButton, offsetX, offsetY);
+    self:SetTransmogSource(slotButton.sourceID);
+    if not noFadeIn then
         self:FadeIn();
     end
 end
 
-function NarciEquipmentTooltipMixin:SetTransmogFromSlotButton(slotButton, offsetX, offsetY)
-    self:AnchorToSlotButton(slotButton, offsetX, offsetY);
-    self:SetTransmogSource(slotButton.sourceID);
-    self:FadeIn();
-end
-
-function NarciEquipmentTooltipMixin:SetItemLinkAndAnchor(link, anchorTo, offsetX, offsetY)
+function NarciEquipmentTooltipMixin:SetItemLinkAndAnchor(link, anchorTo, offsetX, offsetY, noFadeIn)
     self:ClearLines();
     self.slotID = nil;
     self.itemLink = link;
@@ -1135,49 +1235,38 @@ function NarciEquipmentTooltipMixin:SetItemLinkAndAnchor(link, anchorTo, offsetX
         local visualID, sourceID = C_TransmogCollection.GetItemInfo(link);
         self:DisplayItemData(link, itemData, nil, visualID, sourceID);
         itemData = nil;
-        self:FadeIn();
+        if not noFadeIn then
+            self:FadeIn();
+        end
     else
         self:Hide();
-    end
-end
-
-
-local function Tooltip_OnUpdate(self, elapased)
-    self.t = self.t + elapased;
-    if self.t >= 0 then
-        self:SetScript("OnUpdate", nil);
-        self.t = nil;
-        self:OnDataLoaded();
-    end
-end
-
-function NarciEquipmentTooltipMixin:LoadItemData(link)
-    if not C_Item.IsItemDataCachedByID(link) then
-        if C_Item.DoesItemExistByID(link) then
-            C_Item.RequestLoadItemDataByID(link);
-            self:QueryData();
-        end
     end
 end
 
 function NarciEquipmentTooltipMixin:OnDataLoaded()
     if self:IsShown() and self.anchorTo then
         if self.transmogLayout then
-            self:SetTransmogFromSlotButton(self.anchorTo, self.offsetX, self.offsetY)
+            self:SetTransmogFromSlotButton(self.anchorTo, self.offsetX, self.offsetY, true)
         else
             if self.slotID then
-                self:SetFromSlotButton(self.anchorTo, self.offsetX, self.offsetY);
+                self:SetFromSlotButton(self.anchorTo, self.offsetX, self.offsetY, nil, true);
             else
-                self:SetItemLinkAndAnchor(self.itemLink, self.anchorTo, self.offsetX, self.offsetY);
+                self:SetItemLinkAndAnchor(self.itemLink, self.anchorTo, self.offsetX, self.offsetY, true);
             end
         end
     end
 end
 
-function NarciEquipmentTooltipMixin:QueryData()
-    self.t = -0.2;
-    self:SetScript("OnUpdate", Tooltip_OnUpdate);
+local function ItemDataLoadedResult_OnEvent(self, event, itemID, success)
+    if itemID == self.pendingItemID then
+        self:SetScript("OnEvent", nil);
+        self:OnDataLoaded();
+        self.pendingItemID = nil;
+        self.t = -0.2;
+        print(event, itemID);
+    end
 end
+
 
 function NarciEquipmentTooltipMixin:HideTooltip()
     self:Hide();
@@ -1194,8 +1283,14 @@ end
 function NarciEquipmentTooltipMixin:FadeIn()
     self.AnimIn:Stop();
     self.AnimIn:Play();
+    self.ItemModel.FadeIn:Stop();
+    self.ItemModel.FadeIn:Play();
 end
 
+function NarciEquipmentTooltipMixin:SetAdditionalInfo(itemID)
+    SetupSpecialItemTooltip(self, itemID);
+    ADDTIONAL_SETUP_FUNC(self);
+end
 
 do
     local SettingFunctions = addon.SettingFunctions;

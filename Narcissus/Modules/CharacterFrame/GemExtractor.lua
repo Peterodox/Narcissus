@@ -1,10 +1,8 @@
 local Narci = Narci;
 
 local After = C_Timer.After;
-local GetContainerNumFreeSlots = GetContainerNumFreeSlots;
-local GetContainerNumSlots = GetContainerNumSlots;
-local GetContainerItemID = GetContainerItemID;
-local GetItemCount = GetItemCount;
+local GetContainerNumFreeSlots = C_Container.GetContainerNumFreeSlots;
+local GetItemCount = C_Item.GetItemCount;
 local NUM_BAGS = NUM_BAG_SLOTS or 4;
 
 local REQUIREMENT_FORMAT = "|cff808080"..REQUIRES_LABEL.." %s|r";
@@ -14,23 +12,27 @@ local EXTRACTOR_ITEM_LOCALIZED_NAME = C_Item.GetItemNameByID(EXTRACTOR_ITEM_ID);
 local MARCO_USE_ITEM_BY_ID = "/use item:%s";
 
 
-local function DoesPlayerHaveItem(itemID)
-    return GetItemCount(itemID) > 0
-end
+local function CanPlayerRemoveGem(itemID)
+    --return GetItemCount(itemID) > 0
+    if HasExtraActionBar() then
+        local EXTRA_ACTION_BUTTON_ACTION = 217;
+        local SPELL_ID_PLUCK = 405805;
+        local actionType, id, subType = GetActionInfo(EXTRA_ACTION_BUTTON_ACTION);
 
-local function GetBagPosition(itemID)
-    for bagID = 0, NUM_BAGS do
-        for slotIndex = 1, GetContainerNumSlots(bagID) do
-            if(GetContainerItemID(bagID, slotIndex) == itemID) then
-                return bagID, slotIndex
-            end
+        if id == SPELL_ID_PLUCK then
+            return true
         end
     end
 end
 
+local function GetExtractAction()
+    local socketID = Narci_EquipmentOption:GetSocketOrderID();
+    return string.format("/click ExtraActionButton1\r/click ItemSocketingSocket%s", socketID);
+end
+
 local function GetNumFreeBagSlots()
     --a copy of CalculateTotalNumberOfFreeBagSlots
-	local totalFree, freeSlots, bagFamily = 0;
+	local totalFree, freeSlots, bagFamily = 0, 0, 0;
 	for i = 0, NUM_BAGS do --BACKPACK_CONTAINER, NUM_BAG_SLOTS
 		freeSlots, bagFamily = GetContainerNumFreeSlots(i);
 		if ( bagFamily == 0 ) then
@@ -39,27 +41,6 @@ local function GetNumFreeBagSlots()
 	end
 	return totalFree;
 end
-
-local function GetCurrentSocketingItem(bag, slot)
-    local itemlocation;
-    if not bag then
-        itemlocation = ItemLocation:CreateFromEquipmentSlot(slot);
-    else
-        itemlocation = ItemLocation:CreateFromBagAndSlot(bag, slot);
-    end
-    return itemlocation;
-end
-
-
---/dump GetMouseFocus().itemLocation:GetBagAndSlot()
---Protected: UseContainerItem
---ItemLocation:SetBagAndSlot(bagID, slotIndex);
---local itemIsValidItem = itemLocation:IsValid() and C_Item.DoesItemExist(itemLocation);
-
---[[
-    1, 16
---]]
-
 
 local IsMounted = IsMounted;
 local IsFlying = IsFlying;
@@ -138,7 +119,7 @@ end
 function NarciItemSocketingActionButtonMixin:OnShow()
     self:RegisterEvent("PLAYER_MOUNT_DISPLAY_CHANGED");
     self:RegisterEvent("PLAYER_REGEN_DISABLED");
-    if not self:IsMouseOver() then
+    if self:IsEnabled() and not self:IsMouseOver() then
         self:OnLeave();
     end
 end
@@ -151,11 +132,13 @@ function NarciItemSocketingActionButtonMixin:OnHide()
 end
 
 function NarciItemSocketingActionButtonMixin:DisableButton()
+    self:Show();
     self:Disable();
-    if not EXTRACTOR_ITEM_LOCALIZED_NAME then
-        EXTRACTOR_ITEM_LOCALIZED_NAME = C_Item.GetItemNameByID(EXTRACTOR_ITEM_ID);
-    end
-    self.Label:SetText( string.format(REQUIREMENT_FORMAT, (EXTRACTOR_ITEM_LOCALIZED_NAME or EXTRACTOR_ITEM_NAME)) );
+    --if not EXTRACTOR_ITEM_LOCALIZED_NAME then
+    --    EXTRACTOR_ITEM_LOCALIZED_NAME = C_Item.GetItemNameByID(EXTRACTOR_ITEM_ID);
+    --end
+    --self.Label:SetText( string.format(REQUIREMENT_FORMAT, (EXTRACTOR_ITEM_LOCALIZED_NAME or EXTRACTOR_ITEM_NAME)) );
+    self.Label:SetText(Narci.L["Socket Occupied"]);
 end
 
 function NarciItemSocketingActionButtonMixin:AttemptToEnable()
@@ -169,15 +152,17 @@ function NarciItemSocketingActionButtonMixin:AttemptToEnable()
             else
                 self:TrackFlyingStatus();
                 self:Enable();
-                self.Label:SetText(Narci.L["Extract Shard"]);
+                self.Label:SetText(Narci.L["Unsocket Gem"]);
             end
         else
             self:Enable();
-            self.Label:SetText(Narci.L["Extract Shard"]);
+            self.Label:SetText(Narci.L["Unsocket Gem"]);
         end
     else
         self:SetFailedReason(1);
     end
+
+    Narci_EquipmentOption.ItemList.NoItemText:Hide();   --HideNoItemAlert
 end
 
 function NarciItemSocketingActionButtonMixin:TrackFlyingStatus()
@@ -204,6 +189,7 @@ end
 
 function NarciItemSocketingActionButtonMixin:SetActionForBlizzardUI()
     self:SetExtractAction();
+    self.preclickFunc = nil;
     self:SetScript("PostClick", SharedPostClickFunc);
     self:UnregisterEvent("BAG_UPDATE");
 end
@@ -283,13 +269,15 @@ function NarciItemSocketingActionButtonMixin:SetActionForNarcissusUI()
     local itemID = EXTRACTOR_ITEM_ID;
     local equipmentSlotIndex = Narci_EquipmentOption.slotID;
     self.equipmentSlotIndex = equipmentSlotIndex;
-    if DoesPlayerHaveItem(itemID) and equipmentSlotIndex then
-        local macroText = string.format("/use item:%s\r/use %s", itemID, equipmentSlotIndex);
+    if CanPlayerRemoveGem(itemID) and equipmentSlotIndex then
+        local macroText = GetExtractAction();   --string.format("/use item:%s\r/use %s", itemID, equipmentSlotIndex);
         self:SetAttribute("type1", "macro");
         self:SetAttribute("macrotext", macroText);
         self:AttemptToEnable();
-        self:RegisterForClicks("LeftButtonUp", "RightButtonUp");
+        self:RegisterForClicks("LeftButtonDown", "LeftButtonUp", "RightButtonDown", "RightButtonUp");
         self:SetScript("PostClick", NarcissusActionButton_PostClick);
+        self.preclickFunc = SocketInventoryItem;
+        self.preclickArg1 = equipmentSlotIndex;
     else
         self:DisableButton();
     end
@@ -297,11 +285,12 @@ end
 
 function NarciItemSocketingActionButtonMixin:SetExtractAction()
     local itemID = EXTRACTOR_ITEM_ID;
-    if DoesPlayerHaveItem(itemID) then
-        local macroText = string.format("/use item:%s\r/click ItemSocketingSocket1", itemID);
+    if CanPlayerRemoveGem(itemID) then
+        local macroText = GetExtractAction();   --string.format("/use item:%s\r/click ItemSocketingSocket1", itemID);
         self:SetAttribute("type1", "macro");
         self:SetAttribute("macrotext", macroText);
         self:AttemptToEnable();
+        self:RegisterForClicks("LeftButtonDown", "LeftButtonUp", "RightButtonDown", "RightButtonUp");
     else
         self:DisableButton();
     end
@@ -336,5 +325,11 @@ function NarciItemSocketingActionButtonMixin:Release()
         self:ClearAllPoints();
         self:SetParent(NarciSecureFrameContainer);
         self.isReleased = true;
+    end
+end
+
+function NarciItemSocketingActionButtonMixin:PreClick()
+    if self.preclickFunc then
+        self.preclickFunc(self.preclickArg1);
     end
 end

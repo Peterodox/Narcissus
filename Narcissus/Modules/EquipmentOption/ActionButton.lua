@@ -7,6 +7,7 @@ local FadeFrame = NarciFadeUI.Fade;
 local GetSlotNameByID = NarciAPI.GetSlotButtonNameBySlotID;
 local GetGemBonus = NarciAPI.GetGemBonus;
 local GetItemBagPosition = NarciAPI.GetItemBagPosition;
+local PickupContainerItem = (C_Container and C_Container.PickupContainerItem) or PickupContainerItem;
 
 local MainFrame, SelectionOverlay, EnchantActionButton, GemActionButton;
 
@@ -28,11 +29,20 @@ local function FormatReplacementString(effectText, isNew)
     end
 end
 
+local function RegisterClicks(actionButton)
+    if C_CVar.GetCVarBool("ActionButtonUseKeyDown") then
+        actionButton:RegisterForClicks("LeftButtonDown", "RightButtonDown", "RightButtonUp");
+    else
+        actionButton:RegisterForClicks("LeftButtonUp", "RightButtonDown", "RightButtonUp");
+    end
+end
+
 
 NarciEquipmentEnchantActionButtonMixin = {};
 
 function NarciEquipmentEnchantActionButtonMixin:OnLoad()
     EnchantActionButton = self;
+    self:RegisterForClicks("LeftButtonDown", "LeftButtonUp", "RightButtonDown", "RightButtonUp");
 end
 
 function NarciEquipmentEnchantActionButtonMixin:InitFromButton(button, slotID, inUseEnchantID)
@@ -120,6 +130,7 @@ function NarciEquipmentEnchantActionButtonMixin:OnLeave()
 end
 
 function NarciEquipmentEnchantActionButtonMixin:SetUsingItem(itemID, slotID)
+    RegisterClicks(self);
     local slotName = GetSlotNameByID(slotID);
     local macroText = string.format("/use item:%s\r/click %s\r/click StaticPopup1Button1\r/click %s", itemID, slotName or "", slotName or "");
     self:SetAttribute("type1", "macro");
@@ -134,6 +145,7 @@ function NarciEquipmentEnchantActionButtonMixin:GetMacroText()
 end
 
 function NarciEquipmentEnchantActionButtonMixin:SetClickToCancel()
+    RegisterClicks(self);
     self:SetAttribute("type1", nil);
     self:SetAttribute("type2", "macro");
     self:SetAttribute("macrotext", "/stopcasting");
@@ -221,6 +233,9 @@ function NarciEquipmentEnchantActionButtonMixin:MarkActive(state)
     end
 end
 
+function NarciEquipmentEnchantActionButtonMixin:PreClick()
+
+end
 
 -------- Item Socketing --------
 
@@ -252,9 +267,9 @@ local function SocketingEventFrame_OnShow(self)
 end
 
 local function SocketingEventFrame_OnHide(self)
-    self:RegisterEvent("SOCKET_INFO_SUCCESS");
-    self:RegisterEvent("SOCKET_INFO_FAILURE");
-    self:RegisterEvent("UI_ERROR_MESSAGE");
+    self:UnregisterEvent("SOCKET_INFO_SUCCESS");
+    self:UnregisterEvent("SOCKET_INFO_FAILURE");
+    self:UnregisterEvent("UI_ERROR_MESSAGE");
 end
 
 local function SocketingEventFrame_OnEvent(self, event, ...)
@@ -269,7 +284,6 @@ local function SocketingEventFrame_OnEvent(self, event, ...)
         GemActionButton:OnActionFailed(FAILED);
         self:UnregisterEvent("UI_ERROR_MESSAGE");
     end
-    CloseSocketingFrame();
 end
 
 NarciEquipmentGemActionButtonMixin = {};

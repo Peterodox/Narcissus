@@ -1,3 +1,5 @@
+--Not Used
+
 --Patch: 9.1.0
 --Features: Shards of Domination (Special Gems)
 
@@ -12,7 +14,7 @@ local COLOR_DOMINATION = "|cff66bbff";
 
 local unpack = unpack;
 local After = C_Timer.After;
-local GetItemInfoInstant = GetItemInfoInstant;
+local GetItemInfoInstant = C_Item.GetItemInfoInstant;
 local ItemLocation = ItemLocation;
 local DoesItemExist = C_Item.DoesItemExist;
 local GetItemLink = C_Item.GetItemLink;
@@ -20,6 +22,8 @@ local GetItemID = C_Item.GetItemID;
 local GetPlayerAuraBySpellID = GetPlayerAuraBySpellID;
 local GetBestMapForUnit = C_Map.GetBestMapForUnit;
 local GetMapInfo = C_Map.GetMapInfo;
+local GetShardEffect = NarciAPI.GetDominationShardEffect;
+local GetSpellInfo = addon.TransitionAPI.GetSpellInfo;
 
 
 local function IsZoneValidForDomination()
@@ -43,8 +47,7 @@ local function Mixin(object, mixin)
     end
 end
 
-local SHARD_OF_DOMINATION;
-local TP = _G["NarciVirtualTooltip"];   --For tooltip scanning
+local SHARD_OF_DOMINATION = "Shard of Domination";
 
 local dominationItems = {
     186287, 186325, 186324, 186286, 186320, 186282, 186322, 186284, 186283, 186321, --Cloth
@@ -219,35 +222,6 @@ local function DoesItemHaveDomationSocket(itemID)
     return isDominationItem[itemID]
 end
 
---[[
-local function GetItemDominationGem(itemLink)
-    if not itemLink then return; end
-
-    local gemName, gemLink = GetItemGem(itemLink, 1);
-    if gemLink then
-        return (gemName or "Retrieving"), gemLink;
-    end
-
-    local tex, texID;
-    for i = 1, 3 do
-        tex = _G["NarciVirtualTooltip".."Texture"..i]
-        if tex then
-            tex = tex:SetTexture(nil);
-        end
-    end
-
-    TP:SetHyperlink(itemLink);
-
-    for i = 1, 3 do
-        tex = _G["NarciVirtualTooltip".."Texture"..i]
-        texID = tex and tex:GetTexture();
-        if texID == 4095404 then
-            return "Empty", nil;
-        end
-    end
-end
---]]
-
 local function GetItemDominationGem(itemLink)   --the old method is subjective to cache issue?
     if not itemLink then return; end
 
@@ -278,21 +252,6 @@ function DataProvider:GetShardInfo(shard)
     end
 end
 
-function DataProvider:GetShardEffect(item)
-    if not item then return end;
-
-    if type(item) == "number" then
-        TP:SetItemByID(item);
-    else
-        TP:SetHyperlink(item);
-    end
-
-    local line = _G["NarciVirtualTooltipTextLeft5"];
-    if line then
-        return line:GetText();
-    end
-end
-
 function DataProvider:GetShardTypeLocalizedName(shardType)
     return shardSchool[shardType].localizedName;
 end
@@ -310,14 +269,7 @@ function DataProvider:GetBonusSpellInfo(shardType, rank)
 end
 
 function DataProvider:GetHeaderText()
-    if SHARD_OF_DOMINATION then
-        return SHARD_OF_DOMINATION
-    else
-        TP:SetItemByID(187063);
-        local line2 = _G["NarciVirtualTooltipTextLeft2"];
-        SHARD_OF_DOMINATION = line2 and line2:GetText();
-        return SHARD_OF_DOMINATION or (COLOR_DOMINATION.."Shard of Domination".."|r");
-    end
+    return SHARD_OF_DOMINATION
 end
 
 local candidateSlots = {
@@ -563,7 +515,7 @@ function NarciDominationIndicatorMixin:OnEnter()
     self:SetNodeLayout(numData);
     for i = 1, numData do
         itemLink = data[i].gemLink;
-        shardEffect = DataProvider:GetShardEffect(itemLink);
+        shardEffect = GetShardEffect(itemLink);
         shardType, shardRank = DataProvider:GetShardInfo(itemLink);
         self.nodes[i]:SetType(shardType);
         if isFristLine then
@@ -655,7 +607,7 @@ function NarciDominationIndicatorMixin:Update()
     local minRank = 5;
     for i = 1, numShards do
         itemLink = data[i].gemLink;
-        shardEffect = DataProvider:GetShardEffect(itemLink);            --Load Data
+        shardEffect = GetShardEffect(itemLink);            --Load Data
         shardType, shardRank = DataProvider:GetShardInfo(itemLink);
         self.nodes[i]:SetType(shardType);
         if shardType == 0 then
@@ -705,7 +657,7 @@ function NarciDominationIndicatorMixin:ShowTooltip(tooltip, point, relativeTo, r
     local numData = #data;
     for i = 1, numData do
         itemLink = data[i].gemLink;
-        shardEffect = DataProvider:GetShardEffect(itemLink);
+        shardEffect = GetShardEffect(itemLink);
         shardType, shardRank = DataProvider:GetShardInfo(itemLink);
         if isFristLine then
             isFristLine = false;
@@ -942,7 +894,3 @@ function NarciDominationNoEffectAlertMixin:ShowAlert()
         self:OnShow();
     end
 end
-
---/dump UnitBuff("player", 6)
---/script local itemLocation = ItemLocation:CreateFromEquipmentSlot(1);local itemLink=C_Item.GetItemLink(itemLocation);print(GetItemGem(itemLink, 1));
---Narcissus UI

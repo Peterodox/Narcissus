@@ -6,7 +6,7 @@
     <Script file="DressingRoom.lua"/>
 	
 
-	<Button name="NarciRectangularItemButtonTemplate" virtual="true" mixin="NarciDressingRoomItemButtonMixin">
+	<Button name="NarciDressingRoomItemButtonTemplate" virtual="true" mixin="NarciDressingRoomItemButtonMixin">
 		<Size x="26" y="26"/>
 		<!--HitRectInsets>
 			<AbsInset left="1" right="1" top="-2" bottom="-2"/>
@@ -296,7 +296,7 @@
 												<Anchor point="BOTTOMLEFT" relativeKey="$parent" relativePoint="TOPLEFT" x="8" y="-4"/>
 											</Anchors>
 										</Texture>
-										<FontString inherits="NarciFontNormal10" text="Item List" justifyH="LEFT">
+										<FontString parentKey="Header" inherits="NarciFontNormal10" text="Item List" justifyH="LEFT">
 											<Size x="120" y="12"/>
 											<Color r="0.286" g="0.8" b="0.93"/>
 											<Anchors>
@@ -400,7 +400,7 @@
 												<Anchor point="BOTTOMLEFT" relativeKey="$parent" relativePoint="TOPLEFT" x="8" y="-4"/>
 											</Anchors>
 										</Texture>
-										<FontString inherits="NarciFontNormal10" text="In-Game Command" justifyH="LEFT">
+										<FontString parentKey="Header" inherits="NarciFontNormal10" text="In-Game Command" justifyH="LEFT">
 											<Size x="120" y="12"/>
 											<Color r="0.957" g="0.753" b="0.165"/>
 											<Anchors>
@@ -516,6 +516,37 @@
 					</Layer>
 				</Layers>
 			</Button>
+
+			<Button parentKey="AlteredFormButton" mixin="NarciDressingRoomAlteredFormButtonMixin" ignoreParentScale="true">
+				<Size x="28" y="38"/>
+				<!--HitRectInsets>
+					<AbsInset left="1" right="1" top="-2" bottom="-2"/>
+				</HitRectInsets-->
+				<Anchors>
+					<Anchor point="TOPRIGHT" relativeKey="$parent.$parent.ModelScene" relativePoint="TOPRIGHT" x="-4" y="-6"/>
+				</Anchors>
+				<Layers>
+					<Layer level="BACKGROUND">
+						<Texture parentKey="Portrait">
+							<Size x="36" y="45"/>
+							<TexCoords left="0" right="0.25" top="0.375" bottom="1"/>
+							<Anchors>
+								<Anchor point="BOTTOM"/>
+							</Anchors>
+						</Texture>
+					</Layer>
+				</Layers>
+				<Scripts>
+					<OnLoad method="OnLoad"/>
+					<OnEnter method="OnEnter"/>
+					<OnLeave method="OnLeave"/>
+					<OnClick method="OnClick"/>
+					<OnDoubleClick method="OnDoubleClick"/>
+					<OnMouseDown method="OnMouseDown"/>
+					<OnMouseUp method="OnMouseUp"/>
+				</Scripts>
+			</Button>
+
 		</Frames>
 		<Scripts>	
 			<OnLoad method="OnLoad"/>
@@ -526,7 +557,7 @@
 		</Scripts>
 	</Frame>
 
-	<Frame name="NarciTaintAlertFrame" frameStrata="DIALOG" hidden="true" mixin="NarciTaintAlertFrameMixin" parent="UIParent" enableMouse="true">
+	<Frame name="NarciDressingRoomTaintAlertFrame" frameStrata="DIALOG" hidden="true" mixin="NarciDressingRoomTaintAlertFrameMixin" parent="UIParent" enableMouse="true">
 		<Size x="320" y="72"/>
 		<Anchors>
 			<Anchor point="TOP" relativeKey="$parent" relativePoint="TOP" y="-135"/>

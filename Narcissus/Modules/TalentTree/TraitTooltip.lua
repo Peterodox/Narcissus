@@ -7,18 +7,16 @@ local DataProvider = addon.TalentTreeDataProvider;
 
 local PrimaryTooltip;
 local SecondaryTooltip;
+local MainFrame;
 
 local NarciAPI = NarciAPI;
-local SecondsToCooldownAbbrev = NarciAPI.SecondsToCooldownAbbrev;
 local GetTraitEntryTooltip = NarciAPI.GetTraitEntryTooltip;
 local GetPvpTalentTooltip = NarciAPI.GetPvpTalentTooltip
 
-local C_TooltipInfo = C_TooltipInfo;
 local C_Traits = C_Traits;
-local GetSpellInfo = GetSpellInfo;
-local GetSpellBaseCooldown = GetSpellBaseCooldown;
+local GetSpellInfo = addon.TransitionAPI.GetSpellInfo;
 local C_Spell = C_Spell;
-local IsPassiveSpell = IsPassiveSpell;
+local IsSpellPassive = addon.TransitionAPI.IsSpellPassive;
 local GetActiveSpecGroup = GetActiveSpecGroup;
 local GetPvpTalentInfoByID = GetPvpTalentInfoByID;
 local GetCursorDelta = GetCursorDelta;
@@ -27,9 +25,9 @@ local type = type;
 
 local PADDING_PIXEL_SIZE = 16;
 local ICON_PIXEL_SIZE = 36;
-local HEADER_PIXEL_SIZE = 16;
-local TEXT_PIEXL_SIZE = 15;
-local DESC_PIXEL_SIZE = 288;
+local HEADER_TEXT_PIXEL_SIZE = 16;
+local DESC_TEXT_PIXEL_SIZE = 15;
+local DESC_WIDTH_PIXEL_SIZE = 288;
 
 local PIXEL = 1;
 local PADDING = 16;
@@ -39,6 +37,14 @@ local DESC_MAX_WIDTH = 288;
 
 local USE_CLASS_BACKGROUND = false;
 
+do
+    local function ChangePixelSize(sizeInfo)
+        PADDING_PIXEL_SIZE = sizeInfo.fontHeight;
+        HEADER_TEXT_PIXEL_SIZE = sizeInfo.fontHeight;
+        DESC_TEXT_PIXEL_SIZE = sizeInfo.smallFontHeight;
+    end
+    addon.TalentTreeTextureUtil:AddSizeChangedCallback(ChangePixelSize);
+end
 
 local function AppendText(originalText, ...)
     local seg;
@@ -55,14 +61,6 @@ local function AppendText(originalText, ...)
     return originalText
 end
 
-local function CopyTextureToTexture(toTexture)
-    local fromTexture = NarciMiniTalentTree.SideTab.ClipFrame.SpecArt;
-    local file = fromTexture:GetTexture();
-    local l, t, _, b, r = NarciMiniTalentTree.SpecArt:GetTexCoord();
-    toTexture:SetTexture(file);
-    toTexture:SetTexCoord(l, r, t, b);
-end
-
 local function Tooltip_UpdatePixel(tooltip)
    local px = NarciAPI.GetPixelForWidget(tooltip, 1);
    PIXEL = px;
@@ -73,11 +71,11 @@ local function Tooltip_UpdatePixel(tooltip)
    tooltip.IconBorder:SetSize(64*px, 64*px);
 
    local font, _, flag = tooltip.Header:GetFont();
-   tooltip.Header:SetFont(font, HEADER_PIXEL_SIZE*px, flag);
+   tooltip.Header:SetFont(font, HEADER_TEXT_PIXEL_SIZE*px, flag);
 
    font, _, flag = tooltip.Subtext:GetFont();
-   tooltip.Subtext:SetFont(font, TEXT_PIEXL_SIZE*px, flag);
-   tooltip.Description:SetFont(font, TEXT_PIEXL_SIZE*px, flag);
+   tooltip.Subtext:SetFont(font, DESC_TEXT_PIXEL_SIZE*px, flag);
+   tooltip.Description:SetFont(font, DESC_TEXT_PIXEL_SIZE*px, flag);
 
    tooltip.Icon:ClearAllPoints();
    tooltip.Header:ClearAllPoints();
@@ -92,36 +90,39 @@ local function Tooltip_UpdatePixel(tooltip)
    tooltip.Description:ClearAllPoints();
    tooltip.Description:SetPoint("TOPLEFT", tooltip.Icon, "BOTTOMLEFT", 0, -8*px);
    
-   DESC_MAX_WIDTH = DESC_PIXEL_SIZE * px;
+   DESC_MAX_WIDTH = DESC_WIDTH_PIXEL_SIZE * px;
    tooltip.Description:SetWidth(DESC_MAX_WIDTH);
 end
 
 local function CreateTooltip()
-    local tooltip = CreateFrame("Frame", "TT", NarciMiniTalentTree, "NarciTalentTreeTraitTooltipTemplate");
+    local tooltip = CreateFrame("Frame", nil, MainFrame, "NarciTalentTreeTraitTooltipTemplate");
     Tooltip_UpdatePixel(tooltip);
-    tooltip:SetFixedFrameStrata(true);
     tooltip:SetFrameStrata("TOOLTIP");
+    tooltip:SetFixedFrameStrata(true);
     tooltip:SetFrameLevel(80);
     --tooltip.Description:SetMaxLines(DESC_MAX_LINES);
 
-    --test
+    --[[
+    local offset = 0;
     tooltip.BlurBackground:ClearAllPoints();
-    tooltip.BlurBackground:SetPoint("TOPLEFT", NarciMiniTalentTree, "TOPLEFT", 0, 0);
-    tooltip.BlurBackground:SetPoint("BOTTOMRIGHT", NarciMiniTalentTree, "BOTTOMRIGHT", 0, 0);
+    tooltip.BlurBackground:SetPoint("TOPLEFT", MainFrame, "TOPLEFT", -offset, offset);
+    tooltip.BlurBackground:SetPoint("BOTTOMRIGHT", MainFrame, "BOTTOMRIGHT", offset, -offset);
     local mask = tooltip:CreateMaskTexture(nil, "ARTWORK");
     mask:SetPoint("TOPLEFT", tooltip, "TOPLEFT", 0, 0);
     mask:SetPoint("BOTTOMRIGHT", tooltip, "BOTTOMRIGHT", 0, 0);
     tooltip.BlurBackground:AddMaskTexture(mask);
     mask:SetTexture("Interface\\AddOns\\Narcissus\\Art\\Masks\\Full", "CLAMPTOBLACKADDITIVE", "CLAMPTOBLACKADDITIVE");
 
-    NarciAPI.NineSliceUtil.SetUpBackdrop(tooltip.Background, "blackChamfer8", 0, nil, nil, nil, -4);
+    local softenEdgeMask = tooltip:CreateMaskTexture(nil, "ARTWORK");
+    softenEdgeMask:SetPoint("TOPLEFT", MainFrame, "TOPLEFT", -offset, offset);
+    softenEdgeMask:SetPoint("BOTTOMRIGHT", MainFrame, "BOTTOMRIGHT", offset, -offset);
+    tooltip.BlurBackground:AddMaskTexture(softenEdgeMask);
+    softenEdgeMask:SetTexture("Interface\\AddOns\\Narcissus\\Art\\Modules\\TalentTree\\FullFrameSoftEdgeMask", "CLAMPTOBLACKADDITIVE", "CLAMPTOBLACKADDITIVE");
+    --]]
 
     if USE_CLASS_BACKGROUND then
-        CopyTextureToTexture(tooltip.BlurBackground);
-        tooltip.Background:Show();
         NarciAPI.NineSliceUtil.SetUpBorder(tooltip.Border, "classTalentTraitTransparent");
     else
-        tooltip.Background:Hide();
         NarciAPI.NineSliceUtil.SetUpBorder(tooltip.Border, "classTalentTrait");
     end
 
@@ -202,60 +203,6 @@ local function Tooltip_SetActive(tooltip, isActive)
             tooltip.Icon:SetVertexColor(0.8, 0.8, 0.8);
         end
     end
-end
-
-local function IsLineColorYellow(colorVal)
-    if colorVal then
-        local r, g, b = colorVal.r, colorVal.g, colorVal.b;
-        if (r > 0.99 and r < 1.01) and (g > 0.81 and g < 0.83) then
-            return true
-        end
-    end
-end
-
-local function GetLineText(line, yellowTextOnly)
-    local text;
-
-    if line and line.args then
-        if line.args[2] then
-            text = line.args[2].stringVal;
-        end
-    else
-        return
-    end
-
-    if text == "" then
-        return
-    else
-        if yellowTextOnly then
-            --usually the spell's descriotion
-            if IsLineColorYellow(line.args[3].colorVal) then
-                if text ~= "" then
-                    return text
-                end
-            end
-        else
-            return text
-        end
-    end
-end
-
-local function Tooltip_FormatDescriptionLines(tooltip, lines)
-    local descText;
-    local text = GetLineText(lines[3], true);
-    if text then
-        descText = text;
-    end
-    text = GetLineText(lines[4], true);
-    if text then
-        if descText then
-            descText = descText.."\n"..text;
-        else
-            descText = text;
-        end
-    end
-    tooltip.Description:SetText(descText);
-    Tooltip_UpdateSize(tooltip);
 end
 
 local function Tooltip_OnSpellDataLoaded_TraitEntry(self, event, spellID, success)
@@ -355,50 +302,6 @@ local function Tooltip_OnSpellDataLoaded_PvPTalent(self, event, spellID, success
     end
 end
 
-local function SetupTooltipBySpellID(tooltip, spellID, subtext, castTime)
-    local isPassive = IsPassiveSpell(spellID);
-    local extraText;
-
-    if isPassive then
-        if not tooltip.isPassive then
-            tooltip.isPassive = true;
-            tooltip.IconMask:SetTexture("Interface\\AddOns\\Narcissus\\Art\\Masks\\Circle");
-            tooltip.IconBorder:SetTexCoord(0.5, 1, 0, 1);
-        end
-        extraText = SPELL_PASSIVE;
-    else
-        if tooltip.isPassive then
-            tooltip.isPassive = nil;
-            tooltip.IconMask:SetTexture("Interface\\AddOns\\Narcissus\\Art\\Masks\\Full");
-            tooltip.IconBorder:SetTexCoord(0, 0.5, 0, 1);
-        end
-
-        if not castTime then
-            local _;
-            _, _, _, castTime = GetSpellInfo(spellID);
-        end
-        if castTime == 0 then
-            extraText = SPELL_CAST_TIME_INSTANT;
-        else
-            extraText = "Cast";
-        end
-        
-        local cd = GetSpellBaseCooldown(spellID or 0);
-        if cd and cd > 0 then
-            local cdText = SecondsToCooldownAbbrev(cd / 1000);
-            extraText = extraText.. "   CD: " .. cdText;
-        end
-    end
-
-    if subtext then
-        subtext = subtext.."   "..extraText;
-    else
-        subtext = extraText;
-    end
-
-    tooltip.Subtext:SetText(subtext);
-end
-
 local function Tooltip_SetTraitEntry(tooltip, entryID, rank, definitionID, ranksPurchased, maxRanks, selectedEntryID)
     if not entryID then
         tooltip:Hide();
@@ -453,7 +356,7 @@ local function Tooltip_SetTraitEntry(tooltip, entryID, rank, definitionID, ranks
             if not icon then
                 icon = originalIcon;
             end
-            isPassive = IsPassiveSpell(spellID);
+            isPassive = IsSpellPassive(spellID);
         end
     else
         print("NarcissusTalentTree: Missing DefinitionID");
@@ -549,57 +452,6 @@ local function Tooltip_SetTraitEntry(tooltip, entryID, rank, definitionID, ranks
     tooltip:Show();
 end
 
-
-local function Tooltip_SetPvpTalent(tooltip, talentID, isInspecting, slotIndex)
-    if not talentID then
-        tooltip:Hide();
-        return
-    end
-
-    local specGroupIndex =  GetActiveSpecGroup(isInspecting);
-    local data = C_TooltipInfo.GetPvpTalent(talentID, isInspecting, specGroupIndex, slotIndex);
-    
-    tooltip.talentID, tooltip.isInspecting, tooltip.specGroupIndex, tooltip.Index = talentID, isInspecting, specGroupIndex, slotIndex;
-
-    if data and data.lines then
-        local _, name, icon, _, _, spellID = GetPvpTalentInfoByID(talentID, isInspecting, specGroupIndex, slotIndex);
-        tooltip.Icon:SetTexture(icon);
-        tooltip.Header:SetText(name);
-
-        SetupTooltipBySpellID(tooltip, spellID);
-
-        local isSpellDescriptionCached;
-    
-        if C_Spell.IsSpellDataCached(spellID) then
-            local text = GetLineText(data.lines[3], true);
-            if not text then
-                text = GetLineText(data.lines[4], true);
-            end
-            if text then
-                tooltip.Description:SetText(text);
-                isSpellDescriptionCached = true;
-            end
-        end
-
-        if isSpellDescriptionCached then
-            tooltip.pendingSpell = nil;
-        else
-            tooltip.Description:SetText(RETRIEVING_DATA);
-            tooltip.pendingSpell = spellID;
-            tooltip:RegisterEvent("SPELL_DATA_LOAD_RESULT");
-            tooltip:SetScript("OnEvent", Tooltip_OnSpellDataLoaded_PvPTalent);
-            C_Spell.RequestLoadSpellData(spellID);
-        end
-
-        Tooltip_UpdateSize(tooltip);
-        Tooltip_SetActive(tooltip, true);
-        tooltip:Show();
-        Tooltip_FadeIn(tooltip);
-    else
-        tooltip:Hide();
-    end
-end
-
 local function Tooltip_SetPvpTalent(tooltip, talentID, isInspecting, slotIndex)
     if not talentID then
         tooltip:Hide();
@@ -613,7 +465,7 @@ local function Tooltip_SetPvpTalent(tooltip, talentID, isInspecting, slotIndex)
     local isPassive;
 
     if spellID then
-        isPassive = IsPassiveSpell(spellID);
+        isPassive = IsSpellPassive(spellID);
     end
     if isPassive then
         if not tooltip.isPassive then
@@ -674,6 +526,8 @@ local function Tooltip_SetPvpTalent(tooltip, talentID, isInspecting, slotIndex)
     if not tooltip:IsShown() then
         Tooltip_FadeIn(tooltip);
     end
+
+    Tooltip_SetActive(tooltip, true);
     tooltip:Show();
 end
 
@@ -730,43 +584,32 @@ end
 function ClassTalentTooltipUtil:SetUseClassBackground(state)
     USE_CLASS_BACKGROUND = state;
 
+    local themeName;
     if state then
-        local file = NarciMiniTalentTree.SideTab.ClipFrame.SpecArt:GetTexture();
-        local l, t, _, b, r = NarciMiniTalentTree.SpecArt:GetTexCoord();
-        self:SetTooltipBackground(file, l, r, t, b);
+        themeName = "classTalentTraitTransparent";
     else
-        if PrimaryTooltip then
-            PrimaryTooltip.BlurBackground:SetTexture(nil);
-            PrimaryTooltip.Background:Hide();
-            NarciAPI.NineSliceUtil.SetUpBorder(PrimaryTooltip.Border, "classTalentTrait");
-        end
-        if SecondaryTooltip then
-            SecondaryTooltip.BlurBackground:SetTexture(nil);
-            SecondaryTooltip.Background:Hide();
-            NarciAPI.NineSliceUtil.SetUpBorder(SecondaryTooltip.Border, "classTalentTrait");
-        end
+        themeName = "classTalentTrait";
     end
-end
-
-function ClassTalentTooltipUtil:SetTooltipBackground(file, texCoordLeft, texCoordRight, texCoordTop, texCoordBottom)
     if PrimaryTooltip then
-        PrimaryTooltip.BlurBackground:SetTexture(file);
-        PrimaryTooltip.Background:Show();
-        NarciAPI.NineSliceUtil.SetUpBorder(PrimaryTooltip.Border, "classTalentTraitTransparent");
-        if texCoordLeft then
-            PrimaryTooltip.BlurBackground:SetTexCoord(texCoordLeft, texCoordRight, texCoordTop, texCoordBottom);
-        end
+        NarciAPI.NineSliceUtil.SetUpBorder(PrimaryTooltip.Border, themeName);
     end
     if SecondaryTooltip then
-        SecondaryTooltip.BlurBackground:SetTexture(file);
-        SecondaryTooltip.Background:Show();
-        NarciAPI.NineSliceUtil.SetUpBorder(SecondaryTooltip.Border, "classTalentTraitTransparent");
-        if texCoordLeft then
-            SecondaryTooltip.BlurBackground:SetTexCoord(texCoordLeft, texCoordRight, texCoordTop, texCoordBottom);
-        end
+        NarciAPI.NineSliceUtil.SetUpBorder(SecondaryTooltip.Border, themeName);
     end
 end
 
+function ClassTalentTooltipUtil:AssignMainFrame(frame)
+    MainFrame = frame;
+end
+
+function ClassTalentTooltipUtil:UpdatePixel()
+    if PrimaryTooltip then
+        Tooltip_UpdatePixel(PrimaryTooltip);
+    end
+    if SecondaryTooltip then
+        Tooltip_UpdatePixel(SecondaryTooltip);
+    end
+end
 
 --[[
 do

@@ -13,11 +13,9 @@ local GetSourceInfo = MogAPI.GetSourceInfo;
 local GetAppearanceSourceDrops = MogAPI.GetAppearanceSourceDrops;
 local IsAppearanceFavorite = MogAPI.GetIsAppearanceFavorite;
 local IsHiddenVisual = MogAPI.IsAppearanceHiddenVisual;
-
-local GetItemInfoInstant = GetItemInfoInstant;
-
+local GetItemQualityColor = addon.TransitionAPI.GetItemQualityColor;
+local GetItemInfoInstant = C_Item.GetItemInfoInstant;
 local GetSlotVisualID = NarciAPI.GetSlotVisualID;
-
 local FadeFrame = NarciFadeUI.Fade;
 local GetSlotIDByInvType = NarciAPI.GetSlotIDByInvType;
 
@@ -647,6 +645,7 @@ function NarciDressingRoomSlotFrameMixin:OnLoad()
             if slotID then
                 self:ShineSlot(slotID);
                 self:FadeIn();
+                self:SetManuallyChanged(true);
             end
         end
         --print("DressUpVisual")
@@ -658,6 +657,7 @@ function NarciDressingRoomSlotFrameMixin:OnLoad()
             if slotID then
                 self:ShineSlot(slotID);
                 self:FadeIn();
+                self:SetManuallyChanged(true);
             end
         end
         --print("DressUpItemTransmogInfo")
@@ -667,6 +667,7 @@ function NarciDressingRoomSlotFrameMixin:OnLoad()
     if DressUpItemTransmogInfoList then
         hooksecurefunc("DressUpItemTransmogInfoList", function(itemTransmogInfoList)
             self:FadeIn();
+            self:SetManuallyChanged(true);
             --print("DressUpItemTransmogInfoList")
         end)
     end
@@ -678,6 +679,7 @@ function NarciDressingRoomSlotFrameMixin:OnLoad()
             if slotID then
                 self:ShineSlot(slotID);
                 self:FadeIn();
+                self:SetManuallyChanged(true);
             end
             --print("DressUpCollectionAppearance")
         end);
@@ -718,6 +720,7 @@ end
 function NarciDressingRoomSlotFrameMixin:OnHide()
     self:StopAnimating();
     self.Notification:SetAlpha(0);
+    self:SetManuallyChanged(false);
 end
 
 function NarciDressingRoomSlotFrameMixin:FadeIn()
@@ -842,6 +845,14 @@ function NarciDressingRoomSlotFrameMixin:SetInvisible(state)
     end
 end
 
+function NarciDressingRoomSlotFrameMixin:SetManuallyChanged(state)
+    self.manuallyChanged = (state and true) or nil;
+end
+
+function NarciDressingRoomSlotFrameMixin:IsManuallyChanged()
+    return self.manuallyChanged == true
+end
+
 
 local ITEM_SOURCE_FORMAT_UNKNOWN_SOURCE_NO_ID = "|cffffD100%s:|r |cffb8b8b8%s|r";
 local ITEM_SOURCE_FORMAT_UNKNOWN_SOURCE_WITH_ID = "|cffffD100%s:|r |cffb8b8b8%s|r |cff808080%s|r";
@@ -940,12 +951,14 @@ local function PrintItemList()
 
     local popup = NarciDressingRoomSharedPopup;
     popup.GearTextContainer:SetText(itemText);
+    popup.GearTextContainer.Header:SetText(Narci.L["Item List"]);
 
     popup.ExternalLink:SetText( NarciAPI.EncodeItemlist(formatedItemList) );
     popup.ExternalLink:SetDefaultCursorPosition(0);
 
     popup.SlashCommand:SetText( NarciAPI.GetOutfitSlashCommand() );
     popup.SlashCommand:SetDefaultCursorPosition(0);
+    popup.SlashCommand.Header:SetText(Narci.L["InGame Command"])
 end
 
 NarciDressingRoomAPI.PrintItemList = PrintItemList;

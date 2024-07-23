@@ -1,0 +1,350 @@
+<Ui xsi:schemaLocation="http://www.blizzard.com/wow/ui/..\FrameXML\UI.xsd">
+	<Script file="DataProvider.lua"/>
+	<Script file="ProductList.lua"/>
+	<Script file="PerksProgramUI.lua"/>
+
+	<Button name="NarciPerksProgramItemDetailButtonTemplate" mixin="NarciPerksProgramItemDetailButtonMixin" registerForClicks="LeftButtonUp, RightButtonUp" virtual="true">
+		<Size x="32" y="32"/>
+		<HitRectInsets>
+			<AbsInset left="-2" right="-2" top="-2" bottom="-2"/>
+		</HitRectInsets>
+		<Layers>
+			<Layer level="ARTWORK">
+				<Texture parentKey="Icon"/>
+			</Layer>
+			<Layer level="OVERLAY">
+				<Texture parentKey="Highlight" file="Interface\AddOns\Narcissus\Art\Modules\PerksProgram\SquareButtonHighlight" alphaMode="ADD" hidden="true"/>
+			</Layer>
+			<Layer level="OVERLAY" textureSubLevel="1">
+				<Texture parentKey="RedEye" file="Interface\AddOns\Narcissus\Art\Modules\DressingRoom\RedEye" hidden="true">
+					<Size x="20" y="20"/>
+					<Anchors>
+						<Anchor point="CENTER" relativeKey="$parent" relativePoint="TOP" x="0" y="-2"/>
+					</Anchors>
+				</Texture>
+				<Texture parentKey="GreenCheck" file="Interface\AddOns\Narcissus\Art\Modules\PerksProgram\GreenCheck" hidden="true">
+					<Size x="16" y="16"/>
+					<Anchors>
+						<Anchor point="CENTER" relativeKey="$parent" relativePoint="BOTTOM" x="0" y="3"/>
+					</Anchors>
+				</Texture>
+			</Layer>
+		</Layers>
+		<Scripts>
+			<OnEnter method="OnEnter"/>
+			<OnLeave method="OnLeave"/>
+			<OnClick method="OnClick"/>
+		</Scripts>
+	</Button>
+
+	<Button name="NarciPerksProgramSquareButtonTemplate" mixin="NarciPerksProgramSquareButtonMixin" motionScriptsWhileDisabled="true" virtual="true">
+		<Size x="48" y="48"/>
+		<Layers>
+			<Layer level="OVERLAY">
+				<Texture parentKey="Icon">
+					<Size x="28" y="28"/>
+					<Anchors>
+						<Anchor point="CENTER"/>
+					</Anchors>
+				</Texture>
+			</Layer>
+		</Layers>
+		<NormalTexture parentKey="NormalTexture" atlas="perks-button-up"/>
+		<HighlightTexture parentKey="HighlightTexture" atlas="perks-button-up" alphaMode="ADD" alpha="0.6">
+			<Anchors>
+				<Anchor point="TOPLEFT" />
+				<Anchor point="BOTTOMRIGHT" />
+			</Anchors>
+		</HighlightTexture>
+		<PushedTexture parentKey="PushedTexture" atlas="perks-button-down">
+			<Anchors>
+				<Anchor point="TOPLEFT" x="1" y="-1"/>
+				<Anchor point="BOTTOMRIGHT" x="1" y="-1"/>
+			</Anchors>
+		</PushedTexture>
+		<Scripts>
+			<OnLoad method="OnLoad"/>
+			<OnClick method="OnClick"/>
+			<OnMouseDown method="OnMouseDown"/>
+			<OnMouseUp method="OnMouseUp"/>
+			<OnDisable method="OnDisable"/>
+			<OnEnable method="OnEnable"/>
+			<OnEnter method="OnEnter"/>
+			<OnLeave method="OnLeave"/>
+		</Scripts>
+	</Button>
+
+	<Button name="NarciPerksProgramDropDownButtonTemplate" mixin="NarciPerksProgramDropDownButtonMixin" virtual="true">
+		<Size x="240" y="24"/>
+		<Layers>
+			<Layer level="OVERLAY">
+				<FontString parentKey="OptionNumber" inherits="GameFontNormalMed3" justifyH="CENTER" justifyV="MIDDLE">
+					<Size y="24"/>
+					<Anchors>
+						<Anchor point="LEFT" x="12"/>
+					</Anchors>
+				</FontString>
+				<FontString parentKey="OptionName" inherits="GameFontNormalMed3" justifyH="LEFT" justifyV="MIDDLE">
+					<Size y="24"/>
+					<Anchors>
+						<Anchor point="LEFT" relativeKey="$parent.OptionNumber" relativePoint="RIGHT" x="12"/>
+					</Anchors>
+				</FontString>
+			</Layer>
+		</Layers>
+		<Scripts>
+			<OnEnter method="OnEnter"/>
+			<OnLeave method="OnLeave"/>
+			<OnMouseDown method="OnMouseDown"/>
+			<OnMouseUp method="OnMouseUp"/>
+			<OnClick method="OnClick"/>
+		</Scripts>
+	</Button>
+
+	<Frame mixin="NarciPerksProgramAnimationDropDownMixin" hidden="true" frameStrata="HIGH">
+		<Size x="240" y="48"/>
+		<Layers>
+			<Layer level="ARTWORK">
+				<Texture parentKey="ButtonHighlight" hidden="true">
+					<Color r="0.15" g="0.15" b="0.15"/>
+				</Texture>
+			</Layer>
+		</Layers>
+		<Frames>
+			<Frame parentKey="BackgroundFrame" useParentLevel="true" setAllPoints="true"/>
+		</Frames>
+		<Scripts>
+			<OnLoad method="OnLoad"/>
+			<OnEvent method="OnEvent"/>
+			<OnShow method="OnShow"/>
+			<OnHide method="OnHide"/>
+			<OnMouseWheel method="OnMouseWheel"/>
+		</Scripts>
+	</Frame>
+
+	<Frame mixin="NarciPerksProgramItemDetailExtraFrameMixin" hidden="true">
+		<KeyValues>
+			<KeyValue key="layoutIndex" value="31" type="number"/>
+			<KeyValue key="topPadding" value="16" type="number"/>
+			<KeyValue key="bottomPadding" value="8" type="number"/>
+		</KeyValues>
+		<Size x="320" y="54"/>
+		<Layers>
+			<Layer level="OVERLAY">
+				<FontString parentKey="HeaderText" justifyH="CENTER" justifyV="TOP" inherits="GameFontNormalMed3" spacing="2">
+					<Size x="320"/>
+					<Color r="0.5" g="0.5" b="0.5"/>
+					<Anchors>
+						<Anchor point="TOP"/>
+					</Anchors>
+				</FontString>
+
+				<Texture parentKey="Pointer" file="Interface\AddOns\Narcissus\Art\Modules\PerksProgram\Pointer" hidden="true">
+					<Size x="12" y="12"/>
+				</Texture>
+			</Layer>
+		</Layers>
+		<Frames>
+			<Frame parentKey="HeaderMouseoverFrame">
+				<Size x="320" y="32"/>
+				<Anchors>
+					<Anchor point="CENTER" relativeKey="$parent.HeaderText" relativePoint="CENTER" y="2"/>
+				</Anchors>
+			</Frame>
+
+			<Button parentKey="AutoTryOnToggle" hidden="true">
+				<Size x="256" y="24"/>
+				<Anchors>
+					<Anchor point="BOTTOM"/>
+				</Anchors>
+				<Layers>
+					<Layer level="OVERLAY">
+						<Texture parentKey="Checkbox" file="Interface\AddOns\Narcissus\Art\Modules\PerksProgram\TwoStateCheckbox">
+							<Size x="40" y="40"/>
+							<TexCoords left="0.5" right="1" top="0" bottom="1"/>
+							<Anchors>
+								<Anchor point="LEFT"/>
+							</Anchors>
+						</Texture>
+						<FontString parentKey="ButtonText" justifyH="LEFT" justifyV="MIDDLE" inherits="GameFontNormalMed3">
+							<Color r="0.8" g="0.8" b="0.8"/>
+							<Anchors>
+								<Anchor point="LEFT" x="40"/>
+							</Anchors>
+						</FontString>
+					</Layer>
+				</Layers>
+			</Button>
+		</Frames>
+		<Scripts>
+			<OnLoad method="OnLoad"/>
+			<OnEvent method="OnEvent"/>
+			<OnHide method="OnHide"/>
+		</Scripts>
+	</Frame>
+	
+	<Button name="NarciPerksProgramProductListButtonTemplate" mixin="NarciPerksProgramProductListButtonMixin" virtual="true">
+		<Size x="240" y="24"/>
+		<Frames>
+			<Frame parentKey="Container">
+				<Anchors>
+					<Anchor point="TOPLEFT"/>
+					<Anchor point="BOTTOMRIGHT"/>
+				</Anchors>
+				<Layers>
+					<Layer level="OVERLAY">
+						<Texture parentKey="Icon">
+							<Size x="18" y="18"/>
+							<TexCoords left="0.125" right="0.875" top="0.125" bottom="0.875"/>
+							<Anchors>
+								<Anchor point="LEFT" relativeKey="$parent" relativePoint="LEFT" x="10" y="0"/>
+							</Anchors>
+						</Texture>
+						<FontString parentKey="Name" inherits="GameFontNormal" justifyH="LEFT" maxLines="1">
+							<Size y="24"/>
+							<Color r="1" g="0.82" b="0"/>
+							<Anchors>
+								<Anchor point="LEFT" relativeKey="$parent.Icon" relativePoint="RIGHT" x="6" y="0"/>
+								<Anchor point="RIGHT" relativeKey="$parent" relativePoint="RIGHT" x="-56"/>
+							</Anchors>
+						</FontString>
+						<FontString parentKey="Price" inherits="GameFontNormal" justifyH="CENTER" maxLines="1">
+							<Size x="36" y="24"/>
+							<Color r="0.8" g="0.8" b="0.8"/>
+							<Anchors>
+								<Anchor point="RIGHT" relativeKey="$parent" relativePoint="RIGHT" x="-6" y="0"/>
+							</Anchors>
+						</FontString>
+					</Layer>
+				</Layers>
+			</Frame>
+		</Frames>
+		<Scripts>
+			<OnEnter method="OnEnter"/>
+			<OnLeave method="OnLeave"/>
+			<OnMouseDown method="OnMouseDown"/>
+			<OnMouseUp method="OnMouseUp"/>
+			<OnClick method="OnClick"/>
+		</Scripts>
+	</Button>
+
+	<Button name="NarciPerksProgramEncounterJournalButton" mixin="NarciPerksProgramEncounterJournalButtonMixin" hidden="true" motionScriptsWhileDisabled="true">
+		<Size x="38" y="38"/>
+		<Layers>
+			<Layer level="ARTWORK">
+				<Texture parentKey="Icon" file="Interface\AddOns\Narcissus\Art\Modules\PerksProgram\EncounterJournalButton">
+					<TexCoords left="0" right="0.5" top="0.5" bottom="1"/>
+					<Size x="38" y="38"/>
+					<Anchors>
+						<Anchor point="CENTER"/>
+					</Anchors>
+				</Texture>
+			</Layer>
+			<Layer level="OVERLAY">
+				<FontString parentKey="Text" inherits="GameFontNormal" justifyH="RIGHT">
+					<Color r="1" g="1" b="1"/>
+					<Anchors>
+						<Anchor point="RIGHT" relativeKey="$parent" relativePoint="LEFT" x="-8" y="0"/>
+					</Anchors>
+				</FontString>
+			</Layer>
+		</Layers>
+		<Scripts>
+			<OnEnter method="OnEnter"/>
+			<OnLeave method="OnLeave"/>
+			<OnClick method="OnClick"/>
+			<OnMouseDown method="OnMouseDown"/>
+			<OnMouseUp method="OnMouseUp"/>
+			<OnEnable method="UpdateVisual"/>
+			<OnDisable method="UpdateVisual"/>
+			<OnShow method="OnShow"/>
+		</Scripts>
+	</Button>
+
+	<Frame name="NarciPerksProgramProductList" mixin="NarciPerksProgramProductListMixin" hidden="true" enableMouse="true">
+		<Size x="240" y="36"/>
+		<Layers>
+			<Layer level="ARTWORK">
+				<Texture parentKey="ButtonHighlight" hidden="true">
+					<Color r="0.15" g="0.15" b="0.15"/>
+				</Texture>
+			</Layer>
+			<Layer level="OVERLAY">
+				<FontString parentKey="AlertText" inherits="GameFontNormal" justifyH="CENTER" justifyV="MIDDLE" spacing="2">
+					<Color r="1" g="0.3137" b="0.3137"/>
+					<Anchors>
+						<Anchor point="LEFT" relativeKey="$parent" relativePoint="LEFT" x="12" y="0"/>
+						<Anchor point="RIGHT" relativeKey="$parent" relativePoint="RIGHT" x="-12" y="0"/>
+					</Anchors>
+				</FontString>
+			</Layer>
+		</Layers>
+		<Frames>
+			<Frame parentKey="BackgroundFrame" useParentLevel="true" setAllPoints="true"/>
+			<ScrollFrame parentKey="ContentFrame" setAllPoints="true"/>
+			<Frame parentKey="PreviewFrame" clampedToScreen="true" hidden="true">
+				<Size x="78" y="104"/>
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeKey="$parent" relativePoint="TOPRIGHT" x="8" y="0"/>
+				</Anchors>
+				<Frames>
+					<Frame parentKey="BackgroundFrame" useParentLevel="true" setAllPoints="true" ignoreParentAlpha="true"/>
+					<DressUpModel parentKey="Model" useParentLevel="true">
+						<Size x="78" y="104"/>
+						<Anchors>
+							<Anchor point="TOPLEFT" x="2" y="-2"/>
+						</Anchors>
+					</DressUpModel>
+				</Frames>
+				<Layers>
+					<Layer level="OVERLAY">
+						<FontString parentKey="ItemName" inherits="GameTooltipHeaderText" justifyH="LEFT" justifyV="TOP" spacing="2">
+							<Size x="240"/>
+							<Anchors>
+								<Anchor point="TOPLEFT" relativeKey="$parent.Model" relativePoint="TOPRIGHT" x="12" y="-12"/>
+							</Anchors>
+						</FontString>
+						<FontString parentKey="ItemDescription" inherits="GameFontNormal" justifyH="LEFT" justifyV="TOP" spacing="2">
+							<Size x="240"/>
+							<Color r="1" g="1" b="1"/>
+							<Anchors>
+								<Anchor point="TOPLEFT" relativeKey="$parent.ItemName" relativePoint="BOTTOMLEFT" x="0" y="-4"/>
+							</Anchors>
+						</FontString>
+						<FontString parentKey="CarouselText" inherits="GameFontNormal" justifyH="LEFT" justifyV="BOTTOM">
+							<Color r="0.5" g="0.5" b="0.5"/>
+							<Anchors>
+								<Anchor point="BOTTOMLEFT" relativeKey="$parent.ItemName" relativePoint="TOPLEFT" x="0" y="4"/>
+							</Anchors>
+						</FontString>
+					</Layer>
+				</Layers>
+				<Animations>
+					<AnimationGroup parentKey="FadeIn">
+						<Alpha childKey="BackgroundFrame" fromAlpha="0" toAlpha="0" duration="0" order="1"/>
+						<Alpha childKey="Model" fromAlpha="0" toAlpha="0" duration="0" order="1"/>
+						<Alpha childKey="ItemName" fromAlpha="0" toAlpha="0" duration="0" order="1"/>
+						<Alpha childKey="ItemDescription" fromAlpha="0" toAlpha="0" duration="0" order="1"/>
+						<Alpha childKey="CarouselText" fromAlpha="0" toAlpha="0" duration="0" order="1"/>
+
+						<Alpha childKey="BackgroundFrame" fromAlpha="0" toAlpha="1" duration="0.2" startDelay="0.1" order="2"/>
+						<Alpha childKey="Model" fromAlpha="0" toAlpha="1" duration="0.2" startDelay="0.1" order="2"/>
+						<Alpha childKey="ItemName" fromAlpha="0" toAlpha="1" duration="0.2" startDelay="0.1" order="2"/>
+						<Alpha childKey="ItemDescription" fromAlpha="0" toAlpha="1" duration="0.2" startDelay="0.1" order="2"/>
+						<Alpha childKey="CarouselText" fromAlpha="0" toAlpha="1" duration="0.2" startDelay="0.1" order="2"/>
+					</AnimationGroup>
+					<AnimationGroup parentKey="ModelFadeIn">
+						<Alpha childKey="Model" fromAlpha="0" toAlpha="0" duration="0" order="1"/>
+						<Alpha childKey="Model" fromAlpha="0" toAlpha="1" duration="0.15" startDelay="0.1" order="2"/>
+					</AnimationGroup>
+				</Animations>
+			</Frame>
+		</Frames>
+		<Scripts>
+			<OnLoad method="OnLoad"/>
+			<OnShow method="OnShow"/>
+			<OnHide method="OnHide"/>
+			<OnEvent method="OnEvent"/>
+		</Scripts>
+	</Frame>
+</Ui>

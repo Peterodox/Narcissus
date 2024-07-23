@@ -1,15 +1,16 @@
-## Interface: 100000
-## Version: 10.0.2
+## Interface: 100207, 110000
+## Version: 10.2.7
 ## LoadOnDemand: 1
 ## RequiredDeps: Narcissus
 
-# SavedVariables: NarciDevToolOutput
+## SavedVariables: NarciDevToolOutput
 # Plain Title: Narcissus Achievements
-## Title: |cffA236EFN|cff9448F1a|cff865BF2r|cff786DF4c|cff6A80F6i|cff5D92F7s|cff4FA4F9s|cff41B7FAu|cff33C9FCs|r |cffe5c75fAchievements|r
+## Title: Narcissus Achievements
 ## Notes: A standalone achievement UI.
 ## Notes-zhCN: Narcissus成就面板
 
 ## Author: Peterodox
 
+## IconTexture: Interface\AddOns\Narcissus\Art\Logos\AddonListIconT
 
 Code\Achievements.xml

@@ -1,6 +1,7 @@
+local INPSECT_CONFIG_ID = -1;
+
 local HIDE_INACTIVE_NODE = false;
 local USE_CLASS_BACKGROUND = false;
-
 
 local _, addon = ...
 
@@ -11,6 +12,8 @@ local OnEnterDelay = addon.TalentTreeOnEnterDelay;
 local TextButtonUtil = addon.TalentTreeTextButtonUtil;
 local TextureUtil = addon.TalentTreeTextureUtil;
 local UniversalFont = addon.UniversalFontUtil.Create();
+local NodeUtil = addon.TalentTreeNodeUtil;
+--local ActionBarUtil = addon.TalentTreeActionBarUtil;
 
 local L = Narci.L;
 
@@ -31,11 +34,15 @@ local C_ClassTalents = C_ClassTalents;
 local C_SpecializationInfo = C_SpecializationInfo;
 local C_PvP = C_PvP;
 
+local CAN_USE_TALENT_UI = true;
+local CanPlayerUseTalentSpecUI = C_SpecializationInfo.CanPlayerUseTalentSpecUI;
+
 local GetSpecializationInfoByID = GetSpecializationInfoByID;
 local GetInspectSpecialization = GetInspectSpecialization;
 local UnitClass = UnitClass;
 local UnitSex = UnitSex;
---local INSPECT_TRAIT_CONFIG_ID = -1;
+local UnitLevel = UnitLevel;
+local IsSpecializationActivateSpell = IsSpecializationActivateSpell;
 
 local sqrt = math.sqrt;
 local atan2 = math.atan2;
@@ -45,6 +52,16 @@ local floor = math.floor;
 local BUTTON_PIXEL_SIZE = 32;
 local ICON_PIXEL_SIZE = 24;
 local FONT_PIXEL_SIZE = 16;
+
+do
+    local function ChangePixelSize(sizeInfo)
+        BUTTON_PIXEL_SIZE = sizeInfo.buttonSize;
+        ICON_PIXEL_SIZE = sizeInfo.iconSize;
+        FONT_PIXEL_SIZE = sizeInfo.fontHeight;
+    end
+    addon.TalentTreeTextureUtil:AddSizeChangedCallback(ChangePixelSize);
+end
+
 local DISTANCE_UNIT = 300;  --600    --neighboring node distance 600
 local PADDING = 1;
 local HEADER_SIZE;
@@ -60,10 +77,10 @@ local PIXEL = 1;
 local MainFrame;
 local Nodes = {};
 local Branches = {};
-
 local NodeIDxNode = {};
+local NodeHighlights = {};
 
-
+local EventCenter = CreateFrame("Frame");
 
 local LoadoutUtil = {};
 local LayoutUtil = {};
@@ -118,19 +135,26 @@ function LayoutUtil:UpdateNodePosition()
     for i = 1, MainFrame.numAcitveNodes do
         node = Nodes[i];
         node:ClearAllPoints();
+        y = -(node.iY - leftMinY) * tileSize + fromOffsetY;
         if node.isLeft then
             x = (node.iX - leftMinX) * tileSize + leftFromOffsetX;
-            y = -(node.iY - leftMinY) * tileSize + fromOffsetY;
+            --y = -(node.iY - leftMinY) * tileSize + fromOffsetY;
             --node.Order:SetText(node.iX - leftMinX)
         else
             x = (node.iX - rightMinX) * tileSize + rightFromOffsetX;
-            y = -(node.iY - rightMinY) * tileSize + fromOffsetY;
-            node:SetPoint("TOPLEFT", container, "TOPLEFT", x, y);
+            --y = -(node.iY - rightMinY) * tileSize + fromOffsetY;
             --node.Order:SetText(node.iX - rightMinX)
         end
         node:SetPoint("TOPLEFT", container, "TOPLEFT", x, y);
         node.x, node.y = x, y;
     end
+
+    --print("Left Span", leftSpanX);
+    --print("Right Span", rightSpanX);
+
+    local middleOffsetX = (0.5*(leftMaxX + rightMinX) - leftMinX) * tileSize + leftFromOffsetX;
+
+    return middleOffsetX, fromOffsetY
 end
 
 function LayoutUtil:SetNodeTileIndex(node, isLeft, iX, iY)
@@ -164,6 +188,7 @@ end
 function LayoutUtil:UpdatePixel()
     local f = MainFrame;
     local px = NarciAPI.GetPixelForWidget(f, 1);
+
     PIXEL = px;
     BRANCH_WEIGHT = 2 * px;
     BUTTON_SIZE = px * BUTTON_PIXEL_SIZE;
@@ -175,7 +200,15 @@ function LayoutUtil:UpdatePixel()
     UniversalFont:SetFontHeight(FONT_HEIGHT);
     LayoutUtil:UpdateFrameSize();
     TextButtonUtil:UpdatePixel(px, FONT_PIXEL_SIZE);
+    ClassTalentTooltipUtil:UpdatePixel();
+
+    f.PvPTalentFrame:UpdatePixel();
     f.SideTab:UpdatePixel(px);
+    --f.MacroForge:UpdatePixel(px);
+
+    f.Divider:ClearAllPoints();
+    f.Divider:SetPoint("TOPLEFT", f, "TOPLEFT", SECTOR_WIDTH * BUTTON_SIZE, -BUTTON_SIZE/2 -HEADER_SIZE);
+    f.Divider:SetPoint("BOTTOMLEFT", f, "BOTTOM", 0, BUTTON_SIZE/2);
 
     if f.LoadoutToggle then
         f.LoadoutToggle:ClearAllPoints();
@@ -195,6 +228,17 @@ function LayoutUtil:UpdatePixel()
         f.SaveButton:ClearAllPoints();
         f.SaveButton:SetPoint("TOP", f.SaveButton.anchor, "BOTTOM", 0, -16*px);
     end
+
+    for _, node in ipairs(Nodes) do
+        node.Icon:SetSize(ICON_SIZE, ICON_SIZE);
+        node:SetSize(BUTTON_SIZE, BUTTON_SIZE);
+    end
+
+    local highlightSize = 2*px*BUTTON_PIXEL_SIZE;
+
+    for _, hl in ipairs(NodeHighlights) do
+        hl:SetSize(highlightSize, highlightSize);
+    end
 end
 
 function LayoutUtil:ClearTemps()
@@ -206,8 +250,12 @@ end
 
 
 local function CalculateNormalizedPosition(posX, posY)
-    posX = posX - 1800;
-    posY = 1200 - posY;
+    --posX = posX - 1800;
+    --posY = 1200 - posY;
+
+    --debug
+    posX = posX;
+    posY = -posY
     
     posX = floor(posX/DISTANCE_UNIT + 0.5);
     posY = floor(posY/DISTANCE_UNIT + 0.5);
@@ -255,7 +303,9 @@ end
 
 local SetBranchColor = SetBranchColorYellow;
 
-
+local function ShouldHideBackground()
+    return IsPlayerMoving() or IsMouselooking()
+end
 
 local InspectDisplayModeUtil = {};
 InspectDisplayModeUtil.buttons = {};
@@ -338,6 +388,7 @@ NarciMiniTalentTreeMixin = {};
 
 function NarciMiniTalentTreeMixin:OnLoad()
     MainFrame = self;
+    ClassTalentTooltipUtil:AssignMainFrame(self);
 
     LayoutUtil:UpdatePixel();
 
@@ -354,7 +405,7 @@ function NarciMiniTalentTreeMixin:OnLoad()
 
     self.LoadoutToggle = TextButtonUtil:CreateButton(self, "right", "center", "vertical", 96, "arrowDown");
     self.LoadoutToggle:SetFrameLevel(frameLevel + 18);
-    self.LoadoutToggle.ButtonText:SetText("Loadout");
+    self.LoadoutToggle.ButtonText:SetText(L["Loadout"]);
     self.LoadoutToggle:SetScript("OnClick", function()
         LoadoutUtil:ToggleList();
     end);
@@ -365,11 +416,11 @@ function NarciMiniTalentTreeMixin:OnLoad()
     self.SideTabToggle:SetScript("OnClick", function(f)
         self.SideTab:ShowFrame();
     end);
-    self.MotionBlocker:SetFrameLevel(frameLevel + 16);
+    self.MotionBlocker:SetFrameLevel(frameLevel + 19);
 
     self.PvPTalentToggle = TextButtonUtil:CreateButton(self, "right", "right", "horizontal", nil, "arrowRight");
     self.PvPTalentToggle:SetFrameLevel(frameLevel + 14);
-    self.PvPTalentToggle.ButtonText:SetText("PvP");
+    self.PvPTalentToggle.ButtonText:SetText(L["PvP"]);
     self.PvPTalentToggle:SetScript("OnClick", function(f)
         self.PvPTalentFrame:Toggle();
     end);
@@ -440,6 +491,16 @@ function NarciMiniTalentTreeMixin:OnLoad()
             f.ButtonText:SetText(errorString);
         end
     end);
+
+    self.AnimationFrame.ShockwaveMask:SetTexture("Interface\\AddOns\\Narcissus\\Art\\Masks\\Full", "CLAMPTOBLACKADDITIVE", "CLAMPTOBLACKADDITIVE", "NEAREST");
+    self.AnimationFrame:Hide();
+    self.AnimationFrame:SetScript("OnUpdate", function(f, elapsed)
+        f.t = f.t + elapsed;
+        if f.t > 2 then
+            f:Hide();
+            f.t = nil;
+        end
+    end);
 end
 
 function NarciMiniTalentTreeMixin:Init()
@@ -455,6 +516,32 @@ function NarciMiniTalentTreeMixin:ShowActiveBuild()
     self:ShowConfig(configID);
 end
 
+local function IsValidEntryType(entryType)
+    return entryType == nil or entryType == 0 or entryType == 1 or entryType == 2
+end
+
+local function IsValidNodeInfo(nodeInfo)
+    return (nodeInfo) and (nodeInfo.type ~= 3) and (nodeInfo.isVisible) and (nodeInfo.posY >= 0) and (not nodeInfo.subTreeID)
+end
+
+local function IsSubTreeNode(nodeInfo, activeSubTreeID)
+    if nodeInfo and nodeInfo.isVisible and nodeInfo.subTreeID then
+        if activeSubTreeID then
+            return nodeInfo.subTreeID == activeSubTreeID
+        else
+            return true
+        end
+    end
+end
+
+local function SortFunc_SubTreeNode(a, b)
+    if a.posY ~= b.posY then
+        return a.posY > b.posY
+    end
+
+    return a.posX < b.posX
+end
+
 function NarciMiniTalentTreeMixin:ShowConfig(configID, isPreviewing)
     if not configID then return end;
 
@@ -464,7 +551,7 @@ function NarciMiniTalentTreeMixin:ShowConfig(configID, isPreviewing)
     self.configID = configID;
     self.isDirty = nil;
 
-    local isInspecting = self:IsInspecting() and (configID == -1);
+    local isInspecting = self:IsInspecting() and (configID == INPSECT_CONFIG_ID);
     local canShowComparison = isInspecting and DataProvider:IsInpsectSameSpec();
     local comparisonMode = self.showTalentDifferences and canShowComparison;   --if the inspected unit and player have the same spec
 
@@ -474,129 +561,141 @@ function NarciMiniTalentTreeMixin:ShowConfig(configID, isPreviewing)
 
     local specID = DataProvider:GetCurrentSpecID();
     local configInfo = C_Traits.GetConfigInfo(configID);
+
+    if not configInfo then
+        return
+    end
+
     local treeID = configInfo.treeIDs[1]
 	local nodeIDs = C_Traits.GetTreeNodes(treeID);
     self.treeID = treeID;
 
+    local activeSubTreeID;
 
-    local node, nodeInfo, activeEntryID, entryInfo, talentType, iX, iY, isLeftSide;
+    local node, nodeInfo, activeEntryID, entryInfo, entryType, iX, iY, isLeftSide;
     local GetNodeInfo, GetEntryInfo;
+    local borderColor;
+
     if isInspecting then
+        borderColor = 2;
         GetNodeInfo = DataProvider.GetComparisonNodeInfo;
         GetEntryInfo = DataProvider.GetComparisonEntryInfo;
+        activeSubTreeID = DataProvider:GetInspectActiveSubTreeID();
     else
+        borderColor = 1;
         DataProvider:SetPlayerActiveConfigID(configID);
         GetNodeInfo = DataProvider.GetPlayerNodeInfo;
         GetEntryInfo = DataProvider.GetPlayerEntryInfo;
+        activeSubTreeID = DataProvider:GetPlayerActiveSubTreeID();
     end
 
-    if not comparisonMode then
-        local borderColor = (isInspecting and 2) or 1;
 
+    if not comparisonMode then
         for i, nodeID in ipairs(nodeIDs) do
             nodeInfo = GetNodeInfo(nodeID);
 
-            if nodeInfo.isVisible and nodeInfo.posY >= 0 then   ----Dracthyr has a Button that is out-of-bound for some reason
+            if IsValidNodeInfo(nodeInfo) then   ----Dracthyr has a Button that is out-of-bound for some reason
                 activeEntryID = nodeInfo.activeEntry and nodeInfo.activeEntry.entryID or nil;
                 entryInfo = (activeEntryID ~= nil) and GetEntryInfo(activeEntryID) or nil;
-                talentType = (entryInfo ~= nil) and entryInfo.type or nil;
-            
-                node = self:AcquireNode();
-                node:SetBorderColor(borderColor);
-            
-                iX, iY, isLeftSide = CalculateNormalizedPosition(nodeInfo.posX, nodeInfo.posY);
-            
-                if (nodeInfo.ranksPurchased > 0) or (nodeInfo.activeRank > 0) or (DataProvider:IsAutoGrantedTalent(nodeID)) then
-                    --ranksPurchased is 0 for freely-granted talent (some talent in the first row)
-                    node.active = true;
-                    if nodeInfo.ranksPurchased == 0 then
-                        node.currentRank = 1;
+                entryType = (entryInfo ~= nil) and entryInfo.type or nil;
+
+                if IsValidEntryType(entryType) then
+                    node = self:AcquireNode();
+                    node:SetBorderColor(borderColor);
+                
+                    iX, iY, isLeftSide = CalculateNormalizedPosition(nodeInfo.posX, nodeInfo.posY);
+                
+                    if (nodeInfo.ranksPurchased > 0) or (nodeInfo.activeRank > 0) or (DataProvider:IsAutoGrantedTalent(nodeID)) then
+                        --ranksPurchased is 0 for freely-granted talent (some talent in the first row)
+                        node.active = true;
+                        if nodeInfo.ranksPurchased == 0 then
+                            node.currentRank = 1;
+                        else
+                            node.currentRank = nodeInfo.ranksPurchased;
+                        end
                     else
-                        node.currentRank = nodeInfo.ranksPurchased;
+                        if HIDE_INACTIVE_NODE then
+                            node:Hide();
+                        end
+                        node.active = nil;
+                        node.currentRank = 0;
                     end
-                else
-                    if HIDE_INACTIVE_NODE then
-                        node:Hide();
-                    end
-                    node.active = nil;
-                    node.currentRank = 0;
-                end
-                node.maxRanks = nodeInfo.maxRanks;
-            
-                LayoutUtil:SetNodeTileIndex(node, isLeftSide, iX, iY);
-            
-                NodeIDxNode[nodeID] = node;
-            
-                if nodeInfo.type == 2 then
-                    node.entryIDs = nodeInfo.entryIDs;
-                    if activeEntryID == nodeInfo.entryIDs[1] then
-                        node:SetNodeType(2, 1);
-                    elseif activeEntryID == nodeInfo.entryIDs[2] then
-                        node:SetNodeType(2, 2);
+                    node.maxRanks = nodeInfo.maxRanks;
+                
+                    LayoutUtil:SetNodeTileIndex(node, isLeftSide, iX, iY);
+                
+                    NodeIDxNode[nodeID] = node;
+                
+                    if nodeInfo.type == 2 then
+                        node.entryIDs = nodeInfo.entryIDs;
+                        if activeEntryID == nodeInfo.entryIDs[1] then
+                            node:SetNodeType(2, 1);
+                        elseif activeEntryID == nodeInfo.entryIDs[2] then
+                            node:SetNodeType(2, 2);
+                        else
+                            node:SetNodeType(2, 0);
+                            node.Icon:SetTexture(nil);
+                        end
                     else
-                        node:SetNodeType(2, 0);
-                        node.Icon:SetTexture(nil);
-                    end
-                else
-                    node.entryIDs = nil;
-                    if talentType == 0 then
-                        --*Warrior Why do some passive traits use this type?
-                        node:SetNodeType(1, 0);
-                    elseif talentType == 1 then --square
-                        node:SetNodeType(0, 1);
-                    elseif talentType == 2 then --circle
-                        if nodeInfo.type == 0 then
-                            if nodeInfo.maxRanks == 1 then  --1/1
-                                node:SetNodeType(1, 0);
-                            elseif nodeInfo.maxRanks == 2 then
-                                if nodeInfo.ranksPurchased == 1 then    --1/2
-                                    node:SetNodeType(1, 1);
-                                else    --2/2
+                        node.entryIDs = nil;
+                        if entryType == 0 then
+                            --*Warrior Why do some passive traits use this type?
+                            node:SetNodeType(1, 0);
+                        elseif entryType == 1 then --square
+                            node:SetNodeType(0, 1);
+                        elseif entryType == 2 then --circle
+                            if nodeInfo.type == 0 then
+                                if nodeInfo.maxRanks == 1 then  --1/1
                                     node:SetNodeType(1, 0);
-                                end
-                            elseif nodeInfo.maxRanks == 3 then
-                                if nodeInfo.ranksPurchased == 1 then    --1/3
-                                    node:SetNodeType(1, 1);
-                                elseif nodeInfo.ranksPurchased == 2 then    --2/3
-                                    node:SetNodeType(1, 2);
-                                else    --3/3
+                                elseif nodeInfo.maxRanks == 2 then
+                                    if nodeInfo.ranksPurchased == 1 then    --1/2
+                                        node:SetNodeType(1, 1);
+                                    else    --2/2
+                                        node:SetNodeType(1, 0);
+                                    end
+                                elseif nodeInfo.maxRanks == 3 then
+                                    if nodeInfo.ranksPurchased == 1 then    --1/3
+                                        node:SetNodeType(1, 1);
+                                    elseif nodeInfo.ranksPurchased == 2 then    --2/3
+                                        node:SetNodeType(1, 2);
+                                    else    --3/3
+                                        node:SetNodeType(1, 0);
+                                    end
+                                else
+                                    --0/4?
+                                    node.Symbol:SetVertexColor(1, 0, 0);
                                     node:SetNodeType(1, 0);
                                 end
                             else
-                                --0/4?
-                                node.Symbol:SetVertexColor(1, 0, 0);
-                                node:SetNodeType(1, 0);
+                                node:Hide();
                             end
                         else
-                            node:Hide();
+                            --nil is unselected octagon
+                            node.Symbol:SetVertexColor(1, 0, 0);
+                            --print(entryType, "Unknown type")
                         end
-                    else
-                        --nil is unselected octagon
-                        node.Symbol:SetVertexColor(1, 0, 0);
-                        --print(talentType, "Unknown type")
                     end
+                
+                    if node.active then
+                        node.Symbol:SetVertexColor(0.67, 0.67, 0.67);
+                        node:SetActive(true);
+                    else
+                        node.Symbol:SetVertexColor(0.160, 0.160, 0.160);
+                        node:SetActive(false);
+                    end
+                
+                    if entryInfo then
+                        node:SetDefinitionID(entryInfo.definitionID);
+                    end
+                
+                    node.nodeID = nodeID;
+                    node.entryID = activeEntryID;
+                    node.rank = nodeInfo.ranksPurchased;
                 end
-            
-                if node.active then
-                    node.Symbol:SetVertexColor(0.67, 0.67, 0.67);
-                    node:SetActive(true);
-                else
-                    node.Symbol:SetVertexColor(0.160, 0.160, 0.160);
-                    node:SetActive(false);
-                end
-            
-                if entryInfo then
-                    node:SetDefinitionID(entryInfo.definitionID);
-                end
-            
-                node.nodeID = nodeID;
-                node.entryID = activeEntryID;
-                node.rank = nodeInfo.ranksPurchased;
             end
         end
 
         self:CreateBranches(nodeIDs);
-
 
     else
         local playerNodeInfo, playerEntryInfo, playerEntryID;
@@ -610,110 +709,112 @@ function NarciMiniTalentTreeMixin:ShowConfig(configID, isPreviewing)
             nodeInfo = GetNodeInfo(nodeID);
             playerNodeInfo = GetPlayerNodeInfo(nodeID);
 
-            if nodeInfo.isVisible and nodeInfo.posY >= 0 then   ----Dracthyr has a Button that is out-of-bound for some reason
+            if IsValidNodeInfo(nodeInfo) then   ----Dracthyr has a Button that is out-of-bound for some reason
                 activeEntryID = nodeInfo.activeEntry and nodeInfo.activeEntry.entryID or nil;
                 entryInfo = (activeEntryID ~= nil) and GetEntryInfo(activeEntryID) or nil;
-                talentType = (entryInfo ~= nil) and entryInfo.type or nil;
+                entryType = (entryInfo ~= nil) and entryInfo.type or nil;
             
-                playerEntryID = playerNodeInfo.activeEntry and playerNodeInfo.activeEntry.entryID or nil;
-                playerEntryInfo = (playerEntryID ~= nil) and GetPlayerEntryInfo(playerEntryID) or nil;
+                if IsValidEntryType(entryType) then
+                    playerEntryID = playerNodeInfo.activeEntry and playerNodeInfo.activeEntry.entryID or nil;
+                    playerEntryInfo = (playerEntryID ~= nil) and GetPlayerEntryInfo(playerEntryID) or nil;
 
-                node = self:AcquireNode();
-                iX, iY, isLeftSide = CalculateNormalizedPosition(nodeInfo.posX, nodeInfo.posY);
-            
-                targetRank = nodeInfo.ranksPurchased or 0;
-                playerRank = playerNodeInfo.ranksPurchased or 0;
-
-                if DataProvider:IsAutoGrantedTalent(nodeID) then
-                    targetRank = 1;
-                    playerRank = 1;
-                end
-
-                if targetRank == playerRank then
-                    node.active = nil;
-                    node.currentRank = targetRank;
-                else
-                    if nodeInfo.ranksPurchased == 0 then
-                        node.currentRank = 1;
-                    else
-                        node.currentRank = nodeInfo.ranksPurchased;
-                    end
-                    node.active = (targetRank > 0) or (playerRank > 0);
-                end
-                node:SetBorderColor(3);
-
-                node.maxRanks = nodeInfo.maxRanks;
-            
-                LayoutUtil:SetNodeTileIndex(node, isLeftSide, iX, iY);
-            
-                NodeIDxNode[nodeID] = node;
-            
-                if nodeInfo.type == 2 then
-                    node.entryIDs = nodeInfo.entryIDs;
-                    if activeEntryID == nodeInfo.entryIDs[1] then
-                        targetChoice = 1;
-                    elseif activeEntryID == nodeInfo.entryIDs[2] then
-                        targetChoice = 2;
-                    else
-                        targetChoice = 0;
-                    end
-
-                    if playerEntryID == playerNodeInfo.entryIDs[1] then
-                        playerChoice = 1;
-                    elseif playerEntryID == playerNodeInfo.entryIDs[2] then
-                        playerChoice = 2;
-                    else
-                        playerChoice = 0;
-                    end
-
-                    if targetChoice ~= playerChoice and targetChoice ~= 0 then
-                        node.active = true;
-                    end
-
-                    node:SetComparison(2, targetChoice, playerChoice);
-                    if targetChoice == 0 and playerChoice ~= 0 and playerEntryInfo then
-                        node:SetDefinitionID(playerEntryInfo.definitionID);
-                    end
-                else
-                    node.entryIDs = nil;
-                    if talentType == 0 then
-                        nodeTypeID = 1;
-                    elseif talentType == 1 then --square
-                        nodeTypeID = 0;
-                    elseif talentType == 2 then --circle
-                        nodeTypeID = 1;
-                    else
-                        nodeTypeID = 2;
-                        --nil is unselected octagon
-                        node.Symbol:SetVertexColor(1, 0, 0);
-                        --print(talentType, "Unknown type")
-                    end
-
-                    node:SetComparison(nodeTypeID, targetRank, playerRank);
-                end
-
-                if node.active then
-                    node.Symbol:SetVertexColor(0.67, 0.67, 0.67);
-                    node.IconBorder:SetDesaturated(false);
-                    node.IconBorder:SetVertexColor(1, 1, 1);
-                    node.Icon:SetDesaturation(0.5);
-                    node.Icon:SetVertexColor(0.67, 0.67, 0.67);
-                    node.isActive = nil;
-                else
-                    node.Symbol:SetVertexColor(0.160, 0.160, 0.160);
-                    node:SetActive(false);
-                end
-
-                if entryInfo then
-                    node:SetDefinitionID(entryInfo.definitionID);
-                end
-            
-                node.nodeID = nodeID;
-                node.entryID = activeEntryID;
-                node.rank = targetRank;
+                    node = self:AcquireNode();
+                    iX, iY, isLeftSide = CalculateNormalizedPosition(nodeInfo.posX, nodeInfo.posY);
                 
-                if playerRank == 0 and targetRank == 0 then
-                    node.Icon:SetTexture(nil);
+                    targetRank = nodeInfo.ranksPurchased or 0;
+                    playerRank = playerNodeInfo.ranksPurchased or 0;
+
+                    if DataProvider:IsAutoGrantedTalent(nodeID) then
+                        targetRank = 1;
+                        playerRank = 1;
+                    end
+
+                    if targetRank == playerRank then
+                        node.active = nil;
+                        node.currentRank = targetRank;
+                    else
+                        if nodeInfo.ranksPurchased == 0 then
+                            node.currentRank = 1;
+                        else
+                            node.currentRank = nodeInfo.ranksPurchased;
+                        end
+                        node.active = (targetRank > 0) or (playerRank > 0);
+                    end
+                    node:SetBorderColor(3);
+
+                    node.maxRanks = nodeInfo.maxRanks;
+                
+                    LayoutUtil:SetNodeTileIndex(node, isLeftSide, iX, iY);
+                
+                    NodeIDxNode[nodeID] = node;
+                
+                    if nodeInfo.type == 2 then
+                        node.entryIDs = nodeInfo.entryIDs;
+                        if activeEntryID == nodeInfo.entryIDs[1] then
+                            targetChoice = 1;
+                        elseif activeEntryID == nodeInfo.entryIDs[2] then
+                            targetChoice = 2;
+                        else
+                            targetChoice = 0;
+                        end
+
+                        if playerEntryID == playerNodeInfo.entryIDs[1] then
+                            playerChoice = 1;
+                        elseif playerEntryID == playerNodeInfo.entryIDs[2] then
+                            playerChoice = 2;
+                        else
+                            playerChoice = 0;
+                        end
+
+                        if targetChoice ~= playerChoice and targetChoice ~= 0 then
+                            node.active = true;
+                        end
+
+                        node:SetComparison(2, targetChoice, playerChoice);
+                        if targetChoice == 0 and playerChoice ~= 0 and playerEntryInfo then
+                            node:SetDefinitionID(playerEntryInfo.definitionID);
+                        end
+                    else
+                        node.entryIDs = nil;
+                        if entryType == 0 then
+                            nodeTypeID = 1;
+                        elseif entryType == 1 then --square
+                            nodeTypeID = 0;
+                        elseif entryType == 2 then --circle
+                            nodeTypeID = 1;
+                        else
+                            nodeTypeID = 2;
+                            --nil is unselected octagon
+                            node.Symbol:SetVertexColor(1, 0, 0);
+                            --print(entryType, "Unknown type")
+                        end
+
+                        node:SetComparison(nodeTypeID, targetRank, playerRank);
+                    end
+
+                    if node.active then
+                        node.Symbol:SetVertexColor(0.67, 0.67, 0.67);
+                        node.IconBorder:SetDesaturated(false);
+                        node.IconBorder:SetVertexColor(1, 1, 1);
+                        node.Icon:SetDesaturation(0.5);
+                        node.Icon:SetVertexColor(0.67, 0.67, 0.67);
+                        node.isActive = nil;
+                    else
+                        node.Symbol:SetVertexColor(0.160, 0.160, 0.160);
+                        node:SetActive(false);
+                    end
+
+                    if entryInfo then
+                        node:SetDefinitionID(entryInfo.definitionID);
+                    end
+                
+                    node.nodeID = nodeID;
+                    node.entryID = activeEntryID;
+                    node.rank = targetRank;
+                    
+                    if playerRank == 0 and targetRank == 0 then
+                        node.Icon:SetTexture(nil);
+                    end
                 end
             end
         end
@@ -721,12 +822,76 @@ function NarciMiniTalentTreeMixin:ShowConfig(configID, isPreviewing)
         self:RemoveBranches();
     end
 
-    LayoutUtil:UpdateNodePosition();
+    local middleX, middleY = LayoutUtil:UpdateNodePosition();
+
+
+    --Subtree
+    local subTreeNodes;
+
+    for i, nodeID in ipairs(nodeIDs) do
+        nodeInfo = GetNodeInfo(nodeID);
+        if IsSubTreeNode(nodeInfo, activeSubTreeID) then
+        --Only Show Choice Node
+            if nodeInfo.type == 2 then
+                activeEntryID = nodeInfo.activeEntry and nodeInfo.activeEntry.entryID;
+                if activeEntryID then
+                    entryInfo = GetEntryInfo(activeEntryID);
+                    if entryInfo and entryInfo.definitionID then
+                        if not subTreeNodes then
+                            subTreeNodes = {};
+                        end
+
+                        table.insert(subTreeNodes, {
+                            nodeID = nodeID,
+                            entryID = activeEntryID;
+                            entryIDs = nodeInfo.entryIDs,
+                            definitionID = entryInfo.definitionID,
+                            selectLeft = activeEntryID == nodeInfo.entryIDs[1],
+                            posX = nodeInfo.posX,
+                            posY = nodeInfo.posY,
+                        });
+                    end
+                end
+            end
+        end
+    end
+
+    if subTreeNodes then
+        table.sort(subTreeNodes, SortFunc_SubTreeNode);
+
+        local tileSize = BUTTON_SIZE;
+
+        for i, nodeData in ipairs(subTreeNodes) do
+            --print(i, DataProvider:GetTraitNameByDefinitionID(nodeData.definitionID));
+            node = self:AcquireNode();
+            node:SetBorderColor(borderColor);
+            node:SetPoint("TOP", self, "TOPLEFT", middleX, middleY + (1- i)*tileSize);
+
+            if nodeData.selectLeft then
+                node:SetNodeType(2, 1);
+            else
+                node:SetNodeType(2, 2);
+            end
+
+            node.nodeID = nodeData.nodeID;
+            node.entryID = nodeData.entryID;
+            node.entryIDs = nodeData.entryIDs;
+            node.rank = 1;
+            node.currentRank = 1;
+            node.maxRanks = 1;
+            node:SetDefinitionID(nodeData.definitionID);
+            node:SetActive(true);
+        end
+
+        self.Divider:Hide();
+    else
+        self.Divider:Show();
+    end
 
     if not isPreviewing and not isInspecting then
         UniversalFont:SetText(self.LoadoutToggle.ButtonText, DataProvider:GetActiveLoadoutName());
         self.SideTab:SetSelectedSpec(specID);
-        LoadoutUtil:SetActiveConfigID(DataProvider:GetSelecetdConfigID());
+        LoadoutUtil:SetSelectedConfigID(DataProvider:GetSelecetdConfigID());
         LoadingBarUtil:HideBar();
         self:SetSpecBackground(specID);
     end
@@ -740,7 +905,6 @@ function NarciMiniTalentTreeMixin:SetSpecBackground(specID)
         local bgFile, blurFile = TextureUtil:GetSpecBackground(specID);
         self.SpecArt:SetTexture(bgFile);
         self.SideTab.ClipFrame.SpecArt:SetTexture(blurFile);
-        ClassTalentTooltipUtil:SetTooltipBackground(blurFile);
     end
 end
 
@@ -750,7 +914,7 @@ function NarciMiniTalentTreeMixin:ShowInspecting(inspectUnit)
     DataProvider:ClearComparisonCache();
     DataProvider:SetPlayerActiveConfigID();
     self.configID = nil;
-    self:ShowConfig(-1);
+    self:ShowConfig(INPSECT_CONFIG_ID);
 end
 
 function NarciMiniTalentTreeMixin:SetInspectDisplayMode(id)
@@ -789,6 +953,8 @@ function NarciMiniTalentTreeMixin:SetInspectMode(state)
         local playerName = UnitName(unit);
         local specID = GetInspectSpecialization(unit);
 		local classDisplayName, class = UnitClass(unit);
+        playerName = playerName or "Unknown Player";
+
 		if specID then
             local sex = UnitSex(unit);
 			local _, specName = GetSpecializationInfoByID(specID, sex);
@@ -823,6 +989,8 @@ function NarciMiniTalentTreeMixin:SetInspectMode(state)
         self.ShareToggle:Show();
         TextButtonUtil:SetButtonIcon(self.SideTabToggle, "arrowRight");
     end
+
+    --self.MacroForge:HideFrame();
 end
 
 function NarciMiniTalentTreeMixin:ReleaseAllNodes()
@@ -847,11 +1015,10 @@ function NarciMiniTalentTreeMixin:AcquireNode()
     return Nodes[self.numAcitveNodes];
 end
 
-
-
+--[[
 local BranchUpdater = CreateFrame("Frame");
 
-local MAX_PROCESS_PER_FRAME = 400;    --20
+local MAX_PROCESS_PER_FRAME = 400;
 
 local function BranchUpdater_OnUpdate(self, elapsed)
     local processedThisFrame = 0;
@@ -971,8 +1138,25 @@ local function BranchUpdater_OnUpdate(self, elapsed)
     end
 end
 
+--]]
+
+local function PlayActivationAnimationAfterDelay(self, elapsed)
+    self.animT = self.animT + elapsed;
+    if self.activationAnimDelay then
+        if self.animT >= self.activationAnimDelay then
+            self:SetScript("OnUpdate", nil);
+            self.activationAnimDelay = nil;
+            self.animT = nil;
+            MainFrame:PlayActivationAnimation();
+        end
+    else
+        self:SetScript("OnUpdate", nil);
+    end
+
+end
+
 local function BranchUpdater_OnUpdate_OneFrame(self, elapsed)
-    self:SetScript("OnUpdate", nil);
+    self:SetScript("OnUpdate", self.nextOnUpdateFunc);
     for i = 1, #Branches do
         Branches[i]:Hide();
         Branches[i]:ClearAllPoints();
@@ -1019,11 +1203,7 @@ local function BranchUpdater_OnUpdate_OneFrame(self, elapsed)
                         rd = atan2(y2 - y1, x2 - x1);
                         b:SetWidth(d);
                         b:ClearAllPoints();
-                        if fromNode.isLeft then
-                            b:SetPoint("CENTER", container, "TOPLEFT", (x1+x2)*0.5, (y1+y2)*0.5);
-                        else
-                            b:SetPoint("CENTER", container, "TOPLEFT", (x1+x2)*0.5, (y1+y2)*0.5);
-                        end
+                        b:SetPoint("CENTER", container, "TOPLEFT", (x1+x2)*0.5, (y1+y2)*0.5);
                         b:SetRotation(rd);
                         b:Show();
                         SetBranchColor(b, fromNode.active and targetNode.active);
@@ -1042,6 +1222,14 @@ end
 
 function NarciMiniTalentTreeMixin:CreateBranches(nodeIDs)
     self.nodeIDs = nodeIDs;
+
+    if self.activationAnimDelay then
+        self.animT = 0;
+        self.nextOnUpdateFunc = PlayActivationAnimationAfterDelay;
+    else
+        self.nextOnUpdateFunc = nil;
+    end
+
     self:SetScript("OnUpdate", BranchUpdater_OnUpdate_OneFrame);
 end
 
@@ -1056,9 +1244,15 @@ end
 
 function NarciMiniTalentTreeMixin:RequestUpdate()
     self.isDirty = true;
-    if (self:IsVisible()) and (not self:IsInspecting()) then
-        self:ShowActiveBuild();
+    if not self:IsInspecting() then
+        if self:IsVisible() then
+            self:ShowActiveBuild();
+        else
+            local configID = DataProvider:GetSelecetdConfigID();
+            DataProvider:SetPlayerActiveConfigID(configID);
+        end
     end
+    --ActionBarUtil:RequestUpdate();
 end
 
 function NarciMiniTalentTreeMixin:OnShow()
@@ -1066,10 +1260,38 @@ function NarciMiniTalentTreeMixin:OnShow()
         self:Init();
     end
     DataProvider:StopCacheWipingCountdown();
+    --EventCenter:RegisterEvent("CURSOR_CHANGED");
+    EventCenter:RegisterUnitEvent("UNIT_SPELLCAST_SUCCEEDED", "player");
+
+    self:RegisterEvent("PLAYER_STARTED_MOVING");
+    self:RegisterEvent("PLAYER_STOPPED_MOVING");
+    self:RegisterEvent("PLAYER_STARTED_LOOKING");
+    self:RegisterEvent("PLAYER_STOPPED_LOOKING");
+    self:RegisterEvent("PLAYER_STARTED_TURNING");
+    self:RegisterEvent("PLAYER_STOPPED_TURNING");
+    
+    if ShouldHideBackground() then
+        self:SetBackgroundAlpha(0);
+        self:EnableMouse(false);
+    else
+        self:SetBackgroundAlpha(1);
+        self:EnableMouse(true);
+    end
 end
 
 function NarciMiniTalentTreeMixin:OnHide()
+    self.activationAnimDelay = nil;
     DataProvider:StartCacheWipingCountdown();
+    --EventCenter:UnregisterEvent("CURSOR_CHANGED");
+    EventCenter:UnregisterEvent("UNIT_SPELLCAST_SUCCEEDED");
+
+    self:UnregisterEvent("PLAYER_STARTED_MOVING");
+    self:UnregisterEvent("PLAYER_STOPPED_MOVING");
+    self:RegisterEvent("PLAYER_STARTED_LOOKING");
+    self:RegisterEvent("PLAYER_STOPPED_LOOKING");
+    self:RegisterEvent("PLAYER_STARTED_TURNING");
+    self:RegisterEvent("PLAYER_STOPPED_TURNING");
+    self:SetFading(false);
 end
 
 function NarciMiniTalentTreeMixin:IsInspecting()
@@ -1080,14 +1302,27 @@ function NarciMiniTalentTreeMixin:GetInspectUnit()
     return self.inspectUnit;
 end
 
-local function SetPixelPerfectPosition(frame, relativeTo, direction, offsetX, offsetY)
+
+local function SetPixelPerfectPosition(frame, relativeTo)
     if relativeTo then
         frame:ClearAllPoints();
-        local right0 = relativeTo:GetRight();
-        local right1 = floor( (right0 + 4) * PIXEL + 0.5) / PIXEL;
-        local top0 = relativeTo:GetTop();
-        local top1 = floor( (top0 + 0) * PIXEL) / PIXEL;
-        if direction == "right" then
+        local position = frame.position;
+        if position == "bottom" then
+            local offsetV = 32;
+            local bottom0 = relativeTo:GetBottom();
+            local bottom1 = floor( (bottom0 - offsetV) * PIXEL) / PIXEL;
+            frame:SetPoint("TOPLEFT", relativeTo, "BOTTOMLEFT", 0, bottom1 - bottom0);
+        else
+            local offsetH;
+            if frame.offsetH then
+                offsetH = frame.offsetH * UIParent:GetEffectiveScale();
+            else
+                offsetH = 4;
+            end
+            local right0 = relativeTo:GetRight();
+            local right1 = floor( (right0 + offsetH) * PIXEL + 0.5) / PIXEL;
+            local top0 = relativeTo:GetTop();
+            local top1 = floor( (top0 + 0) * PIXEL) / PIXEL;
             frame:SetPoint("TOPLEFT", relativeTo, "TOPRIGHT", right1 - right0, top1 - top0);
         end
     end
@@ -1097,9 +1332,11 @@ function NarciMiniTalentTreeMixin:AnchorToInspectFrame()
     self.anchor = "inspectframe";
     local f = InspectFrame;
     if f and f:IsShown() and f.unit then
-        SetPixelPerfectPosition(self, f, "right", 4, 0);
-        MainFrame:Show();
-        MainFrame:ShowInspecting(f.unit);
+        SetPixelPerfectPosition(self, f);
+        self:Show();
+        self:ShowInspecting(f.unit);
+        self:SetFrameStrata("HIGH");
+        self:SetToplevel(false);
     else
         self:Hide();
     end
@@ -1107,9 +1344,11 @@ end
 
 function NarciMiniTalentTreeMixin:AnchorToPaperDoll()
     self.anchor = "paperdoll";
+    self:SetFrameStrata("MEDIUM");
+    self:SetToplevel(false);
     local f = PaperDollFrame;
     if f and f:IsShown() then
-        SetPixelPerfectPosition(self, f, "right", 4, 0);
+        SetPixelPerfectPosition(self, f);
     else
         self:Hide();
     end
@@ -1155,9 +1394,161 @@ function NarciMiniTalentTreeMixin:SetUseClassBackground(state)
 
         ClassTalentTooltipUtil:SetUseClassBackground(state);
     end
+
+    self.Background:SetShown(not state);
+end
+
+function NarciMiniTalentTreeMixin:RaiseActiveNodesFrameLevel(state)
+    if not state then state = nil end;
+    if state == self.isNodeRaised then
+        return
+    else
+        self.isNodeRaised  = state
+    end
+
+    local baseLevel = self:GetFrameLevel() + 1;
+    local activeLevel;
+
+    if state then
+        --activeLevel = self.MacroForge.MotionBlocker:GetFrameLevel() + 1;
+        NodeUtil:SetModePickIcon();
+    else
+        activeLevel = baseLevel;
+        NodeUtil:SetModeNormal();
+    end
+
+    for i, node in ipairs(Nodes) do
+        if node.isActive then
+            node:SetFrameLevel(activeLevel);
+        else
+            node:SetFrameLevel(baseLevel);
+        end
+    end
+end
+
+function NarciMiniTalentTreeMixin:SetFramePosition(position)
+    if position == "bottom" then
+        self.position = "bottom";
+    else
+        self.position = "right";
+    end
+
+    if self:IsShown() then
+        if self.anchor == "inspectframe" then
+            self:AnchorToInspectFrame();
+        elseif self.anchor == "paperdoll" then
+            self:AnchorToPaperDoll();
+        end
+    end
+end
+
+function NarciMiniTalentTreeMixin:PlayActivationAnimation()
+    self.AnimationFrame:StopAnimating();
+    if not self:IsVisible() then
+        self.AnimationFrame:Hide();
+        return
+    end
+    self.AnimationFrame.t = 0;
+    self.AnimationFrame:Show();
+
+    local sqrt = sqrt;
+    local node, highlight;
+    local n = 0;
+    for i = 1, self.numAcitveNodes do
+        node = Nodes[i];
+        if node.isActive then
+            n = n + 1;
+            highlight = NodeHighlights[n];
+            if not highlight then
+                highlight = self.AnimationFrame:CreateTexture(nil, "OVERLAY", "NarciTalentTreeNodeHighlightTemplate");
+                highlight:SetSize(2*BUTTON_SIZE, 2*BUTTON_SIZE);
+                NodeHighlights[n] = highlight;
+            end
+            if node.typeID == 0 then
+                highlight:SetTexCoord(0.5, 1, 0, 0.5); --square
+            elseif node.typeID == 2 then
+                highlight:SetTexCoord(0, 0.5, 0.5, 1); --octagon
+            else
+                highlight:SetTexCoord(0, 0.5, 0, 0.5); --circle
+            end
+            highlight:ClearAllPoints();
+            highlight:SetPoint("CENTER", node, "CENTER", 0, 0);
+            highlight.Glow.AnimDelay:SetStartDelay(sqrt( (node.iX - 9)*(node.iX - 9) + (node.iY - 5)*(node.iY - 5)) * 0.05);
+            highlight.Glow:Play();
+            highlight:Show();
+        end
+    end
+    self.AnimationFrame.ActivationShockwave.AnimIn:Play();
+    self.AnimationFrame.ActivationShockwave:Show();
+
+    for i = n + 1, #NodeHighlights do
+        NodeHighlights[i]:Hide();
+    end
 end
 
 
+function NarciMiniTalentTreeMixin:SetUseBiggerUI(larger)
+    TextureUtil:UpdateWidgetSize(larger);
+    LayoutUtil:UpdatePixel();
+    if self:IsVisible() then
+        self:RequestUpdate();
+    else
+        self.isDirty = true;
+    end
+end
+
+function NarciMiniTalentTreeMixin:OnEvent(event, ...)
+    if event == "PLAYER_STARTED_MOVING" or event == "PLAYER_STARTED_LOOKING" or event == "PLAYER_STARTED_TURNING" then
+        self:SetFading(-4);
+    elseif event == "PLAYER_STOPPED_MOVING" or event == "PLAYER_STOPPED_LOOKING" or event == "PLAYER_STOPPED_TURNING" then
+        if not ShouldHideBackground() then
+            self:SetFading(4);
+        end
+    end
+end
+
+local FadingFrame = CreateFrame("Frame");
+FadingFrame:Hide();
+FadingFrame:SetScript("OnUpdate", function(self, elapsed)
+    self.alpha = self.alpha + self.delta * elapsed;
+    if self.alpha >= 1 then
+        self.alpha = 1;
+        self:Hide();
+    elseif self.alpha <= 0 then
+        self.alpha = 0;
+        self:Hide();
+    end
+    MainFrame:SetBackgroundAlpha(self.alpha);
+end);
+
+function NarciMiniTalentTreeMixin:SetFading(delta)
+    if delta then
+        if delta > 0 then
+            FadingFrame.delta = 4;
+            self:EnableMouse(true);
+        elseif delta < 0 then
+            FadingFrame.delta = -4;
+            self:EnableMouse(false);
+        else
+            return
+        end
+        FadingFrame.alpha = self.Background:GetAlpha();
+        FadingFrame:Show();
+    else
+        FadingFrame:Hide();
+        self:SetBackgroundAlpha(1);
+        self:EnableMouse(true);
+    end
+end
+
+function NarciMiniTalentTreeMixin:SetBackgroundAlpha(alpha)
+    self.Background:SetAlpha(alpha);
+    self.SpecArt:SetAlpha(alpha);
+end
+
+function NarciMiniTalentTreeMixin:OnSwitchLoadoutFailed(reason)
+    self:RequestUpdate();
+end
 
 NarciTalentTreeLoadoutButtonMixin = {};
 
@@ -1184,23 +1575,46 @@ function NarciTalentTreeLoadoutButtonMixin:OnLeave()
     OnEnterDelay:ClearWatch();
 end
 
+
+local function AttemptToApplyConfig(configIDToLoad)
+    if not configIDToLoad then return end;
+    MainFrame.lastConfigID = DataProvider:GetSelecetdConfigID();
+
+    if not ClassTalentFrame then
+		ClassTalentFrame_LoadUI();
+	end
+
+    if ClassTalentFrame then
+        ClassTalentFrame.TalentsTab:LoadConfigByPredicate(function(_, configID)
+            return configID == configIDToLoad;
+        end);
+    else
+        MainFrame.lastConfigID = DataProvider:GetSelecetdConfigID();
+        local autoApply = true;
+        local result = C_ClassTalents.LoadConfig(configIDToLoad, autoApply);
+        if result ~= 0 then
+            local currentSpecID = DataProvider:GetCurrentSpecID();
+            C_ClassTalents.UpdateLastSelectedSavedConfigID(currentSpecID, configIDToLoad);
+        end
+        return result
+    end
+end
+
+Narci.AC = AttemptToApplyConfig;    --Name Shorten to be used in macro 
+
+
 function NarciTalentTreeLoadoutButtonMixin:OnClick()
     if self.selected then
 
     else
-        if self.configID then
+        if self.configID and (ClassTalentHelper and ClassTalentHelper.SwitchToLoadoutByIndex) then
             MainFrame.lastConfigID = DataProvider:GetSelecetdConfigID();
-    
-            local autoApply = true;
-            local result = C_ClassTalents.LoadConfig(self.configID, autoApply);
-            if result ~= 0 then
-                --print(MainFrame.lastConfigID, self.configID)
-                if result ~= 1 then
-                    LoadingBarUtil:SetFromLoadoutToggle(MainFrame.LoadoutToggle);
-                end
-                local currentSpecID = DataProvider:GetCurrentSpecID();
-                C_ClassTalents.UpdateLastSelectedSavedConfigID(currentSpecID, self.configID);
+            if ClassTalentHelper and ClassTalentHelper.SwitchToLoadoutByIndex then
+                ClassTalentHelper.SwitchToLoadoutByIndex(self.index);
             end
+            --Talent swap may not succeed due to abilities in cooldown, but "ClassTalentHelper" itself doesn't return anything
+            --We check if loading start after 1s
+            LoadingBarUtil:SetFromLoadoutToggle(MainFrame.LoadoutToggle);
         end
     end
     LoadoutUtil:HideList();
@@ -1269,6 +1683,7 @@ function LoadoutUtil:UpdateList()
         if not button then
             button = CreateFrame("Button", nil, self.container, "NarciTalentTreeLoadoutButtonTemplate");
             self.buttons[i] = button;
+            button.index = i;
             button.ButtonText:SetFont(self.font, FONT_HEIGHT, "");
             button:SetPoint("TOP", MainFrame.LoadoutToggle, "TOP", 0, self.buttonHeight*( - i));
             button:SetHeight(self.buttonHeight);
@@ -1284,8 +1699,9 @@ function LoadoutUtil:UpdateList()
         local bottom = button:GetBottom();
         self.container:SetHeight(top - bottom + 8);
 
-        if self.activeConfigID then
-            self:SetActiveConfigID(self.activeConfigID);
+        local selectedConfigID = DataProvider:GetSelecetdConfigID();
+        if selectedConfigID then
+            self:SetSelectedConfigID(selectedConfigID);
         end
 
         return true
@@ -1326,9 +1742,9 @@ function LoadoutUtil:ShowList()
     self.container:SetScript("OnUpdate", self.ShowFrame_OnUpdate);
 
     if anyLoadout then
-        MainFrame.LoadoutToggle.ButtonText:SetText("Loadout");
+        MainFrame.LoadoutToggle.ButtonText:SetText(L["Loadout"]);
     else
-        MainFrame.LoadoutToggle.ButtonText:SetText("No Loadout");
+        MainFrame.LoadoutToggle.ButtonText:SetText(L["No Loadout"]);
     end
     MainFrame.LoadoutToggle.Icon:SetTexCoord(0.25, 0.5, 0.25, 0);
 end
@@ -1351,7 +1767,7 @@ function LoadoutUtil:ToggleList()
     end
 end
 
-function LoadoutUtil:SetActiveConfigID(configID)
+function LoadoutUtil:SetSelectedConfigID(configID)
     self.activeButton = nil;
     self.activeConfigID = configID;
     if self.buttons then
@@ -1473,6 +1889,23 @@ function NarciTalentTreePvPFrameMixin:Toggle()
     LayoutUtil:UpdateFrameSize();
 end
 
+function NarciTalentTreePvPFrameMixin:UpdatePixel()
+    if self.slots then
+        for i, slot in ipairs(self.slots) do
+            slot.Icon:SetSize(ICON_SIZE, ICON_SIZE);
+            slot:SetSize(BUTTON_SIZE, BUTTON_SIZE);
+            if i <= 3 then
+                slot:SetPoint("TOP", self, "TOP", 0, -HEADER_SIZE -(i + 1) * BUTTON_SIZE);
+            else
+                slot:SetPoint("TOP", self, "TOP", 0, -HEADER_SIZE -(i + 3) * BUTTON_SIZE);
+            end
+        end
+    end
+    self:SetWidth(BUTTON_SIZE * 3);
+    self.Divider:ClearAllPoints();
+    self.Divider:SetPoint("TOPLEFT", self, "TOPLEFT", 0, -BUTTON_SIZE/2 -HEADER_SIZE);
+    self.Divider:SetPoint("BOTTOMLEFT", self, "BOTTOMLEFT", 0, BUTTON_SIZE/2);
+end
 
 
 
@@ -1720,8 +2153,6 @@ function NarciTalentTreeSharedEditBoxMixin:ResetState()
 end
 
 
-local EventCenter = CreateFrame("Frame");
-
 EventCenter:RegisterEvent("PLAYER_ENTERING_WORLD");
 EventCenter:RegisterEvent("PLAYER_PVP_TALENT_UPDATE");
 EventCenter:RegisterEvent("ACTIVE_PLAYER_SPECIALIZATION_CHANGED");
@@ -1730,15 +2161,7 @@ EventCenter:RegisterEvent("TRAIT_CONFIG_LIST_UPDATED");
 EventCenter:RegisterEvent("TRAIT_CONFIG_DELETED");
 EventCenter:RegisterEvent("TRAIT_CONFIG_CREATED");
 EventCenter:RegisterEvent("CONFIG_COMMIT_FAILED");
-
-EventCenter.dynamicEvents = {
-    "TRAIT_TREE_CHANGED", "TRAIT_NODE_CHANGED", "TRAIT_NODE_CHANGED_PARTIAL", "TRAIT_NODE_ENTRY_UPDATED", "TRAIT_CONFIG_UPDATED", "ACTIVE_PLAYER_SPECIALIZATION_CHANGED", "CONFIG_COMMIT_FAILED",
-
-    --TRAIT_NODE_CHANGED: Fires multiple times when cancel switching talent
-    --TRAIT_TREE_CHANGED: After clicking a loadout
-    --TRAIT_CONFIG_UPDATED: After successfully changing loadout
-    --ACTIVE_PLAYER_SPECIALIZATION_CHANGED: followed by TRAIT_CONFIG_UPDATED
-};
+EventCenter:RegisterEvent("ACTIVE_COMBAT_CONFIG_CHANGED");
 
 EventCenter.onUpdate = function(self, elapsed)
     self:SetScript("OnUpdate", nil);
@@ -1747,6 +2170,8 @@ EventCenter.onUpdate = function(self, elapsed)
     end
 end
 
+
+--[[
 function EventCenter:RegisterDynamicEvents(state)
     if state then
         for i, event in ipairs(self.dynamicEvents) do
@@ -1759,18 +2184,46 @@ function EventCenter:RegisterDynamicEvents(state)
     end
 end
 
+EventCenter.dynamicEvents = {
+    "TRAIT_TREE_CHANGED", "TRAIT_NODE_CHANGED", "TRAIT_NODE_CHANGED_PARTIAL", "TRAIT_NODE_ENTRY_UPDATED", "TRAIT_CONFIG_UPDATED", "ACTIVE_PLAYER_SPECIALIZATION_CHANGED", "CONFIG_COMMIT_FAILED",
+
+    --TRAIT_NODE_CHANGED: Fires multiple times when cancel switching talent
+    --TRAIT_TREE_CHANGED: After clicking a loadout
+    --TRAIT_CONFIG_UPDATED: After successfully changing loadout
+    --ACTIVE_PLAYER_SPECIALIZATION_CHANGED: followed by TRAIT_CONFIG_UPDATED
+};
+--]]
+
+
 EventCenter.onEvent = function(self, event, ...)
     if event == "TRAIT_CONFIG_UPDATED" or event == "TRAIT_CONFIG_LIST_UPDATED" or event == "TRAIT_CONFIG_DELETED" or event == "TRAIT_CONFIG_CREATED" then
-        local configID = ...
         DataProvider:RefreshConfigIDs();
         self.onUpdateCallback = MainFrame.RequestUpdate;
         self:SetScript("OnUpdate", self.onUpdate);
 
+        if event == "TRAIT_CONFIG_CREATED" then
+            local configInfo = ...;
+            if configInfo and configInfo.type == 1 then
+                --Enum.TraitConfigType.Combat
+                DataProvider:MarkConfigIDValid(configInfo.ID, true);
+            end
+        elseif event == "TRAIT_CONFIG_DELETED" then
+            local configID = ...;
+            DataProvider:MarkConfigIDValid(configID, false);
+        end
+
     elseif event == "CONFIG_COMMIT_FAILED" then
-        local currentSpecID = DataProvider:GetCurrentSpecID();
-        C_ClassTalents.UpdateLastSelectedSavedConfigID(currentSpecID, MainFrame.lastConfigID);
+        if MainFrame.lastConfigID then
+            local currentSpecID = DataProvider:GetCurrentSpecID();
+            local result = C_ClassTalents.LoadConfig( MainFrame.lastConfigID, true);
+            C_ClassTalents.UpdateLastSelectedSavedConfigID(currentSpecID, MainFrame.lastConfigID);
+            MainFrame.lastConfigID = nil;
+        end
         self.onUpdateCallback = MainFrame.RequestUpdate;
         self:SetScript("OnUpdate", self.onUpdate);
+
+    elseif event == "ACTIVE_COMBAT_CONFIG_CHANGED" then
+        local configID = ...;
 
     elseif event == "ACTIVE_PLAYER_SPECIALIZATION_CHANGED" then
         if MainFrame.SideTab:IsShown() then
@@ -1781,6 +2234,7 @@ EventCenter.onEvent = function(self, event, ...)
         MainFrame:RequestUpdate();
         MainFrame.PvPTalentFrame:RequestUpdate();
         MainFrame.SideTabToggle.ButtonText:SetText(DataProvider:GetCurrentSpecName());
+        CAN_USE_TALENT_UI = CanPlayerUseTalentSpecUI();
 
     elseif event == "PLAYER_ENTERING_WORLD" then
         self:UnregisterEvent(event);
@@ -1788,11 +2242,29 @@ EventCenter.onEvent = function(self, event, ...)
         self.onEvent(self, "ACTIVE_PLAYER_SPECIALIZATION_CHANGED");
         LayoutUtil:UpdatePixel();
 
+        --AddOn Compatibility
+        if C_AddOns.IsAddOnLoaded("TinyInspect") or C_AddOns.IsAddOnLoaded("TinyInspect-Reforged") then
+            MainFrame.offsetH = 328 + 2;
+        end
+
     elseif event == "UI_SCALE_CHANGED" then
         LayoutUtil:UpdatePixel();
 
     elseif event == "PLAYER_PVP_TALENT_UPDATE" then
         MainFrame.PvPTalentFrame:RequestUpdate();
+
+    elseif event == "CURSOR_CHANGED" then
+        --MainFrame.MacroForge:OnCursorChanged(...);
+
+    elseif event == "UNIT_SPELLCAST_SUCCEEDED" then
+        local spellID = select(3, ...);
+        if spellID then
+            if IsSpecializationActivateSpell(spellID) then
+                MainFrame.activationAnimDelay = 0.4;    --use delay for spec change coz game freezes shortly
+            elseif spellID == 384255 then
+                MainFrame.activationAnimDelay = 0;
+            end
+        end
     end
 
     --[[
@@ -1817,8 +2289,10 @@ EventCenter:SetScript("OnEvent", EventCenter.onEvent);
 
 if not addon.IsDragonflight() then return end;
 
+
 local ENABLE_INSPECT = false;
 local ENABLE_PAPERDOLL = false;
+local ENABLE_EQUIPMENT_MANAGER = false;
 local HookUtil = {};
 
 function HookUtil:HookInpsectFrame()
@@ -1829,7 +2303,7 @@ function HookUtil:HookInpsectFrame()
     if InspectFrame then
         self.inspectFrameHooked = true;
         InspectFrame:HookScript("OnShow", function()
-            if ENABLE_INSPECT and InspectFrame.unit then
+            if ENABLE_INSPECT and InspectFrame.unit and UnitLevel(InspectFrame.unit) >= 10 then
                 MainFrame:AnchorToInspectFrame();
                 MainFrame:Show();
                 MainFrame:ShowInspecting(InspectFrame.unit);
@@ -1849,7 +2323,7 @@ function HookUtil:HookInpsectFrame()
                 if not InspectFrame then return end;
 
                 InspectFrame:HookScript("OnShow", function()
-                    if ENABLE_INSPECT and InspectFrame.unit then
+                    if ENABLE_INSPECT and InspectFrame.unit and UnitLevel(InspectFrame.unit) >= 10 then
                         MainFrame:AnchorToInspectFrame();
                     end
                 end);
@@ -1862,7 +2336,7 @@ function HookUtil:HookInpsectFrame()
     end
 end
 
-local UnitLevel = UnitLevel;
+
 
 function HookUtil:HookPaperDoll()
     if self.paperdollHooked then return end;
@@ -1870,8 +2344,7 @@ function HookUtil:HookPaperDoll()
 
     local PaperDoll = _G["PaperDollFrame"];
     PaperDoll:HookScript("OnShow", function()
-        if ENABLE_PAPERDOLL then
-            if UnitLevel("player") < 10 then return end;
+        if ENABLE_PAPERDOLL and CAN_USE_TALENT_UI then
             MainFrame:AnchorToPaperDoll();
             MainFrame:SetInspectMode(false);
             MainFrame:Show();
@@ -1882,6 +2355,33 @@ function HookUtil:HookPaperDoll()
     PaperDoll:HookScript("OnHide", function()
         if ENABLE_INSPECT then
             MainFrame:AnchorToInspectFrame();
+        else
+            MainFrame:Hide();
+        end
+    end);
+end
+
+function HookUtil:HookEquipmentManager()
+    if self.equipmentManageHooked then return end;
+    self.equipmentManageHooked = true;
+    local f = PaperDollFrame and PaperDollFrame.EquipmentManagerPane;
+    if not f then return end;
+
+    f:HookScript("OnShow", function()
+        if ENABLE_EQUIPMENT_MANAGER and CAN_USE_TALENT_UI then
+            MainFrame:AnchorToPaperDoll();
+            MainFrame:SetInspectMode(false);
+            MainFrame:Show();
+            MainFrame:ShowActiveBuild();
+        end
+    end);
+
+    f:HookScript("OnHide", function()
+        if ENABLE_PAPERDOLL and CAN_USE_TALENT_UI then
+            MainFrame:AnchorToPaperDoll();
+            MainFrame:SetInspectMode(false);
+            MainFrame:Show();
+            MainFrame:ShowActiveBuild();
         else
             MainFrame:Hide();
         end
@@ -1922,10 +2422,60 @@ do
         end
     end
 
+    function SettingFunctions.ShowMiniTalentTreeForEquipmentManager(state, db)
+        if state == nil then
+            state = db["TalentTreeForEquipmentManager"];
+        end
+        if state then
+            ENABLE_EQUIPMENT_MANAGER = true;
+            HookUtil:HookEquipmentManager();
+        else
+            ENABLE_EQUIPMENT_MANAGER = false;
+            if MainFrame.anchor == "paperdoll" then
+                MainFrame:Hide();
+            end
+        end
+    end
+
     function SettingFunctions.SetUseClassBackground(state, db)
         if state == nil then
             state = db["TalentTreeUseClassBackground"];
         end
         MainFrame:SetUseClassBackground(state);
     end
+
+    function SettingFunctions.SetUseBiggerUI(state, db)
+        if state == nil then
+            state = db["TalentTreeBiggerUI"];
+        end
+        MainFrame:SetUseBiggerUI(state);
+    end
+
+    function SettingFunctions.SetTalentTreePosition(id, db)
+        if id == nil then
+            id = db["TalentTreeAnchor"];
+        end
+        local anchor;
+        if id == 2 then
+            anchor = "bottom";
+        else
+            anchor = "right";
+        end
+        MainFrame:SetFramePosition(anchor);
+    end
 end
+
+--[[
+local gsub = string.gsub;
+function TestEmojiEditBox_OnTextChanged(self, isUserInput)
+    if isUserInput then
+        local text = self:GetText();
+        text = gsub(text, " 1", "|cffa05548 1|r");
+        text = gsub(text, " 2", "|cffa6c7dd 2|r");
+        text = gsub(text, " 3", "|cffffd655 3|r");
+        text = gsub(text, " 4", "|cff33ffcc 4|r");
+        text = gsub(text, " 5", "|cffff931e 5|r");
+        self:SetText(text);
+    end
+end
+--]]

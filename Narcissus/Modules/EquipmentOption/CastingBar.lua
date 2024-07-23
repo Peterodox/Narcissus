@@ -211,7 +211,7 @@ function NarciCastingBarMixin:ResetUI()
     end
     if animShow then
         animShow:Hide();
-        animShow.toY = nil;
+        animShow.toY = -8;
     end
     self:StopAnimating();
     self.Shadow:SetPoint("BOTTOM", self, "BOTTOM", 0, -8);

@@ -144,8 +144,6 @@ function V:SetTab(index)
     if index == 2  then
         self:ShowSets();
     elseif index == 3 then
-        self:ShowSoulbinds();
-    elseif index == 4 then
         self:ShowChallenge();
     else
         self:ShowAttributes();
@@ -337,7 +335,6 @@ function NarciNavBarMixin:OnLoad()
         --{LocalizedName, buttonKey}
         {PRIMARY, "primary"},
         {WARDROBE_SETS, "equipmentsets"},
-        {COVENANT_PREVIEW_SOULBINDS, "covenant"},
         {Narci.L["Mythic Plus Abbrev"], "mythicplus"},
     };
 
@@ -348,17 +345,19 @@ function NarciNavBarMixin:OnLoad()
         navButton:SetPoint("TOPLEFT", container, "TOPLEFT", GAP, 0);
         if i == 1 then
             navButton:SetSelect(true);
-            ProgressTimer = CreateFrame("Frame", nil, navButton, "NarciProgressTimerTemplate");
-            ProgressTimer:SetParent(self.PrimaryFrame);
-            ProgressTimer:SetAlign(navButton, 0);
-            ProgressTimer:SetOnFinishedFunc(HideLastTab, ShowNextTab);
-            ProgressTimer:SetTimer(8, true);
+            --ProgressTimer = CreateFrame("Frame", nil, navButton, "NarciProgressTimerTemplate");
+            --ProgressTimer:SetParent(self.PrimaryFrame);
+            --ProgressTimer:SetAlign(navButton, 0);
+            --ProgressTimer:SetOnFinishedFunc(HideLastTab, ShowNextTab);
+            --ProgressTimer:SetTimer(8, true);
         end
         navButton:SetUp(tabInfo[i][1], i);
         navButton.tabFrame = self;
     end
 
     --Create conduit butons;
+
+    --[[
     local frame = NavigationBar.PrimaryFrame.ConduitContainer;
     if not frame.conduitButtons then
         frame.conduitButtons = {};
@@ -388,6 +387,7 @@ function NarciNavBarMixin:OnLoad()
             button:SetButtonSize(butonWidth, 24);
         end
     end
+    --]]
 
     NavButtonController:UpdateButtonPosition();
 
@@ -405,7 +405,7 @@ function NarciNavBarMixin:SetThemeColor(colorTable)
         colorTable = {0.8, 0.8, 0.8};
     end
     NavButtonController:SetHighlightColor(unpack(colorTable));
-    ProgressTimer:SetColor(unpack(colorTable));
+    --ProgressTimer:SetColor(unpack(colorTable));
 end
 
 function NarciNavBarMixin:SetPortraitTexture(tex, useOffset, darken)
@@ -449,17 +449,17 @@ function NarciNavBarMixin:SelectTab(tabIndex)
 
     self.PrimaryFrame:SetShown(tabIndex == 1);
     self.SetsFrame:SetShown(tabIndex == 2);
-    self.SoulbindsFrame:SetShown(tabIndex == 3);
-    self.ChallengeFrame:SetShown(tabIndex == 4);
+    --self.SoulbindsFrame:SetShown(tabIndex == 3);
+    self.ChallengeFrame:SetShown(tabIndex == 3);
 
     if tabIndex == 1 then
         self:ShowPrimary();
     elseif tabIndex == 2 then
         self:ShowSets();
     elseif tabIndex == 3 then
-        self:ShowCovenant();
-    elseif tabIndex == 4 then
         self:ShowChallenge();
+    elseif tabIndex == 4 then
+        --self:ShowChallenge();
     end
 end
 
@@ -489,9 +489,9 @@ function NarciNavBarMixin:SetSkipCovenant(state)
     end
     self.skipCovenant = state;
     if state then
-        ProgressTimer:Stop();
+        --ProgressTimer:Stop();
     else
-        ProgressTimer:Start();
+        --ProgressTimer:Start();
     end
     NavButtonController:SetButtonVisibility("covenant", not state);
 end
@@ -561,6 +561,8 @@ local function UpdateFlatConduit(row, nodeData, unlockLevel)
 end
 
 local function UpdateSoulbinds()
+    if true then return end;
+
     local data;
     local soulbindID = C_Soulbinds.GetActiveSoulbindID() or 0;
     NavigationBar.soulbindID = soulbindID;
@@ -662,9 +664,17 @@ local function UpdateButtonGroupWidth(buttons, numButtons, barWidth, maximizedMo
                 b:UseFullMask(true, 2);
             else
                 b:UseFullMask(false);
-            end 
+            end
             b:SetButtonSize(butonWidth, 24);
         end
+    end
+end
+
+function NarciNavBarMixin:GetTrayWidth()
+    if self.maximizedMode then
+        return (320 - 48);
+    else
+        return 240
     end
 end
 
@@ -675,32 +685,31 @@ function NarciNavBarMixin:SetMaximizedMode(state)
     self.maximizedMode = state;
 
     local barWidth;
+
     if state then
         barWidth = 320;
     else
         barWidth = 240;
     end
+
     self:SetWidth(barWidth);
     self.OverlayFrame.PortraitShadow:SetShown(state);
     self.OverlayFrame.Portrait:SetShown(state);
 
-    local effectiveWidth;
-    if state then
-        effectiveWidth = barWidth - 48;
-    else
-        effectiveWidth = barWidth;
-    end
-    self.OverlayFrame.Divider:SetWidth(effectiveWidth);
+    local trayWidth = self:GetTrayWidth();
+    self.OverlayFrame.Divider:SetWidth(trayWidth);
 
-    UpdateButtonGroupWidth(self.PrimaryFrame.ConduitContainer.conduitButtons, MAX_CONDUITS, effectiveWidth, state);
-    UpdateButtonGroupWidth(self.PrimaryFrame.TalentContainer.talentButtons, 7, effectiveWidth, state);
+    self.PrimaryFrame.TalentContainer:RequestUpdate();
+
+    --UpdateButtonGroupWidth(self.PrimaryFrame.ConduitContainer.conduitButtons, MAX_CONDUITS, effectiveWidth, state);
+    --UpdateButtonGroupWidth(self.PrimaryFrame.TalentContainer.talentButtons, 7, effectiveWidth, state);
 end
 
 function NarciNavBarMixin:PauseTimer(state)
     if state then
-        ProgressTimer:Pause();
+        --ProgressTimer:Pause();
     else
-        ProgressTimer:Resume();
+        --ProgressTimer:Resume();
     end
 end
 

@@ -17,7 +17,7 @@ local After = C_Timer.After;
 local FadeFrame = NarciFadeUI.Fade;
 local L = Narci.L;
 
-local GetItemInfoInstant = GetItemInfoInstant;
+local GetItemInfoInstant = C_Item.GetItemInfoInstant;
 
 local TRY_ON_CHECK = false;
 --[[
@@ -1169,7 +1169,7 @@ function NarciWeaponNicheMixin:OnClick(mouseButton)
                 --DressUpModel
                 --temp fix for 9.1
                 if not IsItemValidForTryOn(self.itemID) then
-                    local itemInfo = GetItemInfo(self.itemID);
+                    local itemInfo = C_Item.GetItemInfo(self.itemID);
                     if not itemInfo then
                         AlertUtil:SetReason(4);
                         hasReason = true;
@@ -1412,10 +1412,10 @@ function NarciWeaponBrowserMixin:Open()
         --Enable Database
         After(0.2, function()
             local addOnName = "Narcissus_Database_Item";
-            if GetAddOnEnableState( UnitName("player"), addOnName ) == 0 then
-                EnableAddOn(addOnName);
+            if C_AddOns.GetAddOnEnableState( UnitName("player"), addOnName ) == 0 then
+                C_AddOns.EnableAddOn(addOnName);
             end
-            local loaded, reason = LoadAddOn(addOnName);
+            local loaded, reason = C_AddOns.LoadAddOn(addOnName);
         end);
     end
 end

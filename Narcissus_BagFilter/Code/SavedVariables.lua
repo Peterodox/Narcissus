@@ -1,6 +1,6 @@
 -- Based on Update --
-local VERSION = "1.0.0";
-local VERSION_NUMBER = 10000;
+local VERSION = "1.0.1";
+local VERSION_NUMBER = 10010;
 
 local TIME_SINCE_LAST_UPDATE = 0;
 do

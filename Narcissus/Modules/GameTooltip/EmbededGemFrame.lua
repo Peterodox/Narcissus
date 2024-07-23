@@ -1,5 +1,8 @@
-local GetItemInfoInstant = GetItemInfoInstant;
-local NarciAPI = NarciAPI;
+local _, addon = ...
+
+local GetItemInfoInstant = C_Item.GetItemInfoInstant;
+local GetDetailedItemLevelInfo = C_Item.GetDetailedItemLevelInfo;
+local GemDataProvider = addon.GemDataProvider;
 
 local PADDING = 24;
 local ICON_SIZE = 16;
@@ -24,13 +27,19 @@ function NarciEquipmentTooltipGemFrameMixin:SetSocketInfo(socketInfo)
     if socketInfo then
         local numGems = #socketInfo;
         self.numGems = numGems;
+        local maxWidth = 0;
+        local width;
         for i = 1, numGems do
-            self:SetGemEffect(i, unpack(socketInfo[i]))
+            width = self:SetGemEffect(i, unpack(socketInfo[i]));
+            if width > maxWidth then
+                maxWidth = width;
+            end
         end
         self:Show();
         local frameHeight = self:GetTop() - self.texts[numGems]:GetBottom();
         self:SetHeight(frameHeight);
-        return true, frameHeight
+        maxWidth = maxWidth + TEXT_OFFSET;
+        return true, frameHeight, maxWidth
     end
 end
 
@@ -73,7 +82,6 @@ function NarciEquipmentTooltipGemFrameMixin:SetGemEffect(n, texture, gemName, ge
         self.texts[n]:SetPoint("TOPLEFT", self.texts[n - 1], "BOTTOMLEFT", 0, -12);
     end
 
-    self.texts[n]:SetText(gemEffect);
     self.icons[n]:SetTexture(texture);
     --print(gemEffect .." "..texture)
     if gemLink then
@@ -82,15 +90,28 @@ function NarciEquipmentTooltipGemFrameMixin:SetGemEffect(n, texture, gemName, ge
         self.icons[n]:Show();
         self.borders[n]:Show();
         self.texts[n]:Show();
+
+        local itemID = GetItemInfoInstant(gemLink);
+        if GemDataProvider:IsItemPrimordialStone(itemID) then
+            local itemLevel = GetDetailedItemLevelInfo(gemLink);
+            if itemLevel and gemEffect then
+                gemEffect = string.gsub(gemEffect, "\n", "\n".."|CFFFFD100"..itemLevel.."|r  ", 1);
+            end
+        end
     else
         self.texts[n]:SetTextColor(0.5, 0.5, 0.5);
         self.icons[n]:Show();
         self.borders[n]:Hide();
         self.texts[n]:Show();
     end
+
+    self.texts[n]:SetText(gemEffect);
+
     if not gemEffect then
         self:GetParent():QueryData();
     end
+
+    return self.texts[n]:GetWrappedWidth() or 0
 end
 
 function NarciEquipmentTooltipGemFrameMixin:UpdateAnchor()

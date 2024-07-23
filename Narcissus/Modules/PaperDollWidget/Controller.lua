@@ -1,10 +1,12 @@
 --[[ includes: (order)
 
-    1.Domination
-    2.Class Set
-
+    1. Domination (Deprecated)
+    2. Class Set
+    3. Remix Gem
 --]]
 
+local _, addon = ...
+local IsModuleEnabled = addon.IsModuleEnabled;
 local Controller, WidgetContainer;
 
 
@@ -13,7 +15,7 @@ local function Delay_OnUpdate(self, elapsed)
     if self.delay >= 0 then
         self.delay = nil;
         self:SetScript("OnUpdate", nil);
-        self:Update();
+        self:UpdateWidgets();
     end
 end
 
@@ -31,7 +33,7 @@ function NarciPaperDollWidgetControllerMixin:Init()
         if self.isEnabled then
             self:ListenEvents(true);
             WidgetContainer:Show();
-            self:Update();
+            self:UpdateWidgets();
         end
     end);
 
@@ -49,7 +51,7 @@ function NarciPaperDollWidgetControllerMixin:Init()
             if self.isEnabled and parentFrame:IsVisible() then
                 self:ListenEvents(true);
                 WidgetContainer:Show();
-                self:Update();
+                self:UpdateWidgets();
             end
         end);
     end
@@ -58,15 +60,37 @@ function NarciPaperDollWidgetControllerMixin:Init()
     NarciPaperDollWidgetControllerMixin.Init = nil;
 end
 
+local function UpdateParent()
+    if GwDressingRoomGear then
+        local parent = GwDressingRoomGear;
+        WidgetContainer:SetParent(parent);
+        parent:HookScript("OnShow", function()
+            if Controller.isEnabled then
+                Controller:ListenEvents(true);
+                WidgetContainer:Show();
+                Controller:UpdateWidgets();
+            end
+        end);
+    
+        parent:HookScript("OnHide", function()
+            Controller:ListenEvents(false);
+        end);
+    end
+end
+
 local function UpdatePosition_OnShow()
     --adjustment for serveral addons/WA
     if CharacterStatsPaneilvl then
         --Chonky Character Sheet    wago.io/bRl2gJIgz
         WidgetContainer:ClearAllPoints();
-        WidgetContainer:SetPoint("CENTER", CharacterStatsPaneilvl, "RIGHT", 12, 0);     --anchor changed after swapping items, IDK why
-    elseif IsAddOnLoaded("DejaCharacterStats") then
+        WidgetContainer:SetPoint("CENTER", CharacterStatsPaneilvl, "RIGHT", 22, 0);     --anchor changed after swapping items, IDK why
+    elseif C_AddOns.IsAddOnLoaded("DejaCharacterStats") then
         WidgetContainer:ClearAllPoints();
         WidgetContainer:SetPoint("CENTER", PaperDollFrame, "TOPRIGHT", -1, -84);
+    elseif GwDressingRoomGear then   --GW2 UI
+        WidgetContainer:SetParent(GwDressingRoomGear);
+        WidgetContainer:ClearAllPoints();
+        WidgetContainer:SetPoint("CENTER", GwDressingRoomGear, "TOPRIGHT", 12, -60);
     elseif CharacterFrame and CharacterStatsPane and CharacterStatsPane.ItemLevelFrame then
         --A universal approach to align to the ItemLevelFrame center    (DejaCharStats)
         local anchor = CharacterStatsPane.ItemLevelFrame;
@@ -97,6 +121,9 @@ function NarciPaperDollWidgetControllerMixin:Enable()
 
     self.isEnabled = true;
     NarcissusDB.PaperDollWidget = true;
+
+
+    UpdateParent();
 end
 
 
@@ -118,13 +145,38 @@ function NarciPaperDollWidgetControllerMixin:SetEnabled(state)
     end
 end
 
-function NarciPaperDollWidgetControllerMixin:AddWidget(newWidget, index)
+function NarciPaperDollWidgetControllerMixin:UpdateIfEnabled()
+    if self.isEnabled and self:IsVisible() then
+        self:UpdateWidgets();
+    end
+end
+
+function NarciPaperDollWidgetControllerMixin:AddWidget(newWidget, index, dbKey)
     if not self.widgets then
         self.widgets = {};
     end
-    self.widgets[index] = newWidget;
+
+    if self.widgets[index] then
+        print(string.format("Narcissus: Widget #%s %s already exisit!", index, dbKey or "Unnamed"));
+    else
+        self.widgets[index] = newWidget;
+    end
+
     newWidget.parent = WidgetContainer;
+    newWidget.dbKey = dbKey;
     newWidget:ResetAnchor();
+end
+
+function NarciPaperDollWidgetControllerMixin:RemoveWidget(removedWidget)
+    for index, widget in pairs(self.widgets) do
+        if widget == removedWidget then
+            self.widgets[index] = nil;
+            widget:Hide();
+            widget:ClearAllPoints();
+            widget:SetParent(nil);
+            break
+        end
+    end
 end
 
 function NarciPaperDollWidgetControllerMixin:ResetWidgetPosition()
@@ -152,11 +204,15 @@ function NarciPaperDollWidgetControllerMixin:OnEvent(event, ...)
     self.delay = -0.1;
 end
 
-function NarciPaperDollWidgetControllerMixin:Update()
-    if self.widgets[1]:Update() then
-        self.widgets[2]:Hide();
-    else
-        self.widgets[2]:Update();
+function NarciPaperDollWidgetControllerMixin:UpdateWidgets()
+    local isShown;
+
+    for _, widget in pairs(self.widgets) do
+        if IsModuleEnabled(widget.dbKey) then
+            isShown = widget:Update();
+        else
+            widget:Hide();
+        end
     end
 end
 
@@ -190,13 +246,14 @@ end
 
 local COLORS = {
     [1] = {0.25, 0.83, 0.66};    --Progenitor Class Set (turquoise)
+    [2] = {0.94, 0.6, 0};    --Yellow Ember
 };
 
 
 NarciPaperDollItemHighlightMixin = {};
 
 function NarciPaperDollItemHighlightMixin:OnLoad()
-    self:SetColor(1);
+    self:SetColor(2);
     self:SetScript("OnLoad", nil);
 end
 
@@ -246,12 +303,21 @@ end
 
 
 do
-    local _, addon = ...
-
     function addon.SettingFunctions.EnablePaperDollWidget(state, db)
         if state == nil then
             state = db["PaperDollWidget"];
         end
         Controller:SetEnabled(state);
+    end
+end
+
+
+do
+    --ChonkyCharacterSheet supports this widget in our addon that we no longer use
+    local widgetName = "NarciCharacterFrameDominationIndicator";
+    if not _G[widgetName] then
+        local f = CreateFrame("Frame", widgetName, UIParent);
+        f:SetSize(4, 4);
+        f:Hide();
     end
 end

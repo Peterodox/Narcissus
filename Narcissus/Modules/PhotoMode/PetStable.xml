@@ -116,7 +116,7 @@
             </Layer>
 		</Layers>
 		<Frames>
-			<Frame inherits="NarciGreyBorderTemplate" frameLevel="85"/>
+			<Frame inherits="NarciPhotoModeUIBorderTemplate" frameLevel="85"/>
 
             <Frame parentKey="LoadingIndicator" frameLevel="84" hidden="true" enableMouse="true">
                 <Size x="192"/>

@@ -1,5 +1,6 @@
 <Ui xsi:schemaLocation="http://www.blizzard.com/wow/ui/..\FrameXML\UI.xsd">
     <!-- © 2021 Peter Yu All Rights Reserved -->
+    <Script file="Math.lua"/>
     <Script file="Easing.lua"/>
     <Script file="TimeUtil.lua"/>
     <Script file="FadeFrame.lua"/>
@@ -8,13 +9,19 @@
     <Script file="Processor.lua"/>
     <Script file="Color.lua"/>
     <Script file="ScrollFrame.lua"/>
+    <Script file="ItemCache.lua"/>
+
     <Script file="TooltipParser.lua"/>
-    <Script file="TooltipParser_Old.lua"/>
+    <Script file="TooltipParser_Pre_10_1.lua"/>
+    <Script file="TooltipParser_Pre_10_0.lua"/>
+
     <Script file="TransmogDataProvider.lua"/>
     <Script file="CypherEquipment.lua"/>
     <Script file="CharacterProfile.lua"/>
     <Script file="CustomChatLink.lua"/>
     <Script file="UniversalFont.lua"/>
+
+    <Script file="Timerunning.lua"/>
 
     <!--Script file="Utilities.lua"/-->
 </Ui>

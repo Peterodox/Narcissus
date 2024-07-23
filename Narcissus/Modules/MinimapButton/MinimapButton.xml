@@ -163,7 +163,7 @@
 						</Texture>
 					</Layer>
 					<Layer level="OVERLAY">
-						<FontString inherits="NarciDisabledFont" justifyH="CENTER" justifyV="MIDDLE" parentKey="Version" text="NARCI_VERSION_INFO">
+						<FontString inherits="NarciDisabledFont" justifyH="CENTER" justifyV="MIDDLE" parentKey="Version">
 							<Color r="0.5" g="0.5" b="0.5"/>
 							<Anchors>
 								<Anchor point="CENTER" relativeKey="$parent.Bottom" relativePoint="TOP" y="-40"/>

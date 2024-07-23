@@ -53,7 +53,7 @@ function NarciAchievementTabButtonMixin:Deselect()
 end
 
 function NarciAchievementTabButtonMixin:OnClick()
-    
+
 end
 
 function NarciAchievementTabButtonMixin:ShowPushedTexture()

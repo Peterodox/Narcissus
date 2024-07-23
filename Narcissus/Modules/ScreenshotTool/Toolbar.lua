@@ -8,6 +8,8 @@ local SetTrackingPets = addon.TransitionAPI.SetTrackingPets;
 
 local outSine = addon.EasingFunctions.outSine;
 
+local InCombatLockdown = InCombatLockdown;
+
 
 local MainFrame;
 local ToolbarButtons = {};
@@ -92,20 +94,20 @@ end
 ---Set Graphics Settings to Ultra---
 local CVAR_GRAPHICS_BACKUP = {};
 local CVAR_GRAPHICS_VALUES = {
-	["graphicsTextureResolution"] = 3,
-	["graphicsTextureFiltering"] = 6,
-	["graphicsProjectedTextures"] = 2,
+	["graphicsTextureResolution"] = 2,
+	["graphicsTextureFiltering"] = 5,
+	["graphicsProjectedTextures"] = 1,
 
-	["graphicsViewDistance"] = 10,
-	["graphicsEnvironmentDetail"] = 10,
-	["graphicsGroundClutter"] = 10,
+	["graphicsViewDistance"] = 9,
+	["graphicsEnvironmentDetail"] = 9,
+	["graphicsGroundClutter"] = 9,
 
-	["graphicsShadowQuality"] = 6,
-	["graphicsLiquidDetail"] = 4,
-	["graphicsSunshafts"] = 3,
+	["graphicsShadowQuality"] = 5,
+	["graphicsLiquidDetail"] = 3,
+	["graphicsComputeEffects"] = 4,
 	["graphicsParticleDensity"] = 5,
-	["graphicsSSAO"] = 5,
-	["graphicsDepthEffects"] = 4,
+	["graphicsSSAO"] = 4,
+	["graphicsDepthEffects"] = 3,
 	--["graphicsLightingQuality"] = 3,
 	["lightMode"] = 2,
     ["ffxAntiAliasingMode"] = 2,    --FXAA High
@@ -132,6 +134,9 @@ local CVAR_UNIT_NAME_VALUES = {			--Unit Name CVars
 	["chatBubbles"] = 0,
 	["floatingCombatTextCombatDamage"] = 0,
 	["floatingCombatTextCombatHealing"] = 0,
+
+    ["SoftTargetEnemy"] = 1,
+    ["SoftTargetInteract"] = 1,
 };
 
 
@@ -298,6 +303,8 @@ local function HideTextsButton_OnClick(self)
 end
 
 local function HideTextsButton_OnInit(self)
+    if InCombatLockdown() then return end;
+
     self.isOn = NarcissusDB.HideTextsWithUI;
 
     if self.isOn then
@@ -340,7 +347,9 @@ local function CameraButton_OnClick(self)
         self.isOn = nil;
     end
 
-    CVarUtil:SetCameraStatus(self.isOn);
+    if (not Narci.groupPhotoMode) then
+        CVarUtil:SetCameraStatus(self.isOn);
+    end
 
     self:UpdateIcon();
 end
@@ -400,6 +409,10 @@ local Layouts = {
 
     Blizzard = {"Camera", "Emote", "HideTexts", "TopQuality", "Location",
         customScale = 1,
+    },
+
+    PhotoMode = {"Mog", "Emote", "HideTexts", "TopQuality", "Camera",
+        showSwitch = true,
     },
 };
 
@@ -596,7 +609,7 @@ end
 
 local function ToolbarButton_OnEnter(self)
     MainFrame:OnEnter();
-    MainFrame.Tooltip:ShowTooltip(self);
+    MainFrame.Tooltip:ShowToolbarTooltip(self);
 end
 
 local function ToolbarButton_OnLeave(self)
@@ -637,7 +650,6 @@ end
 
 function NarciScreenshotToolbarButtonMixin:OnMouseDown()
     self.Icon:SetSize(36, 36);
-    MainFrame.Tooltip:HideTooltip();
 end
 
 function NarciScreenshotToolbarButtonMixin:OnMouseUp()
@@ -866,9 +878,6 @@ function NarciScreenshotToolbarMixin:SetLayout(layoutName)
                 self.PreferenceToggle.scriptNotSet = nil;
                 self.PreferenceToggle:SetScript("OnEnter", ToolbarButton_OnEnter);
                 self.PreferenceToggle:SetScript("OnLeave", ToolbarButton_OnLeave);
-                self.PreferenceToggle:SetScript("OnMouseDown", function()
-                    MainFrame.Tooltip:HideTooltip();
-                end);
             end
         end
     else
@@ -1035,6 +1044,7 @@ function NarciScreenshotToolbarMixin:OnShow()
     self:RegisterEvent("PLAYER_QUITING");
     self:RegisterEvent("PLAYER_CAMPING");
     self:RegisterEvent("SCREENSHOT_STARTED");
+    self:RegisterEvent("PLAYER_REGEN_DISABLED");
 end
 
 function NarciScreenshotToolbarMixin:OnHide()
@@ -1042,6 +1052,7 @@ function NarciScreenshotToolbarMixin:OnHide()
     self:UnregisterEvent("PLAYER_QUITING");
     self:UnregisterEvent("PLAYER_CAMPING");
     self:UnregisterEvent("SCREENSHOT_STARTED");
+    self:UnregisterEvent("PLAYER_REGEN_DISABLED");
     self:FadeOut(true);
     self:UseLowerLevel(false);
 end
@@ -1049,6 +1060,13 @@ end
 function NarciScreenshotToolbarMixin:OnEvent(event, ...)
     if event == "SCREENSHOT_STARTED" then
         self:FadeOut(true);
+    elseif event == "PLAYER_REGEN_DISABLED" then
+        local toolbarButton = GetToolbarButtonByButtonType("HideTexts");
+        if toolbarButton and CVarUtil:IsCVarChanged("HideTexts") then
+            CVarUtil:SetHideTextStatus(false);
+            toolbarButton.isOn = false;
+            toolbarButton:UpdateIcon();
+        end
     else
         self:OnExit();
     end

@@ -7,7 +7,7 @@ local tinsert = table.insert;
 
 local GetSpecialization = GetSpecialization;
 local GetSpecializationInfo = GetSpecializationInfo;
-local GetItemInfoInstant = GetItemInfoInstant;
+local GetItemInfoInstant = C_Item.GetItemInfoInstant;
 
 local SLOT_PRIORITY = {
     --[slotID] = 1,  --(1 high priority, Show red glow) (0 low just a text says no enchant) (nil/false, don't show alert)
@@ -30,12 +30,13 @@ local SLOT_PRIORITY = {
 local SLOT_PRIORITY_STR = {
     --primary stats: Strengh
     [5] = 1,
+    [6] = 0,
+    [7] = 1,
     [8] = 0,
     [9] = 0,
-    [10] = 1,
     [11] = 1,
     [12] = 1,
-    [15] = 1,
+    [15] = 0,
     [16] = 1,
     [17] = 1,
 };
@@ -43,12 +44,13 @@ local SLOT_PRIORITY_STR = {
 local SLOT_PRIORITY_AGI = {
     --primary stats: Agility
     [5] = 1,
-    [8] = 1,
+    [6] = 0,
+    [7] = 1,
+    [8] = 0,
     [9] = 0,
-    [10] = 0,
     [11] = 1,
     [12] = 1,
-    [15] = 1,
+    [15] = 0,
     [16] = 1,
     [17] = 1,
 };
@@ -56,16 +58,21 @@ local SLOT_PRIORITY_AGI = {
 local SLOT_PRIORITY_INT = {
     --primary stats: Intellect
     [5] = 1,
+    [6] = 0,
+    [7] = 1,
     [8] = 0,
-    [9] = 1,
-    [10] = 0,
+    [9] = 0,
     [11] = 1,
     [12] = 1,
-    [15] = 1,
+    [15] = 0,
     [16] = 1,
     [17] = 1,
 };
 
+local NO_FLASH_ITEMS = {
+    --Disable flash for some items with special border art.
+    [203460] = true,
+};
 
 local SharedUpdateFrame;
 
@@ -149,7 +156,7 @@ function SlotButtonOverlayUtil:IsSlotValidForEnchant(slotID, itemID)
 end
 
 function SlotButtonOverlayUtil:ShowEnchantAlert(slotButton, slotID, itemID)
-    if self.enabled then
+    if self.enabled and itemID and not NO_FLASH_ITEMS[itemID] then
         if SLOT_PRIORITY[slotID] == 1 then  --self:IsSlotValidForEnchant(slotID, itemID) - already run
             local f = slotButton.slotOverlay or self:GetOverlay();
             f:ClearAllPoints();

@@ -1,15 +1,16 @@
 local _, addon = ...
 local TransitionAPI = addon.TransitionAPI;
+local RoundToDigit = addon.Math.RoundToDigit;
 
 local C_Item = C_Item;
 local After = C_Timer.After;
-local GetItemInfo = GetItemInfo;
-local GetItemInfoInstant = GetItemInfoInstant;
+local GetItemInfo = C_Item.GetItemInfo;
+local GetItemInfoInstant = C_Item.GetItemInfoInstant;
 local UIFrameFadeIn = UIFrameFadeIn;
 local UIFrameFadeOut = UIFrameFadeOut;
 local FadeFrame = NarciFadeUI.Fade;
 local PlaySound = PlaySound;
-local _, _, _, tocversion = GetBuildInfo();
+local GetMouseFocus = addon.TransitionAPI.GetMouseFocus;
 
 local find = string.find;
 local match = string.match;
@@ -32,20 +33,24 @@ local NarciAPI = NarciAPI;
 
 local SecureContainer = CreateFrame("Frame", "NarciSecureFrameContainer");
 SecureContainer:Hide();
-------------------------
---Redirect API for 9.0--
-------------------------
-tocversion = tonumber(tocversion);
 
-ExpansionTransitionBackdropTemplateMixin = {};
-
-if BackdropTemplateMixin then
-    ExpansionTransitionBackdropTemplateMixin = CreateFromMixins(BackdropTemplateMixin);
-end
 
 --GetSlotVisualID
+local IGNORED_MOG_SLOT = {
+    [11] = true,
+    [12] = true,
+    [13] = true,
+    [14] = true,
+};
+
+local function IsSlotValidForTransmog(slotID)
+    return (slotID) and (not IGNORED_MOG_SLOT[slotID]) and slotID ~= 2
+end
+NarciAPI.IsSlotValidForTransmog = IsSlotValidForTransmog;
+
+
 local function NarciAPI_GetSlotVisualID(slotID)
-    if (slotID > 10 and slotID < 15) then
+    if IGNORED_MOG_SLOT[slotID] then
         --slotID = 2 ~ Use neck to show right shoulder
         return 0, 0;
     end
@@ -358,7 +363,7 @@ Narci_FontColor = {
     ["Corrupt"] = {0.584, 0.428, 0.82, "|cff946dd1"},
 };
 
-local customQualityColors= {
+local CustomQualityColors= {
 	[0] = "9d9d9d",	--Poor
 	[1] = "ffffff",	--Common
 	[2] = "1eff00",	--Uncommon
@@ -371,15 +376,15 @@ local customQualityColors= {
 	[9] = "ffffff",
 };
 
-for index, hex in pairs(customQualityColors) do
-	customQualityColors[index] = NarciAPI_ConvertHexColorToRGB(hex, true);
+for index, hex in pairs(CustomQualityColors) do
+	CustomQualityColors[index] = NarciAPI_ConvertHexColorToRGB(hex, true);
 end
 
 local function GetCustomQualityColor(itemQuality)
-    if (not itemQuality) or (not customQualityColors[itemQuality]) then
+    if (not itemQuality) or (not CustomQualityColors[itemQuality]) then
         itemQuality = 1;
     end
-    return customQualityColors[itemQuality][1], customQualityColors[itemQuality][2], customQualityColors[itemQuality][3];
+    return CustomQualityColors[itemQuality][1], CustomQualityColors[itemQuality][2], CustomQualityColors[itemQuality][3];
 end
 
 NarciAPI.GetItemQualityColor = GetCustomQualityColor;
@@ -393,10 +398,10 @@ end
 NarciAPI.GetItemQualityColorByItemID = GetCustomQualityColorByItemID;
 
 local function GetCustomQualityHexColor(itemQuality)
-    if (not itemQuality) or (not customQualityColors[itemQuality]) then
+    if (not itemQuality) or (not CustomQualityColors[itemQuality]) then
         itemQuality = 1;
     end
-    return customQualityColors[itemQuality][4]
+    return CustomQualityColors[itemQuality][4]
 end
 
 NarciAPI.GetItemQualityHexColor = GetCustomQualityHexColor;
@@ -404,81 +409,13 @@ NarciAPI.GetItemQualityHexColor = GetCustomQualityHexColor;
 
 NarciAPI.GetItemQualityColorTable = function()
     local newTable = {};
-    for k, v in pairs(customQualityColors) do
+    for k, v in pairs(CustomQualityColors) do
         newTable[k] = v;
     end
     return newTable;
 end
 
-local gemBorderTexture = {
-    filePrefix = "Interface/AddOns/Narcissus/Art/GemBorder/Dark/",
-	[0]  = "White",			--Empty
-	[1]  = "Primary",	--Kraken's Eye
-	[2]  = "Green",
-	[3]  = "Primary",	--Prismatic
-	[4]  = "Primary",	--Meta
-	[5]  = "Orange",	--Orange
-	[6]  = "Purple",
-    [7]  = "Yellow",	--Yellow
-	[8]  = "Blue",		--Blue
-	[9]  = "Yellow",	--Empty
-	[10] = "Red",		--Red
-	[11] = "White",			--Artifact
-    [12] = "Crystallic",
-};
 
-local specialGemBoder = {
-    [153714] = 10,
-    [173125] = 10,
-    [153715] = 2,
-    [169220] = 2,
-    [173126] = 2,
-    [168636] = 1,
-    [168637] = 1,
-    [168638] = 1,
-    [153707] = 1,
-    [153708] = 1,
-    [153709] = 1,
-    [189723] = 12,
-    [189722] = 12,
-    [189732] = 12,
-    [189560] = 12,
-    [189763] = 12,
-    [189724] = 12,
-    [189725] = 12,
-    [189726] = 12,
-    [189762] = 12,
-    [189727] = 12,
-    [189728] = 12,
-    [189729] = 12,
-    [189730] = 12,
-    [189731] = 12,
-    [189764] = 12,
-    [189733] = 12,
-    [189734] = 12,
-    [189760] = 12,
-    [189761] = 12,
-    [189735] = 12,
-};
-
-local function GetGemBorderTexture(itemSubClassID, itemID)
-    local index = (itemID and specialGemBoder[itemID]) or itemSubClassID or 0;
-    return gemBorderTexture.filePrefix..gemBorderTexture[index], index
-end
-
-local function SetBorderTheme(theme)
-    --1.1.2 Override
-    theme = "Dark";
-
-    if theme == "Bright" then
-        gemBorderTexture.filePrefix = "Interface/AddOns/Narcissus/Art/GemBorder/Bright/";
-    elseif theme == "Dark" then
-        gemBorderTexture.filePrefix = "Interface/AddOns/Narcissus/Art/GemBorder/Dark/";
-    end
-end
-
-NarciAPI.SetBorderTheme = SetBorderTheme;
-NarciAPI.GetGemBorderTexture = GetGemBorderTexture;
 
 --------------------
 ------Item API------
@@ -521,8 +458,8 @@ local EnchantInfo = Narci.EnchantData;
 local DoesItemExist = C_Item.DoesItemExist;
 local GetCurrentItemLevel = C_Item.GetCurrentItemLevel;
 local GetItemLink = C_Item.GetItemLink
-local GetItemStats = GetItemStats;
-local GetItemGem = GetItemGem;
+local GetItemStats = C_Item.GetItemStats;
+local GetItemGem = C_Item.GetItemGem;
 
 function NarciAPI_GetItemStats(itemLocation)
     local statsTable = {};
@@ -623,17 +560,64 @@ function NarciAPI_GetItemStatsFromSlot(slotID)
 end
 
 
-local function GetItemBagPosition(itemID)
-    for bagID = 0, (NUM_BAG_SLOTS or 4) do
-        for slotID = 1, GetContainerNumSlots(bagID) do
-            if(GetContainerItemID(bagID, slotID) == itemID) then
-                return bagID, slotID
+do
+    local GetContainerNumSlots = (C_Container and C_Container.GetContainerNumSlots) or GetContainerNumSlots;
+    local GetContainerItemID = (C_Container and C_Container.GetContainerItemID) or GetContainerItemID;
+    local GetContainerItemLink = (C_Container and C_Container.GetContainerItemLink) or GetContainerItemLink;
+    local GetInventoryItemID = GetInventoryItemID;
+    local GetItemCount = C_Item.GetItemCount;
+
+    local function GetItemBagPosition(itemID, findHighestItemLevel)
+        if findHighestItemLevel then
+            local topLevel = -1;
+            local level;
+            local GetDetailedItemLevelInfo = GetDetailedItemLevelInfo;
+            local id1, id2;
+
+            for bagID = 0, (NUM_BAG_SLOTS or 4) do
+                for slotID = 1, GetContainerNumSlots(bagID) do
+                    if(GetContainerItemID(bagID, slotID) == itemID) then
+                        level = GetDetailedItemLevelInfo( GetContainerItemLink(bagID, slotID) ) or 0;
+                        if level > topLevel then
+                            id1, id2 = bagID, slotID;
+                        end
+                    end
+                end
+            end
+
+            return id1, id2;
+        else
+            for bagID = 0, (NUM_BAG_SLOTS or 4) do
+                for slotID = 1, GetContainerNumSlots(bagID) do
+                    if(GetContainerItemID(bagID, slotID) == itemID) then
+                        return bagID, slotID
+                    end
+                end
             end
         end
     end
-end
+    NarciAPI.GetItemBagPosition = GetItemBagPosition;
 
-NarciAPI.GetItemBagPosition = GetItemBagPosition;
+    local function GetItemPositionByItemID(itemID)
+        local count = GetItemCount(itemID);
+
+        if count and count > 0 then
+            local id;
+            for slotID = 1, 19 do
+                id = GetInventoryItemID("player", slotID);
+                if id and id == itemID then
+                    return "inventory", slotID
+                end
+            end
+
+            local bagID, slotID = GetItemBagPosition(itemID);
+            if bagID then
+                return "container", bagID, slotID
+            end
+        end
+    end
+    NarciAPI.GetItemPositionByItemID = GetItemPositionByItemID;
+end
 
 
 --------------------
@@ -742,7 +726,7 @@ function NarciUIMixin:SetColor(r, g, b)
     end
 end
 
-local SCREEN_WIDTH, SCREEN_HEIGHT = GetPhysicalScreenSize();
+local SCREEN_WIDTH, SCREEN_HEIGHT = GetPhysicalScreenSize();    --Assume players don't change screen resolution (triggers DISPLAY_SIZE_CHANGED)
 
 local function GetPixelForWidget(widget, pixelSize)
     local scale = widget:GetEffectiveScale();
@@ -777,6 +761,21 @@ end
 
 NarciAPI.GetTexturePixelSize = GetTexturePixelSize;
 
+local function GetBestSizeForPixel(size, pixel)
+    return floor(size/pixel + 0.5) * pixel
+end
+
+NarciAPI.GetBestSizeForPixel = GetBestSizeForPixel;
+
+local function GetObjectScreenSize(objectSize, scale)
+    local _, screenHeight = GetPhysicalScreenSize();
+    if not scale then
+        scale = UIParent:GetEffectiveScale();
+    end
+    return objectSize / ((768/SCREEN_HEIGHT)/scale)
+end
+
+NarciAPI.GetObjectScreenSize = GetObjectScreenSize;
 
 function NarciAPI_OptimizeBorderThickness(self)
     if not self.HasOptimized then
@@ -910,6 +909,31 @@ local function SetScrollRange(scrollFrame, range)
     scrollFrame.range = range;
 end
 
+
+local SmoothScrollFrameMixin = {};
+
+function SmoothScrollFrameMixin:GetEndPosition()
+    return self.SmoothScrollContainer.endValue;
+end
+
+function SmoothScrollFrameMixin:SnapToEndPosition()
+    local offset = self:GetEndPosition();
+    self.SmoothScrollContainer:Hide();
+    self.scrollBar:SetValue(offset);
+end
+
+function SmoothScrollFrameMixin:SnapToOffset(offset)
+    if self.range and offset > self.range then
+        offset = self.range;
+    elseif offset < 0 then
+        offset = 0;
+    end
+    self.SmoothScrollContainer:Hide();
+    self.scrollBar:SetValue(offset);
+    self.SmoothScrollContainer.endValue = offset;
+end
+
+
 function NarciAPI_SmoothScroll_Initialization(scrollFrame, updatedList, updateFunc, deltaRatio, speedRatio, minOffset, positionFunc, onScrollFinishedFunc)
     if updateFunc then
         scrollFrame.update = updateFunc;
@@ -960,6 +984,10 @@ function NarciAPI_SmoothScroll_Initialization(scrollFrame, updatedList, updateFu
     end
 
     scrollFrame.SetScrollRange = SetScrollRange;
+
+    for k, v in pairs(SmoothScrollFrameMixin) do
+        scrollFrame[k] = v;
+    end
 end
 
 function NarciAPI_ApplySmoothScrollToScrollFrame(scrollFrame, deltaRatio, speedRatio, positionFunc, buttonHeight, range, parentScrollFunc, onScrollFinishedFunc)
@@ -1295,11 +1323,7 @@ function NarciAPI_RunDelayedFunction(frame, delay, func)
 end
 
 -----Alert Frame-----
-if BackdropTemplateMixin then
-    NarciAlertFrameMixin = CreateFromMixins(BackdropTemplateMixin);
-else
-    NarciAlertFrameMixin = {};
-end
+NarciAlertFrameMixin = {};
 
 function NarciAlertFrameMixin:AddShakeAnimation(frame)
     if frame.animError then return; end;
@@ -1345,9 +1369,9 @@ function NarciAlertFrameMixin:SetAnchor(frame, offsetY, AddErrorAnimation)
 	self:Hide();
     self:ClearAllPoints();
     self:SetScale(Narci_Character:GetEffectiveScale())
-    local y = offsetY or -12;
-	self:SetPoint("BOTTOM", frame, "TOP", 0, y);
-    self:SetFrameLevel(50)
+    offsetY = offsetY or 0
+	self:SetPoint("BOTTOM", frame, "TOP", 0, offsetY);
+    self:SetFrameLevel(50);
     self.anchor = frame;
 
     if AddErrorAnimation then
@@ -1357,7 +1381,7 @@ end
 
 function NarciAlertFrameMixin:AddMessage(msg, UseErrorAnimation)
     self.Text:SetText(msg);
-    self:SetHeight(self.Background:GetHeight());
+    self:UpdateFrameSize();
     FadeFrame(self, 0.2, 1);
     local anchorFrame = self.anchor;
     if anchorFrame then
@@ -1368,6 +1392,11 @@ function NarciAlertFrameMixin:AddMessage(msg, UseErrorAnimation)
     end
 end
 
+function NarciAlertFrameMixin:UpdateFrameSize()
+    local textWidth = self.Text:GetWrappedWidth();
+    local textHeight = self.Text:GetHeight();
+    self:SetSize(textWidth + 24, textHeight + 24);
+end
 
 
 ------------------------
@@ -1578,17 +1607,31 @@ end
 --------------------
 -----Play Voice-----
 --------------------
-local _, _, raceID = UnitRace("player");
-local genderID = UnitSex("player") or 2;
-raceID = raceID or 1;
-genderID = genderID - 1;    --(2→1) Male (3→2) Female
-if raceID == 25 or raceID == 26 then
-    --Pandaren faction
-    raceID = 24;
-end
 
-local VOICE_BY_RACE = {
-    --[raceID] = { [gender] = {Error_NoTarget, } }
+local ERROR_NOTARGET, ALERT_INCOMING;
+
+do
+    local _, _, raceID = UnitRace("player");
+    local genderID = UnitSex("player") or 2;
+    raceID = raceID or 1;
+    genderID = genderID - 1;    --(2→1) Male (3→2) Female
+    if raceID == 25 or raceID == 26 then
+        --Pandaren faction
+        raceID = 24;
+    elseif raceID == 52 or raceID == 70 then
+        raceID = 52;
+    end
+
+    if raceID == 37 then    --Mechagnome
+        IGNORED_MOG_SLOT[8] = true;     --feet
+        IGNORED_MOG_SLOT[9] = true;     --wrist
+        IGNORED_MOG_SLOT[10] = true;    --hands
+    elseif raceID == 52 then    --Dracthyr
+
+    end
+
+    local VOICE_BY_RACE = {
+    --[raceID] = { [gender] = {Error_NoTarget, ALERT_INCOMING} }
 	[1] = {[1] = {1906, 2669, },
 				[2] = {2030, 2681, }},		            --1 Human 
 
@@ -1657,16 +1700,22 @@ local VOICE_BY_RACE = {
                 
 	[37] = {[1] = {143863, 143892, },
 				[2] = {144223, 144275, }},		        --37 Mechagnome!!!!
-}
 
-local ERROR_NOTARGET, ALERT_INCOMING;
-if VOICE_BY_RACE[raceID] then
-    ERROR_NOTARGET = VOICE_BY_RACE[raceID][genderID][1];
-    ALERT_INCOMING = VOICE_BY_RACE[raceID][genderID][2];
+    [52] = {[1] = {212644, 212598, },
+        [2] = {212644, 212688, }},		                --52 Dracthyr
+    };
 
+    if VOICE_BY_RACE[raceID] then
+        ERROR_NOTARGET = VOICE_BY_RACE[raceID][genderID][1];
+        ALERT_INCOMING = VOICE_BY_RACE[raceID][genderID][2];
+    end
+
+    ERROR_NOTARGET = ERROR_NOTARGET or 2030;
+    ALERT_INCOMING = ALERT_INCOMING or 2669;
+
+    wipe(VOICE_BY_RACE);
 end
-ERROR_NOTARGET = ERROR_NOTARGET or 2030;
-ALERT_INCOMING = ALERT_INCOMING or 2669;
+
 
 function Narci:PlayVoice(name)
     if name == "ERROR" then
@@ -1679,7 +1728,7 @@ end
 --Time
 --C_DateAndTime.GetCurrentCalendarTime
 
-
+local DEFAULT_ACTOR_INFO_ID = 1620; --438 Pre-DF
 local ActorIDByRace = {
     --local GenderID = UnitSex(unit);   2 Male 3 Female
 	--[raceID] = {male actorID, female actorID, bustOffsetZ_M, bustOffsetZ_F},
@@ -1705,10 +1754,95 @@ local ActorIDByRace = {
     [70] = {1554, 1554},    -- Dracthyr
 };
 
+local ActorIDByModelFileID = {
+    --/dump DressUpFrame.ModelScene:GetPlayerActor():GetModelFileID()
+    [4207724] = 1653,   --Dracthyr 1554
+    [4395382] = 1654,   --Visage M Dracthyr-alt 1583
+    [4220488] = 1654,   --Visage F
+
+    [878772] = 1623,    --Dwarf M
+    --[950080] = Dwarf F
+    [1890765] = 1644,   --darkirondwarf-male
+    --[1890763] = DarkIron F
+
+    [1721003] = 1640,   --kultiran-male
+    [1886724] = 1642,   --kultiran-female
+
+    [2622502] = 1649,   --mechagnome-male
+    [2564806] = 1650,   --mechagnome-female
+
+    [1890761] = 1648,   --vulpera-male
+    [1890759] = 1647,   --vulpera-female
+
+    [1630218] = 1637,   --highmountaintauren-male
+    [1630402] = 1638,   --highmountaintauren-female
+    
+    [900914] = 1622,    --Gnome M
+    [940356] = 1622,    --Gnome F
+
+    [119376] = 1628,    --goblin-male
+    [119369] = 1629,    --goblin-female
+
+    [1005887] = 1627,   --draenei-male
+    --[1022598] = draenei F
+
+    [1620605] = 1635,   --lightforgeddraenei-male
+    [1593999] = 1636,   --lightforgeddraenei-female
+
+    [1630447] = 1639,     --zandalaritroll M
+    [1662187] = 1639,     --zandalaritroll F
+
+    [1022938] = 1632,   --troll-male
+    [1018060] = 1633,   --troll-female
+
+    [959310] = 1624,    --scourge-male
+    [997378] = 1634,    --scourge-female
+
+    [535052] = 1625,    --pandaren M
+    [589715] = 1625,    --pandaren F
+
+    [307454] = 1626,    --worgen-male
+    [307453] = 1645,    --worgen-female
+
+    [917116] = 1641,     --magharorc-male hunched
+    [1968587] = 1641,     --magharorc-male straght
+    [949470] = 1643,     --magharorc-female
+
+    --[1011653] = Human M
+    --[1000764] = Human F
+
+    --[1814471] = Nightborne M
+    --[1810676] = Nightborne F
+
+    --[1734034] = VE M
+    --[1733758] = VE F
+
+    --[1100087] = BE M
+    --[1100258] = BE F
+
+    --[974343] = NE M
+    --[921844] = NE F
+};
+
+
+local GetModelSceneActorInfoByID = C_ModelInfo.GetModelSceneActorInfoByID;
+
+local function GetActorInfoByFileID(fileID)
+    --print("FileID: ", fileID)
+    local infoID;
+    if fileID and ActorIDByModelFileID[fileID] then
+        infoID = ActorIDByModelFileID[fileID];
+    else
+        infoID = DEFAULT_ACTOR_INFO_ID;
+    end
+    return GetModelSceneActorInfoByID(infoID);
+end
+addon.GetActorInfoByFileID = GetActorInfoByFileID;
+
 --Re-check this↑ table every major patch
---[[
+
 function Narci_FindActorIDBy(name)
-    local id = 500;
+    local id = 300;
     local info, tag;
     local find = string.find;
     while id < 2000 do
@@ -1723,7 +1857,7 @@ function Narci_FindActorIDBy(name)
         end
     end
 end
---]]
+
 
 
 local ZoomDistanceByRace = {
@@ -1792,7 +1926,6 @@ function NarciAPI_GetCameraZoomDistanceByUnit(unit)
     end
 end
 
-local DEFAULT_ACTOR_INFO_ID = 438;
 
 local PanningYOffsetByRace = {
     --[raceID] = { { male = {offsetY1 when frame maximiazed, offsetY2} }, {female = ...} }
@@ -1822,8 +1955,6 @@ local function GetPanningYOffset(raceID, genderID)
         return PanningYOffsetByRace[0][1]
     end
 end
-
-local GetModelSceneActorInfoByID = C_ModelInfo.GetModelSceneActorInfoByID;
 
 function NarciAPI_GetActorInfoByUnit(unit)
     if not UnitExists(unit) or not UnitIsPlayer(unit) or not CanInspect(unit, false) then return nil, PanningYOffsetByRace[0][1]; end
@@ -2211,23 +2342,6 @@ end
 
 NarciAPI.InitializeModelLight = NarciAPI_InitializeModelLight;
 
---------------------
---------Time--------
---------------------
-function NarciAPI_FormatTime(seconds)
-    seconds = seconds or 0;
-
-    local hour = floor(seconds / 3600);
-    local minute = floor((seconds - 3600 * hour) / 60);
-    local second = mod(seconds, 60);
-    if hour > 0 then
-        return hour.."h "..minute.."m "..second.."s";
-    elseif minute > 0 then
-        return minute.."m "..second.."s";
-    else
-        return second.."s";
-    end
-end
 
 ----------------------------
 ----UI Animation Generic----
@@ -2263,7 +2377,7 @@ function NarciAPI_CreateFadingFrame(parentObject)
             parentObject:SetAlpha(alpha);
         end
     end);
-    
+
     function parentObject:FadeOut(duration, delay)
         delay = delay or 0;
         animFade.t = -delay;
@@ -2284,7 +2398,7 @@ function NarciAPI_CreateFadingFrame(parentObject)
             animFade:Show();
         end
     end
-    
+
     function parentObject:FadeIn(duration, delay)
         delay = delay or 0;
         animFade.t = -delay;
@@ -2306,81 +2420,6 @@ function NarciAPI_CreateFadingFrame(parentObject)
     end
 
     return animFade
-end
-
-
-
-----------------------------
--------Frame Template-------
-----------------------------
-NarciFrameMixin = CreateFromMixins(ExpansionTransitionBackdropTemplateMixin);
-
-function NarciFrameMixin:ShowFrame(state)
-    self:SetShown(state);
-    if state then
-        self:SetAlpha(1);
-    else
-        self:SetAlpha(0);
-    end
-end
-
-function NarciFrameMixin:HideFrame()
-    self:ShowFrame(false);
-end
-
-function NarciFrameMixin:ToggleFrame()
-    if self:IsShown() then
-        self:ShowFrame(false);
-    else
-        self:ShowFrame(true);
-    end
-end
-
-function NarciFrameMixin:SetHeaderText(text, r, g, b)
-    self.Header:SetText(text);
-    self.Header:SetTextColor(r or 0.4, g or 0.4, b or 0.4);
-end
-
-function NarciFrameMixin:SetSizeAndAnchor(x, y, point, relativeTo, relativePoint, offsetX, offsetY)
-    if x then x = max(x, 40) end;
-    if y then y = max(y, 40) end;
-
-    if x then
-        if y then
-            self:SetSize(x, y);
-        else
-            self:SetWidth(x);
-        end
-    else
-        self:SetHeight(y);
-    end
-
-    self:ClearAllPoints();
-    self:SetPoint(point, relativeTo, relativePoint, offsetX, offsetY);
-end
-
-function NarciFrameMixin:SetRelativeFrameLevel(offset)
-    local parent = self:GetParent();
-    if parent then
-        local parentLevel = parent:GetFrameLevel() or 0;
-        self:SetFrameStrata(parent:GetFrameStrata());
-        self:SetFrameLevel( max(parentLevel + offset, 0) );
-    end
-end
-
-function NarciFrameMixin:HideWhenParentIsHidden(state)
-    if state then
-        self:SetScript("OnHide", function(self)
-            self:HideFrame();
-        end);
-
-        local parent = self:GetParent();
-        if parent and not parent:IsVisible() then
-            self:HideFrame();
-        end
-    else
-        self:SetScript("OnHide", nil);
-    end
 end
 
 
@@ -2515,7 +2554,6 @@ function NarciHotkeyNotificationMixin:OnEvent(event, key)
         self:UnregisterEvent("GLOBAL_MOUSE_UP");
         self:FadeOut();
     end
-    print(event);
 end
 
 function NarciHotkeyNotificationMixin:SetHighlight(state)
@@ -2537,75 +2575,6 @@ function NarciHotkeyNotificationMixin:SetHighlight(state)
             self.KeyLabel:SetTextColor(0.6, 0.6, 0.6);
         end
     end
-end
-
-NarciQuickFavoriteButtonMixin = {};
-
-function NarciQuickFavoriteButtonMixin:SetIconSize(size)
-    self.iconSize = size;
-    self.Icon:SetSize(size, size);
-    self.Bling:SetSize(size, size);
-    self.Icon:SetTexCoord(0.5, 0.75, 0.25, 0.5);
-    self.favTooltip = Narci.L["Favorites Add"];
-    self.unfavTooltip = Narci.L["Favorites Remove"];
-    self.isFav = false;
-end
-
-function NarciQuickFavoriteButtonMixin:SetFavorite(isFavorite)
-    if isFavorite then
-        self.isFav = true;
-        self.Icon:SetTexCoord(0.75, 1, 0.25, 0.5);
-        self.Icon:SetAlpha(1);
-    else
-        self.isFav = false;
-        self.Icon:SetTexCoord(0.5, 0.75, 0.25, 0.5);
-        self.Icon:SetAlpha(0.4);
-    end
-end
-
-function NarciQuickFavoriteButtonMixin:PlayVisual()
-    self:StopAnimating();
-    if self.isFav then
-        self.Icon:SetTexCoord(0.75, 1, 0.25, 0.5);
-        self.parent.Star:Show();
-        self.Bling.animIn:Play();
-    else
-        self.Icon:SetTexCoord(0.5, 0.75, 0.25, 0.5);
-        self.parent.Star:Hide();
-    end
-end
-
-function NarciQuickFavoriteButtonMixin:OnEnter()
-    self.Icon:SetAlpha(1);
-    if self.isFav then
-        NarciTooltip:NewText(self.unfavTooltip, nil, nil, 1);
-    else
-        NarciTooltip:NewText(self.favTooltip, nil, nil, 1);
-    end
-end
-
-function NarciQuickFavoriteButtonMixin:OnLeave()
-    NarciTooltip:FadeOut();
-    if not self.isFav then
-        self.Icon:SetAlpha(0.6);
-    end
-end
-
-function NarciQuickFavoriteButtonMixin:OnHide()
-    self:StopAnimating();
-end
-
-function NarciQuickFavoriteButtonMixin:OnMouseDown()
-    self.Icon:SetSize(self.iconSize - 2, self.iconSize - 2);
-    NarciTooltip:FadeOut();
-end
-
-function NarciQuickFavoriteButtonMixin:OnMouseUp()
-    self.Icon:SetSize(self.iconSize, self.iconSize);
-end
-
-function NarciQuickFavoriteButtonMixin:OnDoubleClick()
-    
 end
 
 
@@ -2890,65 +2859,6 @@ function NarciNonEditableEditBoxMixin:OnKeyDown(key, down)
     end
 end
 
-
-NarciChamferedFrameMixin = {};
-
-function NarciChamferedFrameMixin:SetBackgroundColor(r, g, b, a)
-    if not self.backgroundAtlas then
-        self.backgroundAtlas = {
-            self.BackgroundTopLeft, self.BackgroundTop, self.BackgroundTopRight,
-            self.BackgroundMiddleLeft, self.BackgroundMiddle, self.BackgroundMiddleRight,
-            self.BackgroundBottomLeft, self.BackgroundBottom, self.BackgroundBottomRight,
-        };
-    end
-    a = a or 1;
-    for i = 1, #self.backgroundAtlas do
-        self.backgroundAtlas[i]:SetVertexColor(r, g, b);
-        self.backgroundAtlas[i]:SetAlpha(a);
-    end
-end
-
-function NarciChamferedFrameMixin:SetBorderColor(r, g, b, a)
-    if not self.borderAtlas then
-        self.borderAtlas = {
-            self.BorderTopLeft, self.BorderTop, self.BorderTopRight,
-            self.BorderMiddleLeft, self.BorderMiddle, self.BorderMiddleRight,
-            self.BorderBottomLeft, self.BorderBottom, self.BorderBottomRight,
-        };
-    end
-    a = a or 1;
-    for i = 1, #self.borderAtlas do
-        self.borderAtlas[i]:SetVertexColor(r, g, b);
-        self.borderAtlas[i]:SetAlpha(a);
-    end
-end
-
-function NarciChamferedFrameMixin:SetOffset(value)
-    --positive value expand the frame background
-    self.BackgroundTopLeft:SetPoint("TOPLEFT", self, "TOPLEFT", -value, value);
-    self.BorderTopLeft:SetPoint("TOPLEFT", self, "TOPLEFT", -value, value);
-    self.BackgroundTopRight:SetPoint("TOPRIGHT", self, "TOPRIGHT", value, value);
-    self.BorderTopRight:SetPoint("TOPRIGHT", self, "TOPRIGHT", value, value);
-    self.BackgroundBottomLeft:SetPoint("BOTTOMLEFT", self, "BOTTOMLEFT", -value, -value);
-    self.BorderBottomLeft:SetPoint("BOTTOMLEFT", self, "BOTTOMLEFT", -value, -value);
-    self.BackgroundBottomRight:SetPoint("BOTTOMRIGHT", self, "BOTTOMRIGHT", value, -value);
-    self.BorderBottomRight:SetPoint("BOTTOMRIGHT", self, "BOTTOMRIGHT", value, -value);
-end
-
-function NarciChamferedFrameMixin:Toggle()
-    self:SetShown(not self:IsShown());
-end
-
-function NarciChamferedFrameMixin:HideWhenParentIsHidden(state)
-    if state then
-        self:SetScript("OnHide", function()
-            self:Hide()
-        end);
-    else
-        self:SetScript("OnHide", nil);
-    end
-end
-
 -----------------------------------------------------------
 NarciLanguageUtil = {};
 NarciLanguageUtil.wowheadLinkPrefix = {
@@ -3014,14 +2924,8 @@ end
 NarciAPI.GetAllSelectedTalentIDsAndIcons = GetAllSelectedTalentIDsAndIcons;
 
 
-local round = function(number, digit)
-    digit = digit or 0;
-    local a = 10 ^ digit;
-    return math.floor(number * a + 0.5)/a
-end
-
 local function CreateColor(r, g, b)
-    return round(r/255, 4), round(g/255, 4), round(b/255, 4);
+    return RoundToDigit(r/255, 4), RoundToDigit(g/255, 4), RoundToDigit(b/255, 4);
 end
 
 NarciAPI.CreateColor = CreateColor;
@@ -3186,6 +3090,20 @@ end
 
 NarciAPI.AddPixelPerfectTexture = AddPixelPerfectTexture;
 
+local function SetFramePointPixelPerfect(frame, point, relativeTo, relativePoint, offsetX, offsetY)
+    if relativeTo then
+        local pixel = GetPixelForWidget(frame);
+        frame:ClearAllPoints();
+        local right0 = relativeTo:GetRight();
+        local right1 = floor( (right0 + offsetX) * pixel + 0.5) / pixel;
+        local top0 = relativeTo:GetTop();
+        local top1 = floor( (top0 + offsetY) * pixel) / pixel;
+        frame:SetPoint(point, relativeTo, relativePoint, right1 - right0, top1 - top0);
+    end
+end
+
+NarciAPI.SetFramePointPixelPerfect = SetFramePointPixelPerfect;
+
 
 local function IsPlayerAtMaxLevel()
     local playerLevel = UnitLevel("player") or 0;
@@ -3203,6 +3121,149 @@ end
 
 NarciAPI.IsPlayerAtMaxLevel = IsPlayerAtMaxLevel;
 
+
+do
+    local IsInteractingWithNpcOfType = C_PlayerInteractionManager.IsInteractingWithNpcOfType;
+    local TYPE_GOSSIP = Enum.PlayerInteractionType and Enum.PlayerInteractionType.Gossip or 3;
+    local TYPE_QUEST_GIVER = Enum.PlayerInteractionType and Enum.PlayerInteractionType.QuestGiver or 4;
+    local GetQuestID = GetQuestID;
+    local INTERACT_RECENELY = false;
+
+    local function IsInteractingWithDialogNPC()
+        if INTERACT_RECENELY then return true end;
+
+        local currentQuestID = GetQuestID();
+        return IsInteractingWithNpcOfType(TYPE_GOSSIP) or IsInteractingWithNpcOfType(TYPE_QUEST_GIVER) or (currentQuestID ~= nil and currentQuestID ~= 0)
+    end
+    addon.IsInteractingWithDialogNPC = IsInteractingWithDialogNPC;
+
+    local DialogEventHandler;
+
+    local function DialogEventHandler_Check()
+        if C_AddOns.IsAddOnLoaded("DialogueUI") then
+            local events = {
+                "GOSSIP_SHOW", "QUEST_DETAIL", "QUEST_PROGRESS", "QUEST_COMPLETE", "QUEST_GREETING",
+            };
+
+            DialogEventHandler = CreateFrame("Frame");
+
+            for _, event in ipairs(events) do
+                DialogEventHandler:RegisterEvent(event)
+            end
+
+            local function OnUpdate(self, elapsed)
+                self.t = self.t + elapsed;
+                if self.t >= 1 then
+                    self:SetScript("OnUpdate", nil);
+                    self.t = nil;
+                    INTERACT_RECENELY = false;
+                end
+            end
+
+            DialogEventHandler:SetScript("OnEvent", function(self, event, ...)
+                self.t = 0;
+                INTERACT_RECENELY = true;
+                self:SetScript("OnUpdate", OnUpdate);
+            end);
+        end
+    end
+
+    addon.AddLoadingCompleteCallback(DialogEventHandler_Check);
+end
+
+do
+    local BindHelper;
+
+    local BindEvents = {
+        "ACTION_WILL_BIND_ITEM",
+        "EQUIP_BIND_REFUNDABLE_CONFIRM",
+        "EQUIP_BIND_TRADEABLE_CONFIRM",
+        "EQUIP_BIND_CONFIRM",
+        "END_BOUND_TRADEABLE",
+    };
+
+    local function HideStaticPopup()
+        if StaticPopup1 then
+            StaticPopup1:Hide();
+        end
+    end
+
+    local function ConfirmBinding()
+        if not BindHelper then
+            BindHelper = CreateFrame("Frame");
+            BindHelper:Hide();
+
+            BindHelper:SetScript("OnEvent", function(self, event, ...)
+                if event == "ACTION_WILL_BIND_ITEM" then
+                    if self.pending then
+                        self.pending = nil;
+                        C_Item.ActionBindsItem();
+                    end
+                elseif event == "EQUIP_BIND_REFUNDABLE_CONFIRM" or event == "EQUIP_BIND_TRADEABLE_CONFIRM" or event == "EQUIP_BIND_CONFIRM" then
+                    if self.pending then
+                        self.pending = nil;
+                        local slot = ...
+                        EquipPendingItem(slot);
+                    end
+                elseif event == "END_BOUND_TRADEABLE" then
+                    if self.pending then
+                        self.pending = nil;
+                        local reason = ...
+                        C_Item.EndBoundTradeable(reason);
+                    end
+                end
+
+                HideStaticPopup();
+
+                for _, v in ipairs(BindEvents) do
+                    self:UnregisterEvent(v);
+                end
+            end);
+
+            BindHelper:SetScript("OnUpdate", function(self, elapsed)
+                self.t = self.t + elapsed;
+                if self.t > 0.5 then
+                    self.t = nil;
+                    self.pending = nil;
+                    self:Hide();
+                    for _, v in ipairs(BindEvents) do
+                        self:UnregisterEvent(v);
+                    end
+                end
+            end);
+        end
+
+        for _, v in ipairs(BindEvents) do
+            BindHelper:RegisterEvent(v);
+        end
+
+        BindHelper.t = 0;
+        BindHelper.pending = true;
+        BindHelper:Show();
+    end
+    addon.ConfirmBinding = ConfirmBinding;
+end
+
+local function DoesItemExistByID(itemID)
+    itemID = GetItemInfoInstant(itemID)
+    return itemID ~= nil
+end
+addon.DoesItemExistByID = DoesItemExistByID;
+
+local function CopyTable(tbl)
+    --Blizzard TableUtil.lua
+    if not tbl then return; end;
+	local copy = {};
+	for k, v in pairs(tbl) do
+		if type(v) == "table" then
+			copy[k] = CopyTable(v);
+		else
+			copy[k] = v;
+		end
+	end
+	return copy;
+end
+addon.CopyTable = CopyTable;
 
 --[[
     /script DEFAULT_CHAT_FRAME:AddMessage("\124Hitem:narcissus:0:\124h[Test Link]\124h\124r");

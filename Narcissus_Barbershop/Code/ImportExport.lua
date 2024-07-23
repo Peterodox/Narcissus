@@ -471,36 +471,46 @@ local function PackOptionChoicePairs(selectedChoiceIDs)
 end
 
 local function GetCurrentCharacterRaceSex()
-    local raceID = API.GetPlayerRaceID();
-    local characterData = C_BarberShop.GetCurrentCharacterData();
-    local sex;
+    local comboName = API.GetActiveAppearanceName();
+    local raceID, sex;
     local raceName, sexName;
+    local chrModelID = C_BarberShop.GetViewingChrModel();
 
-    if characterData then
-        sex = characterData.sex or 0;
-        if characterData.raceData then
-            if characterData.raceData.alternateFormRaceData and C_BarberShop.IsViewingAlteredForm() then
-                --e.g. human is Worgen's alternate form
-                raceID = characterData.raceData.alternateFormRaceData.raceID or 1;
-                raceName = characterData.raceData.alternateFormRaceData.name;
-            else
-                raceName = characterData.raceData.name;
-            end
+    if chrModelID then
+        raceID = chrModelID;
+        sex = 0;
+        if not comboName then
+            comboName = API.GetChrModelName(chrModelID) or "Unknown";
         end
     else
-        sex = 0;
-    end
+        raceID = API.GetPlayerRaceID();
+        local characterData = C_BarberShop.GetCurrentCharacterData();
+    
+        if characterData then
+            sex = characterData.sex or 0;
+            raceName = characterData.name;
+            if characterData.raceData then
+                if characterData.raceData.alternateFormRaceData and C_BarberShop.IsViewingAlteredForm() then
+                    --e.g. human is Worgen's alternate form
+                    raceID = characterData.raceData.alternateFormRaceData.raceID or 1;
+                    raceName = characterData.raceData.alternateFormRaceData.name;
+                else
+                    raceName = characterData.raceData.name;
+                end
+            end
+        else
+            sex = 0;
+        end
+    
+        if sex == 0 then
+            sexName = MALE;
+        else
+            sexName = FEMALE;
+        end
 
-    if sex == 0 then
-        sexName = MALE;
-    else
-        sexName = FEMALE;
-    end
-
-    local comboName = API.GetActiveAppearanceName();
-
-    if not comboName then
-        comboName = format("%s %s", (raceName or ""), (sexName or ""));
+        if not comboName then
+            comboName = format("%s %s", (raceName or ""), (sexName or ""));
+        end
     end
 
     return raceID, sex, comboName
@@ -564,6 +574,17 @@ function Coder:EncodeList(list)
 end
 
 
+local function ArePlayerRaceIDMatched(id1, id2)
+    if id1 == id2 then
+        return true;
+    elseif (id1 == 24 or id1 == 25 or id1 == 26) and (id2 == 24 or id2 == 25 or id2 == 26) then
+        return true;
+    elseif (id1 == 52 or id1 == 70) and (id2 == 52 or id2 == 70) then
+        return true;
+    else
+        return false;
+    end
+end
 
 local function LoadCustomizationFromEncodedString(encodedString)
     --/run LoadCustomizationFromEncodedString("NE: 4.0.bl.g.18.Jq.12x.6j.l.p.j.n.8.6.7.8.B")
@@ -576,7 +597,7 @@ local function LoadCustomizationFromEncodedString(encodedString)
     end
 
     local case, subcase = GetCurrentCharacterRaceSex();
-    if not( case == decodedTable.caseID and subcase == decodedTable.subcaseID ) then
+    if not( ArePlayerRaceIDMatched(case, decodedTable.caseID) and subcase == decodedTable.subcaseID ) then
        return false, 1, decodedTable.caseID, decodedTable.subcaseID
     end
 
@@ -642,11 +663,13 @@ HotkeyListener:SetScript("OnKeyDown", function(self, key)
     if keys == "CTRL-C" or key == "COMMAND-C" then
         if self.parentEditBox then
             self:Hide();
+            local editBox = self.parentEditBox;
             C_Timer.After(0, function()
                 --Texts won't be copied if the editbox hides immediately
-                self.parentEditBox:ClearFocus();
-                self.parentEditBox.AlertText:SetText(L["String Copied"]);
-                self.parentEditBox:PlayGlow();
+                if editBox.OnSuccess then
+                    editBox.OnSuccess(editBox);
+                end
+                editBox:ClearFocus();
             end);
         end
     end
@@ -708,6 +731,10 @@ local function ExportBox_OnEditFocusLost(self)
     end
 end
 
+local function ExportBox_OnSuccess(self)
+    self.AlertText:SetText(L["String Copied"]);
+    self:PlayGlow();
+end
 
 local function CanSaveNewLook()
     local case = Narci_BarbershopFrame.PlusButton:GetCase();
@@ -816,14 +843,19 @@ local function ImportEditBox_OnTextChanged(self, userInput)
             alertText = GetFailureReasonByID(0);
         elseif failedReasonID == 1 then
             --wrong race/gender
-            local sexName = (subcase == 0 and MALE) or FEMALE;
-            local raceInfo = case and C_CreatureInfo.GetRaceInfo(case);
-            local raceName;
-            if raceInfo then
-                raceName = raceInfo.raceName;
-                alertText = format(L["Wrong Character Format"], sexName, raceName);
+            local chrModelName = API.GetChrModelName(case);
+            if chrModelName then
+                alertText = format(ERR_USE_LOCKED_WITH_ITEM_S or "Requires: %s", chrModelName);
             else
-                alertText = GetFailureReasonByID(1);
+                local sexName = (subcase == 0 and MALE) or FEMALE;
+                local raceInfo = case and C_CreatureInfo.GetRaceInfo(case);
+                local raceName;
+                if raceInfo then
+                    raceName = raceInfo.raceName;
+                    alertText = format(L["Wrong Character Format"], sexName, raceName);
+                else
+                    alertText = GetFailureReasonByID(1);
+                end
             end
         end
     end
@@ -882,6 +914,7 @@ function NarciBarberShopProfileTextBoxMixin:OnLoad()
         self.Header:SetText(L["Export"]);
         self.AlertText:SetText(L["Press Copy"]);
         self.BorderGlow:SetColorTexture(API.GetColorByKey("green"));
+        self.OnSuccess = ExportBox_OnSuccess;
 
         self:SetScript("OnTextChanged", ExportBox_OnTextChanged);
         self:SetScript("OnCursorChanged", ExportBox_OnCursorChanged);
@@ -890,7 +923,7 @@ function NarciBarberShopProfileTextBoxMixin:OnLoad()
         self:SetScript("OnShow", ExportBox_UpdateString);
         self:SetScript("OnHide", ExportBox_OnHide);
 
-        self.InfoButton.tooltip = L["Barbershop Export Tooltip"];
+        self.InfoButton.tooltipText = L["Barbershop Export Tooltip"];
     end
 
     self.action = nil;
@@ -958,6 +991,65 @@ function NarciBarberShopProfileTextBoxMixin:PlayGlow()
     self.BorderGlow.Glow:Play();
     self.BorderGlow:Show();
     self.AlertText:Show();
+    self.AlertText.AnimFade:Play();
+end
+
+
+NarciBarberShopAppearanceClipboardMixin = {};
+
+function NarciBarberShopAppearanceClipboardMixin:OnLoad()
+    self:SetScript("OnCursorChanged", ExportBox_OnCursorChanged);
+end
+
+function NarciBarberShopAppearanceClipboardMixin:OnEditFocusGained()
+    self.parent:SetBorderColor(0.80, 0.80, 0.80, 1);
+
+    self:Enable();
+    self:EnableMouse(true);
+    self:SetCursorPosition(0);
+    self:HighlightText();
+    self.BackgroundOverlay:Show();
+
+    self.AlertText.AnimFade:Stop();
+    self.AlertText:Show();
+    self.AlertText:SetText(L["Press To Copy"]);
+
+    HotkeyListener:SetParentObject(self);
+end
+
+function NarciBarberShopAppearanceClipboardMixin:OnEditFocusLost()
+    HotkeyListener:Hide();
+
+    self:Disable();
+    self:EnableMouse(false);
+    self:HighlightText(0, 0);
+    self:SetText("");
+    self.BackgroundOverlay:Hide();
+
+    if self.parent:IsVisible() and self.parent:IsMouseOver() then
+        self.parent:SetBorderColor(0.80, 0.80, 0.80, 1);
+    else
+        self.parent:SetBorderColor(0.2, 0.2, 0.2, 1);
+    end
+
+    if not self.AlertText.AnimFade:IsPlaying() then
+        self.AlertText:Hide();
+    end
+end
+
+function NarciBarberShopAppearanceClipboardMixin:OnTextChanged(userInput)
+    if userInput then
+        self:ClearFocus();
+    end
+end
+
+function NarciBarberShopAppearanceClipboardMixin:OnEscapePressed()
+    self:ClearFocus();
+end
+
+function NarciBarberShopAppearanceClipboardMixin:OnSuccess()
+    self.AlertText.AnimFade:Stop();
+    self.AlertText:SetText(L["String Copied"]);
     self.AlertText.AnimFade:Play();
 end
 

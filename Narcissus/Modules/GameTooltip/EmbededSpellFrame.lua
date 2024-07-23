@@ -1,6 +1,71 @@
-local GetItemSpell = GetItemSpell;
-local GetSpellInfo = GetSpellInfo;
+local _, addon = ...
+
+local GetItemSpell = C_Item.GetItemSpell;
+local GetSpellInfo = addon.TransitionAPI.GetSpellInfo;
 local GetSpellBaseCooldown = GetSpellBaseCooldown;
+
+
+local SpellSetupFuncs = {};
+
+local function Setup_RubyWhelpShell(tooltip)
+    --Show whelp training progress
+    local info, value;
+    local anyPadding = false;
+
+    for i = 2148, 2153 do
+        info = C_CurrencyInfo.GetCurrencyInfo(i);
+        if info then
+            value = info.quantity;
+            if value and value > 0 then
+                if anyPadding then
+                    tooltip:AddDoubleLine(info.name, value, 1, 0.82, 0);
+                else
+                    anyPadding = true;
+                    tooltip:AddDoubleLine(info.name, value, 1, 0.82, 0, -12);
+                end
+            end
+        end
+    end
+end
+SpellSetupFuncs[389843] = Setup_RubyWhelpShell;
+
+
+local function Setup_FindItemAura(spellIDs, tooltip, spellFrame)
+    local GetInfo = C_UnitAuras.GetPlayerAuraBySpellID;
+    local auraInfo, auraInstanceID;
+
+    for _, id in ipairs(spellIDs) do
+        auraInfo = GetInfo(id);
+        if auraInfo then
+            spellFrame.Icon:SetTexture(auraInfo.icon);
+            auraInstanceID = auraInfo.auraInstanceID;
+            tooltip:AddLine(auraInfo.name, 1, 1, 1, -12);
+            break
+        end
+    end
+
+    if auraInstanceID then
+        local info = C_TooltipInfo.GetUnitBuffByAuraInstanceID("player", auraInstanceID);
+        if info and info.lines and info.lines[2] and info.lines[2].leftText then
+            tooltip:AddLine(info.lines[2].leftText, 1, 0.82, 0);
+        end
+    end
+end
+
+local function Setup_PrimalRitualShell(tooltip, spellFrame)
+    local spellIDs = {390835, 390655, 390899, 390869};    --Fire (Damage), Stone (Aborb), Wind (Mastery), Sea (Heal)
+    Setup_FindItemAura(spellIDs, tooltip, spellFrame);
+end
+
+SpellSetupFuncs[390643] = Setup_PrimalRitualShell;
+
+
+local function Setup_OminousChromaticEssence(tooltip, spellFrame)
+    local spellIDs = {402221, 401516, 401518, 401519, 401521};    --Fire (Damage), Stone (Aborb), Wind (Mastery), Sea (Heal)
+    Setup_FindItemAura(spellIDs, tooltip, spellFrame);
+end
+
+SpellSetupFuncs[401515] = Setup_OminousChromaticEssence;
 
 
 NarciEquipmentSpellFrameMixin = {};
@@ -14,9 +79,10 @@ end
 
 function NarciEquipmentSpellFrameMixin:SetSpellEffect(link, effectText, isActive, cooldownText)
     local spellName, spellID = GetItemSpell(link);
-    --print(effectText)
+
     self.spellID = spellID;
     self:SetSpellInactive(not isActive and ITEM_LEGACY_INACTIVE_EFFECTS);
+
     if spellID then
         if not spellName then
             self:GetParent():QueryData();
@@ -64,9 +130,17 @@ function NarciEquipmentSpellFrameMixin:SetSpellEffect(link, effectText, isActive
 
     local frameHeight = self:GetTop() - (self.SpellEffect:GetBottom() or 0) + (self.bottomPadding or 0);
     local frameWidth = math.max(34 + self.SpellName:GetWrappedWidth(), self.SpellEffect:GetWrappedWidth());
-    self:GetParent():UpdateMaxWidth(frameWidth);
+
+    local tooltip = self:GetParent();
+
+    tooltip:EvaluateMaxWidth(frameWidth);
     self:SetHeight(frameHeight);
     self:Show();
+    tooltip:InsertFrame(self);
+
+    if spellID and SpellSetupFuncs[spellID] then
+        SpellSetupFuncs[spellID](tooltip, self);
+    end
 end
 
 function NarciEquipmentSpellFrameMixin:Clear()
