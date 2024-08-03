@@ -714,6 +714,12 @@ L["Auto Filter Case"] = "Automatically filters items when you...";
 L["Send Mails"] = "Send Mails";
 L["Create Auctions"] = "Create Auctions";
 L["Socket Items"] = "Socket Items";
+L["Item Type Mailable"] = MAIL_LABEL or "Mailable";
+L["Item Type Auctionable"] = AUCTIONS or "Auctionable";
+L["Item Type Teleportation"] = TUTORIAL_TITLE35 or "Travel";
+L["Item Type Gems"] = AUCTION_CATEGORY_GEMS or "Gems";
+L["Item Type Reagent"] = PROFESSIONS_MODIFIED_CRAFTING_REAGENT_BASIC or "Crafting Reagent";
+
 
 --Perks Program--
 L["Perks Program Unclaimed Tender Format"] = "- You have |cffffffff%s|r uncollected tender in the Collector's Cache.";     --PERKS_PROGRAM_UNCOLLECTED_TENDER

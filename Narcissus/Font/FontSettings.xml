@@ -788,6 +788,24 @@
 		</Member>
   	</FontFamily>
 
+  	<FontFamily name="NarciFontFremont8" virtual="true">
+		<Member alphabet="roman">
+			<Font font="Interface\AddOns\Narcissus\Font\Fremont-Regular.ttf" height="8"/>
+		</Member>
+		<Member alphabet="korean">
+			<Font font="Interface\AddOns\Narcissus\Font\NotoSansCJKsc-Medium.otf" height="9"/>
+		</Member>
+		<Member alphabet="simplifiedchinese">
+			<Font font="Interface\AddOns\Narcissus\Font\NotoSansCJKsc-Medium.otf" height="9"/>
+		</Member>
+		<Member alphabet="traditionalchinese">
+			<Font font="Interface\AddOns\Narcissus\Font\NotoSansCJKsc-Medium.otf" height="9"/>
+		</Member>
+		<Member alphabet="russian">
+			<Font font="Fonts\FRIZQT___CYR.TTF" height="8"/>
+		</Member>
+  	</FontFamily>
+
   	<FontFamily name="NarciSpeechBalloonFontRegular" virtual="true">
 		<Member alphabet="roman">
 			<Font font="Interface\AddOns\Narcissus\Font\OpenSans-SemiBold.ttf" height="14"/>
@@ -974,7 +992,7 @@
 		</Shadow>
 	</Font>
 
-	<Font name="NarciCompletionHeader" font="Interface\AddOns\Narcissus\Font\Fremont-Regular.ttf" height="8" virtual="true" justifyH="CENTER" justifyV="MIDDLE">
+	<Font name="NarciCompletionHeader" inherits="NarciFontFremont8" virtual="true" justifyH="CENTER" justifyV="MIDDLE">
 		<Color r="0.5" g="0.5" b="0.5"/>
 		<Shadow>
 			<Offset>

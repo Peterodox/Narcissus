@@ -1,7 +1,7 @@
-local NARCI_VERSION_INFO = "1.6.6";
+local NARCI_VERSION_INFO = "1.6.7";
 
-local VERSION_DATE = 1721740000;
-local CURRENT_VERSION = 10606;
+local VERSION_DATE = 1722650000;
+local CURRENT_VERSION = 10607;
 local PREVIOUS_VERSION = CURRENT_VERSION;
 local TIME_SINCE_LAST_UPDATE = 0;
 
@@ -435,7 +435,6 @@ do
     local function IsTOCVersionEqualOrNewerThan(v)
         return tocVersion >= v
     end
-
     addon.IsTOCVersionEqualOrNewerThan = IsTOCVersionEqualOrNewerThan;
 end
 

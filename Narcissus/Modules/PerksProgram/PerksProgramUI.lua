@@ -139,6 +139,8 @@ local function OnProductSelectedAfterModel(f, data)
         showSheatheToggle = false;
     elseif categoryID == 2 then     --Mounts
         --Mount: Add mountType (Ground, Flying, etc.) to CategoryText
+        --Now implemented by Blizzard
+        --[[
         showSheatheToggle = false;
         local mountTypeName = GetSelectedMountTypeName();
         if mountTypeName then
@@ -152,6 +154,7 @@ local function OnProductSelectedAfterModel(f, data)
                 end);
             end
         end
+        --]]
     elseif categoryID == 1 then     --Transmog
         if MODEL_SETUP_ENABLED then
             local actor = PerksProgramFrame.ModelSceneContainerFrame.playerActor;

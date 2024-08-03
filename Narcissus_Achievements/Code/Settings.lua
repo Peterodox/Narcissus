@@ -99,7 +99,7 @@ local Structure = {
         name = UI_SCALE,
         type = "slider",
         key = "Scale",
-        data = { minValue = 1, maxValue = 1.25, step = 0.05, default = 1, decimal = 0.01,
+        data = { minValue = 1, maxValue = 1.25, step = 0.05, default = 1, decimal = 0.01, offsetX = 24,
             func = function(value) Narci_AchievementFrame:SetScale(value); AchievementDB.Scale = value; end,
         },
     },
@@ -167,7 +167,7 @@ local function CreateWidget(parent, widgetData, offset, widgetIndex)
             object.Label:SetText(widgetData.name);
         end
         local padding = 24;
-        object:SetPoint("TOP", parent, "TOP", 0, offset - padding);
+        object:SetPoint("TOP", parent, "TOP", data.offsetX or 0, offset - padding);
         height = 2 * padding;
 
     elseif type == "radio" then

@@ -22,25 +22,14 @@ local GetContainerItemID = C_Container.GetContainerItemID;
 local GetContainerNumSlots = C_Container.GetContainerNumSlots;
 local CombinedBag = ContainerFrameCombinedBags;
 
-local GetContainerItemInfo;
 local IsContainerItemFiltered;
 do
-	if (C_Container and C_Container.GetContainerItemInfo) then
-		GetContainerItemInfo = C_Container.GetContainerItemInfo;
+	local GetContainerItemInfo = C_Container.GetContainerItemInfo;
+	local tempTbl = {};
 
-		local tempTbl = {};
-		function IsContainerItemFiltered(bag, slot)
-			tempTbl = GetContainerItemInfo(bag, slot);
-			return tempTbl and tempTbl.isFiltered
-		end
-	else
-		GetContainerItemInfo = GetContainerItemInfo;
-
-		function IsContainerItemFiltered(bag, slot)
-			local _, isFiltered;
-			_, _, _, _, _, _, _, isFiltered = GetContainerItemInfo(bag, slot);
-			return isFiltered
-		end
+	function IsContainerItemFiltered(bag, slot)
+		tempTbl = GetContainerItemInfo(bag, slot);
+		return tempTbl and tempTbl.isFiltered
 	end
 end
 
@@ -59,80 +48,66 @@ end
 local function IterateItemButtons(mode, conditionFunc, arg1, arg2)
 	--Doesn't work on Locked Slots(4 Extra Slots unlocked by activating Aunthenticator)
 	local GetContainerItemID = GetContainerItemID;
-    local GetContainerNumSlots = GetContainerNumSlots;
 	local _G = _G;
 	local bag, slot;
-	local frame, frameName;
-	local itemButton;
 	local isCombinedBagShown = CombinedBag and CombinedBag:IsShown();
-	local numSlots;
+	local reagentBag = _G["ContainerFrame6"];
+
+	local processMethod;
 
 	if mode == 1 then
 		local itemLocation = ItemLocation:CreateEmpty();
-		for i = 1, MAX_BAG_ID do
-			frameName = "ContainerFrame"..i;
-			frame = _G[frameName];
-			if isCombinedBagShown or (frame and frame:IsShown()) then
-				if i == 1 then
-					numSlots = BACKPACK_EXTENTED_SIZE;
-				else
-					numSlots = GetContainerNumSlots(bag)
-				end
 
-				bag = i - 1;	--frame:GetID()
-				frameName = frameName.."Item";
-
-				for j = 1, numSlots do
-					itemButton = _G[frameName..j] or frame["Item"..j];
-					if itemButton then
-						slot = itemButton:GetID();
-						if GetContainerItemID(bag, slot) then
-							itemLocation:SetBagAndSlot(bag, slot);
-							--itemButton:SetMatchesSearch( conditionFunc(itemLocation, itemButton, arg1, arg2) );
-							SetMatchesSearch(itemButton, conditionFunc(itemLocation, itemButton, arg1, arg2))
-						else
-							--itemButton:SetMatchesSearch(true);
-							SetMatchesSearch(itemButton, true);
-						end
+		local function IterateItemLocation(bagFrame)
+			if bagFrame.Items then
+				for j, itemButton in ipairs(bagFrame.Items) do
+					slot, bag = itemButton:GetSlotAndBagID();
+					if GetContainerItemID(bag, slot) then
+						itemLocation:SetBagAndSlot(bag, slot);
+						SetMatchesSearch(itemButton, conditionFunc(itemLocation, itemButton, arg1, arg2))
+					else
+						SetMatchesSearch(itemButton, true);
 					end
 				end
 			end
 		end
+
+		processMethod = IterateItemLocation;
 	else
 		local itemID;
+
+		local function IterateItemID(bagFrame)
+			if bagFrame.Items then
+				for j, itemButton in ipairs(bagFrame.Items) do
+					slot, bag = itemButton:GetSlotAndBagID();
+					itemID = GetContainerItemID(bag, slot);
+					if itemID then
+						SetMatchesSearch(itemButton, conditionFunc(itemID, itemButton, arg1, arg2))
+					else
+						SetMatchesSearch(itemButton, true);
+					end
+				end
+			end
+		end
+
+		processMethod = IterateItemID;
+	end
+
+	if isCombinedBagShown then
+		processMethod(CombinedBag);
+		if reagentBag and reagentBag:IsShown() then
+			processMethod(reagentBag);
+		end
+	else
+		local frame, frameName;
 		for i = 1, MAX_BAG_ID do
 			frameName = "ContainerFrame"..i;
 			frame = _G[frameName];
-			if isCombinedBagShown or (frame and frame:IsShown()) then
-				if i == 1 then
-					numSlots = BACKPACK_EXTENTED_SIZE;
-				else
-					numSlots = GetContainerNumSlots(bag)
-				end
-
-				bag = i - 1;	--frame:GetID()
-				frameName = frameName.."Item";
-
-				for j = 1, numSlots do
-					itemButton = _G[frameName..j] or frame["Item"..j];
-					if itemButton then
-						slot = itemButton:GetID();
-						itemID = GetContainerItemID(bag, slot);
-						if itemID then
-							--itemButton:SetMatchesSearch( conditionFunc(itemID, itemButton, arg1, arg2) );
-							SetMatchesSearch(itemButton, conditionFunc(itemID, itemButton, arg1, arg2))
-						else
-							--itemButton:SetMatchesSearch(true);
-							SetMatchesSearch(itemButton, true);
-						end
-					end
-				end
+			if frame and frame:IsShown() then
+				processMethod(frame);
 			end
 		end
 	end
-
-	itemButton = nil;
-	frame = nil;
 end
 
 local ITERTATE_BUTTONS = IterateItemButtons;
@@ -352,7 +327,7 @@ function ItemFilter.ShowMailable_Native()
 	SearchEventFrame.postSearchCallback = ITERTATE_BUTTONS;
 	SearchEventFrame.arg1 = 1;
 	SearchEventFrame.arg2 = Condition_Mailable;
-	START_SEARCHING(ITEM_ACCOUNTBOUND or "Account Bound");	--ITEM_BNETACCOUNTBOUND not used after 10.2.0
+	START_SEARCHING(ITEM_ACCOUNTBOUND or "Warbound");	--Changed to Warbound after 11.0
 
 	SaveLastFilter(ItemFilter.ShowMailable_Native);
 end
@@ -563,7 +538,7 @@ function ItemFilter.ShowMailable_Alien()
 	SearchEventFrame:RegisterEvent("INVENTORY_SEARCH_UPDATE");
 	SearchEventFrame.postSearchCallback = IterateItemButtons_AddOn_FindMailable;
 	SearchEventFrame.arg1 = nil;
-	StartSearching_Alien(ITEM_BNETACCOUNTBOUND or "Account Bound");
+	StartSearching_Alien(ITEM_ACCOUNTBOUND or "Warbound");
 
 	SaveLastFilter(ItemFilter.ShowMailable_Alien);
 end

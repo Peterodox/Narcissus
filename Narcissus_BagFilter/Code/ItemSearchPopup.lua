@@ -9,6 +9,7 @@ local PrimarySearchBox = addon.PrimarySearchBox;
 
 local GetMouseFocus = NarciAPI.TransitionAPI.GetMouseFocus;
 local IsMouseButtonDown = IsMouseButtonDown;
+local L = Narci.L;
 
 local PAGE_FORMAT = COLLECTION_PAGE_NUMBER or "Page %s / %s";
 
@@ -706,7 +707,7 @@ function NarciBagItemSearchPopupButtonMixin:SetButtonCraftingReagent()
     self.onClickFunc = nil;
     self.hideUIAfterClick = true;
 
-    self.Name:SetText(PROFESSIONS_USED_IN_COOKING or "Crafting Reagent");
+    self.Name:SetText(L["Item Type Reagent"]);
     --self.Name:SetTextColor(0.4, 0.733, 1);
     SetTextColorByName(self.Name, "LightBrown");
     self.Count:SetText(nil);
@@ -731,7 +732,7 @@ function NarciBagItemSearchPopupButtonMixin:SetButtonAuctionHouse()
     self.onClickFunc = ItemFilter.ShowAuctionable;
     self.hideUIAfterClick = true;
 
-    self.Name:SetText("Auctionable");
+    self.Name:SetText(L["Item Type Auctionable"]);
     SetTextColorByName(self.Name, "LightBrown");
     self.Icon:Show();
     self.Icon:SetTexCoord(0.25, 0.375, 0.875, 1);
@@ -742,7 +743,7 @@ function NarciBagItemSearchPopupButtonMixin:SetButtonMail()
     self.onClickFunc = ItemFilter.ShowMailable;
     self.hideUIAfterClick = true;
 
-    self.Name:SetText("Mailable");
+    self.Name:SetText(L["Item Type Mailable"]);
     SetTextColorByName(self.Name, "LightBrown");
     self.Icon:Show();
     self.Icon:SetTexCoord(0.125, 0.25, 0.875, 1);
@@ -754,7 +755,7 @@ function NarciBagItemSearchPopupButtonMixin:SetButtonTravel()
     self.onClickFunc = ItemFilter.ShowTeleport;
     self.hideUIAfterClick = true;
 
-    self.Name:SetText(TUTORIAL_TITLE35 or "Travel");
+    self.Name:SetText(L["Item Type Teleportation"]);
     SetTextColorByName(self.Name, "LightBrown");
     self.Icon:Show();
     self.Icon:SetTexCoord(0.375, 0.5, 0.875, 1);
@@ -765,7 +766,7 @@ function NarciBagItemSearchPopupButtonMixin:SetButtonGem()
     self.onClickFunc = ItemFilter.ShowGem;
     self.hideUIAfterClick = true;
 
-    self.Name:SetText(AUCTION_CATEGORY_GEMS or "Gems");
+    self.Name:SetText(L["Item Type Gems"]);
     SetTextColorByName(self.Name, "LightBrown");
     self.Icon:Show();
     self.Icon:SetTexCoord(0.625, 0.75, 0.875, 1);

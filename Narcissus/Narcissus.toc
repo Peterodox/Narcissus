@@ -1,5 +1,5 @@
-## Interface: 100207, 110000, 110002
-## Version: 1.6.6
+## Interface: 110000, 110002
+## Version: 1.6.7
 
 ## Title: Narcissus
 

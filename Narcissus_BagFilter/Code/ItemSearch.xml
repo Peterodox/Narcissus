@@ -31,9 +31,10 @@
                 </Texture>
             </Layer>
             <Layer level="OVERLAY">
-                <FontString parentKey="Name" inherits="GameFontHighlight" justifyH="LEFT">
+                <FontString parentKey="Name" inherits="GameFontHighlight" justifyH="LEFT" maxLines="1">
                     <Anchors>
                         <Anchor point="LEFT" relativeKey="$parent" relativePoint="LEFT" x="10"/>
+                        <Anchor point="RIGHT" relativeKey="$parent" relativePoint="RIGHT" x="-20"/>
                     </Anchors>
                 </FontString>
                 <FontString parentKey="Count" inherits="GameFontHighlight" justifyH="CENTER">
