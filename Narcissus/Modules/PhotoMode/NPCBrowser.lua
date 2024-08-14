@@ -3316,7 +3316,7 @@ local function NPCBrowser_OnLoad(self)
                     end
                 end)
 
-                if C_AddOns.GetAddOnEnableState( UnitName("player"), addOnName ) == 0 then
+                if C_AddOns.GetAddOnEnableState( addOnName, UnitName("player") ) == 0 then
                     C_AddOns.EnableAddOn(addOnName);
                 end
 
