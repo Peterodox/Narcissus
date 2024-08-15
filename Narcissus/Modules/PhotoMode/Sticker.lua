@@ -15,6 +15,8 @@ local expansionLogo = {
     [6] = "Legion",
     [7] = "BattleforAzeroth",
     [8] = "Shadowlands",
+    [9] = "Dragonflight",
+    [10] = "thewarwithin",
 };
 
 local expansionName = {
@@ -27,21 +29,13 @@ local expansionName = {
     [6] = "Legion",
     [7] = "Battle for Azeroth",
     [8] = "Shadowlands",
+    [9] = "Dragonflight",
+    [10] = "The War Within";
 };
 
 local classFiles = {
-    "WARRIOR", "PALADIN", "HUNTER", "ROGUE", "PRIEST", "DEATHKNIGHT", "SHAMAN", "MAGE", "WARLOCK", "MONK", "DRUID", "DEMONHUNTER",
+    "WARRIOR", "PALADIN", "HUNTER", "ROGUE", "PRIEST", "DEATHKNIGHT", "SHAMAN", "MAGE", "WARLOCK", "MONK", "DRUID", "DEMONHUNTER", "EVOKER",
 };
-
-do
-    local _, addon = ...
-
-    if addon.IsDragonflight() then
-        expansionLogo[9] = "Dragonflight";
-        expansionName[9] = "Dragonflight";
-        table.insert(classFiles, "EVOKER");
-    end
-end
 
 local InteractableWidgetSharedMixin = {}
 

@@ -81,30 +81,6 @@ EL.EVENTS_DYNAMIC = {"PLAYER_TARGET_CHANGED", "COMBAT_RATING_UPDATE", "PLAYER_MO
 
 EL.EVENTS_UNIT = {"UNIT_DAMAGE", "UNIT_ATTACK_SPEED", "UNIT_MAXHEALTH", "UNIT_AURA", "UNIT_INVENTORY_CHANGED"};
 
---[[
-local TakenOutFrames = {
-	[2] = AzeriteEmpoweredItemUI, 		--
-	[3] = ItemSocketingFrame,			--
-	[4] = ArtifactFrame,				--
-}
-
-local function TakeOutFromUIParent(frame, frameStrata, state)
-	local effectiveScale = UIParent:GetEffectiveScale();
-	frameStrata = frameStrata or "MEDIUM";
-
-	if frame then
-		if state then
-			frame:SetParent(nil);
-			frame:SetFrameStrata(frameStrata);
-			frame:SetScale(effectiveScale);
-		else
-			frame:SetScale(1);
-			frame:SetParent(UIParent);
-			frame:SetFrameStrata(frameStrata);
-		end
-	end
-end
---]]
 
 --take out frames from UIParent, so they will still be visible when UI is hidden
 local function TakeOutFrames(state)
@@ -750,6 +726,8 @@ function CameraMover:InstantZoomIn()
 end
 
 function CameraMover:HideUI()
+	NarciAPI.MuteTargetLostSound(true);
+
 	if UIParent:IsShown() then
 		UIPA.endAlpha = 0;
 		UIPA:Show();
@@ -890,6 +868,7 @@ local function ExitFunc()
 	end
 	UIParent:SetAlpha(0);
 	After(0.1, function()
+		NarciAPI.MuteTargetLostSound(false);
 		UIPA.startAlpha = 0;
 		UIPA.endAlpha = 1;
 		UIPA:Show();
@@ -3917,6 +3896,11 @@ local RACE_PORTRAIT_CAMERA = {	--For 3D Portait on the top-left
 }
 
 function Narci_PortraitPieces_OnLoad(self)
+	if true then
+
+		return
+	end
+
 	local unit = "player";
 	local a1, a2, a3;
 	local ModelPieces = self.Pieces;
@@ -3960,7 +3944,7 @@ function Narci_PortraitPieces_OnLoad(self)
 		for i = 1, #ModelPieces do
 			model = ModelPieces[i];
 			TransitionAPI.SetModelByUnit(model, "player");
-			model:SetCamera(RACE_PORTRAIT_CAMERA[raceID][GenderID][5]);
+			model:SetCamera(1);
 			model:MakeCurrentCameraCustom();
 			if RACE_PORTRAIT_CAMERA[raceID][GenderID][3] then
 				model:SetCameraDistance(RACE_PORTRAIT_CAMERA[raceID][GenderID][3])
@@ -3976,7 +3960,7 @@ function Narci_PortraitPieces_OnLoad(self)
 	else
 		for i = 1, #ModelPieces do
 			model = ModelPieces[i];
-			model:SetCamera(0);
+			model:SetCamera(1);
 			model:MakeCurrentCameraCustom();
 			a1, a2, a3 = model:GetCameraPosition();
 			model:SetCameraPosition(a1, a2, 1.1);

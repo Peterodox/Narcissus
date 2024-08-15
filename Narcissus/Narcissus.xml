@@ -1166,7 +1166,7 @@
 					<OnHide method="OnHide"/>
 				</Scripts>
 			</Frame>
-			<Frame name="Narci_XmogNameFrame" parentKey="XmogNameFrame" Alpha="1" hidden="true" frameStrata="HIGH"  ignoreParentScale="true" scale="0.8">
+			<Frame name="Narci_XmogNameFrame" parentKey="XmogNameFrame" Alpha="1" hidden="true" frameStrata="HIGH" ignoreParentScale="true" scale="0.8">
 				<Anchors>
 					<Anchor point="TOPLEFT" relativeTo="Narci_GuideLineFrame" relativePoint="TOPLEFT" x="20" y="-20"/>
 				</Anchors>
@@ -1207,8 +1207,8 @@
 							<Anchor point="CENTER" x="0" y="0"/>
 						</Anchors>
 						<Layers>
-							<Layer level="BACKGROUND" textureSubLevel="2">
-								<Texture hidden="false" file="Interface\AddOns\Narcissus\Art\BasicShapes\Hexagon" Alpha="0.8">
+							<Layer level="BACKGROUND" textureSubLevel="1">
+								<Texture hidden="true" file="Interface\AddOns\Narcissus\Art\BasicShapes\Hexagon" Alpha="0.8">
 									<Size x="80" y="80"/>
 									<Anchors>
 										<Anchor point="CENTER" relativeKey="$parent" x="0" y="0"/>
@@ -1225,6 +1225,31 @@
 								</Texture>
 							</Layer>
 						</Layers>
+					</Frame>
+					<Frame parentKey="TempPortraitFrame" frameLevel="1">
+						<Size x="72" y="72"/>
+						<Anchors>
+							<Anchor point="CENTER" relativeKey="$parent" relativePoint="CENTER"/>
+						</Anchors>
+						<Layers>
+							<Layer level="BACKGROUND" textureSubLevel="2">
+								<Texture parentKey="PortraitTexture"/>
+								<MaskTexture parentKey="PortraitMask" file="Interface\AddOns\Narcissus\Art\Masks\HexagonMask" hWrapMode="CLAMPTOBLACKADDITIVE" vWrapMode="CLAMPTOBLACKADDITIVE" setAllPoints="true">
+									<Size x="84" y="84"/>
+									<Anchors>
+										<Anchor point="CENTER" relativeKey="$parent" relativePoint="CENTER"/>
+									</Anchors>
+									<MaskedTextures>
+										<MaskedTexture childKey="PortraitTexture"/>
+									</MaskedTextures>
+								</MaskTexture>
+							</Layer>
+						</Layers>
+						<Scripts>
+							<OnShow>
+								SetPortraitTexture(self.PortraitTexture, "player", true);
+							</OnShow>
+						</Scripts>
 					</Frame>
 					<Frame frameLevel="3">
 						<Size x="102" y="102"/>
@@ -1243,7 +1268,7 @@
 							</Layer>
 						</Layers>
 					</Frame>
-					<Frame parentKey="C0" inherits="ModelPieceFrameTemplate">
+					<!--Frame parentKey="C0" inherits="ModelPieceFrameTemplate">
 						<Size x="20" y="50"/>
 						<Anchors>
 							<Anchor point="BOTTOM" relativeKey="$parent" relativePoint="BOTTOM" x="0" y="10"/>
@@ -1267,7 +1292,6 @@
 							<Anchor point="BOTTOMRIGHT" relativeKey="$parent.L1" relativePoint="BOTTOMLEFT" x="0.5" y="4"/>
 						</Anchors>
 					</Frame>
-
 					<Frame parentKey="R1" inherits="ModelPieceFrameTemplate">
 						<Size x="20" y="38"/>
 						<Anchors>
@@ -1279,7 +1303,7 @@
 						<Anchors>
 							<Anchor point="BOTTOMLEFT" relativeKey="$parent.R1" relativePoint="BOTTOMRIGHT" x="-0.5" y="4"/>
 						</Anchors>
-					</Frame>
+					</Frame-->
 
 					<EditBox parentKey="MogNameEditBox" clipChildren="false" autoFocus="false" letters="24" multiLine="false" inherits="NarciEditBoxTemplate">
 						<Size>

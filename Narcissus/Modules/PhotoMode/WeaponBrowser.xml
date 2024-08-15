@@ -256,7 +256,7 @@
         <Frames>
             <Frame inherits="NarciPhotoModeUIBorderTemplate" frameLevel="8"/>
 
-            <Frame parentKey="HomePage" clipChildren="true" frameLevel="2">
+            <Frame parentKey="HomePage" clipChildren="false" frameLevel="2">
                 <Size x="192"/>
                 <Anchors>
                     <Anchor point="TOP" relativeKey="$parent" relativePoint="TOP" y="-16"/>
@@ -280,6 +280,10 @@
                     </Layer>
                 </Layers>
                 <Frames>
+                    <Frame parentKey="Container" clipChildren="true" setAllPoints="true">
+
+                    </Frame>
+
                     <Frame parentKey="ButtonHighlight" hidden="true" useParentLevel="true">
                         <Size x="192" y="30"/>
                         <Layers>
@@ -317,7 +321,7 @@
                         </Frames>
                     </Frame>
 
-                    <Frame parentKey="MotionBlocker" hidden="true"  frameLevel="4">
+                    <Frame parentKey="MotionBlocker" hidden="true" frameLevel="4">
                         <Anchors>
                             <Anchor point="TOPLEFT" relativeKey="$parent" relativePoint="TOPLEFT"/>
                             <Anchor point="BOTTOMRIGHT" relativeKey="$parent" relativePoint="BOTTOMRIGHT"/>

@@ -2731,6 +2731,7 @@
 			<Layer level="OVERLAY">
 				<Texture parentKey="Icon" file="Interface\AddOns\Narcissus\Art\Modules\Showcase\InfoButton">
 					<Color r="0.4" g="0.4" b="0.4"/>
+					<TexCoords left="0" right="0.5" top="0" bottom="1"/>
 				</Texture>
 			</Layer>
 		</Layers>

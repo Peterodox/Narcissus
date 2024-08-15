@@ -3265,6 +3265,21 @@ local function CopyTable(tbl)
 end
 addon.CopyTable = CopyTable;
 
+do
+    local SOUND_FILE_ID = 567520;
+    local MuteSoundFile = MuteSoundFile;
+    local UnmuteSoundFile = UnmuteSoundFile;
+
+    local function MuteTargetLostSound(state)
+        if state then
+            MuteSoundFile(SOUND_FILE_ID);
+        else
+            UnmuteSoundFile(SOUND_FILE_ID);
+        end
+    end
+    NarciAPI.MuteTargetLostSound = MuteTargetLostSound;
+end
+
 --[[
     /script DEFAULT_CHAT_FRAME:AddMessage("\124Hitem:narcissus:0:\124h[Test Link]\124h\124r");
 function TestFX(modelFileID, zoomDistance, view)

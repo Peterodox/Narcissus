@@ -1874,37 +1874,94 @@ end
 NarciGenericInfoButtonMixin = {};   --Question Mark Button that displays extra info when moused-over
 
 function NarciGenericInfoButtonMixin:OnEnter()
-    self.Icon:SetVertexColor(0.8, 0.8, 0.8);
-    SetCursor("Interface/CURSOR/UnableQuestTurnIn.blp");
+    local c = self.HighlightColor;
+    if c then
+        self.Icon:SetVertexColor(c[1], c[2], c[3]);
+    else
+        self.Icon:SetVertexColor(0.8, 0.8, 0.8);
+    end
+
+    SetCursor("Interface/CURSOR/"..(self.cursorFile or "UnableQuestTurnIn.blp"));
 
     local tooltip = self:GetTooltip();
-
-    if tooltip and self.tooltipText then
-        tooltip:SetOwner(self, "ANCHOR_NONE");
-        tooltip:SetPoint("TOPLEFT", self, "TOPRIGHT", self.tooltipOffsetX or 4, 0);
-        tooltip:SetPadding(5, 5, 5, 5);
-        tooltip:AddLine(self.tooltipText, 1, 1, 1, 1, true);
-        tooltip:Show();
-
-        --tooltip.TextLeft1:SetSpacing(2);
-        --tooltip:SetMinimumWidth(300);
+    if self.usePrivateTooltip then
+        tooltip:ShowButtonTooltip(self);
+    else
+        if tooltip and self.tooltipText then
+            tooltip:SetOwner(self, "ANCHOR_NONE");
+            tooltip:SetPoint("TOPLEFT", self, "TOPRIGHT", self.tooltipOffsetX or 4, 0);
+            tooltip:SetPadding(5, 5, 5, 5);
+            tooltip:AddLine(self.tooltipText, 1, 1, 1, 1, true);
+            tooltip:Show();
+            --tooltip.TextLeft1:SetSpacing(2);
+            --tooltip:SetMinimumWidth(300);
+        end
     end
 end
 
 function NarciGenericInfoButtonMixin:OnLeave()
-    self.Icon:SetVertexColor(0.4, 0.4, 0.4);
+    local c = self.NormalColor;
+    if c then
+        self.Icon:SetVertexColor(c[1], c[2], c[3]);
+    else
+        self.Icon:SetVertexColor(0.4, 0.4, 0.4);
+    end
+
     ResetCursor();
 
     local tooltip = self:GetTooltip();
-
     if tooltip then
         tooltip:Hide();
     end
 end
 
 function NarciGenericInfoButtonMixin:GetTooltip()
-    return self.tooltip or (self.tooltipName and _G[self.tooltipName]);
+    if self.usePrivateTooltip then
+        return _G["NarciTooltip"];
+    else
+        return self.tooltip or (self.tooltipName and _G[self.tooltipName]);
+    end
 end
 
+function NarciGenericInfoButtonMixin:SetNormalColor(r, g, b)
+    self.NormalColor = {r, g, b};
+    self.Icon:SetVertexColor(r, g, b);
+end
+
+function NarciGenericInfoButtonMixin:SetHighlightColor(r, g, b)
+    self.HighlightColor = {r, g, b};
+end
+
+function NarciGenericInfoButtonMixin:SetVisualType(visualType)
+    --type: 1 (no shadow)   2 (shadow)
+    if visualType == 2 then
+        self.Icon:SetTexCoord(0.5, 1, 0, 1);
+    else
+        self.Icon:SetTexCoord(0, 0.5, 0, 1);
+    end
+end
+
+function NarciGenericInfoButtonMixin:SetCursorColor(colorType)
+    if colorType == 2 then
+        self.cursorFile = "questrepeatable.blp";
+    else
+        self.cursorFile = nil;
+    end
+end
+
+function NarciGenericInfoButtonMixin:SetUsePrivateTooltip(state, tooltipText)
+    self.usePrivateTooltip = state;
+    if tooltipText then
+        if state then
+            self.tooltipDescription = tooltipText;
+        else
+            self:SetTooltipText(tooltipText);
+        end
+    end
+end
+
+function NarciGenericInfoButtonMixin:SetTooltipText(tooltipText)
+    self.tooltipText = tooltipText;
+end
 
 TEMPS = nil;

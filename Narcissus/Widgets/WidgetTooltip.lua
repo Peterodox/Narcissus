@@ -144,7 +144,6 @@ function NarciGenericWidgetTooltipMixin:ShowButtonTooltip(widget)
 end
 
 function NarciGenericWidgetTooltipMixin:HideTooltip()
-    self:SetScript("OnUpdate", nil);
     self:ClearAllPoints();
     self:Hide();
 end
@@ -152,6 +151,7 @@ end
 function NarciGenericWidgetTooltipMixin:OnHide()
     self:Hide();
     self:SetAlpha(0);
+    self:SetScript("OnUpdate", nil);
 end
 
 

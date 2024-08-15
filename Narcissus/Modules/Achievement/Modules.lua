@@ -226,7 +226,7 @@ local function HookAchievementTrackerModule()
     if FUNCTIONS_HOOKED then return end;
     FUNCTIONS_HOOKED = true;
 
-    local m = ACHIEVEMENT_TRACKER_MODULE;
+    local m = AchievementObjectiveTracker;
     if m and m.OnBlockHeaderClick then
         hooksecurefunc(m, "OnBlockHeaderClick", New_OnBlockHeaderClick);
     end

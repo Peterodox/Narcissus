@@ -130,7 +130,7 @@ function TabUtil:SelectDefaultTab()
 end
 
 function TabUtil:UpdateCategories(dataSource, countSource)
-    local container = HomePage;
+    local container = HomePage.Container;
     --Sort by Name
     local categoryOrder = {};
     for subclassID, data in pairs(dataSource) do
@@ -157,7 +157,7 @@ function TabUtil:UpdateCategories(dataSource, countSource)
         self.categorybuttons = {};
     end
     local buttons = self.categorybuttons;
-
+    local frameLevel = HomePage:GetFrameLevel() + 5;
     for index = 1, #categoryOrder do
         subclassID = categoryOrder[index];
         numWeapons = countSource[subclassID] or 0;
@@ -173,10 +173,10 @@ function TabUtil:UpdateCategories(dataSource, countSource)
             else
                 button:SetPoint("TOP", buttons[i - 1], "BOTTOM", 0, 0);
             end
-            button.weaponList = 
             button:SetHeight(16.0);
             button:SetCatergory(subclassID, numWeapons);
             button:Show();
+            button:SetFrameLevel(frameLevel);
         end
     end
 
@@ -421,7 +421,7 @@ DataProvider.weaponList = {};
 local UI_SCALE = 1;
 
 function DataProvider:LocalizeSubclassName()
-    local GetItemSubClassInfo = GetItemSubClassInfo;
+    local GetItemSubClassInfo = C_Item.GetItemSubClassInfo;
 
     for subclassID, name in pairs(self.subclassInfo) do
         if subclassID == 69 then
@@ -807,13 +807,14 @@ end
 
 function ViewUpdator:PlayTabTransition(isHomePage)
     self.animHome:Hide();
+    MainFrame.HomePage.MotionBlocker:Show();
+    ButtonHighlight:Hide();
     if isHomePage then
         ButtonHighlight:ResetState();
         self.animHome.easeFunc = outQuint;
         self.animHome.toY = -16;
         self.animHome.fromY = -400;
         self.animHome.duration = 0.6;
-        MainFrame.HomePage.MotionBlocker:Show();
         After(0.25, function()
             MainFrame.HomePage.MotionBlocker:Hide();
         end)
@@ -823,7 +824,6 @@ function ViewUpdator:PlayTabTransition(isHomePage)
         self.animHome.toY = -400;
         self.animHome.fromY = -16;
         self.animHome.duration = 0.45;
-        MainFrame.HomePage.MotionBlocker:Show();
     end
     self.animHome.toBeHidden = not isHomePage;
     self.animHome:Show();
@@ -920,7 +920,7 @@ local function Niche_OnModelLoaded(self)
     self:SetCameraPosition(self.zoomDistance, 0, 0);
     self:SetCameraTarget(0, 0, 0);
     self:SetViewTranslation(0, self.offsetY or 0);
-    
+
     self:GetParent().ModelShadow:SetAnimation(0, 0);
     self:SetAnimation(0, 0);
 end
@@ -1412,7 +1412,7 @@ function NarciWeaponBrowserMixin:Open()
         --Enable Database
         After(0.2, function()
             local addOnName = "Narcissus_Database_Item";
-            if C_AddOns.GetAddOnEnableState( UnitName("player"), addOnName ) == 0 then
+            if C_AddOns.GetAddOnEnableState(addOnName, UnitName("player")) == 0 then
                 C_AddOns.EnableAddOn(addOnName);
             end
             local loaded, reason = C_AddOns.LoadAddOn(addOnName);
@@ -1478,8 +1478,8 @@ function NarciWeaponBrowserMixin:Load()
     HomePage = self.HomePage;
     ButtonHighlight:Init(HomePage.ButtonHighlight);
     TabUtil:ShowEverything();
-    TEMP:CreateTabButtons(HomePage);   --Above Categories
-    
+    TEMP:CreateTabButtons(HomePage.Container);   --Above Categories
+
     local animHome = NarciAPI_CreateAnimationFrame(0.6);
     animHome:SetScript("OnUpdate", function(frame, elapsed)
         frame.total = frame.total + elapsed;

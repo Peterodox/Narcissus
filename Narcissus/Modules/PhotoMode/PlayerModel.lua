@@ -2436,7 +2436,7 @@ local function SwitchPortrait(index, unit, fromBrowser)
 		Portraits["Portrait"..i]:Hide();
 	end
 	if unit then
-		SetPortraitTexture(portrait, unit);
+		SetPortraitTexture(portrait, unit, true);
 		portrait:SetTexCoord(0, 1, 0, 1);
 	elseif fromBrowser then
 		portrait:SetTexture("Interface\\AddOns\\Narcissus\\Art\\Widgets\\ActorPanel\\Dummy.blp");
@@ -4367,7 +4367,7 @@ end
 function NarciModelSettingsMixin:SetPanelAlpha(value, smoothing)
     local SpellVisualBrowser = self.SpellPanel;
     local fromAlpha = self.BasicPanel:GetAlpha();
-	local UIFrameFadeIn = UIFrameFadeIn;
+	local UIFrameFadeIn = FadeFrame;
     if smoothing then
         local fadeDuation;
         if value == 1 then

@@ -2478,6 +2478,7 @@ NarciOutfitInfoButtonMixin = {};
 
 function NarciOutfitInfoButtonMixin:OnLoad()
     self.Icon:SetTexture("Interface/AddOns/Narcissus/Art/Modules/Showcase/InfoButton", nil, nil, "LINEAR");
+    self.Icon:SetTexCoord(0, 0.5, 0, 1);
     self:SetColor(0.3, 0.3, 0.3);
 end
 

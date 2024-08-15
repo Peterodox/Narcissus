@@ -307,7 +307,6 @@ L["Animation Tooltip"] = "Browse, search animations";
 L["Animation Variation"] = "Variation";
 L["Reset Slider"] = "Reset to zero";
 
-
 --Spell Visual Browser--
 L["Visuals"] = "Visuals";
 L["Visual ID"] = "Visual ID";
@@ -335,6 +334,12 @@ L["History Panel Note"] = "Applied visuals will be shown here";
 L["Return"] = "Return";
 L["Close"] = "Close";
 L["Change Pack"] = "Change Pack";
+L["FindVisual Tooltip"] = "Show me how to find the SpellVisualKitID";
+L["FindVisual Guide 1"] = "Find SpellID using Spell Name.";
+L["FindVisual Guide 2"] = "Find SpellVisualID using SpellID on:";
+L["FindVisual Guide 3"] = "Find |cffccccccSpellVisualKitID|r using SpellVisualID on:";
+L["FindVisual Guide 4"] = "Enter the |cffccccccSpellVisualKitID|r into Narcissus visual edit box. You are not guaranteed to find a match in steps 2 or 3, and the visual does not always display correctly.";
+
 
 --Dressing Room--
 L["Undress"] = "Undress";
@@ -519,7 +524,7 @@ L["Guide History Headline"] = "History Panel";
 L["Guide History Line1"] = "At most 5 recently applied visuals can retain here. You can select one and delete it by clicking the Remove button on the right end.";
 L["Guide Refresh Line1"] = "Use this button to remove all unapplied spell visuals. Those that were in the history panel will be reapplied.";
 L["Guide Input Headline"] = "Manual Input";
-L["Guide Input Line1"] = "You may also input a SpellVisualKitID yourself. As of 9.0, Its cap is around 155,000.\nYou can use your mousewheel to try the next/previous ID.\nVery few IDs can crash the game.";
+L["Guide Input Line1"] = "You may enter a SpellVisualKitID yourself. As of 11.0, Its cap is around 196,000.\nYou can use your mousewheel to try the next/previous ID.\nVery few IDs can crash the game.";
 L["Guide Equipment Manager Line1"] = "Double-click: Use a set\nRight-click: Edit a set.\n\nThis button's previous function has been moved to Preferences.";
 L["Guide Model Control Headline"] = "Model Control";
 L["Guide Model Control Line1"] = string.format("This model shares the same mouse actions you use in the dressing room, plus:\n\n1.Hold %s and Left Button: Rotate model around Y-axis.\n2.Hold %s and Right Button: Execute scrubby zoom.", NARCI_MODIFIER_ALT, NARCI_MODIFIER_ALT);

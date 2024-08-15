@@ -212,32 +212,18 @@
 		</Scripts>
 	</Button>
 
-	<ScrollFrame name="Narci_NPCBrowser_ScrollFrameTemplate" clipChildren="true" frameLevel="60" virtual="true">
+	<ScrollFrame name="Narci_NPCBrowser_ScrollFrameTemplate" frameLevel="84" clipChildren="false" virtual="true">
 		<Size x="192" y="192"/>
-		<Layers>
-			<Layer level="BACKGROUND">
-				<Texture>
-					<Color r="0.17" g="0.17" b="0.17" a="1.0"/>
-				</Texture>
-			</Layer>
-		</Layers>
 		<ScrollChild>
 			<Frame parentKey="ScrollChild">
 				<Size x="192" y="192"/>
-				<Layers>
-					<Layer level="BACKGROUND">
-						<Texture hidden="true">
-							<Color r="0.06" g="0.06" b="0.06" a="0.8"/>
-						</Texture>
-					</Layer>
-				</Layers>
 				<Anchors>
 					<Anchor point="TOP" relativeKey="$parent" relativePoint="TOP"/>
 				</Anchors>
 			</Frame>
 		</ScrollChild>
 		<Frames>
-			<Slider valueStep="0.01" parentKey="scrollBar" frameLevel="11">
+			<Slider valueStep="0.01" parentKey="scrollBar" frameLevel="87">
 				<Size x="2" y="0"/>
 				<Anchors>
 					<Anchor point="TOPRIGHT" relativePoint="TOPRIGHT" x="-1.5" y="0"/>
@@ -280,14 +266,14 @@
 	<Frame name="Narci_NPCBrowser" hidden="true" parent="Narci_ModelSettings" frameLevel="80" mixin="NarciNPCBrowserMixin" parentKey="NPCBrowser">
 		<Size x="194" y="208"/>
 		<Layers>
-			<!--Layer level="OVERLAY">
+			<Layer level="BACKGROUND">
 				<Texture>
-					<Color r="0" g="1" b="0" a="0.5"/>
+					<Color r="0.17" g="0.17" b="0.17" a="1.0"/>
 				</Texture>
-			</Layer-->
+			</Layer>
 		</Layers>
 		<Frames>
-			<Frame inherits="NarciPhotoModeUIBorderTemplate" frameLevel="81"/>
+			<Frame inherits="NarciPhotoModeUIBorderTemplate" frameLevel="90"/>
 
 			<Frame parentKey="Container" clipChildren="true">
 				<Anchors>
@@ -336,35 +322,10 @@
 							</Layer>
 						</Layers>
 						<Frames>
-							<CinematicModel parentKey="MatchPreview" hidden="true" alpha="0" frameLevel="60" drawLayer="ARTWORK">
-								<Size x="192" y="192"/>
-								<Anchors>
-									<Anchor point="TOP" relativeKey="$parent" relativePoint="TOP"/>
-								</Anchors>
-								<Scripts>
-									<OnLoad>
-										self:SetFacing(-0.5236);
-										self:UseModelCenterToTransform(true);
-									</OnLoad>
-									<OnShow>
-										self:SetViewTranslation(48, 0);
-									</OnShow>
-									<OnHide>
-										self:ClearModel();
-										self:Hide();
-										self.id = nil;
-									</OnHide>
-									<OnModelLoaded>
-										self:SetCamera(0);
-										self:SetPortraitZoom(1);
-										self:SetPortraitZoom(0);
-									</OnModelLoaded>
-								</Scripts>				
-							</CinematicModel>
 						</Frames>
 					</ScrollFrame>
-					
-					<Frame parentKey="MouseOverButtons" frameLevel="62">
+
+					<Frame parentKey="MouseOverButtons" frameLevel="88">
 						<Size x="36" y="18"/>
 						<Frames>
 							<Button inherits="NarciQuickFavoriteButtonTemplate">
@@ -420,7 +381,7 @@
 						</Frames>
 					</Frame>
 
-					<Frame parentKey="Header" frameLevel="65">
+					<Frame parentKey="Header" frameLevel="84">
 						<Size x="194" y="16"/>
 						<Anchors>
 							<Anchor point="TOP" relativeKey="$parent" relativePoint="TOP" y="0"/>
@@ -473,7 +434,7 @@
 							</Layer>
 						</Layers>
 						<Frames>
-							<Button parentKey="HomeButton" hidden="true" inherits="Narci_NavigationButton_Template">
+							<Button parentKey="HomeButton" frameLevel="86" hidden="true" inherits="Narci_NavigationButton_Template">
 								<HitRectInsets>
 									<AbsInset left="0" right="-10" top="-1" bottom="0"/>
 								</HitRectInsets>
@@ -487,7 +448,7 @@
 								</Scripts>
 							</Button>
 
-							<Button parentKey="CloseButton" inherits="Narci_NavigationButton_Template">
+							<Button parentKey="CloseButton" frameLevel="86" inherits="Narci_NavigationButton_Template">
 								<HitRectInsets>
 									<AbsInset left="-6" right="0" top="-1" bottom="0"/>
 								</HitRectInsets>
@@ -506,7 +467,7 @@
 								</Scripts>
 							</Button>
 
-							<Button parentKey="SearchTrigger">
+							<Button parentKey="SearchTrigger" frameLevel="86">
 								<Size x="160" y="16"/>
 								<HitRectInsets>
 									<AbsInset left="0" right="0" top="-6" bottom="-2"/>
@@ -594,7 +555,7 @@
 						</Scripts>
 					</Frame>
 
-					<Frame parentKey="LoadingIndicator" frameLevel="64" hidden="true">
+					<Frame parentKey="LoadingIndicator" frameLevel="83" hidden="true">
 						<Size x="10" y="10"/>
 						<Anchors>
 							<Anchor point="CENTER" relativeKey="$parent" relativePoint="CENTER" y="20"/>
@@ -638,6 +599,32 @@
 
 				</Frames>
 			</Frame>
+
+			<CinematicModel parentKey="MatchPreview" frameLevel="80" hidden="true" alpha="0" drawLayer="ARTWORK">
+				<Size x="192" y="192"/>
+				<Anchors>
+					<Anchor point="TOP" relativeKey="$parent.Container.MatchTab" relativePoint="TOP"/>
+				</Anchors>
+				<Scripts>
+					<OnLoad>
+						self:SetFacing(-0.5236);
+						self:UseModelCenterToTransform(true);
+					</OnLoad>
+					<OnShow>
+						self:SetViewTranslation(48, 0);
+					</OnShow>
+					<OnHide>
+						self:ClearModel();
+						self:Hide();
+						self.id = nil;
+					</OnHide>
+					<OnModelLoaded>
+						self:SetCamera(1);
+						self:SetPortraitZoom(1);
+						self:SetPortraitZoom(0);
+					</OnModelLoaded>
+				</Scripts>				
+			</CinematicModel>
 		</Frames>
 		<Scripts>
 			<OnLoad method="OnLoad"/>

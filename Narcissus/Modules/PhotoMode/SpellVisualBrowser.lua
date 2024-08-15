@@ -10,7 +10,6 @@ local MODEL_SETTINGS_FRAME_WIDTH = 440;
 local BROWSER_ANCHOR_OFFSET_COLLAPSED_X = 146;
 local BROWSER_ANCHOR_OFFSET_EXPANED_X = -28;
 local BROWSER_ANCHOR_OFFSET_Y = -6;
-local FREQUENTLY_USED_BUTTON_TOOLTIP_DELAY = 1;
 ------------------------------------------------------------------------
 
 local Narci = Narci;
@@ -165,7 +164,7 @@ function Narci_ToggleSpellVisualBrowser(self)
     ReAnchorBrowser();
     local state = self.isActive;
     BrowserFrame.isActive = state;
-    
+
     local newWidth;
     local newOffsetX, newOffsetY;  --for 2 different widgets
     if state then
@@ -1358,7 +1357,7 @@ end
 
 local function DeleteButton_OnEnter(self)
     self.Highlight:Show();
-    NarciTooltip:NewText(L["Remove Visual Tooltip"], nil, nil, FREQUENTLY_USED_BUTTON_TOOLTIP_DELAY);
+    NarciTooltip:NewText(self, L["Remove Visual Tooltip"], nil, nil, true);
 end
 
 local function ButtonWithTooltip_OnLeave(self)
@@ -1429,9 +1428,9 @@ local function FavoriteButton_OnEnter(self)
     self.Highlight:Show();
     if not self:GetParent().PopUpFrame:IsShown() then
         if self.IsFav then
-            NarciTooltip:NewText(L["Favorites Remove"], nil, nil, FREQUENTLY_USED_BUTTON_TOOLTIP_DELAY);
+            NarciTooltip:NewText(self, L["Favorites Remove"], nil, nil, true);
         else
-            NarciTooltip:NewText(L["Favorites Add"], nil, nil, FREQUENTLY_USED_BUTTON_TOOLTIP_DELAY);
+            NarciTooltip:NewText(self, L["Favorites Add"], nil, nil, true);
         end
     end
 end
@@ -1843,7 +1842,6 @@ function Narci_SpellVisualBrowser_OnLoad(self)
     HistoryFrame = self.ExpandableFrames.HistoryFrame;
     Tab1 = ListFrame.Category;
     ListScrollBar = ListFrame.ScrollFrame.scrollBar;
-    
 
     ExpandableFrames.EditBox:SetScript("OnMouseWheel", EditBox_OnMouseWheel);
     ExpandableFrames.EditBox:SetScript("OnEnterPressed", EditBox_OnEnterPressed);
@@ -1880,7 +1878,7 @@ function Narci_SpellVisualBrowser_OnLoad(self)
 
     ScrollFrame_OnLoad(ListFrame.ScrollFrame);
     ScrollFrame_OnLoad(ListFrame.MyFavorites);
-    
+
     QuickFavoriteButton = ListFrame.ScrollFrame.QuickFavoriteButton;
     QuickFavoriteButton:SetScript("OnClick", QuickFavoriteButton_OnClick);
 
@@ -1892,6 +1890,27 @@ function Narci_SpellVisualBrowser_OnLoad(self)
     MyFavoriteEditFrame.EditBox:SetScript("OnEscapePressed", EditFrame_EditBox_Cancel);
     MyFavoriteEditFrame.EditBox:SetScript("OnEditFocusLost", EditFrame_EditBox_OnEditFocusLost);
     MyFavoriteEditFrame.EditBox:SetScript("OnTextChanged", EditFrame_EditBox_OnTextChanged);
+
+
+    local IDLabel = self.VisualIDFrame.Label;
+    IDLabel:SetText("ID");
+    IDLabel:SetPoint("LEFT", self.VisualIDFrame, "LEFT", 30, 0);
+
+    local b = CreateFrame("Frame", nil, self.ExpandableFrames, "NarciGenericInfoButtonTemplate");
+    self.InfoButton = b;
+    b:ClearAllPoints();
+    b:SetPoint("LEFT", self.VisualIDFrame, "LEFT", 6, 0);
+    b:SetSize(18, 18);
+    b:SetHitRectInsets(0, 0, 0, 0);
+    b:SetNormalColor(0.65, 0.65, 0.65);
+    b:SetHighlightColor(0.88, 0.88, 0.88);
+    b:SetVisualType(2);
+    b:SetCursorColor(2);
+    b:SetUsePrivateTooltip(true, L["FindVisual Tooltip"]);
+    b:SetFrameLevel(self.VisualIDFrame:GetFrameLevel() + 10);
+    b:SetScript("OnMouseDown", function()
+        NarciAPI.ToggleSpellVisualTutorial();
+    end);
 end
 
 

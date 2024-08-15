@@ -78,7 +78,7 @@ do
 
 
     local newRaidItems;
-    if addon.IsTOCVersionEqualOrNewerThan(110002) then
+    if UnitLevel("player") >= 80 then
         newRaidItems = spider;
     else
         newRaidItems = awakened;

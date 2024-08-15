@@ -131,12 +131,14 @@ local function GoToTab(index, isFavoriteTab)
     if index == 1 then
         SearchTrigger:Show();
         SearchBox:Hide();
+        MatchPreviewModel:Hide();
     else
         FadeFrame(HomeButton, 0.2, 1);
         HomeButton.CurrentTabIndex = index;
         if index == 2 then
             SearchTrigger:Hide();
             SearchBox:Hide();
+            MatchPreviewModel:Hide();
         else
             --Tab 3
             if isFavoriteTab then
@@ -3253,7 +3255,7 @@ local function NPCBrowser_OnLoad(self)
     CategoryTab = self.Container.CategoryTab;
     EntryTab = self.Container.EntryTab;
     MatchTab = self.Container.MatchTab;
-    MatchPreviewModel = MatchTab.MatchPreview;
+    MatchPreviewModel = self.MatchPreview;
     MouseOverButtons = self.Container.MouseOverButtons;
     QuickFavoriteButton = MouseOverButtons.QuickFavoriteButton;
     HeaderFrame = self.Container.Header;
@@ -3261,7 +3263,7 @@ local function NPCBrowser_OnLoad(self)
     SearchBox = HeaderFrame.SearchBox;
     SearchTrigger = HeaderFrame.SearchTrigger;
     LoadingIndicator = self.Container.LoadingIndicator;
-    
+
     CreateSmoothScroll(EntryTab, NPC_BUTTON_HEIGHT, NUM_BUTTONS_PER_PAGE, 2, UpdateRenderAreaEntry);
 
     ScrollCategory:Update();
@@ -3316,7 +3318,7 @@ local function NPCBrowser_OnLoad(self)
                     end
                 end)
 
-                if C_AddOns.GetAddOnEnableState( UnitName("player"), addOnName ) == 0 then
+                if C_AddOns.GetAddOnEnableState(addOnName, UnitName("player")) == 0 then
                     C_AddOns.EnableAddOn(addOnName);
                 end
 
@@ -3688,6 +3690,9 @@ function NarciNPCBrowserMixin:Close()
         NarciPhotoModeAPI.RemoveActor(TARGET_MODEL_INDEX)
     end
     ACTOR_CREATED = false;
+    if MatchPreviewModel then
+        MatchPreviewModel:Hide();
+    end
 end
 
 function NarciNPCBrowserMixin:IsFocused()
