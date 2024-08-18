@@ -1,6 +1,0 @@
-<Ui xsi:schemaLocation="http://www.blizzard.com/wow/ui/..\FrameXML\UI.xsd">
-    <Script file="APITransition.lua"/>
-    <Script file="APITransition_SL.lua"/>
-    <Script file="APITransition_DF.lua"/>
-    <Script file="APITransition_TWW.lua"/>
-</Ui>

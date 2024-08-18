@@ -3,7 +3,7 @@ local _, addon = ...
 local EXPANDED_BAR_LEFT_OFFSET = 68;    --Constant
 local COLLAPSED_BAR_LEFT_OFFSET = -120; --Variable
 
-local IsTrackingPets = addon.TransitionAPI.IsTrackingPets;
+local IsTrackingPets = C_Minimap.IsTrackingBattlePets;
 local SetTrackingPets = addon.TransitionAPI.SetTrackingPets;
 
 local outSine = addon.EasingFunctions.outSine;
@@ -1201,18 +1201,14 @@ function NarciRayTracingToggleMixin:OnLeave()
 end
 
 function NarciRayTracingToggleMixin:OnLoad()
-	local validity = addon.TransitionAPI.IsRTXSupported();
-
-    self:OnLeave();
-
+	local validity = true;
 	self.isValid = validity;
+    self:OnLeave();
 	if not validity then
 		self:Hide();
 		self:Disable();
         self:GetParent():SetWidth(134);
-        --
 	end
-
 	self:SetScript("OnLoad", nil);
 	self.OnLoad = nil;
 end

@@ -1171,7 +1171,7 @@ function NarciBarberShopSavedLooksMixin:SetSelection(state)
     end
 end
 
-if addon.IsDragonflight() then
+if true then
     function NarciBarberShopSavedLooksMixin:SetButtonAlpha(alpha)
         --Dragonflight Beta: Model no longer inherts parent alpha.
         --Probably a driver issue that only took place in beta but still

@@ -1133,8 +1133,7 @@ local function SocketInventoryItem_Callback(slot)
         MainFrame:SetGemListForBlizzardUI(slot);
     end
 end
-
-addon.TransitionAPI.HookSocketInventoryItem(SocketInventoryItem_Callback);
+hooksecurefunc("SocketInventoryItem", SocketInventoryItem_Callback);
 
 local function SocketContainerItem_Callback(bag, slot)
     MainFrame:SetItemPosition(bag, slot);
@@ -1142,5 +1141,4 @@ local function SocketContainerItem_Callback(bag, slot)
         MainFrame:SetGemListForBlizzardUI(bag, slot);
     end
 end
-
-addon.TransitionAPI.HookSocketContainerItem(SocketContainerItem_Callback);
+hooksecurefunc(C_Container, "SocketContainerItem", SocketContainerItem_Callback);

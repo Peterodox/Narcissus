@@ -21,12 +21,13 @@ Locales\Localization.xml
 LocalizedData\Localization.xml
 
 
-NarciDB\APITransition.xml
-
+API\API.xml
 
 NarciDB\TitleManagerDB.lua
 NarciDB\GearBonus.lua
 NarciDB\API.xml
+
+
 
 Modules\ModuleManager\ModuleManager.lua
 Modules\PaperDollWidget\Controller.xml

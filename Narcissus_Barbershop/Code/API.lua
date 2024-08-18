@@ -69,15 +69,9 @@ end
 API.FormatPlayerName = FormatPlayerName;
 
 do
-    local version = GetBuildInfo();
-    local expansionID = string.match(version, "(%d+)%.");
-	local isDF = (tonumber(expansionID) or 1) >= 10;
-
-    local function IsDragonflight()
-        return isDF
-    end
-
-    addon.IsDragonflight = IsDragonflight;
+    --local version = GetBuildInfo();
+    --local expansionID = string.match(version, "(%d+)%.");
+	--local isDF = (tonumber(expansionID) or 1) >= 10;
 end
 
 do

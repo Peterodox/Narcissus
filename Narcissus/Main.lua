@@ -5,6 +5,9 @@ local TransitionAPI = addon.TransitionAPI;
 local SlotButtonOverlayUtil = addon.SlotButtonOverlayUtil;
 local TimerunningUtil = addon.TimerunningUtil;
 local TalentTreeDataProvider = addon.TalentTreeDataProvider;
+local CameraUtil = addon.CameraUtil;
+local UIParentFade = addon.UIParentFade;
+
 
 local Narci = Narci;
 
@@ -34,8 +37,6 @@ local GetBorderArtByItemID = NarciAPI.GetBorderArtByItemID;
 local GetVerticalRunicLetters = NarciAPI.GetVerticalRunicLetters;
 local FadeFrame = NarciFadeUI.Fade;
 
-local inOutSine = addon.EasingFunctions.inOutSine
-local linear = addon.EasingFunctions.linear;
 local outSine = addon.EasingFunctions.outSine;
 
 local GetToolbarButtonByButtonType = addon.GetToolbarButtonByButtonType;
@@ -79,16 +80,25 @@ EL.EVENTS_DYNAMIC = {"PLAYER_TARGET_CHANGED", "COMBAT_RATING_UPDATE", "PLAYER_MO
 	"BAG_UPDATE_COOLDOWN", "UNIT_STATS", "BAG_UPDATE", "PLAYER_EQUIPMENT_CHANGED", "AZERITE_ESSENCE_ACTIVATED",
 };
 
+local _, _, playerClassID = UnitClass and UnitClass("player");
+if playerClassID == 11 then
+	table.insert(EL.EVENTS_DYNAMIC, "UPDATE_SHAPESHIFT_FORM");
+end
+
 EL.EVENTS_UNIT = {"UNIT_DAMAGE", "UNIT_ATTACK_SPEED", "UNIT_MAXHEALTH", "UNIT_AURA", "UNIT_INVENTORY_CHANGED"};
 
 
 --take out frames from UIParent, so they will still be visible when UI is hidden
+local FRAME_TAKEN = false;
 local function TakeOutFrames(state)
+	if (not state) and (not FRAME_TAKEN) then return end;
+
 	local frameNames = {
 		"AzeriteEmpoweredItemUI", "AzeriteEssenceUI", "ItemSocketingFrame",
 	};
 	local frame;
 	if state then
+		FRAME_TAKEN = true;
 		local scale = UIParent:GetEffectiveScale();
 		for _, frameName in pairs(frameNames) do
 			frame = _G[frameName];
@@ -98,6 +108,7 @@ local function TakeOutFrames(state)
 			end
 		end
 	else
+		FRAME_TAKEN = false;
 		for _, frameName in pairs(frameNames) do
 			frame = _G[frameName];
 			if frame then
@@ -132,62 +143,21 @@ function Narci_ShowButtonTooltip(self)
 		DefaultTooltip:AddLine(self.tooltipSpecial, 0.25, 0.78, 0.92, true);
 	end
 
-
 	DefaultTooltip:Show();
 	DefaultTooltip:FadeIn();
-
-	--ShowDelayedTooltip("BOTTOM", self, "TOP", 0, 2);
 end
 
 function Narci:HideButtonTooltip()
-	--ShowDelayedTooltip(false);
 	DefaultTooltip:HideTooltip();
 	ItemTooltip:HideTooltip();
-	--DefaultTooltip:SetFrameStrata("TOOLTIP");
+
 end
 
---------------------------------
-local UIPA = CreateFrame("Frame");	--UIParentAlphaAnimation
-UIPA:Hide()
-UIPA.t = 0;
-UIPA.totalTime = 0;
-UIPA.frame = UIParent;
 
-UIPA:SetScript("OnShow", function(self)
-	self.startAlpha = self.frame:GetAlpha();
-end);
-
-UIPA:SetScript("OnUpdate", function(self, elapsed)
-	self.t = self.t + elapsed
-	self.totalTime = self.totalTime + elapsed;
-	if self.t < 0.08 then	--Limit update frequency to mitigate the impact on FPS
-		return;
-	else
-		self.t = 0;
-	end
-
-	local alpha = linear(self.totalTime, self.startAlpha, self.endAlpha, 0.5);
-
-	if self.totalTime >= 0.5 then
-		alpha = self.endAlpha;
-		self:Hide();
-	end
-
-	self.frame:SetAlpha(alpha);
-end);
-
-UIPA:SetScript("OnHide", function(self)
-	self.t = 0;
-	self.totalTime = 0;
-end);
-
-
---------------------------------
------------CVar Backup----------
---------------------------------
+--CVar Backup
 local ConsoleExec = ConsoleExec;
-local GetCVar = (C_CVar and C_CVar.GetCVar) or GetCVar;
-local SetCVar = (C_CVar and C_CVar.SetCVar) or SetCVar;
+local GetCVar = C_CVar.GetCVar;
+local SetCVar = C_CVar.SetCVar;
 
 ConsoleExec("pitchlimit 88");
 
@@ -201,7 +171,7 @@ function CVarTemp:BackUp()
 end
 
 function CVarTemp:BackUpDynamicCam()
-	self.DynmicCamShoulderOffsetZoomUpperBound = DynamicCam.db.profile.shoulderOffsetZoom.lowerBound;	--New
+	self.DynmicCamShoulderOffsetZoomUpperBound = DynamicCam.db.profile.shoulderOffsetZoom.lowerBound;
 	DynamicCam.db.profile.shoulderOffsetZoom.lowerBound = 0;
 end
 
@@ -217,343 +187,6 @@ CVarTemp.shoulderOffset = tonumber(GetCVar("test_cameraOverShoulder"));
 CVarTemp.dynamicPitch = tonumber(GetCVar("test_cameraDynamicPitch"));		--No CVar directly shows the current state of ActionCam. Check this CVar for the moment. 1~On  2~Off
 CVarTemp.zoomLevel = 2;
 
-local ZoomFactor = {};
-ZoomFactor.Time = 1.5;			--1.5 outSine
---ZoomFactor.Amplifier = 0.65; 	--0.65
-ZoomFactor.toSpeedBasic = 0.004;	--yawmovespeed 180
-ZoomFactor.fromSpeedBasic = 1.05;	--yawmovespeed 180
-ZoomFactor.toSpeed = 0.005;	--yawmovespeed 180
-ZoomFactor.fromSpeed = 1.0;	--yawmovespeed 180 outSine 1.4 
-ZoomFactor.SpeedFactor = 180 / tonumber(GetCVar("cameraYawMoveSpeed") or 180);
-ZoomFactor.Goal = 2.5; --2.5 with dynamic pitch
-
-local MOG_MODE_OFFSET = 0;
-local ZoomValuebyRaceID = {
-	--[raceID] = {ZoomValue Bust, factor1, factor2, ZoomValue for XmogMode},
-	[0] = {[2] = {2.1, 0.361, -0.1654, 4},},		--Default Value
-
-	[1] = {[2] = {2.1, 0.3283, -0.02, 4},		--1 Human √
-		   [3] = {2.0, 0.38, 0.0311, 3.6}},
-
-	[2] = {[2] = {2.4, 0.2667, -0.1233, 5.2},	--2 Orc √
-		   [3] = {2.1, 0.3045, -0.0483, 5}},
-
-	[3] = {[2] = {2.0, 0.2667, -0.0267, 3.6},	--3 Dwarf √
-		   [3] = {1.8, 0.3533, -0.02, 3.6}},
-
-	[4] = {[2] = {2.1, 0.30, -0.0404, 5},		--4 NE √
-		   [3] = {2.1, 0.329, 0.025, 4.6}},
-
-	[5] = {[2] = {2.1, 0.3537, -0.15, 4.2},		--5 UD √
-		   [3] = {2.0, 0.3447, 0.03, 3.6}},
-
-	[6] = {[2] = {4.5, 0.2027, -0.18, 5.5},		--6 Tauren Male √
-		   [3] = {3.0, 0.2427, -0.1867, 5.5}},
-
-	[7] = {[2] = {2.1, 0.329, 0.0517, 3.2},		--7 Gnome √
-		   [3] = {2.1, 0.329, -0.012, 3.1}},
-
-	[8] = {[2] = {2.1, 0.2787, 0.04, 5.2},		--8 Troll √
-		   [3] = {2.1, 0.355, -0.1317, 5}},
-
-	[9] = {[2] = {2.1, 0.2787, 0.04, 4.2},		--9 Goblin √
-		   [3] = {2.1, 0.3144, -0.054, 4}},
-
-	[10] = {[2] = {2.1, 0.361, -0.1654, 4},		--10 BloodElf Male √
-		    [3] = {2.1, 0.3177, 0.0683, 3.8}},
-
-	[11] = {[2] = {2.4, 0.248, -0.02, 5.5},		--11 Goat Male √
-			[3] = {2.1, 0.3177, 0, 5}},
-			
-	[24] = {[2] = {2.5, 0.2233, -0.04, 5.2},		--24 Pandaren Male √
-		    [3] = {2.5, 0.2433, 0.04, 5.2}},
-
-	[27] = {[2] = {2.1, 0.3067, -0.02, 5.2},		--27 Nightborne √
-		   [3] = {2.1, 0.3347, -0.0563, 4.7}},
-
-	[28] = {[2] = {3.5, 0.2027, -0.18, 5.5},		--28 Tauren Male √
-		   [3] = {2.3, 0.2293, 0.0067, 5.5}},
-
-	[29] = {[2] = {2.1, 0.3556, -0.1038, 4.5},		--24 VE √
-			[3] = {2.1, 0.3353, -0.02, 3.8}},
-
-	[31] = {[2] = {2.3, 0.2387, -0.04, 5.5},		--32 Zandalari √
-		   [3] = {2.1, 0.2733, -0.1243, 5.5}},
-
-	[32] = {[2] = {2.3, 0.2387, 0.04, 5.2},			--32 Kul'Tiran √
-		   [3] = {2.1, 0.312, -0.02, 4.7}},
-
-	[35] = {[2] = {2.1, 0.31, -0.03, 3.1},			--35 Vulpera √
-		   [3] = {2.1, 0.31, -0.03, 3.1}},
-
-	["Wolf"] = {[2] = {2.6, 0.2266, -0.02, 5},	--22 Worgen Wolf form √
-		   	[3] = {2.1, 0.2613, -0.0133, 4.7}},
-	
-	["Druid"] = {[1] = {3.71, 0.2027, -0.02, 5},		--Cat
-				 [5] = {4.8, 0.1707, -0.04, 5},			--Bear
-				 [31] = {4.61, 0.1947, -0.02, 5},		--Moonkin
-				 [4] = {4.61, 0.1307, -0.04, 5},		--Swim
-				 [27] = {4.61, 0.1067, -0.02, 5},		--Fly Swift
-				 [29] = {4.61, 0.1067, -0.02, 5},		--Fly
-				 [3] = {4.91, 0.184, -0.02, 5},			--Travel Form
-				 [36] = {4.2, 0.1707, -0.04, 5},		--Treant
-				 [2] = {5.4, 0.1707, -0.04, 5},			--Tree of Life
-				},
-
-	["Mounted"] = {[2] = {8, 1.2495, -4, 5.5},
-				   [3] = {8, 1.2495, -4, 5.5}},
-	
-	[52] = {[2] = {2.1, 0.361, -0.1654, 4},		--Dracthyr Visage (Male elf)
-		    [3] = {2.0, 0.38, 0.0311, 3.6}},	--Dracthyr Visage (Female human)
-
-	["Dracthyr"] = {[2] = {2.6, 0.1704, 0.0749, 5},		--Dracthyr Dragon Form
-					[3] = {2.6, 0.1704, 0.0749, 5}},
-
-	--1 	Human 32 Kultiran
-	--2 	Orc
-	--3 	Dwarf
-	--4 	Night Elf
-	--5 	Undead
-	--6 	Tauren
-	--7 	Gnome
-	--8 	Troll
-	--9 	Goblin
-	--10 	Blood Elf
-	--11 	Draenei
-	--/run NarciScreenshotToolbar:ShowUI("Blizzard")
-};
-
-
-local _, _, PLAYER_RACE_ID = UnitRace("player")
-local PLAYER_GENDER_ID = UnitSex("player")
-local _, _, PLAYER_CLASS_ID = UnitClass("player");
-local CAM_DISTANCE_INDEX = 1;
-local ZOOM_IN_VALUE = ZoomValuebyRaceID[0][1];
-local ZOOM_IN_VALUE_MOG = 3.8;
-local SHOULDER_FACTOR_1 = ZoomValuebyRaceID[0][2][2];
-local SHOULDER_FACTOR_2 = ZoomValuebyRaceID[0][2][3];
-
-
-local CameraMover = {};
-local CameraUtil = {};
-
-function CameraUtil:UpdateParametersDefault()
-	local raceKey;
-	if IsMounted() then
-		raceKey = "Mounted";
-	else
-		raceKey = self:GetRaceKey();
-	end
-
-	ZOOM_IN_VALUE = ZoomValuebyRaceID[raceKey][PLAYER_GENDER_ID][CAM_DISTANCE_INDEX];
-	SHOULDER_FACTOR_1 = ZoomValuebyRaceID[raceKey][PLAYER_GENDER_ID][2];
-	SHOULDER_FACTOR_2 = ZoomValuebyRaceID[raceKey][PLAYER_GENDER_ID][3];
-	ZOOM_IN_VALUE_MOG = ZoomValuebyRaceID[raceKey][PLAYER_GENDER_ID][4];
-end
-
-CameraUtil.UpdateParameters = CameraUtil.UpdateParametersDefault;
-
-function CameraUtil:GetRaceKey()
-	return PLAYER_RACE_ID
-end
-
-function CameraUtil:GetRaceKey_Worgen()
-	local raceKey;
-	local inAlternateForm = IsPlayerInAlteredForm();
-	if inAlternateForm then
-		--Human
-		raceKey = 1;
-	else
-		raceKey = "Wolf";
-	end
-	return raceKey
-end
-
-function CameraUtil:GetRaceKey_Dracthyr()
-	local raceKey;
-	local inAlternateForm = IsPlayerInAlteredForm();
-	if inAlternateForm then
-		--Visage
-		raceKey = 52;
-	else
-		raceKey = "Dracthyr";
-	end
-	return raceKey
-end
-
-function CameraUtil:UpdateParameters_Druid()
-	local formID = GetShapeshiftFormID();
-
-	if formID then
-		if formID == 31 then
-			local _, glyphID = GetCurrentGlyphNameForSpell(24858);		--Moonkin form with Glyph of Stars use regular configuration
-			if glyphID and glyphID == 114301 then
-				self:UpdateParametersDefault();
-				return
-			end
-		end
-
-		local raceKey = "Druid";
-		ZOOM_IN_VALUE = ZoomValuebyRaceID[raceKey][formID][CAM_DISTANCE_INDEX];
-		SHOULDER_FACTOR_1 = ZoomValuebyRaceID[raceKey][formID][2];
-		SHOULDER_FACTOR_2 = ZoomValuebyRaceID[raceKey][formID][3];
-		ZOOM_IN_VALUE_MOG = ZoomValuebyRaceID[raceKey][formID][4];
-	else
-		self:UpdateParametersDefault();
-	end
-end
-
-
-do
-	if PLAYER_RACE_ID == 25 or PLAYER_RACE_ID == 26 then	--Pandaren A|H
-		PLAYER_RACE_ID = 24;
-	elseif PLAYER_RACE_ID == 30 then						--Lightforged
-		PLAYER_RACE_ID = 11;
-	elseif PLAYER_RACE_ID == 36 then						--Mag'har Orc
-		PLAYER_RACE_ID = 2;
-	elseif PLAYER_RACE_ID == 34 then						--DarkIron
-		PLAYER_RACE_ID = 3;
-	elseif PLAYER_RACE_ID == 37 then						--Mechagnome
-		PLAYER_RACE_ID = 7;
-	elseif PLAYER_RACE_ID == 22 then
-		CameraUtil.GetRaceKey = CameraUtil.GetRaceKey_Worgen;
-	elseif PLAYER_RACE_ID == 52 or PLAYER_RACE_ID == 70 then	--Dracthyr Horde -> Alliance
-		PLAYER_RACE_ID = 52;
-		CameraUtil.GetRaceKey = CameraUtil.GetRaceKey_Dracthyr;
-	elseif PLAYER_RACE_ID == 84 or PLAYER_RACE_ID == 85 then	--Earthen
-		PLAYER_RACE_ID = 3;
-	end
-
-	local _, _, playerClassID = UnitClass("player");
-	if playerClassID == 11 then
-		CameraUtil.UpdateParameters = CameraUtil.UpdateParameters_Druid;
-		table.insert(EL.EVENTS_DYNAMIC, "UPDATE_SHAPESHIFT_FORM");
-	end
-
-	if (not ZoomValuebyRaceID[PLAYER_RACE_ID]) and (PLAYER_RACE_ID ~= 22 and PLAYER_RACE_ID ~= 52) then
-		print(("Narcissus: You are using race %d that doesn't have camera parameters"):format(PLAYER_RACE_ID))
-		PLAYER_RACE_ID = 1;
-	end
-end
-
-for raceKey, data in pairs(ZoomValuebyRaceID) do
-	local id = tonumber(raceKey);
-	if id and id > 1 and id ~= PLAYER_RACE_ID then
-		ZoomValuebyRaceID[raceKey] = nil;
-	end
-end
-
-
-function CameraUtil:OnPlayerFormChanged(pauseDuration)
-	if not self.frame then
-		self.frame = CreateFrame("Frame");
-		self.frame:SetScript("OnUpdate", function(f, elapsed)
-			f.t = f.t + elapsed;
-			if f.t > 0 then
-				f:Hide();
-				self:UpdateParameters();
-				CameraMover:OnCameraChanged();
-			end
-		end);
-	end
-
-	if not self.pauseUpdate then
-		--self.pauseUpdate = true;
-		pauseDuration = pauseDuration or 0;
-		self.frame.t = -pauseDuration;
-		self.frame:Show();
-	end
-end
-
-
-local function GetShoulderOffsetByZoom(zoom)
-	return zoom * SHOULDER_FACTOR_1 + SHOULDER_FACTOR_2 + MOG_MODE_OFFSET
-end
-
-local SmoothShoulder = CreateFrame("Frame");
-SmoothShoulder.t = 0;
-SmoothShoulder.duration = 1;
-SmoothShoulder.zoom = 0;
-SmoothShoulder:Hide();
-
-SmoothShoulder:SetScript("OnShow", function(self)
-	self.fromPoint = GetCVar("test_cameraOverShoulder");
-end);
-
-local function SmoothShoulder_OnUpdate_ToValue(self, elapsed)
-	self.t = self.t + elapsed;
-	local value = outSine(self.t, self.fromPoint, self.toPoint, self.duration);
-
-	if self.t >= self.duration then
-		value = self.toPoint;
-		self:Hide();
-	end
-
-	SetCVar("test_cameraOverShoulder", value);
-end
-
-local function SmoothShoulder_OnUpdate_ByZoom(self, elapsed)
-	local zoom = GetCameraZoom();
-
-	if zoom ~= self.zoom then
-		local value = GetShoulderOffsetByZoom(zoom);
-		if value < 0 then
-			value = 0;
-		end
-
-		SetCVar("test_cameraOverShoulder", value);
-	else
-		self:Hide();
-	end
-end
-
-
-SmoothShoulder:SetScript("OnHide", function(self)
-	self.t = 0;
-end);
-
-local function SmoothShoulderCVar(toPoint, clampToZero)
-	if not toPoint then
-		return
-	end
-	if clampToZero then
-		if toPoint < 0 then
-			toPoint = 0;
-		end
-	end
-	SmoothShoulder:SetScript("OnUpdate", SmoothShoulder_OnUpdate_ToValue);
-	SmoothShoulder.t = 0;
-	SmoothShoulder.toPoint = toPoint;
-	SmoothShoulder.fromPoint = GetCVar("test_cameraOverShoulder");
-	SmoothShoulder:Show();
-end
-
-local function SmoothShoulder_OnUpdate_UntilStable(self, elapsed)
-	self.t = self.t + elapsed;
-
-	if self.t >= 0.1 then
-		local zoom = GetCameraZoom();
-		if zoom ~= self.zoom then
-			self.zoom = zoom;
-			self.t = 0;
-		else
-			local value = GetShoulderOffsetByZoom(zoom);
-			if value < 0 then
-				value = 0;
-			end
-			SmoothShoulderCVar(value, true);
-		end
-	end
-end
-
-local UpdateShoulderCVar = {};
-UpdateShoulderCVar.steps = 0;
-
-function UpdateShoulderCVar:Start(increment)
-	SmoothShoulder:SetScript("OnUpdate", SmoothShoulder_OnUpdate_UntilStable);
-	SmoothShoulder.t = 0;
-	SmoothShoulder:Show();
-end
 
 local DURATION_TRANSLATION = 0.8;
 
@@ -611,37 +244,11 @@ function ViewProfile:ResetView(index)
 end
 
 
-Narci.CameraMover = CameraMover;
+local IntroMotion = {};
 
-function CameraMover:ZoomIn(toPoint)
-	local goal = toPoint or ZoomFactor.Goal;
-	ZoomFactor.Current = GetCameraZoom();
-	if ZoomFactor.Current >= goal then
-		CameraZoomIn(ZoomFactor.Current - goal);
-	else
-		CameraZoomOut(-ZoomFactor.Current + goal);
-	end
-end
-
-function CameraMover:OnCameraChanged()
-	if not self.pauseUpdate then
-		self.pauseUpdate = true;
-		After(0.0, function()
-			--self:ZoomIn(ZOOM_IN_VALUE);
-			local zoom = GetCameraZoom();
-			if zoom < ZOOM_IN_VALUE then
-				self:ZoomIn(ZOOM_IN_VALUE);
-			else
-				CameraZoomIn(0);
-			end
-			self.pauseUpdate = nil;
-		end);
-	end
-end
-
-function CameraMover:SetBlend(enable)
+function IntroMotion:SetUseCameraTransition(enabled)
 	local divisor;
-	if enable then
+	if enabled then
 		--Smooth
 		DURATION_TRANSLATION = 0.8;
 		divisor = 20;
@@ -664,115 +271,49 @@ function CameraMover:SetBlend(enable)
 	end
 
 	RadarChart.animIn.A2:SetStartDelay(9/divisor);
-	self.blend = enable;
+	self.useCameraTransition = enabled;
 end
 
-CameraMover.smoothYaw = NarciAPI_CreateAnimationFrame(1.5);
-CameraMover.smoothYaw.MoveView = MoveViewRightStart;
-
-CameraMover.smoothYaw:SetScript("OnUpdate", function(frame, elapsed)
-	frame.total = frame.total + elapsed;
-	local factor = ZoomFactor;
-	local speed = inOutSine(frame.total, factor.fromSpeed, factor.toSpeed, 1.5);	--inOutSine
-	frame.MoveView(speed);
-	
-	if frame.total >= 1.5 then
-		if not IsPlayerMoving() then
-			frame.MoveView(factor.toSpeed);
-		else
-			MoveViewRightStop();
-		end
-		frame:Hide();
-	end
-end);
-
-CameraMover.smoothPitch = NarciAPI_CreateAnimationFrame(1.5);
-CameraMover.smoothPitch:SetScript("OnUpdate", function(frame, elapsed)
-	frame.total = frame.total + elapsed
-	--local x = frame.total;
-	--local EndDistance = ZoomFactor.Goal;
-	local PL = tostring(outSine(frame.total, 88,  1, frame.duration));	--outSine
-	ConsoleExec( "pitchlimit "..PL)
-	if frame.total >= frame.duration then
-		ConsoleExec( "pitchlimit 1");
-		After(0, function()
-			ConsoleExec( "pitchlimit 88");
-		end)
-		frame:Hide();
-	end
-end);
-
-
-function CameraMover:InstantZoomIn()
+function IntroMotion:InstantZoomIn()
 	SetCVar("cameraViewBlendStyle", 2);
 	SetView(4);
-
-	ConsoleExec( "pitchlimit 1");
-	After(0, function()
-		ConsoleExec( "pitchlimit 88");
-	end)
-	
-	local zoom = ZOOM_IN_VALUE or GetCameraZoom();
-	local shoulderOffset = GetShoulderOffsetByZoom(zoom);
-	SetCVar("test_cameraOverShoulder", shoulderOffset);		--CameraZoomIn(0.0)	--Smooth
-	
-	self:ZoomIn(ZOOM_IN_VALUE);
-	
+	CameraUtil:InstantZoomIn();
 	self:ShowFrame();
-	SetUIVisibility(false);
-	if not IsPlayerMoving() and NarcissusDB.CameraOrbit then
-		MoveViewRightStart(ZoomFactor.toSpeed);
-	end
+	UIParentFade:HideUIParent();
 end
 
-function CameraMover:HideUI()
-	NarciAPI.MuteTargetLostSound(true);
-
-	if UIParent:IsShown() then
-		UIPA.endAlpha = 0;
-		UIPA:Show();
-	end
-
-	After(0.5, function()
-		SetUIVisibility(false); 		--Same as pressing Alt + Z
-		After(0.3, function()
-			UIParent:SetAlpha(1);
-		end)
-	end)
-end
-
-function CameraMover:Enter()
+function IntroMotion:Enter()
 	SetCVar("test_cameraDynamicPitch", 1);
 
-	if self.blend then
+	if self.useCameraTransition then
 		if NarcissusDB.CameraOrbit and not IsPlayerMoving() then
 			if NarcissusDB.CameraOrbit then
-				self.smoothYaw:Show();
+				CameraUtil:SmoothYaw();
 			end
 			SetView(2);
 		end
 
 		if not IsFlying("player") then
-			self.smoothPitch:Show();
+			CameraUtil:SmoothPitch();
 		end
-		
+
 		After(0.1, function()
-			self:ZoomIn(ZOOM_IN_VALUE);
+			CameraUtil:ZoomToDefault();
 			After(0.7, function()
 				self:ShowFrame();
 			end)
 		end)
 
-		self:HideUI();
+		UIParentFade:FadeOutUIParent();
 	else
 		if not self.hasInitialized then
 			if NarcissusDB.CameraOrbit then
-				self.smoothYaw:Show();
+				CameraUtil:SmoothYaw();
 			end
 			SetView(2);
-			self.smoothPitch:Show();
+			CameraUtil:SmoothPitch();
 			After(0.1, function()
-				self:ZoomIn(ZOOM_IN_VALUE);
+				CameraUtil:ZoomToDefault();
 				After(0.7, function()
 					self:ShowFrame();
 				end)
@@ -780,80 +321,75 @@ function CameraMover:Enter()
 			After(1, function()
 				if not IsMounted() then
 					self.hasInitialized = true;
-					SaveView(1);
+					ViewProfile:SaveView(4);
 				end
 			end)
-			self:HideUI();
+			UIParentFade:FadeOutUIParent();
 		else
 			self:InstantZoomIn();
 		end
 	end
 end
 
-function CameraMover:Pitch()
-	self.smoothPitch:Show();
-end
-
-function CameraMover:MakeActive()
-	--Reserved for DynamicCam users
-end
-
-function CameraMover:MakeInactive()
-	--Reserved for DynamicCam users
-end
-
-function CameraMover:UpdateMovementMethodForDynamicCam()
-	if not self.handler then
-		self.handler = CreateFrame("Frame");
+function IntroMotion:PlayAttributeAnimation()
+	if not NarcissusDB.DetailedIlvlInfo then
+		RadarChart:AnimateValue();
+		return
 	end
-
-	local f = self.handler;
-	f:Hide();
-	f.t = 0;
-
-	f:SetScript("OnUpdate", function(_, elapsed)
-		f.t = f.t + elapsed;
-		if f.t >= 0.2 then
-			f.currentZoom = GetCameraZoom();
-			if f.currentZoom ~= f.lastZoom then
-				f.lastZoom = f.currentZoom;
-				UpdateShoulderCVar:Start();
-			end
+	if not RadarChart:IsShown() then
+		return		--Attributes is not the active tab
+	end
+	local anim;
+	for i = 1, 20 do
+		anim = STAT_STABLE[i].animIn;
+		if anim then
+			anim.A2:SetToAlpha(STAT_STABLE[i]:GetAlpha());
+			anim:Play();
 		end
-	end);
-
-	function self:MakeActive()
-		f.lastZoom = -1;
-		f:Show();
 	end
-
-	function self:MakeInactive()
-		f:Hide();
-	end
+	RadarChart.animIn:Play();
 end
 
-------------------------------
-
-
-------------------------------
+function IntroMotion:ShowFrame()
+	local GuideLineFrame = Narci_GuideLineFrame;
+	local VirtualLineRight = GuideLineFrame.VirtualLineRight;
+	VirtualLineRight.AnimFrame:Hide();
+	local offsetX = GuideLineFrame.VirtualLineRight.AnimFrame.defaultX or -496;
+	VirtualLineRight:SetPoint("RIGHT", offsetX + 120, 0);
+	if MOG_MODE then
+		FadeFrame(Narci_Attribute, 0.4, 0)
+	else
+		VirtualLineRight.AnimFrame.toX = offsetX;
+		FadeFrame(Narci_Attribute, 0.4, 1, 0);
+	end
+	VirtualLineRight.AnimFrame:Show();
+	GuideLineFrame.VirtualLineLeft.AnimFrame:Show();
+	self:PlayAttributeAnimation();
+	After(0, function()
+		FadeFrame(Narci_Character, 0.6, 1);
+	end)
+	Narci_SnowEffect(true);
+end
 
 
 local function ExitFunc()
 	IS_OPENED = false;
-	MOG_MODE_OFFSET = 0;
+	CameraUtil:SetUseMogOffset(false);
 	EL:Hide();
-	CameraMover:MakeInactive();
+	CameraUtil:MakeInactive();
 	MoveViewRightStop();
+	CameraUtil:RestoreMotionSickness();
+
 	if not GetKeepActionCam() then		--(not CVarTemp.isDynamicCamLoaded and CVarTemp.dynamicPitch == 0) or not Narci.keepActionCam
 		SetCVar("test_cameraDynamicPitch", 0);								--Note: "test_cameraDynamicPitch" may cause camera to jitter while reseting the player's view
-		SmoothShoulderCVar(0);
+		CameraUtil:SmoothShoulder(0);
 		After(1, function()
 			ConsoleExec( "actioncam off" );
 			MoveViewRightStop();
 		end)
 	else
 		--Restore the acioncam state
-		SmoothShoulderCVar(CVarTemp.shoulderOffset);
+		CameraUtil:SmoothShoulder(CVarTemp.shoulderOffset);
 		SetCVar("test_cameraDynamicPitch", CVarTemp.dynamicPitch);
 		After(1, function()
 			MoveViewRightStop();
@@ -866,22 +402,22 @@ local function ExitFunc()
 	if Narci_Attribute:IsVisible() then
 		Narci_Attribute.animOut:Play();
 	end
-	UIParent:SetAlpha(0);
+
+	UIParentFade:FadeInUIParent();
+
 	After(0.1, function()
-		NarciAPI.MuteTargetLostSound(false);
-		UIPA.startAlpha = 0;
-		UIPA.endAlpha = 1;
-		UIPA:Show();
-		SetUIVisibility(true);
-		--UIFrameFadeIn(UIParent, 0.5, 0, 1);	--cause frame rate drop
-		Minimap:Show();
+		if not IntroMotion.useCameraTransition then
+			SetCVar("cameraViewBlendStyle", 2);
+		end
+
 		local cameraSmoothStyle = GetCVar("cameraSmoothStyle");
 		if tonumber(cameraSmoothStyle) == 0 and ViewProfile.isEnabled then		--workaround for auto-following
 			SetView(5);
 		else
 			SetView(2);
-			CameraMover:ZoomIn(CVarTemp.zoomLevel);
+			CameraUtil:ZoomTo(CVarTemp.zoomLevel);
 		end
+		
 		SetCVar("cameraViewBlendStyle", CVarTemp.cameraViewBlendStyle);
 	end);
 
@@ -901,24 +437,9 @@ local function ExitFunc()
 	MOG_MODE = false;
 end
 
---[[
-local function SetDate()
-	local CalendarTime = C_Calendar.GetDate();
-	local hour = CalendarTime.hour;
-	local minute = CalendarTime.minute;
-	if minute < 10 then
-		minute = "0"..tostring(minute)
-	end
-	Narci_Vignette.Time:SetText(hour..":"..minute)
-	local zoneText = GetMinimapZoneText()
-	Narci_Vignette.Location:SetText(zoneText)
-end
---]]
-
-
 function Narci:EmergencyStop()
 	print("Camera has been reset.");
-	UIParent:SetAlpha(1);
+	UIParentFade:ShowUIParent();
 	MoveViewRightStop();
 	MoveViewLeftStop();
 	ViewProfile:ResetView(5);
@@ -926,21 +447,18 @@ function Narci:EmergencyStop()
 	CVarTemp.shoulderOffset = 0;
 	SetCVar("test_cameraOverShoulder", 0);
 	SetCVar("cameraViewBlendStyle", 1);
-	ConsoleExec( "actioncam off" );
-	CameraMover:MakeInactive();
+	ConsoleExec("actioncam off");
+	CameraUtil:MakeInactive();
 	Narci_ModelContainer:HideAndClearModel();
 	Narci_ModelSettings:Hide();
 	Narci_Character:Hide();
 	Narci_Attribute:Hide();
 	Narci_Vignette:Hide();
 	IS_OPENED = false;
-	MOG_MODE_OFFSET = 0;
+	CameraUtil:SetUseMogOffset(false)
 	EL:Hide();
 end
 
-
-
----------------End of derivation---------------
 ---Get Transmog Appearance---
 --[[
 	==sourceInfo==
@@ -1058,55 +576,6 @@ function Narci_RuneButton_OnEnter(self)
 end
 
 ---------------------------------------------------
-local USE_DELAY = true;
-local function AssignDelay(id, forced)
-	if USE_DELAY or forced then
-		local time = 0;
-		if id == 1 then
-			time = 1;
-		elseif id == 2 then
-			time = 2;
-		elseif id == 3 then
-			time = 3;
-		elseif id == 15 then	--back
-			time = 4;
-		elseif id == 5 then
-			time = 5;
-		elseif id == 9 then
-			time = 6;
-		elseif id == 16 then
-			time = 7;
-		elseif id == 17 then
-			time = 8;
-		elseif id == 4 then		--shirt
-			time = 9;
-		elseif id == 10 then
-			time = 10;
-		elseif id == 6 then
-			time = 11;
-		elseif id == 7 then
-			time = 12;
-		elseif id == 8 then
-			time = 13;
-		elseif id == 11 then
-			time = 14;
-		elseif id == 12 then
-			time = 15;
-		elseif id == 13 then
-			time = 16;	
-		elseif id == 14 then
-			time = 17;	
-		elseif id == 19 then
-			time = 18;
-		end
-	
-		time = time/20;
-		return time;
-	else
-		return 0;
-	end;
-end
-
 local function GetTraitsIcon(itemLocation)
     if not itemLocation then return; end
     local TierInfos = C_AzeriteEmpoweredItem.GetAllTierInfo(itemLocation);
@@ -1119,7 +588,7 @@ local function GetTraitsIcon(itemLocation)
 	local MAX_TIERS = 5;
 
     for i = 1, MAX_TIERS do
-        if (not TierInfos[i]) or (not TierInfos[i].azeritePowerIDs) then         
+        if (not TierInfos[i]) or (not TierInfos[i].azeritePowerIDs) then
             return traitIcons;
         end
 		powerIDs = TierInfos[i].azeritePowerIDs;
@@ -1238,7 +707,7 @@ local function GetFormattedSourceText(sourceInfo)
 		if drops and drops[1] then
 			colorizedText = drops[1].encounter.." ".."|cFFFFD100"..drops[1].instance.."|r";
 			plainText = drops[1].encounter.." "..drops[1].instance;
-			
+
 			if sourceInfo.itemModID == 0 then 
 				difficulty = PLAYER_DIFFICULTY1;
 				bonusID = 3561;
@@ -1759,7 +1228,6 @@ function NarciEquipmentSlotMixin:Refresh(forceRefresh)
 		self.GemSlot.sockedGemItemID = nil;
 	end
 
-	--if slotID == 13 then itemName = "The Lion\'s Roar"; end	--Antumbra, Shadow of the Cosmos
 	--------------------------------------------------
 	if self:IsVisible() then
 		self:SetBorderTexture(self.Border, borderTexKey);
@@ -1808,7 +1276,6 @@ function NarciEquipmentSlotMixin:UpdateGradientSize()
 		if self.isRight then
 			self.TempEnchantIndicator:SetPoint("TOPRIGHT", self.ItemLevel, "TOPRIGHT", -text2Width - 6, 0);
 		else
-			local extraOffset;
 			if self.ItemLevel:IsTruncated() then
 				text2Width = self.ItemLevel:GetWidth();
 			end
@@ -1924,35 +1391,6 @@ function NarciEquipmentSlotMixin:OnEnter(motion, isGamepad)
 	else
 		ItemTooltip:SetFromSlotButton(self, -2, 6, isGamepad and 0.4);	--delay 0.4s
 	end
-
-	--[[
-	DefaultTooltip:SetOwner(self, "ANCHOR_NONE");
-
-	if self.isRight then
-		DefaultTooltip:SetPoint("TOPRIGHT", self, "TOPLEFT", DefaultTooltip.offsetX, DefaultTooltip.offsetY);
-	else
-		DefaultTooltip:SetPoint("TOPLEFT", self, "TOPRIGHT", -DefaultTooltip.offsetX, DefaultTooltip.offsetY);
-	end
-
-	if (self.hyperlink) then
-		DefaultTooltip:SetHyperlink(self.hyperlink);
-		DefaultTooltip:Show();
-		return;
-	end
-
-	local hasItem, hasCooldown, repairCost = DefaultTooltip:SetPlayerInventoryItem(self:GetID());
-
-	if isGamepad then
-		DefaultTooltip:SetAlpha(0);
-		if self.isRight then
-			ShowDelayedTooltip("TOPRIGHT", self, "TOPLEFT", DefaultTooltip.offsetX, DefaultTooltip.offsetY);
-		else
-			ShowDelayedTooltip("TOPLEFT", self, "TOPRIGHT", -DefaultTooltip.offsetX, DefaultTooltip.offsetY);
-		end
-	else
-		DefaultTooltip:Show();
-	end
-	--]]
 end
 
 function NarciEquipmentSlotMixin:OnLeave()
@@ -2110,7 +1548,6 @@ function Narci_ShowStatTooltipDelayed(self)
 	SetStatTooltipText(self);
 	DefaultTooltip:SetAlpha(0);
 	ShowDelayedTooltip("BOTTOM", self, "TOP", 0, -4);
-	--print("Narci_ShowStatTooltipDelayed")
 end
 
 
@@ -2573,6 +2010,8 @@ function NarciEquipmentFlyoutFrameMixin:IsMouseOverButtons()
 	end
 	return false
 end
+
+
 -----------------------------------------------------------
 ------------------------Color Theme------------------------
 -----------------------------------------------------------
@@ -3014,25 +2453,6 @@ function StatsUpdator:UpdateCooldown()
 end
 
 
-local function PlayAttributeAnimation()
-	if not NarcissusDB.DetailedIlvlInfo then
-		RadarChart:AnimateValue();
-		return
-	end
-	if not RadarChart:IsShown() then
-		return		--Attributes is not the active tab
-	end
-	local anim;
-	for i = 1, 20 do
-		anim = STAT_STABLE[i].animIn;
-		if anim then
-			anim.A2:SetToAlpha(STAT_STABLE[i]:GetAlpha());
-			anim:Play();
-		end
-	end
-	RadarChart.animIn:Play();
-end
-
 local function ShowAttributeButton(bool)
 	if NarcissusDB.DetailedIlvlInfo then
 		Narci_DetailedStatFrame:SetShown(true);
@@ -3099,32 +2519,21 @@ end
 function Narci_Open()
 	if not IS_OPENED then
 		if InCombatLockdown() then
-			--[[
-			--Can't open the default character pane either
-			ShowUIPanel(CharacterFrame);
-			local subFrame = _G["PaperDollFrame"];
-			if not subFrame:IsShown() then
-				ToggleCharacter("PaperDollFrame");
-			end
-			--]]
-			return;
+			return
 		end
 		IS_OPENED = true;
 		CVarTemp:BackUp();
 		Toolbar:ShowUI("Narcissus");
 		ViewProfile:SaveView(5);
+		CameraUtil:DisableMotionSickness();
 		CameraUtil:UpdateParameters();
-		CameraMover:MakeActive();
-		MOG_MODE_OFFSET = 0;
-
-		local speedFactor = 180/(GetCVar("cameraYawMoveSpeed") or 180);
-		ZoomFactor.toSpeed = speedFactor * ZoomFactor.toSpeedBasic;
-		ZoomFactor.fromSpeed = speedFactor * ZoomFactor.fromSpeedBasic;
+		CameraUtil:MakeActive();
+		CameraUtil:SetUseMogOffset(false)
 
 		EL:Show();
 
 		After(0, function()
-			CameraMover:Enter();
+			IntroMotion:Enter();
 			RadarChart:SetValue(0,0,0,0,1);
 			PlayLetteboxAnimation();
 			local Vignette = Narci_Vignette;
@@ -3149,17 +2558,13 @@ function Narci_Open()
 			if not ExitConfirm:IsShown() then
 				FadeFrame(ExitConfirm, 0.25, 1);
 
-				--"Nullify" ShowUI
-				UIParent:SetAlpha(0);
-				Minimap:Hide();
 				After(0, function()
 					SetUIVisibility(false);
 					MiniButton:Enable();
 					UIParent:SetAlpha(1);
-					Minimap:Show()
 				end);
 
-				return;
+				return
 			else
 				FadeFrame(ExitConfirm, 0.15, 0);
 			end
@@ -3188,16 +2593,14 @@ function Narci_OpenGroupPhoto()
 		CVarTemp:BackUp();
 		Toolbar:ShowUI("PhotoMode");
 		ViewProfile:SaveView(5);
+		CameraUtil:DisableMotionSickness();
 		CameraUtil:UpdateParameters();
-		CameraMover:MakeActive();
+		CameraUtil:MakeActive();
 		SetCVar("test_cameraDynamicPitch", 1);
 
-		local speedFactor = 180/(GetCVar("cameraYawMoveSpeed") or 180);
-		ZoomFactor.toSpeed = speedFactor*ZoomFactor.toSpeedBasic;
-		ZoomFactor.fromSpeed = speedFactor*ZoomFactor.fromSpeedBasic;
 		EL:Show();
 
-		CameraMover:Pitch();
+		CameraUtil:SmoothPitch();
 
 		After(0, function()
 			Toolbar:Expand(true);
@@ -3213,20 +2616,7 @@ function Narci_OpenGroupPhoto()
 			Vignette.VignetteRight.animIn:Play();
 			Vignette.VignetteLeft.animIn:Play();
 
-			if UIParent:IsShown() then
-				UIPA.endAlpha = 0;
-				UIPA:Show();
-			end
-
-			After(0, function()
-				After(0.5, function()
-					SetUIVisibility(false); 		--Same as pressing Alt + Z
-
-					After(0.3, function()
-						UIParent:SetAlpha(1);
-					end)
-				end)
-			end)
+			UIParentFade:FadeOutUIParent();
 		end)
 
 		Narci.isActive = true;
@@ -3253,7 +2643,7 @@ function Narci_KeyListener_OnEscapePressed(self)
 end
 
 local function UseXmogLayout()
-	MOG_MODE_OFFSET = 0.2;
+	CameraUtil:SetUseMogOffset(true);
 	NarciPlayerModelFrame1.xmogMode = 2;
 	if Narci_Character:IsVisible() then
 		FadeFrame(NarciModel_RightGradient, 0.5, 1);
@@ -3268,14 +2658,13 @@ local function UseXmogLayout()
 
 	After(0, function()
 		if not IsMounted() then
-			CameraMover:Pitch();
-			CameraMover:ZoomIn(ZOOM_IN_VALUE_MOG);	--ajust by raceID
+			CameraUtil:SmoothPitch();
+			CameraUtil:ZoomToDefault(true);
 		else
-			CameraMover:ZoomIn(8);	--ajust by raceID
+			CameraUtil:ZoomTo(8);
 		end
 	end)
 end
-
 
 local function ActivateMogMode()
 	Narci_GuideLineFrame.VirtualLineRight.AnimFrame:Hide();
@@ -3283,28 +2672,24 @@ local function ActivateMogMode()
 	if MOG_MODE then
 		FadeFrame(Narci_Attribute, 0.5, 0)
 		FadeFrame(Narci_XmogNameFrame, 0.2, 1, 0)
-		MOG_MODE_OFFSET = 0.2;
+		CameraUtil:SetUseMogOffset(true);
 		NarciPlayerModelFrame1.xmogMode = 2;
 		MsgAlertContainer:Display();
 		UseXmogLayout();
 	else
-		Narci_GuideLineFrame.VirtualLineRight.AnimFrame.toX = Narci_GuideLineFrame.VirtualLineRight.AnimFrame.defaultX
+		Narci_GuideLineFrame.VirtualLineRight.AnimFrame.toX = Narci_GuideLineFrame.VirtualLineRight.AnimFrame.defaultX;
 		if Toolbar:IsShown() then
-			Narci_GuideLineFrame.VirtualLineRight.AnimFrame:Show()
-			FadeFrame(Narci_Attribute, 0.5, 1)
-			local zoom = GetCameraZoom()
-			SmoothShoulderCVar(SHOULDER_FACTOR_1*zoom + SHOULDER_FACTOR_2)
+			Narci_GuideLineFrame.VirtualLineRight.AnimFrame:Show();
+			FadeFrame(Narci_Attribute, 0.5, 1);
+			CameraUtil:SmoothShoulderByZoom();
 		end
-		FadeFrame(Narci_XmogNameFrame, 0.2, 0)
+		FadeFrame(Narci_XmogNameFrame, 0.2, 0);
 		ShowAttributeButton();
-		MOG_MODE_OFFSET = 0;
+		CameraUtil:SetUseMogOffset(false);
 		MsgAlertContainer:Hide();
 		RadarChart:SetValue();
 	end
 end
-
-
-
 
 local function UpdateXmogName(SpecOnly)
 	local frame = Narci_XmogNameFrame;
@@ -3336,7 +2721,6 @@ local function UpdateXmogName(SpecOnly)
 		_, _, ArmorType = GetItemInfoInstant(token);
 		frame.armorType = ArmorType;
 	end
-	--Leather 76273		Mail 76250		Cloth 76276	76279	Plate 76271 76282
 
 	ArmorType = frame.armorType or ArmorType or "ArmorType";
 
@@ -3375,7 +2759,7 @@ local function CopyTexts(textFormat, includeID)
 				if includeID and SLOT_TABLE[index].itemID then
 					text = text.." |cFFacacac"..SLOT_TABLE[index].itemID.."|r";
 				end
-				
+
 				source = SLOT_TABLE[index].ItemLevel:GetText();
 				if source and source ~= " " then
 					text = text.." ("..source..")"
@@ -3456,8 +2840,6 @@ local function CopyTexts(textFormat, includeID)
 	return texts;
 end
 
-
-
 local function Narci_XmogButton_OnClick(self)
 	MoveViewRightStop();
 	EquipmentFlyoutFrame:Hide();
@@ -3484,9 +2866,7 @@ local function Narci_XmogButton_OnClick(self)
 		PlayLetteboxAnimation();
 		if Narci_ModelContainer:IsVisible() then
 			if IS_OPENED then
-				CameraMover:Pitch();
-			else
-				--SmoothShoulderCVar(0);
+				CameraUtil:SmoothPitch();
 			end
 			Narci_PlayerModelAnimOut:Show()
 			After(0.4, function()
@@ -3523,36 +2903,6 @@ addon.OverrideToolbarButtonOnInitFunc("Mog", function(self)
 end);
 
 Toolbar.TransmogListFrame.getItemListFunc = CopyTexts;
-
-
-
-function Narci_SetButtonColor(self)
-	ColorUtil:SetWidgetColor(self.Color);
-	ColorUtil:SetWidgetColor(self.HighlightColor);
-end
-
-
-function CameraMover:ShowFrame()
-	local GuideLineFrame = Narci_GuideLineFrame;
-	local VirtualLineRight = GuideLineFrame.VirtualLineRight;
-	VirtualLineRight.AnimFrame:Hide();
-	local offsetX = GuideLineFrame.VirtualLineRight.AnimFrame.defaultX or -496;
-	VirtualLineRight:SetPoint("RIGHT", offsetX + 120, 0);
-	if MOG_MODE then
-		FadeFrame(Narci_Attribute, 0.4, 0)
-	else
-		VirtualLineRight.AnimFrame.toX = offsetX;
-		FadeFrame(Narci_Attribute, 0.4, 1, 0);
-	end
-	VirtualLineRight.AnimFrame:Show();
-	GuideLineFrame.VirtualLineLeft.AnimFrame:Show();
-	PlayAttributeAnimation();
-	After(0, function()
-		FadeFrame(Narci_Character, 0.6, 1);
-	end)
-
-	Narci_SnowEffect(true);
-end
 
 
 ------Photo Mode Toolbar------
@@ -3602,61 +2952,9 @@ do
 	end)
 end
 
---[[
-do  --UIParent OnShow/OnHide
-	local IsInteractingWithDialogNPC = addon.IsInteractingWithDialogNPC;	--Prevent clash with DialogUI
-
-	local frame = CreateFrame("Frame", nil, UIParent);
-
-	local function UIParent_OnShow()
-		if IS_OPENED then		--when Narcissus hide the UI
-			MsgAlertContainer:SetDND(true);
-			Toolbar:UseLowerLevel(true);
-		else
-			MsgAlertContainer:Hide();
-			if Narci_Character:IsShown() then return end;
-			if not Toolbar:IsShown() then return end;
-
-			if not GetKeepActionCam() then
-				After(0.6, function()
-					ConsoleExec( "actioncam off" );
-				end)
-			end
-			Toolbar:HideUI();
-		end
-	end
-
-	local function UIParent_OnHide()
-		if IS_OPENED then		--when Narcissus hide the UI
-			local bar = Toolbar;
-			Toolbar.ExitButton:Show();
-			if not bar:IsShown() then
-				bar:Show();
-			end
-			MsgAlertContainer:SetDND(false);
-			bar:UseLowerLevel(false);
-		else
-			if IsInteractingWithDialogNPC() then return end;
-
-			local bar = Toolbar;
-			if not bar:IsShown() then
-				CVarTemp.shoulderOffset = GetCVar("test_cameraOverShoulder");
-			end
-			bar:ShowUI("Blizzard");
-			bar:FadeOut(true);
-		end
-	end
-
-    frame:SetScript("OnShow", UIParent_OnShow);
-    frame:SetScript("OnHide", UIParent_OnHide);
-end
---]]
 
 do
 	--Slash Command
-	local commandName = "narci";
-	local commandAlias = "narcissus";
-
 	local function callback(msg)
 		if not msg then
 			msg = "";
@@ -3687,6 +2985,8 @@ do
 		end
 	end
 
+	--local commandName = "narci";
+	--local commandAlias = "narcissus";
 	--RegisterNewSlashCommand(callback, commandName, commandAlias);
 
 	---- Alternative method to avoid slash command taint
@@ -3724,8 +3024,8 @@ do
 	--end)
 end
 
-----------------
---3D Animation--
+
+--3D Animation
 local function InitializeAnimationContainer(frame, SequenceInfo, TargetFrame)
 	frame.OppoDirection = false;
 	frame.t = 0
@@ -3747,8 +3047,6 @@ local function AnimationContainer_OnHide(self)
 end
 
 local PlayAnimationSequence = NarciAPI_PlayAnimationSequence;
-
-
 
 local ASC2 = CreateFrame("Frame", "AnimationSequenceContainer_Heart");
 ASC2.Delay = 5;
@@ -3803,183 +3101,6 @@ ASC2:SetScript("OnUpdate", Generic_AnimationSequence_OnUpdate);
 ASC2:SetScript("OnHide", AnimationContainer_OnHide);
 
 
-
-local RACE_PORTRAIT_CAMERA = {	--For 3D Portait on the top-left
-  --[RaceID] = {[GenderID] = {offsetX, offsetY, distance, angle, CameraIndex, {animation} }}
-	[1]  = {[2] = {10, -10, 0.75, false, 0},	--Human Male √
-		    [3] = {12, -10, 0.71, false, 1, 2},	-- 	    Female	 √
-		},
-
-	[2]  = {[2] = {12, -16, 1.3, 1.1, 0},	--Orcs Male  √
-		    [3] = {18, -16, 0.72, 1.1, 0, 1},	-- 	    Female	 √
-		},
-
-	[3]  = {[2] = {14, -20, 0.88, 0.9, 1},	--Dwarf Male
-		    [3] = {2, -12, 0.75, false, 0},	-- 	    Female	 √
-		},	
-
-	[4]  = {[2] = {16, -5, 1, 1.5, 0},		--NE	Male
-		    [3] = {8, -10, 0.75, false, 0},	-- 	    Female
-		},	
-
-	[5]  = {[2] = {16, -6, 0.6, 0.8, 1},	--UD 	Male
-		    [3] = {10, -6, 0.68, 1.0, 1, 3},	-- 	    Female
-		},
-
-	[6]  = {[2] = {24, -15, 3, 0.6, 1},		--Tauren Male	√
-		    [3] = {24, -8, 1.8, false, 1},	-- 	     Female
-		},	
-
-	[7]  = {[2] = {10, -14, 1, 0.5, 1},			--Gnome Male
-		    [3] = {14, -14, 0.8, 0.55, 0},	-- 	    Female
-		},
-
-	[8]  = {[2] = {16, -4, 1.15, 1.3, 0},	--Troll Male √
-		    [3] = {18, -10, 0.75, 1.3, 0},	-- 	    Female	 √
-		},
-
-	[9] = {[2] = {8, 0, 0.8, 0.6, 0},		--Goblin Male 	 √
-			[3] = {20, -14, 0.85, 0.8, 0},	-- 	    Female 	 √
-		},	
-
-	[10] = {[2] = {8, -5, 0.75, 1.2, 0},		--	BE Male
-			[3] = {0, -4, 0.53, 1.1, 0},	-- 	    Female
-		},
-
-	[11] = {[2] = {15, -12, 1, 1.4, 0},		--	Goat Male
-			[3] = {10, -10, 0.66, 1.4, 0},	-- 	    Female
-		},	
-
-	[22]  = {[2] = {10, -10, 0.75, false, 0},	--Worgen Male Human Form
-		    [3] = {12, -12, 0.72, 1.1, 1},		--Female	 √
-		},
-
-	[24]  = {[2] = {14, 0, 1.1, 1.15, 0},		--Pandaren Male		√
-		    [3] = {12, 4, 1.0, 1.1, 0},			--Female	 
-		},
-
-	[27]  = {[2] = {24, -10, 0.72, false, 0},	--Highborne Male		√
-		    [3] = {16, -4, 0.70, false, 0},			--Female	 
-		},
-
-	[28]  = {[2] = {24, -15, 2.4, 0.6, 0},		--Tauren Male	√
-		    [3] = {4, -10, 0.62, false, 0},	-- 	     Female
-		},	
-
-	[128]  = {[2] = {18, -18, 1.4, 0.85, 0},	--Worgen Male Wolf Form
-		    [3] = {18, -15, 1.1, 1.25, 0},		--Female	 √
-		},
-
-	[31]  = {[2] = {4, 0, 1.2, 1.6, 0},		--Zandalari Male √
-		    [3] = {18, -12, 0.95, 1.6, 0},		-- 	    Female	 √
-		},
-
-	[32]  = {[2] = {10, -16, 1.25, 1.15, 1},	--Kul'tiran Male	√
-		    [3] = {12, -10, 0.9, 1.5, 0},			--Female	 
-		},
-
-	[36]  = {[2] = {14, -10, 1.2, 1.2, 0, 2},		--Mag'har Male
-		    [3] = {20, -20, 0.75, false, 0, 1},		-- 	    Female	 √
-		},
-
-	[35]  = {[2] = {18, -8, 0.7, false, 1, 2},		--Vulpera Male
-		    [3] = {18, -8, 0.7, false, 1, 2},	-- 	    Female 	 √
-		},
-
-    [52] = {[2] = {18, -18, 1.4, false, 1},		--Dracthyr
-        	[3] = {18, -18, 1.4, false, 1},
-	},
-
-	[520] = {[2] = {8, -5, 0.75, 1.2, 0},		--Dracthyr Visage Male
-			[3] = {12, -10, 0.71, false, 1, 2},	-- 	    Female	 √
-	},
-}
-
-function Narci_PortraitPieces_OnLoad(self)
-	if true then
-
-		return
-	end
-
-	local unit = "player";
-	local a1, a2, a3;
-	local ModelPieces = self.Pieces;
-	local _, _, raceID = UnitRace(unit);
-	local GenderID = UnitSex(unit);
-
-	--print("raceID: "..raceID)
-
-	if raceID == 34 then	 --DarkIron
-		raceID = 3;
-	elseif raceID == 29 then --VE
-		raceID = 10
-	elseif raceID == 28 then --Highmountain
-		raceID = 6
-	elseif raceID == 30 then --LightForged
-		raceID = 11
-	elseif raceID == 25 or raceID == 26 then --Pandaren A|H
-		raceID = 24
-	elseif raceID == 37 then				--Mechagnome
-		raceID = 7;
-	elseif raceID == 22 then --Worgen
-		local inHumanForm = IsPlayerInAlteredForm();
-		if not inHumanForm	then
-			raceID = 128;
-		end
-	elseif raceID == 52 or raceID == 70 then
-		local inVisageForm = IsPlayerInAlteredForm();
-		if not inVisageForm	then
-			raceID = 52;
-		else
-			raceID = 520;
-		end
-	end
-
-	local model;
-	if RACE_PORTRAIT_CAMERA[raceID] and RACE_PORTRAIT_CAMERA[raceID][GenderID] then
-		if Narci_FigureModelReference then
-			Narci_FigureModelReference:SetPoint("CENTER", RACE_PORTRAIT_CAMERA[raceID][GenderID][1], RACE_PORTRAIT_CAMERA[raceID][GenderID][2])
-		end
-
-		for i = 1, #ModelPieces do
-			model = ModelPieces[i];
-			TransitionAPI.SetModelByUnit(model, "player");
-			model:SetCamera(1);
-			model:MakeCurrentCameraCustom();
-			if RACE_PORTRAIT_CAMERA[raceID][GenderID][3] then
-				model:SetCameraDistance(RACE_PORTRAIT_CAMERA[raceID][GenderID][3])
-			end
-			if RACE_PORTRAIT_CAMERA[raceID][GenderID][4] then
-				a1, a2, a3 = model:GetCameraPosition();
-				model:SetCameraPosition(a1, a2, RACE_PORTRAIT_CAMERA[raceID][GenderID][4])
-			end
-			if RACE_PORTRAIT_CAMERA[raceID][GenderID][6] then
-				model:SetAnimation(2, RACE_PORTRAIT_CAMERA[raceID][GenderID][6])
-			end
-		end
-	else
-		for i = 1, #ModelPieces do
-			model = ModelPieces[i];
-			model:SetCamera(1);
-			model:MakeCurrentCameraCustom();
-			a1, a2, a3 = model:GetCameraPosition();
-			model:SetCameraPosition(a1, a2, 1.1);
-		end
-	end
-
-	for i = 1, #ModelPieces do
-		model = ModelPieces[i];
-		model:SetFacing(-math.pi/24)	--Front pi/6
-		model:SetAnimation(804, 1);
-		TransitionAPI.SetModelLight(model, true, false, - 0.44699833180028 ,  0.72403680806459 , -0.52532198881773, 0.8, 0.7, 0.5, 0.8, 1, 0.8, 0.8, 0.8)
-		model:UndressSlot(1);
-		model:UndressSlot(3);
-		model:UndressSlot(15);		--Remove the cloak
-		model:UndressSlot(16);
-		model:UndressSlot(17);
-	end
-end
-
 --Static Events
 EL:RegisterEvent("PLAYER_ENTERING_WORLD");
 EL:RegisterUnitEvent("UNIT_NAME_UPDATE", "player");
@@ -4008,8 +3129,6 @@ EL:SetScript("OnEvent",function(self, event, ...)
 		Narci_HeartofAzeroth_AnimFrame.Quote:SetText(L["Heart Azerite Quote"]);
 
 		UpdateXmogName();
-		SetCVar("CameraKeepCharacterCentered", 0);
-		--CameraMover:SetBlend(NarcissusDB.CameraTransition);	--Load in Settings.lua
 		DefaultTooltip = NarciGameTooltip;	--Created in Module\GameTooltip.lua
 		if not ItemTooltip then
 			ItemTooltip = DefaultTooltip;
@@ -4051,19 +3170,19 @@ EL:SetScript("OnEvent",function(self, event, ...)
 
 		After(1.7, function()
 			UpdateCharacterInfoFrame();
-			
+
 			if CVarTemp.isDynamicCamLoaded then
-				CameraMover:UpdateMovementMethodForDynamicCam();
+				CameraUtil:UpdateMovementMethodForDynamicCam();
 			else
 				hooksecurefunc("CameraZoomIn", function(increment)
 					if IS_OPENED and (not Narci.groupPhotoMode) then
-						UpdateShoulderCVar:Start(-increment);
+						CameraUtil:SmoothShoulderByZoom(-increment);
 					end
 				end)
-				
+
 				hooksecurefunc("CameraZoomOut", function(increment)
 					if IS_OPENED and (not Narci.groupPhotoMode) then
-						UpdateShoulderCVar:Start(increment);
+						CameraUtil:SmoothShoulderByZoom(-increment);
 					end
 				end)
 			end
@@ -4074,14 +3193,12 @@ EL:SetScript("OnEvent",function(self, event, ...)
 		end
 	elseif event == "PLAYER_EQUIPMENT_CHANGED" then
 		local slotID, isItem = ...;
-		USE_DELAY = false;
 		SlotController:Refresh(slotID);
 
 		if EquipmentFlyoutFrame:IsShown() and EquipmentFlyoutFrame.slotID then
 			EquipmentFlyoutFrame:DisplayItemsBySlotID(EquipmentFlyoutFrame.slotID, false);
 		end
 
-		USE_DELAY = true;
 		ItemLevelFrame:AsyncUpdate();
 		local slot = SLOT_TABLE[slotID];
 		if slot and slot:IsMouseOver() then
@@ -4381,6 +3498,7 @@ function Narci:CloseCharacterUI()
 	end
 end
 
+
 do
     local SettingFunctions = addon.SettingFunctions;
 
@@ -4521,7 +3639,7 @@ do
 			state = db["CameraTransition"];
 		end
 
-		CameraMover:SetBlend(state);
+		IntroMotion:SetUseCameraTransition(state);
 	end
 
 	function SettingFunctions.EnableCameraSafeMode(state, db)
@@ -4529,17 +3647,6 @@ do
 			state = db["CameraSafeMode"];
 		end
 		CVarTemp.cameraSafeMode = state;
-	end
-
-	function SettingFunctions.SetDefaultZoomClose(state, db)
-		if state == nil then
-			state = db["UseBustShot"];
-		end
-		if state then
-			CAM_DISTANCE_INDEX = 1;
-		else
-			CAM_DISTANCE_INDEX = 4;
-		end
 	end
 
 	function SettingFunctions.EnableMissingEnchantAlert(state, db)

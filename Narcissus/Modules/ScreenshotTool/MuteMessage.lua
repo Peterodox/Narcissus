@@ -1,7 +1,7 @@
 local _, addon = ...
 
 local SCREENSHOT_ALERT_CHANGED = false;
-local DEFAULT_MSG = UI_HIDDEN or "";
+local DEFAULT_MSG = UI_HIDDEN or "";    --UI_HIDDEN isn't used in Retail
 
 local function ScreenshotAlert_CheckRequirements()
     if ActionStatus and ActionStatus.Text and ActionStatusMixin and ActionStatusMixin.OnUpdate and ActionStatusMixin.DisplayMessage then
@@ -18,9 +18,9 @@ local function ScreenshotAlert_Override()
         return
     end
 
-    if _G["UI_HIDDEN"] then
-        UI_HIDDEN = "";
-    end
+    --if _G["UI_HIDDEN"] then
+    --    UI_HIDDEN = "";
+    --end
 
     if ScreenshotAlert_CheckRequirements() and (not SCREENSHOT_ALERT_CHANGED) then
         local function OnUpdate(self, elapsed)
@@ -56,7 +56,7 @@ local function ScreenshotAlert_Restore()
         return
     end
 
-    UI_HIDDEN = DEFAULT_MSG;
+    --UI_HIDDEN = DEFAULT_MSG;
 
     if ScreenshotAlert_CheckRequirements() then
         ActionStatus:SetScript("OnUpdate", ActionStatusMixin.OnUpdate);
@@ -74,7 +74,7 @@ do
         if state == nil then
             state = db["SpeedyScreenshotAlert"];
         end
-        
+
         if state then
             ScreenshotAlert_Override();
         else

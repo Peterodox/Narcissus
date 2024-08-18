@@ -30,61 +30,6 @@
 		</Scripts>
 	</DressUpModel>
 
-	<Frame name="ModelPieceFrameTemplate" clipChildren="true" virtual="true" frameLevel="2">
-		<Frames>
-			<DressUpModel inherits="ModelPieceTemplate"/>
-		</Frames>
-	</Frame>
-
-	<!--Frame name="ModelPieceFrame" clipChildren="true" hidden="false">
-		<Anchors>
-			<Anchor point="CENTER" x="0" y="-100"/>
-		</Anchors>
-		<Size x="100" y="100"/>
-		<Layers>
-			<Layer level="BACKGROUND">
-				<Texture setAllPoints="true" parentKey="Color">
-					<Anchors>
-						<Anchor point="TOPLEFT" relativeKey="$parent" relativePoint="TOPLEFT" x="0" y="0"/>
-						<Anchor point="BOTTOMRIGHT" relativeKey="$parent" relativePoint="BOTTOMRIGHT" x="0" y="0"/>
-					</Anchors>
-					<Color r="1" g="0" b="0" a="0.5"/>
-					<Anchors>
-						<Anchor point="CENTER" x="0" y="0"/>
-					</Anchors>
-				</Texture>
-			</Layer>
-		</Layers>
-		<Frames>
-			<DressUpModel parent="Test1" virtual="false">
-				<Anchors>
-					<Anchor point="TOPLEFT" relativeKey="$parent" relativePoint="TOPLEFT"/>
-					<Anchor point="BOTTOMRIGHT" relativeKey="$parent" relativePoint="BOTTOMRIGHT"/>
-				</Anchors>
-				<Layers>
-					<Layer level="BACKGROUND">
-						<Texture setAllPoints="true" parentKey="Color">
-							<Anchors>
-								<Anchor point="TOPLEFT" x="0" y="0"/>
-								<Anchor point="BOTTOMRIGHT" x="0" y="0"/>
-							</Anchors>
-							<Color r="0" g="0" b="0" a="0"/>
-							<Anchors>
-								<Anchor point="CENTER" x="0" y="0"/>
-							</Anchors>
-						</Texture>
-					</Layer>
-				</Layers>
-				<Scripts>
-					<OnLoad>
-						Narci_PortraitPieces_OnLoad(self)
-					</OnLoad>
-				</Scripts>
-			</DressUpModel>
-		</Frames>
-	</Frame-->
-
-
 	<Button name="NarciWidgetButtonTemplate" virtual="true">
 		<Anchors>
 			<Anchor point="CENTER" x="0" y="0"/>
@@ -135,45 +80,6 @@
 			</OnLeave>
 		</Scripts>
 	</Button>
-
-	<Button name="NarciWidgetCheckboxButtonTemplate" inherits="NarciWidgetButtonTemplate" virtual="true">
-		<Size>
-			<AbsDimension y="20"/>
-		</Size>
-		<Layers>
-			<Layer level="OVERLAY" textureSubLevel="4">
-				<Texture file="Interface\AddOns\Narcissus\Art\Widgets\Arrows\Tick" parentKey="Tick" hidden="true">
-					<Size x="12" y="12"/>
-					<Anchors>
-						<Anchor point="RIGHT" x="-10"/>
-					</Anchors>
-				</Texture>
-			</Layer>
-			<Layer level="OVERLAY" textureSubLevel="3">
-				<Texture setAllPoints="true" parentKey="HighlightColor" hidden="true" Alpha="0.5">
-					<Anchors>
-						<Anchor point="TOPLEFT" x="0" y="0"/>
-						<Anchor point="BOTTOMRIGHT" x="0" y="0"/>
-					</Anchors>
-					<Color r="0" g="0" b="0" a="0.5"/>
-				</Texture>
-			</Layer>
-		</Layers>
-		<Scripts>
-			<OnLoad>
-				self.Background:SetColorTexture(0.06, 0.06, 0.06, 0.8)
-				self.IsOn = false;
-			</OnLoad>
-			<OnShow function="Narci_SetButtonColor"/>
-		</Scripts>
-	</Button>
-
-	<Texture name="NarciTextureArrowH" file="Interface\AddOns\Narcissus\Art\Widgets\Arrows\Arrow-H" virtual="true">
-		<Size x="12" y="12"/>
-		<Anchors>
-			<Anchor point="RIGHT" relativeKey="$parent" relativePoint="RIGHT" x="-10" y="0"/>
-		</Anchors>
-	</Texture>
 
 	<Frame name="Narci_RadarTemplate" virtual="true">
 		<Size>
@@ -1268,42 +1174,6 @@
 							</Layer>
 						</Layers>
 					</Frame>
-					<!--Frame parentKey="C0" inherits="ModelPieceFrameTemplate">
-						<Size x="20" y="50"/>
-						<Anchors>
-							<Anchor point="BOTTOM" relativeKey="$parent" relativePoint="BOTTOM" x="0" y="10"/>
-						</Anchors>
-					</Frame>
-					<Frame parentKey="C1" inherits="ModelPieceFrameTemplate">
-						<Size x="100" y="50"/>
-						<Anchors>
-							<Anchor point="BOTTOM" relativeKey="$parent.C0" relativePoint="TOP" x="0" y="-1"/>
-						</Anchors>
-					</Frame>
-					<Frame parentKey="L1" inherits="ModelPieceFrameTemplate">
-						<Size x="20" y="38"/>
-						<Anchors>
-							<Anchor point="BOTTOMRIGHT" relativeKey="$parent.C0" relativePoint="BOTTOMLEFT" x="0.5" y="12"/>
-						</Anchors>
-					</Frame>
-					<Frame parentKey="L2" inherits="ModelPieceFrameTemplate">
-						<Size x="8" y="34"/>
-						<Anchors>
-							<Anchor point="BOTTOMRIGHT" relativeKey="$parent.L1" relativePoint="BOTTOMLEFT" x="0.5" y="4"/>
-						</Anchors>
-					</Frame>
-					<Frame parentKey="R1" inherits="ModelPieceFrameTemplate">
-						<Size x="20" y="38"/>
-						<Anchors>
-							<Anchor point="BOTTOMLEFT" relativeKey="$parent.C0" relativePoint="BOTTOMRIGHT" x="-0.5" y="12"/>
-						</Anchors>
-					</Frame>
-					<Frame parentKey="R2" inherits="ModelPieceFrameTemplate">
-						<Size x="8" y="34"/>
-						<Anchors>
-							<Anchor point="BOTTOMLEFT" relativeKey="$parent.R1" relativePoint="BOTTOMRIGHT" x="-0.5" y="4"/>
-						</Anchors>
-					</Frame-->
 
 					<EditBox parentKey="MogNameEditBox" clipChildren="false" autoFocus="false" letters="24" multiLine="false" inherits="NarciEditBoxTemplate">
 						<Size>
@@ -1329,9 +1199,6 @@
 						</Scripts>
 					</EditBox>
 				</Frames>
-				<Scripts>
-					<OnShow function="Narci_PortraitPieces_OnLoad"/>
-				</Scripts>
 			</Frame>
 
 			<Button inherits="NarciSlotButtonLeftTemplate" parentKey="ChestSlot" id="5">
