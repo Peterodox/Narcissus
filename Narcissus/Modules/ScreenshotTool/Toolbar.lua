@@ -1123,7 +1123,6 @@ function NarciScreenshotToolbarMixin:UseLowerLevel(state)
 	self.MotionBlock:SetShown(state);
 end
 
-
 function NarciScreenshotToolbarMixin:SetDefaultScale(scale)
     --set scale to 1 when in screenshot mode (Alt+Z)
     self.defaultScale = scale;
@@ -1142,6 +1141,9 @@ function NarciScreenshotToolbarMixin:SetDefaultScale(scale)
     UpdateAnchor();
 end
 
+function NarciScreenshotToolbarMixin:EnableMotion(state)
+    --TO-DO: For PhotoMode DM Alert
+end
 
 
 NarciRayTracingToggleMixin = {};

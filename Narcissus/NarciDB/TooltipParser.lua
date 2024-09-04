@@ -601,13 +601,13 @@ NarciAPI.GetEnchantTextByItemLink = GetEnchantTextByItemLink;
 
 
 local TEMP_ENCHANT_FORMAT = "([^+].+) %((%d+%D+)%)";
-local FORMAT_COLON = ":";
+local TEMP_ENCHANT_DURATION_FORMAT= "([^+].+)%s*%((%d+%s*|4%S+:%S+;)%)";    --NEW FORMAT: |4hour:hours;
 if TEXT_LOCALE == "zhCN" then
-    FORMAT_COLON = "：";
     TEMP_ENCHANT_FORMAT = "([^+].+)（(%d+%D+)%）";
+    TEMP_ENCHANT_DURATION_FORMAT= "([^+].+)%s*（(%d+%s*|4%S+:%S+;)）";
 elseif TEXT_LOCALE == "zhTW" then
-    FORMAT_COLON = "：";
     TEMP_ENCHANT_FORMAT = "([^+].+)%((%d+%D+)%)";
+    TEMP_ENCHANT_DURATION_FORMAT= "([^+].+)%s*%((%d+%s*|4%S+:%S+;)%)";
 end
 
 local function GetTemporaryItemBuff(location1, location2)
@@ -623,13 +623,19 @@ local function GetTemporaryItemBuff(location1, location2)
 
     local lines = tooltipData.lines;
     local numLines = #lines;
-    local lineText;
+    local lineText, leftColor;
     local buffText, durationText;
     for i = 5, numLines do
         lineText = GetLineText(lines, i);
         if lineText then
-            if not match(lineText, FORMAT_COLON) then
+            leftColor = lines[i].leftColor;
+            if leftColor and leftColor.r == 0 and leftColor.g == 1 and leftColor.b == 0 then
                 buffText, durationText = match(lineText, TEMP_ENCHANT_FORMAT);
+                if buffText and durationText then
+                    break
+                end
+
+                buffText, durationText = match(lineText, TEMP_ENCHANT_DURATION_FORMAT);
                 if buffText and durationText then
                     break
                 end

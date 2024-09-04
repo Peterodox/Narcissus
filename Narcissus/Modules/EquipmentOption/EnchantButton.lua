@@ -320,7 +320,7 @@ function NarciEquipmentEnchantButtonMixin:OnEnter(button, motion, isGamepad)
     if not ScrollFrame:IsScrolling() and not isGamepad then
         if not IsMouseButtonDown() then
             if not ScrollFrame:ScrollToWidget(self) then
-                Tooltip:AnchorToButton(self);
+                Tooltip:ShowButtonTooltip(self);
             end
         end
     end

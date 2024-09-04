@@ -30,52 +30,29 @@ local enchantData = {
     --[slotID] = { {spellID, itemID, enchantID, [requirementID]} }     --requirementID: 1(Bladed), 2(Blunt), 3(Hunter Ranged Weapon)
     --Shadowlands and on
 
-    [5] = {     --Chest
-        ----SL----
-        {324068, 172347, 6225},     --Heavy Desolate Armor Kit
-        {324064, 172346, 6224},     --Desolate Armor Kit
-    },
 
     [16] = {    --Weapon
-        {409660, 204973, 6839},     --Hissing Rune T3 Mastery (Melee)
-        {409659, 204972, 6837},     --Hissing Rune T2
-        {409654, 204971, 6838},     --Hissing Rune T1
+        {451874, 224107, 7495},        --T3 Algari Mana Oil (Crit, Haste)
+        {451873, 224106, 7494},        --T2 Algari Mana Oil
+        {451869, 224105, 7493},        --T1 Algari Mana Oil
 
-        {385327, 194823, 6514},     --Buzzing Rune T3 Crit (Melee)
-        {385326, 194822, 6513},     --Buzzing Rune T2
-        {385325, 194821, 6512},     --Buzzing Rune T1
+        {451902, 224113, 7498},        --T3 Oil of Deep Toxins (DMG)
+        {451901, 224112, 7497},        --T2 Oil of Deep Toxins
+        {451882, 224111, 7496},        --T1 Oil of Deep Toxins
 
-        {385577, 194820, 6518},     --Howling Rune T3 Haste (Melee)
-        {385576, 194819, 6517},     --Howling Rune T2
-        {385575, 194817, 6516},     --Howling Rune T1
+        {451927, 224110, 7502},        --T3 Oil of Beledar's Grace (Heal)
+        {451925, 224109, 7501},        --T2 Oil of Beledar's Grace
+        {451926, 224108, 7500},        --T1 Oil of Beledar's Grace
 
-        {396148, 194826, 6695},     --Chirping Rune T3 Heal (Melee)
-        {396147, 194825, 6694},     --Chirping Rune T2
-        {385330, 194824, 6515},     --Chirping Rune T1
+        {458934, 222504, 7545, 2},     --T3 Ironclaw Whetstone (Bladed)
+        {458933, 222503, 7544, 2},     --T2 Ironclaw Whetstone
+        {458932, 222502, 7543, 2},     --T1 Ironclaw Whetstone
 
-        {396157, 191940, 6381, 1},     --Primal Whetstone T3 (Bladed)
-        {396156, 191939, 6380, 1},     --Primal Whetstone T2
-        {396155, 191933, 6379, 1},     --Primal Whetstone T1
+        {458937, 222510, 7551, 1},     --T3 Ironclaw Weightstone (Blunt)
+        {458936, 222509, 7550, 1},     --T3 Ironclaw Weightstone
+        {458935, 222508, 7549, 1},     --T3 Ironclaw Weightstone
 
-        {371678, 191945, 6698, 2},     --Primal Whetstone T3 (Blunt)
-        {371677, 191944, 6697, 2},     --Primal Whetstone T2
-        {371676, 191943, 6696, 2},     --Primal Whetstone T1
-
-        {386246, 198162, 6531, 3},     --Completely Safe Rockets T3 (Ranged)
-        {386245, 198161, 6530, 3},     --Completely Safe Rockets T2
-        {386243, 198160, 6529, 3},     --Completely Safe Rockets T1
-
-        {386255, 198165, 6534, 3},     --Endless Stack of Needles T3 (Ranged)
-        {386254, 198164, 6533, 3},     --Endless Stack of Needles T2
-        {386252, 198163, 6532, 3},     --Endless Stack of Needles T1
-
-        ----SL----
-        {320798, 171285, 6188},     --Shadowcore Oil
-        {321389, 171286, 6190},     --Embalmer's Oil    --Heal
-        {322762, 171437, 6200, 1},     --Shaded Sharpening Stone
-        {322749, 171436, 6198, 1},     --Porous Sharpening Stone
-        {322763, 171439, 6201, 2},     --Shaded Weightstone (Mace & Staff)
-        {322761, 171438, 6199, 2},     --Porous Weightstone (Mace & Staff)
+        {444755, 220156, 7467},        --Bubbling Wax (Rogue)
     },
 };
 

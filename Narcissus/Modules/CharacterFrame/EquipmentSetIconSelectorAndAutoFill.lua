@@ -127,20 +127,45 @@ local function IsUniqueIcon(icon)
     return isUnique;
 end
 
-local function GetStaticIcons()
-    local numTab = GetNumSpellTabs();
-    local spellID;
-    local icon;
-    for i = 2, numTab do
-        local _, _, tabOffset, numEntries = GetSpellTabInfo(i);     --1:General 2:Current Spec
-        for j =  (tabOffset + 1) , (tabOffset + numEntries) do
-            _, spellID = GetSpellBookItemInfo(j, "spell");
-            if spellID and (not IsSpellPassive(spellID) ) then
-                icon = GetSpellBookItemTexture(j, "spell");
-                staticIcons[icon] = true;
-            end
-        end
-    end
+local function GetStaticIcons() --FillOutExtraIconsMapWithSpells (Interface/AddOns/Blizzard_FrameXMLBase/Mainline/IconDataProvider.lua)
+    local GetSpellTexture = C_Spell.GetSpellTexture;
+    local GetSpellBookItemType = C_SpellBook.GetSpellBookItemType;
+    local GetSpellBookItemTexture = C_SpellBook.GetSpellBookItemTexture;
+    local GetFlyoutInfo = GetFlyoutInfo;
+    local GetFlyoutSlotInfo = GetFlyoutSlotInfo;
+    local PLAYER = Enum.SpellBookSpellBank.Player;
+    local spellIndex, spellType, ID, fileID;
+    local _, numSlots, isKnown;
+    local spellID, overrideSpellID, isSlotKnown;
+
+    for skillLineIndex = 1, C_SpellBook.GetNumSpellBookSkillLines() do
+		local skillLineInfo = C_SpellBook.GetSpellBookSkillLineInfo(skillLineIndex);
+		for i = 1, skillLineInfo.numSpellBookItems do
+			spellIndex = skillLineInfo.itemIndexOffset + i;
+			spellType, ID = GetSpellBookItemType(spellIndex, PLAYER);
+			if spellType ~= "FUTURESPELL" then
+				fileID = GetSpellBookItemTexture(spellIndex, PLAYER);
+				if fileID ~= nil then
+					staticIcons[fileID] = true;
+				end
+			end
+
+			if spellType == "FLYOUT" then
+				_, _, numSlots, isKnown = GetFlyoutInfo(ID);
+				if isKnown and (numSlots > 0) then
+					for k = 1, numSlots do
+						spellID, overrideSpellID, isSlotKnown = GetFlyoutSlotInfo(ID, k)
+						if isSlotKnown then
+							fileID = GetSpellTexture(spellID);
+							if fileID ~= nil then
+								staticIcons[fileID] = true;
+							end
+						end
+					end
+				end
+			end
+		end
+	end
 
     for i = 1, #excludedIcons do
         staticIcons[ excludedIcons[i] ] = true;
@@ -181,7 +206,8 @@ local function GenerateIcons()                             --Passive talent only
     local talentGroup = GetActiveSpecGroup();
     local talentID, icon, spellID, name;
     local IsSpellPassive = IsSpellPassive;
-    
+    local tinsert = table.insert;
+
     --from Inventory
     local itemLocation = ItemLocation:CreateFromEquipmentSlot(16);   --Main Hand
     if DoesItemExist(itemLocation) then
@@ -192,10 +218,10 @@ local function GenerateIcons()                             --Passive talent only
             tinsert(names, name);
         end
     end
-    
+
     itemLocation = ItemLocation:CreateFromEquipmentSlot(15)     --INVSLOT_BACK
     if DoesItemExist(itemLocation) then
-        local quality = C_Item.GetItemQuality(itemLocation)     
+        local quality = C_Item.GetItemQuality(itemLocation);
         if quality == 5 or quality == 6 then                        --Legendary & Artifact
             icon = C_Item.GetItemIcon(itemLocation);
         end
@@ -206,7 +232,14 @@ local function GenerateIcons()                             --Passive talent only
         end
     end
 
+    local playerSpellIcons = GetStaticIcons();
+    for k, v in pairs(playerSpellIcons) do
+        tinsert(icons, k);
+        tinsert(names, k);
+    end
+
     --from spell book
+    --[[
     local GetSpellBookItemTexture = GetSpellBookItemTexture;
     local GetSpellBookItemInfo = GetSpellBookItemInfo;
     local _, _, tabOffset, numEntries = GetSpellTabInfo(2)      --1:General 2:Current Spec
@@ -223,6 +256,7 @@ local function GenerateIcons()                             --Passive talent only
             --break;
         end
     end
+    --]]
 
     --Regular talent tree
     if talentGroup then
@@ -303,7 +337,7 @@ function ESM:GetCurrentSpecializationNameAndIcons()
     LoadEquipmentSetIcons();
     local currentSpec = GetSpecialization() or 1;
     local _, currentSpecName, _, specIcon, role = GetSpecializationInfo(currentSpec);
-    local roleName;
+    local roleName, subclass;
     currentSpecName = ConvertToUniqueName(currentSpecName);
     if role == "TANK" then
         subclass = "tank";

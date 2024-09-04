@@ -187,7 +187,7 @@ do  --Move Smooth Yaw/Pitch/Shoulder
                     local current = GetCameraZoom();
                     local goal = self:GetDefaultZoomGoal();
                     if current < goal then          --We only zoom out in this situation
-                        self:ZoomIn(goal);
+                        self:ZoomTo(goal);
                     else
                         CameraZoomIn(0);            --Incur shoulder update
                     end
@@ -250,7 +250,8 @@ do  --Camera Parameters
 
     local CameraData = {
         --[raceID] = {bustZoom, factor1, factor2, fullbodyZoom},
-        [0] = {[2] = {2.1, 0.361, -0.1654, 4}},		        --Default Value
+        [0] = {[2] = {2.1, 0.361, -0.1654, 4},
+            [3] = {2.1, 0.361, -0.1654, 4}},		        --Default Value
 
         [1] = {[2] = {2.1, 0.3283, -0.02, 4},		        --1 Human
             [3] = {2.0, 0.38, 0.0311, 3.6}},
@@ -351,62 +352,8 @@ do  --Camera Parameters
         return zoom * SHOULDER_PARA_1 + SHOULDER_PARA_2 + EXTRA_SHOULDER_OFFSET
     end
 
-
-    local _, _, RACE = UnitRace("player")
-    local SEX = UnitSex("player")
-
-    do  --Remove Irrelevant Data
-        if RACE == 25 or RACE == 26 then            --Pandaren A|H
-            RACE = 24;
-        elseif RACE == 30 then						--Lightforged
-            RACE = 11;
-        elseif RACE == 36 then						--Mag'har Orc
-            RACE = 2;
-        elseif RACE == 34 then						--DarkIron
-            RACE = 3;
-        elseif RACE == 37 then						--Mechagnome
-            RACE = 7;
-        elseif RACE == 22 then
-            CameraUtil.GetRaceKey = CameraUtil.GetRaceKey_Worgen;
-        elseif RACE == 52 or RACE == 70 then	    --Dracthyr Horde -> Alliance
-            RACE = 52;
-            CameraUtil.GetRaceKey = CameraUtil.GetRaceKey_Dracthyr;
-        elseif RACE == 84 or RACE == 85 then	    --Earthen
-            RACE = 3;
-        end
-
-        local _, _, playerClassID = UnitClass("player");
-        if playerClassID == 11 then
-            CameraUtil.UpdateParameters = CameraUtil.UpdateParameters_Druid;
-        end
-
-        if (not CameraData[RACE]) and (RACE ~= 22 and RACE ~= 52) then
-            print(("Narcissus: You are using race %d that doesn't have camera parameters"):format(RACE))
-            RACE = 1;
-        end
-
-        for raceKey, data in pairs(CameraData) do
-            local id = tonumber(raceKey);
-            if id and id > 1 and id ~= RACE then
-                CameraData[raceKey] = nil;
-            end
-        end
-    end
-
-    function CameraUtil:UpdateParameters_Default()
-        local raceKey;
-        if IsMounted() then
-            raceKey = "Mounted";
-        else
-            raceKey = self:GetRaceKey();
-        end
-
-        DEFAULT_ZOOM_GOAL = CameraData[raceKey][SEX][CAM_DISTANCE_INDEX];
-        SHOULDER_PARA_1 = CameraData[raceKey][SEX][2];
-        SHOULDER_PARA_2 = CameraData[raceKey][SEX][3];
-        DEFAULT_ZOOM_MOG = CameraData[raceKey][SEX][4];
-    end
-    CameraUtil.UpdateParameters = CameraUtil.UpdateParameters_Default;
+    local _, _, RACE = UnitRace("player");
+    local SEX = UnitSex("player");
 
     function CameraUtil:GetRaceKey()
         return RACE
@@ -457,6 +404,58 @@ do  --Camera Parameters
             self:UpdateParametersDefault();
         end
     end
+
+    do  --Remove Irrelevant Data
+        if RACE == 25 or RACE == 26 then            --Pandaren A|H
+            RACE = 24;
+        elseif RACE == 30 then						--Lightforged
+            RACE = 11;
+        elseif RACE == 36 then						--Mag'har Orc
+            RACE = 2;
+        elseif RACE == 34 then						--DarkIron
+            RACE = 3;
+        elseif RACE == 37 then						--Mechagnome
+            RACE = 7;
+        elseif RACE == 22 then
+            CameraUtil.GetRaceKey = CameraUtil.GetRaceKey_Worgen;
+        elseif RACE == 52 or RACE == 70 then	    --Dracthyr Horde -> Alliance
+            RACE = 52;
+            CameraUtil.GetRaceKey = CameraUtil.GetRaceKey_Dracthyr;
+        elseif RACE == 84 or RACE == 85 then	    --Earthen
+            RACE = 3;
+        end
+
+        local _, _, playerClassID = UnitClass("player");
+        if playerClassID == 11 then
+            CameraUtil.UpdateParameters = CameraUtil.UpdateParameters_Druid;
+        end
+
+        if (not CameraData[RACE]) and (RACE ~= 22 and RACE ~= 52) then
+            print(("Narcissus: You are using race %d that doesn't have camera parameters"):format(RACE))
+            RACE = 1;
+        end
+
+        for raceKey, data in pairs(CameraData) do
+            local id = tonumber(raceKey);
+            if id and id > 1 and id ~= RACE then
+                CameraData[raceKey] = nil;
+            end
+        end
+    end
+
+    function CameraUtil:UpdateParameters_Default()
+        local raceKey;
+        if IsMounted() then
+            raceKey = "Mounted";
+        else
+            raceKey = self:GetRaceKey();
+        end
+        DEFAULT_ZOOM_GOAL = CameraData[raceKey][SEX][CAM_DISTANCE_INDEX];
+        SHOULDER_PARA_1 = CameraData[raceKey][SEX][2];
+        SHOULDER_PARA_2 = CameraData[raceKey][SEX][3];
+        DEFAULT_ZOOM_MOG = CameraData[raceKey][SEX][4];
+    end
+    CameraUtil.UpdateParameters = CameraUtil.UpdateParameters_Default;
 
     function CameraUtil:OnPlayerFormChanged(pauseDuration)
         if not self.f1 then

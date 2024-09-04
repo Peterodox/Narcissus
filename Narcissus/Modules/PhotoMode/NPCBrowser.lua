@@ -2526,6 +2526,8 @@ end
 
 local function SetNPCModel(model, id, isDisplayID)
     model.isModelLoaded = false;
+    model:ClearModel();
+    model.isCameraDirty = true;
     if isDisplayID then
         model:SetDisplayInfo(id);
         model.displayID = id;

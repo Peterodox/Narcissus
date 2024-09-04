@@ -2,84 +2,45 @@ local _, addon = ...;
 local GetItemCount = C_Item.GetItemCount;
 
 local PrismaticGems = {
-    ----10 DF---- itemID order: better-lower quality
-    --Unique-Equipped: Primalist Gem (1) BoP
-    192982, 192981, 192980,     --Inscribed Illimited Diamond Primary + Crit
-    192985, 192984, 192983,     --Fierce Illimited Diamond Primary + Haste
-    192991, 192990, 192989,     --Resplendent Illimited Diamond Primary + Versa
-    192988, 192987, 192986,     --Skillful Illimited Diamond Primary + Mastery
+    ----11 TWW---- itemID order: better-lower quality
+    213743, 213742, 213741,     --Culminating Blasphemite
+    213746, 213745, 213744,     --Elusive Blasphemite
+    213740, 213739, 213738,     --Insightful Blasphemite
+    217115, 217114, 217113,     --Cubic Blasphemite
 
-    192928, 192927, 192926,     --Deadly Alexstraszite Crit
-    192919, 192918, 192917,     --Crafty Alexstraszite Crit + Haste
-    192925, 192924, 192923,     --Radiant Alexstraszite Crit + Versa
-    192922, 192921, 192920,     --Sensei's Alexstraszite Crit + Mastery
+    --3 PvP Gems
+    213749, 213748, 213747,
 
-    192945, 192944, 192943,     --Crafty Ysemerald Haste + Crit
-    192955, 192954, 192953,     --Quick Ysemerald Haste
-    192952, 192951, 192950,     --Energized Ysemerald Haste + Versa
-    192948, 192947, 192946,     --Keen Ysemerald Haste + Mastery
+    --Sapphires
+    213476, 213475, 213474,
+    213470, 213469, 213468,
+    213467, 213466, 213465,
+    213473, 213472, 213471,
 
-    192932, 192931, 192929,     --Radiant Malygite Versa + Crit
-    192935, 192934, 192933,     --Energized Malygite Versa + Haste
-    192942, 192941, 192940,     --Stormy Malygite Versa
-    192938, 192937, 192936,     --Zen Malygite Versa + Mastery
+    --Emeralds
+    213488, 213487, 213486,
+    213485, 213484, 213483,
+    213479, 213478, 213477,
+    213482, 213481, 213480,
 
-    192958, 192957, 192956,     --Sensei's Neltharite Mastery + Crit
-    192961, 192960, 192959,     --Keen Neltharite Mastery + Haste
-    192964, 192963, 192962,     --Zen Neltharite Mastery + Versa
-    192967, 192966, 192965,     --Fractured Neltharite Mastery
+    --Rubys
+    213464, 213463, 213462,
+    213461, 213460, 213459,
+    213455, 213454, 213453,
+    213458, 213457, 213456,
 
-    192970, 192969, 192968,     --Jagged Nozdorite Stamina + Crit
-    192973, 192972, 192971,     --Forceful Nozdorite Stamina + Haste
-    192979, 192978, 192977,     --Steady Nozdorite Stamina + Versa
-    192976, 192975, 192974,     --Puissant Nozdorite Stamina + Mastery
+    --Onyxs
+    213500, 213499, 213498,
+    213497, 213496, 213495,
+    213494, 213493, 213492,
+    213491, 213490, 213489,
 
-    192902, 192901, 192900,     --Crafty Queen's Ruby Crit + Haste
-    192908, 192907, 192906,     --Energized Vibrant Emerald Haste + Versa
-    192905, 192904, 192903,     --Zen Mystic Sapphire Versa + Mastery
-    192912, 192911, 192910,     --Sensei's Sundered Onyx Mastery + Crit
-    192916, 192914, 192913,     --Solid Eternity Amber Stamina
-
-    ----9 SL----
-    173127,     --Deadly Jewel Cluster
-    173128,     --Quick Jewel Cluster
-    173129,     --Versatile Jewel Cluster
-    173130,     --Masterful Jewel Cluster
-
-    173121,     --Deadly Jewel Doublet
-    173122,     --Quick Jewel Doublet
-    173123,     --Versatile Jewel Doublet
-    173124,     --Masterful Jewel Doublet
-
-    173125,     --**Revitalizing Jewel Doublet
-    173126,     --**Straddling Jewel Doublet
-
-    ----8 BFA----
-    168636,     --Leviathan's Eye of Strength
-    168637,     --Leviathan's Eye of Agility
-    168638,     --Leviathan's Eye of Intellect
-
-    168639,     --Deadly Lava Lazuli
-    168641,     --Quick Sand Spinel
-    168642,     --Versatile Dark Opal
-    168640,     --Masterful Sea Currant
-    169220,     --***Straddling Sage Agate
-
-    154126,     --Deadly Amberblaze
-    154127,     --Quick Owlseye
-    154128,     --Versatile Royal Quartz
-    154129,     --Masterful Tidal Amethyst
-
-    153707,     --Kraken's Eye of Strength
-    153708,     --Kraken's Eye of Agility
-    153709,     --Kraken's Eye of Intellect
-
-    153710,     --Deadly Solstone
-    153711,     --Quick Golden Beryl
-    153712,     --Versatile Kyanite
-    153713,     --Masterful Kubiline
-    153714,      --***Insightful Rubellite
-    153715,     --***Straddling Viridium
+    --Ambers (5)
+    213517, 213516, 213515,
+    213512, 213511, 213510,
+    213506, 213505, 213504,
+    213503, 213502, 213501,
+    213509, 213508, 213507,
 };
 
 local DominationGems = {

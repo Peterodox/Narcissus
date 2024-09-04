@@ -1,6 +1,6 @@
-## Interface: 100207, 110000, 110002
+## Interface: 110002
 ## Plain Title: Narcissus Database NPC
-## Version: 10.2.0
+## Version: 11.0.2
 ## LoadOnDemand: 1
 ## RequiredDeps: Narcissus
 ### SavedVariables: UniqueCreatureIDs, LocalizedNames, SortedNames, CreatureIDxModelFileID, UnprocessedCreatures

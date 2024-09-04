@@ -1541,6 +1541,7 @@ NarciOutfitShowcaseMixin = {};
 
 function NarciOutfitShowcaseMixin:OnLoad()
     MainFrame = self;
+
     --if UISpecialFrames then
     --    table.insert(UISpecialFrames, self:GetName());
     --end
@@ -1770,6 +1771,7 @@ function NarciOutfitShowcaseMixin:UpdateSize(resetCamera)
     local w, h = self.ModelScene:GetSize();
     local aspect = 0.5*w/h;
     self.ModelScene.Backdrop:SetTexCoord(0.5 - aspect, 0.5 + aspect, 0, 1);
+    self.BackdropSelect.aspect = w/h;
 
     self.OutlineFrame.LeftLine:SetSize(2*pixel, frameHeight + 4*pixel);
     self.OutlineFrame.RightLine:SetSize(2*pixel, frameHeight + 4*pixel);

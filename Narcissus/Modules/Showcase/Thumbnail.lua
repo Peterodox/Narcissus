@@ -187,14 +187,18 @@ local ClassImage = {
 
 local Buttons = {};
 
-local function SetupThumbnail(texture, index, inset)
+local function SetupThumbnail(texture, index, inset, aspect)
     --"inset" is used to compensate the resampling issue (nicer edge)
     if index > MAX_INDEX then
         return false
     else
         local row = modf((index - 1) * 0.125);
         local col = index - row * 8 - 1;
-        texture:SetTexCoord(col*0.125 + inset, (col+1)*0.125 - inset, row*0.0625 + inset, (row+1)*0.0625 - inset);
+        local offsetX = 0;
+        if aspect then
+            offsetX = (1 - aspect)*0.125 * 0.5;
+        end
+        texture:SetTexCoord(col*0.125 + inset + offsetX, (col+1)*0.125 - inset - offsetX, row*0.0625 + inset, (row+1)*0.0625 - inset);
         return true
     end
 end
@@ -216,7 +220,7 @@ end
 local function SetPreviewImage(index, forceReload)
     if index ~= PREVIEW_INDEX or forceReload then
         PREVIEW_INDEX = index;
-        SetupThumbnail(BackdropContainer.BackdropPreview, index, 0);
+        SetupThumbnail(BackdropContainer.BackdropPreview, index, 0, MainFrame.aspect);
         BackdropContainer.BackdropPreview.FadeOut:Stop();
         BackdropContainer.BackdropPreview:Show();
         BackdropContainer.BackdropPreview.FadeOut:Play();
@@ -274,7 +278,7 @@ end
 
 local function CloseNoChange_OnUpdate(self, elapsed)
     self.t = self.t + elapsed;
-    local width = outSine(self.t, self.fromWidth, 4, 0.5);
+    local width = outSine(self.t, self.fromWidth, 0.1, 0.5);
     local alpha = 1 - 4*self.t;
     if alpha < 0 then
         alpha = 0;
@@ -297,7 +301,7 @@ local function SelectAndClose_OnUpdate(self, elapsed)
     local wT = self.t - 0.5;
     local width;
     if wT > 0 then
-        width = outSine(wT, self.fromWidth, 4, 0.5);
+        width = outSine(wT, self.fromWidth, 0.1, 0.5);
         self:SetWidth(width);
     end
     local alpha = 1 - 4*self.t;

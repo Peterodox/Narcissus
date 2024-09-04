@@ -10,9 +10,8 @@ local SLOT_PER_PAGE = MAX_ROW * MAX_COL;
 local format = string.format;
 local FadeFrame = NarciFadeUI.Fade;
 
-local GetStablePetInfo = GetStablePetInfo;
+local GetStablePetInfo = C_StableInfo.GetStablePetInfo;
 local SetPetStablePaperdoll = SetPetStablePaperdoll;
-local NEW_GetStablePetInfo = C_StableInfo and C_StableInfo.GetStablePetInfo;
 
 local MainFrame, PetModel, ModelShadow, Tooltip, SelectionOverlay, PageText, PageControl, DropDownButtons, PetSlots;
 local TARGET_MODEL_INDEX;
@@ -22,8 +21,8 @@ local ACTOR_CREATED = false;
 local function SetPetModel(model, index)
     if SetPetStablePaperdoll then
         SetPetStablePaperdoll(model, index);
-    elseif NEW_GetStablePetInfo then
-        local petInfo = C_StableInfo.GetStablePetInfo(index);
+    elseif GetStablePetInfo then
+        local petInfo = GetStablePetInfo(index);
 		if petInfo and petInfo.displayID then
 			model:SetDisplayInfo(petInfo.displayID);
 		end

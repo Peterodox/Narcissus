@@ -985,7 +985,7 @@ function NarciPhotoModeOutfitSelectMixin:AddPlayerActor(unit, model)
 
     --Add outfit
     After(0.2, function()
-        local name = UnitName(unit);
+        local name = UnitName(unit) or unit;
         name = name.." #"..index;
         local infoList = model:GetItemTransmogInfoList();   --we have to deep copy this table
         local transmogString = TransmogDataProvider:ConvertTransmogListToString(infoList);

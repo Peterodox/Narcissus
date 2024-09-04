@@ -57,13 +57,13 @@ function NarciMsgAlertMixin:OnLeave()
 end
 
 function NarciMsgAlertMixin:OnShow()
-    Narci_PhotoModeToolbar:DisableMotion();
+    NarciScreenshotToolbar:EnableMotion(false);
 end
 
 function NarciMsgAlertMixin:OnHide()
     self.ExtraFrame:Hide();
     self.ExtraFrame:SetAlpha(0);
-    Narci_PhotoModeToolbar:EnableMotion();
+    NarciScreenshotToolbar:EnableMotion(true);
 end
 
 function NarciMsgAlertMixin:FadeInBorder(state)

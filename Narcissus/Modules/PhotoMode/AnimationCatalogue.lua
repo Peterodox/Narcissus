@@ -1747,7 +1747,46 @@ local officialAnimationName = {
 	"CinematicWAGuardEmoteSlam01",
 	"FlyCinematicWAGuardEmoteSlam01",	--1735
 	"WABlowHorn",
-	"FlyWABlowHorn",	--1737
+	"FlyWABlowHorn",
+	"Mount",
+	nil,
+	nil,	--1740
+	nil,
+	"HerbGathering",	--1742
+	nil,
+	"Cooking",	--1744
+	nil,	--1745
+	nil,
+	nil,
+	nil,
+	nil,
+	nil,	--1750
+	nil,
+	nil,
+	nil,
+	nil,
+	nil,	--1755
+	nil,
+	nil,
+	nil,
+	nil,
+	nil,	--1760
+	nil,
+	nil,
+	nil,
+	nil,
+	nil,	--1765
+	nil,
+	nil,
+	nil,
+	nil,
+	"Prowl",	--1770
+	nil,
+	"Shovel",	--1772
+	nil,
+	nil,
+	nil,	--1775
+	"Mount",	--1776
 
 	[0] = "Stand",
 };

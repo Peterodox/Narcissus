@@ -26,270 +26,223 @@ local unpack = unpack;
     INVSLOT_TABARD		= 19;
 --]]
 
+local ICON_AVOIDANCE = 132301;
+local ICON_LEECH = 136231;
+local ICON_SPEED = 648208;
+
 local enchantData = {
-    --[slotID] = { {spellID, itemID, enchantID, [icon], [requirement]} }     --default icon: 463531
+    --[slotID] = { {spellID, itemID, enchantID, [icon], [requirement]} }     --default icon: 463531          --requirementID: 1(Bladed), 2(Blunt), 3(Hunter Ranged Weapon)
     --Shadowlands and on
     --Dragonflight Crafing: https://wow.tools/dbc/?dbc=craftingdataenchantquality
     --EnchantID: https://wago.tools/db2/SpellItemEnchantment
 
     [5] = {     --Chest
-        {389419, 200029, 6622, 136101},     --Sustained Strength T3 STR + HP
-        {389419, 199987, 6621, 136101},     --Sustained Strength T2 STR + HP
-        {389419, 199945, 6620, 136101},     --Sustained Strength T1 STR + HP
+        {445321, 223689, 7361, 136101},     --T3 Oathsworn's Strength (STR, HP)
+        {445321, 223688, 7360, 136101},     --T2 Oathsworn's Strength
+        {445321, 223687, 7359, 136101},     --T1 Oathsworn's Strength
 
-        {389416, 200027, 6616, 135879},     --Accelerated Agility T3 AGI + Speed
-        {389416, 199985, 6615, 135879},     --Accelerated Agility T2 AGI + Speed
-        {389416, 199943, 6614, 135879},     --Accelerated Agility T1 AGI + Speed
+        {445353, 223683, 7355, 135879},     --T3 Stormrider's Agility (AGI, Speed)
+        {445353, 223682, 7354, 135879},     --T2 Stormrider's Agility
+        {445353, 223681, 7353, 135879},     --T1 Stormrider's Agility
 
-        {389417, 200028, 6619, 135932},     --Reserve of Intellect T3 INT + MP
-        {389417, 199986, 6618, 135932},     --Reserve of Intellect T2 INT + MP
-        {389417, 199944, 6617, 135932},     --Reserve of Intellect T1 INT + MP
+        {445322, 223686, 7358, 135932},     --T3 Council's Intellect (INT, MP)
+        {445322, 223685, 7357, 135932},     --T2 Council's Intellect
+        {445322, 223684, 7356, 135932},     --T1 Council's Intellect
 
-        {389410, 200030, 6625},             --Waking Stats T3 +All Primary Stats
-        {389410, 199988, 6624},             --Waking Stats T2
-        {389410, 199946, 6623},             --Waking Stats T1
-
-        ----SL----
-        {342316, 183738, 6265, 631503},     --Eternal Insight
-        {309535, 172418, 6213, 134950},     --Eternal Bulwark
-        {323761, 177715, 6217, 135913},     --Eternal Bounds
-        {323760, 177659, 6214, 631503},     --Eternal Skirmish
-        {324773, 177962, 6230},             --Eternal Stats
-        {323762, 177716, 6216},             --Sacred Stats
+        {445333, 223692, 7364},             --T3 Crystalline Radiance (Primary Stat)
+        {445333, 223691, 7363},             --T3 Crystalline Radiance
+        {445333, 223690, 7362},             --T3 Crystalline Radiance
     },
 
     [6] = {     --Waist
-        {411897, 205039, 6904},     --Shadowed Belt Clasp T3 Stamina
-        {411898, 205044, 6905},     --Shadowed Belt Clasp T2
-        {411899, 205043, 6906},     --Shadowed Belt Clasp T1
+
     },
 
     [7] = {     --Legs
-        {406299, 204702, 6830},     --Lambent Armor Kit T3 Primary + Versatility
-        {406298, 204701, 6829},     --Lambent Armor Kit T2
-        {406295, 204700, 6828},     --Lambent Armor Kit T1
+        {457623, 222893, 7534},             --T3 Sunset Spellthread (++Int, HP)
+        {457622, 222892, 7533},             --T2 Sunset Spellthread
+        {457621, 222891, 7532},             --T1 Sunset Spellthread
 
-        {376848, 193565, 6490},     --Fierce Armor Kit T3 Stamina + Agility/Strength
-        {376844, 193561, 6489},     --Fierce Armor Kit T2
-        {376822, 193557, 6488},     --Fierce Armor Kit T1
+        {457620, 222896, 7531},             --T3 Daybreak Spellthread (INT, Mana)
+        {457619, 222895, 7530},             --T2 Daybreak Spellthread
+        {457618, 222894, 7529},             --T1 Daybreak Spellthread
 
-        {376847, 193564, 6496},     --Frosted Armor Kit T3 Armor + Agility/Strength
-        {376845, 193560, 6495},     --Frosted Armor Kit T2
-        {376819, 193556, 6494},     --Frosted Armor Kit T1
+        {457626, 222890, 7537},             --T3 Weavecloth Spellthread (INT)
+        {457625, 222889, 7536},             --T2 Weavecloth Spellthread
+        {457624, 222888, 7535},             --T1 Weavecloth Spellthread
 
-        {387294, 194013, 6541},     --Frozen Spellthread T3 Stamina + INT
-        {387293, 194012, 6540},     --Frozen Spellthread T2
-        {387291, 194011, 6539},     --Frozen Spellthread T1
+        {451825, 219911, 7601},             --T3 Stormbound Armor Kit (++AGI/STR, HP)
+        {451825, 219910, 7600},             --T2 Stormbound Armor Kit
+        {451825, 219909, 7599},             --T1 Stormbound Armor Kit
 
-        {387298, 194016, 6544},     --Temporal Spellthread T3 Mana + INT
-        {387296, 194015, 6543},     --Temporal Spellthread T2
-        {387295, 194014, 6542},     --Temporal Spellthread T1
+        {451828, 219908, 7595},             --T3 Defender's Armor Kit (AGI/STR, Armor)
+        {451828, 219907, 7594},             --T2 Defender's Armor Kit
+        {451828, 219906, 7593},             --T1 Defender's Armor Kit
+
+        {451831, 219914, 7598},             --T3 Dual Layered Armor Kit (AGI/STR, HP)
+        {451831, 219913, 7597},             --T2 Dual Layered Armor Kit
+        {451831, 219912, 7596},             --T1 Dual Layered Armor Kit
     },
 
     [8] = {     --Feet
-        {389484, 200020, 6613, 136112},     --Watcher's Loam T3 + Stamina
-        {389484, 199978, 6612, 136112},     --Watcher's Loam T2
-        {389484, 199936, 6611, 136112},     --Watcher's Loam T1
+        {445335, 223650, 7421, 136103},     --T3 Cavalry's March (Mounted Speed)
+        {445335, 223649, 7420, 136103},     --T2 Cavalry's March
+        {445335, 223648, 7419, 136103},     --T1 Cavalry's March
 
-        {389479, 200018, 6607, 648208},     --Plainsrunner's Breeze T3 + Speed
-        {389479, 199976, 6606, 648208},     --Plainsrunner's Breeze T2
-        {389479, 199934, 6605, 648208},     --Plainsrunner's Breeze T1
+        {445396, 223656, 7424, 136112},     --T3 Defender's March (HP)
+        {445396, 223655, 7423, 136112},     --T2 Defender's March
+        {445396, 223654, 7422, 136112},     --T1 Defender's March
 
-        {389480, 200019, 6610, 136103},     --Rider's Reassurance T3 + Mounted Speed
-        {389480, 199977, 6609, 136103},     --Rider's Reassurance T2
-        {389480, 199935, 6608, 136103},     --Rider's Reassurance T1
-
-        ----SL----
-        {323609, 177661, 6207, 135992},     --Soul Treads
-        {309534, 172419, 6211, 135879},     --Eternal Agility
-        {309532, 172413, 6212, 135879},     --Agile Soulwalker
+        {445368, 223653, 7418, ICON_SPEED},     --T3 Scout's March (Speed)
+        {445368, 223652, 7417, ICON_SPEED},     --T2 Scout's March
+        {445368, 223651, 7416, ICON_SPEED},     --T1 Scout's March
     },
 
     [9] = {     --Wrist
-        {389301, 200021, 6574, 132301},     --Devotion of Avoidance T3
-        {389301, 199979, 6573, 132301},     --Devotion of Avoidance T2
-        {389301, 199937, 6572, 132301},     --Devotion of Avoidance T1
+        {445334, 223713, 7385, ICON_AVOIDANCE},     --T3 Chant of Armored Avoidance
+        {445334, 223712, 7384, ICON_AVOIDANCE},     --T2 Chant of Armored Avoidance
+        {445334, 223711, 7383, ICON_AVOIDANCE},     --T1 Chant of Armored Avoidance
 
-        {389303, 200022, 6580, 136231},     --Devotion of Leech T3
-        {389303, 199980, 6579, 136231},     --Devotion of Leech T2
-        {389303, 199938, 6578, 136231},     --Devotion of Leech T1
+        {445325, 223719, 7391, ICON_LEECH},     --T3 Chant of Armored Leech
+        {445325, 223718, 7390, ICON_LEECH},     --T2 Chant of Armored Leech
+        {445325, 223717, 7389, ICON_LEECH},     --T1 Chant of Armored Leech
 
-        {389304, 200023, 6586, 648208},     --Devotion of Speed T3
-        {389304, 199981, 6585, 648208},     --Devotion of Speed T2
-        {389304, 199939, 6584, 648208},     --Devotion of Speed T1
+        {445330, 223725, 7397, ICON_SPEED},     --T3 Chant of Armored Speed
+        {445330, 223724, 7396, ICON_SPEED},     --T2 Chant of Armored Speed
+        {445330, 223723, 7395, ICON_SPEED},     --T1 Chant of Armored Speed
 
-        {389297, 200024, 6571, 132301},     --Writ of Avoidance T3
-        {389297, 199982, 6570, 132301},     --Writ of Avoidance T2
-        {389297, 199940, 6569, 132301},     --Writ of Avoidance T1
+        {445392, 223710, 7382, ICON_AVOIDANCE},     --T3 Whisper of Armored Avoidance
+        {445392, 223709, 7381, ICON_AVOIDANCE},     --T2 Whisper of Armored Avoidance
+        {445392, 223708, 7380, ICON_AVOIDANCE},     --T1 Whisper of Armored Avoidance
 
-        {389298, 200025, 6577, 136231},     --Writ of Leech T3
-        {389298, 199983, 6576, 136231},     --Writ of Leech T2
-        {389298, 199941, 6575, 136231},     --Writ of Leech T1
+        {445374, 223716, 7388, ICON_LEECH},     --T3 Whisper of Armored Leech
+        {445374, 223715, 7387, ICON_LEECH},     --T2 Whisper of Armored Leech
+        {445374, 223714, 7386, ICON_LEECH},     --T1 Whisper of Armored Leech
 
-        {389300, 200026, 6583, 648208},     --Writ of Speed T3
-        {389300, 199984, 6582, 648208},     --Writ of Speed T2
-        {389300, 199942, 6581, 648208},     --Writ of Speed T1
-
-        ----SL----
-        {309610, 172416, 6222, 134414},     --Shaded Hearthing
-        {309609, 172415, 6220, 135932},     --Eternal Intellect
-        {309608, 172414, 6219, 135932},     --Illuminated Soul
+        {445376, 223722, 7394, ICON_SPEED},     --T3 Whisper of Armored Speed
+        {445376, 223721, 7393, ICON_SPEED},     --T2 Whisper of Armored Speed
+        {445376, 223720, 7392, ICON_SPEED},     --T1 Whisper of Armored Speed
     },
 
     [10] = {    --Hand
-        {309524, 172406, 6205, 999951},     --Shadowlands Gathering
-        {309526, 172408, 6210, 136101},     --Eternal Strength
-        {309525, 172407, 6209, 136101},     --Strength of Soul
+
     },
 
     [11] = {     --Finger
-        {389292, 200037, 6550},    --Devotion of Critical Strike T3
-        {389292, 199995, 6549},    --Devotion of Critical Strike T2
-        {389292, 199953, 6548},    --Devotion of Critical Strike T1
+        {445394, 223787, 7470},             --T3 Cursed Critical Strike (-Haste, +Crit)
+        {445394, 223786, 7469},             --T2 Cursed Critical Strike
+        {445394, 223785, 7468},             --T1 Cursed Critical Strike
 
-        {389293, 200038, 6556},    --Devotion of Haste T3
-        {389293, 199996, 6555},    --Devotion of Haste T2
-        {389293, 199954, 6554},    --Devotion of Haste T1
+        {445388, 223790, 7473},             --T3 Cursed Haste (-Versa, +Haste)
+        {445388, 223789, 7472},             --T2 Cursed Haste
+        {445388, 223788, 7471},             --T1 Cursed Haste
 
-        {389294, 200039, 6562},    --Devotion of Mastery T3
-        {389294, 199997, 6561},    --Devotion of Mastery T2
-        {389294, 199955, 6560},    --Devotion of Mastery T1
+        {445359, 223793, 7479},             --T3 Cursed Mastery (-Crit, +Mastery)
+        {445359, 223792, 7478},             --T2 Cursed Mastery
+        {445359, 223791, 7477},             --T1 Cursed Mastery
 
-        {389295, 200040, 6568},    --Devotion of Versatility T3
-        {389295, 199998, 6567},    --Devotion of Versatility T3
-        {389295, 199956, 6566},    --Devotion of Versatility T1
+        {445383, 223796, 7476},             --T3 Cursed Versatility (-Mastery, + Versa)
+        {445383, 223795, 7475},             --T3 Cursed Versatility
+        {445383, 223794, 7474},             --T3 Cursed Versatility
 
-        {388930, 200041, 6547},    --Writ of Critical Strike T3
-        {388930, 199999, 6546},    --Writ of Critical Strike T2
-        {388930, 199957, 6545},    --Writ of Critical Strike T1
+        {445387, 223662, 7334},             --T3 Radiant Critical Strike
+        {445387, 223661, 7333},             --T2 Radiant Critical Strike
+        {445387, 223660, 7332},             --T1 Radiant Critical Strike
 
-        {389135, 200042, 6553},    --Writ of Haste T3
-        {389135, 200000, 6552},    --Writ of Haste T2
-        {389135, 199958, 6551},    --Writ of Haste T1
+        {445320, 223674, 7340},             --T3 Radiant Haste
+        {445320, 223673, 7339},             --T2 Radiant Haste
+        {445320, 223672, 7338},             --T1 Radiant Haste
 
-        {389136, 200043, 6559},    --Writ of Mastery T3
-        {389136, 200001, 6558},    --Writ of Mastery T2
-        {389136, 199959, 6557},    --Writ of Mastery T1
+        {445375, 223677, 7346},             --T3 Radiant Mastery
+        {445375, 223676, 7345},             --T2 Radiant Mastery
+        {445375, 223675, 7344},             --T1 Radiant Mastery
 
-        {389151, 200044, 6565},    --Writ of Versatility T3
-        {389151, 200002, 6564},    --Writ of Versatility T2
-        {389151, 199960, 6563},    --Writ of Versatility T1
+        {445349, 223680, 7352},             --T3 Radiant Versatility
+        {445349, 223679, 7351},             --T2 Radiant Versatility
+        {445349, 223678, 7350},             --T1 Radiant Versatility
 
-        ----SL----
-        {309616, 172361, 6164},    --Tenet of Critical Strike
-        {309617, 172362, 6166},    --Tenet of Haste
-        {309618, 172363, 6168},    --Tenet of Mastery
-        {309619, 172364, 6170},    --Tenet of Versatility
+        {445358, 223659, 7331},             --T3 Glimmering Critical Strike
+        {445358, 223658, 7330},             --T2 Glimmering Critical Strike
+        {445358, 223657, 7329},             --T1 Glimmering Critical Strike
 
-        {309612, 172357, 6163},    --Bargain of Critical Strike
-        {309613, 172358, 6165},    --Bargain of Haste
-        {309614, 172359, 6167},    --Bargain of Mastery
-        {309615, 172360, 6169},    --Bargain of Versatility
+        {445384, 223665, 7337},             --T3 Glimmering Haste
+        {445384, 223664, 7336},             --T2 Glimmering Haste
+        {445384, 223663, 7335},             --T1 Glimmering Haste
+
+        {445381, 223668, 7343},             --T3 Glimmering Mastery
+        {445381, 223667, 7342},             --T2 Glimmering Mastery
+        {445381, 223666, 7341},             --T1 Glimmering Mastery
+
+        {445340, 223671, 7349},             --T3 Glimmering Versatility
+        {445340, 223670, 7348},             --T2 Glimmering Versatility
+        {445340, 223669, 7347},             --T1 Glimmering Versatility
     },
 
     [15] = {    --Back
-        {389403, 200031, 6592, 132301},     --Graceful Avoidance T3 Voidance & Slow Fall
-        {389403, 199989, 6591, 132301},     --Graceful Avoidance T2 Voidance & Slow Fall
-        {389403, 199947, 6590, 132301},     --Graceful Avoidance T1 Voidance & Slow Fall
+        {445386, 223731, 7403, ICON_AVOIDANCE},     --T3 Chant of Winged Grace (Avoidance, Fall Damage Reduction)
+        {445386, 223730, 7402, ICON_AVOIDANCE},     --T3 Chant of Winged Grace
+        {445386, 223729, 7401, ICON_AVOIDANCE},     --T3 Chant of Winged Grace
 
-        {389404, 200033, 6598, 136231},     --Regenerative Leech T3 Leech & out-of-combat regen
-        {389404, 199991, 6597, 136231},     --Regenerative Leech T2 Leech & out-of-combat regen
-        {389404, 199949, 6596, 136231},     --Regenerative Leech T1 Leech & out-of-combat regen
+        {445393, 223737, 7409, ICON_LEECH},     --T3 Chant of Leeching Fangs (Leech, HP Regen)
+        {445393, 223736, 7408, ICON_LEECH},     --T2 Chant of Leeching Fangs
+        {445393, 223735, 7407, ICON_LEECH},     --T1 Chant of Leeching Fangs
 
-        {389405, 200032, 6604, 648208},     --Homebound Speed T3 Speed & Hearthstone CD Reduction
-        {389405, 199990, 6603, 648208},     --Homebound Speed T3 Speed & Hearthstone CD Reduction
-        {389405, 199948, 6602, 648208},     --Homebound Speed T3 Speed & Hearthstone CD Reduction
+        {445389, 223800, 7415, ICON_SPEED},     --T3 Chant of Burrowing Rapidity (Speed, Hearthstone CD)
+        {445389, 223799, 7414, ICON_SPEED},     --T2 Chant of Burrowing Rapidity
+        {445389, 223798, 7413, ICON_SPEED},     --T1 Chant of Burrowing Rapidity
 
-        {389397, 200034, 6589, 132301},     --Writ of Avoidance T3
-        {389397, 199992, 6588, 132301},     --Writ of Avoidance T2
-        {389397, 199950, 6587, 132301},     --Writ of Avoidance T1
+        {445344, 223728, 7400, ICON_AVOIDANCE},     --T3 Whisper of Silken Avoidance
+        {445344, 223727, 7399, ICON_AVOIDANCE},     --T2 Whisper of Silken Avoidance
+        {445344, 223726, 7398, ICON_AVOIDANCE},     --T1 Whisper of Silken Avoidance
 
-        {389398, 200035, 6595, 136231},     --Writ of Leech T3
-        {389398, 199993, 6594, 136231},     --Writ of Leech T2
-        {389398, 199951, 6593, 136231},     --Writ of Leech T1
+        {445348, 223734, 7406, ICON_LEECH},     --T3 Whisper of Silken Leech
+        {445348, 223733, 7405, ICON_LEECH},     --T2 Whisper of Silken Leech
+        {445348, 223732, 7404, ICON_LEECH},     --T1 Whisper of Silken Leech
 
-        {389400, 200036, 6601, 648208},     --Writ of Speed T3
-        {389400, 199994, 6600, 648208},     --Writ of Speed T2
-        {389400, 199952, 6599, 648208},     --Writ of Speed T1
-
-        ----SL----
-        {309530, 172411, 6203, 132301},     --Fortified Avoidance
-        {309531, 172412, 6204, 136231},     --Fortified Leech
-        {309528, 172410, 6202, 648208},     --Fortified Speed
-        {323755, 177660, 6208},             --Soul Vitality
+        {445373, 223740, 7412, ICON_SPEED},     --T3 Whisper of Silken Speed
+        {445373, 223739, 7411, ICON_SPEED},     --T2 Whisper of Silken Speed
+        {445373, 223738, 7410, ICON_SPEED},     --T1 Whisper of Silken Speed
     },
 
     [16] = {    --Weapon
-        {405076, 204623, 6827, 5009071},    --Shadowflame Wreathe T3
-        {405076, 204622, 6826, 5009071},    --Shadowflame Wreathe T2
-        {405076, 204621, 6825, 5009071},    --Shadowflame Wreathe T1
+        {445331, 223775, 7451, 1029585},    --T3 Authority of Air (Absorb)
+        {445331, 223774, 7450, 1029585},    --T2 Authority of Air
+        {445331, 223773, 7449, 1029585},    --T1 Authority of Air
 
-        {404859, 204615, 6824, 5041801},    --Spore Tender T3
-        {404859, 204614, 6823, 5041801},    --Spore Tender T2
-        {404859, 204613, 6822, 5041801},    --Spore Tender T1
+        {445403, 223778, 7454, 135917},     --T3 Authority of Fiery Resolve (Heal)
+        {445403, 223777, 7453, 135917},     --T2 Authority of Fiery Resolve
+        {445403, 223776, 7452, 135917},     --T1 Authority of Fiery Resolve
 
-        {389547, 200050, 6631, 4554438},    --Burning Devotion T3 Heal
-        {389547, 200008, 6630, 4554438},    --Burning Devotion T2 
-        {389547, 199966, 6629, 4554438},    --Burning Devotion T1
+        {445339, 223781, 7463, 5764908},    --T3 Authority of Radiant Power (DMG, Primary Stat)
+        {445339, 223780, 7462, 5764908},    --T2 Authority of Radiant Power
+        {445339, 223779, 7461, 5764908},    --T1 Authority of Radiant Power
 
-        {389549, 200052, 6637, 4554437},    --Earthen Devotion T3 Armor
-        {389549, 200010, 6636, 4554437},    --Earthen Devotion T2
-        {389549, 199968, 6635, 4554437},    --Earthen Devotion T1
+        {445336, 223771, 7457, 136111},     --T3 Authority of Storms (AoE DMG)
+        {445336, 223770, 7456, 136111},     --T2 Authority of Storms
+        {445336, 223769, 7455, 136111},     --T1 Authority of Storms
 
-        {389551, 200056, 6649, 4554439},    --Frozen Devotion T3 Frontal AoE T3
-        {389551, 200014, 6648, 4554439},    --Frozen Devotion T2
-        {389551, 199972, 6647, 4554439},    --Frozen Devotion T1
+        {445341, 223783, 7460, 136160},     --T3 Authority of the Depths (Dot)
+        {445341, 223782, 7459, 136160},     --T2 Authority of the Depths
+        {445341, 223781, 7458, 136160},     --T1 Authority of the Depths
 
-        {389550, 200054, 6643, 4554442},    --Sophic Devotion T3 Primary Stats
-        {389550, 200012, 6642, 4554442},    --Sophic Devotion T2
-        {389550, 199970, 6641, 4554442},    --Sophic Devotion T1
+        {445379, 223759, 7439, 1016352},    --T3 Council's Guile (Crit)
+        {445379, 223758, 7438, 1016352},    --T2 Council's Guile
+        {445379, 223757, 7437, 1016352},    --T1 Council's Guile
 
-        {389558, 200058, 6655, 4554434},    --Wafting Devotion T3 Haste & Speed
-        {389558, 200016, 6654, 4554434},    --Wafting Devotion T2
-        {389558, 199974, 6653, 4554434},    --Wafting Devotion T1
+        {445351, 223768, 7448, 237427},     --T3 Oathsworn's Tenacity (Versatility)
+        {445351, 223767, 7447, 237427},     --T2 Oathsworn's Tenacity
+        {445351, 223766, 7446, 237427},     --T1 Oathsworn's Tenacity
 
-        {389537, 200051, 6628, 4554448},    --Burning Writ T3 Crit
-        {389537, 200009, 6627, 4554448},    --Burning Writ T2
-        {389537, 199967, 6626, 4554448},    --Burning Writ T1
+        {445385, 223765, 7445, 134464},     --T3 Stonebound Artistry (Mastery)
+        {445385, 223764, 7444, 134464},     --T2 Stonebound Artistry
+        {445385, 223763, 7443, 134464},     --T1 Stonebound Artistry
 
-        {389540, 200053, 6634, 4554447},    --Earthen Writ T3 Mastery
-        {389540, 200011, 6633, 4554447},    --Earthen Writ T2
-        {389540, 199969, 6632, 4554447},    --Earthen Writ T1
-
-        {389543, 200057, 6644, 4554449},    --Frozen Writ T3 Versatility
-        {389543, 200015, 6644, 4554449},    --Frozen Writ T2
-        {389543, 199973, 6644, 4554449},    --Frozen Writ T1
-
-        {389542, 200055, 6640, 4554452},    --Sophic Writ T3 Primary Stats
-        {389542, 200013, 6639, 4554452},    --Sophic Writ T2
-        {389542, 199971, 6638, 4554452},    --Sophic Writ T1
-
-        {389546, 200059, 6652, 4554444},    --Wafting Writ T3 Haste
-        {389546, 200017, 6651, 4554444},    --Wafting Writ T2
-        {389546, 199975, 6650, 4554444},    --Wafting Writ T1
+        {445317, 223762, 7442, 463562},     --T3 Stormrider's Fury (Haste)
+        {445317, 223761, 7441, 463562},     --T2 Stormrider's Fury
+        {445317, 223760, 7440, 463562},     --T1 Stormrider's Fury
 
         --Scopes
-        {386154, 198318, 6528, 4548899, 3},    --High Intensity Thermal Scanner T3
-        {386153, 198317, 6527, 4548899, 3},    --High Intensity Thermal Scanner T2
-        {386152, 198316, 6526, 4548899, 3},    --High Intensity Thermal Scanner T1
-
-        {385775, 198315, 6525, 4548898, 3},    --Projectile Propulsion Pinion T3
-        {385773, 198314, 6524, 4548898, 3},    --Projectile Propulsion Pinion T2
-        {385772, 198313, 6523, 4548898, 3},    --Projectile Propulsion Pinion T1
-
-        {385770, 198312, 6522, 4548897, 3},    --Gyroscopic Kaleidoscope T3
-        {385768, 198311, 6521, 4548897, 3},    --Gyroscopic Kaleidoscope T2
-        {385766, 198310, 6520, 4548897, 3},    --Gyroscopic Kaleidoscope T1
-
-        ----SL----
-        {309627, 172366, 6229, 636335},     --Celestial Guidance
-        {309623, 172368, 6228, 462651},     --Sinful Revelation
-        {309622, 172365, 6227, 135905},     --Ascended Vigor
-        {309621, 172367, 6226, 1519263},    --Eternal Grace
-        {309620, 172370, 6223, 631519},     --Lightless Force
-
-        {321536, 172920, 6196, 3610512, 3},    --Optical Target Embiggener
-        {321535, 172921, 6195, 3610513, 3},    --Infra-green Reflex Sight
+        --{386154, 198318, 6528, 4548899, 3},    --High Intensity Thermal Scanner T3
     },
 };
 
@@ -300,6 +253,7 @@ addon.EnchantDataProvider = DataProvider;
 DataProvider.filteredData = {};
 
 local subset = enchantData[11];
+local LAST_SLOT_ID = -1;
 
 function DataProvider:SetSubset(slotID)
     if slotID == 12 then
@@ -310,8 +264,11 @@ function DataProvider:SetSubset(slotID)
         slotID = 16;
     end
     subset = enchantData[slotID] or {};
-    if enchantData[slotID] then
-        return true
+
+    if subset and #subset > 0 then
+        local categoryChanged = slotID ~= LAST_SLOT_ID;
+        LAST_SLOT_ID = slotID;
+        return true, categoryChanged
     else
         return false
     end
@@ -340,4 +297,3 @@ function DataProvider:GetDataByIndex(index)
         return unpack(data);
     end
 end
-

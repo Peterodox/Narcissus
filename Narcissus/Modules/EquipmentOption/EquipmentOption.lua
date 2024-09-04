@@ -47,7 +47,7 @@ local pow = math.pow;
 local floor = math.floor;
 
 local validSlotForTempEnchants = {
-    [5] = true,
+    --[5] = true,
     [16] = true,
     [17] = true,
 };
@@ -328,6 +328,7 @@ function NarciEquipmentOptionMixin:OnHide()
     self:Hide();
     self:StopAnimating();
     self.itemLink = nil;
+    self.slotButton = nil;
     NarciGemSlotOverlay:HideIfIdle();
 end
 
@@ -407,6 +408,11 @@ function NarciEquipmentOptionMixin:SetBackdropColor(r, g, b, alpha)
 end
 
 function NarciEquipmentOptionMixin:SetFromSlotButton(slotButton, returnHome)
+    if (slotButton == self.slotButton) and returnHome and self.isHome then
+        self:CloseUI();
+        return
+    end
+
     self.isNarcissusUI = true;
     local slotID = slotButton.slotID;
     self.slotID = slotID;
@@ -445,7 +451,9 @@ function NarciEquipmentOptionMixin:SetFromSlotButton(slotButton, returnHome)
     local isWeaponValidForEnchant;
     self.inUseGemID, self.inUsedEnchantID, isWeaponValidForEnchant = GetAppliedEnhancement(slotID);
     GetNewGemID(false);
-    local validForEnchant = EnchantDataProvider:SetSubset(slotID);
+    local validForEnchant, categoryChanged = EnchantDataProvider:SetSubset(slotID);
+    self.resetScrollNextTime = categoryChanged == true;
+
     validForEnchant = validForEnchant and isWeaponValidForEnchant;
 
     TempDataProvider:SetSubset(slotID);
@@ -622,7 +630,7 @@ function NarciEquipmentOptionMixin:Init()
     self.ItemList:SetOnScrollFinishedFunc(function()
         local focusedButton = ViewUpdator:FindFocusedButton();
         if focusedButton then
-            Tooltip:AnchorToButton(focusedButton);
+            Tooltip:ShowButtonTooltip(focusedButton);
         end
     end);
     self.ItemList:SetUpdateInterval(0.05);
@@ -634,6 +642,7 @@ end
 
 function NarciEquipmentOptionMixin:ShowMenu()
     animFrame:In();
+    self.isHome = true;
     self.Menu:Show();
     self.ItemList:Hide();
     self:StopAnimating();
@@ -674,6 +683,7 @@ function NarciEquipmentOptionMixin:ShowItemList(listType, resetScroll)
         self:CreateList();
     end
     animFrame:Out();
+    self.isHome = false;
     self.Menu:Hide();
     self.ItemList:Show();
     if listType ~= self.listType then
@@ -726,14 +736,16 @@ end
 function NarciEquipmentOptionMixin:ShowEnchantList()
     DataProvider = EnchantDataProvider;
     SetButtonData = SetButtonEnchant;
-    self:ShowItemList("enchant");
+    local resetScroll = self.resetScrollNextTime;
+    self.resetScrollNextTime = nil;
+    self:ShowItemList("enchant", resetScroll);
     self.ItemList.SocketSelect:Hide();
 end
 
 function NarciEquipmentOptionMixin:ShowTempEnchantList()
     DataProvider = TempDataProvider;
     SetButtonData = SetButtonTempEnchant;
-    self:ShowItemList("temp");
+    self:ShowItemList("temp", true);
     self.ItemList.SocketSelect:Hide();
 end
 
@@ -968,7 +980,7 @@ function NarciEquipmentListTooltipMixin:SetItem(itemID)
             self:FadeIn();
             return
         end
-        local name, spellID = GetItemSpell(itemID);
+        local name, spellID = nil, nil; --GetItemSpell(itemID);     --TWW: For some reason regular gem yields spellID
         local isCrystallic = NarciAPI.GetCrystallicSpell(itemID);
         if isCrystallic then
             self:SetSpell(isCrystallic);
@@ -1061,16 +1073,18 @@ function NarciEquipmentListTooltipMixin:OnShow()
     self:SetFrameStrata("DIALOG");
 end
 
-function NarciEquipmentListTooltipMixin:AnchorToButton(button)
+function NarciEquipmentListTooltipMixin:ShowButtonTooltip(button)
     self.parentButton = button;
     self:ClearAllPoints();
     self:SetPoint("TOPLEFT", button, "TOPRIGHT", 4, 0);
     self.ClipFrame.Icon:SetTexture(button.Icon:GetTexture());
+
     if self:IsShown() then
         self.duration = 0.25;
-     else
-         self.duration = 0;
-     end
+    else
+        self.duration = 0;
+    end
+
     if button.spellID then
         self:SetSpell(button.spellID);
     elseif button.itemID then

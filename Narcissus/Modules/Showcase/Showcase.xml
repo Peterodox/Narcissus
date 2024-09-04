@@ -448,12 +448,12 @@
 						</Texture>
 					</Layer>
 					<Layer level="BACKGROUND" textureSubLevel="-1">
-						<Texture parentKey="BackdropPreview" hidden="true">
+						<Texture parentKey="BackdropPreview" hidden="true" setAllPoints="true">
 							<TexCoords left="0.875" right="1" top="0.875" bottom="1"/>
-							<Size x="300" y="300"/>
+							<!--Size x="300" y="300"/>
 							<Anchors>
 								<Anchor point="CENTER"/>
-							</Anchors>
+							</Anchors-->
 							<Animations>
 								<AnimationGroup parentKey="FadeOut">
 									<Alpha fromAlpha="1" toAlpha="0" startDelay="0.1" duration="0.5" order="1"/>

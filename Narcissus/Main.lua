@@ -85,7 +85,7 @@ if playerClassID == 11 then
 	table.insert(EL.EVENTS_DYNAMIC, "UPDATE_SHAPESHIFT_FORM");
 end
 
-EL.EVENTS_UNIT = {"UNIT_DAMAGE", "UNIT_ATTACK_SPEED", "UNIT_MAXHEALTH", "UNIT_AURA", "UNIT_INVENTORY_CHANGED"};
+EL.EVENTS_UNIT = {"UNIT_DAMAGE", "UNIT_ATTACK_SPEED", "UNIT_MAXHEALTH", "UNIT_AURA", "UNIT_INVENTORY_CHANGED", "UNIT_PORTRAIT_UPDATE"};
 
 
 --take out frames from UIParent, so they will still be visible when UI is hidden
@@ -691,7 +691,6 @@ end
 local ValidForTempEnchant = {
 	[16] = true,
 	[17] = true,
-	[5] = true,
 };
 
 local function GetFormattedSourceText(sourceInfo)
@@ -958,7 +957,7 @@ function NarciEquipmentSlotMixin:Refresh(forceRefresh)
 				self.bonusID = nil;
 			end
 			self:DisplayDirectionMark(hasSecondaryAppearance, itemQuality);
-	
+
 		else
 			self:TrackCooldown();
 			self:DisplayDirectionMark(false);
@@ -1444,7 +1443,7 @@ function NarciEquipmentSlotMixin:PostClick(button, down)
 		if button == "LeftButton" then
 			if not MOG_MODE then	--Undress an item from player model while in Xmog Mode
 				--EquipmentFlyoutFrame:SetItemSlot(self);
-				Narci_EquipmentOption:SetFromSlotButton(self, true)
+				Narci_EquipmentOption:SetFromSlotButton(self, true);
 			end
 		elseif button == "RightButton" then
 			local useKeyDown = C_CVar.GetCVarBool("ActionButtonUseKeyDown");
@@ -3259,6 +3258,7 @@ EL:SetScript("OnEvent",function(self, event, ...)
 		end
 
 		if event == "UNIT_AURA" then
+			--11.0 Worgen Two Forms no longer trigger this
 			local inAlteredForm = IsPlayerInAlteredForm();
 			if self.wasAlteredForm ~= inAlteredForm then
 				self.wasAlteredForm = inAlteredForm;
@@ -3270,7 +3270,7 @@ EL:SetScript("OnEvent",function(self, event, ...)
 		RefreshStats(8);		--Armor
 		RefreshStats(9); 		--Damage Reduction
 
-	elseif event == "UPDATE_SHAPESHIFT_FORM" then
+	elseif event == "UPDATE_SHAPESHIFT_FORM" or event == "UNIT_PORTRAIT_UPDATE" then
 		CameraUtil:OnPlayerFormChanged(0.1);
 
 	elseif event == "PLAYER_MOUNT_DISPLAY_CHANGED" then

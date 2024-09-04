@@ -24,7 +24,7 @@ end
 --]]
 
 local function FormatSeconds(sec)
-    if sec > 3600 then
+    if sec > 4500 then
         return string.format("%d hr", math.floor(sec/3600 + 0.5));
     elseif sec > SHOW_SECONDS_THRESHOLD then
         return string.format("%d min", math.floor(sec/60 + 0.5));
