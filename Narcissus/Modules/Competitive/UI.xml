@@ -769,7 +769,7 @@
                     <OnHide method="OnHide"/>
                 </Scripts>
             </Frame>
-            <Frame parentKey="LoadingOverlay" frameStrata="FULLSCREEN">
+            <Frame parentKey="LoadingOverlay" frameStrata="FULLSCREEN" hidden="true">
                 <Anchors>
                     <Anchor point="TOPLEFT"/>
                     <Anchor point="BOTTOMRIGHT" y="-1"/>

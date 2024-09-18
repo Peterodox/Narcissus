@@ -806,35 +806,51 @@ function TooltipSetUnitCallback()
 end
 
 local function Tooltip_OnKeyDown(self, key)
-    if not InCombatLockdown() and key == "TAB" then
-        if self.tooltipCycle then
-            if not IsShiftKeyDown() then
-                if self.creatureIndex < self.tooltipCycle then
-                    self.creatureIndex = self.creatureIndex + 1;
+    if not InCombatLockdown() then
+        if key == "TAB" then
+            if self.tooltipCycle then
+                if not IsShiftKeyDown() then
+                    if self.creatureIndex < self.tooltipCycle then
+                        self.creatureIndex = self.creatureIndex + 1;
+                    else
+                        self.creatureIndex = 1;
+                    end
                 else
-                    self.creatureIndex = 1;
-                end
-            else
-                if self.creatureIndex > 1 then
-                    self.creatureIndex = self.creatureIndex - 1;
-                else
-                    self.creatureIndex = self.tooltipCycle;
+                    if self.creatureIndex > 1 then
+                        self.creatureIndex = self.creatureIndex - 1;
+                    else
+                        self.creatureIndex = self.tooltipCycle;
+                    end
                 end
             end
-        end
 
-        local name, unit = GTP:GetUnit();
-        if name and unit then
-            UpdateNPCTooltip(name, unit, true);
-            self:SetPropagateKeyboardInput(false);
+            local name, unit = GTP:GetUnit();
+            if name and unit then
+                UpdateNPCTooltip(name, unit, true);
+                self:SetPropagateKeyboardInput(false);
+            else
+                self:SetPropagateKeyboardInput(true);
+            end
         else
             self:SetPropagateKeyboardInput(true);
         end
-    else
-        self:SetPropagateKeyboardInput(true);
     end
 end
 
+local function Tooltip_OnShow(self)
+    self:RegisterEvent("PLAYER_REGEN_DISABLED");
+end
+
+local function Tooltip_OnHide(self)
+    self:Hide();
+    self:UnregisterEvent("PLAYER_REGEN_DISABLED");
+end
+
+local function Tooltip_OnEvent(self, event, ...)
+    if event == "PLAYER_REGEN_DISABLED" then
+        self:Hide();
+    end
+end
 
 -------------------------------------------------------------------
 local Initialize = CreateFrame("Frame");
@@ -865,12 +881,16 @@ Initialize:SetScript("OnEvent", function(self, event, ...)
             
             print("|cffffd200"..numNPC.."|r creature names");
             --]]
-            
+
             ETP = CreateFrame("GameTooltip", ETPName, GTP, "GameTooltipTemplate");
 
             SetIsCreatureTooltipEnabled();
 
             ETP:SetScript("OnKeyDown", Tooltip_OnKeyDown);
+            ETP:SetScript("OnEvent", Tooltip_OnEvent);
+            ETP:SetScript("OnHide", Tooltip_OnHide);
+            ETP:SetScript("OnShow", Tooltip_OnShow);
+
             ETP2 = CreateFrame("GameTooltip", ETP2Name, ETP, "GameTooltipTemplate");
             ETP2:SetClampedToScreen(false);
             ETP2:SetOwner(ETP, "ANCHOR_NONE");

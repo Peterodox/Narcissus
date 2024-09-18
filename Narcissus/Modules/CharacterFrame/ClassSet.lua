@@ -6,7 +6,7 @@ local TEXTURE_PATH = "Interface\\AddOns\\Narcissus\\Art\\Widgets\\Progenitor\\";
 local GetInventoryItemID = GetInventoryItemID;
 local GetSpellDescription = addon.TransitionAPI.GetSpellDescription;
 local GetSpecializationInfo = GetSpecializationInfo;
-local GetSetBonusesForSpecializationByItemID = C_Item.GetSetBonusesForSpecializationByItemID;     --Deprecated
+local GetSetBonusesForSpecializationByItemID = C_Item.GetSetBonusesForSpecializationByItemID;
 local GetNumSpecializations = GetNumSpecializations;
 local InCombatLockdown = InCombatLockdown;
 
@@ -205,6 +205,8 @@ local function Indicator_OnMouseWheel(self, delta)
 end
 
 
+
+
 NarciClassSetTooltipMixin = {};
 
 function NarciClassSetTooltipMixin:OnShow()
@@ -285,7 +287,7 @@ function NarciClassSetTooltipMixin:Init()
 end
 
 function NarciClassSetTooltipMixin:DisplayBonus(specIndex)
-    local numOwned, _, exampleItemID = GetEquippedSet();     --debug
+    local numOwned, _, exampleItemID = GetEquippedSet();
 
     --Spec
     specIndex = specIndex or GetSpecialization();
@@ -312,43 +314,43 @@ function NarciClassSetTooltipMixin:DisplayBonus(specIndex)
     local specID = GetSpecializationInfo(specIndex);
     if specID and exampleItemID then
         local spells = GetSetBonusesForSpecializationByItemID(specID, exampleItemID);
-        if spells then
+        if spells then  --Can be nil on the first request
             spell1, spell2 = unpack(spells);
             text1 = FormatText(GetSpellDescription(spell1));
             text2 = FormatText(GetSpellDescription(spell2));
         end
     end
 
-    if not text1 then
-        text1 = "Bonus #1";
-    end
-    if not text1 then
-        text1 = "Bonus #2";
-    end
-
-    local fullyLoaded;
+    local fullyLoaded = true;
 
     if text1 and text1 ~= "" then
-        fullyLoaded = true;
-        self.spell1 = nil;
+
     else
-        self.spell1 = spell1;
-        C_Spell.RequestLoadSpellData(spell1);
+        fullyLoaded = false;
+        text1 = nil;
+        if spell1 then
+            C_Spell.RequestLoadSpellData(spell1);
+        end
     end
 
     if text2 and text2 ~= "" then
-        fullyLoaded = fullyLoaded and true;
-        self.spell2 = nil;
+
     else
-        self.spell2 = spell2;
-        C_Spell.RequestLoadSpellData(spell2);
+        fullyLoaded = false;
+        text2 = nil;
+        if spell2 then
+            C_Spell.RequestLoadSpellData(spell2);
+        end
     end
 
     if fullyLoaded then
         self:UnregisterEvent("SPELL_DATA_LOAD_RESULT");
     else
         self:RegisterEvent("SPELL_DATA_LOAD_RESULT");
-        return
+        self.t = 0;
+        self:SetScript("OnUpdate", self.OnUpdate);
+        text1 = text1 or RETRIEVING_DATA;
+        text2 = text2 or RETRIEVING_DATA;
     end
 
     SetBonusText(self.Effect1, text1, numOwned >= 2);
@@ -360,6 +362,8 @@ function NarciClassSetTooltipMixin:DisplayBonus(specIndex)
 end
 
 function NarciClassSetTooltipMixin:Refresh()
+    self:SetScript("OnUpdate", nil);
+
     if self:IsVisible() and self.specIndex then
         self:DisplayBonus(self.specIndex);
     end
@@ -430,11 +434,20 @@ end
 function NarciClassSetTooltipMixin:OnHide()
     self:Hide();
     self:SetAlpha(0);
+    self:SetScript("OnUpdate", nil);
+end
+
+function NarciClassSetTooltipMixin:OnUpdate(elapsed)
+    self.t = self.t + elapsed;
+    if self.t > 0.2 then
+        self.t = 0;
+        self:Refresh();
+    end
 end
 
 
 
-local function DelayedTooltip_OnUpdate(self, elapsed)
+local function OnUpdate_ShowTooltipAfterDelay(self, elapsed)
     self.t = self.t + elapsed;
     if self.t > 0 then
         self:SetScript("OnUpdate", nil);
@@ -472,7 +485,7 @@ end
 
 function NarciClassSetIndicatorMixin:OnEnter()
     self.t = -0.2;
-    self:SetScript("OnUpdate", DelayedTooltip_OnUpdate);
+    self:SetScript("OnUpdate", OnUpdate_ShowTooltipAfterDelay);
     self.Highlight:Show();
     self.Highlight.Shine:Play();
 end
@@ -596,6 +609,8 @@ end
 function NarciClassSetIndicatorMixin:SetNotification(text)
     self.Notification:SetText(text);
 end
+
+
 
 
 --Splash--

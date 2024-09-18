@@ -69,9 +69,16 @@ local MAP_UI_INFO = {
     [248] = {name = 'waycrest-manor', },
     [463] = {name = 'dawn-of-the-infinite', },  --Galakrond
     [464] = {name = 'dawn-of-the-infinite', },  --Murozond
+
+    [501] = {name = 'the-stonevault'},
+    [503] = {name = 'arakara-city-of-echoes'},
+    [507] = {name = 'grim-batol'},
+    [505] = {name = 'the-dawnbreaker'},
+    [353] = {name = 'siege-of-boralus'},
+    [502] = {name = 'city-of-threads'},
 };
 
-local SEASON_MAPS = {244, 199, 198, 168, 463, 464, 456, 248};
+local SEASON_MAPS = {501, 376, 505, 353, 375, 507, 502, 503};
 local IS_MAP_THIS_SEASON = {};
 
 local function ShowNewDungeons()
@@ -112,15 +119,16 @@ local function FormatDuration(seconds)
 end
 
 local function CacheAffixNames()
+    local isReady = true;
     if not AFFIX_TYRANNICAL then
         AFFIX_TYRANNICAL = C_ChallengeMode.GetAffixInfo(9);
-        return false
+        isReady = false;
     end
     if not AFFIX_FORTIFIED then
         AFFIX_FORTIFIED = C_ChallengeMode.GetAffixInfo(10);
-        return false
+        isReady = false;
     end
-    return true
+    return isReady
 end
 
 local function SharedOnMouseDown(self, button)

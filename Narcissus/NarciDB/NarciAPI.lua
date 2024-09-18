@@ -1752,10 +1752,13 @@ local ActorIDByRace = {
     [37] = {929, 931},      -- Mechagnome
     [52] = {1554, 1554},    -- Dracthyr
     [70] = {1554, 1554},    -- Dracthyr
+    [84] = {2152, 2154},    -- Earthen
+    [85] = {2152, 2154},    -- Earthen
 };
 
 local ActorIDByModelFileID = {
     --/dump DressUpFrame.ModelScene:GetPlayerActor():GetModelFileID()
+    --https://wago.tools/db2/UiModelSceneActor
     [4207724] = 1653,   --Dracthyr 1554
     [4395382] = 1654,   --Visage M Dracthyr-alt 1583
     [4220488] = 1654,   --Visage F
@@ -1807,6 +1810,9 @@ local ActorIDByModelFileID = {
     [917116] = 1641,     --magharorc-male hunched
     [1968587] = 1641,     --magharorc-male straght
     [949470] = 1643,     --magharorc-female
+
+    [5548261] = 2152,   --earthendwarf-male
+    [5548259] = 2154,   --earthendwarf-female
 
     --[1011653] = Human M
     --[1000764] = Human F

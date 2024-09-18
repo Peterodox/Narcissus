@@ -532,86 +532,171 @@ local function OverrideMaximizeFunc()
 end
 
 --Feature: Mouseover "WardrobeOutfitButton to preview the outfit
-local OutfitPreviewModel;
+local OutfitPreview = CreateFrame("Frame");
+do
+    OutfitPreview:Hide();
 
-local function HidePreviewModel()
-    if OutfitPreviewModel then
-        OutfitPreviewModel:Hide();
+    function OutfitPreview:SetOwner(OutfitDropdown)
+        self:SetParent(OutfitDropdown);
+        self:Show();
+
+        self:SetScript("OnShow", self.OnShow);
+        self:SetScript("OnHide", self.OnHide);
+
+        self.GetMouseFocus = TransitionAPI.GetMouseFocus;
+        self.StripHyperlinks = StripHyperlinks;
+
+        Menu.ModifyMenu("MENU_WARDROBE_OUTFITS", function(owner, rootDescription, contextData)
+            rootDescription:AddMenuAcquiredCallback(function()
+                self.t = 0;
+                self:LoadSavedOutfits();
+                local parent = owner:GetParent();
+                local parentName = parent and parent:GetName();
+
+                if parentName == "DressUpFrame" or parentName == "WardrobeTransmogFrame" then
+                    self.parent = _G[parentName];
+                    self:SetParent(self.parent);
+                    self:SetScript("OnUpdate", self.OnUpdate);
+                    self:Show();
+                else
+                    self:SetScript("OnUpdate", nil);
+                    self:HideModel();
+                end
+            end)
+
+            rootDescription:AddMenuReleasedCallback(function()
+                self:SetScript("OnUpdate", nil);
+                self:HideModel();
+            end)
+        end)
     end
-end
 
-local function PreviewModel_OnUpdate(f, elapsed)
-    f.t = f.t + elapsed;
-    if f.t >= 0 and f.outfitID and not f.dressed then
-        for i, transmogInfo in ipairs(C_TransmogCollection.GetOutfitItemTransmogInfoList(f.outfitID)) do
-            f:SetItemTransmogInfo(transmogInfo);
+    function OutfitPreview:LoadSavedOutfits()
+        local outfits = C_TransmogCollection.GetOutfits();
+        local name, icon;
+        self.NameToID = {};
+        for index, outfitID in ipairs(outfits) do
+            name, icon = C_TransmogCollection.GetOutfitInfo(outfitID);
+            self.NameToID[name] = outfitID;
         end
-        f.dressed = true;
     end
-    if f.t > 0.25 then
-        f:SetModelAlpha(1);
-        f:SetScript("OnUpdate", nil);
-    elseif f.t > 0.05 then
-        f:SetModelAlpha(f.t * 4);
-    end
-end
 
-local function OutfitDropDownButton_OnEnterCallback(self)
-    if self.outfitID then
-        if not OutfitPreviewModel then
-            OutfitPreviewModel = CreateFrame("DressUpModel", nil, WardrobeOutfitFrame);
-            local m = OutfitPreviewModel;
-            m:SetSize(129, 186);
-            m:SetAutoDress(false);
-            TransitionAPI.SetModelByUnit(m, "player");
-            m:FreezeAnimation(0, 0, 0);
-            local x, y, z = TransitionAPI.TransformCameraSpaceToModelSpace(m, 0, 0, -0.25);    ---0.25
-            TransitionAPI.SetModelPosition(m, x, y, z);
-            TransitionAPI.SetModelLight(m, true, false, -1, 1, -1, 0.8, 1, 1, 1, 0.5, 1, 1, 1);
-            --NarciAPI.InitializeModelLight(m);
-            m:SetViewTranslation(0, -57);
-            m:SetScript("OnHide", function(f)
+    function OutfitPreview:GetOutfitIDByName(name)
+        return (name and self.NameToID and self.NameToID[name]) or nil
+    end
+
+    function OutfitPreview:OnShow()
+
+    end
+
+    function OutfitPreview:OnHide()
+        self:Hide();
+        self:SetScript("OnUpdate", nil);
+        self.NameToID = nil;
+    end
+
+    function OutfitPreview:OnUpdate(elapsed)
+        self.t = self.t + elapsed;
+        if self.t > 0.2 then
+            self.t = 0;
+            self.found = false;
+            if self.parent:IsMouseOver() then
+                local obj = self.GetMouseFocus();
+                OBJ = obj
+                if obj and obj.fontString and obj.fontString.GetText then
+                    local text = obj.fontString:GetText();
+                    if text then
+                        text = self.StripHyperlinks(text);
+                        local outfitID = self:GetOutfitIDByName(text);
+                        if outfitID then
+                            self.found = true;
+                            self:SetOutfit(outfitID, obj);
+                        end
+                    end
+                end
+            end
+
+            if not self.found then
+                self:HideModel();
+            end
+        end
+    end
+
+    function OutfitPreview:Init()
+        if not self.Model then
+            self.Model = CreateFrame("DressUpModel", nil, self);
+            self.Model:SetSize(129, 186);
+            self.Model:SetAutoDress(false);
+            self.Model:SetFrameStrata("HIGH");
+            TransitionAPI.SetModelByUnit(self.Model, "player");
+            self.Model:FreezeAnimation(0, 0, 0);
+            local x, y, z = TransitionAPI.TransformCameraSpaceToModelSpace(self.Model, 0, 0, -0.25);    ---0.25
+            TransitionAPI.SetModelPosition(self.Model, x, y, z);
+            TransitionAPI.SetModelLight(self.Model, true, false, -1, 1, -1, 0.8, 1, 1, 1, 0.5, 1, 1, 1);
+            self.Model:SetViewTranslation(0, -57);
+            self.Model:SetScript("OnHide", function(f)
                 f:Hide();
-                f.outfitID = nil;
+                self.outfitID = nil;
                 f:SetScript("OnUpdate", nil);
             end);
-            m:SetScript("OnShow", function()
+            self.Model:SetScript("OnShow", function()
                 --m:RefreshUnit();
             end);
-        end
 
-        if OutfitPreviewModel.outfitID == self.outfitID then
-            return
-        end
-        TransitionAPI.SetModelByUnit(OutfitPreviewModel, "player");
-        OutfitPreviewModel.outfitID = self.outfitID;
-        OutfitPreviewModel:SetPoint("BOTTOMRIGHT", self, "BOTTOMRIGHT", -8, 0);
-        OutfitPreviewModel.t = -0.2;
-        OutfitPreviewModel.dressed = nil;
-        OutfitPreviewModel:Show();
-        OutfitPreviewModel:SetScript("OnUpdate", PreviewModel_OnUpdate);
-        OutfitPreviewModel:Undress();
-        OutfitPreviewModel:SetModelAlpha(0);
-
-        local detailsCameraID, transmogCameraID = C_TransmogSets.GetCameraIDs();
-        Model_ApplyUICamera(OutfitPreviewModel, transmogCameraID);
-    else
-        HidePreviewModel();
-    end
-end
-
-local OutfitButtonHooked = {};
-
-local function OutfitDropDown_UpdateCallback(self)
-    local numButtons = (self.Buttons and #self.Buttons) or 0;
-    for i = 1, numButtons do
-        if not OutfitButtonHooked[i] then
-            OutfitButtonHooked[i] = true;
-            self.Buttons[i]:HookScript("OnEnter", OutfitDropDownButton_OnEnterCallback);
+            local bg = self.Model:CreateTexture(nil, "BACKGROUND");
+            bg:SetAllPoints(true);
+            --bg:SetColorTexture(0, 0, 0, 0.8)
         end
     end
-    local width = self.dropDown.maxMenuStringWidth or 216;
-    self:SetWidth(width + 60)
+
+    function OutfitPreview:HideModel()
+        if self.Model then
+            self.Model:Hide();
+        end
+    end
+
+
+    local function PreviewModel_OnUpdate(f, elapsed)
+        f.t = f.t + elapsed;
+        if f.t >= 0 and f.outfitID and not f.dressed then
+            for i, transmogInfo in ipairs(C_TransmogCollection.GetOutfitItemTransmogInfoList(f.outfitID)) do
+                f:SetItemTransmogInfo(transmogInfo);
+            end
+            f.dressed = true;
+        end
+        if f.t > 0.25 then
+            f:SetModelAlpha(1);
+            f:SetScript("OnUpdate", nil);
+        elseif f.t > 0.05 then
+            f:SetModelAlpha(f.t * 4);
+        end
+    end
+
+    function OutfitPreview:SetOutfit(outfitID, anchorTo)
+        if outfitID then
+            self:Init();
+            if outfitID == self.outfitID then
+                return
+            else
+                self.outfitID = outfitID;
+            end
+
+            TransitionAPI.SetModelByUnit(self.Model, "player");
+            self.Model:SetPoint("BOTTOMLEFT", anchorTo, "BOTTOMRIGHT", 8, 0);
+            self.Model.t = -0.2;
+            self.Model.dressed = nil;
+            self.Model.outfitID = outfitID;
+            self.Model:Show();
+            self.Model:SetScript("OnUpdate", PreviewModel_OnUpdate);
+            self.Model:Undress();
+            self.Model:SetModelAlpha(0);
+
+            local detailsCameraID, transmogCameraID = C_TransmogSets.GetCameraIDs();
+            Model_ApplyUICamera(self.Model, transmogCameraID);
+        else
+            self:Hide();
+        end
+    end
 end
 
 
@@ -766,21 +851,10 @@ local function DressingRoomOverlayFrame_Initialize()
         OutfitIconSelect.SelectionFrame:Show();
     end
 
-    local OutfitFrame = WardrobeOutfitFrame;    --Removed in TWW
-    if OutfitFrame then
-        local protected1, protected2 = OutfitFrame:IsProtected();
-        if not(protected1 or protected2) then
-            if OutfitFrame.Update then
-                hooksecurefunc(OutfitFrame, "Update", OutfitDropDown_UpdateCallback);
-            end
 
-            if OutfitFrame.StartHideCountDown then
-                hooksecurefunc(OutfitFrame, "StartHideCountDown", function()
-                    if not OutfitFrame:IsMouseOver(-24, 0, 16, -12) then
-                        HidePreviewModel();
-                    end
-                end);
-            end
+    if DressUpFrame.OutfitDropdown then     --See "WardrobeOutfitDropdownTemplate"
+        if Menu and Menu.ModifyMenu then
+            OutfitPreview:SetOwner(DressUpFrame.OutfitDropdown);
         end
     end
 
