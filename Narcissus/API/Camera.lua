@@ -409,7 +409,7 @@ do  --Camera Parameters
             if formID == 31 then
                 local _, glyphID = GetCurrentGlyphNameForSpell(24858);		--Moonkin form with Glyph of Stars use regular configuration
                 if glyphID and glyphID == 114301 then
-                    self:UpdateParametersDefault();
+                    self:UpdateParameters_Default();
                     return
                 end
             end
@@ -420,7 +420,7 @@ do  --Camera Parameters
             SHOULDER_PARA_2 = CameraData[raceKey][formID][3];
             DEFAULT_ZOOM_MOG = CameraData[raceKey][formID][4];
         else
-            self:UpdateParametersDefault();
+            self:UpdateParameters_Default();
         end
     end
 
