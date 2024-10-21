@@ -3133,13 +3133,14 @@ do
     local TYPE_GOSSIP = Enum.PlayerInteractionType and Enum.PlayerInteractionType.Gossip or 3;
     local TYPE_QUEST_GIVER = Enum.PlayerInteractionType and Enum.PlayerInteractionType.QuestGiver or 4;
     local GetQuestID = GetQuestID;
+    local ItemTextGetItem = ItemTextGetItem;
     local INTERACT_RECENELY = false;
 
     local function IsInteractingWithDialogNPC()
         if INTERACT_RECENELY then return true end;
 
         local currentQuestID = GetQuestID();
-        return IsInteractingWithNpcOfType(TYPE_GOSSIP) or IsInteractingWithNpcOfType(TYPE_QUEST_GIVER) or (currentQuestID ~= nil and currentQuestID ~= 0)
+        return IsInteractingWithNpcOfType(TYPE_GOSSIP) or IsInteractingWithNpcOfType(TYPE_QUEST_GIVER) or (currentQuestID ~= nil and currentQuestID ~= 0) or (ItemTextGetItem() ~= nil)
     end
     addon.IsInteractingWithDialogNPC = IsInteractingWithDialogNPC;
 

@@ -170,6 +170,15 @@ local MetaGems = {
 };
 
 local TinkerModules = {
+    221910, 221909, 221908,     --Tinker: Heartseeking Health Injecter
+    221906, 221905, 221904,     --Tinker: Earthen Delivery Drill
+    221898, 221897, 221896,     --Tinker: Lightning Tether
+    225244,     --Refurbished Tinker: Shadowflame Rockets
+    225242,     --Refurbished Tinker: Plane Displacer
+    225241,     --Refurbished Tinker: Alarm-O-Turret
+    225243,     --Refurbished Tinker: Supercollide-O-Tron
+
+
     198291, 198290, 198289,     --Tinker: Alarm-O-Turret
     201409, 201408, 201407,     --Tinker: Arclight Vital Correctors
     199190, 199189, 199188,     --Tinker: Polarity Amplifier

@@ -743,3 +743,10 @@ L["Format Click Times To Equip Plural"] = "点击 |cff19ff19%d|r 次以装备"; 
 L["Format Free Up Bag Slot"] = "背包中需腾出%d个格子";
 L["Format Number Items Selected"] = "%d 已选择";
 L["Format Gem Slot Stat Budget"] = "在 %s 中的宝石只有 %s%% 的效果"  --e.g. Gems in trinket are 75% effective
+
+
+--Game Pad--
+L["GamePad Select"] = "选择";
+L["GamePad Cancel"] = "取消";
+L["GamePad Use"] = "使用";
+L["GamePad Equip"] = "装备";

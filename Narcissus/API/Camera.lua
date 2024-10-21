@@ -1,7 +1,7 @@
 local _, addon = ...
 local SettingFunctions = addon.SettingFunctions;
 
-local CameraUtil = {};
+local CameraUtil = CreateFrame("Frame");
 addon.CameraUtil = CameraUtil;
 
 
@@ -223,18 +223,37 @@ end
 
 
 do  --Motion Sickness Locks Shoulder Offset
+    local EXIT_EVENTS = {
+        "PLAYER_LOGOUT",
+        "PLAYER_QUITING",
+        "PLAYER_CAMPING",
+    };
+
     function CameraUtil:DisableMotionSickness()
         BackupCVar(MS_1);
         BackupCVar(MS_2);
 
         SetCVar(MS_1, 0);
         SetCVar(MS_2, 0);
+
+        for _, event in ipairs(EXIT_EVENTS) do
+            self:RegisterEvent(event);
+        end
     end
 
     function CameraUtil:RestoreMotionSickness()
         RestoreCVar(MS_1);
         RestoreCVar(MS_2);
+
+        for _, event in ipairs(EXIT_EVENTS) do
+            self:UnregisterEvent(event);
+        end
     end
+
+    function CameraUtil:OnEvent(event, ...)
+        self:RestoreMotionSickness();
+    end
+    CameraUtil:SetScript("OnEvent", CameraUtil.OnEvent);
 end
 
 
@@ -405,6 +424,20 @@ do  --Camera Parameters
         end
     end
 
+    function CameraUtil:UpdateParameters_Default()
+        local raceKey;
+        if IsMounted() then
+            raceKey = "Mounted";
+        else
+            raceKey = self:GetRaceKey();
+        end
+        DEFAULT_ZOOM_GOAL = CameraData[raceKey][SEX][CAM_DISTANCE_INDEX];
+        SHOULDER_PARA_1 = CameraData[raceKey][SEX][2];
+        SHOULDER_PARA_2 = CameraData[raceKey][SEX][3];
+        DEFAULT_ZOOM_MOG = CameraData[raceKey][SEX][4];
+    end
+    CameraUtil.UpdateParameters = CameraUtil.UpdateParameters_Default;
+
     do  --Remove Irrelevant Data
         if RACE == 25 or RACE == 26 then            --Pandaren A|H
             RACE = 24;
@@ -442,20 +475,6 @@ do  --Camera Parameters
             end
         end
     end
-
-    function CameraUtil:UpdateParameters_Default()
-        local raceKey;
-        if IsMounted() then
-            raceKey = "Mounted";
-        else
-            raceKey = self:GetRaceKey();
-        end
-        DEFAULT_ZOOM_GOAL = CameraData[raceKey][SEX][CAM_DISTANCE_INDEX];
-        SHOULDER_PARA_1 = CameraData[raceKey][SEX][2];
-        SHOULDER_PARA_2 = CameraData[raceKey][SEX][3];
-        DEFAULT_ZOOM_MOG = CameraData[raceKey][SEX][4];
-    end
-    CameraUtil.UpdateParameters = CameraUtil.UpdateParameters_Default;
 
     function CameraUtil:OnPlayerFormChanged(pauseDuration)
         if not self.f1 then

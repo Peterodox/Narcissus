@@ -402,6 +402,7 @@ L["NavBar Saved Sets"] = "Saved";   --A Saved Equipment Set
 L["NavBar Incomplete Sets"] = INCOMPLETE;
 L["Icon Selector"] = "Icon Selector";
 L["Delete Equipment Set Tooltip"] = "Delete Set\n|cff808080(click and hold)|r";
+L["New Set"] = PAPERDOLL_NEWEQUIPMENTSET or "New Set";
 
 --Corruption System
 L["Corruption System"] = "Corruption";
@@ -811,3 +812,10 @@ L["Format Click Times To Equip Plural"] = "Click |cff19ff19%d|r Times to Equip";
 L["Format Free Up Bag Slot"] = "Free Up %d Bag Slots First";
 L["Format Number Items Selected"] = "%d Selected";
 L["Format Gem Slot Stat Budget"] = "Gems in %s are %s%% effective."  --e.g. Gems in trinket are 75% effective
+
+
+--Game Pad--
+L["GamePad Select"] = "Select";
+L["GamePad Cancel"] = "Cancel";
+L["GamePad Use"] = "Use";
+L["GamePad Equip"] = "Equip";

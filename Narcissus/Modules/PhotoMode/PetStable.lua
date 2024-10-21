@@ -11,7 +11,6 @@ local format = string.format;
 local FadeFrame = NarciFadeUI.Fade;
 
 local GetStablePetInfo = C_StableInfo.GetStablePetInfo;
-local SetPetStablePaperdoll = SetPetStablePaperdoll;
 
 local MainFrame, PetModel, ModelShadow, Tooltip, SelectionOverlay, PageText, PageControl, DropDownButtons, PetSlots;
 local TARGET_MODEL_INDEX;
@@ -19,13 +18,9 @@ local ACTOR_CREATED = false;
 
 -----------------------------------------------------
 local function SetPetModel(model, index)
-    if SetPetStablePaperdoll then
-        SetPetStablePaperdoll(model, index);
-    elseif GetStablePetInfo then
-        local petInfo = GetStablePetInfo(index);
-		if petInfo and petInfo.displayID then
-			model:SetDisplayInfo(petInfo.displayID);
-		end
+    local petInfo = GetStablePetInfo(index);
+    if petInfo and petInfo.displayID then
+        model:SetDisplayInfo(petInfo.displayID);
     end
 end
 
@@ -156,12 +151,13 @@ local DataProvider = {};
 
 local function DataRetriever_OnUpdate(self, elapsed)
     self.index = self.index + 1;
-    local petIcon, petName, petLevel, petType, petTalents = GetStablePetInfo(self.index);
-    if petIcon then
+    local info = GetStablePetInfo(self.index);
+    if info then
         DataProvider.numPets = DataProvider.numPets + 1;
-        local petTypeIndex = DataProvider:GetPetTypeIndex(petType);
-        DataProvider.data[DataProvider.numPets] = {self.index, petIcon, petName, petTypeIndex};
+        local petTypeIndex = DataProvider:GetPetTypeIndex(info.familyName);
+        DataProvider.data[DataProvider.numPets] = {self.index, info.icon, info.name, petTypeIndex};
     end
+
     if self.index >= MAX_PETS then
         self:Hide();
         DataProvider:OnDataReceived();
