@@ -256,7 +256,7 @@
 		</Scripts>		
 	</Frame>
 
-	<Button name="NarciItemSocketingActionButton" mixin="NarciItemSocketingActionButtonMixin" inherits="SecureActionButtonTemplate" parent="NarciSecureFrameContainer">
+	<Button name="NarciItemSocketingActionButton" mixin="NarciItemSocketingActionButtonMixin" inherits="SecureActionButtonTemplate" parent="NarciSecureFrameContainer" hidden="true">
 		<Size x="240" y="48"/>
 		<Layers>
 			<Layer level="OVERLAY">

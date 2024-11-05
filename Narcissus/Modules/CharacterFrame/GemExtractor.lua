@@ -3,14 +3,13 @@ local Narci = Narci;
 local After = C_Timer.After;
 local GetContainerNumFreeSlots = C_Container.GetContainerNumFreeSlots;
 local GetItemCount = C_Item.GetItemCount;
+local GetInventoryItemID = GetInventoryItemID;
 local NUM_BAGS = NUM_BAG_SLOTS or 4;
 
-local REQUIREMENT_FORMAT = "|cff808080"..REQUIRES_LABEL.." %s|r";
-local EXTRACTOR_ITEM_ID = 187532;   --Soulfire Chisel
-local EXTRACTOR_ITEM_NAME = "Soulfire Chisel";
-local EXTRACTOR_ITEM_LOCALIZED_NAME = C_Item.GetItemNameByID(EXTRACTOR_ITEM_ID);    --nilable
-local MARCO_USE_ITEM_BY_ID = "/use item:%s";
 
+local RemovableItems = {
+    [228411] = true,        --Cyrce's Circlet (11.0.7)
+};
 
 local function CanPlayerRemoveGem(itemID)
     --return GetItemCount(itemID) > 0
@@ -25,10 +24,19 @@ local function CanPlayerRemoveGem(itemID)
     end
 end
 
-local function GetExtractAction()
-    local socketID = Narci_EquipmentOption:GetSocketOrderID();
-    return string.format("/click ExtraActionButton1\r/click ItemSocketingSocket%s", socketID);
+local function CanPlayerRemoveGemFromItem(itemID)
+    return itemID and RemovableItems[itemID]
 end
+
+local function GetExtractAction()
+    local socketIndex = Narci_EquipmentOption:GetSocketOrderID();
+    return string.format("/stopspelltarget\r/click ItemSocketingSocket%s", socketIndex)
+
+    --return string.format("/click ExtraActionButton1\r/click ItemSocketingSocket%s", socketIndex)
+    --return string.format("/use item:%s\r/use %s", itemID, equipmentSlotIndex);
+end
+
+
 
 local function GetNumFreeBagSlots()
     --a copy of CalculateTotalNumberOfFreeBagSlots
@@ -134,10 +142,6 @@ end
 function NarciItemSocketingActionButtonMixin:DisableButton()
     self:Show();
     self:Disable();
-    --if not EXTRACTOR_ITEM_LOCALIZED_NAME then
-    --    EXTRACTOR_ITEM_LOCALIZED_NAME = C_Item.GetItemNameByID(EXTRACTOR_ITEM_ID);
-    --end
-    --self.Label:SetText( string.format(REQUIREMENT_FORMAT, (EXTRACTOR_ITEM_LOCALIZED_NAME or EXTRACTOR_ITEM_NAME)) );
     self.Label:SetText(Narci.L["Socket Occupied"]);
 end
 
@@ -266,11 +270,14 @@ function NarciItemSocketingActionButtonMixin:OnDisable()
 end
 
 function NarciItemSocketingActionButtonMixin:SetActionForNarcissusUI()
-    local itemID = EXTRACTOR_ITEM_ID;
+    local equipmentItemID;
     local equipmentSlotIndex = Narci_EquipmentOption.slotID;
     self.equipmentSlotIndex = equipmentSlotIndex;
-    if CanPlayerRemoveGem(itemID) and equipmentSlotIndex then
-        local macroText = GetExtractAction();   --string.format("/use item:%s\r/use %s", itemID, equipmentSlotIndex);
+    if equipmentSlotIndex then
+        equipmentItemID = GetInventoryItemID("player", equipmentSlotIndex);
+    end
+    if CanPlayerRemoveGemFromItem(equipmentItemID) then
+        local macroText = GetExtractAction();
         self:SetAttribute("type1", "macro");
         self:SetAttribute("macrotext", macroText);
         self:AttemptToEnable();
@@ -284,9 +291,9 @@ function NarciItemSocketingActionButtonMixin:SetActionForNarcissusUI()
 end
 
 function NarciItemSocketingActionButtonMixin:SetExtractAction()
-    local itemID = EXTRACTOR_ITEM_ID;
-    if CanPlayerRemoveGem(itemID) then
-        local macroText = GetExtractAction();   --string.format("/use item:%s\r/click ItemSocketingSocket1", itemID);
+    local equipmentItemID = Narci_EquipmentOption:GetCurrentEquipment();
+    if CanPlayerRemoveGemFromItem(equipmentItemID) then
+        local macroText = GetExtractAction();
         self:SetAttribute("type1", "macro");
         self:SetAttribute("macrotext", macroText);
         self:AttemptToEnable();

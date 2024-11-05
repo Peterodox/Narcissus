@@ -805,6 +805,7 @@ L["Loadout Save Failure Incomplete Choices"] = "|cffff4800You have unselected ge
 L["Loadout Save Failure Dupe Loadout Format"] = "|cffff4800This loadout is the same as|r %s";
 L["Loadout Save Failure Dupe Name Format"] = "|cffff4800A loadout with that name already exists.|r";
 L["Loadout Save Failure No Name"] = "|cffff4800".. (TALENT_FRAME_DROP_DOWN_NEW_LOADOUT_PROMPT or "Enter a name for the new loadout") .."|r";
+L["Empty Socket"] = GLYPH_EMPTY or "Empty";
 
 L["Format Equipping Progress"] = "Equipping %d/%d";
 L["Format Click Times To Equip Singular"] = "Click |cff19ff19%d|r Time to Equip";

@@ -736,6 +736,7 @@ L["Loadout Save Failure Incomplete Choices"] = "|cffff4800没有选够足够的�
 L["Loadout Save Failure Dupe Loadout Format"] = "|cffff4800此方案与|r%s相同";
 L["Loadout Save Failure Dupe Name Format"] = "|cffff4800方案名称重复|r";
 L["Loadout Save Failure No Name"] = "|cffff4800请为方案命名|r";
+L["Empty Socket"] = "空插槽";
 
 L["Format Equipping Progress"] = "正在装备 %d/%d";
 L["Format Click Times To Equip Singular"] = "点击 |cff19ff19%d|r 次以装备";

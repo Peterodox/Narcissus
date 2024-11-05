@@ -39,6 +39,7 @@ local TEXT_LOCALE = GetLocale();
 
 local GetItemInfoInstant = C_Item.GetItemInfoInstant;
 local GetItemGem = C_Item.GetItemGem;
+local GetItemNumSockets = C_Item.GetItemNumSockets;
 local GetItemStats = C_Item.GetItemStats;
 local GetInventoryItemLink = GetInventoryItemLink;
 local StripHyperlinks = StripHyperlinks;    --Added in 10.1.0
@@ -303,7 +304,10 @@ end
 local function CompleteColorString(str)
     --Fixes some unclosured color string (no |r at the end)
     --Not robust
+    --Singing Citrine has weird markup 11.0.7
     if str then
+        --str = gsub(str, "|[cC][%w][%w][%w][%w][%w][%w][%w][%w]([^|]+)|[cC]", "%1|r");
+        --print(strsub(str, 2))
         if strsub(str, 1, 1) == "|" and strsub(str, -2, -2) ~= "|" then
             str = str .. "|r"
         end
@@ -313,114 +317,28 @@ local function CompleteColorString(str)
 end
 
 ---- Advanced Tooltip Parser with callback ----
-local TooltipUpdateFrame;
-local IS_ITEM_CACHED = {};
+local TooltipUpdater = CreateFrame("Frame");
+TooltipUpdater.isItemCached = {};
 local ON_TEXT_CHANGED_CALLBACK;
 local PINNED_LINES, LAST_ITEM, LAST_TEXT;
 
-local function OnTextChanged(object, text)
-    print(object.lineIndex);
-    print(text);
+
+function TooltipUpdater:RequestUpdateLineText()
+    self.t = 0;
+    self.iteration = 0;
 end
 
-local function GetPinnedLineText()
-    if PINNED_LINES and LAST_ITEM then
-        local tooltipData;
-        if type(LAST_ITEM) == "number" then
-            tooltipData = GetInfoByItemID(LAST_ITEM);
-        else
-            tooltipData = GetInfoByHyperlink(LAST_ITEM);
-        end
-        if not tooltipData then return end;
-    
-        local lines = tooltipData.lines;
-        local numLines = #lines;
-        local lineText;
-        local output;
+function TooltipUpdater:GetTextByLines(tooltipDataLines, requiredLines)
+    local numLines = #tooltipDataLines;
+    local output;
 
-        for i = 1, #PINNED_LINES do
-            if PINNED_LINES[i] <= numLines then
-                lineText = GetLineText(lines, PINNED_LINES[i]);
-                if lineText and lineText ~= "" then
-                    if output then
-                        output = output.."\n"..lineText;
-                    else
-                        output = lineText;
-                    end
-                end
-            end
-        end
-        if output ~= LAST_TEXT then
-            LAST_TEXT = output;
-            if ON_TEXT_CHANGED_CALLBACK then
-                ON_TEXT_CHANGED_CALLBACK(output);
-            end
-            return true
-        end
-    end
-end
-
-local function TooltipUpdateFrame_OnUpdate(self, elapsed)
-    self.t = self.t + elapsed;
-    if self.t > 0.25 then
-        self.t = 0;
-        self.iteration = self.iteration + 1;
-        if self.iteration >= 3 then
-            self:SetScript("OnUpdate", nil);
-        end
-        GetPinnedLineText();
-    end
-end
-
-local function GetCachedItemTooltipTextByLine(item, line, callbackFunc)
-    if not TooltipUpdateFrame then
-        TooltipUpdateFrame = CreateFrame("Frame");
-    end
-
-    ON_TEXT_CHANGED_CALLBACK = callbackFunc;
-
-    local isCached;
-    if IS_ITEM_CACHED[item] then
-        isCached = true
-    else
-        IS_ITEM_CACHED[item] = true;
-        isCached = false
-    end
-
-    local tooltipData;
-    if type(item) == "number" then
-        tooltipData = GetInfoByItemID(item);
-    else
-        tooltipData = GetInfoByHyperlink(item);
-    end
-    if not tooltipData then return end;
-
-    local lines = tooltipData.lines;
-    local numLines = #lines;
-    local lineText;
-
-    if item ~= LAST_ITEM then
-        LAST_ITEM = item;
-        LAST_TEXT = nil;
-        TooltipUpdateFrame.t = 0;
-        TooltipUpdateFrame.iteration = 0;
-        TooltipUpdateFrame:SetScript("OnUpdate", TooltipUpdateFrame_OnUpdate);
-    end
-
-    if isCached then
-        if PINNED_LINES then
-            PINNED_LINES = nil;
-        end
-    end
-
-
-    if type(line) == "table" then
-        local output;
-        local _l;
-        for i = 1, #line do
-            _l = line[i];
-            if _l <= numLines then
-                lineText = GetLineText(lines, _l);
+    if type(requiredLines) == "table" then
+        self.itemTooltipRequiredLines = requiredLines;
+        local lineIndex, lineText;
+        for i = 1, #requiredLines do
+            lineIndex = requiredLines[i];
+            if lineIndex <= numLines then
+                lineText = GetLineText(tooltipDataLines, lineIndex);
                 if lineText and lineText ~= "" then
                     lineText = CompleteColorString(lineText);
                     if output then
@@ -431,25 +349,109 @@ local function GetCachedItemTooltipTextByLine(item, line, callbackFunc)
                 end
             end
         end
-
-        if not isCached then
-            PINNED_LINES = line;
-            LAST_TEXT = output;
-        end
-
-        return output, isCached or (output ~= nil);
     else
-        if line <= numLines then
-            lineText = RemoveColorString( GetLineText(lines, line) );
+        self.itemTooltipRequiredLines = {requiredLines};
+        if requiredLines <= numLines then
+            output = RemoveColorString(GetLineText(tooltipDataLines, requiredLines));
         end
-
-        if not isCached then
-            PINNED_LINES = {line};
-            LAST_TEXT = lineText;
-        end
-
-        return lineText, isCached or (lineText ~= nil);
     end
+
+    return output
+end
+
+function TooltipUpdater:GetCachedItemTooltipTextByLine(item, requiredLines, callback)
+    local tooltipData;
+    if type(item) == "number" then
+        tooltipData = GetInfoByItemID(item);
+        self.itemTooltipGetter = GetInfoByItemID;
+    else
+        tooltipData = GetInfoByHyperlink(item);
+        self.itemTooltipGetter = GetInfoByHyperlink;
+    end
+    self.itemTooltipItem = item;
+
+    if not tooltipData then
+        self.itemTooltipGetter = nil;
+        self.itemTooltipItem = nil;
+        self.itemTooltipCallback = nil;
+        self.itemTooltipRequiredLines = nil;
+        return
+    end
+
+    self.itemTooltipCallback = callback;
+
+    local isCached;
+    if self.isItemCached[item] then
+        isCached = true
+    else
+        self.isItemCached[item] = true;
+        isCached = false
+    end
+
+    local output = self:GetTextByLines(tooltipData.lines, requiredLines);
+    self.itemTooltipOldText = output;
+
+    self:RegisterEvent("TOOLTIP_DATA_UPDATE");
+    self:SetScript("OnEvent", self.OnEvent);
+    self.t = 0;
+    self:SetScript("OnUpdate", self.OnUpdate_Unregister);
+
+    return output, isCached or (output ~= nil);
+end
+
+function TooltipUpdater:RegisterTooltipDataUpdateCallback(tooltipData, callback)
+    local dataInstanceID = tooltipData and tooltipData.dataInstanceID;
+    if dataInstanceID then
+        if not self.dataInstances then
+            self.dataInstances = {};
+        end
+        self.dataInstances[dataInstanceID] = callback;
+        self:RegisterEvent("TOOLTIP_DATA_UPDATE");
+        self:SetScript("OnEvent", self.OnEvent);
+
+        --Kill the event after 1s regardless of the outcome
+        self.t = 0;
+        self:SetScript("OnUpdate", self.OnUpdate_Unregister)
+    end
+end
+
+function TooltipUpdater:OnUpdate_Unregister(elapsed)
+    self.t = self.t + elapsed;
+    if self.t > 1.0 then
+        self.t = 0;
+        self.itemTooltipOldText = nil;
+        self.itemTooltipCallback = nil;
+        self.dataInstances = nil;
+        self:SetScript("OnUpdate", nil);
+        self:UnregisterEvent("TOOLTIP_DATA_UPDATE");
+    end
+end
+
+function TooltipUpdater:OnEvent(event, ...)
+    if event == "TOOLTIP_DATA_UPDATE" then
+        local dataInstanceID = ...
+        if self.dataInstances then
+            local callback = self.dataInstances[dataInstanceID];
+            if callback then
+                callback();
+            end
+        end
+
+        if self.itemTooltipCallback then
+            local tooltipData = self.itemTooltipGetter(self.itemTooltipItem);
+            if tooltipData then
+                local output = self:GetTextByLines(tooltipData.lines, self.itemTooltipRequiredLines);
+                if output ~= self.itemTooltipOldText then
+                    self.itemTooltipOldText = output;
+                    self.itemTooltipCallback(output);
+                end
+            end
+        end
+    end
+end
+
+local function GetCachedItemTooltipTextByLine(item, requiredLines, callback)
+    return TooltipUpdater:GetCachedItemTooltipTextByLine(item, requiredLines, callback)
 end
 
 NarciAPI.GetCachedItemTooltipTextByLine = GetCachedItemTooltipTextByLine;
@@ -796,7 +798,7 @@ local SpecialGemData = {
 
 local GEM_BONUS_CACHE = {};
 
-local function GetGemBonusFromGem(gem)
+local function GetGemBonusFromGem(gem, callback)
     --gem: Gem's itemID or hyperlink
     if not gem then return; end
 
@@ -815,6 +817,10 @@ local function GetGemBonusFromGem(gem)
     end
 
     if not tooltipData then return end;
+
+    if callback then
+        TooltipUpdater:RegisterTooltipDataUpdateCallback(tooltipData, callback);
+    end
 
     local lines = tooltipData.lines;
     local numLines = #lines;
@@ -1127,6 +1133,9 @@ local function GetCompleteItemData(tooltipData, itemLink)
                                 local textureKit = SOCKET_TYPE_TEXTURE[socketType] or "Prismatic";
                                 icon = "Interface\\ItemSocketingFrame\\UI-EmptySocket-"..textureKit;
                                 gemName = lines[i].leftText;   --Empty X Socket
+                                if gemName == "" then
+                                    gemName = L["Empty Socket"];
+                                end
                                 gemEffect = gemName;
                             end
                             data.socketInfo[socketOrderID] = {icon, gemName, gemLink, gemEffect};
@@ -1299,7 +1308,7 @@ local IsSupportedSocket = {};
 do
     local postfixes = {
         "BLUE", "COGWHEEL", "HYDRAULIC", "META", "PRISMATIC", "PUNCHCARDBLUE", "PUNCHCARDRED", "PUNCHCARDYELLOW",
-        "RED", "TINKER", "YELLOW", "PRIMORDIAL",
+        "RED", "TINKER", "YELLOW", "PRIMORDIAL", "FRAGRANCE", "SINGINGTHUNDER", "SINGINGSEA", "SINGINGWIND",
     };
 
     for _, name in pairs(postfixes) do
@@ -1436,9 +1445,11 @@ local function DoesItemHaveSockets(itemLink)
             end
         end
 
-        if numSocket > 0 then
-            return numSocket, socketIsDiverse, lastType
-        end
+        --if numSocket == 0 then
+        --    numSocket = C_Item.GetItemNumSockets(itemLink);
+        --end
+
+        return numSocket, socketIsDiverse, lastType
     end
 end
 

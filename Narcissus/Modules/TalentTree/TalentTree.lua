@@ -1456,7 +1456,7 @@ function NarciMiniTalentTreeMixin:PlayActivationAnimation()
     local n = 0;
     for i = 1, self.numAcitveNodes do
         node = Nodes[i];
-        if node.isActive then
+        if node.isActive and node.iX and node.iY then
             n = n + 1;
             highlight = NodeHighlights[n];
             if not highlight then

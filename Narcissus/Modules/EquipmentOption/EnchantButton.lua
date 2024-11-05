@@ -1,4 +1,5 @@
 local _, addon = ...;
+local GemDataProvider = addon.GemDataProvider;
 
 local MainFrame, ScrollFrame, Tooltip, ButtonHighlight, GemActionButton;
 
@@ -119,6 +120,13 @@ end
 addon.GetAppliedEnhancement = GetAppliedEnhancement;
 addon.GetNewGemID = GetNewGemID;
 
+local function GetGemEffect(itemID, callback)
+    local effect = GemDataProvider:GetGemEffect(itemID);
+    if effect then
+        return effect
+    end
+    return GetGemBonus(itemID, callback)
+end
 
 
 local function RightClickToReturnHome(f, mouseButton)
@@ -177,7 +185,7 @@ EventListener:SetScript("OnEvent", function(self, event, ...)
                     if infoType == 1 or infoType == 2 then
                         button:SetEnchantText(button.enchantID);
                     elseif infoType == 3 then
-                        button:SetButtonText(GetGemBonus(itemID), name);
+                        button:SetButtonText(GetGemEffect(itemID), name);
                     elseif infoType == 6 then
                         button:SetButtonText(NarciAPI.GetColorizedPrimordialStoneName(itemID));
                     elseif infoType == 4 then
@@ -258,7 +266,7 @@ function EventListener:AddSpell(spellID, button)
     if not self.spellQueue[spellID] then
         self.spellQueue[spellID] = {};
     end
-    tinsert(self.spellQueue[spellID], button);
+    table.insert(self.spellQueue[spellID], button);
     C_Spell.RequestLoadSpellData(spellID);
     self:RegisterEvent("SPELL_DATA_LOAD_RESULT");
 end
@@ -270,7 +278,7 @@ function EventListener:AddItem(itemID, button)
     if not self.itemQueue[itemID] then
         self.itemQueue[itemID] = {};
     end
-    tinsert(self.itemQueue[itemID], button);
+    table.insert(self.itemQueue[itemID], button);
     C_Item.RequestLoadItemDataByID(itemID);
     self:RegisterEvent("ITEM_DATA_LOAD_RESULT");
 end
@@ -468,6 +476,7 @@ function NarciEquipmentEnchantButtonMixin:SetEnchantData(spellID, itemID, enchan
         if not spellID then
             self:Hide();
         end
+        self:SetItemCount(itemID);
         return
     end
 
@@ -515,6 +524,7 @@ function NarciEquipmentEnchantButtonMixin:SetTempEnchantData(spellID, itemID, en
         if not spellID then
             self:Hide();
         end
+        self:SetItemCount(itemID);
         return
     end
 
@@ -608,6 +618,7 @@ function NarciEquipmentEnchantButtonMixin:SetGemData(itemID)
             self:Hide();
         end
         self:SetUsed(itemID == InUseIDs.gemID, itemID == InUseIDs.newGemID);
+        self:SetItemCount(itemID);
         return
     end
 
@@ -619,7 +630,14 @@ function NarciEquipmentEnchantButtonMixin:SetGemData(itemID)
         local icon = GetItemIcon(itemID);
         self.Icon:SetTexture(icon);
         local name = GetItemInfo(itemID);
-        local gemBonus = GetGemBonus(itemID);
+
+        local function TooltipUpdateCallback()
+            if itemID == self.itemID then
+                self:SetButtonText(GetGemEffect(itemID, TooltipUpdateCallback), self.itemName);
+            end
+        end
+
+        local gemBonus = GetGemEffect(itemID, TooltipUpdateCallback);
         local quality = C_Item.GetItemQualityByID(itemID);
         self:SetUsed(itemID == InUseIDs.gemID, itemID == InUseIDs.newGemID);
         if name and name ~= "" and gemBonus and gemBonus ~= "" and quality then
@@ -739,6 +757,7 @@ function NarciEquipmentEnchantButtonMixin:SetPrimordialStone(itemID)
             self:Hide();
         end
         self:SetUsed(itemID == InUseIDs.gemID, itemID == InUseIDs.newGemID);
+        self:SetItemCount(itemID);
         return
     end
 

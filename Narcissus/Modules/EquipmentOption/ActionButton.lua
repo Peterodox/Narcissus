@@ -78,10 +78,8 @@ function NarciEquipmentEnchantActionButtonMixin:InitFromButton(button, slotID, i
     self:SetFrameLevel(50);
     self:StopAnimating();
     self:ShowConfirm();
-    --self.FlyIn:Play();
-    self.Backdrop.Shine:Play();
-    self.Header.FlyIn:Play();
-    self.NewItemName.FlyIn:Play();
+    self.Backdrop:Show();
+    self.AnimConfirm:Play();
     self:MarkActive(true);
     FadeFrame(SelectionOverlay, 0.2, 1);
 end
@@ -102,6 +100,7 @@ function NarciEquipmentEnchantActionButtonMixin:Clear()
         self:SetParent(NarciSecureFrameContainer);
     end
     self:MarkActive(false);
+    self.Backdrop:Hide();
 end
 
 function NarciEquipmentEnchantActionButtonMixin:PostClick(button)
@@ -156,6 +155,7 @@ function NarciEquipmentEnchantActionButtonMixin:ShowCastBar()
     if not self.CastFrame:IsVisible() then
         self.Header.FlyDown:Play();
         self.NewItemName:Hide();
+        self.Backdrop:Show();
         self.CastText:SetText(CHANNELING);
         self.CastText:Show();
         self.CastText:SetTextColor(0.92, 0.92, 0.92)
@@ -167,6 +167,7 @@ end
 function NarciEquipmentEnchantActionButtonMixin:ShowConfirm()
     self.Header:Show();
     self.NewItemName:Show();
+    self.Backdrop:Show();
     self.CastText:Hide();
     self.CastFrame:Hide();
 end
@@ -324,7 +325,7 @@ function NarciEquipmentGemActionButtonMixin:InitFromButton(button, slotID, inUse
     if inUseGemID then
         local inUseEnchant = GetGemBonus(inUseGemID);               --Domination shard will be required to remove first
         if not inUseEnchant then
-            inUseEnchant = GetItemInfo(inUseGemID);     --Gem name
+            inUseEnchant = C_Item.GetItemInfo(inUseGemID);     --Gem name
         end
 
         if inUseEnchant then
@@ -351,12 +352,11 @@ function NarciEquipmentGemActionButtonMixin:InitFromButton(button, slotID, inUse
     self:SetFrameLevel(50);
     self:StopAnimating();
 
-    self.Backdrop.Shine:Play();
-    self.Header.FlyIn:Play();
-    self.NewItemName.FlyIn:Play();
+    self.AnimConfirm:Play();
 
     self.Header:Show();
     self.NewItemName:Show();
+    self.Backdrop:Show();
     self.ResultText:Hide();
     self.EventFrame:Hide();
 
@@ -377,6 +377,7 @@ function NarciEquipmentGemActionButtonMixin:Clear()
     self:Hide();
     self:ClearAllPoints();
     self:MarkActive(false);
+    self.Backdrop:Hide();
 end
 
 function NarciEquipmentGemActionButtonMixin:MarkActive(state)

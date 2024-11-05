@@ -519,14 +519,8 @@
                         <Size x="240" y="48"/>
                         <Layers>
                             <Layer level="BACKGROUND">
-                                <Texture parentKey="Backdrop" Alpha="1">
+                                <Texture parentKey="Backdrop" Alpha="1" hidden="true">
                                     <Color r="0.5" g="0.5" b="0.5" a="1"/>
-                                    <Animations>
-                                        <AnimationGroup parentKey="Shine" setToFinalAlpha="true">
-                                            <Alpha fromAlpha="0.2" toAlpha="0.5" duration="0.05" order="1"/>
-                                            <Alpha fromAlpha="0.5" toAlpha="0.25" duration="0.2" order="2"/>
-                                        </AnimationGroup>
-                                    </Animations>
                                 </Texture>
                             </Layer>
                             <Layer level="ARTWORK">
@@ -537,13 +531,6 @@
                                         <Anchor point="BOTTOM" relativeKey="$parent" relativePoint="CENTER" x="0" y="2"/>
                                     </Anchors>
                                     <Animations>
-                                        <AnimationGroup parentKey="FlyIn" setToFinalAlpha="true">
-                                            <Translation offsetX="-6" duration="0" order="1"/>
-                                            <Translation offsetX="4" duration="0.1" order="2"/>
-                                            <Translation offsetX="2" duration="0.1" order="3" smoothing="OUT"/>
-                                            <Alpha fromAlpha="0" toAlpha="0" duration="0" order="1"/>
-                                            <Alpha fromAlpha="0" toAlpha="1" duration="0.1" order="2"/>
-                                        </AnimationGroup>
                                         <AnimationGroup parentKey="FlyDown" setToFinalAlpha="true">
                                             <Translation offsetY="-6" duration="0.15" order="1"/>
                                             <Alpha fromAlpha="1" toAlpha="0" duration="0.12" order="1"/>
@@ -556,15 +543,6 @@
                                     <Anchors>
                                         <Anchor point="TOP" relativeKey="$parent" relativePoint="CENTER" x="0" y="-2"/>
                                     </Anchors>
-                                    <Animations>
-                                        <AnimationGroup parentKey="FlyIn">
-                                            <Translation offsetX="-6" duration="0" order="1"/>
-                                            <Translation offsetX="4" duration="0.1" order="2"/>
-                                            <Translation offsetX="2" duration="0.1" order="3" smoothing="OUT"/>
-                                            <Alpha fromAlpha="0" toAlpha="0" duration="0" order="1"/>
-                                            <Alpha fromAlpha="0" toAlpha="1" duration="0.1" order="2"/>
-                                        </AnimationGroup>
-                                    </Animations>
                                 </FontString>
                                 <FontString inherits="NarciFontNormal10White" justifyH="CENTER" justifyV="MIDDLE" parentKey="ResultText" maxLines="2" text="Enchanting" hidden="true">
                                     <Size x="208" y="0"/>
@@ -601,6 +579,16 @@
                                 </Anchors>
                             </Frame>
                         </Frames>
+                        <Animations>
+                            <AnimationGroup parentKey="AnimConfirm" setToFinalAlpha="true">
+                                <Alpha childKey="Backdrop" fromAlpha="0.2" toAlpha="0.5" duration="0.05" order="1"/>
+                                <Alpha childKey="Backdrop" fromAlpha="0.5" toAlpha="0.25" duration="0.2" order="2"/>
+                                <Alpha childKey="Header" fromAlpha="0" toAlpha="0" duration="0" order="1"/>
+                                <Alpha childKey="Header" fromAlpha="0" toAlpha="1" duration="0.1" order="2"/>
+                                <Alpha childKey="NewItemName" fromAlpha="0" toAlpha="0" duration="0" order="1"/>
+                                <Alpha childKey="NewItemName" fromAlpha="0" toAlpha="1" duration="0.1" order="2"/>
+                            </AnimationGroup>
+                        </Animations>
                         <Scripts>
                             <OnLoad method="OnLoad"/>
                             <OnClick method="OnClick"/>
@@ -661,14 +649,8 @@
 		<Size x="240" y="48"/>
         <Layers>
             <Layer level="BACKGROUND">
-                <Texture parentKey="Backdrop" Alpha="1">
+                <Texture parentKey="Backdrop" Alpha="1" hidden="true">
                     <Color r="0.5" g="0.5" b="0.5" a="1"/>
-                    <Animations>
-                        <AnimationGroup parentKey="Shine" setToFinalAlpha="true">
-                            <Alpha fromAlpha="0.2" toAlpha="0.5" duration="0.05" order="1"/>
-                            <Alpha fromAlpha="0.5" toAlpha="0.25" duration="0.2" order="2"/>
-                        </AnimationGroup>
-                    </Animations>
                 </Texture>
             </Layer>
             <Layer level="ARTWORK">
@@ -679,13 +661,6 @@
                         <Anchor point="BOTTOM" relativeKey="$parent" relativePoint="CENTER" x="0" y="2"/>
                     </Anchors>
                     <Animations>
-                        <AnimationGroup parentKey="FlyIn" setToFinalAlpha="true">
-                            <Translation offsetX="-6" duration="0" order="1"/>
-                            <Translation offsetX="4" duration="0.1" order="2"/>
-                            <Translation offsetX="2" duration="0.1" order="3" smoothing="OUT"/>
-                            <Alpha fromAlpha="0" toAlpha="0" duration="0" order="1"/>
-                            <Alpha fromAlpha="0" toAlpha="1" duration="0.1" order="2"/>
-                        </AnimationGroup>
                         <AnimationGroup parentKey="FlyDown" setToFinalAlpha="true">
                             <Translation offsetY="-6" duration="0.15" order="1"/>
                             <Alpha fromAlpha="1" toAlpha="0" duration="0.12" order="1"/>
@@ -698,15 +673,6 @@
                     <Anchors>
                         <Anchor point="TOP" relativeKey="$parent" relativePoint="CENTER" x="0" y="-2"/>
                     </Anchors>
-                    <Animations>
-                        <AnimationGroup parentKey="FlyIn">
-                            <Translation offsetX="-6" duration="0" order="1"/>
-                            <Translation offsetX="4" duration="0.1" order="2"/>
-                            <Translation offsetX="2" duration="0.1" order="3" smoothing="OUT"/>
-                            <Alpha fromAlpha="0" toAlpha="0" duration="0" order="1"/>
-                            <Alpha fromAlpha="0" toAlpha="1" duration="0.1" order="2"/>
-                        </AnimationGroup>
-                    </Animations>
                 </FontString>
                 <FontString inherits="NarciFontNormal10White" justifyH="CENTER" justifyV="MIDDLE" parentKey="CastText" maxLines="1" text="Enchanting" hidden="true">
                     <Size x="208" y="0"/>
@@ -736,38 +702,12 @@
             </Layer>
         </Layers>
         <Frames>
-            <Frame parentKey="ClipFrame" clipChildren="true">
-                <Size x="240" y="48"/>
-                <Anchors>
-                    <Anchor point="CENTER"/>
-                </Anchors>
-                <Layers>
-                    <Layer level="OVERLAY" textureSubLevel="2">
-                        <Texture parentKey="Flash" file="Interface\AddOns\Narcissus\Art\EquipmentOption\SelectionHighlight" alphaMode="ADD" alpha="0.6" hidden="true">
-                            <Size x="96" y="48"/>
-                            <Anchors>
-                                <Anchor point="RIGHT" relativeKey="$parent" relativePoint="LEFT"/>
-                            </Anchors>
-                            <Animations>
-                                <AnimationGroup parentKey="FlyBy">
-                                    <Translation offsetX="336" duration="0.25" order="1" smoothing="IN_OUT"/>
-                                </AnimationGroup>
-                            </Animations>
-                        </Texture>
-                    </Layer>
-                </Layers>
-            </Frame>
             <Frame parentKey="CastFrame" clipChildren="true" mixin="NarciCastingBarMixin" hidden="true">
                 <Size x="240" y="48"/>
                 <Anchors>
                     <Anchor point="CENTER"/>
                 </Anchors>
                 <Layers>
-                    <!--Layer level="BACKGROUND">
-                        <Texture>
-                            <Color r="0.1" g="0.1" b="0.1"/>
-                        </Texture>
-                    </Layer-->
                     <Layer level="BORDER">
                         <Texture parentKey="Shadow">
                             <Size x="240" y="6"/>
@@ -871,6 +811,16 @@
                 </Scripts>
             </Frame>
         </Frames>
+        <Animations>
+            <AnimationGroup parentKey="AnimConfirm" setToFinalAlpha="true">
+                <Alpha childKey="Backdrop" fromAlpha="0.2" toAlpha="0.5" duration="0.05" order="1"/>
+                <Alpha childKey="Backdrop" fromAlpha="0.5" toAlpha="0.25" duration="0.2" order="2"/>
+                <Alpha childKey="Header" fromAlpha="0" toAlpha="0" duration="0" order="1"/>
+                <Alpha childKey="Header" fromAlpha="0" toAlpha="1" duration="0.1" order="2"/>
+                <Alpha childKey="NewItemName" fromAlpha="0" toAlpha="0" duration="0" order="1"/>
+                <Alpha childKey="NewItemName" fromAlpha="0" toAlpha="1" duration="0.1" order="2"/>
+            </AnimationGroup>
+        </Animations>
         <Scripts>
             <OnLoad method="OnLoad"/>
             <OnLeave method="OnLeave"/>

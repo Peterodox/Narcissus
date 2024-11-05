@@ -312,10 +312,12 @@ end
 function NarciEquipmentOptionMixin:RegisterEventsForNarcissus(state)
     if state then
         self:RegisterEvent("GLOBAL_MOUSE_DOWN");
+        self:RegisterEvent("BAG_UPDATE_DELAYED");
         self:UnregisterEvent("SOCKET_INFO_UPDATE");
         self:UnregisterEvent("BAG_UPDATE");
     else
         self:UnregisterEvent("GLOBAL_MOUSE_DOWN");
+        self:UnregisterEvent("BAG_UPDATE_DELAYED");
         self:RegisterEvent("SOCKET_INFO_UPDATE");
         self:RegisterEvent("BAG_UPDATE");
     end
@@ -325,10 +327,12 @@ function NarciEquipmentOptionMixin:OnHide()
     self:UnregisterEvent("GLOBAL_MOUSE_DOWN");
     self:UnregisterEvent("SOCKET_INFO_UPDATE");
     self:UnregisterEvent("BAG_UPDATE");
+    self:UnregisterEvent("BAG_UPDATE_DELAYED");
     self:Hide();
     self:StopAnimating();
     self.itemLink = nil;
     self.slotButton = nil;
+    self.socketOrderID = nil;
     NarciGemSlotOverlay:HideIfIdle();
 end
 
@@ -371,6 +375,9 @@ function NarciEquipmentOptionMixin:OnEvent(event, ...)
     elseif event == "SOCKET_INFO_UPDATE" or event == "BAG_UPDATE" then
         --this event precedes "SocketContainerItem" so we use a delay here
         DelayedUpdate:Start();
+    elseif event == "BAG_UPDATE_DELAYED" then
+        --Refresh list after extracting gem
+        self:UpdateItemList("gem");
     end
 end
 
@@ -469,7 +476,7 @@ function NarciEquipmentOptionMixin:SetFromSlotButton(slotButton, returnHome)
     end
 
     local numSocket, socketIsDiverse, lastType = NarciAPI.DoesItemHaveSockets(self.itemLink);
-    if numSocket and PositionGemOverlay(slotButton) then
+    if numSocket and numSocket > 0 and PositionGemOverlay(slotButton) then
         self.meunButtons[3]:Enable();
         GemDataProvider:SetSubsetBySocketName(lastType);
     else
@@ -510,7 +517,11 @@ end
 function NarciEquipmentOptionMixin:SetGemListForBlizzardUI(id1, id2)
     self.isNarcissusUI = false;
     local parentFrame = ItemSocketingFrame;
-    if not parentFrame then return end;
+    if not parentFrame then
+        self.itemLink = nil;
+        self.itemID = nil;
+        return
+    end
 
     local itemLink;
     if id2 then
@@ -520,7 +531,10 @@ function NarciEquipmentOptionMixin:SetGemListForBlizzardUI(id1, id2)
     end
     self.itemLink = itemLink;
 
-    if not itemLink then return end;
+    if not itemLink then
+        self.itemID = nil;
+        return
+    end
 
     local socketTypeName = GetSocketTypes(1);
     if not socketTypeName then
@@ -528,12 +542,13 @@ function NarciEquipmentOptionMixin:SetGemListForBlizzardUI(id1, id2)
     end
 
     local itemID, _, _, invType = C_Item.GetItemInfoInstant(itemLink);
+    self.itemID = itemID;
 
     local slotID = NarciAPI.GetSlotIDByInvType(invType);
     self.slotID = slotID;
     self.slotButton = nil;
     self.inUseGemID, self.inUsedEnchantID = GetAppliedEnhancement(itemLink);
-    local newGemID = GetNewGemID(true);
+
     EnchantDataProvider:SetSubset(slotID);
     GemDataProvider:SetSubsetBySocketName(socketTypeName);
 
@@ -704,7 +719,6 @@ function NarciEquipmentOptionMixin:ShowGemList(specifiedTypeName, forceReset)
     end
 
     socketType = socketType or "none";
-
     local socketTypeName = GemDataProvider:SetSubsetBySocketName(socketType);
     local resetScroll = forceReset or socketTypeName ~= self.socketTypeName;
     self.socketTypeName = socketTypeName;
@@ -721,7 +735,7 @@ function NarciEquipmentOptionMixin:ShowGemList(specifiedTypeName, forceReset)
 
     self:ShowItemList("gem", resetScroll);
 
-    local showActionBlocker = (socketTypeName == "primordial") and (self.inUseGemID ~= nil);
+    local showActionBlocker = GemDataProvider:IsSocketRemovable(socketTypeName) and (self.inUseGemID ~= nil);
     self:ToggleActionBlocker(showActionBlocker);
 end
 
@@ -747,6 +761,12 @@ function NarciEquipmentOptionMixin:ShowTempEnchantList()
     SetButtonData = SetButtonTempEnchant;
     self:ShowItemList("temp", true);
     self.ItemList.SocketSelect:Hide();
+end
+
+function NarciEquipmentOptionMixin:UpdateItemList(listType)
+    if listType and listType == self.listType then
+        self:ShowItemList(listType);
+    end
 end
 
 function NarciEquipmentOptionMixin:ToggleActionBlocker(state)
@@ -778,7 +798,7 @@ function NarciEquipmentOptionMixin:UpdateCurrentList(resetScroll)
     end
 
     self.isListEmpty = numItems == 0;
-    self.ItemList.NoItemText:SetShown(self.isListEmpty);
+    self.ItemList.NoItemText:SetShown(self.isListEmpty and (not NarciItemSocketingActionButton:IsVisible()));
     self.inUseGemID, self.inUsedEnchantID = GetAppliedEnhancement(self.itemLink);
     local newGemID = GetNewGemID(true);
 
@@ -806,6 +826,10 @@ end
 
 function NarciEquipmentOptionMixin:IsCurrentListEmpty()
     return self.isListEmpty
+end
+
+function NarciEquipmentOptionMixin:GetCurrentEquipment()
+    return self.itemID, self.itemLink
 end
 
 NarciEquipmentOptionButtonMixin = {};
@@ -987,16 +1011,7 @@ function NarciEquipmentListTooltipMixin:SetItem(itemID)
         elseif spellID then
             self:SetSpell(spellID);
         else
-            local line;
-            if false then  --IsItemDominationShard(itemID)
-                line = 5;
-            else
-                if DataProvider:IsItemPrimordialStone(itemID) then
-                    line = {6, 3, 7};
-                else
-                    line = {3, 4, 5};
-                end
-            end
+            local line = DataProvider:GetItemTooltipLines(itemID);
             self.ClipFrame.Description:SetSize(0, 0);
             local tooltipText, isCached = GetCachedItemTooltipTextByLine(itemID, line, function(newText)
                 if self.itemID == itemID and self:IsTurningVisible() then

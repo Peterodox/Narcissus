@@ -297,3 +297,12 @@ function DataProvider:GetDataByIndex(index)
         return unpack(data);
     end
 end
+
+
+local TooltipLines = {
+    Generic = {3, 4, 5},
+};
+
+function DataProvider:GetItemTooltipLines(itemID)
+    return TooltipLines.Generic
+end

@@ -228,11 +228,11 @@
 		</Scripts>
 	</Button>
 
-	<Button name="NarciPerksProgramEncounterJournalButton" mixin="NarciPerksProgramEncounterJournalButtonMixin" hidden="true" motionScriptsWhileDisabled="true">
+	<Button name="NarciPerksProgramProductListToggle" mixin="NarciPerksProgramProductListToggleMixin" hidden="true" motionScriptsWhileDisabled="true">
 		<Size x="38" y="38"/>
 		<Layers>
 			<Layer level="ARTWORK">
-				<Texture parentKey="Icon" file="Interface\AddOns\Narcissus\Art\Modules\PerksProgram\EncounterJournalButton">
+				<Texture parentKey="Icon" file="Interface\AddOns\Narcissus\Art\Modules\PerksProgram\CoinButton">
 					<TexCoords left="0" right="0.5" top="0.5" bottom="1"/>
 					<Size x="38" y="38"/>
 					<Anchors>

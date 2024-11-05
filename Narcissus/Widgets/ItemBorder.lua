@@ -1,6 +1,7 @@
 local unpack = unpack;
 local CreateColor = NarciAPI.CreateColor;
 local GetItemInfoInstant = C_Item.GetItemInfoInstant;
+local GetItemGemID = C_Item.GetItemGemID;
 
 local FILE_PATH_DARK = "Interface/AddOns/Narcissus/Art/ItemBorder-Dark/JPG/";
 
@@ -18,7 +19,7 @@ local itemBorderMask = {
     [9201] = "Interface/AddOns/Narcissus/Art/ItemBorder-Dark/Mask/Menethil",
     [9202] = "Interface/AddOns/Narcissus/Art/ItemBorder-Dark/Mask/Anduin",
 
-    [100701] = "Interface/AddOns/Narcissus/Art/ItemBorder-Dark/Mask/OnyxAnnulet",
+    [100701] = "Interface/AddOns/Narcissus/Art/ItemBorder-Dark/Mask/ThreeSocket",
     [100101] = "Interface/AddOns/Narcissus/Art/ItemBorder-Dark/Mask/Neltharion",
 
     [100200] = "Interface/AddOns/Narcissus/Art/ItemBorder-Dark/Mask/TreeAndFlame",
@@ -51,10 +52,11 @@ local itemBorderHeavy = {
     Genesis = {"Genesis", 2},
     Shield = {"Shield", 1},
     Strife = {"Strife", 2},
-    OnyxAnnulet = {"OnyxAnnulet", 100701},
+    ThreeSocket_Purple = {"ThreeSocket_Purple", 100701},
     Neltharion = {"Neltharion", 100101},
     EmeraldDream = {"TreeAndFlame", 100200},
-}
+    ThreeSocket_Yellow = {"ThreeSocket_Yellow", 100701},
+};
 
 local function GetBorderThemeName()
     local themeName = NarcissusDB and NarcissusDB.BorderTheme
@@ -114,7 +116,8 @@ local itemIDxBorderArt = {
     [189754] = {"Genesis", nil, CreateColor(216, 212, 155)},        --Genesis Lathe
     [188253] = {"Strife", "OrangeRune", nil},                       --Scars of Fraternal Strife
 
-    [203460] = {"OnyxAnnulet", "OnyxAnnulet", nil, nil, nil, true},           --Onyx Annulet --CreateColor(255, 171, 0)
+    [203460] = {"ThreeSocket_Purple", "ThreeSocketRing", nil, nil, nil, true},           --Onyx Annulet --CreateColor(255, 171, 0)
+    [228411] = {"ThreeSocket_Yellow", "ThreeSocketRing", nil, nil, nil, true},           --Cyrce's Circlet
 
     --Progenitor = {"Progenitor", nil, CreateColor(230, 204, 128)},   --Class Sets: Sepulcher of the First Ones
 
@@ -309,18 +312,14 @@ local function DisplayThreeSockets(vfxFrame)
     local slotButton = vfxFrame:GetParent();
 
     if slotButton and slotButton.itemLink then
-        local gemID1, gemID2, gemID3 = string.match(slotButton.itemLink, "item:%d+:%d*:(%d*):(%d*):(%d*)");
         local ids = {};
         local _, socket, icon;
 
-        if gemID1 and gemID1 ~= "" then
-            table.insert(ids, tonumber(gemID1))
-        end
-        if gemID2 and gemID2 ~= "" then
-            table.insert(ids, tonumber(gemID2))
-        end
-        if gemID3 and gemID3 ~= "" then
-            table.insert(ids, tonumber(gemID3))
+        for i = 1, 3 do
+            local gemID = GetItemGemID(slotButton.itemLink, i)
+            if gemID then
+                table.insert(ids, gemID);
+            end
         end
 
         local total = #ids;
@@ -369,8 +368,10 @@ local function DisplayThreeSockets(vfxFrame)
             socket:Show();
         end
 
-        for i = total + 1, #SocketContainer.sockets do
-            SocketContainer.sockets[i]:Hide();
+        if SocketContainer then
+            for i = total + 1, #SocketContainer.sockets do
+                SocketContainer.sockets[i]:Hide();
+            end
         end
     end
 end
@@ -444,7 +445,7 @@ local itemVFXInfo = {
         offset = {x = 0, y = 0 },
     },
 
-    OnyxAnnulet = {
+    ThreeSocketRing = {
         setupFunc = DisplayThreeSockets,
     },
 };

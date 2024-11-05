@@ -85,6 +85,7 @@ SLOT_PRIORITY = SLOT_PRIORITY_TWW_S1;
 local NO_FLASH_ITEMS = {
     --Disable flash for some items with special border art.
     [203460] = true,
+    [228411] = true,
 };
 
 local SharedUpdateFrame;

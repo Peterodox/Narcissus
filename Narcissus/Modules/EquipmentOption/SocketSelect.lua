@@ -147,10 +147,9 @@ function NarciSocketSelectMixin:SetupFromItemLink(itemLink)
 
     local selectedSocketID = MainFrame:GetSocketOrderID() or 1;
 
-
     if numSockets > 0 then
         if selectedSocketID > numSockets then
-            selectedSocketID = 1
+            selectedSocketID = 1;
         end
 
         local socketName, icon, gemLink, socketType;
@@ -174,8 +173,9 @@ function NarciSocketSelectMixin:SetupFromItemLink(itemLink)
                 SocketButtons[i].gemName = nil;
                 SocketButtons[i].gemLink = nil;
                 SocketButtons[i]:SetSocketType(socketType);
-                if not selectedSocketType then
-                    selectedSocketType = socketType;
+
+                if (not selectedSocketType) or (i == selectedSocketID) then
+                    selectedSocketType = socketType
                 end
             end
             SocketButtons[i]:Show();

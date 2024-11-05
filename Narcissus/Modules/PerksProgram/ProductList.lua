@@ -3,7 +3,7 @@ local DataProvider = addon.PerksProgramDataProvider;
 local TransitionAPI = addon.TransitionAPI;
 
 local MainFrame, PreviewModel;
-local FrameToggle;
+local ListToggle;
 local FocusedButton;
 local ProductButtons;
 
@@ -32,18 +32,20 @@ local function RemoveEnsembleLabel(itemName)
 end
 
 local function SetupEncounterJournal()
-    if FrameToggle then return end;
+    if ListToggle then return end;
 
     local f = EncounterJournal and EncounterJournal.MonthlyActivitiesFrame;
     if not f then return end;
 
-    FrameToggle = NarciPerksProgramEncounterJournalButton;
-    FrameToggle:ClearAllPoints();
-    FrameToggle:SetParent(f);
-    --FrameToggle:SetPoint("TOPRIGHT", f, "TOPRIGHT", -8, -6);
-    FrameToggle:SetPoint("BOTTOMRIGHT", f, "TOPRIGHT", -16, -2);
-    FrameToggle:Show();
-    FrameToggle:RegisterEvent("PERKS_PROGRAM_CURRENCY_REFRESH");
+    ListToggle = NarciPerksProgramProductListToggle;
+    ListToggle:ClearAllPoints();
+    ListToggle:SetParent(f);
+    --ListToggle:SetPoint("TOPRIGHT", f, "TOPRIGHT", -8, -6);
+    ListToggle:SetPoint("BOTTOMRIGHT", f, "TOPRIGHT", -16, -2);
+    ListToggle:RegisterEvent("PERKS_PROGRAM_CURRENCY_REFRESH");
+    ListToggle:SetFrameLevel("606");   --Higher than f.ThemeContainer
+    ListToggle.ThemeContainer = f.ThemeContainer;
+    ListToggle:Show();
 end
 
 local function EncounterJournal_TabChanged(_, _, id)
@@ -60,9 +62,9 @@ do
 end
 
 
-NarciPerksProgramEncounterJournalButtonMixin = {};
+NarciPerksProgramProductListToggleMixin = {};
 
-function NarciPerksProgramEncounterJournalButtonMixin:OnEnter()
+function NarciPerksProgramProductListToggleMixin:OnEnter()
     local tooltipText;
 
     if self:IsEnabled() then
@@ -86,13 +88,13 @@ function NarciPerksProgramEncounterJournalButtonMixin:OnEnter()
     self:UpdateVisual();
 end
 
-function NarciPerksProgramEncounterJournalButtonMixin:OnLeave()
+function NarciPerksProgramProductListToggleMixin:OnLeave()
     self.focused = nil;
     self:UpdateVisual();
     GameTooltip:Hide();
 end
 
-function NarciPerksProgramEncounterJournalButtonMixin:OnClick()
+function NarciPerksProgramProductListToggleMixin:OnClick()
     local state = not MainFrame:IsShown();
 
     if state then
@@ -108,7 +110,7 @@ function NarciPerksProgramEncounterJournalButtonMixin:OnClick()
     self:UpdateVisual();
 end
 
-function NarciPerksProgramEncounterJournalButtonMixin:OnMouseDown()
+function NarciPerksProgramProductListToggleMixin:OnMouseDown()
     if self:IsEnabled() then
         self.down = true;
         GameTooltip:Hide();
@@ -116,12 +118,12 @@ function NarciPerksProgramEncounterJournalButtonMixin:OnMouseDown()
     self:UpdateVisual();
 end
 
-function NarciPerksProgramEncounterJournalButtonMixin:OnMouseUp()
+function NarciPerksProgramProductListToggleMixin:OnMouseUp()
     self.down = false;
     self:UpdateVisual();
 end
 
-function NarciPerksProgramEncounterJournalButtonMixin:UpdateVisual()
+function NarciPerksProgramProductListToggleMixin:UpdateVisual()
     if self:IsEnabled() then
         self.Icon:SetVertexColor(1, 1, 1);
         self.Icon:SetDesaturated(false);
@@ -145,7 +147,7 @@ function NarciPerksProgramEncounterJournalButtonMixin:UpdateVisual()
     end
 end
 
-function NarciPerksProgramEncounterJournalButtonMixin:UpdateCurrencyAmount()
+function NarciPerksProgramProductListToggleMixin:UpdateCurrencyAmount()
     CURRENCY_AMOUNT = C_PerksProgram.GetCurrencyAmount();
 	self.Text:SetText(CURRENCY_AMOUNT);
     if CURRENCY_AMOUNT > 0 then
@@ -156,7 +158,7 @@ function NarciPerksProgramEncounterJournalButtonMixin:UpdateCurrencyAmount()
     MainFrame:RequestUpdate();
 end
 
-function NarciPerksProgramEncounterJournalButtonMixin:OnShow()
+function NarciPerksProgramProductListToggleMixin:OnShow()
     self:UpdateCurrencyAmount();
 
     local vendorItemIDs = DataProvider:GetCurrentMonthItems();
@@ -165,12 +167,59 @@ function NarciPerksProgramEncounterJournalButtonMixin:OnShow()
     else
         self:Disable();
     end
+
+    self:ModifyTheme();
 end
 
-function NarciPerksProgramEncounterJournalButtonMixin:OnEvent(event, ...)
+function NarciPerksProgramProductListToggleMixin:OnEvent(event, ...)
     --PERKS_PROGRAM_CURRENCY_REFRESH
     self:UpdateCurrencyAmount();
 end
+
+function NarciPerksProgramProductListToggleMixin:ModifyTheme()
+    local f = self.ThemeContainer;
+    if not (f and f.Top) then return end;
+
+    local theme = C_PerksActivities.GetPerksUIThemePrefix() or "";
+	local atlasPrefix = "perks-theme-"..theme.."-tl-";
+    local atlasName = atlasPrefix.."top";
+
+    if not C_Texture.GetAtlasInfo(atlasName) then
+        return
+    end
+
+    if not self.ThemeContainerMask then
+        local mask = f:CreateMaskTexture(nil, "BACKGROUND");
+        --local mask = f:CreateTexture(nil, "OVERLAY");
+        self.ThemeContainerMask = mask;
+        mask:SetPoint("BOTTOMRIGHT", self, "BOTTOMRIGHT", 22, 6);
+        local a = 64 * 0.7;
+        mask:SetSize(4*a, a);
+        f.Top:AddMaskTexture(mask);
+        mask:SetTexture("Interface\\AddOns\\Narcissus\\Art\\Modules\\PerksProgram\\ThemeContainerMask", "CLAMP", "CLAMP");
+        --mask:SetTexture("Interface\\AddOns\\Narcissus\\Art\\Modules\\PerksProgram\\ThemeContainerMask");
+    end
+
+    --[[
+    theme = "winterveil"
+	local function SetAtlas(texture, atlasSuffix)
+        if texture then
+            local atlasName = atlasPrefix..atlasSuffix;
+            if not C_Texture.GetAtlasInfo(atlasName) then
+                texture:SetTexture(nil);
+                return;
+            end
+            texture:SetAtlas(atlasName, true);
+        end
+	end
+	SetAtlas(f.FilterList, "box");
+	SetAtlas(f.Top, "top");
+	SetAtlas(f.Bottom, "bottom");
+	SetAtlas(f.Left, "left");
+	SetAtlas(f.Right, "right");
+    --]]
+end
+
 
 NarciPerksProgramProductListMixin = {};
 
@@ -210,8 +259,8 @@ function NarciPerksProgramProductListMixin:OnShow()
 
     self:RegisterEvent("MODIFIER_STATE_CHANGED");
 
-    if FrameToggle then
-        FrameToggle:UpdateVisual();
+    if ListToggle then
+        ListToggle:UpdateVisual();
     end
 
     self:UpdateScale();
@@ -238,8 +287,8 @@ function NarciPerksProgramProductListMixin:OnHide()
     FocusedButton = nil;
     ResetCursor();
 
-    if FrameToggle then
-        FrameToggle:UpdateVisual();
+    if ListToggle then
+        ListToggle:UpdateVisual();
     end
 
     self.flavorText = nil;
