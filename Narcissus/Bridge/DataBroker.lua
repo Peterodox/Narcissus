@@ -3,12 +3,25 @@
 
 
 local function CreateDataObject()
+    --"HidingBar" already handles our button well
+
+    local externalHandlers = {
+        "HidingBar",
+    };
+
+    for _, addonName in ipairs(externalHandlers) do
+        if C_AddOns.IsAddOnLoaded(addonName) then
+            return
+        end
+    end
+
     if not (LibStub and LibStub.GetLibrary) then
         return
     end
 
     local silent = true;
     local ldb = LibStub:GetLibrary("LibDataBroker-1.1", silent);
+
     if not (ldb and ldb.NewDataObject) then
         return
     end
@@ -31,25 +44,31 @@ local function CreateDataObject()
         end
     end
 
-    ldb:NewDataObject("Narcissus", {
+    local obj = ldb:NewDataObject("Narcissus", {
         type = "launcher",
-        icon = "Interface\\AddOns\\Narcissus\\Art\\Logos\\NarcissusLogo32",
+        icon = "Interface\\AddOns\\Narcissus\\Art\\Logos\\Narcissus-32-White",
         tocname = "Narcissus",
-        --label = "Narcissus",
-
         OnClick = Object_OnClick,
         OnEnter = Object_OnEnter,
         OnLeave = Object_OnLeave,
     });
 
+    local icon = LibStub("LibDBIcon-1.0", true);
+    if icon then
+        local db = NarcissusDB or {};
+        if not db.libdbicon then
+            db.libdbicon = {};
+        end
+        if not (db.libdbicon.minimapPos and type(db.libdbicon.minimapPos) == "number") then
+            db.libdbicon.minimapPos = 135;        --Degree. From Three O'clock. Counterclockwise: positive
+        end
+        icon:Register("Narcissus", obj, db.libdbicon);
+    end
+
     return true
 end
 
 do
-    local success = CreateDataObject();
-
-    if not success then
-        local _, addon = ...
-        addon.AddInitializationCallback(CreateDataObject);
-    end
+    local _, addon = ...
+    addon.AddInitializationCallback(CreateDataObject);
 end

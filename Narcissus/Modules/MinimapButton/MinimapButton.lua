@@ -801,6 +801,13 @@ do
 	function SettingFunctions.ShowMinimapButton(state, db)
 		if state == nil then
 			state = db["ShowMinimapButton"];
+			if db.libdbicon then
+				if state then
+					db.libdbicon.hide = nil;
+				else
+					db.libdbicon.hide = true;
+				end
+			end
 		end
 		MiniButton:SetShown(state);
 	end

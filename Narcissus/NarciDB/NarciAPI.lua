@@ -3288,8 +3288,12 @@ do
 end
 
 do  --11.0 Menu Formatter
-    function NarciAPI.TranslateContextMenu(menuParent, schematic, contextData)
-        local menu = MenuUtil.CreateContextMenu(menuParent, function(owner, rootDescription)
+    function NarciAPI.TranslateContextMenu(ownerRegion, schematic, contextData)
+        --Currently we only use this function to create a minimap menu.
+        --Owner is set to UIParent so when the mini button is hidden by addon manager, the menu won't hide with it.
+        ownerRegion = UIParent;
+
+        local menu = MenuUtil.CreateContextMenu(ownerRegion, function(ownerRegion, rootDescription)
             rootDescription:SetTag(schematic.tag, contextData);
 
             for _, info in ipairs(schematic.objects) do
