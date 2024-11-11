@@ -3287,48 +3287,74 @@ do
     NarciAPI.MuteTargetLostSound = MuteTargetLostSound;
 end
 
---[[
-    /script DEFAULT_CHAT_FRAME:AddMessage("\124Hitem:narcissus:0:\124h[Test Link]\124h\124r");
-function TestFX(modelFileID, zoomDistance, view)
-    NarciAPI_SetupModelScene(TestScene, modelFileID, zoomDistance, view);
-end
---]]
---/run TestFX(3152608, nil, ) 122972
---/run TestFX(1011653, 8, "
---/run TestFX(3004122, 8, "LEFT") --Eyeball
+do  --11.0 Menu Formatter
+    function NarciAPI.TranslateContextMenu(menuParent, schematic, contextData)
+        local menu = MenuUtil.CreateContextMenu(menuParent, function(owner, rootDescription)
+            rootDescription:SetTag(schematic.tag, contextData);
 
---Shake Frame SoulbindViewerMixin:Shake() Bliizard Blizzard_SoulbindsViewer.lua
+            for _, info in ipairs(schematic.objects) do
+                local elementDescription;
+                if info.type == "Title" then
+                    elementDescription = rootDescription:CreateTitle();
+                    elementDescription:AddInitializer(function(f, description, menu)
+                        f.fontString:SetText(info.name);
+                    end);
+                elseif info.type == "Divider" then
+                    elementDescription = rootDescription:CreateDivider();
+                elseif info.type == "Spacer" then
+                    elementDescription = rootDescription:CreateSpacer();
+                elseif info.type == "Button" then
+                    elementDescription = rootDescription:CreateButton(info.name, info.OnClick);
+                elseif info.type == "Checkbox" then
+                    elementDescription = rootDescription:CreateCheckbox(info.name, info.IsSelected, info.ToggleSelected);
+                end
 
+                if info.tooltip then
+                    elementDescription:SetTooltip(function(tooltip, elementDescription)
+                        GameTooltip_SetTitle(tooltip, MenuUtil.GetElementText(elementDescription));
+                        GameTooltip_AddNormalLine(tooltip, info.tooltip);
+                        --GameTooltip_AddInstructionLine(tooltip, "Test Tooltip Instruction");
+                        --GameTooltip_AddErrorLine(tooltip, "Test Tooltip Colored Line");
+                    end);
+                end
 
---Debug
---[[
-local DebugUtil = NarciAPI_CreateAnimationFrame(1, "NarciDebug");
+                if info.rightText then
+                    local rightText;
+                    if type(info.rightText) == "function" then
+                        rightText = info.rightText();
+                    else
+                        rightText = info.rightText;
+                    end
+                    elementDescription:AddInitializer(function(button, description, menu)
+                        --local rightTexture = button:AttachTexture();
+                        --rightTexture:SetSize(18, 18);
+                        --rightTexture:SetPoint("RIGHT");
+                        --rightTexture:SetTexture(nil);
 
-DebugUtil:SetScript("OnUpdate", function(self, elapsed)
-    self.total = self.total + elapsed;
-    if self.total >= self.duration then
-        self:Hide();
-        self.isAdding = nil;
-        print("AVG: ".. self.sum / self.numNumber);
+                        local fontString = button.fontString;
+                        fontString:SetTextColor(NORMAL_FONT_COLOR:GetRGB());
+
+                        local fontString2 = button:AttachFontString();
+                        fontString2:SetHeight(20);
+                        fontString2:SetPoint("RIGHT", button, "RIGHT", 0, 0);
+                        fontString2:SetJustifyH("RIGHT");
+                        fontString2:SetText(rightText);
+                        fontString2:SetTextColor(0.5, 0.5, 0.5);
+
+                        local pad = 20;
+                        local width = pad + fontString:GetWrappedWidth() + fontString2:GetWrappedWidth();
+
+                        local height = 20;
+                        return width, height;
+                    end);
+                end
+            end
+        end);
+
+        if schematic.onMenuClosedCallback then
+            menu:SetClosedCallback(schematic.onMenuClosedCallback);
+        end
+
+        return menu
     end
-end);
-
-function DebugUtil:RestartTimer()
-    self.total = 0;
-    self:Show();
 end
-
-function DebugUtil:CalculateAverage(number)
-    if not number then return end;
-
-    if self.isAdding then
-        self.sum = self.sum + number;
-        self.numNumber = self.numNumber + 1;
-    else
-        self.sum = number;
-        self.numNumber = 1;
-        self.isAdding = true;
-        self:RestartTimer();
-    end
-end
---]]

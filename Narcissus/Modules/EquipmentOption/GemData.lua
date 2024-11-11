@@ -1,5 +1,6 @@
 local _, addon = ...;
 local GetItemCount = C_Item.GetItemCount;
+local tinsert = table.insert;
 
 local GemEffects = {};
 
@@ -152,7 +153,6 @@ do
         32215, 32212, 32216, 37503, 32211, 32213, 32214, 24056, 24055, 30600, 30549, 24054, 24057, 30603, 35707, 30546, 30555, 31865, 30563, 30566, 31116, 31863, 32636, 31118, 30574, 30572, 31117, 30552, 32634, 32836, 32833, 23111, 23108, 23110, 31864, 23109, 31862,
     };
 
-    local tinsert = table.insert;
     for i = 1, #GreenGems do
         tinsert(BlueGems, GreenGems[i]);
         tinsert(YellowGems, GreenGems[i]);
@@ -279,7 +279,7 @@ local SocketNameXTypeName = {};
 do
     local postfixes = {
         "BLUE", "COGWHEEL", "HYDRAULIC", "META", "PRISMATIC", "PUNCHCARDBLUE", "PUNCHCARDRED", "PUNCHCARDYELLOW",
-        "RED", "TINKER", "YELLOW", "PRIMORDIAL", "FRAGRANCE", "SINGING_THUNDER", "SINGING_SEA", "SINGING_WIND",
+        "RED", "TINKER", "YELLOW", "PRIMORDIAL", "FRAGRANCE", "SINGINGTHUNDER", "SINGINGSEA", "SINGINGWIND",
     };
 
     local localizedName;

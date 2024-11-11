@@ -84,6 +84,30 @@ local function MinimapButton_SetAngle(radian)
 	MiniButton:SetPoint("CENTER", Minimap, "CENTER", x, y);
 end
 
+local MouseButtons = {
+	LeftClick = {ratio = 1, left = 0, right = 64, top = 0, bottom = 64},
+	RightClick = {ratio = 1, left = 64, right = 128, top = 0, bottom = 64},
+	ShiftLeftClick = {ratio = 2, left = 0, right = 128, top = 64, bottom = 128},
+	ShiftRightClick = {ratio = 2, left = 0, right = 128, top = 128, bottom = 192},
+};
+
+local function GetMouseButtonMarkup(button)
+	local fontHeight = 20;
+	local textureSize = 256;
+	local s = "|TInterface\\AddOns\\Narcissus\\Art\\Keyboard\\Mouse-Yellow.tga:%s:%s:0:0:%s:%s:%s:%s:%s:%s|t";
+
+	if MouseButtons[button] then
+		local v = MouseButtons[button];
+		local function Round(n)
+			return math.floor(n + 0.5);
+		end
+		local width = Round(fontHeight * v.ratio);
+		local height = Round(fontHeight);
+		return string.format(s, height, width, textureSize, textureSize, v.left, v.right, v.top, v.bottom);
+	else
+		return ""
+	end
+end
 
 NarciMinimapButtonMixin = {};
 
@@ -94,7 +118,7 @@ function NarciMinimapButtonMixin:CreatePanel()
 	local button;
 	local buttons = {};
 
-	local LOCALIZED_NAMES = {L["Photo Mode"], DRESSUP_FRAME, L["Turntable"], ACHIEVEMENT_BUTTON};	-- CHARACTER_BUTTON, "Character Info" "Dressing Room" "Achievements"
+	local LOCALIZED_NAMES = {L["Photo Mode"], L["Dressing Room"], L["Turntable"], ACHIEVEMENT_BUTTON};	-- CHARACTER_BUTTON, "Character Info" "Dressing Room" "Achievements"
 	local frameNames = {};
 	frameNames[4] = "Narci_Achievement";
 
@@ -121,15 +145,22 @@ function NarciMinimapButtonMixin:CreatePanel()
 		end
 	};
 
-	local menuInfo = {};
+
+	local menuInfo = {
+		tag = "NARCISSUS_MINIMAP_MENU",
+		onMenuClosedCallback = nil,
+		objects = {
+			{type = "Title", name = "Narcissus", rightText = function() return NarciAPI.GetAddOnVersionInfo(true) end},
+		},
+	};
 	self.menuInfo = menuInfo;
 
 	for i = 1, #LOCALIZED_NAMES do
 		if func[i] then
-			table.insert(menuInfo, {
-				text = LOCALIZED_NAMES[i],
-				func = func[i],
-				notCheckable = true,
+			table.insert(menuInfo.objects, {
+				type = "Button",
+				name = LOCALIZED_NAMES[i],
+				OnClick = func[i],
 			}
 		);
 		end
@@ -343,8 +374,11 @@ function NarciMinimapButtonMixin:IsFocused()
 end
 
 function NarciMinimapButtonMixin:OnLoad()
+	self:SetScript("OnLoad", nil);
+	self.OnLoad = nil;
+
 	MiniButton = self;
-    
+
     self:RegisterEvent("PLAYER_ENTERING_WORLD");
 	self:SetFrameStrata("MEDIUM");
 	self:RegisterForClicks("LeftButtonUp","RightButtonUp","MiddleButtonUp");
@@ -385,9 +419,7 @@ function NarciMinimapButtonMixin:OnLoad()
 		NarcissusDB.MinimapButton.Position = radian;
 	end)
 
-
-	self:SetScript("OnLoad", nil);
-	self.OnLoad = nil;
+	self:SetScript("OnShow", self.OnShow);
 end
 
 function NarciMinimapButtonMixin:UpdatePosition()
@@ -483,18 +515,17 @@ function NarciMinimapButtonMixin:OnClick(button, down)
 	elseif button == "RightButton" then
 		if IsShiftKeyDown() then
 			NarcissusDB.ShowMinimapButton = false;
-			print("Minimap button has been hidden. You may type /Narci minimap to re-enable it.");
+			print(L["MinimapButton Enable Instruction"]);
 			self:Hide();
 		else
-			if self.showPanelOnMouseOver then
+			if self.useMouseoverMenu then
 				Narci_OpenGroupPhoto();
-				GameTooltip:Hide();
 				self:Disable();
 				After(DURATION_LOCK, function()
 					self:Enable()
 				end)
 			else
-				self:ShowPopup(true);
+				self:ShowBlizzardMenu();
 			end
 		end
 		return;
@@ -572,46 +603,46 @@ function NarciMinimapButtonMixin:SetIconScale(scale)
 	self.Background:SetScale(scale);
 end
 
+function NarciMinimapButtonMixin:ShowTooltip(owner)
+	local tooltip = GameTooltip;
+	owner = owner or self;
+	tooltip:SetOwner(owner, "ANCHOR_NONE");
+	tooltip:SetPoint("TOPRIGHT", owner, "BOTTOM", 0, 0);
+	tooltip:SetText(NARCI_GRADIENT);
+
+	--[[
+	local HotKey1, HotKey2 = GetBindingKey("TOGGLECHARACTER0");
+	local KeyText;
+	local LeftClickText = L["Minimap Tooltip Left Click"];
+	if HotKey1 and NarcissusDB.EnableDoubleTap then
+		KeyText = "("..HotKey1..")";
+		if HotKey2 then
+			KeyText = KeyText .. "|cffffffff or |r("..HotKey2..")";
+		end
+		LeftClickText = LeftClickText.." |cffffffff".."/".." |r"..L["Minimap Tooltip Double Click"].." "..KeyText.."|r";
+	end
+
+	local bindAction = "CLICK MiniButton:LeftButton";
+	local keyBind = GetBindingKey(bindAction);
+	if keyBind and keyBind ~= "" then
+		LeftClickText = LeftClickText.." |cffffffff".."/|r "..keyBind;
+	end
+	--]]
+
+	tooltip:AddLine(GetMouseButtonMarkup("LeftClick")..L["Character UI"], 1, 1, 1, false);
+	tooltip:AddLine(GetMouseButtonMarkup("RightClick")..L["Module Menu"], 1, 1, 1, false);
+	tooltip:Show();
+end
+
 function NarciMinimapButtonMixin:OnEnter()
 	if IsMouseButtonDown() then return; end;
+	self:UpdateManager();
 	self:ShowMouseMotionVisual(true);
 	if (not IsShiftKeyDown()) then
-		if self.showPanelOnMouseOver then
+		if self.useMouseoverMenu then
 			self.onEnterDelay:Show();
-		elseif not self.Panel:IsShown() then
-			local tooltip = GameTooltip;
-			tooltip:SetOwner(self, "ANCHOR_NONE");
-			tooltip:SetPoint("TOPRIGHT", self, "BOTTOM", 0, 0);
-			tooltip:SetText(NARCI_GRADIENT);
-			
-			--Normal Tooltip
-			local HotKey1, HotKey2 = GetBindingKey("TOGGLECHARACTER0");
-			local KeyText;
-			local LeftClickText = L["Minimap Tooltip Left Click"];
-			if HotKey1 and NarcissusDB.EnableDoubleTap then
-				KeyText = "("..HotKey1..")";
-				if HotKey2 then
-					KeyText = KeyText .. "|cffffffff or |r("..HotKey2..")";
-				end
-				LeftClickText = LeftClickText.." |cffffffff".."/".." |r"..L["Minimap Tooltip Double Click"].." "..KeyText.."|r";
-			end
-		
-			local bindAction = "CLICK MiniButton:LeftButton";
-			local keyBind = GetBindingKey(bindAction);
-			if keyBind and keyBind ~= "" then
-				LeftClickText = LeftClickText.." |cffffffff".."/|r "..keyBind;
-			end
-		
-			tooltip:AddLine(LeftClickText.." "..L["Minimap Tooltip To Open"], nil, nil, nil, false);
-			tooltip:AddLine(L["Minimap Tooltip Right Click"].." "..L["Minimap Tooltip Module Panel"], nil, nil, nil, false);
-			tooltip:AddLine(L["Minimap Tooltip Shift Left Click"].." "..L["Toggle Dressing Room"], nil, nil, nil, true);
-			tooltip:AddLine(L["Minimap Tooltip Shift Right Click"].." "..L["Minimap Tooltip Hide Button"], nil, nil, nil, true);
-			tooltip:AddLine(L["Minimap Tooltip Middle Button"], nil, nil, nil, true);
-			tooltip:AddLine(" ", nil, nil, nil, true);
-			tooltip:AddDoubleLine(NarciAPI.GetAddOnVersionInfo(true), L["Developer Info"], 0.8, 0.8, 0.8, 0.8, 0.8, 0.8);
-			tooltip:AddLine("https://wow.curseforge.com/projects/narcissus", 0.5, 0.5, 0.5, false);
-
-			tooltip:Show();
+		else
+			self:ShowTooltip();
 		end
 	end
 end
@@ -619,7 +650,9 @@ end
 function NarciMinimapButtonMixin:ShowMouseMotionVisual(visible)
 	if not self:IsShown() then return end;
 	if visible then
-		SetCursor("Interface/CURSOR/Item.blp");
+		if self.useMouseoverMenu then
+			SetCursor("Interface/CURSOR/Item.blp");
+		end
 		self.Color:Show();
 		self:SetIconScale(1.1);
 		FadeFrame(self.Color, 0.2, 1);
@@ -737,6 +770,30 @@ function NarciMinimapButtonMixin:GetMenuInfo()
 	return self.menuInfo
 end
 
+function NarciMinimapButtonMixin:UpdateManager()
+	--If the button is collected by other addons
+	--We don't show the menu on mouseover, instead prompt user to use right-click to open the menu
+	local useMouseoverMenu;
+	local parent = self:GetParent();
+	if parent == Narci_MinimapButtonContainer or parent == Minimap then
+		useMouseoverMenu = true;
+	else
+		useMouseoverMenu = false;
+	end
+	useMouseoverMenu = useMouseoverMenu and (NarcissusDB and NarcissusDB.ShowModulePanelOnMouseOver);
+	self.useMouseoverMenu = useMouseoverMenu;
+end
+
+function NarciMinimapButtonMixin:OnShow()
+	self:UpdateManager();
+end
+
+function NarciMinimapButtonMixin:ShowBlizzardMenu(menuParent)
+	menuParent = menuParent or self;
+	local contextData = {};
+	local menu = NarciAPI.TranslateContextMenu(menuParent, self:GetMenuInfo(), contextData);
+end
+
 
 do
     local SettingFunctions = addon.SettingFunctions;
@@ -752,7 +809,7 @@ do
 		if state == nil then
 			state = db["ShowModulePanelOnMouseOver"];
 		end
-		MiniButton.showPanelOnMouseOver = state;
+		MiniButton.useMouseoverMenu = state;
 	end
 
 	function SettingFunctions.FadeOutMinimapButton(state, db)

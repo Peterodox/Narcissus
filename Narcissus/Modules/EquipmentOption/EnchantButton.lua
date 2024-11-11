@@ -634,6 +634,7 @@ function NarciEquipmentEnchantButtonMixin:SetGemData(itemID)
         local function TooltipUpdateCallback()
             if itemID == self.itemID then
                 self:SetButtonText(GetGemEffect(itemID, TooltipUpdateCallback), self.itemName);
+                self:ShowLoadingIcon(false)
             end
         end
 
