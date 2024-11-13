@@ -549,13 +549,38 @@ do  --Compatibility: Dymaic Cam
             end
         end);
 
+        local oldShoulderOffset;
+
+        local function ReApplySettings()
+            local dc = DynamicCam;
+
+            local curSituation = dc.db.profile.situations[dc.currentSituationID]
+
+            dc.virtualCameraZoom = nil
+            dc.easeShoulderOffsetInProgress = false;
+
+            if curSituation then
+                local cvar = "test_cameraOverShoulder";
+                local value = curSituation.situationSettings.cvars[cvar];
+
+                if value then
+                    SetCVar(cvar, oldShoulderOffset or value);
+                end
+            end
+
+            oldShoulderOffset = nil
+        end
+
         function self:MakeActive()
             f.lastZoom = -1;
             f:Show();
+            oldShoulderOffset = GetCVar("test_cameraOverShoulder");
         end
+
 
         function self:MakeInactive()
             f:Hide();
+            ReApplySettings();
         end
     end
 end

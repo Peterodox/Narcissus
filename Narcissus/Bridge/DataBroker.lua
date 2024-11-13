@@ -48,13 +48,15 @@ local function CreateDataObject()
         type = "launcher",
         icon = "Interface\\AddOns\\Narcissus\\Art\\Logos\\Narcissus-32-White",
         tocname = "Narcissus",
-        OnClick = Object_OnClick,
         OnEnter = Object_OnEnter,
         OnLeave = Object_OnLeave,
+        OnClick = Object_OnClick,
     });
 
     local icon = LibStub("LibDBIcon-1.0", true);
-    if icon then
+    if icon and C_AddOns.IsAddOnLoaded("Leatrix_Plus") then
+        local registerName = "Narcissus";
+
         local db = NarcissusDB or {};
         if not db.libdbicon then
             db.libdbicon = {};
@@ -62,7 +64,34 @@ local function CreateDataObject()
         if not (db.libdbicon.minimapPos and type(db.libdbicon.minimapPos) == "number") then
             db.libdbicon.minimapPos = 135;        --Degree. From Three O'clock. Counterclockwise: positive
         end
-        icon:Register("Narcissus", obj, db.libdbicon);
+        icon:Register(registerName, obj, db.libdbicon);
+
+        function Narci_MinimapButton:HasLibDBIcon()
+            return true
+        end
+
+        function Narci_MinimapButton:GetLibDBIcon()
+            return icon:GetMinimapButton(registerName)
+        end
+
+        function Narci_MinimapButton:HideLibDBIcon()
+            icon:Hide(registerName);
+            db.libdbicon.hide = true;
+        end
+
+        function Narci_MinimapButton:ShowLibDBIcon()
+            icon:Show(registerName)
+            db.libdbicon.hide = nil;
+        end
+
+        if db.libdbicon.hide then
+            icon:Hide(registerName);
+        end
+
+        C_Timer.After(1, function()
+            icon:Hide("LeaPlusCustomIcon_Narci_MinimapButton");
+            Narci_MinimapButton:ResolveVisibility();
+        end)
     end
 
     return true

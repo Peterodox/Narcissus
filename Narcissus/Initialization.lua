@@ -1,6 +1,6 @@
-local NARCI_VERSION_INFO = "1.7.3";
+local NARCI_VERSION_INFO = "1.7.3 b";
 
-local VERSION_DATE = 1731300000;
+local VERSION_DATE = 1731400000;
 local CURRENT_VERSION = 10703;
 local PREVIOUS_VERSION = CURRENT_VERSION;
 local TIME_SINCE_LAST_UPDATE = 0;
@@ -71,6 +71,7 @@ local DefaultValues = {
     DressingRoomShowIconSelect = false,         --Display a list of icons when saving a new outfit
 
     -- Minimap Button --
+    UseAddonCompartment = true,
     ShowMinimapButton = true,
     FadeButton = false,
     ShowModulePanelOnMouseOver = true,          --Mouseover to show Module panel while mouseover minimap button

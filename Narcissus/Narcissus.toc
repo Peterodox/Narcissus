@@ -12,7 +12,7 @@
 ## SavedVariablesPerCharacter: NarcissusDB_PC, NarciStatisticsDB_PC
 
 ## IconTexture: Interface\AddOns\Narcissus\Art\Logos\NarcissusLogo32
-# AddonCompartmentFunc: 
+## AddonCompartmentFunc: Narci_AddonCompartment_OnClick
 
 Font\FontSettings.xml
 

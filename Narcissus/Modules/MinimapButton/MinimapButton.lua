@@ -1,4 +1,4 @@
-local _, addon = ...
+local addonName, addon = ...
 
 local IS_DRAGONFLIGHT = addon.IsDragonflight();
 local outSine = addon.EasingFunctions.outSine;
@@ -308,7 +308,6 @@ function NarciMinimapButtonMixin:CreatePanel()
 		end
 	end
 
-	
 	local function OnMouseDown()
 		ClipFrame.PushedHighlight:Show();
 	end
@@ -432,7 +431,7 @@ end
 
 function NarciMinimapButtonMixin:EnableButton()
 	NarcissusDB.ShowMinimapButton = true;
-	self:Show();
+	self:ResolveVisibility(true);
 	self:PlayBling();
 end
 
@@ -452,7 +451,7 @@ function NarciMinimapButtonMixin:SetTooltipText(text)
 	local tooltip = self.TooltipFrame;
 	tooltip.Description:SetText(text);
 	local textWidth = tooltip.Description:GetWidth();
-	tooltip:SetWidth(max(32, textWidth + 8));
+	tooltip:SetWidth(math.max(32, textWidth + 8));
 	tooltip:ClearAllPoints();
 
 	local scale = UIParent:GetEffectiveScale();
@@ -514,9 +513,13 @@ function NarciMinimapButtonMixin:OnClick(button, down)
 		return;
 	elseif button == "RightButton" then
 		if IsShiftKeyDown() then
-			NarcissusDB.ShowMinimapButton = false;
-			print(L["MinimapButton Enable Instruction"]);
-			self:Hide();
+			if self:IsLibDBIcon() then
+				self:HideLibDBIcon();
+			else
+				NarcissusDB.ShowMinimapButton = false;
+				print(L["MinimapButton Enable Instruction"]);
+				self:Hide();
+			end
 		else
 			if self.useMouseoverMenu then
 				Narci_OpenGroupPhoto();
@@ -631,6 +634,7 @@ function NarciMinimapButtonMixin:ShowTooltip(owner)
 
 	tooltip:AddLine(GetMouseButtonMarkup("LeftClick")..L["Character UI"], 1, 1, 1, false);
 	tooltip:AddLine(GetMouseButtonMarkup("RightClick")..L["Module Menu"], 1, 1, 1, false);
+
 	tooltip:Show();
 end
 
@@ -794,6 +798,53 @@ function NarciMinimapButtonMixin:ShowBlizzardMenu(menuParent)
 	local menu = NarciAPI.TranslateContextMenu(menuParent, self:GetMenuInfo(), contextData);
 end
 
+do	--Override in DataBroker.lua
+	function NarciMinimapButtonMixin:GetLibDBIcon()
+	end
+
+	function NarciMinimapButtonMixin:ShowLibDBIcon()
+	end
+
+	function NarciMinimapButtonMixin:HideLibDBIcon()
+	end
+
+	function NarciMinimapButtonMixin:HasLibDBIcon()
+		return false
+	end
+
+	function NarciMinimapButtonMixin:IsLibDBIcon(owner)
+		if self:HasLibDBIcon() then
+			return self == self:GetLibDBIcon() or (owner and owner == self:GetLibDBIcon())
+		else
+			return false
+		end
+	end
+
+	function NarciMinimapButtonMixin:ResolveVisibility(enableMinimapButton)
+		if enableMinimapButton == nil then
+			enableMinimapButton = NarcissusDB.ShowMinimapButton;
+		end
+
+		if enableMinimapButton then
+			if self:HasLibDBIcon() then
+				if C_AddOns.IsAddOnLoaded("Leatrix_Plus") then
+					--Use LibDBIcon instead of our button
+					self:Hide();
+					self:ShowLibDBIcon();
+				else
+					self:Show();
+					self:HideLibDBIcon();
+				end
+			else
+				self:Show();
+			end
+		else
+			self:Hide();
+			self:HideLibDBIcon();
+		end
+	end
+end
+
 
 do
     local SettingFunctions = addon.SettingFunctions;
@@ -801,15 +852,9 @@ do
 	function SettingFunctions.ShowMinimapButton(state, db)
 		if state == nil then
 			state = db["ShowMinimapButton"];
-			if db.libdbicon then
-				if state then
-					db.libdbicon.hide = nil;
-				else
-					db.libdbicon.hide = true;
-				end
-			end
 		end
-		MiniButton:SetShown(state);
+
+		MiniButton:ResolveVisibility();
 	end
 
 	function SettingFunctions.ShowMinimapModulePanel(state, db)
@@ -827,4 +872,64 @@ do
 		MiniButton.endAlpha = alpha;
 		MiniButton:SetAlpha(alpha);
 	end
+end
+
+
+do	--AddOn Compartment
+	function Narci_AddonCompartment_OnClick(self, button)
+		if button == "LeftButton" then
+			MiniButton:OnClick(button);
+		elseif button == "RightButton" then
+			MiniButton:ShowBlizzardMenu(UIParent);
+		end
+	end
+
+	local ADDED_TO_AC = true;
+	local ORIGINAL_DATA;
+
+	local function AddToAddonCompartment(state)
+		local f = AddonCompartmentFrame;
+		if not (f and f.registeredAddons) then return end;
+
+		if state and (not ADDED_TO_AC) then
+			ADDED_TO_AC = true;
+
+			for i, data in ipairs(f.registeredAddons) do
+				if data.text == addonName then
+					return
+				end
+			end
+
+			local addonData;
+			if ORIGINAL_DATA then
+				addonData = ORIGINAL_DATA;
+			else
+				addonData = {};
+				addonData.text = addonName;
+				addonData.icon = C_AddOns.GetAddOnMetadata(addonName, "IconTexture");
+				addonData.func = function(name, button)
+					Narci_AddonCompartment_OnClick(_, button)
+				end
+			end
+
+			table.insert(f.registeredAddons, addonData);
+			f:UpdateDisplay();
+
+		elseif (not state) and ADDED_TO_AC then
+			ADDED_TO_AC = false;
+
+			for i, data in ipairs(f.registeredAddons) do
+				if data.text == addonName then
+					ORIGINAL_DATA = table.remove(f.registeredAddons, i);
+				end
+			end
+
+			f:UpdateDisplay();
+		end
+	end
+	NarciAPI.AddToAddonCompartment = AddToAddonCompartment;
+
+	addon.AddLoadingCompleteCallback(function()
+		AddToAddonCompartment(NarcissusDB and NarcissusDB.UseAddonCompartment);
+	end);
 end

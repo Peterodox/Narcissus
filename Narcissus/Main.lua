@@ -376,7 +376,7 @@ local function ExitFunc()
 	IS_OPENED = false;
 	CameraUtil:SetUseMogOffset(false);
 	EL:Hide();
-	CameraUtil:MakeInactive();
+
 	MoveViewRightStop();
 	CameraUtil:RestoreMotionSickness();
 
@@ -435,6 +435,8 @@ local function ExitFunc()
 	NarciSettingsFrame:CloseUI();
 
 	MOG_MODE = false;
+
+	CameraUtil:MakeInactive();
 end
 
 function Narci:EmergencyStop()
@@ -448,7 +450,6 @@ function Narci:EmergencyStop()
 	SetCVar("test_cameraOverShoulder", 0);
 	SetCVar("cameraViewBlendStyle", 1);
 	ConsoleExec("actioncam off");
-	CameraUtil:MakeInactive();
 	Narci_ModelContainer:HideAndClearModel();
 	Narci_ModelSettings:Hide();
 	Narci_Character:Hide();
@@ -457,6 +458,7 @@ function Narci:EmergencyStop()
 	IS_OPENED = false;
 	CameraUtil:SetUseMogOffset(false)
 	EL:Hide();
+	CameraUtil:MakeInactive();
 end
 
 ---Get Transmog Appearance---
@@ -2974,7 +2976,7 @@ do
 			MiniButton:Click();
 		elseif msg == "minimap" then
 			MiniButton:EnableButton();
-			print("Minimap button has been re-enabled.");
+			print(L["MinimapButton Reenabled"]);
 		elseif msg == "itemlist" then
 			DressUpFrame_Show(DressUpFrame);
 			if NarciDressingRoomOverlay then
