@@ -560,7 +560,7 @@ function NarciEquipmentOptionMixin:SetGemListForBlizzardUI(id1, id2)
     self:SetPoint("TOPLEFT", parentFrame, "TOPRIGHT", 4, 0);
     self:Show();
     self:SetAlpha(1);
-    self:ShowGemList();
+    self:ShowGemList(socketTypeName);
     self:RegisterEventsForNarcissus(false);
 
     self.meunButtons[1]:Disable();      --Equipment

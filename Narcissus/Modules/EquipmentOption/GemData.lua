@@ -279,7 +279,14 @@ local SocketNameXTypeName = {};
 do
     local postfixes = {
         "BLUE", "COGWHEEL", "HYDRAULIC", "META", "PRISMATIC", "PUNCHCARDBLUE", "PUNCHCARDRED", "PUNCHCARDYELLOW",
-        "RED", "TINKER", "YELLOW", "PRIMORDIAL", "FRAGRANCE", "SINGINGTHUNDER", "SINGINGSEA", "SINGINGWIND",
+        "RED", "TINKER", "YELLOW", "PRIMORDIAL", "FRAGRANCE",
+    };
+
+    local postfixLocal = {
+        --For sockets where the EMPTY_SOCKET_ in ItemStats doesn't match the localized EMPTY_SOCKET_
+        SINGINGTHUNDER = "EMPTY_SOCKET_SINGING_THUNDER",
+        SINGINGSEA = "EMPTY_SOCKET_SINGING_SEA",
+        SINGINGWIND = "EMPTY_SOCKET_SINGING_WIND",
     };
 
     local localizedName;
@@ -290,6 +297,16 @@ do
             SocketNameXTypeName[localizedName] = string.lower(postfix);
         end
     end
+
+    for postfix, k in pairs(postfixLocal) do
+        localizedName = _G[k];
+        if localizedName then
+            SocketNameXTypeName[localizedName] = string.lower(postfix);
+        end
+    end
+
+    postfixes = nil;
+    postfixLocal = nil;
 end
 
 local DataProvider = {};

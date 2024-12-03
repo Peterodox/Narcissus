@@ -82,18 +82,18 @@
                 </MaskTexture>
             </Layer>
             <Layer level="OVERLAY">
-                <FontString parentKey="Score" inherits="NarciFontNumber24Outline" justifyH="CENTER" justifyV="MIDDLE" text="128" hidden="true">
-                    <Size x="0" y="0"/>
-                    <Anchors>
-                        <Anchor point="CENTER" relativeKey="$parent" relativePoint="LEFT" x="39" y="-12"/>
-                    </Anchors>
-                </FontString>
                 <Texture parentKey="ScoreBound" file="Interface\AddOns\Narcissus\Art\Modules\Competitive\MythicPlus\ScoreBound" hidden="true" Alpha="0.4">
                     <Size x="40" y="28"/>
                     <Anchors>
-                        <Anchor point="CENTER" relativeKey="$parent" relativePoint="LEFT" x="39" y="-12"/>
+                        <Anchor point="LEFT" relativeKey="$parent" relativePoint="LEFT" x="39" y="-12"/>
                     </Anchors>
                 </Texture>
+                <FontString parentKey="Score" inherits="NarciFontNumber24Outline" justifyH="CENTER" justifyV="MIDDLE" text="128" hidden="true">
+                    <Size x="0" y="0"/>
+                    <Anchors>
+                        <Anchor point="CENTER" relativeKey="$parent.ScoreBound" relativePoint="CENTER" x="0" y="0"/>
+                    </Anchors>
+                </FontString>
                 <FontString parentKey="Level1" inherits="NarciFontNumber24Outline" justifyH="CENTER" justifyV="TOP" text="15" hidden="true" Alpha="0.8">
                     <Size x="40" y="28"/>
                     <Anchors>

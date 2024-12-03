@@ -1314,6 +1314,19 @@ do
     for _, name in pairs(postfixes) do
         IsSupportedSocket[name] = true;
     end
+
+    --debug Get SocketType
+    local function NarciAPI_GetTooltipItemStats()
+        local _, link = GameTooltip:GetItem();
+        if link then
+            local stats = C_Item.GetItemStats(link);
+            if stats then
+                for k, v in pairs(stats) do
+                    print(k, v);
+                end
+            end
+        end
+    end
 end
 
 
@@ -1403,7 +1416,7 @@ local function GetItemSocketInfo(itemLink)
             if not socektInfo then
                 socektInfo = {};
             end
-            socketType = lines[i].socketType;
+            socketType = lines[i].socketType;       --socketType in the TootlipLine may not be accurate (11.0.7 Singing Sea Citrine)
             if not socektInfo[gemOrderID] then
                 socketName = lines[i].leftText;
                 socektInfo[gemOrderID] = {socketName, "Interface\\ItemSocketingFrame\\UI-EmptySocket-"..socketType, nil, socketType};

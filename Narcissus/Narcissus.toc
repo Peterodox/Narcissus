@@ -13,6 +13,8 @@
 
 ## IconTexture: Interface\AddOns\Narcissus\Art\Logos\NarcissusLogo32
 ## AddonCompartmentFunc: Narci_AddonCompartment_OnClick
+## AddonCompartmentFuncOnEnter: Narci_AddonCompartment_OnEnter
+## AddonCompartmentFuncOnLeave: Narci_AddonCompartment_OnLeave
 
 Font\FontSettings.xml
 

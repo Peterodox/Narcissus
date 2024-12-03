@@ -18,17 +18,17 @@ function NarciMythicPlusTabButtonMixin:OnLoad()
         MainFrame = self:GetParent():GetParent();
     end
 
-    tinsert(buttons, self);
+    table.insert(buttons, self);
 
     self.buttonIndex = self:GetID();
     local color;
     if self.buttonIndex == 1 then
         self.isSelected = true;
-        self:SetButtonText("In Time");
+        self:SetButtonText(Narci.L["Complete In Time"]);
         self.Highlight:Show();
         color = "green";
     else
-        self:SetButtonText("Over Time");
+        self:SetButtonText(Narci.L["Complete Over Time"]);
         local t = 0.5;
         self.Left:SetTexCoord(0 + t, 0.125 + t, 0, 0.5);
         self.Center:SetTexCoord(0.125 + t, 0.375 + t, 0, 0.5);

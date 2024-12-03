@@ -610,7 +610,7 @@ L["Mythic Plus"] = "Mythic+";
 L["Mythic Plus Abbrev"] = "M+";
 L["Total Runs"] = "Total Runs: ";
 L["Complete In Time"] = "In time";
-L["Complete Over Time"] = "Over time";
+L["Complete Over Time"] = "Overtime";
 L["Runs"] = "Runs";
 
 --Equipment Upgrade--

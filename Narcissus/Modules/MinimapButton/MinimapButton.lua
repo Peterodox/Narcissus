@@ -606,11 +606,15 @@ function NarciMinimapButtonMixin:SetIconScale(scale)
 	self.Background:SetScale(scale);
 end
 
-function NarciMinimapButtonMixin:ShowTooltip(owner)
+function NarciMinimapButtonMixin:ShowTooltip(owner, fromBlizzardMenuButton)
 	local tooltip = GameTooltip;
 	owner = owner or self;
 	tooltip:SetOwner(owner, "ANCHOR_NONE");
-	tooltip:SetPoint("TOPRIGHT", owner, "BOTTOM", 0, 0);
+	if fromBlizzardMenuButton then
+		tooltip:SetPoint("RIGHT", owner, "LEFT", -12, 0);
+	else
+		tooltip:SetPoint("TOPRIGHT", owner, "BOTTOMLEFT", 0, 0);
+	end
 	tooltip:SetText(NARCI_GRADIENT);
 
 	--[[
@@ -884,6 +888,14 @@ do	--AddOn Compartment
 		end
 	end
 
+	function Narci_AddonCompartment_OnEnter(name, menuButton)
+		MiniButton:ShowTooltip(menuButton, true);
+	end
+
+	function Narci_AddonCompartment_OnLeave(name, menuButton)
+		GameTooltip:Hide();
+	end
+
 	local ADDED_TO_AC = true;
 	local ORIGINAL_DATA;
 
@@ -908,8 +920,10 @@ do	--AddOn Compartment
 				addonData.text = addonName;
 				addonData.icon = C_AddOns.GetAddOnMetadata(addonName, "IconTexture");
 				addonData.func = function(name, button)
-					Narci_AddonCompartment_OnClick(_, button)
+					Narci_AddonCompartment_OnClick(_, button);
 				end
+				addonData.funcOnEnter = Narci_AddonCompartment_OnEnter;
+				addonData.funcOnLeave = Narci_AddonCompartment_OnLeave;
 			end
 
 			table.insert(f.registeredAddons, addonData);

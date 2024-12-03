@@ -118,19 +118,6 @@ local function FormatDuration(seconds)
     return string.format("%s:%s", minutes, restSeconds);
 end
 
-local function CacheAffixNames()
-    local isReady = true;
-    if not AFFIX_TYRANNICAL then
-        AFFIX_TYRANNICAL = C_ChallengeMode.GetAffixInfo(9);
-        isReady = false;
-    end
-    if not AFFIX_FORTIFIED then
-        AFFIX_FORTIFIED = C_ChallengeMode.GetAffixInfo(10);
-        isReady = false;
-    end
-    return isReady
-end
-
 local function SharedOnMouseDown(self, button)
     if button == "RightButton" then
         MainFrame:ToggleMapDetail(false);
@@ -183,6 +170,30 @@ function DataProvider:GetSeasonBestForMap(mapID)
     end
 end
 
+function DataProvider:GetSesaonBestScoreLevelTime(mapID)
+    local intimeInfo, overtimeInfo = self:GetSeasonBestForMap(mapID);
+    local info, isOvertime;
+
+    if intimeInfo and overtimeInfo then
+        if intimeInfo.dungeonScore > overtimeInfo.dungeonScore then
+            info = intimeInfo;
+            isOvertime = false;
+        else
+            info = overtimeInfo;
+            isOvertime = true;
+        end
+    else
+        isOvertime = overtimeInfo ~= nil;
+        info = (isOvertime and overtimeInfo) or intimeInfo;
+    end
+
+    if info then
+        local level = info.level
+        local dungeonScore = info.dungeonScore;
+        local durationSec = info.durationSec;
+        return level, dungeonScore, durationSec, isOvertime
+    end
+end
 
 function DataProvider:CacheMapUIInfo(mapID)
     local name, id, timeLimit, texture = C_ChallengeMode.GetMapUIInfo(mapID);
@@ -276,13 +287,17 @@ function DataProvider:GetWeeklyAffixesForLevel(keystoneLevel)
         end
         for i = 1, total do
             if weeklyAffixes[i] then
-                tinsert(affixes, weeklyAffixes[i].id);
+                table.insert(affixes, weeklyAffixes[i].id);
             else
                 break;
             end
         end
     end
     return affixes;
+end
+
+function DataProvider:ClearRecords()
+    self.mapRecords = {};
 end
 
 NarciMythicPlusAffixFrameMixin = {};
@@ -343,55 +358,24 @@ end
 
 function NarciMythicPlusRatingCardMixin:SetUpByMapID(mapID)
     self.mapID = mapID;
-    local affixScores, overallScore = C_MythicPlus.GetSeasonBestAffixScoreInfoForMap(mapID);
-    local objects = {self.Level1, self.Duration1, self.Level2, self.Duration2};
     local mapName = DataProvider:GetMapName(mapID);
     self:SetMapName(mapName);
+    local score, level, duration, isOvertime = DataProvider:GetSesaonBestScoreLevelTime(mapID);
 
-    if (overallScore and overallScore > 0) and (affixScores and #affixScores > 0) then
-        local name, duration, overTime, level, score;
-        local info1, info2;
+    if score and level and duration then
+        local v = isOvertime and 0.6 or 0.92;
+        self.Level1:SetText(level);
+        self.Level1:SetTextColor(v, v, v, 0.9);
+        self.Level1:Show();
+        self.Duration1:SetText(FormatDuration(duration));
+        self.Duration1:SetTextColor(v, v, v, 1);
+        self.Duration1:Show();
 
-        for i = 1, #affixScores do
-            name = affixScores[i].name;
-            if name == AFFIX_TYRANNICAL then
-                info1 = affixScores[i];
-            else
-                info2 = affixScores[i];
-            end
-        end
-
-        local info = {info1, info2};
-        local data, v;
-        for i = 1, 2 do
-            data = info[i];
-            if data then
-                name = data.name;
-                duration = data.durationSec;
-                level = data.level;
-                overTime = data.overTime;
-                if overTime then
-                    v = 0.6;
-                else
-                    v = 0.92;
-                end
-                objects[i*2 - 1]:SetText(level);
-                objects[i*2 - 1]:SetTextColor(v, v, v, 0.9);
-                objects[i*2]:SetText( FormatDuration(duration) );
-                objects[i*2]:SetTextColor(v, v, v);
-                objects[i*2 - 1]:Show();
-                objects[i*2]:Show();
-            else
-                objects[i*2 - 1]:Hide();
-                objects[i*2]:Hide();
-            end
-        end
-
-        local scoreColor = C_ChallengeMode.GetSpecificDungeonOverallScoreRarityColor(overallScore);
+        local scoreColor = C_ChallengeMode.GetSpecificDungeonOverallScoreRarityColor(score);
         if (not scoreColor) then
             scoreColor = HIGHLIGHT_FONT_COLOR;
         end
-        self.Score:SetText(overallScore);
+        self.Score:SetText(score);
         self.Score:SetTextColor(scoreColor.r, scoreColor.g, scoreColor.b);
         self.Score:Show();
         self.ScoreBound:Show();
@@ -604,14 +588,15 @@ function NarciMythicPlusDisplayMixin:Init()
     local card;
     local row, col = 0, 0;
     local container = self.CardContainer;
-    local cardHeight = (CARD_FULL_HEIGHT - 24) / numRows;  --72
+    local footerHeight = 0; --24
+    local cardHeight = (CARD_FULL_HEIGHT - footerHeight) / numRows;
     for i = 1, numMaps do
         card = self.Cards[i];
         if not card then
             card = CreateFrame("Button", nil, container, "NarciMythicPlusCompactRatingCardTemplate");
             self.Cards[i] = card;
             card:SetPoint("TOPLEFT", container, "TOPLEFT", col * 160, -row * cardHeight + OFFSET_Y);
-            card:SetHeight(cardHeight)
+            card:SetHeight(cardHeight);
             col = col + 1;
             if col >= 2 then
                 row = row + 1;
@@ -690,10 +675,8 @@ function NarciMythicPlusDisplayMixin:RequestUpdate()
 
     self:GetParent():ShowLoading();
 
-    CacheAffixNames();
-
     local numMaps = #self.maps;
-    local card, mapID;
+    local mapID;
 
     for i = 1, numMaps do
         mapID = self.maps[i];
@@ -701,17 +684,12 @@ function NarciMythicPlusDisplayMixin:RequestUpdate()
     end
 
     DataProvider.mapIDs = {};
+    DataProvider:ClearRecords();
     C_MythicPlus.RequestMapInfo();
     C_MythicPlus.RequestCurrentAffixes();
 end
 
 function NarciMythicPlusDisplayMixin:PostUpdate()
-    if not CacheAffixNames() then
-        After(0.5, function()
-            self:PostUpdate();
-        end);
-        return
-    end
     local card;
     for i = 1, #self.maps do
         card = self.Cards[i];
@@ -721,7 +699,7 @@ function NarciMythicPlusDisplayMixin:PostUpdate()
 
     local seasonID = (C_MythicPlus.GetCurrentSeason() or 6) - 4;
     --self.SeasonText:SetText(string.format(SL_SEASON_NUMBER, seasonID));
-    self.CardContainer.GraphDescription:SetText(string.format("%s    %s    %s", PVP_RATING_HEADER or "Rating", AFFIX_TYRANNICAL, AFFIX_FORTIFIED));  --MYTHIC_PLUS_SEASON_BEST
+    --self.CardContainer.GraphDescription:SetText(string.format("%s    %s    %s", PVP_RATING_HEADER or "Rating", AFFIX_TYRANNICAL, AFFIX_FORTIFIED));  --MYTHIC_PLUS_SEASON_BEST
 
     local overallScore = C_ChallengeMode.GetOverallDungeonScore();
 	local color = C_ChallengeMode.GetDungeonScoreRarityColor(overallScore);
@@ -1237,16 +1215,11 @@ function NarciOwnedKeystoneFrameMixin:SetLevel(level)
     self.Level:SetText("|cffffffff+"..level.."|r");
 end
 
---[[
-    /run TestCard:SetUpByMapID(376)
-C_ChallengeMode.GetMapTable()
-name, id, timeLimit, texture, backgroundTexture = C_ChallengeMode.GetMapUIInfo(mapID);
-name, description, icon = C_ChallengeMode.GetAffixInfo
 
-/run Narci_CompetitiveDisplay.MythicPlus:ToggleHistory(true)
---]]
-
---/run Narci_CompetitiveDisplay.MythicPlus:RequestUpdate();
-
---/run Narci_CompetitiveDisplay.MythicPlus:SetUnit();
---/script C_MythicPlus.RequestMapInfo();C_Timer.After(1, function() local runs=C_MythicPlus.GetRunHistory(true, true);print("numRuns: "..#runs)end)
+do  --Debug Override
+    --[[
+    function DataProvider:GetSesaonBestScoreLevelTime(mapID)
+        return 300, 10, 1500, false
+    end
+    --]]
+end

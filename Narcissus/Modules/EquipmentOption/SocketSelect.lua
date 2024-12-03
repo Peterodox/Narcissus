@@ -126,6 +126,15 @@ function NarciSocketSelectButtonMixin:SetSocketType(englishName)
 end
 
 
+local DeprecatedGemTypes = {
+    --These types of socket no longer exist in Retail, but their textures may be reused for other new types.
+    --Generally, We find the [socketType] in the tooltip. But due to the reason above it doesn't always yield the correct result.
+    --So when we detect these abandoned types, we call WoW's SocketInventoryItem() and GetSocketTypes()
+
+    Yellow = true,
+    Red = true,
+    Blue = true,
+};
 
 NarciSocketSelectMixin = {};
 
@@ -138,7 +147,7 @@ function NarciSocketSelectMixin:OnHide()
 end
 
 function NarciSocketSelectMixin:SetupFromItemLink(itemLink)
-    local anyPending;
+    local useItemSocketingAPI;
     local selectedSocketType;
 
     local socektInfo = NarciAPI.GetItemSocketInfo(itemLink);
@@ -166,7 +175,7 @@ function NarciSocketSelectMixin:SetupFromItemLink(itemLink)
                 SocketButtons[i].Icon:SetTexCoord(0.075, 0.925, 0.075, 0.925);
                 SocketButtons[i].gemName = socketName;
                 SocketButtons[i].gemLink = gemLink;
-                anyPending = true;
+                useItemSocketingAPI = true;
             else
                 socketType = GemDataProvider:GetSocketTypeByLocalizedName(socketName) or socketType;
                 SocketButtons[i].Icon:SetTexCoord(0, 1, 0, 1);
@@ -175,7 +184,12 @@ function NarciSocketSelectMixin:SetupFromItemLink(itemLink)
                 SocketButtons[i]:SetSocketType(socketType);
 
                 if (not selectedSocketType) or (i == selectedSocketID) then
-                    selectedSocketType = socketType
+                    selectedSocketType = socketType;
+                end
+
+                if DeprecatedGemTypes[socketType] then
+                    useItemSocketingAPI = true;
+                    selectedSocketType = nil;
                 end
             end
             SocketButtons[i]:Show();
@@ -201,7 +215,7 @@ function NarciSocketSelectMixin:SetupFromItemLink(itemLink)
         return
     end
 
-    if anyPending then
+    if useItemSocketingAPI then
         --use ItemSocketingFrame to get socket type order
         local isNarcissusUI = MainFrame.isNarcissusUI;
         if isNarcissusUI then
