@@ -95,9 +95,9 @@
                     </Anchors>
                 </FontString>
                 <FontString parentKey="Level1" inherits="NarciFontNumber24Outline" justifyH="CENTER" justifyV="TOP" text="15" hidden="true" Alpha="0.8">
-                    <Size x="40" y="28"/>
+                    <Size x="0" y="28"/>
                     <Anchors>
-                        <Anchor point="TOPLEFT" relativeKey="$parent.ScoreBound" relativePoint="TOPRIGHT" x="8" y="3"/>
+                        <Anchor point="TOP" relativeKey="$parent.ScoreBound" relativePoint="TOPRIGHT" x="28" y="3"/>
                         <!--Anchor point="TOP" relativeKey="$parent" relativePoint="TOPLEFT" x="88" y="-26.0"/-->
                     </Anchors>
                 </FontString>

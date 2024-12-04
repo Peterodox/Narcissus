@@ -188,10 +188,10 @@ function DataProvider:GetSesaonBestScoreLevelTime(mapID)
     end
 
     if info then
-        local level = info.level
         local dungeonScore = info.dungeonScore;
+        local level = info.level
         local durationSec = info.durationSec;
-        return level, dungeonScore, durationSec, isOvertime
+        return dungeonScore, level, durationSec, isOvertime
     end
 end
 

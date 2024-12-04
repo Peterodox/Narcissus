@@ -41,7 +41,7 @@ function NarciPaperDollWidgetControllerMixin:Init()
         self:ListenEvents(false);
     end);
 
-    local titleFrame = PaperDollTitlesPane;
+    local titleFrame = PaperDollFrame.TitleManagerPane;
     if titleFrame then
         titleFrame:HookScript("OnShow", function()
             self:ListenEvents(false);
