@@ -1,3 +1,4 @@
+local _, addon = ...
 local FadeFrame = NarciFadeUI.Fade;
 
 local GroupController = {};

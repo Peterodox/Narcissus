@@ -1959,6 +1959,7 @@ if true then
                 PerksProgramFrame:SetPropagateKeyboardInput(true);
                 --PerksProgramFrame:SetToplevel(false);
                 --PerksProgramFrame:SetFrameStrata("LOW");
+                SetUIVisibility(true)
             end);
         end
     end);

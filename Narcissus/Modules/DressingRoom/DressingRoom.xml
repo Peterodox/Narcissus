@@ -3,6 +3,7 @@
 	<Script file="SlotFrame.lua"/>
 	<Script file="OptionButton.lua"/>
 	<Script file="TaintPopup.lua"/>
+	<Script file="TransmogSetFrame.lua"/>
     <Script file="DressingRoom.lua"/>
 	
 

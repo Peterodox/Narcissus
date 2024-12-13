@@ -1,7 +1,7 @@
-local NARCI_VERSION_INFO = "1.7.3 c";
+local NARCI_VERSION_INFO = "1.7.4";
 
-local VERSION_DATE = 1733100000;
-local CURRENT_VERSION = 10703;
+local VERSION_DATE = 1734000000;
+local CURRENT_VERSION = 10704;
 local PREVIOUS_VERSION = CURRENT_VERSION;
 local TIME_SINCE_LAST_UPDATE = 0;
 
@@ -69,6 +69,7 @@ local DefaultValues = {
     DressingRoomUseTargetModel = true,          --Replace the the dressing room room with your targeted player
     DressingRoomIncludeItemID = false,          --Show Item ID in the clipboard
     DressingRoomShowIconSelect = false,         --Display a list of icons when saving a new outfit
+    DressingRoomAutoRemoveNonSetItem = false,
 
     -- Minimap Button --
     UseAddonCompartment = true,

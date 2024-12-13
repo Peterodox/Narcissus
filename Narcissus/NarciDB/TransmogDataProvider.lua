@@ -1,11 +1,11 @@
 local _, addon = ...
 
+local ipairs = ipairs;
 local MogAPI = C_TransmogCollection;
 local PlayerHasTransmog = MogAPI.PlayerHasTransmogItemModifiedAppearance;
 local IsAppearanceFavorite = MogAPI.GetIsAppearanceFavorite;
 local GetSourceInfo = MogAPI.GetSourceInfo;
 local C_TransmogSets = C_TransmogSets;
-
 local CreateItemTransmogInfo = ItemUtil.CreateItemTransmogInfo;
 local GetItemInfoInstant = C_Item.GetItemInfoInstant;
 local strsplit = strsplit;
@@ -511,6 +511,130 @@ do  --Find if an item is a piece of Transmog Set    --Debug
         SourceIDXTransmogSetID = nil;
     end
 end
+
+
+do  --Transmog Set invType to slotID, Slot Sorting
+    --invType from C_Transmog.GetAllSetAppearancesByID is offset by 1
+    local InvTypeSlotID_Armor = {
+        INVTYPE_HEAD = 1,
+        INVTYPE_SHOULDER = 3,
+        INVTYPE_CLOAK = 15,
+        INVTYPE_CHEST = 5,
+        INVTYPE_ROBE = 5,
+        INVTYPE_BODY = 4,
+        INVTYPE_TABARD = 19,
+        INVTYPE_WRIST = 9,
+        INVTYPE_HAND = 10,
+        INVTYPE_WAIST = 6,
+        INVTYPE_LEGS = 7,
+        INVTYPE_FEET = 8,
+    };
+
+    local InvTypeSlotID_Weapon = {
+        INVTYPE_WEAPON = 16,
+        INVTYPE_WEAPONMAINHAND = 16,
+        INVTYPE_2HWEAPON = 16,
+        INVTYPE_RANGEDRIGHT = 16,
+        INVTYPE_WEAPONOFFHAND = 17,
+        INVTYPE_RANGED = 17,
+        INVTYPE_SHIELD = 17,
+        INVTYPE_HOLDABLE = 17,
+    };
+
+    local InvTypeOrder = {
+        "INVTYPE_HEAD",
+        "INVTYPE_SHOULDER",
+        "INVTYPE_CLOAK",
+        "INVTYPE_CHEST",
+        "INVTYPE_ROBE",
+        "INVTYPE_BODY",
+        "INVTYPE_TABARD",
+        "INVTYPE_WRIST",
+        "INVTYPE_HAND",
+        "INVTYPE_WAIST",
+        "INVTYPE_LEGS",
+        "INVTYPE_FEET",
+
+        "INVTYPE_WEAPON",
+        "INVTYPE_WEAPONMAINHAND",
+        "INVTYPE_2HWEAPON",
+        "INVTYPE_RANGEDRIGHT",
+        "INVTYPE_WEAPONOFFHAND",
+        "INVTYPE_RANGED",
+        "INVTYPE_SHIELD",
+        "INVTYPE_HOLDABLE",
+    };
+
+    do
+        local Temp = {};
+        for i, invType in ipairs(InvTypeOrder) do
+            Temp[invType] = i;
+        end
+        InvTypeOrder = Temp;
+    end
+
+    function DataProvider:GetSlotIDBySetInvType(invType)
+        return InvTypeSlotID_Armor[invType] or InvTypeSlotID_Weapon[invType] or 0
+    end
+
+    function DataProvider:GetLongestLabelWidth(frame, fontObject)
+        if not self.testObject then
+            self.testObject = frame:CreateFontString(nil, "BACKGROUND", fontObject);
+            self.testObject:Hide();
+            self.testObject:SetPoint("CENTER", frame, "CENTER", 0, 0);
+        end
+
+        local _G = _G;
+        local name, width;
+        local maxWidth_Armor = 12;
+        local maxWidth_Weapon = 12;
+
+        for invType in pairs(InvTypeSlotID_Armor) do
+            name = _G[invType];
+            if name then
+                self.testObject:SetText(name);
+                width = self.testObject:GetWrappedWidth();
+                if width > maxWidth_Armor then
+                    maxWidth_Armor = width;
+                end
+            end
+        end
+
+        for invType in pairs(InvTypeSlotID_Weapon) do
+            name = _G[invType];
+            if name then
+                self.testObject:SetText(name);
+                width = self.testObject:GetWrappedWidth();
+                if width > maxWidth_Weapon then
+                    maxWidth_Weapon = width;
+                end
+            end
+        end
+
+        self.testObject:SetText(nil);
+
+        return math.ceil(maxWidth_Armor), math.ceil(maxWidth_Weapon)
+    end
+
+    local function SortFunc_SetItems(a, b)
+        local m, n;
+        m = a.invType and InvTypeOrder[a.invType] or 128;
+        n = b.invType and InvTypeOrder[b.invType] or 128;
+        if m ~= n then
+            return m < n
+        end
+        return a.origianlOrder < b.origianlOrder
+    end
+
+    function DataProvider:SortSetItems(setItems)
+        --local setItems = C_Transmog.GetAllSetAppearancesByID(setID)
+        for i, v in ipairs(setItems) do
+            v.origianlOrder = i;
+        end
+        table.sort(setItems, SortFunc_SetItems);
+    end
+end
+
 
 --Debug
 --[[

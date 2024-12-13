@@ -1,7 +1,8 @@
 local _, addon = ...
-
+local TransmogSetFrame = addon.DressingRoomSystem.TransmogSetFrame;
 local TransitionAPI = addon.TransitionAPI;
 local CopyTable = addon.CopyTable;
+local TransmogDataProvider = addon.TransmogDataProvider;
 
 local _G = _G;
 local L = Narci.L;
@@ -700,375 +701,6 @@ do
 end
 
 
-
-local function DressingRoomOverlayFrame_Initialize()
-    if not (NarcissusDB and NarcissusDB.DressingRoom) then return; end;
-
-    local parentFrame = DressUpFrame;
-    if not parentFrame then 
-        print("Narcissus failed to initialize Advanced Dressing Room");
-        return;
-    end
-
-    if not NarcissusDB.KeepDressingRoomOriginalLight then
-        DressUpFrame.ModelScene:SetLightDiffuseColor(0.78, 0.78, 0.78);
-    end
-
-    local frame = CreateFrame("Frame", "NarciDressingRoomOverlay", parentFrame, "NarciDressingRoomOverlayTemplate")
-    CreateSlotButton(frame)
-    DressingRoomOverlayFrame_OnLoad(frame);
-    UpdateDressingRoomExtraWdith();
-
-    local texName = parentFrame:GetName() and parentFrame:GetName().."BackgroundOverlay"
-    local tex = parentFrame:CreateTexture(texName, "BACKGROUND", "NarciDressingRoomBackgroundTemplate", 2)
-
-    hooksecurefunc("DressUpVisual", Narci_UpdateDressingRoom);
-
-    local function SetDressingRoomMode(mode, link)
-        frame.mode = mode;
-        frame.SlotFrame:Hide();
-        frame.OptionFrame:Hide();
-    end
-
-    hooksecurefunc("DressUpMountLink", function(link)
-        --[[
-        if link then
-            local _, _, _, linkType, linkID = strsplit(":|H", link);
-            if linkType == "item" or linkType == "spell" then
-                link = WOWHEAD_DOMAIN .. linkType .. "=" .. linkID;
-            end
-        end       
-        SetDressingRoomMode("mount", link);
-        --]]
-        SetDressingRoomMode("mount");
-    end)
-    
-    hooksecurefunc("DressUpBattlePet", function(creatureID)
-        --SetDressingRoomMode("battlePet",  WOWHEAD_DOMAIN .. "npc=" .. creatureID);
-        SetDressingRoomMode("battlePet");
-    end)
-
-    frame.OptionFrame.ShareButton:SetScript("OnClick", ShareButton_OnClick);
-    frame.OptionFrame.InspectButton:SetScript("OnClick", InspectButton_OnClick);
-
-    local spinButton = frame.OptionFrame.SpinButton;
-    spinButton.Icon:SetTexCoord(0.5, 0.75, 0.5, 0.75);
-    spinButton.Label:SetText(L["Turntable"]);
-    NarciOutfitShowcase.dressingRoomButton = spinButton;
-    spinButton:SetScript("OnClick", function()
-        NarciOutfitShowcase:Open();
-    end);
-
-
-    local undressButton = frame.UndressButton;
-    local function UB_OnEnter(f)
-        f.Shirt:SetVertexColor(1, 1, 1);
-        f.Arrow:SetVertexColor(1, 1, 1);
-        GameTooltip:SetOwner(f, "ANCHOR_RIGHT", -4, 0);
-        GameTooltip_SetTitle(GameTooltip, L["Undress"]);
-        GameTooltip:Show();
-    end
-    local function UB_OnLeave(f)
-        f.Shirt:SetVertexColor(0.72, 0.72, 0.72);
-        f.Arrow:SetVertexColor(0.72, 0.72, 0.72);
-        GameTooltip_Hide();
-    end
-    local function UB_OnClick(f)
-        f.Arrow.AnimDrop:Play();
-        local playerActor = DressUpFrame.ModelScene:GetPlayerActor();
-        if playerActor then
-            NarciDressingRoomAPI.WipeItemList();
-            for k, slotButton in pairs(DressingRoomItemButtons) do
-                slotButton:HideSlot(false);
-                slotButton:Desaturate(true);
-            end
-            playerActor:Undress();
-        end
-    end
-
-    local function UB_OnMouseDown(f)
-        f.Shirt:SetPoint("CENTER", f, "CENTER", 2, -2);
-    end
-    local function UB_OnMouseUp(f)
-        f.Shirt:SetPoint("CENTER", f, "CENTER", 0, 0);
-    end
-    undressButton:SetScript("OnEnter", UB_OnEnter);
-    undressButton:SetScript("OnLeave", UB_OnLeave);
-    undressButton:SetScript("OnClick", UB_OnClick);
-    undressButton:SetScript("OnMouseDown", UB_OnMouseDown);
-    undressButton:SetScript("OnMouseUp", UB_OnMouseUp);
-
-    undressButton.Shirt:SetTexture("Interface\\AddOns\\Narcissus\\Art\\Modules\\DressingRoom\\UndressButton", nil, nil, "TRILINEAR");
-    undressButton.Arrow:SetTexture("Interface\\AddOns\\Narcissus\\Art\\Modules\\DressingRoom\\UndressButton", nil, nil, "TRILINEAR");
-    undressButton.Shirt:SetVertexColor(0.72, 0.72, 0.72);
-    undressButton.Arrow:SetVertexColor(0.72, 0.72, 0.72);
-
-    if DressUpFrame.ResetButton then
-        DressUpFrame.ResetButton:HookScript("OnClick", function(f)
-            UpdateDressingRoomModelByUnit("player");
-        end)
-    end
-
-    DressingRoomOverlayFrame.SlotFrame:SetScript("OnShow", Narci_UpdateDressingRoom);
-
-    --expensive call
-    DressUpFrame.ModelScene:HookScript("OnDressModel", function(f, ...)
-        if not (DressingRoomOverlayFrame) then return end;
-
-        if SLOT_FRAME_ENABLED then
-            if not DressingRoomOverlayFrame.pauseUpdate then
-                DressingRoomOverlayFrame.pauseUpdate = true;
-                DressingRoomOverlayFrame.mode = "visual";
-                After(0, function()
-                    if SLOT_FRAME_ENABLED and IsDressUpFrameMaximized() then
-                        DressingRoomOverlayFrame.SlotFrame:Show();
-                        DressingRoomOverlayFrame.OptionFrame:Show();
-                        GetDressingSourceFromActor();
-                        if NarciDressingRoomGearTextsClipborad:IsVisible() then
-                            PrintItemList();
-                        end
-                    end
-                    DressingRoomOverlayFrame.pauseUpdate = nil;
-                end)
-            end
-        else
-            if not DressingRoomOverlayFrame.pauseUpdate then
-                DressingRoomOverlayFrame.pauseUpdate = true;
-                DressingRoomOverlayFrame.mode = "visual";
-                After(0, function()
-                    GetDressingSourceFromActor();
-                    if NarciDressingRoomGearTextsClipborad:IsVisible() then
-                        PrintItemList();
-                    end
-                    DressingRoomOverlayFrame.pauseUpdate = nil;
-                end)
-            end
-        end
-    end)
-
-
-    if NarcissusDB.DressingRoomShowIconSelect then
-        OutfitIconSelect.SelectionFrame:Show();
-    end
-
-
-    if DressUpFrame.OutfitDropdown then     --See "WardrobeOutfitDropdownTemplate"
-        if Menu and Menu.ModifyMenu then
-            OutfitPreview:SetOwner(DressUpFrame.OutfitDropdown);
-        end
-    end
-
-    --[[
-    function OutfitFrame:NewOutfit(name, customIcon)
-        local icon;
-        local NoTransmogID = Constants.Transmog.NoTransmogID or 0;
-        for slotID, itemTransmogInfo in ipairs(self.itemTransmogInfoList) do
-            local appearanceID = itemTransmogInfo.appearanceID;
-            if appearanceID ~= NoTransmogID then
-                icon = select(4, C_TransmogCollection.GetAppearanceSourceInfo(appearanceID));
-                if icon then
-                    break;
-                end
-            end
-        end
-        local outfitID = C_TransmogCollection.NewOutfit(name, icon, self.itemTransmogInfoList);
-        if outfitID then
-            self:SaveLastOutfit(outfitID);
-        end
-        if ( self.popupDropDown ) then
-            self.popupDropDown:SelectOutfit(outfitID);
-            self.popupDropDown:OnOutfitSaved(outfitID);
-        end
-    end
-    --]]
-
-    local popupInfo = StaticPopupDialogs["NAME_TRANSMOG_OUTFIT"];
-    if popupInfo and OutfitFrame then
-        --!! Override "WardrobeOutfitFrameMixin:NewOutfit(name)" to provide the ability to select icon
-        local function SaveNewOutfit(popup)
-            local name = popup.editBox:GetText();
-            local icon = OutfitIconSelect.selectedIcon;
-
-            if not icon then
-                for slotID, itemTransmogInfo in ipairs(OutfitFrame.itemTransmogInfoList) do
-                    local appearanceID = itemTransmogInfo.appearanceID;
-                    if appearanceID ~= Constants.Transmog.NoTransmogID then
-                        icon = select(4, C_TransmogCollection.GetAppearanceSourceInfo(appearanceID));
-                        if icon then
-                            break;
-                        end
-                    end
-                end
-            end
-
-            local outfitID = C_TransmogCollection.NewOutfit(name, icon, OutfitFrame.itemTransmogInfoList);
-            if outfitID then
-                OutfitFrame:SaveLastOutfit(outfitID);
-            end
-            if ( OutfitFrame.popupDropDown ) then
-                OutfitFrame.popupDropDown:SelectOutfit(outfitID);
-                OutfitFrame.popupDropDown:OnOutfitSaved(outfitID);
-            end
-        end
-
-        popupInfo.OnAccept = SaveNewOutfit;
-
-        local ValidPopupNames = {
-            NAME_TRANSMOG_OUTFIT = true,
-            --BW_NAME_TRANSMOG_OUTFIT = true,     --BetterWardrobe
-        };
-
-        local function LocateTransmogPopup()
-            local popup;
-            for i = 1, 3 do
-                popup = _G["StaticPopup"..i];
-                if popup and popup:IsShown() and popup.which and ValidPopupNames[popup.which] then
-                    return popup
-                end
-            end
-        end
-
-        hooksecurefunc("StaticPopup_Show", function(name)
-            if ValidPopupNames[name] then
-                --assume it's StaticPopup1
-                local popup = LocateTransmogPopup();
-                if popup and OutfitFrame and OutfitFrame.itemTransmogInfoList then
-                    local editbox = popup.editBox;
-                    editbox:ClearAllPoints();
-                    if popup.text then
-                        local height = popup.text:GetHeight() or 12;
-                        editbox:SetPoint("TOP", 0, -24 - height);
-                    else
-                        editbox:SetPoint("TOP", 0, -36);
-                    end
-                    OutfitIconSelect:SetParentFrame(popup, editbox);
-
-                    --Create Optional Icons
-                    local _, icon;
-                    local NoTransmogID = Constants.Transmog.NoTransmogID or 0;
-                    local iconChoices = {};
-                    local iconUsed = {};
-                    local hiddenIcons = {};
-
-                    --Attemp to find a unique icon that hasn't been used by other outfits, preferably not a hidden transmog's icon
-                    local defaultIcon;
-                    local oldIcons = {};
-                    local outfitIDs = C_TransmogCollection.GetOutfits();
-                    if outfitIDs then
-                        for i = 1, #outfitIDs do
-                            _, icon = GetOutfitInfo(outfitIDs[i]);
-                            if icon then
-                                oldIcons[icon] = true;
-                            end
-                        end
-                    end
-
-                    for slotID, itemTransmogInfo in ipairs(OutfitFrame.itemTransmogInfoList) do
-                        local appearanceID = itemTransmogInfo.appearanceID;
-                        if appearanceID ~= NoTransmogID then
-                            icon = select(4, C_TransmogCollection.GetAppearanceSourceInfo(appearanceID));
-                            if icon then
-                                if not iconUsed[icon] then
-                                    iconUsed[icon] = true;
-                                    if IsHiddenVisual(appearanceID) then
-                                        --print(string.format("%s is hidden", NarciAPI.GetInventorySlotNameBySlotID(slotID) ));
-                                        table.insert(hiddenIcons, icon);
-                                    else
-                                        table.insert(iconChoices, icon);
-                                        if not oldIcons[icon] and not defaultIcon then
-                                            defaultIcon = icon;
-                                        end
-                                    end
-                                end
-                            end
-                        end
-                    end
-                    for i = 1, #hiddenIcons do
-                        table.insert(iconChoices, hiddenIcons[i]);
-                    end
-
-                    local extraHeight = OutfitIconSelect:SetupIcons(iconChoices, defaultIcon);
-                    if OutfitIconSelect.SelectionFrame:IsShown() then
-                        popup:SetHeight(148 + extraHeight);
-                    end
-                end
-            else
-                --OutfitIconSelect:Hide();    --TRANSMOG_OUTFIT_ALL_INVALID_APPEARANCES, TRANSMOG_OUTFIT_SOME_INVALID_APPEARANCES, TRANSMOG_OUTFIT_CHECKING_APPEARANCES
-            end
-        end)
-    end
-    
-end
-
-
-local initialize = CreateFrame("Frame")
-initialize:RegisterEvent("ADDON_LOADED");
-initialize:RegisterEvent("PLAYER_ENTERING_WORLD");
-initialize:RegisterEvent("UI_SCALE_CHANGED");
-initialize:SetScript("OnEvent",function(self, event, ...)
-    if event == "ADDON_LOADED" then
-        local name = ...;
-        if name == "Narcissus" then
-            self:UnregisterEvent("ADDON_LOADED");
-            DressingRoomOverlayFrame_Initialize();
-        end
-    elseif event == "PLAYER_ENTERING_WORLD" then
-        self:UnregisterEvent(event);
-        USE_TARGET_MODEL = NarcissusDB.DressingRoomUseTargetModel;
-
-        if not DressingRoomOverlayFrame then
-            self:UnregisterAllEvents();
-            return
-        end
-
-        local InspectButton = DressingRoomOverlayFrame.OptionFrame.InspectButton;
-        InspectButton:SetScript("OnClick", InspectButton_OnClick);
-        if USE_TARGET_MODEL then   --true
-            InspectButton.Label:SetText(L["Use Target Model"]);
-            InspectButton.USE_TARGET_MODEL = true;
-        else
-            InspectButton.Label:SetText(L["Use Your Model"]);
-            InspectButton.USE_TARGET_MODEL = false;
-        end
-
-        local ShareButton = DressingRoomOverlayFrame.OptionFrame.ShareButton;
-        local buttonOffsetX, buttonOffsetY, buttonGap;
-        if Adaptor:IsConflictedAddOnLoaded() then                                --DressUp: Hide our dressing room slot frame
-            DressingRoomOverlayFrame.SlotFrame:Disable();
-            SLOT_FRAME_ENABLED = false;
-            buttonOffsetX = 24;
-            buttonOffsetY = 48;
-            buttonGap = 8;
-            function Narci_SetDressUpBackground()
-            end
-
-            --send the right buttons to bottom so they won't overlap the OutfitDetailsPanel
-            for _, button in pairs(DressingRoomOverlayFrame.OptionFrame.RightButtons) do
-                button:SetFrameStrata("LOW");
-                button:SetFixedFrameStrata(true);
-            end
-        else
-            buttonOffsetX = 0;
-            buttonOffsetY = 96;
-            buttonGap = 24;
-            OverrideMaximizeFunc();
-        end
-        ShareButton:ClearAllPoints();
-        ShareButton:SetPoint("CENTER", DressingRoomOverlayFrame.OptionFrame, "BOTTOMLEFT", buttonOffsetX, buttonOffsetY);
-        DressingRoomOverlayFrame.OptionFrame.GroupController:SetButtonGap(buttonGap);
-
-    elseif event == "UI_SCALE_CHANGED" then
-        After(0.5, function()
-            OVERRIDE_HEIGHT = math.floor(GetScreenHeight()*HEIGHT_MULTIPLIER + 0.5);
-            OVERRIDE_WIDTH = math.floor(WIDTH_HEIGHT_RATIO * OVERRIDE_HEIGHT + 0.5);
-            if IsDressUpFrameMaximized() then
-                DressUpFrame:SetSize(OVERRIDE_WIDTH, OVERRIDE_HEIGHT)
-            end
-        end)
-    end
-end);
-
-
 NarciDressingRoomOverlayMixin = {};
 
 function NarciDressingRoomOverlayMixin:OnLoad()
@@ -1494,4 +1126,486 @@ function NarciDressingRoomAlteredFormButtonMixin:Init()
     else
         self:Hide();
     end
+end
+
+
+local SetSelectionModule = {};
+do  --Transmog Set Selection
+    function SetSelectionModule.DressUpFrame_Show(frame, itemModifiedAppearanceIDs, forcePlayerRefresh, fromLink, equipPlayerItem)
+        if frame == DressUpFrame then
+            SetSelectionModule.fromLink = fromLink;
+            if not (fromLink and frame:IsShown()) then
+                TransmogSetFrame:Hide();
+                return
+            end
+        else
+            return
+        end
+
+        local setID = C_Item.GetItemLearnTransmogSet(fromLink);
+        local setItems = setID and C_Transmog.GetAllSetAppearancesByID(setID);
+
+        if not setItems then
+            TransmogSetFrame:Hide();
+            return
+        end
+
+        local set = C_TransmogSets.GetSetInfo(setID);
+        local setName = set and set.name;
+        if setName == "" then
+            setName = nil;
+        end
+
+        TransmogSetFrame:SetItemSet(setName, setItems, fromLink);
+        DressUpFrame.OutfitDetailsPanel:Hide();
+
+        if not (SetSelectionModule.autoRemoveNonSetItem or equipPlayerItem) then return end;
+
+        local slotID, usedSlots;
+
+        for _, setItem in ipairs(setItems) do
+            if setItem.invSlot then
+                --slotID = C_Item.GetItemInventoryTypeByID(setItem.itemID);
+                slotID = setItem.invSlot + 1;
+                if slotID then
+                    if not usedSlots then
+                        usedSlots = {};
+                    end
+                    usedSlots[slotID] = true;
+                else
+
+                end
+            end
+        end
+
+        if usedSlots then
+            C_Timer.After(0, function()
+                if frame:IsShown() then
+                    local actor = frame.ModelScene:GetPlayerActor();
+                    if actor then
+                        for slotID = 1, 19 do
+                            if not usedSlots[slotID] then
+                                if equipPlayerItem then
+                                    actor:DressPlayerSlot(slotID);
+                                else
+                                    actor:UndressSlot(slotID);
+                                end
+                            end
+                        end
+                    end
+                end
+            end)
+        end
+    end
+
+    function NarciDressingRoomAPI.EnableAutoRemoveNonSetItems(state, userInput)
+        state = state == true;
+        SetSelectionModule.autoRemoveNonSetItem = state;
+        if userInput and DressUpFrame:IsShown() then
+            if SetSelectionModule.fromLink then
+                local equipPlayerItem = not state;
+                SetSelectionModule.DressUpFrame_Show(DressUpFrame, nil, nil, SetSelectionModule.fromLink, equipPlayerItem);
+            end
+        end
+        NarcissusDB.DressingRoomAutoRemoveNonSetItem = state;
+    end
+end
+
+
+local function DressingRoomOverlayFrame_Initialize()
+    if not (NarcissusDB and NarcissusDB.DressingRoom) then return false; end;
+
+    local parentFrame = DressUpFrame;
+    if not parentFrame then 
+        print("Narcissus failed to EL Advanced Dressing Room");
+        return;
+    end
+
+    if not NarcissusDB.KeepDressingRoomOriginalLight then
+        DressUpFrame.ModelScene:SetLightDiffuseColor(0.78, 0.78, 0.78);
+    end
+
+    local frame = CreateFrame("Frame", "NarciDressingRoomOverlay", parentFrame, "NarciDressingRoomOverlayTemplate")
+    CreateSlotButton(frame)
+    DressingRoomOverlayFrame_OnLoad(frame);
+    UpdateDressingRoomExtraWdith();
+
+    hooksecurefunc("DressUpVisual", Narci_UpdateDressingRoom);
+
+    local function SetDressingRoomMode(mode, link)
+        frame.mode = mode;
+        frame.SlotFrame:Hide();
+        frame.OptionFrame:Hide();
+    end
+
+    hooksecurefunc("DressUpMountLink", function(link)
+        --[[
+        if link then
+            local _, _, _, linkType, linkID = strsplit(":|H", link);
+            if linkType == "item" or linkType == "spell" then
+                link = WOWHEAD_DOMAIN .. linkType .. "=" .. linkID;
+            end
+        end       
+        SetDressingRoomMode("mount", link);
+        --]]
+        SetDressingRoomMode("mount");
+        TransmogSetFrame:Hide();
+    end)
+
+    hooksecurefunc("DressUpBattlePet", function(creatureID)
+        --SetDressingRoomMode("battlePet",  WOWHEAD_DOMAIN .. "npc=" .. creatureID);
+        SetDressingRoomMode("battlePet");
+        TransmogSetFrame:Hide();
+    end)
+
+    frame.OptionFrame.ShareButton:SetScript("OnClick", ShareButton_OnClick);
+    frame.OptionFrame.InspectButton:SetScript("OnClick", InspectButton_OnClick);
+
+    local spinButton = frame.OptionFrame.SpinButton;
+    spinButton.Icon:SetTexCoord(0.5, 0.75, 0.5, 0.75);
+    spinButton.Label:SetText(L["Turntable"]);
+    NarciOutfitShowcase.dressingRoomButton = spinButton;
+    spinButton:SetScript("OnClick", function()
+        NarciOutfitShowcase:Open();
+    end);
+
+
+    local undressButton = frame.UndressButton;
+    local function UB_OnEnter(f)
+        f.Shirt:SetVertexColor(1, 1, 1);
+        f.Arrow:SetVertexColor(1, 1, 1);
+        GameTooltip:SetOwner(f, "ANCHOR_RIGHT", -4, 0);
+        GameTooltip_SetTitle(GameTooltip, L["Undress"]);
+        GameTooltip:Show();
+    end
+    local function UB_OnLeave(f)
+        f.Shirt:SetVertexColor(0.72, 0.72, 0.72);
+        f.Arrow:SetVertexColor(0.72, 0.72, 0.72);
+        GameTooltip_Hide();
+    end
+    local function UB_OnClick(f)
+        f.Arrow.AnimDrop:Play();
+        local playerActor = DressUpFrame.ModelScene:GetPlayerActor();
+        if playerActor then
+            NarciDressingRoomAPI.WipeItemList();
+            for k, slotButton in pairs(DressingRoomItemButtons) do
+                slotButton:HideSlot(false);
+                slotButton:Desaturate(true);
+            end
+            playerActor:Undress();
+        end
+    end
+
+    local function UB_OnMouseDown(f)
+        f.Shirt:SetPoint("CENTER", f, "CENTER", 2, -2);
+    end
+    local function UB_OnMouseUp(f)
+        f.Shirt:SetPoint("CENTER", f, "CENTER", 0, 0);
+    end
+    undressButton:SetScript("OnEnter", UB_OnEnter);
+    undressButton:SetScript("OnLeave", UB_OnLeave);
+    undressButton:SetScript("OnClick", UB_OnClick);
+    undressButton:SetScript("OnMouseDown", UB_OnMouseDown);
+    undressButton:SetScript("OnMouseUp", UB_OnMouseUp);
+
+    undressButton.Shirt:SetTexture("Interface\\AddOns\\Narcissus\\Art\\Modules\\DressingRoom\\UndressButton", nil, nil, "TRILINEAR");
+    undressButton.Arrow:SetTexture("Interface\\AddOns\\Narcissus\\Art\\Modules\\DressingRoom\\UndressButton", nil, nil, "TRILINEAR");
+    undressButton.Shirt:SetVertexColor(0.72, 0.72, 0.72);
+    undressButton.Arrow:SetVertexColor(0.72, 0.72, 0.72);
+
+    if DressUpFrame.ResetButton then
+        DressUpFrame.ResetButton:HookScript("OnClick", function(f)
+            UpdateDressingRoomModelByUnit("player");
+            TransmogSetFrame:Hide();
+        end)
+    end
+
+    DressingRoomOverlayFrame.SlotFrame:SetScript("OnShow", Narci_UpdateDressingRoom);
+
+    --expensive call
+    DressUpFrame.ModelScene:HookScript("OnDressModel", function(f, ...)
+        if not (DressingRoomOverlayFrame) then return end;
+
+        if SLOT_FRAME_ENABLED then
+            if not DressingRoomOverlayFrame.pauseUpdate then
+                DressingRoomOverlayFrame.pauseUpdate = true;
+                DressingRoomOverlayFrame.mode = "visual";
+                After(0, function()
+                    if SLOT_FRAME_ENABLED and IsDressUpFrameMaximized() then
+                        DressingRoomOverlayFrame.SlotFrame:Show();
+                        DressingRoomOverlayFrame.OptionFrame:Show();
+                        GetDressingSourceFromActor();
+                        if NarciDressingRoomGearTextsClipborad:IsVisible() then
+                            PrintItemList();
+                        end
+                    end
+                    DressingRoomOverlayFrame.pauseUpdate = nil;
+                end)
+            end
+        else
+            if not DressingRoomOverlayFrame.pauseUpdate then
+                DressingRoomOverlayFrame.pauseUpdate = true;
+                DressingRoomOverlayFrame.mode = "visual";
+                After(0, function()
+                    GetDressingSourceFromActor();
+                    if NarciDressingRoomGearTextsClipborad:IsVisible() then
+                        PrintItemList();
+                    end
+                    DressingRoomOverlayFrame.pauseUpdate = nil;
+                end)
+            end
+        end
+    end)
+
+
+    if NarcissusDB.DressingRoomShowIconSelect then
+        OutfitIconSelect.SelectionFrame:Show();
+    end
+
+
+    if DressUpFrame.OutfitDropdown then     --See "WardrobeOutfitDropdownTemplate"
+        if Menu and Menu.ModifyMenu then
+            OutfitPreview:SetOwner(DressUpFrame.OutfitDropdown);
+        end
+    end
+
+    --[[
+    function OutfitFrame:NewOutfit(name, customIcon)
+        local icon;
+        local NoTransmogID = Constants.Transmog.NoTransmogID or 0;
+        for slotID, itemTransmogInfo in ipairs(self.itemTransmogInfoList) do
+            local appearanceID = itemTransmogInfo.appearanceID;
+            if appearanceID ~= NoTransmogID then
+                icon = select(4, C_TransmogCollection.GetAppearanceSourceInfo(appearanceID));
+                if icon then
+                    break;
+                end
+            end
+        end
+        local outfitID = C_TransmogCollection.NewOutfit(name, icon, self.itemTransmogInfoList);
+        if outfitID then
+            self:SaveLastOutfit(outfitID);
+        end
+        if ( self.popupDropDown ) then
+            self.popupDropDown:SelectOutfit(outfitID);
+            self.popupDropDown:OnOutfitSaved(outfitID);
+        end
+    end
+    --]]
+
+    local popupInfo = StaticPopupDialogs["NAME_TRANSMOG_OUTFIT"];
+    if popupInfo and OutfitFrame then
+        --!! Override "WardrobeOutfitFrameMixin:NewOutfit(name)" to provide the ability to select icon
+        local function SaveNewOutfit(popup)
+            local name = popup.editBox:GetText();
+            local icon = OutfitIconSelect.selectedIcon;
+
+            if not icon then
+                for slotID, itemTransmogInfo in ipairs(OutfitFrame.itemTransmogInfoList) do
+                    local appearanceID = itemTransmogInfo.appearanceID;
+                    if appearanceID ~= Constants.Transmog.NoTransmogID then
+                        icon = select(4, C_TransmogCollection.GetAppearanceSourceInfo(appearanceID));
+                        if icon then
+                            break;
+                        end
+                    end
+                end
+            end
+
+            local outfitID = C_TransmogCollection.NewOutfit(name, icon, OutfitFrame.itemTransmogInfoList);
+            if outfitID then
+                OutfitFrame:SaveLastOutfit(outfitID);
+            end
+            if ( OutfitFrame.popupDropDown ) then
+                OutfitFrame.popupDropDown:SelectOutfit(outfitID);
+                OutfitFrame.popupDropDown:OnOutfitSaved(outfitID);
+            end
+        end
+
+        popupInfo.OnAccept = SaveNewOutfit;
+
+        local ValidPopupNames = {
+            NAME_TRANSMOG_OUTFIT = true,
+            --BW_NAME_TRANSMOG_OUTFIT = true,     --BetterWardrobe
+        };
+
+        local function LocateTransmogPopup()
+            local popup;
+            for i = 1, 3 do
+                popup = _G["StaticPopup"..i];
+                if popup and popup:IsShown() and popup.which and ValidPopupNames[popup.which] then
+                    return popup
+                end
+            end
+        end
+
+        hooksecurefunc("StaticPopup_Show", function(name)
+            if ValidPopupNames[name] then
+                --assume it's StaticPopup1
+                local popup = LocateTransmogPopup();
+                if popup and OutfitFrame and OutfitFrame.itemTransmogInfoList then
+                    local editbox = popup.editBox;
+                    editbox:ClearAllPoints();
+                    if popup.text then
+                        local height = popup.text:GetHeight() or 12;
+                        editbox:SetPoint("TOP", 0, -24 - height);
+                    else
+                        editbox:SetPoint("TOP", 0, -36);
+                    end
+                    OutfitIconSelect:SetParentFrame(popup, editbox);
+
+                    --Create Optional Icons
+                    local _, icon;
+                    local NoTransmogID = Constants.Transmog.NoTransmogID or 0;
+                    local iconChoices = {};
+                    local iconUsed = {};
+                    local hiddenIcons = {};
+
+                    --Attemp to find a unique icon that hasn't been used by other outfits, preferably not a hidden transmog's icon
+                    local defaultIcon;
+                    local oldIcons = {};
+                    local outfitIDs = C_TransmogCollection.GetOutfits();
+                    if outfitIDs then
+                        for i = 1, #outfitIDs do
+                            _, icon = GetOutfitInfo(outfitIDs[i]);
+                            if icon then
+                                oldIcons[icon] = true;
+                            end
+                        end
+                    end
+
+                    for slotID, itemTransmogInfo in ipairs(OutfitFrame.itemTransmogInfoList) do
+                        local appearanceID = itemTransmogInfo.appearanceID;
+                        if appearanceID ~= NoTransmogID then
+                            icon = select(4, C_TransmogCollection.GetAppearanceSourceInfo(appearanceID));
+                            if icon then
+                                if not iconUsed[icon] then
+                                    iconUsed[icon] = true;
+                                    if IsHiddenVisual(appearanceID) then
+                                        --print(string.format("%s is hidden", NarciAPI.GetInventorySlotNameBySlotID(slotID) ));
+                                        table.insert(hiddenIcons, icon);
+                                    else
+                                        table.insert(iconChoices, icon);
+                                        if not oldIcons[icon] and not defaultIcon then
+                                            defaultIcon = icon;
+                                        end
+                                    end
+                                end
+                            end
+                        end
+                    end
+                    for i = 1, #hiddenIcons do
+                        table.insert(iconChoices, hiddenIcons[i]);
+                    end
+
+                    local extraHeight = OutfitIconSelect:SetupIcons(iconChoices, defaultIcon);
+                    if OutfitIconSelect.SelectionFrame:IsShown() then
+                        popup:SetHeight(148 + extraHeight);
+                    end
+                end
+            else
+                --OutfitIconSelect:Hide();    --TRANSMOG_OUTFIT_ALL_INVALID_APPEARANCES, TRANSMOG_OUTFIT_SOME_INVALID_APPEARANCES, TRANSMOG_OUTFIT_CHECKING_APPEARANCES
+            end
+        end)
+    end
+
+    hooksecurefunc("DressUpFrame_Show", SetSelectionModule.DressUpFrame_Show);
+    return true
+end
+
+
+local EL = CreateFrame("Frame")
+EL:RegisterEvent("ADDON_LOADED");
+EL:RegisterEvent("PLAYER_ENTERING_WORLD");
+EL:SetScript("OnEvent",function(self, event, ...)
+    if event == "ADDON_LOADED" then
+        local name = ...;
+        if name == "Narcissus" then
+            self:UnregisterEvent("ADDON_LOADED");
+            self.enabled = DressingRoomOverlayFrame_Initialize();
+        end
+    elseif event == "PLAYER_ENTERING_WORLD" then
+        self:UnregisterEvent(event);
+        USE_TARGET_MODEL = NarcissusDB.DressingRoomUseTargetModel;
+
+        if not (DressingRoomOverlayFrame and self.enabled) then
+            self:UnregisterAllEvents();
+            return
+        end
+
+        local InspectButton = DressingRoomOverlayFrame.OptionFrame.InspectButton;
+        InspectButton:SetScript("OnClick", InspectButton_OnClick);
+        if USE_TARGET_MODEL then   --true
+            InspectButton.Label:SetText(L["Use Target Model"]);
+            InspectButton.USE_TARGET_MODEL = true;
+        else
+            InspectButton.Label:SetText(L["Use Your Model"]);
+            InspectButton.USE_TARGET_MODEL = false;
+        end
+
+        local ShareButton = DressingRoomOverlayFrame.OptionFrame.ShareButton;
+        local buttonOffsetX, buttonOffsetY, buttonGap;
+        if Adaptor:IsConflictedAddOnLoaded() then                                --DressUp: Hide our dressing room slot frame
+            DressingRoomOverlayFrame.SlotFrame:Disable();
+            SLOT_FRAME_ENABLED = false;
+            buttonOffsetX = 24;
+            buttonOffsetY = 48;
+            buttonGap = 8;
+            function Narci_SetDressUpBackground()
+            end
+
+            --send the right buttons to bottom so they won't overlap the OutfitDetailsPanel
+            for _, button in pairs(DressingRoomOverlayFrame.OptionFrame.RightButtons) do
+                button:SetFrameStrata("LOW");
+                button:SetFixedFrameStrata(true);
+            end
+        else
+            buttonOffsetX = 0;
+            buttonOffsetY = 96;
+            buttonGap = 24;
+            OverrideMaximizeFunc();
+        end
+        ShareButton:ClearAllPoints();
+        ShareButton:SetPoint("CENTER", DressingRoomOverlayFrame.OptionFrame, "BOTTOMLEFT", buttonOffsetX, buttonOffsetY);
+        DressingRoomOverlayFrame.OptionFrame.GroupController:SetButtonGap(buttonGap);
+
+        self:SetScript("OnEvent", self.OnEvent);
+        self:RegisterEvent("UI_SCALE_CHANGED");
+        self:OnEvent("UI_SCALE_CHANGED");
+
+        DressUpFrame.transmogSetDressUpEnabled = false;     --Disable WoW's SetSelectionPanel
+        NarciDressingRoomAPI.EnableAutoRemoveNonSetItems(NarcissusDB.DressingRoomAutoRemoveNonSetItem);
+        TransmogSetFrame:ClearAllPoints();
+        TransmogSetFrame:SetParent(DressUpFrame);
+        TransmogSetFrame:SetPoint("TOPLEFT", DressUpFrame, "TOPRIGHT", -1, -32);
+        local baseFrameLevel = DressUpFrame.NineSlice:GetFrameLevel();
+        TransmogSetFrame:SetFrameLevel(baseFrameLevel + 1);
+        DressUpFrame.OutfitDetailsPanel:SetFrameLevel(baseFrameLevel + 5);
+    end
+end);
+
+function EL:OnEvent(event, ...)
+    if event == "UI_SCALE_CHANGED" then
+        self:RequestUpdateFrameSize();
+    end
+end
+
+function EL:UpdateFrameSize()
+    OVERRIDE_HEIGHT = math.floor(GetScreenHeight() * HEIGHT_MULTIPLIER + 0.5);
+    OVERRIDE_WIDTH = math.floor(WIDTH_HEIGHT_RATIO * OVERRIDE_HEIGHT + 0.5);
+    if IsDressUpFrameMaximized() then
+        DressUpFrame:SetSize(OVERRIDE_WIDTH, OVERRIDE_HEIGHT)
+    end
+end
+
+function EL:RequestUpdateFrameSize()
+    self.t = 0;
+    self:SetScript("OnUpdate", function(_, elapsed)
+        self.t = self.t + elapsed;
+        if self.t > 0.5 then
+            self.t = nil;
+            self:SetScript("OnUpdate", nil);
+            self:UpdateFrameSize();
+        end
+    end);
 end

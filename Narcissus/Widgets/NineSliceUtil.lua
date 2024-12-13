@@ -8,6 +8,7 @@ local function DisableSharpening(texture)
     texture:SetTexelSnappingBias(0);
     texture:SetSnapToPixelGrid(false);
 end
+NarciAPI.DisableSharpening = DisableSharpening;
 
 --Texture order ↓
 -- 1 | 2 | 3
@@ -189,7 +190,7 @@ local TextureData = {
         cornerCoord = 0.25,
         useCenterForAlignment = true,
         disableSharpening = true;
-    }
+    },
 };
 
 function NineSliceUtil.SetUp(frame, textureKey, layer, shrink, customLayerSubLevel)
@@ -216,15 +217,27 @@ function NineSliceUtil.SetUp(frame, textureKey, layer, shrink, customLayerSubLev
         subLevel = customLayerSubLevel;
     end
 
-    local data = TextureData[textureKey];
 
-    local file = PATH_PREFIX .. data.file;
-    local size = data.cornerSize;
-    local coord = data.cornerCoord;
-    local pixelMode = data.pixelPerfect;
-    local useCenterForAlignment = data.useCenterForAlignment;
-    local offset = size * (data.offsetRatio or 0);
-    local ORDER = {1, 3, 7, 9, 2, 4, 6, 8, 5};
+    local file, size, coord, pixelMode, useCenterForAlignment, offset, disableSharpening;
+
+    if textureKey then
+        local data = TextureData[textureKey];
+        file = PATH_PREFIX .. data.file;
+        size = data.cornerSize;
+        coord = data.cornerCoord;
+        pixelMode = data.pixelPerfect;
+        useCenterForAlignment = data.useCenterForAlignment;
+        offset = size * (data.offsetRatio or 0);
+        disableSharpening = data.disableSharpening;
+    else
+        size = 16;
+        coord = 1;
+        pixelMode = false;
+        useCenterForAlignment = false;
+        offset = 0;
+        disableSharpening = true;
+    end
+
     local tex, key;
     local isNewTexture;
 
@@ -238,7 +251,7 @@ function NineSliceUtil.SetUp(frame, textureKey, layer, shrink, customLayerSubLev
         end
         tex = group[key];
         tex:SetTexture(file, nil, nil, "LINEAR"); --NEAREST LINEAR
-        if data.disableSharpening then
+        if disableSharpening then
             DisableSharpening(tex)
         end
         if key == 2 or key == 8 then
@@ -481,4 +494,10 @@ function NineSliceUtil.TileFrame(frame, tileName)
             end);
         end
     end
+end
+
+function NineSliceUtil.CreateNineSlice(frame)
+    local textureKey = nil;
+    local layer = "backdrop";
+    NineSliceUtil.SetUp(frame, textureKey, layer);
 end

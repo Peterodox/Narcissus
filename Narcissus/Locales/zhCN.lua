@@ -325,7 +325,13 @@ L["Add to MogIt Wishlist"] = "加入MogIt愿望清单";
 L["Show Taint Solution"] = "如何避免此问题？";
 L["Taint Solution Step1"] = "1.重载界面。";
 L["Taint Solution Step2"] = "2."..NARCI_MODIFIER_CONTROL.."+左键点击物品来打开试衣间。";
+L["Switch Form To Visage"] = "切换到|cffffffff幻容|r形态";
+L["Switch Form To Dracthyr"] = "切换到|cffffffff龙希尔|r形态";
+L["Switch Form To Worgen"] = "切换到|cffffffff狼|r形态";
+L["Switch Form To Human"] = "切换到|cffffffff人|r形态";
 L["InGame Command"] = "游戏内命令";
+L["Hide Player Items"] = "隐藏玩家装备";
+L["Hide Player Items Tooltip"] = "移除不属于此套装的装备。";
 
 --NPC Browser--
 NARCI_NPC_BROWSER_TITLE_LEVEL = ".*%?%?.?";      --Level ?? --Use this to check if the second line of the tooltip is NPC's title or unit type

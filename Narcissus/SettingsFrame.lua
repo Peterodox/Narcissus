@@ -18,11 +18,6 @@ local WIDGET_GAP = 16;
 
 local IS_DRAGONFLIGHT = addon.IsDragonflight();
 
-local function IsDragonflightFeature()
-    return IS_DRAGONFLIGHT
-end
-
-
 local L = Narci.L;
 local BIND_ACTION_NARCISSUS = "CLICK Narci_MinimapButton:LeftButton";
 _G["BINDING_NAME_"..BIND_ACTION_NARCISSUS] = L["Binding Name Open Narcissus"];

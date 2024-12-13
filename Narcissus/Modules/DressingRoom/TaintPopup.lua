@@ -1,3 +1,4 @@
+local _, addon = ...
 local L = Narci.L;
 
 local AlertFrame;
