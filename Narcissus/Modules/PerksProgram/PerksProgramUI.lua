@@ -20,6 +20,8 @@ local GetItemInfoInstant = C_Item.GetItemInfoInstant;
 local C_PerksProgram = C_PerksProgram;
 local C_TransmogCollection = C_TransmogCollection;
 local EventRegistry = EventRegistry;
+local hooksecurefunc = hooksecurefunc;
+local After = C_Timer.After;
 
 
 -- User Settings --
@@ -146,7 +148,7 @@ local function OnProductSelectedAfterModel(f, data)
         if mountTypeName then
             local defaultDetailsFrame = ExtraDetailFrame.parentFrame;   --PerksProgramDetailsFrameTemplate
             if defaultDetailsFrame and defaultDetailsFrame.CategoryText then
-                C_Timer.After(0, function() --DetailsFrame also use EventRegistry for updating data, so we need to set a delay
+                After(0, function() --DetailsFrame also use EventRegistry for updating data, so we need to set a delay
                     mountTypeName = GetSelectedMountTypeName();
                     if mountTypeName then
                         defaultDetailsFrame.CategoryText:SetText((PERKS_VENDOR_CATEGORY_MOUNT or "Mount").." - "..mountTypeName);
@@ -748,7 +750,7 @@ function NarciPerksProgramItemDetailExtraFrameMixin:Init()
                     tooltip:Show();
 
                     if not allLoaded then
-                        C_Timer.After(0.2, function()
+                        After(0.2, function()
                             if f:IsVisible() and f:IsMouseOver() then
                                 OnEnter(f);
                             end
@@ -767,6 +769,118 @@ function NarciPerksProgramItemDetailExtraFrameMixin:Init()
 
         HeaderMouseoverFrame:SetScript("OnEnter", OnEnter);
         HeaderMouseoverFrame:SetScript("OnLeave", OnLeave);
+    end
+
+    do  --Fixed Mount Speical, Attack Animation Checkboxes status not saved issue
+        --NOTE: We instead disable the two checkboxes because we already have equivalents (animation dropdown)
+
+        local ff = BlizzardFrame.FooterFrame;
+        local mc = BlizzardFrame.ModelSceneContainerFrame;
+
+        if BlizzardFrame.SetMountSpecialPreviewOnClick then
+            BlizzardFrame:SetMountSpecialPreviewOnClick(false);
+        end
+
+        if BlizzardFrame.PlayerSetAttackAnimationOnClick then
+            BlizzardFrame:PlayerSetAttackAnimationOnClick(false);
+        end
+
+        if mc and ff.ToggleHideArmor and ff.TogglePlayerPreview then
+            local function HideCheckboxes()
+                ff.ToggleHideArmor:SetPoint("LEFT", ff.RotateButtonContainer, "LEFT", -18, 0);
+                ff.TogglePlayerPreview:SetPoint("LEFT", ff.RotateButtonContainer, "LEFT", -18, 0);
+
+                if ff.ToggleMountSpecial then
+                    ff.ToggleMountSpecial:Hide();
+                end
+
+                if ff.ToggleAttackAnimation then
+                    ff.ToggleAttackAnimation:Hide();
+                end
+            end
+
+            After(0, function()
+                EventRegistry:UnregisterCallback("PerksProgram.OnMountSpecialPreviewSet", PerksProgramFrame.ModelSceneContainerFrame);
+                EventRegistry:UnregisterCallback("PerksProgram.OnPlayerAttackAnimationSet", PerksProgramFrame.ModelSceneContainerFrame);
+                HideCheckboxes();
+            end);
+        end
+
+        --This method may not be secure:
+        C_PerksProgram.IsMountSpecialAnimToggleEnabled = function() return false end;
+        C_PerksProgram.IsAttackAnimToggleEnabled = function() return false end;
+
+        --[[    --The actual fix
+
+        if (mc and mc.OnMountSpecialPreviewSet and mc.OnPlayerAttackAnimationSet)
+        and (BlizzardFrame.SetMountSpecialPreviewOnClick and BlizzardFrame.PlayerSetAttackAnimationOnClick)
+        and (ff and ff.OnProductSelected and ff.ToggleMountSpecial and ff.ToggleAttackAnimation) then
+            ff.ToggleMountSpecial:HookScript("OnClick", function(f)
+                local isChecked = f:GetChecked();
+                DataProvider:SaveUserData("mountSpecialAnimPlaying", isChecked);
+            end);
+
+            ff.ToggleAttackAnimation:HookScript("OnClick", function(f)
+                local isChecked = f:GetChecked();
+                DataProvider:SaveUserData("attackAnimationPlaying", isChecked);
+            end);
+
+            local EventSolver = CreateFrame("Frame", nil, BlizzardFrame);
+            EventSolver:Hide();
+            EventSolver:SetScript("OnHide", function()
+                EventSolver.t = 0;
+                EventSolver:Hide();
+            end);
+            EventSolver:SetScript("OnShow", function()
+                EventSolver.t = 0;
+            end);
+
+            EventSolver:SetScript("OnUpdate", function(f, elapsed)
+                f.t = f.t + elapsed;
+                if f.t > 0 then
+                    f:Hide();
+
+                    if ff.ToggleMountSpecial:IsShown() then
+                        local isChecked = DataProvider:GetUserData("mountSpecialAnimPlaying");
+                        --BlizzardFrame:SetMountSpecialPreviewOnClick(isChecked);
+                        ff.ToggleMountSpecial:SetChecked(isChecked);
+                        mc:OnMountSpecialPreviewSet(isChecked);
+                    end
+
+                    if ff.ToggleAttackAnimation:IsShown() then
+                        local isChecked = DataProvider:GetUserData("attackAnimationPlaying");
+                        --BlizzardFrame:PlayerSetAttackAnimationOnClick(isChecked);
+                        ff.ToggleAttackAnimation:SetChecked(isChecked);
+                        mc:OnPlayerAttackAnimationSet(isChecked);
+                    end
+                end
+            end);
+
+            function EventSolver:Start()
+                EventSolver.t = 0;
+                EventSolver:Show();
+            end
+
+            After(0, function()
+                EventRegistry:UnregisterCallback("PerksProgram.OnMountSpecialPreviewSet", PerksProgramFrame.ModelSceneContainerFrame);
+                EventRegistry:UnregisterCallback("PerksProgram.OnPlayerAttackAnimationSet", PerksProgramFrame.ModelSceneContainerFrame);
+
+                EventRegistry:RegisterCallback("PerksProgramModel.OnProductSelectedAfterModel", function()
+                    EventSolver:Start();
+                end);
+
+                EventRegistry:RegisterCallback("PerksProgram.OnMountSpecialPreviewSet", function()
+                    EventSolver:Start();
+                end);
+
+                EventRegistry:RegisterCallback("PerksProgram.OnPlayerAttackAnimationSet", function()
+                    EventSolver:Start();
+                end);
+
+                EventSolver:Start();
+            end)
+        end
+        --]]
     end
 end
 
@@ -1009,7 +1123,7 @@ function NarciPerksProgramItemDetailExtraFrameMixin:UpdateItemVisibility()
 end
 
 function NarciPerksProgramItemDetailExtraFrameMixin:UpdateItemButtons()
-    C_Timer.After(0.5, function()
+    After(0.5, function()
         local button;
         for i = 1, self.numActiveButtons do
             button = self.buttons[i];
@@ -1168,7 +1282,7 @@ local function TransmogItemButton_OnEnter(self)
                 if isLoaded then
                     slotName = string.format("%s - %s", slotName, itemName);
                 else
-                    C_Timer.After(0.2, function()
+                    After(0.2, function()
                         if self:IsMouseOver() and self:IsVisible() then
                             TransmogItemButton_OnEnter(self);
                         end
@@ -1955,7 +2069,7 @@ if true then
     f:SetScript("OnEvent", function(self, event, ...)
         print(event, ...)
         if event == "PERKS_PROGRAM_OPEN" then
-            C_Timer.After(0, function()
+            After(0.5, function()
                 PerksProgramFrame:SetPropagateKeyboardInput(true);
                 --PerksProgramFrame:SetToplevel(false);
                 --PerksProgramFrame:SetFrameStrata("LOW");

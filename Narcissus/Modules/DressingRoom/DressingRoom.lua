@@ -752,7 +752,7 @@ end
 
 function NarciDressingRoomOverlayMixin:OnEvent(event, ...)
     if event == "PLAYER_TARGET_CHANGED" then
-        if not self.SlotFrame:IsManuallyChanged() then
+        if DressUpFrame.mode == "player" and not self.SlotFrame:IsManuallyChanged() then
             self:InspectTarget();
         end
     elseif event == "TRANSMOG_COLLECTION_UPDATED" then
