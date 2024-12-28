@@ -683,11 +683,13 @@ L["Perks Program See Wares"] = "显示商品";
 L["Perks Program No Cache Alert"] = "与商栈商人交谈以获取本月的商品列表。";
 L["Perks Program Using Cache Alert"] = "正在使用你上次访问商栈时的数据。价格信息有可能不准确。";
 L["Modify Default Pose"] = "更改默认动作";   --Change the default pose/animation/camera yaw when viewing transmog items
+L["Modify Default Pose Tooltip"] = "勾选此选项将默认动画改为“站立”，并调整人物的面向来更清晰地展示武器外观。";
 L["Include Header"] = "包含物品：";  --The transmog set includes...
 L["Auto Try On All Items"] = "自动试穿整套物品";
 L["Full Set Cost"] = "整套物品价格";   --Purchasing the full set will cost you x Trader's Tender
 L["You Will Receive One Item"] = "你将获得|cffffffff一件|r物品：";
 L["Format Item Belongs To Set"] = "这件物品属于套装|cffffffff[%s]|r";
+L["Default Animation"] = "默认动画";
 
 
 --Quest--
