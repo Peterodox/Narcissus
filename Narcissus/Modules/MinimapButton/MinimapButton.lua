@@ -775,6 +775,7 @@ function NarciMinimapButtonMixin:Init()
 end
 
 function NarciMinimapButtonMixin:GetMenuInfo()
+	--Used in Bridge\Opie.lua
 	return self.menuInfo
 end
 
