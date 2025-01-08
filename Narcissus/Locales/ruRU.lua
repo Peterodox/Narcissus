@@ -1,4 +1,4 @@
---Coutesy of ZamestoTV. Thank you!    --Translator: ZamestoTV as of 1.7.3 b
+--Coutesy of ZamestoTV. Thank you!    --Translator: ZamestoTV as of 1.7.5
 
 if not (GetLocale() == "ruRU") then
     return;
@@ -371,7 +371,9 @@ L["Switch Form To Visage"] = "Переключить на форму |cffffffff 
 L["Switch Form To Dracthyr"] = "Переключить на форму |cffffffff Драктир|r";
 L["Switch Form To Worgen"] = "Переключить на форму |cffffffff Ворген|r";
 L["Switch Form To Human"] = "Переключить на форму |cffffffff Человек|r";
-L["InGame Command"] = "Внутриигровая команда";																 
+L["InGame Command"] = "Внутриигровая команда";	
+L["Hide Player Items"] = "Скрыть предметы игрока";
+L["Hide Player Items Tooltip"] = "Скрыть все, что не относится к этому набору предметов.";															 
 
 --NPC Browser--
 NARCI_NPC_BROWSER_TITLE_LEVEL = ".*%?%?.?";      --Level ?? --Use this to check if the second line of the tooltip is NPC's title or unit type
@@ -749,11 +751,13 @@ L["Perks Program See Wares"] = "Показать товары";
 L["Perks Program No Cache Alert"] = "Поговорите с продавцами торговой лавки, чтобы увидеть товары этого месяца.";
 L["Perks Program Using Cache Alert"] = "Использование кеша с вашего последнего посещения. Данные о цене могут быть неточными.";
 L["Modify Default Pose"] = "Изменить позу по умолчанию";   --Change the default pose/animation/camera yaw when viewing transmog items
+L["Modify Default Pose Tooltip"] = "При включении измените стандартную анимацию боя или анимацию средства передвижения в WoW на \"Стоять\" и отрегулируйте вращение, чтобы лучше представить предмет.";
 L["Include Header"] = "Включает:";  --The transmog set includes...
 L["Auto Try On All Items"] = "Автоматическая примерка всех предметов";
 L["Full Set Cost"] = "Стоимость полного комплекта";   --Purchasing the full set will cost you x Trader's Tender
 L["You Will Receive One Item"] = "Вы получите |cffffffffОДИН|r предмет:";
 L["Format Item Belongs To Set"] = "Этот предмет входит в набор трансмогрификации |cffffffff[%s]|r";
+L["Default Animation"] = "Анимация по умолчанию";
 
 
 --Quest--
