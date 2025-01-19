@@ -55,6 +55,8 @@ local function CreateDataObject()
 
     local icon = LibStub("LibDBIcon-1.0", true);
     if icon and C_AddOns.IsAddOnLoaded("Leatrix_Plus") then
+        if LeaPlusDB and LeaPlusDB.MinimapModder == "Off" then return end;
+
         local registerName = "Narcissus";
 
         local db = NarcissusDB or {};

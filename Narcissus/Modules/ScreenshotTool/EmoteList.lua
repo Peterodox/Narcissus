@@ -12,6 +12,7 @@ local EmoteTokenList = {
 	{"Rude", EMOTE78_CMD1}, {"Flex", EMOTE42_CMD1}, {"ROAR", EMOTE76_CMD1},
 	{"Cower", EMOTE29_CMD1}, {"Beg", EMOTE8_CMD1}, {"Cry", EMOTE32_CMD1},
 	{"Laydown", EMOTE62_CMD1}, {"Stand", EMOTE143_CMD1}, {"Sit", EMOTE87_CMD1}, {"Kneel", EMOTE60_CMD1},
+    {"Shy", EMOTE85_CMD1},
 }
 
 local NUM_ROWS = 7;
@@ -137,9 +138,9 @@ function NarciDoEmoteFrameMixin:Init()
     ac:SetScript("OnLeave", AutoCaptureButton_OnLeave);
 
 
-    
+    local numEmotes = #EmoteTokenList;
     local X_MAX = 4;
-    local Y_MAX = math.ceil(#EmoteTokenList / X_MAX);
+    local Y_MAX = math.ceil(numEmotes / X_MAX);
 
     NUM_ROWS = Y_MAX;
 
@@ -228,7 +229,7 @@ function NarciDoEmoteFrameMixin:Init()
         end
 
         row = row + 1;
-        if row > Y_MAX then
+        if row > Y_MAX or i == numEmotes then
             row = 1;
             col = col + 1;
             totalWidth = totalWidth + maxColWidth;

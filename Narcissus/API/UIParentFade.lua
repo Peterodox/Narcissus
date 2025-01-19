@@ -24,7 +24,7 @@ local function FadeIn_OnUpdate(self, elapsed)
 
 	if self.alpha >= 1 then
 		self.alpha = 1;
-        self.t = 0;
+        self.t = nil;
 		self:SetScript("OnUpdate", nil);
 	end
 
@@ -43,8 +43,12 @@ local function FadeOut_OnUpdate(self, elapsed)
 
 	if self.alpha <= 0 then
 		self.alpha = 0;
-        self.t = 0;
+        self.t = nil;
 		self:SetScript("OnUpdate", nil);
+
+		SetUIVisibility(false); 		--Same as pressing Alt + Z
+		UIParent:SetAlpha(1);
+		return
 	end
 
 	UIParent:SetAlpha(self.alpha);
@@ -76,13 +80,6 @@ function UIParentFade:FadeOutUIParent()
     self:UpdateAlpha();
     self:SetScript("OnUpdate", FadeOut_OnUpdate);
     self:Show();
-
-	After(0.5, function()
-		SetUIVisibility(false); 		--Same as pressing Alt + Z
-		After(0.3, function()
-			UIParent:SetAlpha(1);
-		end)
-	end)
 end
 
 function UIParentFade:HideUIParent()
@@ -94,9 +91,29 @@ function UIParentFade:HideUIParent()
 end
 
 function UIParentFade:ShowUIParent()
-    if UIParent:IsVisible() and UIParent:GetAlpha() == 1 then return end;
+    if self.t == nil and UIParent:IsVisible() and UIParent:GetAlpha() == 1 then return end;
 
     self:SetScript("OnUpdate", nil);
     UIParent:SetAlpha(1);
     SetUIVisibility(true);
+	NarciAPI.MuteTargetLostSound(false);
+end
+
+function UIParentFade:OnEvent()
+	self:ShowUIParent();
+end
+UIParentFade:SetScript("OnEvent", UIParentFade.OnEvent);
+
+
+do
+	local function CharacterUI_ShowState(shown)
+		if shown then
+			UIParentFade:RegisterEvent("START_PLAYER_COUNTDOWN");
+			UIParentFade:RegisterEvent("LFG_PROPOSAL_SHOW");
+		else
+			UIParentFade:UnregisterEvent("START_PLAYER_COUNTDOWN");
+			UIParentFade:UnregisterEvent("LFG_PROPOSAL_SHOW");
+		end
+	end
+	addon.CallbackRegistry:Register("NarcissusCharacterUI.ShownState", CharacterUI_ShowState);
 end

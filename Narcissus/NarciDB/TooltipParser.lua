@@ -1228,6 +1228,10 @@ local function GetCompleteItemData(tooltipData, itemLink)
         end
     end
 
+    if data then
+        data.dataInstanceID = tooltipData.dataInstanceID;
+    end
+
     return data, requestSubData
 end
 

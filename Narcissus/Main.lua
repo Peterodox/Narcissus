@@ -7,6 +7,7 @@ local TimerunningUtil = addon.TimerunningUtil;
 local TalentTreeDataProvider = addon.TalentTreeDataProvider;
 local CameraUtil = addon.CameraUtil;
 local UIParentFade = addon.UIParentFade;
+local CallbackRegistry = addon.CallbackRegistry;
 
 
 local Narci = Narci;
@@ -417,7 +418,7 @@ local function ExitFunc()
 			SetView(2);
 			CameraUtil:ZoomTo(CVarTemp.zoomLevel);
 		end
-		
+
 		SetCVar("cameraViewBlendStyle", CVarTemp.cameraViewBlendStyle);
 	end);
 
@@ -437,6 +438,8 @@ local function ExitFunc()
 	MOG_MODE = false;
 
 	CameraUtil:MakeInactive();
+
+	CallbackRegistry:Trigger("NarcissusCharacterUI.ShownState", false);
 end
 
 function Narci:EmergencyStop()
@@ -2563,6 +2566,7 @@ function Narci_Open()
 
 		Narci.refreshCombatRatings = true;
 		Narci.isActive = true;
+		CallbackRegistry:Trigger("NarcissusCharacterUI.ShownState", true);
 	else
 		if Narci.showExitConfirm and not InCombatLockdown() then
 			local ExitConfirm = Narci_ExitConfirmationDialog;
@@ -2631,6 +2635,7 @@ function Narci_OpenGroupPhoto()
 		end)
 
 		Narci.isActive = true;
+		CallbackRegistry:Trigger("NarcissusCharacterUI.ShownState", true);
 		MsgAlertContainer:Display();
 	end
 
@@ -3393,7 +3398,7 @@ end
 
 
 function NarciPaperDollDoubleClickTriggerMixin:OnHide()
-	if (self.t < 0.25) and NarcissusDB.EnableDoubleTap then
+	if (self.t < 0.25 and self.t > 0.03) and NarcissusDB.EnableDoubleTap then
 		MiniButton:Click();
 	end
 end

@@ -58,11 +58,17 @@ local function AddCustomRing()
         end
     end
 
+    table.insert(moduleData, {
+        label = Narci.L["Settings"],
+        callback = NarciAPI.ToggleSettings,
+    });
+
     SetModuleIcon(1, "Narcissus");
     SetModuleIcon(2, "PhotoMode");
     SetModuleIcon(3, "DressingRoom");
     SetModuleIcon(4, "Turntable");
     SetModuleIcon(5, "Achievement");
+    SetModuleIcon(6, "Settings");
 
 
     --ActionBook

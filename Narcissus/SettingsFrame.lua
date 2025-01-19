@@ -2477,13 +2477,6 @@ function NarciSettingsFrameMixin:OnLoad()
     end);
 
     if IS_DRAGONFLIGHT and SettingsPanel then
-        if false then
-            --don't create our tab on the SettingsPanel until the tain issue being resolved.
-            self.Background = self:CreateTexture(nil, "BACKGROUND", nil, -1);
-            self.Background:Hide();
-            return
-        end
-    
         self.Background = CreateFrame("Frame", nil, SettingsPanel);
         self.Background:SetFrameStrata("LOW");
         self.Background:SetFixedFrameStrata(true);
@@ -2500,7 +2493,7 @@ function NarciSettingsFrameMixin:OnLoad()
         local category = Settings.RegisterCanvasLayoutCategory(panel, "Narcissus");
         Settings.RegisterAddOnCategory(category);
 
-    else
+    elseif InterfaceOptions_AddCategory then
         self.Background = self:CreateTexture(nil, "BACKGROUND", nil, -1);
         self.Background:SetPoint("TOPLEFT", self, "TOPLEFT", 0, 0);
         self.Background:SetPoint("BOTTOMRIGHT", self, "BOTTOMRIGHT", 0, 0);
@@ -3635,12 +3628,20 @@ local function GetSettingsButtonByDBKey(dbKey)
         end
     end
 end
-
 NarciAPI.GetSettingsButtonByDBKey = GetSettingsButtonByDBKey;
-
-
 
 
 function Narci_PreferenceButton_OnClick(self)
     MainFrame:ToggleUI();
+end
+
+
+function NarciAPI.ToggleSettings()
+    if SettingsPanel and SettingsPanel:IsVisible() then return end;  --Player is viewing Options
+
+    if MainFrame:IsShown() then
+        MainFrame:CloseUI();
+    else
+        MainFrame:ShowUI(nil, true);
+    end
 end

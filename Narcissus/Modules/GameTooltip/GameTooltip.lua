@@ -439,11 +439,22 @@ function NarciEquipmentTooltipMixin:OnLoad()
 end
 
 function NarciEquipmentTooltipMixin:OnShow()
-
+    self:RegisterEvent("TOOLTIP_DATA_UPDATE");
 end
 
 function NarciEquipmentTooltipMixin:OnHide()
     SharedTooltipDelay:Kill();
+    self:UnregisterEvent("TOOLTIP_DATA_UPDATE");
+    self.dataInstanceID = nil;
+end
+
+function NarciEquipmentTooltipMixin:OnEvent(event, ...)
+    if event == "TOOLTIP_DATA_UPDATE" then
+        local dataInstanceID = ...
+        if dataInstanceID == self.dataInstanceID then
+            self:OnDataLoaded();
+        end
+    end
 end
 
 function NarciEquipmentTooltipMixin:EvaluateMaxWidth(width)

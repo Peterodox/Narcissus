@@ -879,8 +879,11 @@ end
 local function HideAllModels()
 	for i, model in ipairs(ModelPool) do
 		model:ClearModel();
+		model:Hide();
+		model.GroundShadow:Hide();
 		model.animationID = nil;
 		model.isCameraDirty = true;
+		model.AppliedVisuals = {};
 	end
 end
 
