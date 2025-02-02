@@ -3254,7 +3254,6 @@ local function OverrideActorInfo(actorIndex, name, hasWeapon, portraitFile)
 	--ActorPanel.ActorButton.ActorName:SetText(name);
 	SmartSetActorName(ActorPanel.ExtraPanel.buttons[actorIndex].Label, name);
 	SmartSetActorName(ActorPanel.ActorButton.ActorName, name);
-	
 
 	--Weapon
 
@@ -3370,6 +3369,7 @@ local function CreateAndSelectNewActor(actorIndex, unit, isVirtual)
 
 	model.creatureID = nil;
 	model.displayID = nil;
+	model.fileID = nil;
 
 	WeaponUpdator:GetTargetWeapons(unit);
 end
@@ -3585,6 +3585,7 @@ local function RemoveActor(actorIndex)
 
 		model.creatureID = nil;
 		model.displayID = nil;
+		model.fileID = nil;
 		model.creatureName = nil;
 		model.equippedWeapons = nil;
 		model.isAnimationCached = nil;
@@ -4961,3 +4962,17 @@ local function PlayAnimationSequenceOnModel(moldeIndex, ...)
 end
 
 Narci.PlayAnimationSequenceOnModel = PlayAnimationSequenceOnModel;
+
+
+
+function Narci.SetModelByFileID(fileID)
+	local actor = Narci:GetActiveActor();
+	if actor then
+		actor.fileID = fileID;
+		actor:SetModel(fileID);
+		local actorIndex = actor:GetID();
+		local name = "File: "..fileID;
+		local hasWeapon = false;
+		OverrideActorInfo(actorIndex, name, hasWeapon);
+	end
+end

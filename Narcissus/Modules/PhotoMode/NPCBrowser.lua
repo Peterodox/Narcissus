@@ -6,7 +6,6 @@ local Narci = Narci;
 local L = Narci.L;
 local FadeFrame = NarciFadeUI.Fade;
 local NarciPhotoModeAPI = NarciPhotoModeAPI;
-local DoesCreatureDisplayIDExist = NarciAPI.DoesCreatureDisplayIDExist;
 
 local BROWSER_WIDTH = 192;
 local BROWSER_HEIGHT = 208;
@@ -2184,6 +2183,9 @@ UpdateModelDelay:SetScript("OnUpdate", function(self, elapsed)
         if self.isDisplayID then
             MatchPreviewModel.isDisplayID = true;
             MatchPreviewModel:SetDisplayInfo(self.id);
+        elseif self.isFileID then
+            MatchPreviewModel.isDisplayID = nil;
+            MatchPreviewModel:SetModel(self.id);
         else
             MatchPreviewModel.isDisplayID = nil;
             MatchPreviewModel:SetCreature(self.id);
@@ -2195,12 +2197,13 @@ UpdateModelDelay:SetScript("OnUpdate", function(self, elapsed)
     end
 end)
 
-local function UpdatePreviewModel(id, isDisplayID)
+local function UpdatePreviewModel(id, isDisplayID, isFileID)
     if id then
         if MatchPreviewModel.id ~= id or MatchPreviewModel.isDisplayID ~= isDisplayID then
             UpdateModelDelay.total = 0;
             UpdateModelDelay.id = id;
             UpdateModelDelay.isDisplayID = isDisplayID;
+            UpdateModelDelay.isFileID = isFileID;
             UpdateModelDelay:Show();
         end
     end
@@ -2340,7 +2343,7 @@ do
         end
 
         function CreatureInfoUtil:GetTitle(creatureID)
-            if not creatureID then return end;
+            if (not creatureID) or (creatureID == 0) then return end;
             local tooltipData = GetInfoByHyperlink("unit:Creature-0-0-0-0-"..creatureID);
             if tooltipData then
                 local text = GetLineText(tooltipData.lines, 2);
@@ -2576,7 +2579,7 @@ local function NPCCard_OnClick(self, button, down, holdWeapon)
         if self.voiceID then
             PlaySound(self.voiceID, "Dialog");
         end
-     
+
         local creatureName = self.creatureName;
         model.creatureName = creatureName;
         if self.hasPortrait and self.creatureID then
@@ -2912,6 +2915,7 @@ local function SetUpMatchButton(button, creatureData, keyword)
             local displayID = creatureData[3];
             button.creatureID = nil;
             button.displayID = displayID;
+            button.fileID = nil;
             button.Name:Show();
             button.Title:Show();
             button.NameCenter:Hide();
@@ -2921,8 +2925,24 @@ local function SetUpMatchButton(button, creatureData, keyword)
             button.isFav = nil;
             button.Star:Hide();
             button.creatureName = "|cffffd200DisplayID: "..displayID.."|r";
+        elseif creatureData[4] then
+            --FileID
+            local fileID = creatureData[4];
+            button.creatureID = nil;
+            button.displayID = nil;
+            button.fileID = fileID;
+            button.Name:Show();
+            button.Title:Show();
+            button.NameCenter:Hide();
+            button.Name:SetTextColor(1, 1, 1);
+            button.Title:SetText("File");
+            button.Name:SetText(fileID);
+            button.isFav = nil;
+            button.Star:Hide();
+            button.creatureName = "|cffffd200File: "..fileID.."|r";
         else
             button.displayID = nil;
+            button.fileID = nil;
             local id = creatureData[2];
             local name, title;
             if id ~= button.creatureID then
@@ -2982,6 +3002,9 @@ local function Match_OnEnter(self)
     elseif self.creatureID then
         UpdatePreviewModel(self.creatureID);
         ShowMouseOverButtons(self);
+    elseif self.fileID then
+        UpdatePreviewModel(self.fileID, nil, true);
+        MouseOverButtons:Hide();
     end
 end
 
@@ -3008,7 +3031,7 @@ function ScrollMatch:HideButtons()
 end
 
 function ScrollMatch:SetMatchData(data, keyword)
-    self.data = data;
+    self.data = data or {};
     self.keyword = keyword;
 end
 
@@ -3050,15 +3073,30 @@ function ScrollMatch:UpdateScrollChild(offset, forced)
     end
 end
 
+local function SetCreaturePreview(id)
+    local model = MatchPreviewModel;
+    if id then
+        model:SetAlpha(0);
+        model:SetCreature(id);
+        model.id = id;
+        FadeFrame(model, 0.25, 1);
+        MatchTab.Notes:Hide();
+    else
+        FadeFrame(model, 0.12, 0);
+        MatchTab.Notes:Show();
+    end
+end
+
 local function DisplaySearchResult(matchTable, keyword)
     ScrollMatch:SetMatchData(matchTable, keyword);
     local frame = MatchTab;
-    local numMacthes = #matchTable;
+    local numMacthes = matchTable and #matchTable or 0;
     if numMacthes > 0 then
         frame.Notes:Hide();
         MouseOverButtons:Hide();
     else
         ScrollMatch:HideButtons();
+        SetCreaturePreview(nil);
         return
     end
     local numActiveButton = min(numMacthes, NUM_MAX_MATCHES);
@@ -3387,20 +3425,6 @@ local function StartSearching()
     SearchDelay:Show();
 end
 
-local function SetCreaturePreview(id)
-    local model = MatchPreviewModel;
-    if id then
-        model:SetAlpha(0);
-        model:SetCreature(id);
-        model.id = id;
-        FadeFrame(model, 0.25, 1);
-        MatchTab.Notes:Hide();
-    else
-        FadeFrame(model, 0.12, 0);
-        MatchTab.Notes:Show();
-    end
-end
-
 local function SearchByID(id)
     if IsKeyDown("BACKSPACE") then return end
 
@@ -3417,7 +3441,7 @@ local function SearchByID(id)
         DisplaySearchResult(result, nil);
     end
 
-    if DoesCreatureDisplayIDExist(id) then
+    if NarciAPI.DoesCreatureDisplayIDExist(id) then
         if result then
             tinsert(result, {"DisplayID", 0, id});
         else
@@ -3427,11 +3451,19 @@ local function SearchByID(id)
         end
     end
 
-    if result then
-        DisplaySearchResult(result, nil);
-    else
-        SetCreaturePreview(nil);
+    --[[
+    if NarciAPI.DoesModelFileExist(id) then
+        if result then
+            tinsert(result, {"File", 0, nil, id});
+        else
+            result = {
+                {"File", 0, nil, id},
+            };
+        end
     end
+    --]]
+
+    DisplaySearchResult(result, nil);
 end
 
 local function SearchByName(str)
@@ -3453,7 +3485,7 @@ local function SearchByName(str)
         end
     end
 
-    After(0.25, function()
+    After(0.2, function()
         if numMacthes > 0 then
             table.sort(matchedIDs, SortFunc);
         end
@@ -3519,7 +3551,7 @@ function NarciNPCSearchBoxMixin:OnTextChanged(isUserInput)
 
     if str ~= 0 then
         MatchTab.scrollBar:SetValue(0);
-        
+
         self.hasNumber = true;
         self.DefaultText:Hide();
         self.EraseButton:Show();
@@ -3533,7 +3565,8 @@ function NarciNPCSearchBoxMixin:OnTextChanged(isUserInput)
         if id <= 999999 then
             SearchDelay.creatureID = id;
             CreatureInfoUtil:RequestInfo(id);
-            DoesCreatureDisplayIDExist(id);     --Query
+            NarciAPI.DoesCreatureDisplayIDExist(id);    --Query
+            --NarciAPI.DoesModelFileExist(id);          ----Unused. Potentially crash the game
             StartSearching();
         end
     else

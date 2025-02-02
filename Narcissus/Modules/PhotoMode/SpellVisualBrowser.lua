@@ -1284,6 +1284,8 @@ local function ResetModel()
         model:SetCreature(model.creatureID);
     elseif model.displayID then
         model:SetDisplayInfo(model.displayID);
+    elseif model.fileID then
+        model:SetModel(model.fileID);
     else
         if model.unit and model.unit == "player" then
             TransitionAPI.SetModelByUnit(model, "player");
