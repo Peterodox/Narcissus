@@ -230,7 +230,7 @@
     </Button>
 
     
-    <Frame name="Narci_WeaponBrowser" mixin="NarciWeaponBrowserMixin" hidden="true" movable="true" ignoreParentScale="true">
+    <Frame name="Narci_WeaponBrowser" mixin="NarciWeaponBrowserMixin" hidden="true" movable="true" ignoreParentScale="true" dontSavePosition="true">
         <Size x="192" y="400"/>
         <Anchors>
             <Anchor point="LEFT" x="128"/>
@@ -388,7 +388,7 @@
                 </Frames>
             </ScrollFrame>
 
-            <Frame parentKey="Header" frameLevel="4">
+            <Frame parentKey="Header" frameLevel="4" clampedToScreen="true">
                 <Size x="192" y="16"/>
                 <Anchors>
                     <Anchor point="TOP" relativeKey="$parent" relativePoint="TOP" y="0"/>

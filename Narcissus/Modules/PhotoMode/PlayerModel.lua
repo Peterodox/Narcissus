@@ -4754,72 +4754,22 @@ do
 	end
 end
 
+
+
+
+---- Global APIs Below ----
 --[[
-function PrintIcon(id)
-	print("|T"..id..":18:18:0:0:64:64:4:60:4:60|t")
-end
-
-**Peter Odox**
-
-| Slot | Name | Source |
-|:--|:--|:--|
-| Head | [Netherstorm Eyepatch](https://www.wowhead.com/item=29979) | Quest | 
-| Shoulder | [Lightdrinker Shoulders](https://www.wowhead.com/item=119702) |   | 
-| Back | [Loa Exultant's Shroud](https://www.wowhead.com/item=165512) | Conclave of the Chosen Battle of Dazar'alor Mythic | 
-| Chest | [Vest of the Dashing Scoundrel](https://www.wowhead.com/item=152160) | Eonar the Life-Binder Antorus, the Burning Throne Raid Finder | 
-| Shirt | [Blue Lumberjack Shirt](https://www.wowhead.com/item=41249) | Profession | 
-| Wrist | [Codemaster's Cuffs](https://www.wowhead.com/item=63660) | Quest | 
-| Hands | [Honorable Combatant's Leather Gauntlets](https://www.wowhead.com/item=161949) | Profession | 
-| Waist | [Hound-Jowl Waistband](https://www.wowhead.com/item=159341) | Soulbound Goliath Waycrest Manor Heroic | 
-| Legs | [Pants of the Dashing Scoundrel](https://www.wowhead.com/item=152164) | Imonar the Soulhunter Antorus, the Burning Throne Raid Finder | 
-| Feet | [Honorable Combatant's Leather Treads](https://www.wowhead.com/item=161948) | Profession | 
-| Main Hand | [Dreadblades](https://www.wowhead.com/item=128872) | Artifact | 
-| Off Hand | [Dreadblades](https://www.wowhead.com/item=134552) | Artifact | 
-
-
-
-https://www.wowhead.com/dressing-room#sazm0zJ89cRszNz9m8RZY8zVy8OP48zgJ8WqC8zLJ8PdT8zmw87oSxB8zT48SIf8zLA8Pdx8zmw8Sxl8zT48CiZ808CiY87cf
-https://www.wowhead.com/dressing-room#sm0m0zJ89mVm0V9m8RZY8zVy8OP48zgJ8WqC8zLO8PdT8zmi87oURd8zT48SIf808Pdx8zmi8URb8zT48CiZ808CiY87cw
-
-Model FileID
-Calia Menethil 2997555
-Jaina Proudmoore No Weapon 1717164
-Derek Proudmoore 2831231
-
-Dogs
-320622
-
-Patch	SpellVisualKit max ID
-8.2.0	119100
-8.2.5	120270
-
-
-/run PrimaryPlayerModel:SetLight(true, false, -pi/4, pi/4, 0, 1, 1, 1, 1, 500, 10, 10, 10);
-
-
-
-function SetModelID(fileID)
-	local m = NarciNPCModelFrame2;
-	local a, b, c = m:GetPosition();
-	local x, y, z = m:GetCameraPosition();
-
-	m:SetModel(fileID);
-	After(1, function()
-		m:MakeCurrentCameraCustom();
-		m:SetPosition(a, b, c);
-		m:SetCameraPosition(x, y, z);
-		m:SetCameraTarget(0, 0, 0.8);
-	end);
-end
-
-
-/script local m=Narci.ActiveModel;local v=m.variationID;v=(v<15 and v+1)or(0);m.variationID=v;m:PlayAnimation(m.animationID);print(v);
-/script local f=function(s)	s:SetAnimation(s.animationID or 0,s.variationID or 0) end;local m;for i=1,8 do m=_G["NarciPlayerModelFrame"..i] if m then m:SetScript("OnAnimFinished", f) end end
-/script local f=function(s) if s then s:SetScript("OnAnimFinished",function() s:SetAnimation(s.animationID or 0,s.variationID or 0) end) end end;for i=1,8 do f(_G["NarciPlayerModelFrame"..i]) f(_G["NarciNPCModelFrame"..i]) end
+	Narci.SpinCurrentActor(secondsPerCycle)
+	Narci.SetChromaKeyColor(r, g, b)
+	Narci.PlayAnimationSequenceOnModel(moldeIndex, animationID1, animationID2, ...)
+	Narci.SetModelByFileID(fileID)
+	Narci.SetModelByDisplayID(displayID, [name])
+	Narci.SetModelByMount(mountID, [displayIndex])
+	Narci.SetModelByPet()
 --]]
 
 local Spinner;
-function Narci.SpinCurrentActor()
+function Narci.SpinCurrentActor(secondsPerCycle)
 	local actor = Narci:GetActiveActor();
 	if actor then
 		if not Spinner then
@@ -4834,7 +4784,7 @@ function Narci.SpinCurrentActor()
 	Spinner:Show();
 	Spinner:SetParent(actor);
 	local pi2 = math.pi*2;
-	local t = 6;
+	local t = secondsPerCycle or 6;
 	local dA = pi2/t;
 	Spinner:SetScript("OnUpdate", function(f, elapsed)
 		f.yaw = f.yaw + elapsed*dA;
@@ -4931,9 +4881,8 @@ local function SetChromaKeyColor(r, g, b, a)
 	tex:SetAlpha(a);
 	tex:Show();
 end
-
 NarciPhotoModeAPI.SetChromaKeyColor = SetChromaKeyColor;
-
+Narci.SetChromaKeyColor = SetChromaKeyColor;
 
 
 --Play a sequence of animation on the actor
@@ -4960,9 +4909,7 @@ local function PlayAnimationSequenceOnModel(moldeIndex, ...)
 		model:SetAnimation(model.animationSequence[1], 0);
 	end
 end
-
 Narci.PlayAnimationSequenceOnModel = PlayAnimationSequenceOnModel;
-
 
 
 function Narci.SetModelByFileID(fileID)
@@ -4974,5 +4921,73 @@ function Narci.SetModelByFileID(fileID)
 		local name = "File: "..fileID;
 		local hasWeapon = false;
 		OverrideActorInfo(actorIndex, name, hasWeapon);
+	end
+end
+
+local function SetActorByDisplayID(actor, displayID, name)
+	actor:SetDisplayInfo(displayID);
+	actor.displayID = displayID;
+	actor.creatureID = nil;
+	local actorIndex = actor:GetID();
+	if name then
+		name = string.format("|cffffd200%s|r", name);
+	else
+		name = string.format("|cffffd200DisplayID: %s|r", displayID);
+	end
+	local hasWeapon = false;
+	OverrideActorInfo(actorIndex, name, hasWeapon);
+
+	local portrait = ActorPanel.ActorButton["Portrait"..actorIndex];
+	if portrait and SetPortraitTextureFromCreatureDisplayID then
+		portrait:SetTexCoord(0, 1, 0, 1);
+		SetPortraitTextureFromCreatureDisplayID(portrait, displayID);
+	end
+end
+
+function Narci.SetModelByDisplayID(displayID, name)
+	local actor = Narci:GetActiveActor();
+	if actor and displayID then
+		SetActorByDisplayID(actor, displayID, name);
+	end
+end
+
+function Narci.SetModelByMount(mountID, displayIndex)
+	if not mountID then
+		local obj = TransitionAPI.GetMouseFocus();
+		mountID = obj and obj.mountID;
+	end
+
+	if mountID then
+		local displayID;
+		if displayIndex then
+			local allDisplayInfo = C_MountJournal.GetMountAllCreatureDisplayInfoByID(mountID);
+			displayID = allDisplayInfo and allDisplayInfo[displayIndex] or allDisplayInfo[1];
+		else
+			displayID = C_MountJournal.GetMountInfoExtraByID(mountID);
+		end
+		if displayID then
+			local actor = Narci:GetActiveActor();
+			if actor then
+				local name = C_MountJournal.GetMountInfoByID(mountID);
+				SetActorByDisplayID(actor, displayID, name);
+			end
+		end
+	end
+end
+
+function Narci.SetModelByPet()
+	--Use the current mouseover pet to replace the active actor
+	local displayID;
+	local obj = TransitionAPI.GetMouseFocus();
+	if obj and obj.speciesID and obj.index then
+		displayID = C_PetJournal.GetDisplayIDByIndex(obj.speciesID, obj.index);
+	end
+
+	if displayID then
+		local actor = Narci:GetActiveActor();
+		if actor then
+			local name = C_PetJournal.GetPetInfoBySpeciesID(obj.speciesID);
+			SetActorByDisplayID(actor, displayID, name);
+		end
 	end
 end

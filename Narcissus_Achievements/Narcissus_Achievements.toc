@@ -1,4 +1,4 @@
-## Interface: 110005, 110007
+## Interface: 110007
 ## Version: 11.0.7
 ## LoadOnDemand: 1
 ## RequiredDeps: Narcissus

@@ -1436,6 +1436,10 @@ function NarciWeaponBrowserMixin:Preload()
         tooltip:SetFrameStrata("TOOLTIP");
         tooltip:SetFrameLevel(80);
     end
+
+    self:SetClampedToScreen(true);
+    local height = self:GetHeight();
+    self:SetClampRectInsets(0, 0, 0, height - 32);  --Clamp header to the screen
 end
 
 function NarciWeaponBrowserMixin:Load()
