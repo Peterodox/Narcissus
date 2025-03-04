@@ -1,6 +1,7 @@
 local _, addon = ...
 local TransitionAPI = addon.TransitionAPI;
 local RoundToDigit = addon.Math.RoundToDigit;
+local PrivateAPI = addon.PrivateAPI;
 
 local C_Item = C_Item;
 local After = C_Timer.After;
@@ -617,6 +618,18 @@ do
         end
     end
     NarciAPI.GetItemPositionByItemID = GetItemPositionByItemID;
+
+    function PrivateAPI.DoesPlayerHaveAnyItems(itemList)
+        if itemList then
+            local count;
+            for _, itemID in ipairs(itemList) do
+                count = GetItemCount(itemID);
+                if count > 0 then
+                    return true
+                end
+            end
+        end
+    end
 end
 
 

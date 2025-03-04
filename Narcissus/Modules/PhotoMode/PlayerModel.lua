@@ -4764,7 +4764,7 @@ end
 	Narci.PlayAnimationSequenceOnModel(moldeIndex, animationID1, animationID2, ...)
 	Narci.SetModelByFileID(fileID)
 	Narci.SetModelByDisplayID(displayID, [name])
-	Narci.SetModelByMount(mountID, [displayIndex])
+	Narci.SetModelByMount([mountID], [displayIndex])
 	Narci.SetModelByPet()
 --]]
 

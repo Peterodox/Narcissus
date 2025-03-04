@@ -112,8 +112,8 @@ local Themes = {
 		onEnterFunc = Domination_OnEnter,
     },
 
-	--[[
-    classSet = {
+
+    classSet_Progenitor = {
         frameTex = "Progenitor\\ItemLevelHex",
         highlightTex = "Progenitor\\ItemLevelHexHighlight",
 		nodeTex = "Progenitor\\SetPieceCount",
@@ -124,9 +124,8 @@ local Themes = {
 		onEnterFunc = ClassSet_OnEnter,
 		onLeaveFunc = ClassSet_OnLeave,
     },
-	--]]
 
-    classSet = {
+    classSet_Neltharion = {
         frameTex = "Neltharion\\ItemLevelHex",
         highlightTex = "Neltharion\\ItemLevelHexHighlight",
 		nodeTex = "Neltharion\\SetPieceCount",
@@ -137,22 +136,23 @@ local Themes = {
 		onEnterFunc = ClassSet_OnEnter,
 		onLeaveFunc = ClassSet_OnLeave,
     },
+
+	classSet_EmeraldDream = {
+		frameTex = "EmeraldDream\\ItemLevelHex",
+		--highlightTex = "EmeraldDream\\ItemLevelHexHighlight",
+		nodeTex = "EmeraldDream\\SetPieceCount",
+		nodeHighlightTex = "EmeraldDream\\SetPieceCountHighlight",
+		highlightSize = 104,
+		highlightBlend = "ADD",
+		highlightLevel = 4,
+		onEnterFunc = ClassSet_OnEnter,
+		onLeaveFunc = ClassSet_OnLeave,
+	};
 };
 
+
 do
-	if addon.IsTOCVersionEqualOrNewerThan(100200) then
-		Themes.classSet = {
-			frameTex = "EmeraldDream\\ItemLevelHex",
-			--highlightTex = "EmeraldDream\\ItemLevelHexHighlight",
-			nodeTex = "EmeraldDream\\SetPieceCount",
-			nodeHighlightTex = "EmeraldDream\\SetPieceCountHighlight",
-			highlightSize = 104,
-			highlightBlend = "ADD",
-			highlightLevel = 4,
-			onEnterFunc = ClassSet_OnEnter,
-			onLeaveFunc = ClassSet_OnLeave,
-		};
-    end
+	Themes.classSet = Themes.classSet_Neltharion;	--TWW S2 Undermine
 end
 
 

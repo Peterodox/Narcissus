@@ -1,7 +1,7 @@
-local NARCI_VERSION_INFO = "1.7.7";
+local NARCI_VERSION_INFO = "1.7.8";
 
-local VERSION_DATE = 1738550000;
-local CURRENT_VERSION = 10707;
+local VERSION_DATE = 1741100000;
+local CURRENT_VERSION = 10708;
 local PREVIOUS_VERSION = CURRENT_VERSION;
 local TIME_SINCE_LAST_UPDATE = 0;
 
@@ -27,6 +27,9 @@ Saved Variables:
 Narci = {};
 NarciAPI = {};
 NarciViewUtil = {};
+
+local PrivateAPI = {};
+addon.PrivateAPI = PrivateAPI;
 
 local DefaultValues = {
     -- Character UI --

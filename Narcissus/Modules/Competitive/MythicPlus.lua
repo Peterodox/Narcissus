@@ -76,6 +76,13 @@ local MAP_UI_INFO = {
     [505] = {name = 'the-dawnbreaker'},
     [353] = {name = 'siege-of-boralus'},
     [502] = {name = 'city-of-threads'},
+
+    [500] = {name = 'the-rookery'},
+    [504] = {name = 'darkflame-cleft'},
+    [499] = {name = 'priory-of-the-sacred-flame'},
+    [506] = {name = 'cinderbrew-meadery'},
+    [525] = {name = 'operation-floodgate'},
+    [247] = {name = 'the-motherlode'},
 };
 
 local SEASON_MAPS = {501, 376, 505, 353, 375, 507, 502, 503};

@@ -181,7 +181,7 @@ function CVarTemp:RestoreDynamicCam()
 end
 
 local function GetKeepActionCam()
-	return CVarTemp.isDynamicCamLoaded or (not CVarTemp.cameraSafeMode)
+	return CVarTemp.isDynamicCamLoaded or CVarTemp.isActionCamPlusLoaded or (not CVarTemp.cameraSafeMode)
 end
 
 CVarTemp.shoulderOffset = tonumber(GetCVar("test_cameraOverShoulder"));
@@ -3173,6 +3173,8 @@ EL:SetScript("OnEvent",function(self, event, ...)
 
 			ViewProfile:Disable();
 
+		elseif C_AddOns.IsAddOnLoaded("ActionCamPlus") then
+			CVarTemp.isActionCamPlusLoaded = true;
 		else
 			if NarcissusDB.CameraSafeMode then
 				local temp = GetCVar("test_cameraOverShoulder");

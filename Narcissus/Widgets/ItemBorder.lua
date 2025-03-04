@@ -126,6 +126,7 @@ local itemIDxBorderArt = {
     [1] = {"Neltharion", nil, CreateColor(252, 185, 54)},           --Class Sets: Embers of Neltharion
     [2] = {"EmeraldDream", nil, CreateColor(56, 224, 178)},         --Class Sets: Guardians of the Dream
     [3] = {"EmeraldDream", nil, CreateColor(56, 224, 178)},         --Class Sets: DF S4 Awakened Raids
+    [4] = {"Neltharion", nil, CreateColor(252, 185, 54)},           --Class Sets: TWW S2 Undermined
 };
 
 local itemVisualGroup = {};
