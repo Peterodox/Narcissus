@@ -583,8 +583,8 @@
 
 	<DressUpModel name="Narci_CharacterModelFrame_Template" frameStrata="MEDIUM" hidden="false" virtual="true" frameLevel="5" mixin="NarciGenericModelMixin">
 		<Anchors>
-			<Anchor point="TOPLEFT" relativeTo="UIParent" relativePoint="TOPLEFT" x="0" y="0"/>
-			<Anchor point="BOTTOMRIGHT" relativeTo="UIParent" relativePoint="BOTTOMRIGHT" x="0" y="0"/>
+			<Anchor point="TOPLEFT" relativeTo="WorldFrame" relativePoint="TOPLEFT" x="0" y="0"/>
+			<Anchor point="BOTTOMRIGHT" relativeTo="WorldFrame" relativePoint="BOTTOMRIGHT" x="0" y="0"/>
 		</Anchors>
 		<KeyValues>
 			<KeyValue key="isCameraDirty" value="true" type="boolean"/>
@@ -647,8 +647,8 @@
 				<Texture setAllPoints="true" hidden="false" parentKey="Brightness" name="Narci_BackgroundDarkness" alpha="0">
 					<Color r="0" g="0" b="0" a="1"/>
 					<Anchors>
-						<Anchor point="TOPLEFT" relativeTo="UIParent" relativePoint="TOPLEFT" x="0" y="0"/>
-						<Anchor point="BOTTOMRIGHT" relativeTo="UIParent" relativePoint="BOTTOMRIGHT" x="0" y="0"/>
+						<Anchor point="TOPLEFT" relativeTo="WorldFrame" relativePoint="TOPLEFT" x="0" y="0"/>
+						<Anchor point="BOTTOMRIGHT" relativeTo="WorldFrame" relativePoint="BOTTOMRIGHT" x="0" y="0"/>
 					</Anchors>
 				</Texture>
 			</Layer>
@@ -656,8 +656,8 @@
 				<Texture setAllPoints="true" hidden="true" parentKey="ChromaKey" alpha="0" name="Narci_ChromaKey">
 					<Color r="1" g="1" b="1" a="1"/>
 					<Anchors>
-						<Anchor point="TOPLEFT" relativeTo="UIParent" relativePoint="TOPLEFT" x="0" y="0"/>
-						<Anchor point="BOTTOMRIGHT" relativeTo="UIParent" relativePoint="BOTTOMRIGHT" x="0" y="0"/>
+						<Anchor point="TOPLEFT" relativeTo="WorldFrame" relativePoint="TOPLEFT" x="0" y="0"/>
+						<Anchor point="BOTTOMRIGHT" relativeTo="WorldFrame" relativePoint="BOTTOMRIGHT" x="0" y="0"/>
 					</Anchors>
 				</Texture>
 			</Layer>
@@ -665,8 +665,8 @@
 		<Frames>
 			<DressUpModel name="NarciPlayerModelFrame1" inherits="Narci_CharacterModelFrame_Template" hidden="true" frameLevel="13" id="1" mixin="NarciMainModelMixin">
 				<Anchors>
-					<Anchor point="TOPLEFT" relativeTo="UIParent" relativePoint="TOPLEFT" x="0" y="0"/>
-					<Anchor point="BOTTOMRIGHT" relativeTo="UIParent" relativePoint="BOTTOMRIGHT" x="0" y="0"/>
+					<Anchor point="TOPLEFT" relativeTo="WorldFrame" relativePoint="TOPLEFT" x="0" y="0"/>
+					<Anchor point="BOTTOMRIGHT" relativeTo="WorldFrame" relativePoint="BOTTOMRIGHT" x="0" y="0"/>
 				</Anchors>
 				<Layers>
 					<Layer level="BACKGROUND">
@@ -3345,8 +3345,8 @@
 
 	<Frame name="Narci_ModelInteractiveArea" hidden="true" setAllPoints="true" frameStrata="LOW">
 		<Anchors>
-			<Anchor point="TOPRIGHT" relativeTo="UIParent" relativePoint="TOPRIGHT"/>
-			<Anchor point="BOTTOMRIGHT" relativeTo="UIParent" relativePoint="BOTTOMRIGHT"/>
+			<Anchor point="TOPRIGHT" relativeTo="WorldFrame" relativePoint="TOPRIGHT"/>
+			<Anchor point="BOTTOMRIGHT" relativeTo="WorldFrame" relativePoint="BOTTOMRIGHT"/>
 		</Anchors>
 		<Layers>
 			<Layer level="BACKGROUND">

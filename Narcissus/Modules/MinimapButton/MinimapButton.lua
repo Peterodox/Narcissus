@@ -832,7 +832,7 @@ do	--Override in DataBroker.lua
 
 		if enableMinimapButton then
 			if self:HasLibDBIcon() then
-				if C_AddOns.IsAddOnLoaded("Leatrix_Plus") then
+				if NarciAPI.IsLeatrixMinimapEnabled() then
 					--Use LibDBIcon instead of our button
 					self:Hide();
 					self:ShowLibDBIcon();

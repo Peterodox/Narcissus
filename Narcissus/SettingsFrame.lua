@@ -1365,7 +1365,7 @@ local function MinimapButtonFadeOut_OnValueChanged(self, state)
 end
 
 local function Minimap_HandledByLeatrix()
-    return not C_AddOns.IsAddOnLoaded("Leatrix_Plus")
+    return not NarciAPI.IsLeatrixMinimapEnabled()
 end
 
 --[[

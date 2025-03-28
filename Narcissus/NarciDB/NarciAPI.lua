@@ -3399,3 +3399,14 @@ do  --Model Util
         end
     end
 end
+
+do  --AddOn Compatibility
+    function NarciAPI.IsLeatrixMinimapEnabled()
+        if C_AddOns.IsAddOnLoaded("Leatrix_Plus") then
+            if LeaPlusDB and LeaPlusDB["MinimapModder"] == "On" then
+                return true
+            end
+        end
+        return false
+    end
+end
