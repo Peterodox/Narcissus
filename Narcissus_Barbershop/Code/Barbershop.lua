@@ -58,7 +58,7 @@ end
 local L = Narci.L;
 -----------------------------------------------
 
-local MainFrame, ScrollModelFrame, EditButton, EditBox, DeleteButton, PlusButton, SettingFrame, SettingButton, LoadingFrame, SavedLookButtons;
+local MainFrame, ScrollModelFrame, EditButton, EditBox, DeleteButton, PlusButton, SettingFrame, SettingButton, LoadingFrame, SavedLookButtons, WidgetTooltip;
 local BarberShopUI; --Blizzard BarberShopUI
 
 
@@ -1695,6 +1695,7 @@ NarciBarberShopMixin = {};
 
 function NarciBarberShopMixin:OnLoad()
     MainFrame = self;
+    WidgetTooltip = self.WidgetTooltip;
     ScrollModelFrame = self.SavedLooksFrame.ScrollModelFrame;
     ScrollBoundMarkUpdater.object1 = ScrollModelFrame.BoundTop;
     ScrollBoundMarkUpdater.object2 = ScrollModelFrame.BoundBottom;
@@ -2255,10 +2256,218 @@ function DiffUtil:IsSavedAppearance(selectedOptions)
 end
 
 
+local function SharedTab_Update()
+
+end
+
 local function ShareTab_Setup(tab)
     tab:SetScript("OnShow", API.ShowAppearanceList);
     tab:SetScript("OnHide", API.HideAppearanceList);
+
+    local box1OffsetY = -25;
+    local box2OffsetY = -96;
+
+    tab.ExportEditBox:ClearAllPoints();
+    tab.ImportEditBox:ClearAllPoints();
+
+    if API.IsPlayerMultiForm() then
+        tab.ExportEditBox.Header:ClearAllPoints();
+        tab.ExportEditBox.Header:SetPoint("TOP", tab, "TOP", 0, -8);
+
+
+        local PlayerFormLabel = tab:CreateFontString(nil, "OVERLAY", "SystemFont_Tiny");
+        PlayerFormLabel:Hide();
+        PlayerFormLabel:SetTextColor(0.5, 0.5, 0.5);
+        tab.ExportEditBox.HiddenObject = PlayerFormLabel;
+
+        --Form Switch Button
+        local switchButtonSize = 20;
+        local buttonGap = 6;
+        local textureFile = "Interface/AddOns/Narcissus/Art/Modules/BarberShop/FormSwitch.tga";
+
+        local FormSwitchButtonMixin = {};
+
+        function FormSwitchButtonMixin:OnEnter()
+            if self.selected then
+                self.Border:SetVertexColor(1, 1, 1);
+            else
+                self.Border:SetVertexColor(API.GetColorByKey("focused"));
+            end
+        end
+
+        function FormSwitchButtonMixin:OnLeave()
+            if self.selected then
+                self.Border:SetVertexColor(1, 1, 1);
+            else
+                self.Border:SetVertexColor(API.GetColorByKey("grey"));
+            end
+        end
+
+        function FormSwitchButtonMixin:OnClick()
+            --C_BarberShop.SetViewingAlteredForm(self.isAlteredForm);
+            local resetCategory = false;
+            CharCustomizeFrame:SetViewingAlteredForm(self.isAlteredForm, resetCategory);
+            After(0.1, function()
+                if tab:IsVisible() then
+                    SharedTab_Update();
+                end
+            end);
+        end
+
+        function FormSwitchButtonMixin:SetSelected(selected)
+            self.selected = selected;
+            if selected then
+                self.Border:SetTexCoord(0.25, 0.5, 0, 0.25);
+                PlayerFormLabel:ClearAllPoints();
+                if self.isAlteredForm then
+                    PlayerFormLabel:SetPoint("LEFT", self, "RIGHT", buttonGap, 0);
+                else
+                    PlayerFormLabel:SetPoint("RIGHT", self, "LEFT", -buttonGap, 0);
+                end
+            else
+                self.Border:SetTexCoord(0, 0.25, 0, 0.25);
+            end
+            if self:IsMouseMotionFocus() then
+                self:OnEnter();
+            else
+                self:OnLeave();
+            end
+        end
+
+        local FormButtons = {};
+
+        for i = 1, 2 do
+            local button = CreateFrame("Button", nil, tab);
+            Mixin(button, FormSwitchButtonMixin);
+            button:SetSize(switchButtonSize, switchButtonSize);
+
+            button.Border = button:CreateTexture(nil, "OVERLAY");
+            button.Border:SetSize(32, 32);
+            button.Border:SetPoint("CENTER", button, "CENTER", 0, 0);
+            button.Border:SetTexture(textureFile);
+
+            button.RaceIcon = button:CreateTexture(nil, "ARTWORK");
+            button.RaceIcon:SetAllPoints(true);
+
+            local mask = button:CreateMaskTexture(nil, "ARTWORK");
+            mask:SetAllPoints(true);
+            mask:SetTexture("Interface/AddOns/Narcissus/Art/BasicShapes/Circle", "CLAMPTOBLACKADDITIVE", "CLAMPTOBLACKADDITIVE");
+            button.RaceIcon:AddMaskTexture(mask);
+
+            button:SetScript("OnEnter", button.OnEnter);
+            button:SetScript("OnLeave", button.OnLeave);
+            button:SetScript("OnClick", button.OnClick);
+
+            if i == 1 then
+                button:SetPoint("TOPRIGHT", tab, "TOP", -0.5*buttonGap, box1OffsetY);
+                button.isAlteredForm = false;
+                button:SetSelected(true);
+            else
+                button:SetPoint("TOPLEFT", tab, "TOP", 0.5*buttonGap, box1OffsetY);
+                button.isAlteredForm = true;
+                button:SetSelected(false);
+            end
+
+            table.insert(FormButtons, button);
+        end
+
+
+        function SharedTab_Update()
+            API.ShowAppearanceList();
+            tab.ExportEditBox:UpdateContent();
+
+            local raceID, sex, _, raceName = API.GetCurrentCharacterRaceSex();     --Defined in ImportExport.lua
+            if API.IsMultiFormRace(raceID) then
+                local extraOffsetY = switchButtonSize + buttonGap + 2;
+                tab.ExportEditBox:SetPoint("TOP", tab, "TOP", 0, box1OffsetY - extraOffsetY);
+                tab.ImportEditBox:SetPoint("TOP", tab, "TOP", 0, box2OffsetY - extraOffsetY);
+
+                local viewingAlteredForm = C_BarberShop.IsViewingAlteredForm();
+
+                for i = 1, 2 do
+                    local button = FormButtons[i];
+                    if button then
+                        button:Show();
+                        button:SetSelected(viewingAlteredForm == button.isAlteredForm);
+                        button.RaceIcon:SetAtlas(API.GetRaceIcon(raceID, sex, button.isAlteredForm), false);
+                    end
+                end
+
+                PlayerFormLabel:SetText(CHARACTER_FORM:format(raceName));
+            else
+                tab.ExportEditBox:SetPoint("TOP", tab, "TOP", 0, box1OffsetY);
+                tab.ImportEditBox:SetPoint("TOP", tab, "TOP", 0, box2OffsetY);
+                for i = 1, 2 do
+                    local button = FormButtons[i];
+                    if button then
+                        button:Hide();
+                    end
+                end
+            end
+        end
+
+        tab:SetScript("OnShow", SharedTab_Update);
+    else
+        tab.ExportEditBox:SetPoint("TOP", tab, "TOP", 0, box1OffsetY);
+        tab.ImportEditBox:SetPoint("TOP", tab, "TOP", 0, box2OffsetY);
+    end
 end
+
+
+local ProfilePresetButton_Setup;
+do
+    local ProfilePresetButtonMixin = {};
+
+    function ProfilePresetButton_Setup(button)
+        Mixin(button, ProfilePresetButtonMixin);
+
+        local names = {"OnEnter", "OnLeave", "OnMouseDown", "OnMouseUp", "OnClick"};
+        for _, methodName in ipairs(names) do
+            button:SetScript(methodName, ProfilePresetButtonMixin[methodName]);
+        end
+    end
+
+    function ProfilePresetButtonMixin:OnEnter()
+        self:SetFocus(true);
+    end
+
+    function ProfilePresetButtonMixin:OnLeave()
+        if not self:IsMouseOver() then
+            self:SetFocus(false);
+        end
+    end
+
+    function ProfilePresetButtonMixin:OnMouseDown()
+        self.Reference:SetPoint("LEFT", self, "LEFT", 0, -1);
+    end
+
+    function ProfilePresetButtonMixin:OnMouseUp()
+        self.Reference:SetPoint("LEFT", self, "LEFT", 0, 0);
+    end
+
+    function ProfilePresetButtonMixin:HighlightButton()
+        --Override
+    end
+
+    function ProfilePresetButtonMixin:ShowCopyButton()
+        --Override
+    end
+
+    function ProfilePresetButtonMixin:SetFocus(focused)
+        if focused then
+            self.HighlightButton(self);
+            self.ShowCopyButton(self);
+        else
+            self.HighlightButton(nil);
+            self.ShowCopyButton(nil);
+        end
+    end
+
+    function ProfilePresetButtonMixin:OnClick(button)
+        CustomizationUtil:UseCustomization(self.dataSource.data);
+    end
+end
+
 
 local function ProfileTab_Setup(tab)
     local widgetHeight = 20;
@@ -2409,12 +2618,17 @@ local function ProfileTab_Setup(tab)
         local function CopyButton_OnEnter(self)
             HighlightButton(self:GetParent());
             self.Icon:SetAlpha(1);
+
+            WidgetTooltip:Hide();
+            WidgetTooltip:SetPoint("BOTTOMLEFT", self, "TOPRIGHT", 2, 2);
+            WidgetTooltip:SetTooltipText(L["Profile Migration CopyButton Tooltip"]);
         end
 
         local function CopyButton_OnLeave(self)
             HighlightButton(nil);
             self.Icon:SetAlpha(0.6);
             self:Hide();
+            WidgetTooltip:Hide();
         end
         CopyButton_OnLeave(CopyButton);
 
@@ -2460,46 +2674,40 @@ local function ProfileTab_Setup(tab)
             end
         end
 
-        local function LookButton_OnEnter(self)
-            HighlightButton(self);
-            if not self.isSaved then
-                CopyButton:ClearAllPoints();
-                CopyButton:SetPoint("RIGHT", self, "RIGHT", 0, 0);
-                CopyButton:SetParent(self);
+        local function ShowCopyButton(owner)
+            CopyButton:ClearAllPoints();
+            if owner and (not owner.isSaved) then
+                CopyButton:SetPoint("RIGHT", owner, "RIGHT", 0, 0);
+                CopyButton:SetParent(owner);
                 CopyButton:Show();
-            end
-        end
-
-        local function LookButton_OnLeave(self)
-            if not self:IsMouseOver() then
-                HighlightButton(nil);
+            else
                 CopyButton:Hide();
             end
         end
 
-        local function LookButton_OnClick(self)
-            CustomizationUtil:UseCustomization(self.dataSource.data);
-        end
-
         local function CreateLookButton(parent)
             local button = CreateFrame("Button", nil, parent);
+            local leftOffset = BUTTON_TEXT_OFFSET + 12;
+            button:SetSize(BUTTON_WIDTH, BUTTON_HEIGHT);
+
+            button.Reference = CreateFrame("Frame", nil, button);
+            button.Reference:SetSize(BUTTON_HEIGHT, BUTTON_HEIGHT);
+            button.Reference:SetPoint("LEFT", button, "LEFT", 0, 0);
 
             button.LeftText = button:CreateFontString(nil, "OVERLAY", "SystemFont_Tiny");
-            button.LeftText:SetPoint("LEFT", button, "LEFT", BUTTON_TEXT_OFFSET + 12, 0);
+            button.LeftText:SetPoint("LEFT", button.Reference, "LEFT", leftOffset, 0);
             button.LeftText:SetJustifyH("LEFT");
             button.LeftText:SetTextColor(0.8, 0.8, 0.8);
-            button.LeftText:SetPoint("RIGHT", button, "RIGHT", -34, 0)
+            button.LeftText:SetWidth(BUTTON_WIDTH -leftOffset -34);
 
             button.Check = button:CreateTexture(nil, "OVERLAY");
-            button.Check:SetPoint("LEFT", button, "LEFT", BUTTON_TEXT_OFFSET, 0);
+            button.Check:SetPoint("LEFT", button.Reference, "LEFT", BUTTON_TEXT_OFFSET, 0);
             button.Check:SetSize(8, 8);
             button.Check:SetTexture("Interface/AddOns/Narcissus/Art/Modules/BarberShop/GreenCheck");
 
-            button:SetScript("OnEnter", LookButton_OnEnter);
-            button:SetScript("OnLeave", LookButton_OnLeave);
-            button:SetScript("OnClick", LookButton_OnClick);
-
-            button:SetSize(BUTTON_WIDTH, BUTTON_HEIGHT);
+            ProfilePresetButton_Setup(button);
+            button.HighlightButton = HighlightButton;
+            button.ShowCopyButton = ShowCopyButton;
 
             return button
         end
@@ -2764,10 +2972,9 @@ local function CreateTabs(frame)
                     end
                     object:SetChecked(NarciBarberShopDB[dbName]);
                     if objectData.tooltip then
-                        local infoButton = CreateFrame("Frame", nil, object, "NarciGenericInfoButtonTemplate");
+                        local infoButton = CreateFrame("Frame", nil, object, "NarciBarberShopInfoButtonTemplate");
                         infoButton:SetPoint("LEFT", object, "RIGHT", 12, 0);
                         infoButton.tooltipText = objectData.tooltip;
-                        infoButton.tooltipName = "CharCustomizeNoHeaderTooltip";
                         objectData.tooltip = nil;
                     end
                 elseif type == "keybinding" then
@@ -2880,6 +3087,30 @@ end
 
 function NarciBarberShopSettingsMixin:Init()
     self.Init = nil;
+
+    _G.NarciBarberShopWidgetTooltip = WidgetTooltip;
+
+    local tooltipPadding = 8;
+    WidgetTooltip.Text:SetPoint("TOPLEFT", WidgetTooltip, "TOPLEFT", tooltipPadding, -tooltipPadding);
+
+    function WidgetTooltip:SetTooltipText(tooltipText, r, g, b)
+        self:Hide();
+        if tooltipText then
+            self.Text:SetText(tooltipText);
+            self.Text:SetTextColor(r or 1, g or 1, b or 1);
+            local width = self.Text:GetWrappedWidth();
+            self:SetSize(width + 2*tooltipPadding, self.Text:GetHeight() + 2*tooltipPadding);
+            self.AnimIn:Play();
+            self:Show();
+            self:SetFrameStrata("TOOLTIP");
+        end
+    end
+
+    NarciAPI.NineSliceUtil.SetUpBackdrop(WidgetTooltip, "rectR6");
+    NarciAPI.NineSliceUtil.SetBackdropColor(WidgetTooltip, 0.0, 0.0, 0.0);
+    NarciAPI.NineSliceUtil.SetUpBorder(WidgetTooltip, "shadowR6");
+    NarciAPI.NineSliceUtil.SetBorderColor(WidgetTooltip, 0.5, 0.5, 0.5);
+
     CreateTabs(self);
     TabButtons[3]:Click();  --Open Share (import/export)
 end

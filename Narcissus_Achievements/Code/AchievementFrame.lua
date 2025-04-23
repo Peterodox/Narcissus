@@ -493,48 +493,65 @@ end
 local function FormatRewardText(id, rewardText)
     local rawText = rewardText;
     local rewardItemID = GetRewardItemID(id);
+    local categoryText, colon, rewardName;
 
     if rewardItemID then
+        categoryText, colon, rewardName = string.match(rewardText, "(.+)([:：]+)(.+)");
+    end
+
+    if categoryText and colon and rewardName then
         local itemID, itemType, itemSubType, _, icon, itemClassID, itemSubClassID = C_Item.GetItemInfoInstant(rewardItemID);
+        local itemProcessed;
         if itemSubType == "Mount" then
             local mountID = C_MountJournal.GetMountFromItem(itemID);
             if mountID then
                 local mountName = C_MountJournal.GetMountInfoByID(mountID);
                 if mountName then
-                    rewardText = gsub((RENOWN_REWARD_MOUNT_NAME_FORMAT or "Mount: %s"), "%%s", mountName);
+                    categoryText = MOUNT or categoryText;
+                    rewardName = " "..mountName;
+                    itemProcessed = true;
                 end
             end
-            if IS_DARK_THEME then
-                rewardText = gsub(rewardText, "(.+)([:：]+)(.+)", "|cff808080".. "%1%2" .."|r|cff8950c6".."%3".."|r");
-            end
-        elseif itemSubType == "Companion Pets" then
+        elseif C_ToyBox.GetToyInfo(itemID) ~= nil then
+            categoryText = TOY or categoryText;
+            itemProcessed = true;
+        else
             local petName = C_PetJournal.GetPetInfoByItemID(rewardItemID);
             if petName then
-                rewardText = gsub((TOOLTIP_BATTLE_PET_NAME or "Battle Pet: %s"), "%%s", petName);
-            end
-            if IS_DARK_THEME then
-                rewardText = gsub(rewardText, "(.+):(.+)", "|cff808080".. "%1" .."|r|cff8950c6".."%2".."|r");
-            end
-        else
-            if IS_DARK_THEME then
-                rewardText = "|cffa3d39c"..rewardText.."|r";
+                categoryText = PET or categoryText;
+                rewardName = " "..petName;
+                itemProcessed = true;
+            else
+
             end
         end
 
+        if IS_DARK_THEME then
+            rewardText = format("|cff808080%s%s|r|cff8950c6%s|r", categoryText, colon, rewardName);
+        else
+            rewardText = "|cffffd200"..categoryText..colon..rewardName.."|r";
+        end
+
         if find(rawText, TITLE_REWARD_FORMAT) then
-            if IS_DARK_THEME then
-                rawText = "|cffa3d39c"..rawText.."|r";
+            if itemProcessed then
+                if IS_DARK_THEME then
+                    rawText = "|cffa3d39c"..rawText.."|r";
+                end
+                rewardText = rawText.."   "..rewardText;
+            else
+                if IS_DARK_THEME then
+                    rewardText = "|cffa3d39c"..rawText.."|r";
+                else
+                    rewardText = rawText;
+                end
             end
-            rewardText = rawText.."   "..rewardText;
         end
     else
         if IS_DARK_THEME then
             rewardText = "|cffa3d39c"..rawText.."|r";
+        else
+            rewardText = "|cffffd200"..rewardText.."|r";
         end
-    end
-
-    if not IS_DARK_THEME then
-        rewardText = "|cffffd200"..rewardText.."|r";
     end
 
     return rewardText, rewardItemID

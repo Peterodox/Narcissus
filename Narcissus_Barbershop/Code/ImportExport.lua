@@ -485,23 +485,23 @@ local function GetCurrentCharacterRaceSex()
     else
         raceID = API.GetPlayerRaceID();
         local characterData = C_BarberShop.GetCurrentCharacterData();
-    
+
         if characterData then
             sex = characterData.sex or 0;
             raceName = characterData.name;
-            if characterData.raceData then
-                if characterData.raceData.alternateFormRaceData and C_BarberShop.IsViewingAlteredForm() then
+            if characterData.alternateFormRaceData then
+                if C_BarberShop.IsViewingAlteredForm() then
                     --e.g. human is Worgen's alternate form
-                    raceID = characterData.raceData.alternateFormRaceData.raceID or 1;
-                    raceName = characterData.raceData.alternateFormRaceData.name;
+                    --raceID = characterData.alternateFormRaceData.raceID or 1;
+                    raceName = characterData.alternateFormRaceData.name;
                 else
-                    raceName = characterData.raceData.name;
+                    raceName = characterData.name;
                 end
             end
         else
             sex = 0;
         end
-    
+
         if sex == 0 then
             sexName = MALE;
         else
@@ -513,8 +513,9 @@ local function GetCurrentCharacterRaceSex()
         end
     end
 
-    return raceID, sex, comboName
+    return raceID, sex, comboName, raceName
 end
+API.GetCurrentCharacterRaceSex = GetCurrentCharacterRaceSex;
 
 
 function Coder:EncodeList(list)
@@ -714,6 +715,10 @@ local function ExportBox_OnEditFocusGained(self)
     self.AlertText.AnimFade:Stop();
     self.AlertText:SetText(L["Press To Copy"]);
     self.AlertText:Show();
+
+    if self.HiddenObject then
+        self.HiddenObject:Show();
+    end
 end
 
 local function ExportBox_OnEditFocusLost(self)
@@ -728,6 +733,10 @@ local function ExportBox_OnEditFocusLost(self)
 
     if not self.AlertText.AnimFade:IsPlaying() then
         self.AlertText:Hide();
+    end
+
+    if self.HiddenObject then
+        self.HiddenObject:Hide();
     end
 end
 
@@ -923,6 +932,11 @@ function NarciBarberShopProfileTextBoxMixin:OnLoad()
         self:SetScript("OnShow", ExportBox_UpdateString);
         self:SetScript("OnHide", ExportBox_OnHide);
 
+        self.UpdateContent = function()
+            self.profileString = nil;
+            ExportBox_UpdateString(self);
+        end
+
         self.InfoButton.tooltipText = L["Barbershop Export Tooltip"];
     end
 
@@ -950,6 +964,7 @@ end
 function NarciBarberShopProfileTextBoxMixin:OnEditFocusGained()
     self:HighlightBorder(true);
     self:SetBackgroundColor(0.2, 0.2, 0.2);
+    self:SetCursorPosition(0);
     self:HighlightText();
     self.DefaultText:Hide();
 
@@ -960,6 +975,7 @@ function NarciBarberShopProfileTextBoxMixin:OnEditFocusLost()
     self:HighlightBorder(false);
     self:SetBackgroundColor(0, 0, 0);
     self:HighlightText(0, 0);
+    self:SetCursorPosition(0);
 
     if strtrim(self:GetText()) == "" then
         self.DefaultText:Show();

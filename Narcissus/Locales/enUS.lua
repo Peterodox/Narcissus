@@ -523,6 +523,7 @@ L["Profile Type Tooltip"] = "Select the profile to use on this character.\n\nPri
 L["No Saves"] = "No Saves";
 L["Profile Migration Tooltip"] = "You can copy existing presets to the public profile.";
 L["Profile Migration Okay"] = "Okey dokey";
+L["Profile Migration CopyButton Tooltip"] = "Copy this preset to your public profile.";
 
 --Tutorial--
 L["Alert"] = "Warning";

@@ -472,7 +472,8 @@ L["Private Profile"] = "个人";   --used by the current character
 L["Public Profile"] = "共用";     --shared among all your characters
 L["No Saves"] = "没有存档";
 L["Profile Type Tooltip"] = "选择当前角色所用档案。\n\n个人:|cffedd100 由此角色创建的档案|r\n\n共用:|cffedd100 可被你所有角色共用的档案|r";
-L["Profile Migration Okay"] = "好的"
+L["Profile Migration Okay"] = "好的";
+L["Profile Migration CopyButton Tooltip"] = "复制此外观到共用档案";
 
 --Tutorial--
 L["Alert"] = "警告";

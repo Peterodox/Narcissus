@@ -144,12 +144,11 @@ do
 
         if data.tooltip then
             if not self.InfoButton then
-                self.InfoButton = CreateFrame("Frame", nil, self, "NarciGenericInfoButtonTemplate");
+                self.InfoButton = CreateFrame("Frame", nil, self, "NarciBarberShopInfoButtonTemplate");
             end
             self.InfoButton:ClearAllPoints();
             self.InfoButton:SetPoint("LEFT", self.Label, "LEFT", self.Label:GetWrappedWidth() + 5, 0);
             self.InfoButton.tooltipText = data.tooltip;
-            self.InfoButton.tooltipName = "CharCustomizeNoHeaderTooltip";
         elseif self.InfoButton then
             self.InfoButton:Hide();
         end

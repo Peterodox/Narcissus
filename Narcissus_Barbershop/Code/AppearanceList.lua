@@ -338,6 +338,12 @@ local function DisplayCurrentCustomizations()
     end
 
     SetPortraitTexture(portrait, "player");
+    if not IsUnitModelReadyForUI("player") then
+        C_Timer.After(0.1, function()
+            SetPortraitTexture(portrait, "player");
+        end);
+    end
+
     headerText:SetText(playerName.."\n"..playerClass);
     headerText:SetTextColor(1, 1, 1);
 

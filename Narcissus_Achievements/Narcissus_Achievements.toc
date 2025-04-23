@@ -1,5 +1,5 @@
-## Interface: 110100
-## Version: 11.1.0
+## Interface: 110100, 110105
+## Version: 11.1.5
 ## LoadOnDemand: 1
 ## RequiredDeps: Narcissus
 

@@ -31,6 +31,18 @@ end
 API.GetActiveAppearanceName = GetActiveAppearanceName;
 
 
+local function IsMultiFormRace(raceID)
+    return raceID == 22 or raceID == 52 or raceID == 70
+end
+API.IsMultiFormRace = IsMultiFormRace;
+
+
+local function IsPlayerMultiForm()
+    local raceID = GetPlayerRaceID();
+    return IsMultiFormRace(raceID)
+end
+API.IsPlayerMultiForm = IsPlayerMultiForm;
+
 
 local COLOR_PRESETS = {
     red = {0.9333, 0.1961, 0.1412},
@@ -40,6 +52,7 @@ local COLOR_PRESETS = {
     focused = {0.8, 0.8, 0.8},
     disabled = {0.2, 0.2, 0.2},
 };
+COLOR_PRESETS.gray = COLOR_PRESETS.grey;
 
 local function GetColorByKey(k)
     if COLOR_PRESETS[k] then
@@ -115,8 +128,10 @@ API.IsFormSavable = IsFormSavable;
 local function GetShapeshiftFormName(formID)
     local spellID = formID and SHAPESHIFT_SPELLS[formID];
     if spellID then
-        local name = GetSpellInfo(spellID);
-        return name
+        local info = C_Spell.GetSpellInfo(spellID);
+        if info then
+            return info.name
+        end
     end
 end
 
@@ -262,8 +277,26 @@ local function GetPortraitCameraInfoByModelFileID(fileID)
         return CAMERA_DATA_FILEID[fileID]
     end
 end
-
 API.GetPortraitCameraInfoByModelFileID = GetPortraitCameraInfoByModelFileID;
+
+
+local function GetRaceIcon(raceID, sex, isAlteredForm)
+    --Actually Atlas
+    local info = C_CreatureInfo.GetRaceInfo(raceID);
+    if info then
+        local sexName = sex == 0 and "male" or "female";
+        local fileName = string.lower(info.clientFileString);
+        if isAlteredForm then
+            if fileName == "dracthyr" then
+                fileName = "dracthyrvisage";
+            elseif fileName == "worgen" then
+                fileName = "human";
+            end
+        end
+        return string.format("raceicon-%s-%s", fileName, sexName);
+    end
+end
+API.GetRaceIcon = GetRaceIcon;
 
 --[[
 local CAMERA_PROFILES_BY_RACE = {

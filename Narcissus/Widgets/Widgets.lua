@@ -1888,10 +1888,18 @@ function NarciGenericInfoButtonMixin:OnEnter()
         tooltip:ShowButtonTooltip(self);
     else
         if tooltip and self.tooltipText then
-            tooltip:SetOwner(self, "ANCHOR_NONE");
+            if tooltip.SetOwner then
+                tooltip:SetOwner(self, "ANCHOR_NONE");
+            end
             tooltip:SetPoint("TOPLEFT", self, "TOPRIGHT", self.tooltipOffsetX or 4, 0);
-            tooltip:SetPadding(5, 5, 5, 5);
-            tooltip:AddLine(self.tooltipText, 1, 1, 1, 1, true);
+            if tooltip.SetPadding then
+                tooltip:SetPadding(5, 5, 5, 5);
+            end
+            if tooltip.AddLine then
+                tooltip:AddLine(self.tooltipText, 1, 1, 1, 1, true);
+            elseif tooltip.SetTooltipText then
+                tooltip:SetTooltipText(self.tooltipText, 1, 1, 1);
+            end
             tooltip:Show();
             --tooltip.TextLeft1:SetSpacing(2);
             --tooltip:SetMinimumWidth(300);
@@ -1918,8 +1926,10 @@ end
 function NarciGenericInfoButtonMixin:GetTooltip()
     if self.usePrivateTooltip then
         return _G["NarciTooltip"];
+    elseif self.tooltipName then
+        return _G[self.tooltipName]
     else
-        return self.tooltip or (self.tooltipName and _G[self.tooltipName]);
+        return self.tooltip
     end
 end
 

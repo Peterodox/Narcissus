@@ -605,6 +605,12 @@
 		</Scripts>
 	</Frame>
 
+	<Button name="NarciBarberShopInfoButtonTemplate" inherits="NarciGenericInfoButtonTemplate" virtual="true">
+		<KeyValues>
+			<KeyValue key="tooltipName" value="NarciBarberShopWidgetTooltip" type="string"/>
+		</KeyValues>
+	</Button>
+
 	<Frame name="Narci_BarbershopFrame" hidden="true" mixin="NarciBarberShopMixin" frameStrata="HIGH" ignoreParentScale="true" parent="UIParent">
 		<Size x="328" y="548"/>
 		<Anchors>
@@ -915,13 +921,10 @@
 									<KeyValue key="action" value="export" type="string"/>
 								</KeyValues>
 								<Frames>
-									<Frame parentKey="InfoButton" inherits="NarciGenericInfoButtonTemplate">
+									<Frame parentKey="InfoButton" inherits="NarciBarberShopInfoButtonTemplate">
 										<Anchors>
 											<Anchor point="LEFT" relativeKey="$parent.Header" relativePoint="RIGHT" x="5"/>
 										</Anchors>
-										<KeyValues>
-											<KeyValue key="tooltipName" value="CharCustomizeNoHeaderTooltip" type="string"/>
-										</KeyValues>
 									</Frame>
 								</Frames>
 							</EditBox>
@@ -987,6 +990,37 @@
 					<OnMouseWheel>
 						return;
 					</OnMouseWheel>
+				</Scripts>
+			</Frame>
+
+			<Frame parentKey="WidgetTooltip" hidden="true" frameStrata="TOOLTIP" clampedToScreen="true" ignoreParentAlpha="true">
+				<Size x="8" y="8"/>
+				<Anchors>
+					<Anchor point="CENTER"/>
+				</Anchors>
+				<Layers>
+					<Layer level="OVERLAY">
+						<FontString parentKey="Text" inherits="SystemFont_Tiny" justifyH="LEFT" justifyV="TOP" hidden="false" spacing="2">
+							<Size x="160"/>
+							<Color r="1" g="1" b="1"/>
+							<Anchors>
+								<Anchor point="TOPLEFT" relativeKey="$parent" relativePoint="TOPLEFT" x="6" y="-6"/>
+							</Anchors>
+						</FontString>
+					</Layer>
+				</Layers>
+				<Animations>
+					<AnimationGroup parentKey="AnimIn">
+						<Alpha fromAlpha="0" toAlpha="0" duration="0.5" order="1"/>
+						<Alpha fromAlpha="0" toAlpha="1" duration="0.15" order="2"/>
+					</AnimationGroup>
+				</Animations>
+				<Scripts>
+					<OnHide>
+						self:Hide();
+						self:ClearAllPoints();
+						self.AnimIn:Stop();
+					</OnHide>
 				</Scripts>
 			</Frame>
 		</Frames>
