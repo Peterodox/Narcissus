@@ -381,42 +381,40 @@ local function DisplayProgress(id, flags)
             numIncomplete = 0;
         else
             local criteriaString, criteriaType, completed, quantity, reqQuantity, charName, flags, assetID, quantityString;
+            local isMeta;
             for i = 1, numCriteria do
                 criteriaString, criteriaType, completed, quantity, reqQuantity, charName, flags, assetID, quantityString = GetAchievementCriteriaInfo(id, i);
-                --print("criteriaType: "..criteriaType)
-                if ( bband(flags, 1) == 1 ) then  --EVALUATION_TREE_FLAG_PROGRESS_BAR = 1
-                    if ( completed == false ) then
-                        numIncomplete = numIncomplete + 1;
-                        tinsert(iData.bars, {quantity, reqQuantity, criteriaString});
-                    else
+                --print("criteriaType: "..criteriaType)     --debug
+                isMeta = criteriaType == 8 and assetID;     --CRITERIA_TYPE_ACHIEVEMENT
+                if (not isMeta) and (bband(flags, 1) == 1) then     --EVALUATION_TREE_FLAG_PROGRESS_BAR = 1
+                    if completed then
                         numCompleted = numCompleted + 1;
                         tinsert(cData.bars, {quantity, reqQuantity, criteriaString});
+                    else
+                        numIncomplete = numIncomplete + 1;
+                        tinsert(iData.bars, {quantity, reqQuantity, criteriaString});
                     end
                 else
-                    if ( completed == false ) then
-                        numIncomplete = numIncomplete + 1;
-                        criteriaString = "|CFF808080" .. criteriaString .. "|r";
-                        tinsert(iData.names, criteriaString);
-                        if criteriaType == 8 and assetID then  --CRITERIA_TYPE_ACHIEVEMENT
-                            local icon = DataProvider:GetAchievementInfo(assetID, 10);
-                            iData.icons[numIncomplete] = icon;
-                            iData.assetIDs[numIncomplete] = assetID;
-                        end
-                    else
+                    if completed then
                         numCompleted = numCompleted + 1;
                         criteriaString = "|CFF5fbb46" .. criteriaString .. "|r"; --00FF00
                         tinsert(cData.names, criteriaString);
-                        if criteriaType == 8 and assetID then  --CRITERIA_TYPE_ACHIEVEMENT
-                            local icon = DataProvider:GetAchievementInfo(assetID, 10);
-                            cData.icons[numCompleted] = icon;
-                            cData.assetIDs[numCompleted] = assetID;
-                        end
+                        local icon = DataProvider:GetAchievementInfo(assetID, 10);
+                        cData.icons[numCompleted] = icon;
+                        cData.assetIDs[numCompleted] = assetID;
+                    else
+                        numIncomplete = numIncomplete + 1;
+                        criteriaString = "|CFF808080" .. criteriaString .. "|r";
+                        tinsert(iData.names, criteriaString);
+                        local icon = DataProvider:GetAchievementInfo(assetID, 10);
+                        iData.icons[numIncomplete] = icon;
+                        iData.assetIDs[numIncomplete] = assetID;
                     end
                 end
             end
         end
     --end
-    
+
     cData.count = numCompleted;
     iData.count = numIncomplete;
 
@@ -833,7 +831,7 @@ function ScrollUtil:ResetHeights()
     self.position = 1;
     self.lastOffset = 0;
     self.nextOffset = 0;
-    wipe(self.heightData);
+    self.heightData = {};
 end
 
 function ScrollUtil:GetScrollRange()
@@ -920,7 +918,7 @@ function ScrollUtil:UpdateScrollChild(direction)
         local bottomButton = tremove(self.activeCards);
         tinsert(self.activeCards, 1, bottomButton);
     end
-    wipe(self.positionToButton);
+    self.positionToButton = {};
     local p = self.position;
     local id;
     local positionIndex;
@@ -2477,7 +2475,7 @@ end
 function NarciAchievementInspectionFrameMixin:DisplayCriteria(cData, iData)
     local numCompleted = cData.count;
     local numIncomplete = iData.count;
-    
+
     self.numCompleted:SetText(numCompleted);
     self.numIncomplete:SetText(numIncomplete);
 
@@ -2487,6 +2485,7 @@ function NarciAchievementInspectionFrameMixin:DisplayCriteria(cData, iData)
     local icon = cData.icons[1];
     local numBars = #cData.bars;
     local type = 1;
+
     if numBars ~= 0 then
         type = 3
     elseif icon then
@@ -2877,7 +2876,7 @@ end
 function NarciAchievementReturnButtonMixin:OnHide()
     self:Hide();
     self:StopAnimating();
-    wipe(self.structure);
+    self.structure = {};
 end
 
 function NarciAchievementReturnButtonMixin:SetLabelText(text)
@@ -3394,6 +3393,7 @@ local function CreateTabButtons()
         tinsert(buttons, button);
         button:SetLabel(tabNames[i]);
         button.id = i;
+        button:SetID(i);
 
         if i == 1 then
             button:SetPoint("TOPLEFT", frame, "BOTTOMLEFT", 23, 0);
@@ -3620,7 +3620,6 @@ local function InitializeFrame(frame)
     CreateCategoryButtons(5);
 
     --Reclaim Temp
-    wipe(CategoryStructure);
     CategoryStructure = nil;
     CreateAchievementButtons = nil;
     CreateTabButtons = nil;
@@ -4114,9 +4113,7 @@ local function OnAchivementEarned(achievementID)
     
     local categoryID = DataProvider:GetAchievementCategory(achievementID);
     if categoryID then
-        if DataProvider.achievementOrderCache[categoryID] then
-            wipe(DataProvider.achievementOrderCache[categoryID]);
-        end
+        DataProvider.achievementOrderCache[categoryID] = {};
         UpdateCategoryButtonProgressByCategoryID(categoryID);
         if categoryID == DataProvider.currentCategory then
             if MainFrame:IsShown() then

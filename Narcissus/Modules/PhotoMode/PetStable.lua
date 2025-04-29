@@ -171,20 +171,10 @@ local function DataRetriever_OnUpdate(self, elapsed)
 end
 
 function DataProvider:ClearData()
-    if self.data then
-        wipe(self.data);
-    else
-        self.data = {};
-    end
-    if self.types then
-        wipe(self.types);
-        wipe(self.typeNames);
-        wipe(self.typeCounts);
-    else
-        self.types = {};
-        self.typeNames = {};
-        self.typeCounts = {};
-    end
+    self.data = {};
+    self.types = {};
+    self.typeNames = {};
+    self.typeCounts = {};
     self.numTypes = 0;
     self.numPets = 0;
 end

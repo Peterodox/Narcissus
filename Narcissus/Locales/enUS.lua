@@ -483,6 +483,8 @@ L["Click And Hold"] = "Click and Hold";
 L["To Do List"] = "To-Do";
 L["Error Alert Bookmarks Too Many"] = "You may only bookmark %d achievements at a time.";
 L["Instruction Add To To Do List"] = string.format("%s Left Click on an unearned achievement to add it to your to-do list.", NARCI_MODIFIER_ALT);
+L["DIY"] = "DIY";
+L["DIY Tab Tooltip"] = "Create a custom Achievement for screenshot purpose."
 
 --Barbershop--
 L["Save New Look"] = "Save New Look";

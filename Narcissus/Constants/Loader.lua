@@ -9,7 +9,6 @@ Loader.initCallback = {};
 function Loader:Release()
     self.eventFrame:Hide();
 
-    wipe(self);
     _ = nil;
     Loader = nil;
 end

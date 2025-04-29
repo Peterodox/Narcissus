@@ -8,21 +8,19 @@ ItemDatabase.ConjuredItems = {};
 
 
 do
-    local wipe = wipe;
-
     local function BuildDatabase(targetTable, sourceTable1, sourceTable2)
         --targetTable = {[item1ID] = true, ...}
         --sourceTable = {item1ID, item2ID, item3ID, ...}
         for _, itemID in ipairs(sourceTable1) do
             targetTable[itemID] = true;
         end
-        wipe(sourceTable1);
+        sourceTable1 = {};
 
         if sourceTable2 then
             for _, itemID in ipairs(sourceTable2) do
                 targetTable[itemID] = true;
             end
-            wipe(sourceTable2);
+            sourceTable2 = {};
         end
     end
 
@@ -33,7 +31,6 @@ do
         28585,
         30542,
         30544,
-        32757,
         34420,
         35230,
         37118,
@@ -181,6 +178,7 @@ do
         180290,
         180817,
         181163,
+        182773,
         183716,
         184353,
         184500,
@@ -194,6 +192,36 @@ do
         190237,
         191029,
         193588,
+        200630,
+        201957,
+        202046,
+        204481,
+        204802,
+        205255,
+        205456,
+        205458,
+        206195,
+        208704,
+        209035,
+        210711,
+        211788,
+        212337,
+        216712,
+        210455,
+        219139,
+        219222,
+        223988,
+        224087,
+        228940,
+        228996,
+        232575,
+        234389,
+        234390,
+        234391,
+        234392,
+        234393,
+        234394,
+        236687,
     };
 
     local TeleItems_Manual = {
@@ -206,7 +234,8 @@ do
     };
 
     BuildDatabase(ItemDatabase.TeleportationItems, TeleItems_Generated, TeleItems_Manual);
-
+    TeleItems_Generated = nil;
+    TeleItems_Manual = nil;
 
     local ConjuredItems = {
         113509, 43523, 34062, 2288, 198831, 65499, 65515, 5349, 198832, 2136, 22018, 22895, 1487, 22019, 43518, 3772, 65516, 5350, 65500, 1114, 30703, 8075, 1113, 65517, 8076, 8077, 80618, 80610, 8078, 8079,
@@ -214,4 +243,5 @@ do
     };
 
     BuildDatabase(ItemDatabase.ConjuredItems, ConjuredItems);
+    ConjuredItems = nil;
 end

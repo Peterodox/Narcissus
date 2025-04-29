@@ -2124,8 +2124,6 @@ local function SimplifyFavorites()
             newList[id] = true;
         end
     end
-    
-    wipe(NarcissusDB.Favorites.FavoriteAnimationIDs);
     NarcissusDB.Favorites.FavoriteAnimationIDs = newList;
 end
 

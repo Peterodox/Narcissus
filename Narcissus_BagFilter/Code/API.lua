@@ -182,8 +182,8 @@ local function FindPrimarySearchBox()
         callback(addonName, PrimarySearchBox, alienSerach);
     end
 
-    wipe(SearchBoxAssignee);
-    wipe(BagAddonFrames);
+    SearchBoxAssignee = {};
+    BagAddonFrames = {};
 end
 
 EventListener:SetScript("OnEvent", function(self, event, ...)

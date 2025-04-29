@@ -1,7 +1,7 @@
-local NARCI_VERSION_INFO = "1.8.0";
+local NARCI_VERSION_INFO = "1.8.1";
 
-local VERSION_DATE = 1745400000;
-local CURRENT_VERSION = 10800;
+local VERSION_DATE = 1745900000;
+local CURRENT_VERSION = 10801;
 local PREVIOUS_VERSION = CURRENT_VERSION;
 local TIME_SINCE_LAST_UPDATE = 0;
 
@@ -73,6 +73,7 @@ local DefaultValues = {
     DressingRoomIncludeItemID = false,          --Show Item ID in the clipboard
     DressingRoomShowIconSelect = false,         --Display a list of icons when saving a new outfit
     DressingRoomAutoRemoveNonSetItem = false,
+    DressingRoomShowSlot = true,                --Show/hide SlotFrame (See SlotToggle)
 
     -- Minimap Button --
     UseAddonCompartment = true,
@@ -557,4 +558,20 @@ do  --DB Settings
         end
     end
     addon.IsModuleEnabled = IsModuleEnabled;
+
+
+    local function GetDBValue(dbKey)
+        if dbKey and DB then
+            return DB[dbKey]
+        end
+    end
+    addon.GetDBValue = GetDBValue;
+
+
+    local function SetDBValue(dbKey, value, userInput)
+        if dbKey and DB then
+            DB[dbKey] = value;
+        end
+    end
+    addon.SetDBValue = SetDBValue;
 end

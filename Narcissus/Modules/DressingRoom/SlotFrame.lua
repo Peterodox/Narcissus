@@ -4,6 +4,7 @@ local DataProvider = addon.TransmogDataProvider;
 
 local MAX_TRY_ON_HISTORY = 5;
 local HIDDEN_ILLUSION = 5360;
+local SLOT_FRAME_ENABLED = true;
 
 local After = C_Timer.After;
 
@@ -13,14 +14,14 @@ local GetSourceInfo = MogAPI.GetSourceInfo;
 local GetAppearanceSourceDrops = MogAPI.GetAppearanceSourceDrops;
 local IsAppearanceFavorite = MogAPI.GetIsAppearanceFavorite;
 local IsHiddenVisual = MogAPI.IsAppearanceHiddenVisual;
-local GetItemQualityColor = addon.TransitionAPI.GetItemQualityColor;
+local GetItemQualityColor = C_Item.GetItemQualityColor;
 local GetItemInfoInstant = C_Item.GetItemInfoInstant;
 local GetSlotVisualID = NarciAPI.GetSlotVisualID;
 local FadeFrame = NarciFadeUI.Fade;
 local GetSlotIDByInvType = NarciAPI.GetSlotIDByInvType;
 
 ----------------------------------------------------
-local SlotFrame, GearTextsClipborad;
+local SlotFrame, GearTextsClipborad, SlotToggle;
 local slotButtons = {};
 
 ----------------------------------------------------
@@ -178,21 +179,21 @@ local function GenerateHyperlinkAndSource(slotID, sourceID, enchantID, isSeconda
     if not sourceInfo then return end;
 
     local itemID = sourceInfo.itemID;
-    local itemQuality = sourceInfo.quality or 12;
+    local itemQuality = sourceInfo.quality or 1;
     local sourceType = sourceInfo.sourceType;
     local itemModID = sourceInfo.itemModID;
     local hyperlink, unformatedHyperlink;
     local sourceTextColorized, sourcePlainText;
-    local _, _, _, hex = GetItemQualityColor(itemQuality)
+    local _, _, _, hex = GetItemQualityColor(itemQuality);
     local bonusID = 0;
     enchantID = enchantID or "";
 
     if sourceType == 1 then --TRANSMOG_SOURCE_BOSS_DROP
-        local drops = GetAppearanceSourceDrops(sourceID)
+        local drops = GetAppearanceSourceDrops(sourceID);
         if drops and drops[1] then
             sourceTextColorized = ("|cffe0e0e0"..drops[1].encounter.."|r ".."|cffffD100"..drops[1].instance.."|r|CFFf8e694") or "";
             sourcePlainText = (drops[1].encounter.." "..drops[1].instance) or "";
-            
+
             if itemModID == 0 then 
                 sourceTextColorized = sourceTextColorized.." "..PLAYER_DIFFICULTY1;
                 sourcePlainText = sourcePlainText.." "..PLAYER_DIFFICULTY1;
@@ -221,7 +222,7 @@ local function GenerateHyperlinkAndSource(slotID, sourceID, enchantID, isSeconda
         end
     else
         if sourceType == 2 then --quest
-            sourceTextColorized = TRANSMOG_SOURCE_2
+            sourceTextColorized = TRANSMOG_SOURCE_2;
             if itemModID == 3 then 
                 hyperlink = "|c"..hex.."|Hitem:"..itemID..":"..enchantID..":::::::120::::2:512".."6"..":1562:|h[ ]|h|r";
                 unformatedHyperlink = "item:"..itemID..":"..enchantID..":::::::120::::2:512".."6"..":1562";
@@ -268,12 +269,12 @@ local function GenerateHyperlinkAndSource(slotID, sourceID, enchantID, isSeconda
             end
         end
     end
-    
+
     if not hyperlink then
         hyperlink = "|c"..hex.."|Hitem:"..itemID..":"..enchantID..":::::::120:::::|h[ ]|h|r";
         unformatedHyperlink = "item:"..itemID..":"..enchantID..":::::::120:::::";
     end
-    
+
     if sourceInfo.name then
         if isSecondarySourceID then
             ItemList:SetSecondarySourceInfo(slotID, itemID, sourceInfo.name, sourceTextColorized);
@@ -317,20 +318,19 @@ end
 local MotionHandler = {};
 
 function MotionHandler:Init()
-    local fadeTime = 4;
+    local fadeDelay = 2;
     local f = CreateFrame("Frame");
     f:Hide();
     f.t = 0;
     f:SetScript("OnUpdate", function(f, elapsed)
         f.t = f.t + elapsed;
-        if f.t >= fadeTime then
+        if f.t >= fadeDelay then
             f.t = 0;
             if SlotFrame:IsFocusLost() then
                 f:Hide();
             end
         end
     end);
-
     self.executeFrame = f;
 end
 
@@ -370,15 +370,16 @@ local function HideGameTooltip()
     GameTooltip:Hide();
 end
 
+
 NarciDressingRoomItemButtonMixin = {};
 
 function NarciDressingRoomItemButtonMixin:OnLoad()
+    self:SetScript("OnLoad", nil);
+    self.OnLoad = nil;
+
     self:RegisterForClicks("RightButtonUp");
     self:RegisterForDrag("LeftButton");
     self:SetFlattensRenderLayers(true);
-
-    self:SetScript("OnLoad", nil);
-    self.OnLoad = nil;
 end
 
 function NarciDressingRoomItemButtonMixin:Init(slotName)
@@ -631,9 +632,81 @@ end
 
 
 ----------------------------------------------------
+local function SlotFrame_Enable(state)
+    SLOT_FRAME_ENABLED = state;
+    if state then
+        if SlotToggle then
+            SlotToggle.Icon:SetTexCoord(0.75, 0.875, 0.25, 0);
+        end
+    else
+        if SlotToggle then
+            SlotToggle.Icon:SetTexCoord(0.75, 0.875, 0, 0.25);
+        end
+    end
+    SlotFrame:UpdateVisibility();
+end
+
+
+local SlotToggleMixin = {};
+do
+    function SlotToggleMixin:Init()
+        self.Init = nil;
+
+        self:SetSize(20, 20);
+
+        self.Background = self:CreateTexture(nil, "BACKGROUND");
+        self.Background:SetTexture("Interface\\AddOns\\Narcissus\\Art\\Modules\\DressingRoom\\OptionButton", nil, nil, "TRILINEAR");
+        self.Background:SetTexCoord(0.5, 0.75, 0, 0.5);
+        self.Background:SetPoint("CENTER", self, "CENTER", 0, 0);
+        self.Background:SetSize(24, 24);
+
+        self.Icon = self:CreateTexture(nil, "OVERLAY");
+        self.Icon:SetTexture("Interface\\AddOns\\Narcissus\\Art\\Modules\\DressingRoom\\OptionButton");
+        self.Icon:SetTexCoord(0.75, 0.875, 0, 0.25);
+        self.Icon:SetPoint("CENTER", self, "CENTER", 0, 0);
+        self.Icon:SetSize(12, 12);
+        self:SetHighlighted(false);
+
+        self:SetScript("OnEnter", self.OnEnter);
+        self:SetScript("OnLeave", self.OnLeave);
+        self:SetScript("OnClick", self.OnClick);
+    end
+
+    function SlotToggleMixin:SetHighlighted(state)
+        if state then
+            self.Icon:SetVertexColor(1, 1, 1);
+        else
+            self.Icon:SetVertexColor(0.6, 0.6, 0.6);
+        end
+    end
+
+    function SlotToggleMixin:OnEnter()
+        self:SetHighlighted(true);
+        local tooltip = GameTooltip;
+        tooltip:SetOwner(self, "ANCHOR_RIGHT");
+        tooltip:SetText(Narci.L["Toggle Equipment Slots"], 1, 1, 1, true);
+        tooltip:Show();
+    end
+
+    function SlotToggleMixin:OnLeave()
+        self:SetHighlighted(false);
+        HideGameTooltip();
+    end
+
+    function SlotToggleMixin:OnClick()
+        SlotFrame_Enable(not SLOT_FRAME_ENABLED);
+        NarcissusDB.DressingRoomShowSlot = SLOT_FRAME_ENABLED;
+        HideGameTooltip();
+    end
+end
+
+
 NarciDressingRoomSlotFrameMixin = {};
 
 function NarciDressingRoomSlotFrameMixin:OnLoad()
+    self.OnLoad = nil;
+    self:SetScript("OnLoad", nil);
+
     SlotFrame = self;
     GearTextsClipborad = NarciDressingRoomGearTextsClipborad;
     MotionHandler:Init();
@@ -687,8 +760,16 @@ function NarciDressingRoomSlotFrameMixin:OnLoad()
 
     self:SetAlpha(0.25);
 
-    self.OnLoad = nil;
-    self:SetScript("OnLoad", nil);
+
+    --Create a toggle to show/hide Slots
+    SlotToggle = CreateFrame("Button", nil, self);
+    Mixin(SlotToggle, SlotToggleMixin);
+    SlotToggle:Init();
+    SlotToggle:SetIgnoreParentAlpha(true);
+    self.SlotToggle = SlotToggle;
+
+
+    SlotFrame_Enable(addon.GetDBValue("DressingRoomShowSlot"));
 end
 
 function NarciDressingRoomSlotFrameMixin:IsFocusLost()
@@ -749,6 +830,7 @@ function NarciDressingRoomSlotFrameMixin:ShineSlot(slotID)
 end
 
 function NarciDressingRoomSlotFrameMixin:Disable()
+    --Disable our SlotFrame entirely when detecting some incompatible addon
     self.isDisabled = true;
     MotionHandler:Stop();
     self:Hide();
@@ -832,17 +914,34 @@ function NarciDressingRoomSlotFrameMixin:SetSources(sources, mainHandEnchant, of
     DressUpSources(sources, mainHandEnchant, offHandEnchant);
 end
 
-function NarciDressingRoomSlotFrameMixin:SetInvisible(state)
+function NarciDressingRoomSlotFrameMixin:UpdateVisibility()
     --Hide when minimized
-    self.isInvisible = state;
-    if state then
-        MotionHandler:Stop();
-        self:Hide();
+    self.isInvisible = not SLOT_FRAME_ENABLED;
+    if SLOT_FRAME_ENABLED then
+        if not self.isDisabled then
+            self.SlotContainer:Show();
+            MotionHandler:Start();
+        end
     else
+        MotionHandler:Stop();
+        self.SlotContainer:Hide();
         if not self.isDisabled then
             self:Show();
         end
     end
+
+    if self.shouldShowSlot then
+        SlotToggle:Show();
+    else
+        SlotToggle:Hide();
+    end
+end
+
+function NarciDressingRoomSlotFrameMixin:SetShouldShowSlot(state)
+    --Show slot when DressUpFrame is maximized
+    --Doesn't affect SlotToggle
+    self.shouldShowSlot = state;
+    self:UpdateVisibility();
 end
 
 function NarciDressingRoomSlotFrameMixin:SetManuallyChanged(state)

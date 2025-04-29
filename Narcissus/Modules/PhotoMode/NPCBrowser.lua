@@ -92,7 +92,7 @@ local function LoadTexture(fadeIn)
             end);
         end
     else
-        wipe(TextureQueue);
+        TextureQueue = {};
         isTextureLoading = false;
     end
 end
@@ -2483,7 +2483,7 @@ function FavUtil:Remove(creatureID)
     if not creatureID then return false end;
     self.favNPCs[creatureID] = false;
     local numFavs = 0;
-    wipe(self.db);
+    self.db = {};
     for id, isFav in pairs(self.favNPCs) do
         if isFav then
             self.db[id] = true;

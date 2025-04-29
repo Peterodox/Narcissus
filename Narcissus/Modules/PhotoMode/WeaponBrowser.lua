@@ -113,8 +113,8 @@ end
 
 function ModelZoom:Clear()
     self.executeFrame:SetScript("OnUpdate", nil);
-    wipe(self.widgets);
-    wipe(self.zoomInfo);
+    self.widgets = {};
+    self.zoomInfo = {};
 end
 
 -----------------------------------------------------------------------------
@@ -364,7 +364,6 @@ function TEMP:CreateTabButtons(container)
 end
 
 function TEMP:Release()
-    wipe(TEMP);
     TEMP = nil;
 end
 

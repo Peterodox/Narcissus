@@ -1,3 +1,4 @@
+local L = Narci.L;
 local floor = math.floor;
 
 local function round(n, digits)
@@ -5,6 +6,20 @@ local function round(n, digits)
     local a = 10 ^ digits;
     return floor(n*a + 0.5)/a
 end
+
+
+local TabButtonTooltip = {
+    [4] = {
+        title = L["DIY"],
+        tooltip = L["DIY Tab Tooltip"],
+    },
+
+    [5] = {
+        title = L["To Do List"],
+        tooltip = L["Instruction Add To To Do List"],
+    },
+};
+
 
 NarciAchievementTabButtonMixin = {};
 
@@ -76,12 +91,15 @@ end
 
 function NarciAchievementTabButtonMixin:OnEnter()
     self:SetDarken(false);
+    local id = self:GetID();
+    NarciAPI.ShowTooltipAfterDelay(self, TabButtonTooltip[id]);
 end
 
 function NarciAchievementTabButtonMixin:OnLeave()
     if not self.isSelected then
         self:SetDarken(true);
     end
+    NarciAPI.ShowTooltipAfterDelay();
 end
 
 function NarciAchievementTabButtonMixin:SetTextOffset(offsetY)

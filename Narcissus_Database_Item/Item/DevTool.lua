@@ -138,8 +138,8 @@ function GetItemsWithNoModel()
     end
     local allItems, numAll = NarciItemDatabase.GetFlatListFromItemNameDatabase();
     local itemID;
+    NarciItemDatabaseFailure = {};
     local DB = NarciItemDatabaseFailure;
-    wipe(DB);
     for i = 1, numAll do
         itemID = allItems[i];
         if not IS_VALID[itemID] then

@@ -354,12 +354,10 @@ function ESM:GetCurrentSpecializationNameAndIcons()
     local pvpIcon = GetRandomIcon("pvp");
     local spellIcons, spellNames = GenerateIcons();     --table
 
-    
     C_Timer.After(0.2, function()
-        wipe(usedIcons);
         usedIcons = GetStaticIcons();
     end)
-    
+
     return currentSpecName, specIcon, roleIcon, dungeonIcon, pvpIcon, spellIcons, roleName, spellNames;
 end
 

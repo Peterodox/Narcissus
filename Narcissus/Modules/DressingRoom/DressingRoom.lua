@@ -2,7 +2,6 @@ local _, addon = ...
 local TransmogSetFrame = addon.DressingRoomSystem.TransmogSetFrame;
 local TransitionAPI = addon.TransitionAPI;
 local CopyTable = addon.CopyTable;
-local TransmogDataProvider = addon.TransmogDataProvider;
 
 local _G = _G;
 local L = Narci.L;
@@ -34,8 +33,8 @@ local CAMERA_TRANSITION_TYPE_IMMEDIATE = 1;
 local CAMERA_MODIFICATION_TYPE_DISCARD = 1;
 local DRESSING_ROOM_SCENE_ID = 596;
 
-local SLOT_FRAME_ENABLED = true;              --If DressUp addon is loaded, hide our slot frame
-local USE_TARGET_MODEL = true;                --Replace your model with target's
+local SLOT_FRAME_SUPPORTED = true;              --If DressUp addon is loaded, hide our slot frame
+local USE_TARGET_MODEL = true;                  --Replace your model with target's
 
 local GetActorInfoByFileID = addon.GetActorInfoByFileID;
 
@@ -48,7 +47,8 @@ local AlteredFormButton;
 local OLD_PLAYER_ACTOR;
 
 local function CreateSlotButton(frame)
-    local container = frame.SlotFrame;
+    local SlotFrame = frame.SlotFrame;
+
     local slotArrangement = {
         [1] = {"HeadSlot", "ShoulderSlot", "BackSlot", "ChestSlot", "WristSlot"},
         [2] = {"HandsSlot", "WaistSlot", "LegsSlot", "FeetSlot"},
@@ -61,27 +61,33 @@ local function CreateSlotButton(frame)
     local buttonWidth;
     local offsetY = 12;
     local buttonGap = 4;
+    local groupGap = 12;
     local extrudeX = 16;
     local fullWidth = extrudeX;
 
     for sectorIndex = 1, #slotArrangement do
         if sectorIndex ~= 1 then
-            fullWidth = fullWidth + 12;
+            fullWidth = fullWidth + groupGap;
         end
         for i = 1, #slotArrangement[sectorIndex] do
-            button = CreateFrame("Button", nil, container, "NarciDressingRoomItemButtonTemplate");
+            button = CreateFrame("Button", nil, SlotFrame.SlotContainer, "NarciDressingRoomItemButtonTemplate");
             slotID = button:Init(slotArrangement[sectorIndex][i]);
             buttons[slotID] = button;
-            button:SetPoint("BOTTOMLEFT", container, "BOTTOMLEFT", fullWidth, offsetY);
+            button:SetPoint("BOTTOMLEFT", SlotFrame, "BOTTOMLEFT", fullWidth, offsetY);
             if not buttonWidth then
                 buttonWidth = math.floor(button:GetWidth() + 0.5);
             end
             fullWidth = fullWidth + buttonWidth + buttonGap;
         end
     end
+
     DressingRoomItemButtons = buttons;
     fullWidth = fullWidth + extrudeX;
-    container:SetWidth(fullWidth);
+    SlotFrame:SetWidth(fullWidth);
+
+    if SlotFrame.SlotToggle then
+        SlotFrame.SlotToggle:SetPoint("LEFT", button, "RIGHT", groupGap, 0);
+    end
 
     slotArrangement = nil;
 end
@@ -262,6 +268,7 @@ local function UpdateDressingRoomModelByUnit(unit, transmogInfoList)
     local sheatheWeapons = actor:GetSheathed() or false;
     local nativeForm;
     if (raceFile == "Dracthyr" or raceFile == "Worgen") then
+        AlteredFormButton.enabled = true;
         nativeForm = C_UnitAuras.WantsAlteredForm(modelUnit);
         if modelUnit == "player" then
             if AlteredFormButton.reverse then
@@ -361,18 +368,22 @@ local function InspectButton_OnClick(self)
     UpdateDressingRoomModelByUnit("target");
 end
 
+local function IsDressUpFramePlayerMode()
+    return DressUpFrame and DressUpFrame.mode == "player"
+end
+
 function Narci_UpdateDressingRoom()
     local frame = DressingRoomOverlayFrame;
-    if not frame or not SLOT_FRAME_ENABLED then return end;
+    if not frame or not SLOT_FRAME_SUPPORTED then return end;
+
 
     frame.mode = "visual";
 
     if not frame.pauseUpdate then
         frame.pauseUpdate = true;
         After(0, function()
-            if SLOT_FRAME_ENABLED and IsDressUpFrameMaximized() then
-                frame.SlotFrame:Show();
-                frame.OptionFrame:Show();
+            DressingRoomOverlayFrame:UpdateUI();
+            if SLOT_FRAME_SUPPORTED and IsDressUpFrameMaximized() then
                 GetDressingSourceFromActor();
                 PrintItemList();
             end
@@ -468,7 +479,7 @@ function Narci_ShowDressingRoom()
         end
         
 
-        if SLOT_FRAME_ENABLED then
+        if SLOT_FRAME_SUPPORTED then
             UpdateDressingRoomModelByUnit("player");
         end
 
@@ -752,7 +763,7 @@ end
 
 function NarciDressingRoomOverlayMixin:OnEvent(event, ...)
     if event == "PLAYER_TARGET_CHANGED" then
-        if DressUpFrame.mode == "player" and not self.SlotFrame:IsManuallyChanged() then
+        if IsDressUpFramePlayerMode() and not self.SlotFrame:IsManuallyChanged() then
             self:InspectTarget();
         end
     elseif event == "TRANSMOG_COLLECTION_UPDATED" then
@@ -780,27 +791,27 @@ function NarciDressingRoomOverlayMixin:OnEvent(event, ...)
     end
 end
 
-
 function NarciDressingRoomOverlayMixin:UpdateLayout()
     local uiScale = UIParent:GetEffectiveScale();
     local frameScale = math.max(uiScale, 0.75);
     self.OptionFrame.SharedPopup:SetScale(frameScale);
 
-    if SLOT_FRAME_ENABLED then
+    if SLOT_FRAME_SUPPORTED then
         self.OptionFrame.GroupController:SetLabelScale(frameScale);
         if IsDressUpFrameMaximized() then
-            self.SlotFrame:SetInvisible(false);
+            self.SlotFrame:SetShouldShowSlot(true);
             self.OptionFrame:SetScale(frameScale);
             self.UndressButton:Show();
             AlteredFormButton:SetScale(1);
         else
-            self.SlotFrame:SetInvisible(true);
+            self.SlotFrame:SetShouldShowSlot(false);
             self.OptionFrame:SetScale(0.5);
             self.UndressButton:Hide();
             AlteredFormButton:SetScale(0.75);
         end
     else
         self.SlotFrame:Hide();
+        self.SlotFrame:SetShouldShowSlot(false);
         self.OptionFrame:SetScale(frameScale);
         self.OptionFrame.GroupController:SetLabelScale(frameScale);
         self.UndressButton:Hide();
@@ -820,6 +831,28 @@ end
 
 function NarciDressingRoomOverlayMixin:ShowItemList()
     self.OptionFrame.SharedPopup:Show();
+end
+
+function NarciDressingRoomOverlayMixin:SetMode(mode)
+    self.mode = mode;
+    self:UpdateUI();
+end
+
+function NarciDressingRoomOverlayMixin:UpdateUI()
+    local isViewingAppearance = IsDressUpFramePlayerMode();
+
+    if isViewingAppearance then
+        self:UpdateLayout();
+        self.OptionFrame:Show();
+        if AlteredFormButton.enabled then
+            AlteredFormButton:Show();
+        end
+    else
+        self.SlotFrame:Hide();
+        self.OptionFrame:Hide();
+        self.UndressButton:Hide();
+        AlteredFormButton:Hide();
+    end
 end
 
 
@@ -1232,10 +1265,9 @@ local function DressingRoomOverlayFrame_Initialize()
 
     hooksecurefunc("DressUpVisual", Narci_UpdateDressingRoom);
 
-    local function SetDressingRoomMode(mode, link)
-        frame.mode = mode;
-        frame.SlotFrame:Hide();
-        frame.OptionFrame:Hide();
+    local function SetDressingRoomNonPlayerMode(mode, link)
+        DressingRoomOverlayFrame:SetMode(mode);
+        TransmogSetFrame:Hide();
     end
 
     hooksecurefunc("DressUpMountLink", function(link)
@@ -1246,16 +1278,12 @@ local function DressingRoomOverlayFrame_Initialize()
                 link = WOWHEAD_DOMAIN .. linkType .. "=" .. linkID;
             end
         end       
-        SetDressingRoomMode("mount", link);
         --]]
-        SetDressingRoomMode("mount");
-        TransmogSetFrame:Hide();
+        SetDressingRoomNonPlayerMode("mount");
     end)
 
     hooksecurefunc("DressUpBattlePet", function(creatureID)
-        --SetDressingRoomMode("battlePet",  WOWHEAD_DOMAIN .. "npc=" .. creatureID);
-        SetDressingRoomMode("battlePet");
-        TransmogSetFrame:Hide();
+        SetDressingRoomNonPlayerMode("battlePet");
     end)
 
     frame.OptionFrame.ShareButton:SetScript("OnClick", ShareButton_OnClick);
@@ -1326,14 +1354,13 @@ local function DressingRoomOverlayFrame_Initialize()
     DressUpFrame.ModelScene:HookScript("OnDressModel", function(f, ...)
         if not (DressingRoomOverlayFrame) then return end;
 
-        if SLOT_FRAME_ENABLED then
+        if SLOT_FRAME_SUPPORTED then
             if not DressingRoomOverlayFrame.pauseUpdate then
                 DressingRoomOverlayFrame.pauseUpdate = true;
                 DressingRoomOverlayFrame.mode = "visual";
                 After(0, function()
-                    if SLOT_FRAME_ENABLED and IsDressUpFrameMaximized() then
-                        DressingRoomOverlayFrame.SlotFrame:Show();
-                        DressingRoomOverlayFrame.OptionFrame:Show();
+                    DressingRoomOverlayFrame:UpdateUI();
+                    if SLOT_FRAME_SUPPORTED and IsDressUpFrameMaximized() then
                         GetDressingSourceFromActor();
                         if NarciDressingRoomGearTextsClipborad:IsVisible() then
                             PrintItemList();
@@ -1510,6 +1537,10 @@ local function DressingRoomOverlayFrame_Initialize()
     end
 
     hooksecurefunc("DressUpFrame_Show", SetSelectionModule.DressUpFrame_Show);
+
+
+
+
     return true
 end
 
@@ -1547,7 +1578,7 @@ EL:SetScript("OnEvent",function(self, event, ...)
         local buttonOffsetX, buttonOffsetY, buttonGap;
         if Adaptor:IsConflictedAddOnLoaded() then                                --DressUp: Hide our dressing room slot frame
             DressingRoomOverlayFrame.SlotFrame:Disable();
-            SLOT_FRAME_ENABLED = false;
+            SLOT_FRAME_SUPPORTED = false;
             buttonOffsetX = 24;
             buttonOffsetY = 48;
             buttonGap = 8;

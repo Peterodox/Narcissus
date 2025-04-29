@@ -746,7 +746,6 @@ local function SetupFrame()
     CategoryButtons[1]:Click();
     UpdateAllSettingButtons();
 
-    wipe(Categories);
     Categories = nil;
 end
 

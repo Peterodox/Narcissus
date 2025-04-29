@@ -333,17 +333,17 @@ end
 local function SearchRelativesByName(fullName, useEnglish)
     if not fullName or fullName == "" or IsKeyDown("BACKSPACE") then return {}, 0 end
 
-    local lastName = {SplitBySpace(fullName)};
-    local namePos = #lastName;
+    local lastNames = {SplitBySpace(fullName)};
+    local namePos = #lastNames;
     if namePos <= 1 then return {}, 0 end
 
     local lower = lower;
-    lastName = lower(lastName[namePos])
-
+    local lastName = lower(lastNames[namePos])
     local initial = GetInitial(lastName);
     local SubTable;
     local GetCreatureNameByID = GetCreatureNameByID;
     local GetCreatureEnglishNameByID = GetCreatureEnglishNameByID;
+
     if CLIENT_TEXT_LOCALE == "enUS" then
         SubTable = SearchTable[initial];
     else
@@ -393,7 +393,7 @@ local function SearchRelativesByName(fullName, useEnglish)
             end
         end
     end
-    wipe(matchedNames);
+    matchedNames = nil;
     table.sort(matchedIDs, SortFunc);
     lastName = gsub(lastName, "^%l", upper);
     return matchedIDs, numMatches, overFlow, lastName

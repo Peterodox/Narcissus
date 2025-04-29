@@ -1280,13 +1280,14 @@ DelayedTP:SetScript("OnUpdate", function(self, elapsed)
     self.t = self.t + elapsed;
     --self.ScanTime = self.ScanTime + elapsed;
     if self.t >= 0.6 then
-        if self.focus and self.focus == GetMouseFocus() then
+        self.t = 0;
+        self:Hide();
+        if self.focus and self.focus:IsMouseMotionFocus() then --self.focus and self.focus == GetMouseFocus() 
             NarciGameTooltip:ClearAllPoints();
             NarciGameTooltip:SetPoint(self.point, self.relativeTo, self.relativePoint, self.ofsx, self.ofsy);
             FadeFrame(NarciGameTooltip, 0.15, 1, 0);
             self.focus = nil;
         end
-        self:Hide();
     end
 end)
 
@@ -1299,6 +1300,7 @@ function NarciAPI_ShowDelayedTooltip(point, relativeTo, relativePoint, ofsx, ofs
         tp:Show();
     else
         tp.focus = nil;
+        tp.t = 0;
         FadeFrame(NarciGameTooltip, 0, 0);
     end
 end
@@ -1726,7 +1728,7 @@ do
     ERROR_NOTARGET = ERROR_NOTARGET or 2030;
     ALERT_INCOMING = ALERT_INCOMING or 2669;
 
-    wipe(VOICE_BY_RACE);
+    VOICE_BY_RACE = nil;
 end
 
 
@@ -3409,4 +3411,77 @@ do  --AddOn Compatibility
         end
         return false
     end
+end
+
+do  --Show GameTooltip After Delay
+    local DGT = {};
+
+    function DGT:Init()
+        self.Init = nil;
+        self.f = CreateFrame("Frame", nil, UIParent);
+    end
+
+    function DGT.OnUpdate(self, elapsed)
+        self.t = self.t + elapsed;
+        if self.t > self.delay then
+            self.t = 0;
+            self:SetScript("OnUpdate", nil);
+            if self.object and self.object:IsMouseMotionFocus() and self.info then
+                local tooltip = GameTooltip;
+                local info = self.info;
+                local descAdded = false;
+
+                local point = info.point or "BOTTOMLEFT";
+                local relativeTo = info.relativeTo or self.object;
+                local relativePoint = info.relativePoint or "TOPRIGHT";
+                local offsetX = info.offsetX or 0;
+                local offsetY = info.offsetY or 0;
+
+                tooltip:Hide();
+                tooltip:SetOwner(self.object, "ANCHOR_NONE");
+                tooltip:SetPoint(point, relativeTo, relativePoint, offsetX, offsetY);
+
+                if info.title then
+                    tooltip:SetText(info.title, info.titleR or 1, info.titleG or 1, info.titleB or 1, true);
+                elseif info.tooltip then
+                    tooltip:SetText(info.tooltip, info.r or 1, info.g or 1, info.b or 1, true);
+                    descAdded = true;
+                end
+
+                if (not descAdded) and info.tooltip then
+                    tooltip:AddLine(info.tooltip, info.r or 1, info.g or 0.82, info.b or 0, true);
+                end
+
+                if info.setupFunc then
+                    info.setupFunc(tooltip);
+                end
+
+                tooltip:Show();
+            end
+            self.info = nil;
+        end
+    end
+
+    function DGT.ShowTooltipAfterDelay(object, info)
+        if object and info then
+            if DGT.Init then
+                DGT:Init();
+            end
+            local f = DGT.f;
+            f.t = 0;
+            f.object = object;
+            f.info = info;
+            f.delay = info.delay or 0.5;
+            f:SetScript("OnUpdate", DGT.OnUpdate);
+        else
+            local f = DGT.f;
+            if f then
+                f:SetScript("OnUpdate", nil);
+                f.t = 0;
+                f.info = nil;
+            end
+            GameTooltip:Hide();
+        end
+    end
+    NarciAPI.ShowTooltipAfterDelay = DGT.ShowTooltipAfterDelay;
 end

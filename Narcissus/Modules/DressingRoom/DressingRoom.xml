@@ -472,6 +472,9 @@
 						</FontString>
 					</Layer>
 				</Layers>
+				<Frames>
+					<Frame parentKey="SlotContainer"/>
+				</Frames>
 				<Scripts>
 					<OnLoad method="OnLoad"/>
 					<OnEnter method="OnEnter"/>

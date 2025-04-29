@@ -984,8 +984,6 @@ function CreditList:CreateList(parent, anchorTo, fromOffsetY)
 
     self:UpdateAlignment();
 
-    wipe(active);
-    wipe(inactive);
     active = nil;
     inactive = nil;
 
@@ -2442,7 +2440,6 @@ local function SetupFrame()
     f.ScrollFrame:SetSpeedMultiplier(0.2);
     f.ScrollFrame:SetOnValueChangedFunc(FindCurrentCategory);
 
-    
     if not AlertMessageFrame then
         AlertMessageFrame = CreateFrame("Frame", nil, f, "NarciSettingsAlertFrameTemplate");
     end
@@ -2456,7 +2453,6 @@ local function SetupFrame()
     MainFrame:SetScale(scale / 0.75);
     MainFrame:RegisterEvent("UI_SCALE_CHANGED");
 
-    wipe(Categories);
     Categories = nil;
 end
 

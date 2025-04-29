@@ -110,9 +110,6 @@ local function InitDatabase()
     end
     --]]
 
-    wipe(DefaultValues);
-    DefaultValues = nil;
-
     C_Timer.After(0, function()
         LoadSettings();
     end);

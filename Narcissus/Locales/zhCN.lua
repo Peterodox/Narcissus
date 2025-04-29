@@ -434,6 +434,8 @@ L["Click And Hold"] = "按住鼠标左键";
 L["To Do List"] = "待办事项";
 L["Error Alert Bookmarks Too Many"] = "你最多同时选择%s个成就。";
 L["Instruction Add To To Do List"] = string.format("%s 左键 点击一个未完成的成就，可把它加入到你的待办事项里。", NARCI_MODIFIER_ALT);
+L["DIY"] = "DIY";
+L["DIY Tab Tooltip"] = "自定义一个成就供截图使用。"
 
 --Barbershop--
 L["Save New Look"] = "保存外观";
