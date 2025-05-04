@@ -104,6 +104,11 @@ local DRUID_CHR_MODEL = {
     [192] = 3,   --Travel
 };
 
+local PET_CHR_MODEL = { --Customizable Pet
+    --[chrModelID] = speciesID
+    [212] = 4793,   --Weechi
+};
+
 local SHAPESHIFT_SPELLS = {
     [1]  = 768,     --Cat
     [2]  = 53691,   --Tree of Life
@@ -114,6 +119,7 @@ local SHAPESHIFT_SPELLS = {
     [31] = 24858,   --Moonkin
     [36] = 114282,  --Treant
 };
+
 
 local SUPPORTED_FORMS = {
     [31] = true,    --Moonkin
@@ -142,7 +148,7 @@ end
 
 local MOUNT_CHR_MODEL = {
     --Dragonriding
-    --/dump GetMouseFocus().mountID
+    --/dump GetMouseFoci()[1].mountID
     [124] = 1589,
     [129] = 1590,
     [123] = 1563,
@@ -151,6 +157,8 @@ local MOUNT_CHR_MODEL = {
     [149] = 1744,
     [188] = 1830,
     [186] = 1792,   --Algarian Stormrider
+    [202] = 2144,   --Delver's Dirigible
+    [206] = 2296,   --Delver's Gob-Trotter
 };
 
 local function IsDragonridingChrModel(chrModelID)
@@ -167,6 +175,11 @@ local function GetChrModelName(chrModelID)
     if MOUNT_CHR_MODEL[chrModelID] then
         local mountID = MOUNT_CHR_MODEL[chrModelID];
         return GetMountNameByID(mountID);
+    end
+
+    if PET_CHR_MODEL[chrModelID] then
+        local speciesID = PET_CHR_MODEL[chrModelID];
+        return C_PetJournal.GetPetInfoBySpeciesID(speciesID)
     end
 end
 API.GetChrModelName = GetChrModelName;
@@ -255,6 +268,8 @@ local CAMERA_DATA_FILEID = {
     [5143343] = {-0.59, -1.86, -2.57, 0.44},    --Grotto Netherwing Drake
     [5228774] = {-0.24, -1.38, -2.56, 0.44},    --Flourishing Whimsydrake
     [5305977] = {0.2, -0.5, -1.87, 0.35},       --Algarian Stormrider
+    [5486691] = {-2.75, -0.37, -1.76, 0.78},    --Delver's Dirigible
+
 
     --Druid
     [1139162] = {1.73, -0.22, -2.48, 0.61},     --Moonkin, Classic
@@ -263,6 +278,10 @@ local CAMERA_DATA_FILEID = {
     [1139164] = {1.75, -0.23, -2.46, 0.61},     --Moonkin, Full Transform, Tauren
     [2393672] = {1.67, -0.24, -2.49, 0.61},     --Moonkin, Full Transform, Highmountain Tauren
     [1949828] = {3.08, -0.2, -1.55, 0.61},      --Moonkin, Full Transform, Zandalari
+
+
+    --Pet
+    [6597704] = {2.91, -0.1, -0.55, 0.52},     --Weechi
 };
 
 CAMERA_DATA_FILEID[968705] = CAMERA_DATA_FILEID[1630218];   --Tauren

@@ -440,6 +440,10 @@ RaceAtlas.fixedModelAtlasNames = {
     --10.2.0
     [149] = "dragonriding-barbershop-icon-netherwingdrake",
     [188] = "dragonriding-barbershop-icon-faeriedragon",
+    --11.1.5
+    [202] = "dragonriding-barbershop-icon-delvesairship",
+    [206] = "dragonriding-barbershop-icon-delvesairshipgoblin",
+    [212] = "chihuahua-barbershop-icon",
 };
 
 function RaceAtlas:GetAtlas(raceName, gender, alternateForm)
@@ -1663,12 +1667,14 @@ end
 function NarciBarberShopEditBoxMixin:OnShow()
     self:SetFocus();
     self:SetCursorPosition(100);
+    self:RegisterEvent("GLOBAL_MOUSE_DOWN");
 end
 
 function NarciBarberShopEditBoxMixin:OnHide()
     self:HighlightText(0, 0);
     self:ClearFocus();
     self:Hide();
+    self:UnregisterEvent("GLOBAL_MOUSE_DOWN");
     if self.parentObject then
         self.parentObject.Name:Show();
         self.parentObject:OnLeave();
@@ -1687,6 +1693,12 @@ function NarciBarberShopEditBoxMixin:OnEditFocusLost()
         self:ConfirmChanges();
     end
     autoHideTimer:Show();
+end
+
+function NarciBarberShopEditBoxMixin:OnEvent()
+    if not self:IsMouseMotionFocus() then
+        self:Hide();
+    end
 end
 
 ----------------------------------
@@ -1740,6 +1752,7 @@ function NarciBarberShopMixin:FadeOut(fullDuration)
     self.fadeController.fadeSpeed = -1/fullDuration;
     self.fadeController.alpha = alpha;
     self.fadeController:SetScript("OnUpdate", FadeController_OnUpdate);
+    EditBox:Hide();
 end
 
 function NarciBarberShopMixin:OnKeyDown(key)
@@ -2092,13 +2105,11 @@ EventListener:SetScript("OnEvent", function(self, event, ...)
             MainFrame:UpdateCategory();
             MainFrame:OnBarberShopOpen();
 
-            --[[
             if false then
                 C_Timer.After(0.5 , function()
                     BarberShopUI:SetPropagateKeyboardInput(true);    --DEBUG
                 end)
             end
-            --]]
         end
     elseif event == "BARBER_SHOP_OPEN" then
         MainFrame:OnBarberShopOpen();

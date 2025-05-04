@@ -717,6 +717,7 @@
 							<OnTextChanged method="OnTextChanged"/>
 							<OnShow method="OnShow"/>
 							<OnHide method="OnHide"/>
+							<OnEvent method="OnEvent"/>
 						</Scripts>
 					</EditBox>
 					<Button parentKey="EditButton" inherits="NarciBarberShopEditButtonTemplate" mixin="NarciBarberShopEditButtonMixin">

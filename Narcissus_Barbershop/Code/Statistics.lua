@@ -225,11 +225,13 @@ function NarciBarberShopStatsLocationFrameMixin:StartTimer()
             self.Duration:SetText( FormatTime(self.seconds + timestamp - self.timestamp) );
         end
     end);
+    self.Label:SetTextColor(1, 0.82, 0);
 end
 
 function NarciBarberShopStatsLocationFrameMixin:StopTimer()
     self:SetScript("OnUpdate", nil);
     self.activeOnShow = false;
+    self.Label:SetTextColor(0.8, 0.8, 0.8);
 end
 
 function NarciBarberShopStatsLocationFrameMixin:SetValue(numVisits, seconds, timestamp)
