@@ -76,7 +76,7 @@ local function CreateAFKCountdown()
     countdown:SetShadowOffset(2, -2);
 
     local function Countdown_OnPlay(self)
-        countdown:SetText(f.t);
+        countdown:SetText(f.counter);
     end
 
     local function Countdown_OnFinished(self)

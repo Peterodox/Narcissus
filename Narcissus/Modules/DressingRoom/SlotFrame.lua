@@ -4,7 +4,7 @@ local DataProvider = addon.TransmogDataProvider;
 
 local MAX_TRY_ON_HISTORY = 5;
 local HIDDEN_ILLUSION = 5360;
-local SLOT_FRAME_ENABLED = true;
+local SLOT_BUTTON_SHOWN = true;
 
 local After = C_Timer.After;
 
@@ -633,7 +633,7 @@ end
 
 ----------------------------------------------------
 local function SlotFrame_Enable(state)
-    SLOT_FRAME_ENABLED = state;
+    SLOT_BUTTON_SHOWN = state;
     if state then
         if SlotToggle then
             SlotToggle.Icon:SetTexCoord(0.75, 0.875, 0.25, 0);
@@ -694,8 +694,8 @@ do
     end
 
     function SlotToggleMixin:OnClick()
-        SlotFrame_Enable(not SLOT_FRAME_ENABLED);
-        NarcissusDB.DressingRoomShowSlot = SLOT_FRAME_ENABLED;
+        SlotFrame_Enable(not SLOT_BUTTON_SHOWN);
+        NarcissusDB.DressingRoomShowSlot = SLOT_BUTTON_SHOWN;
         HideGameTooltip();
     end
 end
@@ -916,8 +916,8 @@ end
 
 function NarciDressingRoomSlotFrameMixin:UpdateVisibility()
     --Hide when minimized
-    self.isInvisible = not SLOT_FRAME_ENABLED;
-    if SLOT_FRAME_ENABLED then
+    self.isInvisible = not SLOT_BUTTON_SHOWN;
+    if SLOT_BUTTON_SHOWN then
         if not self.isDisabled then
             self.SlotContainer:Show();
             MotionHandler:Start();
@@ -925,15 +925,14 @@ function NarciDressingRoomSlotFrameMixin:UpdateVisibility()
     else
         MotionHandler:Stop();
         self.SlotContainer:Hide();
-        if not self.isDisabled then
-            self:Show();
-        end
     end
 
-    if self.shouldShowSlot then
+    if self.shouldShowSlot and (not self.isDisabled) then
         SlotToggle:Show();
+        self:Show();
     else
         SlotToggle:Hide();
+        self:Hide();
     end
 end
 

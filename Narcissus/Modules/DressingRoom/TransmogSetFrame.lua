@@ -10,6 +10,7 @@ local C_Item = C_Item;
 local RequestLoadItemDataByID = C_Item.RequestLoadItemDataByID;
 local PlayerHasTransmog = C_TransmogCollection.PlayerHasTransmog;
 local GetSourceItemID = C_TransmogCollection.GetSourceItemID;
+local GetAppearanceInfoBySource = C_TransmogCollection.GetAppearanceInfoBySource;
 
 
 local FRAME_WIDTH_BASE = 320;
@@ -141,10 +142,44 @@ function TransmogSetFrame:SetItemSet(setName, items, setItemLink)
         RequestLoadItemDataByID(setItemID);
     end
 
+
+    --Remove duplicate items
+    local usedAppearance = {};
+
+    local appearanceInfo;
+    local tbl = {};
+    local addItem, appearanceID;
+    local n = 0;
+    local numKnown = 0;
+
+    for _, transmogSetItemInfo in ipairs(items) do
+        addItem = false;
+        appearanceInfo = GetAppearanceInfoBySource(transmogSetItemInfo.itemModifiedAppearanceID);
+
+        if appearanceInfo then
+            appearanceID = appearanceInfo.appearanceID;
+            if not usedAppearance[appearanceID] then
+                usedAppearance[appearanceID] = true;
+                addItem = true;
+                if appearanceInfo.appearanceIsCollected or appearanceInfo.sourceIsCollected then
+                    numKnown = numKnown + 1;
+                end
+            end
+        else
+            addItem = true;
+        end
+
+        if addItem then
+            n = n + 1;
+            tbl[n] = transmogSetItemInfo;
+        end
+    end
+
+    items = tbl;
     TransmogDataProvider:SortSetItems(items);
 
+
     local itemButton;
-    local numKnown = 0;
     local numItems = #items;
     local anyWeapon = false;
 
@@ -152,9 +187,6 @@ function TransmogSetFrame:SetItemSet(setName, items, setItemLink)
         itemButton = self:AcquireItemButton();
         itemButton:SetPoint("TOP", self, "TOP", 0, self.itemlistFromY + (1 - i) * ITEMBUTTON_HEIGHT);
         itemButton:SetItem(setItem.itemID, setItem.itemModifiedAppearanceID, setItem.invType);
-        if PlayerHasTransmog(setItem.itemID) then
-            numKnown = numKnown + 1;
-        end
         if itemButton.slotID == 16 or itemButton.slotID == 17 then
             anyWeapon = true;
         end

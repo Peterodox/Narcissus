@@ -319,7 +319,7 @@ local function RefreshFavoriteState(visualID)
         if button.visualID and button.visualID == visualID then
             state = IsFavorite(button.visualID);
             button:UpdateBottomMark();
-            local note = button:GetParent().Notification;
+            local note = button:GetParent():GetParent().Notification;
             note.fadeOut:Stop();
             note:ClearAllPoints();
             note:SetPoint("TOP", button, "BOTTOM", 0, 0);
@@ -328,6 +328,7 @@ local function RefreshFavoriteState(visualID)
             else
                 note:SetText("|cffcccccc"..L["Unfavorited"]);
             end
+            note:Show();
             note.fadeOut:Play();
 
             if slot == 16 then
@@ -840,7 +841,6 @@ end
 
 function NarciDressingRoomOverlayMixin:UpdateUI()
     local isViewingAppearance = IsDressUpFramePlayerMode();
-
     if isViewingAppearance then
         self:UpdateLayout();
         self.OptionFrame:Show();
