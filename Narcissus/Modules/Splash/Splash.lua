@@ -852,7 +852,7 @@ function NarciSplashInteractiveTextMixin:SetUpFrame(id, name, description, hasPi
     self.isInteractive = true;
     self.id = id;
     self.hasPicture = hasPicture;
-    self.Text:SetText(NARCI_COLOR_GREY_85..name.."|r\n"..description);
+    self.Text:SetText("|cffd8d8d8"..name.."|r\n"..description);
     local RGB = NarciAPI.ConvertHexColorToRGB(NARCI_COLOR_CYAN_DARK);
     self.Marker:SetColorTexture(RGB[1], RGB[2], RGB[3]);
     local textHeight = self.Text:GetHeight();

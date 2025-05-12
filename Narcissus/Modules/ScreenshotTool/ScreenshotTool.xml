@@ -740,6 +740,9 @@
 					<OnLoad>
 						self.escapeKey = "ESCAPE";
 					</OnLoad>
+                    <OnShow>
+                        self:SetPropagateKeyboardInput(true);
+                    </OnShow>
 					<OnKeyDown>
 						if (key == self.escapeKey) and (not Narci.UserIsInputing) then
 							Narci_KeyListener_OnEscapePressed(self);

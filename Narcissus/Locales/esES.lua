@@ -11,15 +11,6 @@ NARCI_GRADIENT = "|cffA236EFN|r|cff9448F1a|r|cff865BF2r|r|cff786DF4c|r|cff6A80F6
 
 L["Developer Info"] = "Desarrolado por Peterodox";
 
-NARCI_NEW_ENTRY_PREFIX = "|cff40C7EB";
-NARCI_COLOR_GREY_85 = "|cffd8d8d8";
-NARCI_COLOR_GREY_70 = "|cffb3b3b3";
-NARCI_COLOR_RED_MILD = "|cffff5050";
-NARCI_COLOR_GREEN_MILD = "|cff7cc576";
-NARCI_COLOR_YELLOW = "|cfffced00";
-NARCI_COLOR_CYAN_DARK = "5385a5";
-NARCI_COLOR_PINK_DARK = "da9bc3";
-
 NARCI_MODIFIER_CONTROL = "Ctrl";
 NARCI_MODIFIER_ALT = "Alt";   --Windows
 NARCI_SHORTCUTS_COPY = "Ctrl+C";
@@ -374,7 +365,7 @@ NARCI_CRITICAL_STRIKE = STAT_CRITICAL_STRIKE;
 
 
 --Equipment Comparison--
-NARCI_AZERITE_POWERS = "Poderes de azerita";
+L["Azerite Powers"] = "Poderes de azerita";
 L["Gem Tooltip Format1"] = "%s and %s";
 L["Gem Tooltip Format2"] = "%s, %s and %s more...";
 

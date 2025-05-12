@@ -997,6 +997,7 @@
 					</Layer>
 				</Layers>
 			</Frame>
+
 			<Frame name="Narci_VirtualLineRightCenter" parentKey="VirtualLineRightCenter" hidden="false" setAllPoints="true">
 				<Size y="1"/>
 				<Anchors>
@@ -1458,6 +1459,7 @@
 			<OnEvent>
 				if event == "PLAYER_REGEN_DISABLED" then
 					self:Hide();
+					Narci_GuideLineFrame_SnapToFinalPosition();
 					self:RegisterEvent("PLAYER_REGEN_ENABLED");
 				elseif event == "PLAYER_REGEN_ENABLED" then
 					self:UnregisterEvent(event);

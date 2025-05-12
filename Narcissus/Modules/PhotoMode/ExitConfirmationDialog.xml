@@ -1,6 +1,6 @@
 <Ui xsi:schemaLocation="http://www.blizzard.com/wow/ui/..\FrameXML\UI.xsd">
     <!-- © 2019 Peter Yu All Rights Reserved -->
-    <Script file="ExitConfirmationDialog.lua"/>
+    <!--Script file="ExitConfirmationDialog.lua"/-->  <!--First time interaction. No longer used-->
 
 	<Button name="NarciExitConfirmationButtonTemplate" virtual="true">
 		<Layers>

@@ -1,8 +1,10 @@
 <Ui xsi:schemaLocation="http://www.blizzard.com/wow/ui/..\FrameXML\UI.xsd">
     <!--Slowly Rewriting-->
 
+    <Script file="API.lua"/>
+
+
     <Script file="APITransition.lua"/>
-    <!--Script file="APITransition_SL.lua"/-->  <!--Deprecated-->
     <Script file="APITransition_DF.lua"/>
     <Script file="APITransition_TWW.lua"/>
 
@@ -11,4 +13,5 @@
     <Script file="Easing.lua"/>
     <Script file="UIParentFade.lua"/>
     <Script file="Camera.lua"/>
+    <Script file="PlayerInfo.lua"/>
 </Ui>

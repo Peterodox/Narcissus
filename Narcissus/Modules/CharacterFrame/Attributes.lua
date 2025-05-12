@@ -6,6 +6,7 @@ local L = Narci.L;
 local FormatLargeNumbers = NarciAPI.FormatLargeNumbers;
 local BreakUpLargeNumbers = BreakUpLargeNumbers;
 local GetPrimaryStats = NarciAPI.GetPrimaryStats;
+local SplitTooltipByLineBreak = NarciAPI.SplitTooltipByLineBreak;
 local format = string.format;
 local floor = math.floor;
 local ceil = math.ceil;
@@ -21,6 +22,12 @@ local GetCombatRatingBonus = GetCombatRatingBonus;
 local BASE_MOVEMENT_SPEED = BASE_MOVEMENT_SPEED;
 local GetSpecialization = GetSpecialization;
 local GetUnitSpeed = GetUnitSpeed;
+
+
+local NARCI_CRIT_TOOLTIP, NARCI_CRIT_TOOLTIP_FORMAT = SplitTooltipByLineBreak(CR_CRIT_TOOLTIP);
+local _, NARCI_HASTE_TOOLTIP_FORMAT = SplitTooltipByLineBreak(STAT_HASTE_BASE_TOOLTIP);
+local NARCI_VERSATILITY_TOOLTIP_FORMAT_1, NARCI_VERSATILITY_TOOLTIP_FORMAT_2 = SplitTooltipByLineBreak(CR_VERSATILITY_TOOLTIP);
+
 
 local function GetPrimaryStatsNum()
 	local _, strength = UnitStat("player", 1);
@@ -768,7 +775,7 @@ function UpdateFunc:Versatility(object)
 		object.tooltip2 = format(NARCI_VERSATILITY_TOOLTIP_FORMAT_1, versatilityDamageBonus, versatilityDamageTakenReduction);
 		object.tooltip4 = {format(NARCI_VERSATILITY_TOOLTIP_FORMAT_2, BreakUpLargeNumbers(versatility), versatilityDamageBonus, versatilityDamageTakenReduction) , floor( (versatility / versatilityDamageBonus) * 100 + 0.5) / 100 .. " [+1%/0.5%]"};
 	end
-	
+
 	local PercentageText = format(DIGITS, versatilityDamageBonus).."%";
 	object.Label:SetText(STAT_VERSATILITY);
 	object.Value:SetText(PercentageText);

@@ -1086,6 +1086,9 @@ end
 function NarciScreenshotToolbarMixin:ShowUI(layoutName)
     if layoutName ~= "Blizzard" then
         CVarUtil:SetCameraStatus(true); --save camera cvars
+        self.KeyListener:Show();
+    else
+        self.KeyListener:Hide();
     end
 
     self:SetLayout(layoutName);

@@ -22,7 +22,6 @@ end
 
 
 local function CanShowAFKScreen()
-    --IsInCinematicScene() or InCinematic()
     if Narci and Narci.isActive then
         return false
     end
@@ -30,6 +29,8 @@ local function CanShowAFKScreen()
     local canShow = not(C_PvP.IsActiveBattlefield() or CinematicFrame:IsShown() or MovieFrame:IsShown() or InCombatLockdown() or (BarberShopFrame and BarberShopFrame:IsShown()));
     if C_PlayerInteractionManager and C_PlayerInteractionManager.IsInteractingWithNpcOfType then
         canShow = canShow and C_PlayerInteractionManager.IsInteractingWithNpcOfType(0);
+        --IsInteractingWithNpcOfType(0) == true means player is not interacting with an NPC
+        --There is a chance IsInteractingWithNpcOfType stuck at false until player interacts then stops interacting with an NPC
     end
 
     return canShow

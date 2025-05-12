@@ -10,7 +10,7 @@ L["Heritage Armor"] = "Traditionsrüstung";
 NARCI_CRITICAL_STRIKE = "Krit";
 
 --Equipment Comparison--
-NARCI_AZERITE_POWERS = "Azeritboni"
+L["Azerite Powers"] = "Azeritboni"
 
 --Model Control--
 NARCI_GROUP_PHOTO = "Gruppenfoto";

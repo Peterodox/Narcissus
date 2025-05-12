@@ -346,7 +346,7 @@ L["Other Last Name Format"] = "其他"..NARCI_COLOR_GREY_70.." %s(s)|r:\n";
 L["Too Many Matches Format"] = "\n超过%s个结果";
 
 --装备对比--
-NARCI_AZERITE_POWERS = "艾泽里特之力";
+L["Azerite Powers"] = "艾泽里特之力";
 L["Gem Tooltip Format1"] = "%s和%s";
 L["Gem Tooltip Format2"] = "%s、%s和另外%s种...";
 

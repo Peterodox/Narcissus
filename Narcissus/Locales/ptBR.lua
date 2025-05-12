@@ -5,37 +5,28 @@ if not (GetLocale() == "ptBR") then
 end
 local L = Narci.L;
 local S = Narci.L.S;
- 
+
 NARCI_GRADIENT = "|cffA236EFN|r|cff9448F1a|r|cff865BF2r|r|cff786DF4c|r|cff6A80F6i|r|cff5D92F7s|r|cff4FA4F9s|r|cff41B7FAu|r|cff33C9FCs|r"
- 
+
 L["Developer Info"] = "Desenvolvido por Peterodox";
- 
-NARCI_NEW_ENTRY_PREFIX = "|cff40C7EB";
-NARCI_COLOR_GREY_85 = "|cffd8d8d8";
-NARCI_COLOR_GREY_70 = "|cffb3b3b3";
-NARCI_COLOR_RED_MILD = "|cffff5050";
-NARCI_COLOR_GREEN_MILD = "|cff7cc576";
-NARCI_COLOR_YELLOW = "|cfffced00";
-NARCI_COLOR_CYAN_DARK = "5385a5";
-NARCI_COLOR_PINK_DARK = "da9bc3";
- 
+
 NARCI_MODIFIER_CONTROL = "CTRL";
 NARCI_MODIFIER_ALT = "ALT";   --Windows
 NARCI_SHORTCUTS_COPY = "CTRL + C";
- 
+
 NARCI_MOUSE_BUTTON_ICON_1 = "|TInterface\\AddOns\\Narcissus\\Art\\Keyboard\\Mouse-Small:16:16:0:0:64:16:0:16:0:16|t";   --Botão esquerdo
 NARCI_MOUSE_BUTTON_ICON_2 = "|TInterface\\AddOns\\Narcissus\\Art\\Keyboard\\Mouse-Small:16:16:0:0:64:16:16:32:0:16|t";   --Botão direito
 NARCI_MOUSE_BUTTON_ICON_3 = "|TInterface\\AddOns\\Narcissus\\Art\\Keyboard\\Mouse-Small:16:16:0:0:64:16:32:48:0:16|t";   --Botão do meio
- 
+
 if IsMacClient() then
     --Mac OS
     NARCI_MODIFIER_CONTROL = "COMMAND";
     NARCI_MODIFIER_ALT = "OPTION";
     NARCI_SHORTCUTS_COPY = "COMMAND + C";
 end
- 
+
 NARCI_WORDBREAK_COMMA = ", ";
- 
+
 --Data
 L["Today"] = COMMUNITIES_CHAT_FRAME_TODAY_NOTIFICATION;
 L["Yesterday"] = COMMUNITIES_CHAT_FRAME_YESTERDAY_NOTIFICATION;
@@ -50,7 +41,7 @@ L["Day Plural"] = "dias";
 L["Day Singular"] = "dia";
 L["Hour Plural"] = "horas";
 L["Hour Singular"] = "hora";
- 
+
 L["Swap items"] = "Trocar itens";
 L["Press Copy"] = NARCI_COLOR_GREY_70.. "Aperte |r".. NARCI_SHORTCUTS_COPY.. NARCI_COLOR_GREY_70 .." para copiar";
 L["Copied"] = NARCI_COLOR_GREEN_MILD.. "Link copiado";
@@ -58,47 +49,47 @@ L["Movement Speed"] = "VdM";
 L["Damage Reduction Percentage"] = "%RdD";
 L["Advanced Info"] = "Clique com o botão esquerdo para alternar as informações avançadas.";
 L["Restore On Exit"] = "\nSuas configurações serão restauradas ao sair.";
- 
+
 L["Photo Mode"] = "Modo Foto";
 L["Photo Mode Tooltip Open"] = "Abre as dicas de captura de tela.";
 L["Photo Mode Tooltip Close"] = "Fecha as dicas de captura de tela.";
 L["Photo Mode Tooltip Special"] = "Suas capturas de tela na pasta WoW Screenshots não incluirão estas dicas.";
- 
+
 L["Toolbar Mog Button"] = "Modo Foto";
 L["Toolbar Mog Button Tooltip"] = "Mostre seu transmog ou crie um estande de fotos onde você pode adicionar outros jogadores e PNJs.";
- 
+
 L["Toolbar Emote Button"] = "Expressões";
 L["Toolbar Emote Button Tooltip"] = "Utilize expressões com animações exclusivas.";
 L["Auto Capture"] = "Captura automática";
- 
+
 L["Toolbar HideTexts Button"] = "Ocultar Textos";
 L["Toolbar HideTexts Button Tooltip"] = "Oculte todos os nomes, balões de bate-papo e textos de combate." ..L["Restore On Exit"];
- 
+
 L["Toolbar TopQuality Button"] = "Qualidade Máxima";
 L["Toolbar TopQuality Button Tooltip"] = "Defina todas as configurações de qualidade gráfica para o máximo." ..L["Restore On Exit"];
- 
+
 L["Toolbar Location Button"] = "Localização do Jogador";
 L["Toolbar Location Button Tooltip"] = "Mostra o nome da zona atual e as coordenadas do jogador."
- 
+
 L["Toolbar Camera Button"] = "Câmera";
 L["Toolbar Camera Button Tooltip"] = "Altera temporariamente as configurações da câmera."
- 
+
 L["Toolbar Preferences Button Tooltip"] = "Painel de opções";
- 
+
 --Origem especial
 L["Heritage Armor"] = "Armadura Tradicional";
 L["Secret Finding"] = "Descoberta Secreta";
- 
+
 L["Heart Azerite Quote"] = "o que é essencial é invisível aos olhos.";
- 
+
 --Gerenciador de Títulos
 L["Open Title Manager"] = "Abrir gerenciador de Títulos";
 L["Close Title Manager"] = "Fechar gerenciador de Títulos";
- 
+
 --Nome alternativo
 L["Use Alias"] = "Mudar para Nome Alternativo";
 L["Use Player Name"] = "Mudar para "..CALENDAR_PLAYER_NAME;
- 
+
 L["Minimap Tooltip Double Click"] = "Clique duplo";
 L["Minimap Tooltip Left Click"] = "Botão esquerdo|r";
 L["Minimap Tooltip To Open"] = "|cffffffffAbrir "..CHARACTER_INFO;
@@ -111,7 +102,7 @@ L["Minimap Tooltip Middle Button"] = "|CFFFF1000Botão do meio |cffffffffRedefin
 L["Minimap Tooltip Set Scale"] = "Definir escala: |cffffffff/narci [escala 0,8~1,2]";
 L["Corrupted Item Parser"] = "|cffffffffAlternar analisador de itens corrompidos|r";
 L["Toggle Dressing Room"] = "|cffffffffAlternar "..DRESSUP_FRAME.."|r";
- 
+
 L["Layout"] = "Layout";
 L["Symmetry"] = "Simétrico";
 L["Asymmetry"] = "Assimétrico";
@@ -121,14 +112,14 @@ L["Plain Text"] = "Texto simples";
 L["BB Code"] = "BB Code";
 L["Markdown"] = "Remarcação";
 L["Export Includes"] = "Exportação inclui...";
- 
+
 L["3D Model"] = "Modelo 3D";
 L["Equipment Slots"] = "Espaços de Equipamento";
- 
+
 --Opções
 L["Override"] = "Sobrepor";
 L["Invalid Key"] = "Combinação de teclas inválida.";
- 
+
 L["Preferences"] = "Preferências";
 L["Preferences Tooltip"] = "Clique para abrir o Painel de Opções.";
 L["Extensions"] = "Extensões";
@@ -155,7 +146,7 @@ L["Item Names"] = "Nome do Item";
 L["Open Narcissus"] = "Abrir o Narcissus";
 L["Character Panel"] = "Painel do Personagem";
 L["Screen Effects"] ="Efeitos de Tela";
- 
+
 L["Gemma"] = "\"Gemma\"";   --NÃO TRADUZA
 L["Gemma Description"] = "Mostra uma lista de gemas ao engastar um item.";
 L["Gem Manager"] = "Gerenciador de gemas";
@@ -253,7 +244,7 @@ L["Project Page"] = "Página do projeto";
 L["Press Copy Yellow"] = "Aperte |cffffd100".. NARCI_SHORTCUTS_COPY .."|r para copiar";
 L["New Option"] = NARCI_NEW_ENTRY_PREFIX.." NOVO".."|r"
 L["Expansion Features"] = "Características da expansão";
- 
+
 --Controle de Modelo
 L["Ranged Weapon"] = "Arma de longo alcance";
 L["Melee Animation"] = "Arma corpo a corpo";
@@ -263,7 +254,7 @@ L["Link Model Scales"] = "Vincular Escalas de Modelo";
 L["Hidden"] = "Esconder";
 L["Light Types"] = "Luz direcional/ambiente";
 L["Light Types Tooltip"] = "Alterne entre...\n- Luz direcional: Pode ser bloqueada por objetos e projetar sombras.\n- Luz ambiente: Impacta todo o modelo.";
- 
+
 L["Group Photo"] = "Foto em Grupo";
 L["Reset"] = "Redefinir";
 L["Actor Index"] = "Índice";
@@ -299,14 +290,14 @@ L["Light Source"] = "Fonte de luz";
 L["Light Source Independent"] = "Independente";
 L["Light Source Interconnected"] = "Interconectada";
 L["Adjustment"] = "Ajuste";
- 
+
 --Navegador de Animações
 L["Animation"] = "Animação";
 L["Animation Tooltip"] = "Procurar animações";
 L["Animation Variation"] = "Variação";
 L["Reset Slider"] = "Redefinir para zero";
- 
- 
+
+
 --Navegador visual de feitiços
 L["Visuals"] = "Visuais";
 L["Visual ID"] = "ID de Visuais";
@@ -334,7 +325,7 @@ L["History Panel Note"] = "Os visuais aplicados serão mostrados aqui";
 L["Return"] = "Retornar";
 L["Close"] = "Fechar";
 L["Change Pack"] = "Alterar pacote";
- 
+
 --Provador
 L["Undress"] = "Despir";
 L["Favorited"] = "Favoritar";
@@ -353,7 +344,7 @@ L["Switch Form To Dracthyr"] = "Trocar para|cffffffff forma Dracthyr|r";
 L["Switch Form To Worgen"] = "Trocar para|cffffffff forma Worgen|r";
 L["Switch Form To Human"] = "Trocar para|cffffffff forma Humana|r";
 L["InGame Command"] = "Comando no jogo";
- 
+
 --Navegador de PNJ
 NARCI_NPC_BROWSER_TITLE_LEVEL = ".Nível %?%?.?";      --Nível ?? --Use isso para verificar se a segunda linha da caixa de texto é o título ou o tipo de unidade do PNJ
 L["NPC Browser"] = "Navegador de PNJ";
@@ -365,19 +356,19 @@ L["Retrieving NPC Info"] = "Recuperando informações do PNJ";
 L["Loading Database"] = "Carregando banco de dados...\nSua tela pode congelar por alguns segundos.";
 L["Other Last Name Format"] = "Outro "..NARCI_COLOR_GREY_70.."%s(s)|r:\n";
 L["Too Many Matches Format"] = "\nMais de %s combinações.";
- 
+
 --Resolvendo problemas de letras minúsculas ou abreviações
 NARCI_STAT_STRENGTH = SPEC_FRAME_PRIMARY_STAT_STRENGTH;
 NARCI_STAT_AGILITY = SPEC_FRAME_PRIMARY_STAT_AGILITY;
 NARCI_STAT_INTELLECT = SPEC_FRAME_PRIMARY_STAT_INTELLECT;
 NARCI_CRITICAL_STRIKE = STAT_CRITICAL_STRIKE;
- 
- 
+
+
 --Comparação de Equipamentos
-NARCI_AZERITE_POWERS = "Poderes de Azerita";
+L["Azerite Powers"] = "Poderes de Azerita";
 L["Gem Tooltip Format1"] = "%s e %s";
 L["Gem Tooltip Format2"] = "%s, %s e %s mais...";
- 
+
 --Gerenciador de conjunto de equipamentos
 L["Equipped Item Level Format"] = "Equipado %s";
 L["Equipped Item Level Tooltip"] = "A média de Nível de Item dos seus itens atualmente equipados.";
@@ -396,7 +387,7 @@ L["NavBar Saved Sets"] = "Salvo";   --Um conjunto de equipamentos salvo
 L["NavBar Incomplete Sets"] = INCOMPLETE;
 L["Icon Selector"] = "Seletor de Ícones";
 L["Delete Equipment Set Tooltip"] = "Excluir conjunto\n|cff808080(clique e segure)|r";
- 
+
 --Sistema de corrupção
 L["Corruption System"] = "Corrupção";
 L["Eye Color"] = "Cor do Olho";
@@ -406,25 +397,25 @@ L["Corruption Bar Description"] = "Ative a barra de corrupção ao lado do Paine
 L["Corruption Debuff Tooltip"] = "Dicas de penalidades";
 L["Corruption Debuff Tooltip Description"] = "Substitua as dicas de penalidades padrão por sua contraparte numérica.";
 L["No Corrupted Item"] = "Você não equipou nenhum item corrompido.";
- 
+
 L["Crit Gained"] = CRIT_ABBR.." ganho";
 L["Haste Gained"] = STAT_HASTE.." ganha";
 L["Mastery Gained"] = STAT_MASTERY.." ganha";
 L["Versatility Gained"] = STAT_VERSATILITY.." ganha";
- 
+
 L["Proc Crit"] = "Proc "..CRIT_ABBR;
 L["Proc Haste"] = "Proc "..STAT_HASTE;
 L["Proc Mastery"] = "Proc "..STAT_MASTERY;
 L["Proc Versatility"] =  "Proc "..STAT_VERSATILITY;
- 
+
 L["Critical Damage"] = CRIT_ABBR.."DANO";
- 
+
 L["Corruption Effect Format1"] = "|cffffffff%s%%|r velocidade reduzida";
 L["Corruption Effect Format2"] = "|cffffffff%s|r dano inicial\n|cffffffff%s m|r raio";
 L["Corruption Effect Format3"] = "|cffffffff%s|r dano\n|cffffffff%s%%|r do seu PdV";
 L["Corruption Effect Format4"] = "Atingido pela Coisa do Além desencadeia outras penalidades";
 L["Corruption Effect Format5"] = "|cffffffff%s%%|r dano\\cura recebida modificada";
- 
+
 --Quadro de sobreposição de texto
 L["Text Overlay"] = "Sobreposição de texto";
 L["Text Overlay Button Tooltip1"] = "Balão de fala simples";
@@ -434,7 +425,7 @@ L["Text Overlay Button Tooltip4"] = "Legenda flutuante";
 L["Text Overlay Button Tooltip5"] = "Legenda da barra preta";
 L["Visibility"] = "Visibilidade";
 L["Photo Mode Frame"] = "Quadro";    --Quadro para foto
- 
+
 --Quadro de conquistas
 L["Use Achievement Panel"] = "Usar como painel de conquista principal";
 L["Use Achievement Panel Description"] = "Clique em uma conquista obtida ou em conquistas rastreadas para abrir este painel.";
@@ -462,7 +453,7 @@ L["Reward"] = "Recompensa";
 L["Date"] = "Data";
 L["Click And Hold"] = "Clique e Segure";
 
- 
+
 --Barbearia
 L["Save New Look"] = "Salvar nova aparência";
 L["No Available Slot"] = "Nenhum espaço disponível";
@@ -495,7 +486,7 @@ L["Decode Good"] = "Decodificado com sucesso.";
 L["Barbershop Export Tooltip"] = "Codifica a personalização atualmente usada em uma string que pode ser compartilhada online.\n\nVocê pode alterar qualquer texto antes dos dois pontos (:)";
 L["Settings And Share"] = (SETTINGS or "Configurações") .." & ".. (SOCIAL_SHARE_TEXT or "Compartilhar");
 L["Loading Portraits"] = "Carregando retratos";
- 
+
 --Tutorial
 L["Alert"] = "Aviso";
 L["Race Change"] = "Troca de Raça/Gênero";
@@ -517,7 +508,7 @@ L["Guide Minimap Button Headline"] = "Botão no Minimapa";
 L["Guide Minimap Button Line1"] = "O botão do minimapa do Narcissus agora pode ser manipulado por outros AddOns.\nVocê pode alterar esta opção no Painel de Preferências. Pode exigir um recarregamento da interface do usuário."
 L["Guide NPC Entrance Line1"] = "Você pode adicionar qualquer PNJ em sua cena."
 L["Guide NPC Browser Line1"] = "PNJs notáveis estão listados no catálogo abaixo.\nVocê também pode pesquisar QUALQUER criatura por nome ou ID.\nObserve que na primeira vez que você usar a função de pesquisa nesta sessão, pode levar alguns segundos para construir a tabela de pesquisa e sua tela pode congelar também.\nVocê pode desmarcar a opção \"Carregar Sob Demanda\" no Painel de Preferências para que o banco de dados seja construído logo após o login.";
- 
+
 --Splash
 L["Splash Whats New Format"] = "O que há de novo em Narcissus %s";
 L["See Ads"] = "Veja os anúncios do nosso autêntico patrocinador";    --Não são anúncios reais!
@@ -537,10 +528,10 @@ L["Splash Content6 Name"] = "Vínculo de Almas";
 L["Splash Content6 Description"] = "-A interface de Vínculo de Almas foi atualizada. Você pode verificar os efeitos de conduíte de classificações mais altas.";
 L["Splash Content7 Name"] = "Visuais";
 L["Splash Content7 Description"] = "-A borda do item hexagonal ganha um novo visual. Certos itens têm aparências únicas.";
- 
+
 --Detalhes do Projeto
 L["AboutTab Developer Note"] = "Obrigado por experimentar este AddOn! Se você tiver algum problema, sugestão, ideia, por favor, deixe um comentário na página do CurseForge ou entre em contato comigo em...";
- 
+
 --Conversação
 L["Q1"] = "O que é isto?";
 L["Q2"] = "Eu sei. Mas por que isso é tão grande?";
@@ -551,13 +542,13 @@ L["A1"] = "Aparentemente, esta é uma caixa de diálogo de confirmação de saí
 L["A2"] = "Há, foi o que ela disse.";
 L["A3"] = "Bem... bem..."
 L["A4"] = "Desculpe, você não pode. É por segurança, você sabe.";
- 
+
 --Pesquisa
 L["Search Result Singular"] = "%s resultado";
 L["Search Result Plural"] = "%s resultados";
 L["Search Result Overflow"] = "%s+ resultados";
 L["Search Result None"] = CLUB_FINDER_APPLICANT_LIST_NO_MATCHING_SPECS;
- 
+
 --Navegador de armas
 L["Draw Weapon"] = "Equipar Arma";
 L["Unequip Item"] = "Desequipar";
@@ -566,11 +557,11 @@ L["WeaponBrowser Guide ModelType"] = "Alguns itens são limitados a determinados
 L["WeaponBrowser Guide DressUpModel"] = "Este será o modelo padrão se o seu alvo for um jogador, a menos que você esteja segurando %s ao criá-lo.";
 L["WeaponBrowser Guide CinematicModel"] = "O modelo sempre será de cinemática se a criatura for um PNJ. Você não pode embainhar armas.";
 L["Weapon Browser Specify Hand"] = "|cffffd100"..NARCI_MODIFIER_CONTROL.." + Clique Esquerdo|r para equipar o item na mão principal.\n|cffffd100"..NARCI_MODIFIER_ALT.." + Clique Esquerdo|r para mão secundária.";
- 
+
 --Estábulos de Ajudantes
 L["PetStable Tooltip"] = "Escolha um ajudante do seu estábulo";
 L["PetStable Loading"] = "Recuperando informações do ajudante";
- 
+
 --Item de Dominação
 L["Item Bonus"] = "Bônus:";
 L["Combat Error"] = NARCI_COLOR_RED_MILD.."Saia de combate para continuar".."|r";
@@ -578,7 +569,7 @@ L["Extract Shard"] = "Extrair fragmento";
 L["No Service"] = "Sem serviço";
 L["Shards Disabled"] = "Fragmentos de Dominação são desabilitados fora da Gorja.";
 L["Unsocket Gem"] = "Desengastar Gema";
- 
+
 --Tabela de classificação Mítica+
 L["Mythic Plus"] = "Mítica+";
 L["Mythic Plus Abbrev"] = "M+";
@@ -586,7 +577,7 @@ L["Total Runs"] = "Séries totais: ";
 L["Complete In Time"] = "Dentro do Tempo";
 L["Complete Over Time"] = "Fora do Tempo";
 L["Runs"] = "Séries";
- 
+
 --Atualização de equipamento
 L["Temp Enchant"] = "Encantamentos Temporários";                --ERR_TRADE_TEMP_ENCHANT_BOUND
 L["Owned"] = "Obtido";                                          --Mostrar apenas itens obtidos
@@ -643,12 +634,12 @@ L["Showcase Splash 3"] = "Clique no botão abaixo para rotacionar seu personagem
 L["Showcase Splash 4"] = "Grave a tela com um software de gravação de vídeo e converta-o para GIF.";
 L["Loop Animation Alert Kultiran"] = "Loop - atualmente não funciona no kultireno corpo 1";
 L["Loop Animation"] = "Animação em Loop";
- 
+
 --Conjuntos de itens
 L["Cycle Spec"] = "Pressione TAB para navegar pelas especificações";
 L["Paperdoll Splash 1"] = "Ativar indicador de conjunto de classes?";
 L["Paperdoll Splash 2"] = "Escolha um tema";
- 
+
 --Seleção de roupa
 L["Outfit"] = "Roupa";
 L["Models"] = "Modelos";
@@ -656,12 +647,12 @@ L["Origin Outfits"] = "Roupas originais";
 L["Outfit Owner Format"] = "Roupas de %s";
 L["SortMethod Recent"] = "Recente";
 L["SortMethod Name"] = "Nome";
- 
+
 --Formato de combinação das dicas
 L["Find Cooldown"] = " recarga";
 L["Find Recharge"] = " recarga";
- 
- 
+
+
 --Árvore de talentos
 L["Mini Talent Tree"] = "Mini árvore de talentos";
 L["Show Talent Tree When"] = "Mostrar a árvore de talentos quando você...";
@@ -690,8 +681,8 @@ L["Place Talent UI Bottom"] = "Abaixo do Painel do Personagem";
 L["Loadout"] = "Equipamento";
 L["No Loadout"] = "Sem equipamento";
 L["PvP"] = "JxJ";
- 
- 
+
+
 --Filtro de itens na mochila
 L["Bag Item Filter"] = "Filtro de itens na mochila";
 L["Bag Item Filter Enable"] = "Ativar sugestão de pesquisa e filtro automático";
@@ -702,7 +693,7 @@ L["Auto Filter Case"] = "Filtrar itens automaticamente quando você...";
 L["Send Mails"] = "Enviar cartas";
 L["Create Auctions"] = "Criar leilões";
 L["Socket Items"] = "Engastar itens";
- 
+
 --Posto Comercial
 L["Perks Program Unclaimed Tender Format"] = "- Você tem |cffffffff%s|r créditos não coletados no Baú do Coletor";      --PERKS_PROGRAM_UNCOLLECTED_TENDER
 L["Perks Program Unearned Tender Format"] = "- Você possui |cffffffff%s|r créditos a conquistar no Diário do Viajante";     --PERKS_PROGRAM_ACTIVITIES_UNEARNED
@@ -711,7 +702,7 @@ L["Perks Program Item Unavailable"] = "Este item não está disponível no momen
 L["Perks Program See Wares"] = "Ver ofertas do mês";
 L["Perks Program No Cache Alert"] = "Fale com os vendedores do Posto Comercial para ver as ofertas do mês.";
 L["Perks Program Using Cache Alert"] = "Utilizando as ofertas salvas em sua última visita. Os dados de preço e itens comprados podem não ser precisos.";
- 
+
 --Missões
 L["Auto Display Quest Item"] = "Exibir automaticamente a descrição dos itens de missões";
 L["Drag To Move"] = "Arraste para mover";

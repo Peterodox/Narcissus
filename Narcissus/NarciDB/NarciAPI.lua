@@ -1257,10 +1257,8 @@ local function SplitTooltipByLineBreak(str)
     local str1, _, str2 = strsplit("\n", str);
     return str1 or "", str2 or "";
 end
+NarciAPI.SplitTooltipByLineBreak = SplitTooltipByLineBreak;
 
-NARCI_CRIT_TOOLTIP, NARCI_CRIT_TOOLTIP_FORMAT = SplitTooltipByLineBreak(CR_CRIT_TOOLTIP);
-_, NARCI_HASTE_TOOLTIP_FORMAT = SplitTooltipByLineBreak(STAT_HASTE_BASE_TOOLTIP);
-NARCI_VERSATILITY_TOOLTIP_FORMAT_1, NARCI_VERSATILITY_TOOLTIP_FORMAT_2 = SplitTooltipByLineBreak(CR_VERSATILITY_TOOLTIP);
 
 -----Delayed Tooltip-----
 local DelayedTP = CreateFrame("Frame");

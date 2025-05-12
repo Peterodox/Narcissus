@@ -8,6 +8,7 @@ local TalentTreeDataProvider = addon.TalentTreeDataProvider;
 local CameraUtil = addon.CameraUtil;
 local UIParentFade = addon.UIParentFade;
 local CallbackRegistry = addon.CallbackRegistry;
+local API = addon.API;
 
 
 local Narci = Narci;
@@ -81,8 +82,7 @@ EL.EVENTS_DYNAMIC = {"PLAYER_TARGET_CHANGED", "COMBAT_RATING_UPDATE", "PLAYER_MO
 	"BAG_UPDATE_COOLDOWN", "UNIT_STATS", "BAG_UPDATE", "PLAYER_EQUIPMENT_CHANGED", "AZERITE_ESSENCE_ACTIVATED",
 };
 
-local _, _, playerClassID = UnitClass and UnitClass("player");
-if playerClassID == 11 then
+if API.IsPlayerDruid() then
 	table.insert(EL.EVENTS_DYNAMIC, "UPDATE_SHAPESHIFT_FORM");
 end
 
@@ -352,24 +352,27 @@ function IntroMotion:PlayAttributeAnimation()
 end
 
 function IntroMotion:ShowFrame()
-	local GuideLineFrame = Narci_GuideLineFrame;
-	local VirtualLineRight = GuideLineFrame.VirtualLineRight;
-	VirtualLineRight.AnimFrame:Hide();
-	local offsetX = GuideLineFrame.VirtualLineRight.AnimFrame.defaultX or -496;
-	VirtualLineRight:SetPoint("RIGHT", offsetX + 120, 0);
+	if not InCombatLockdown() then
+		local GuideLineFrame = Narci_GuideLineFrame;
+		local VirtualLineRight = GuideLineFrame.VirtualLineRight;
+		VirtualLineRight.AnimFrame:Hide();
+		local offsetX = GuideLineFrame.VirtualLineRight.AnimFrame.defaultX or -496;
+		VirtualLineRight:SetPoint("RIGHT", offsetX + 120, 0);
+		VirtualLineRight.AnimFrame.toX = offsetX;
+		VirtualLineRight.AnimFrame:Show();
+		GuideLineFrame.VirtualLineLeft.AnimFrame:Show();
+		After(0, function()
+			FadeFrame(Narci_Character, 0.6, 1);
+		end);
+		Narci_SnowEffect(true);
+	end
+
+	self:PlayAttributeAnimation();
 	if MOG_MODE then
 		FadeFrame(Narci_Attribute, 0.4, 0)
 	else
-		VirtualLineRight.AnimFrame.toX = offsetX;
 		FadeFrame(Narci_Attribute, 0.4, 1, 0);
 	end
-	VirtualLineRight.AnimFrame:Show();
-	GuideLineFrame.VirtualLineLeft.AnimFrame:Show();
-	self:PlayAttributeAnimation();
-	After(0, function()
-		FadeFrame(Narci_Character, 0.6, 1);
-	end)
-	Narci_SnowEffect(true);
 end
 
 
@@ -2650,10 +2653,9 @@ function Narci_KeyListener_OnEscapePressed(self)
 	if IS_OPENED then
 		MiniButton:Click();
 		if self then
-			self:SetPropagateKeyboardInput(false);
-			After(0, function()
-				self:SetPropagateKeyboardInput(true);
-			end);
+			if not InCombatLockdown() then
+				self:SetPropagateKeyboardInput(false);
+			end
 		end
 	end
 end
@@ -3319,7 +3321,7 @@ EL:SetScript("OnEvent",function(self, event, ...)
 
 	elseif event == "BAG_UPDATE_COOLDOWN" then
 		StatsUpdator:UpdateCooldown();
-		
+
 	elseif event == "BAG_UPDATE" then
 		local newTime = GetTime();
 		if self.lastTime then
@@ -3335,6 +3337,7 @@ EL:SetScript("OnEvent",function(self, event, ...)
 
 	elseif event == "UNIT_INVENTORY_CHANGED" then
 		SlotController:LazyRefresh("temp");
+
 	end
 end)
 
@@ -3410,7 +3413,7 @@ function Narci_GuideLineFrame_OnSizing(self, offset)
 	local W;
 	local W0, H = WorldFrame:GetSize();
 	if (W0 and H) and H ~= 0 then
-		local ratio = floor(W0 / H * 100 + 0.5)/100 ;
+		local ratio = floor(W0 / H * 100 + 0.5) / 100;
 		if ratio == 1.78 then
 			return
 		end
@@ -3438,6 +3441,21 @@ function Narci_GuideLineFrame_OnSizing(self, offset)
 	AnimFrame.anchorPoint, AnimFrame.relativeTo, AnimFrame.relativePoint, AnimFrame.toX, AnimFrame.toY = AnimFrame:GetParent():GetPoint();
 	AnimFrame.defaultX = AnimFrame.toX;
 end
+
+function Narci_GuideLineFrame_SnapToFinalPosition()
+	local animFrames = {
+		Narci_GuideLineFrame.VirtualLineLeft.AnimFrame,
+		Narci_GuideLineFrame.VirtualLineRight.AnimFrame,
+	};
+
+	for _, animFrame in ipairs(animFrames) do
+		animFrame:Hide();
+		if animFrame.frame then
+			animFrame.frame:SetPoint(animFrame.anchorPoint, animFrame.toX, 0);
+		end
+	end
+end
+
 
 
 

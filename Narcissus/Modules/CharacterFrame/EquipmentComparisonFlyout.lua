@@ -1,5 +1,6 @@
 --Parent: Narci_EquipmentFlyoutFrame (Narcissus.xml)
 local _, addon = ...
+local L = Narci.L;
 
 local EquipmentFlyoutFrame;
 local hasGapAdjusted = false;
@@ -580,7 +581,7 @@ function Narci_Comparison_SetComparison(itemLocation, itemButton)
 
     --Azerite Empowered Items
     if C_AzeriteEmpoweredItem.IsAzeriteEmpoweredItem(itemLocation) then
-        headerText:SetText(NARCI_AZERITE_POWERS);
+        headerText:SetText(L["Azerite Powers"]);
         SubTooltip.Header:SetWidth(math.max(74, headerText:GetWidth() + 14))
         BuildAzeiteTraitsFrame(TraitsFrame, itemLocation, itemButton);
         extraText:Hide();

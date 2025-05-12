@@ -9,7 +9,6 @@ NARCI_GRADIENT = "|cffd177ffN|cffc480fba|cffb787f6r|cffa98ef2c|cff9a94edi|cff8a9
 L["Developer Info"] = "Developed by Peterodox";
 
 NARCI_NEW_ENTRY_PREFIX = "|cff40C7EB";
-NARCI_COLOR_GREY_85 = "|cffd8d8d8";
 NARCI_COLOR_GREY_70 = "|cffb3b3b3";
 NARCI_COLOR_RED_MILD = "|cffff5050";
 NARCI_COLOR_GREEN_MILD = "|cff7cc576";
@@ -392,7 +391,7 @@ NARCI_CRITICAL_STRIKE = STAT_CRITICAL_STRIKE;
 
 
 --Equipment Comparison--
-NARCI_AZERITE_POWERS = "Azerite Powers";
+L["Azerite Powers"] = "Azerite Powers";
 L["Gem Tooltip Format1"] = "%s and %s";
 L["Gem Tooltip Format2"] = "%s, %s and %s more...";
 
