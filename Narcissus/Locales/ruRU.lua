@@ -1,4 +1,4 @@
---Coutesy of ZamestoTV. Thank you!    --Translator: ZamestoTV as of 1.7.5
+--Coutesy of ZamestoTV. Thank you!    --Translator: ZamestoTV as of 1.8.1 c
 
 if not (GetLocale() == "ruRU") then
     return;
@@ -27,6 +27,7 @@ if IsMacClient() then
 end
 
 NARCI_WORDBREAK_COMMA = ", ";
+
 
 --Date--
 L["Today"] = COMMUNITIES_CHAT_FRAME_TODAY_NOTIFICATION;
@@ -476,7 +477,9 @@ L["Date"] = "Дата";
 L["Click And Hold"] = "Нажмите и удерживайте";								   
 L["To Do List"] = "Список дел";
 L["Error Alert Bookmarks Too Many"] = "Вы можете добавить в список только %d достижений одновременно.";
-L["Instruction Add To To Do List"] = string.format("%s Щелкните ЛКМ по незаработанному достижению, чтобы добавить его в список дел.", NARCI_MODIFIER_ALT);													 
+L["Instruction Add To To Do List"] = string.format("%s Щелкните ЛКМ по незаработанному достижению, чтобы добавить его в список дел.", NARCI_MODIFIER_ALT);	
+L["DIY"] = "Сделай сам";
+L["DIY Tab Tooltip"] = "Создайте пользовательское достижение для создания скриншотов."												 
 
 --Barbershop--
 L["Save New Look"] = "Сохранить новый вид";
@@ -517,6 +520,7 @@ L["Profile Type Tooltip"] = "Выберите профиль, который б�
 L["No Saves"] = "Нет сохранений";
 L["Profile Migration Tooltip"] = "Вы можете скопировать существующие пресеты в общедоступный профиль.";
 L["Profile Migration Okay"] = "Оки Доки";
+L["Profile Migration CopyButton Tooltip"] = "Скопируйте этот пресет в свой публичный профиль.";
 
 --Tutorial--
 L["Alert"] = "Предупреждение";
