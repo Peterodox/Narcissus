@@ -381,12 +381,24 @@ local function DisplayProgress(id, flags)
             numIncomplete = 0;
         else
             local criteriaString, criteriaType, completed, quantity, reqQuantity, charName, flags, assetID, quantityString;
-            local isMeta;
+
             for i = 1, numCriteria do
                 criteriaString, criteriaType, completed, quantity, reqQuantity, charName, flags, assetID, quantityString = GetAchievementCriteriaInfo(id, i);
                 --print("criteriaType: "..criteriaType)     --debug
-                isMeta = criteriaType == 8 and assetID;     --CRITERIA_TYPE_ACHIEVEMENT
-                if (not isMeta) and (bband(flags, 1) == 1) then     --EVALUATION_TREE_FLAG_PROGRESS_BAR = 1
+
+                if criteriaType == 8 and assetID then     --Meta, CRITERIA_TYPE_ACHIEVEMENT
+                    if completed then
+                        numCompleted = numCompleted + 1;
+                        local icon = DataProvider:GetAchievementInfo(assetID, 10);
+                        tinsert(cData.icons, icon);
+                        tinsert(cData.assetIDs, assetID);
+                    else
+                        numIncomplete = numIncomplete + 1;
+                        local icon = DataProvider:GetAchievementInfo(assetID, 10);
+                        tinsert(iData.icons, icon);
+                        tinsert(iData.assetIDs, assetID);
+                    end
+                elseif bband(flags, 1) == 1 then     --EVALUATION_TREE_FLAG_PROGRESS_BAR = 1
                     if completed then
                         numCompleted = numCompleted + 1;
                         tinsert(cData.bars, {quantity, reqQuantity, criteriaString});
@@ -394,21 +406,15 @@ local function DisplayProgress(id, flags)
                         numIncomplete = numIncomplete + 1;
                         tinsert(iData.bars, {quantity, reqQuantity, criteriaString});
                     end
-                else
+                else    --TextStrings
                     if completed then
                         numCompleted = numCompleted + 1;
                         criteriaString = "|CFF5fbb46" .. criteriaString .. "|r"; --00FF00
                         tinsert(cData.names, criteriaString);
-                        local icon = DataProvider:GetAchievementInfo(assetID, 10);
-                        cData.icons[numCompleted] = icon;
-                        cData.assetIDs[numCompleted] = assetID;
                     else
                         numIncomplete = numIncomplete + 1;
                         criteriaString = "|CFF808080" .. criteriaString .. "|r";
                         tinsert(iData.names, criteriaString);
-                        local icon = DataProvider:GetAchievementInfo(assetID, 10);
-                        iData.icons[numIncomplete] = icon;
-                        iData.assetIDs[numIncomplete] = assetID;
                     end
                 end
             end
@@ -475,7 +481,7 @@ local function ProcessModifiedClick(button)
             end
             if IsAltKeyDown() then
                 BookmarkUtil:ToggleBookmark(achievementID);
-                button.bookmarkIcon:SetShown(BookmarkUtil:IsBookmarked(achievementID));
+                button.BookmarkIcon:SetShown(BookmarkUtil:IsBookmarked(achievementID));
             end
         end
     end
@@ -586,7 +592,7 @@ local function FormatAchievementCard(button, id, name, points, completed, month,
 
     button.id = id;
     button.trackIcon:SetShown( DataProvider:IsTrackedAchievement(id) );
-    button.bookmarkIcon:SetShown(BookmarkUtil:IsBookmarked(id));
+    button.BookmarkIcon:SetShown(BookmarkUtil:IsBookmarked(id));
 
     if ( not completed or ( not isGuild and not wasEarnedByMe ) ) and (showNotEarnedMark) then
         button.NotEarned:Show();
@@ -3807,6 +3813,7 @@ function NarciAchievementFrameMixin:UpdateToDoListCount()
     end
 end
 
+
 --[[
 function NarciAchievement_FormatAlertCard(card)
     local achievementID = card.id;
@@ -3823,6 +3830,23 @@ function NarciAchievement_ReskinButton(card)
 end
 --]]
 
+
+local BookmarkIconMixin = {};
+do
+    function BookmarkIconMixin:OnEnter()
+        local tooltip = GameTooltip;
+        tooltip:SetOwner(self, "ANCHOR_RIGHT");
+        tooltip:SetText(L["To Do List"], 1, 1, 1, true);
+        tooltip:AddLine(L["Instruction Remove From To Do List"], 1, 0.82, 0, true);
+        tooltip:Show();
+    end
+
+    function BookmarkIconMixin:OnLeave()
+        GameTooltip:Hide();
+    end
+end
+
+
 NarciAchievementLargeCardMixin = {};
 
 function NarciAchievementLargeCardMixin:OnDragStart()
@@ -3838,6 +3862,9 @@ function NarciAchievementLargeCardMixin:OnLoad()
     self:RegisterForDrag("LeftButton");
     self:SetScript("OnLoad", nil);
     self.OnLoad = nil;
+
+    self.BookmarkIcon:SetScript("OnEnter", BookmarkIconMixin.OnEnter);
+    self.BookmarkIcon:SetScript("OnLeave", BookmarkIconMixin.OnLeave);
 end
 
 function NarciAchievementLargeCardMixin:OnMouseDown()

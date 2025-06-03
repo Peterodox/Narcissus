@@ -482,6 +482,7 @@ L["Click And Hold"] = "Click and Hold";
 L["To Do List"] = "To-Do";
 L["Error Alert Bookmarks Too Many"] = "You may only bookmark %d achievements at a time.";
 L["Instruction Add To To Do List"] = string.format("%s Left Click on an unearned achievement to add it to your to-do list.", NARCI_MODIFIER_ALT);
+L["Instruction Remove From To Do List"] = string.format("%s Left Click to remove from to-do list.", NARCI_MODIFIER_ALT);
 L["DIY"] = "DIY";
 L["DIY Tab Tooltip"] = "Create a custom Achievement for screenshot purpose."
 
@@ -491,7 +492,7 @@ L["No Available Slot"] = "No Available Save Slot";
 L["Look Saved"] = "Look Saved";
 L["Cannot Save Forms"] = "Cannot Save This Form";
 L["Profile"] = "Profile";
-L["Share"] =  SOCIAL_SHARE_TEXT or "Share";
+L["Share"] = SOCIAL_SHARE_TEXT or "Share";
 L["Save Notify"] = "Notify You to Save New Appearance";
 L["Save Notify Tooltip"] = "Notify you to save the customization after clicking Accept button.";
 L["Show Randomize Button"] = "Show Randomize Appearance Button";

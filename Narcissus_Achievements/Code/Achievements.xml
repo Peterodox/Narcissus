@@ -490,12 +490,6 @@
 						<Anchor point="LEFT" relativeKey="$parent.NotEarned" relativePoint="RIGHT" x="2" y="0"/>
 					</Anchors>
 				</Texture>
-				<Texture file="Interface\AddOns\Narcissus_Achievements\Art\Shared\Bookmark.tga" parentKey="bookmarkIcon" hidden="true">
-					<Size x="20" y="20"/>
-					<Anchors>
-						<Anchor point="RIGHT" relativeKey="$parent.border" relativePoint="TOPRIGHT" x="-46" y="-25"/>
-					</Anchors>
-				</Texture>
 			</Layer>
 		</Layers>
 
@@ -556,6 +550,23 @@
 
 				</Scripts>
 			</Frame>
+
+			<Button parentKey="BookmarkIcon" hidden="true" useParentLevel="false" propagateMouseInput="Both">
+				<Size x="20" y="20"/>
+				<Anchors>
+					<Anchor point="RIGHT" relativeKey="$parent.border" relativePoint="TOPRIGHT" x="-46" y="-25"/>
+				</Anchors>
+				<Layers>
+					<Layer level="OVERLAY" textureSubLevel="3">
+						<Texture file="Interface\AddOns\Narcissus_Achievements\Art\Shared\Bookmark.tga">
+							<Size x="20" y="20"/>
+							<Anchors>
+								<Anchor point="CENTER"/>
+							</Anchors>
+						</Texture>
+					</Layer>
+				</Layers>
+			</Button>
 		</Frames>
 
 		<Layers>
