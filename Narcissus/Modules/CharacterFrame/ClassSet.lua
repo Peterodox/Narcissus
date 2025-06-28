@@ -33,6 +33,7 @@ local candidateSlots = {
 local LatestClassSetItem = {};
 local ClassSetItemByRaid = {};
 local ClassSetGroup = {};
+local CURRENT_RAID_KEY;
 
 local function SetClassSetGroup(items, key)
     --key determines item border art
@@ -51,6 +52,23 @@ end
 
 do  --Old: Individual itemID
     --Maybe switch to C_LootJournal.GetItemSetItems in the future, but unnecessary atm
+
+    ClassSetItemByRaid.Karesh = {
+        237721, 237719, 237718, 237717, 237716,
+        237613, 237611, 237610, 237609, 237608,
+        237694, 237692, 237691, 237690, 237689,
+        237676, 237674, 237673, 237672, 237671,
+        237710, 237709, 237708, 237712, 237707,
+        237631, 237629, 237628, 237627, 237626,
+        237640, 237638, 237637, 237636, 237635,
+        237701, 237700, 237699, 237703, 237698,
+        237649, 237647, 237646, 237645, 237644,
+        237685, 237683, 237682, 237681, 237680,
+        237667, 237665, 237664, 237663, 237662,
+        237658, 237656, 237655, 237654, 237653,
+        237622, 237620, 237619, 237618, 237617,
+    };
+    SetClassSetGroup(ClassSetItemByRaid.Karesh, 5);
 
     ClassSetItemByRaid.Undermine = {
         229238, 229236, 229235, 229234, 229233,
@@ -92,16 +110,18 @@ do  --Old: Individual itemID
         --1. Reach a certain date (1 month after release)
         --2. Player has acquired a class set item from the new raid
 
-        local due = 1744070400;     --Tuesday, April 8, 2025 12:00:00 AM
-        local raidKey = "Undermine";
+        local due = 1756684800;     --Monday, September 1, 2025 12:00:00 AM (TEMP)
+        local raidKey = "Karesh";
         local time = time and time() or due;
         local newRaidItems;
 
-        if time >= due or HasPlayerAcquiredItemFromThisRaid(raidKey) or DoesPlayerHaveAnyItems(ClassSetItemByRaid[raidKey]) then
+        if addon.IsTOCVersionEqualOrNewerThan(110200) and (time >= due or HasPlayerAcquiredItemFromThisRaid(raidKey) or DoesPlayerHaveAnyItems(ClassSetItemByRaid[raidKey])) then
             FlagRaidItemAcquired(raidKey);
-            newRaidItems = ClassSetItemByRaid.Undermine;
+            newRaidItems = ClassSetItemByRaid.Karesh;
+            CURRENT_RAID_KEY = raidKey;
         else
-            newRaidItems = ClassSetItemByRaid.Spider;
+            newRaidItems = ClassSetItemByRaid.Undermine;
+            CURRENT_RAID_KEY = "Undermine";
         end
 
         for _, itemID in pairs(newRaidItems) do
@@ -239,7 +259,7 @@ function NarciClassSetTooltipMixin:OnShow()
 end
 
 function NarciClassSetTooltipMixin:ListenKey(state)
-    if state then
+    if state and self.canViewOtherSpec then
         if not InCombatLockdown() then
             self:SetScript("OnKeyDown", Tooltip_OnTabPressed);    --cause issue during Combat
         end
@@ -299,12 +319,41 @@ function NarciClassSetTooltipMixin:Init()
     self.CycleNote:SetWidth(textWidth);
     self.CycleNote:SetText(Narci.L["Cycle Spec"]);
 
-    self.fixedHeight = (2 + 0.5 + 0.75 + 0.5) * padding + 2 * iconSize + 2;
+    self.belowDividerHeight = (2 + 0.5 + 0.75 + 0.5) * padding + 2 * iconSize + 2;
+    self.fixedHeight = self.belowDividerHeight;
 
     NarciAPI.NineSliceUtil.SetUpBorder(self, "shadowLargeR0");
 
     self.Init = nil;
     NarciClassSetTooltipMixin.Init = nil;
+
+
+    if CURRENT_RAID_KEY == "Karesh" then
+        --11.2 Tier Set effects are determined by Hero Talent. You can't preview other spec the usual way.
+        self:SetCanViewOtherSpecs(false);
+    else
+        self:SetCanViewOtherSpecs(true);
+    end
+end
+
+function NarciClassSetTooltipMixin:SetCanViewOtherSpecs(state)
+    self.canViewOtherSpec = state;
+
+    if state then
+        self.Divider:Show();
+        for _, icon in ipairs(self.SpecIcons) do
+            icon:Show();
+        end
+        self.CycleNote:Show();
+        self.fixedHeight = self.belowDividerHeight;
+    else
+        self.Divider:Hide();
+        for _, icon in ipairs(self.SpecIcons) do
+            icon:Hide();
+        end
+        self.CycleNote:Hide();
+        self.fixedHeight = 2.5 * TOOLTIP_PADDING;
+    end
 end
 
 function NarciClassSetTooltipMixin:DisplayBonus(specIndex)
@@ -322,7 +371,9 @@ function NarciClassSetTooltipMixin:DisplayBonus(specIndex)
             self.SpecIcons[i]:SetVertexColor(1, 1, 1);
             self.SpecIcons[i]:SetDesaturation(0);
             self.Selection:SetPoint("CENTER", self.SpecIcons[i], "CENTER", 0, 0);
-            self.Selection:Show();
+            if self.canViewOtherSpec then
+                self.Selection:Show();
+            end
         else
             self.SpecIcons[i]:SetSize(20, 20);
             self.SpecIcons[i]:SetVertexColor(0.6, 0.6, 0.6);
@@ -395,6 +446,8 @@ function NarciClassSetTooltipMixin:UpdateSize()
 end
 
 function NarciClassSetTooltipMixin:CycleSpec(delta, clamp)
+    if not self.canViewOtherSpec then return end;
+
     if delta > 0 then
         if clamp and self.specIndex >= self.numSpecs then
             return

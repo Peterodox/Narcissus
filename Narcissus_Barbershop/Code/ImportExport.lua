@@ -576,14 +576,25 @@ end
 
 
 local function ArePlayerRaceIDMatched(id1, id2)
+    --id1 is current player
+    --id2 is imported string
+    --Returns: raceMatched, proceedWithError
     if id1 == id2 then
-        return true;
+        return true
     elseif (id1 == 24 or id1 == 25 or id1 == 26) and (id2 == 24 or id2 == 25 or id2 == 26) then
-        return true;
+        --Pandaren Factions
+        return true
     elseif (id1 == 52 or id1 == 70) and (id2 == 52 or id2 == 70) then
-        return true;
+        --Dracthyr Factions
+        return true
+    elseif (id1 == 84 or id1 == 85) and (id2 == 84 or id2 == 85) then
+        --Earthen Factions
+        return true
+    elseif (id1 == 1 or id1 == 22) and (id2 == 1 or id2 == 22) then
+        --Human/Worgen
+        return false, true
     else
-        return false;
+        return false, false
     end
 end
 
@@ -592,16 +603,25 @@ local function LoadCustomizationFromEncodedString(encodedString)
 
     if not encodedString then return end
 
+    local failedReasonID, case, subcase;
+
     local decodedTable = DecodeStringToTable(encodedString);
     if not decodedTable then
-        return false, 0
+        failedReasonID = 0;
+        return false, failedReasonID
     end
 
-    local case, subcase = GetCurrentCharacterRaceSex();
-    if not( ArePlayerRaceIDMatched(case, decodedTable.caseID) and subcase == decodedTable.subcaseID ) then
-       return false, 1, decodedTable.caseID, decodedTable.subcaseID
+    case, subcase = GetCurrentCharacterRaceSex();
+    local  raceMatched, proceedWithError = ArePlayerRaceIDMatched(case, decodedTable.caseID);
+    local sexMatched = subcase == decodedTable.subcaseID;
+    if not (raceMatched and sexMatched) then
+        failedReasonID = 1;
+        case = decodedTable.caseID;
+        subcase = decodedTable.subcaseID;
+        if not proceedWithError then
+            return false, failedReasonID, case, subcase
+        end
     end
-
 
     local choicePairs, totalImport, totalFound, totalOptions = PackOptionChoicePairs(decodedTable);
 
@@ -611,15 +631,19 @@ local function LoadCustomizationFromEncodedString(encodedString)
         end
 
         if totalFound == 0 then
-            return false, -1
+            if not failedReasonID then
+                failedReasonID = -1;
+            end
         else
             BarberShopFrame:UpdateCharCustomizationFrame();
+            return true, totalImport, totalFound, totalOptions
         end
-
-        return true, totalImport, totalFound, totalOptions
-    else
-        return false, 0
     end
+
+    if not failedReasonID then
+        failedReasonID = 0;
+    end
+    return false, failedReasonID, case, subcase
 end
 
 local function GetCustomizationOptions()
@@ -848,8 +872,8 @@ local function ImportEditBox_OnTextChanged(self, userInput)
         local failedReasonID, case, subcase = var1, var2, var3;
         self.colorKey = "red";
         self:HighlightBorder(true);
-        if failedReasonID == 0 then
-            alertText = GetFailureReasonByID(0);
+        if failedReasonID == 0 or failedReasonID == -1 then
+            alertText = GetFailureReasonByID(failedReasonID);
         elseif failedReasonID == 1 then
             --wrong race/gender
             local chrModelName = API.GetChrModelName(case);

@@ -128,6 +128,8 @@ local itemIDxBorderArt = {
     [3] = {"EmeraldDream", nil, CreateColor(56, 224, 178)},         --Class Sets: DF S4 Awakened Raids
     [4] = {"Neltharion", nil, CreateColor(252, 185, 54)},           --Class Sets: TWW S2 Undermined
 };
+itemIDxBorderArt[5] = itemIDxBorderArt[4];  --TEMP Class Sets: TWW S3 Manaforge Omega
+
 
 local itemVisualGroup = {};
 
