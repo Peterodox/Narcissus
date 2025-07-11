@@ -1,4 +1,4 @@
---Coutesy of ZamestoTV. Thank you!    --Translator: ZamestoTV as of 1.8.1 c
+--Coutesy of ZamestoTV. Thank you!    --Translator: ZamestoTV as of 1.8.1 e
 
 if not (GetLocale() == "ruRU") then
     return;
@@ -478,6 +478,7 @@ L["Click And Hold"] = "Нажмите и удерживайте";
 L["To Do List"] = "Список дел";
 L["Error Alert Bookmarks Too Many"] = "Вы можете добавить в список только %d достижений одновременно.";
 L["Instruction Add To To Do List"] = string.format("%s Щелкните ЛКМ по незаработанному достижению, чтобы добавить его в список дел.", NARCI_MODIFIER_ALT);	
+L["Instruction Remove From To Do List"] = string.format("%s ЛКМ, чтобы удалить из списка дел.", NARCI_MODIFIER_ALT);
 L["DIY"] = "Сделай сам";
 L["DIY Tab Tooltip"] = "Создайте пользовательское достижение для создания скриншотов."												 
 
