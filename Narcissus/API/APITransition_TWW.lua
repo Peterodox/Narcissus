@@ -68,3 +68,17 @@ do  --System
         TransitionAPI.GetMouseFocus = GetMouseFocus;
     end
 end
+
+
+do  --Container
+    if EquipmentManager_GetLocationData then
+        local EquipmentManager_GetLocationData = EquipmentManager_GetLocationData;
+        function TransitionAPI.EquipmentManager_UnpackLocation(packedLocation)
+            local locationData = EquipmentManager_GetLocationData(packedLocation);
+            local voidStorage, tab, voidSlot = false, nil, nil;
+            return locationData.isPlayer or false, locationData.isBank or false, locationData.isBags or false, voidStorage, locationData.slot, locationData.bag, tab, voidSlot;
+        end
+    else
+        TransitionAPI.EquipmentManager_UnpackLocation = EquipmentManager_UnpackLocation;
+    end
+end

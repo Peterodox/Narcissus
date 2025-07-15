@@ -506,6 +506,8 @@ function NarciMinimapButtonMixin:OnMouseDown()
 end
 
 function NarciMinimapButtonMixin:OnClick(button, down)
+	if not self:IsEnabled() then return end;
+
 	self.onEnterDelay:Hide();
 	GameTooltip:Hide();
 

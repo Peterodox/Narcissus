@@ -1943,7 +1943,7 @@ function NarciEquipmentFlyoutFrameMixin:DisplayItemsBySlotID(slotID, playFlyUpAn
 		if ( location - id == invLocationPlayer ) then -- Remove the currently equipped item from the list
 			itemTable[location] = nil;
 		else
-			local _, _, bags, _, slot, bag = EquipmentManager_UnpackLocation(location);
+			local _, _, bags, _, slot, bag = TransitionAPI.EquipmentManager_UnpackLocation(location);
 			if bags then
 				itemLocation = ItemLocation:CreateFromBagAndSlot(bag, slot);
 				itemLevel = C_Item.GetCurrentItemLevel(itemLocation);

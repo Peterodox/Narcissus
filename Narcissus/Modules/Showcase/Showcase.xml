@@ -1081,7 +1081,7 @@
 								</Scripts>
 							</Frame>
 
-							<Button parentKey="MountToggle" mixin="NarciShowcaseMountToggleMixin">
+							<Button parentKey="MountToggle" mixin="NarciShowcaseMountToggleMixin" registerForClicks="LeftButtonUp, RightButtonUp">
 								<Size x="14" y="14"/>
 								<HitRectInsets>
 									<AbsInset left="-5" right="-5" top="-5" bottom="-5"/>

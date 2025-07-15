@@ -6,6 +6,7 @@ local TempDataProvider = addon.TempDataProvider;
 local GetAppliedEnhancement = addon.GetAppliedEnhancement;
 local GetNewGemID = addon.GetNewGemID;
 local PixelPerfectController = addon.PixelPerfectController;
+local EquipmentManager_UnpackLocation = addon.TransitionAPI.EquipmentManager_UnpackLocation;
 
 local L = Narci.L;
 

@@ -32,6 +32,7 @@ if IsMacClient() then
 end
 
 NARCI_WORDBREAK_COMMA = ", ";
+BINDING_HEADER_NARCISSUS = "Narcissus";
 
 --Date--
 L["Today"] = COMMUNITIES_CHAT_FRAME_TODAY_NOTIFICATION;
@@ -254,7 +255,7 @@ L["Tooltip Style 2"] = "The Original";
 L["Addtional Info"] = "Additional Info";
 L["Item ID"] = "Item ID";
 L["Camera Reset Notification"] = "Camera offset has been reset to zero. If you wish to disable this feature, go to Preferences - Camera, then toggle off Camera Safe Mode.";
-L["Binding Name Open Narcissus"] = "Open Narcissus Character Panel";
+L["Binding Name Open Narcissus"] = "Toggle Narcissus Character Panel";
 L["Developer Colon"] = "Developer: ";
 L["Project Page"] = "Project Page";
 L["Press Copy Yellow"] = "Press |cffffd100".. NARCI_SHORTCUTS_COPY .."|r to Copy";
@@ -484,7 +485,8 @@ L["Error Alert Bookmarks Too Many"] = "You may only bookmark %d achievements at 
 L["Instruction Add To To Do List"] = string.format("%s Left Click on an unearned achievement to add it to your to-do list.", NARCI_MODIFIER_ALT);
 L["Instruction Remove From To Do List"] = string.format("%s Left Click to remove from to-do list.", NARCI_MODIFIER_ALT);
 L["DIY"] = "DIY";
-L["DIY Tab Tooltip"] = "Create a custom Achievement for screenshot purpose."
+L["DIY Tab Tooltip"] = "Create a custom Achievement for screenshot purpose.";
+L["Binding Name Open Achievement"] = "Toggle Narcissus Achievement UI";
 
 --Barbershop--
 L["Save New Look"] = "Save New Look";

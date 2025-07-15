@@ -3483,3 +3483,18 @@ do  --Show GameTooltip After Delay
     end
     NarciAPI.ShowTooltipAfterDelay = DGT.ShowTooltipAfterDelay;
 end
+
+do  --Scripts
+    local ValidScripts = {
+        "OnEnter", "OnLeave", "OnClick", "OnMouseDown", "OnMouseUp", "OnMouseWheel",
+        "OnEscapePressed", "OnEnterPressed", "OnTabPressed", "OnEditFocusGained", "OnEditFocusLost", "OnTextChanged",
+    };
+
+    function PrivateAPI.MixScripts(object, scripts)
+        for _, name in ipairs(ValidScripts) do
+            if scripts[name] then
+                object:SetScript(name, scripts[name]);
+            end
+        end
+    end
+end

@@ -1,0 +1,13 @@
+<Bindings>
+    <Binding name="CLICK Narci_MinimapButton:LeftButton" category="BINDING_HEADER_NARCISSUS"> <!--runOnUp="true"-->
+        if Narci_MinimapButton then
+            Narci_MinimapButton:OnClick("LeftButton");
+        end
+    </Binding>
+
+    <Binding name="CLICK Narci_Achievement_MinimapButton:LeftButton" category="BINDING_HEADER_NARCISSUS"> <!--runOnUp="true"-->
+        if Narci_Achievement_MinimapButton then
+            Narci_Achievement_MinimapButton:OnClick("LeftButton");
+        end
+    </Binding>
+</Bindings>

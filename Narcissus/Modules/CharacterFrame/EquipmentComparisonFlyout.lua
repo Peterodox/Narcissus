@@ -25,6 +25,7 @@ local RequestLoadItemData = C_Item.RequestLoadItemData;
 local GetCombatRating = GetCombatRating;
 local GetItemInfoInstant = C_Item.GetItemInfoInstant;
 local GetSpellInfo = addon.TransitionAPI.GetSpellInfo;
+local IsAzeriteItemLocationBankBag = AzeriteUtil.IsAzeriteItemLocationBankBag or AzeriteUtil.IsAzeriteItemLocationBankTab;
 
 local GetGemBorderTexture = NarciAPI.GetGemBorderTexture;
 --local DoesItemHaveDomationSocket = NarciAPI.DoesItemHaveDomationSocket;
@@ -677,7 +678,7 @@ NT:SetScript("OnEvent",function(self,event,...)
         local azeriteItemLocation = C_AzeriteItem.FindActiveAzeriteItem();
         if azeriteItemLocation then
             --Credit: flowerpew     Bug Fix: Can't retrieve level if Heart of Azeroth is in the bank
-            if AzeriteUtil.IsAzeriteItemLocationBankBag(azeriteItemLocation) then
+            if IsAzeriteItemLocationBankBag(azeriteItemLocation) then
                 HEART_LEVEL = 0;
             else
                 HEART_LEVEL = C_AzeriteItem.GetPowerLevel(azeriteItemLocation) or 0;

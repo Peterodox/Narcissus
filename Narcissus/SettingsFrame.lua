@@ -3248,6 +3248,10 @@ function NarciSettingsKeybindingButton:OnHide()
     end
 end
 
+function NarciSettingsKeybindingButton:OnShow()
+    self:UpdateState(); 
+end
+
 function NarciSettingsKeybindingButton:IsFocused()
     return (self:IsMouseOver() and self:IsVisible()) or (AlertMessageFrame:IsVisible() and AlertMessageFrame:IsMouseOver());
 end

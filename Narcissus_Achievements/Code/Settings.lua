@@ -1,7 +1,7 @@
 local _, addon = ...
 
 local BIND_ACTION = "CLICK Narci_Achievement_MinimapButton:LeftButton";
-_G["BINDING_NAME_CLICK ".."Narci_Achievement_MinimapButton:LeftButton"] = "Open Narcissus Achievement Panel";
+_G["BINDING_NAME_CLICK ".."Narci_Achievement_MinimapButton:LeftButton"] = Narci.L["Binding Name Open Achievement"];
 
 
 local L = Narci.L;

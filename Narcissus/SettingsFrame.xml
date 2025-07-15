@@ -277,6 +277,7 @@
             <OnEnter method="OnEnter"/>
             <OnLeave method="OnLeave"/>
             <OnClick method="OnClick"/>
+            <OnShow method="OnShow"/>
             <OnHide method="OnHide"/>
         </Scripts>
     </Button>

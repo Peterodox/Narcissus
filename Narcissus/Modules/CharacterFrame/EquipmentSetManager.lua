@@ -1,3 +1,5 @@
+local _, addon = ...
+
 Narci_EquipmentSetManager = {};
 
 local ESM = Narci_EquipmentSetManager;
@@ -14,7 +16,6 @@ local ICON_NEW_SET = "Interface\\AddOns\\Narcissus\\Art\\Widgets\\EquipmentSetMa
 local ICON_SELECTED = "  |TInterface\\AddOns\\Narcissus\\Art\\Widgets\\Arrows\\Tick:12:12:0:0:64:64:0:64:0:64|t";
 local SETBUTTON_HEIGHT = 48;
 
-local _;
 local FadeFrame = NarciFadeUI.Fade;
 local GetItemStats = NarciAPI_GetItemStats;
 local SmartFontType = NarciAPI.SmartFontType;
@@ -24,7 +25,7 @@ local C_EquipmentSet = C_EquipmentSet;
 local GetNumEquipmentSets = C_EquipmentSet.GetNumEquipmentSets;     --Returns the number of saved equipment sets.
 local GetItemLocations = C_EquipmentSet.GetItemLocations;
 local GetEquipmentSetInfo = C_EquipmentSet.GetEquipmentSetInfo;
-local UnpackLocation = EquipmentManager_UnpackLocation;
+local UnpackLocation = addon.TransitionAPI.EquipmentManager_UnpackLocation;
 local GetItemInventoryType = C_Item.GetItemInventoryType;
 
 local After = C_Timer.After;

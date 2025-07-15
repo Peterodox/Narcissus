@@ -437,6 +437,7 @@ L["Instruction Add To To Do List"] = string.format("%s 左键 点击一个未完
 L["Instruction Remove From To Do List"] = string.format("%s 左键点击以从待办事项中移除。", NARCI_MODIFIER_ALT);
 L["DIY"] = "DIY";
 L["DIY Tab Tooltip"] = "自定义一个成就供截图使用。"
+L["Binding Name Open Achievement"] = "Narcissus成就面板";
 
 --Barbershop--
 L["Save New Look"] = "保存外观";
