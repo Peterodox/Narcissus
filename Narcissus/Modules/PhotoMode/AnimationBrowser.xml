@@ -25,7 +25,7 @@
 					<Size x="16" y="16"/>
 					<TexCoords left="0.75" right="1" top="0.25" bottom="0.5"/>
 					<Anchors>
-						<Anchor point="RIGHT" relativeKey="$parent" relativePoint="RIGHT" x="-6"/>
+						<Anchor point="RIGHT" relativeKey="$parent" relativePoint="RIGHT" x="-8"/>
 					</Anchors>
 				</Texture>
             </Layer>
@@ -110,44 +110,6 @@
             </Layer>
         </Layers>
         <Frames>
-            <ScrollFrame parentKey="ScrollFrame">
-                <Size x="139" y="128"/>
-                <Anchors>
-                    <Anchor point="BOTTOM" relativeKey="$parent" relativePoint="BOTTOM" x="0" y="0"/>
-                </Anchors>
-                <!--Layers>
-                    <Layer>
-                        <Texture>
-                            <Color r="1" g="0" b="0" a="0.5"/>
-                        </Texture>
-                    </Layer>
-                </Layers-->
-                <ScrollChild>
-                    <Frame parentKey="ScrollChild">
-                        <Size x="139" y="16"/>
-                        <Anchors>
-                            <Anchor point="TOP" relativeKey="$parent" relativePoint="TOP"/>
-                        </Anchors>
-                    </Frame>
-                </ScrollChild>
-                <Frames>
-                    <Slider inherits="NarciCustomScrollBarTemplate" frameLevel="55">
-                        <Anchors>
-                            <Anchor point="TOPRIGHT" relativePoint="TOPRIGHT" x="0" y="0"/>
-                            <Anchor point="BOTTOMRIGHT" relativePoint="BOTTOMRIGHT" x="0" y="0"/>
-                        </Anchors>
-                    </Slider>
-
-                    <Button inherits="NarciQuickFavoriteButtonTemplate" hidden="true" frameLevel="50">
-                        <Scripts>
-                            <OnLoad>
-                                self:SetIconSize(16);
-                            </OnLoad>
-                        </Scripts>
-                    </Button>
-                </Frames>
-            </ScrollFrame>
-            
             <Editbox parentKey="Editbox" autoFocus="false" letters="24" mixin="NarciAnimationSearchBoxMixin" inherits="NarciSearchBoxTemplate">
                 <Size y="16"/>
                 <Anchors>

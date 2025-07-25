@@ -35,6 +35,7 @@ local Clipboard;
 local DB;
 local CURRENT_CATE_ID;
 local RENDER_RANGE = DEFAULT_FRAME_HEIGHT;
+local NUM_CATE = 0;
 
 local GAMEPAD_ENABLED = false;      --Determine if we need to enable game pad surrpot
 local SCROLL_LOCKED = false;        --Lock scroll if user is assigning a hotkey
@@ -2454,6 +2455,8 @@ local function SetupFrame()
     MainFrame:RegisterEvent("UI_SCALE_CHANGED");
 
     Categories = nil;
+
+    C_TooltipInfo.GetHyperlink("|Hitem:71086:6226:173127::::::60:577:::3:6660:7575:7696|r");    --Cache
 end
 
 
@@ -3249,7 +3252,7 @@ function NarciSettingsKeybindingButton:OnHide()
 end
 
 function NarciSettingsKeybindingButton:OnShow()
-    self:UpdateState(); 
+    self:UpdateState();
 end
 
 function NarciSettingsKeybindingButton:IsFocused()

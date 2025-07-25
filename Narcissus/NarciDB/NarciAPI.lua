@@ -36,6 +36,18 @@ local SecureContainer = CreateFrame("Frame", "NarciSecureFrameContainer");
 SecureContainer:Hide();
 
 
+local function Mixin(object, ...)
+    for i = 1, select("#", ...) do
+        local mixin = select(i, ...)
+        for k, v in pairs(mixin) do
+            object[k] = v;
+        end
+    end
+    return object
+end
+NarciAPI.Mixin = Mixin;
+
+
 --GetSlotVisualID
 local IGNORED_MOG_SLOT = {
     [11] = true,

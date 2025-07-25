@@ -1537,7 +1537,7 @@ local function FormatSpellData(tooltipData, fromLine)
                     end
                 end
 
-                if not anyMatch and find(leftText, "%d") then
+                if not anyMatch and find(leftText, "^%d") then
                     anyMatch = true;
                     costText = gsub(leftText, "\n", " ");   --!Druid: Energy + ComboPoint
                     data.costText = costText;
@@ -1585,6 +1585,7 @@ local function FormatSpellData(tooltipData, fromLine)
         if not anyMatch then
             if leftText then
                 leftText = strtrim(leftText);
+                leftText = StripHyperlinks(leftText, true, true, false, false);
                 if leftText ~= "" then
                     if not data.descriptions then
                         data.descriptions = {};
@@ -1594,7 +1595,7 @@ local function FormatSpellData(tooltipData, fromLine)
             end
         end
     end
-
+    TTDATA = data;
     return data
 end
 

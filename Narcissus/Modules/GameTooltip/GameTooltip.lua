@@ -72,9 +72,9 @@ local function VoidFunc(self)
 end
 
 local function AppendItemIDToGameTooltip(self)
-    if not self.GetItem then return end;
+    if not TooltipUtil.GetDisplayedItem then return end;
 
-    local name, itemLink = self:GetItem();
+    local name, itemLink = TooltipUtil.GetDisplayedItem(self);
     if itemLink then
         local itemID = match(itemLink, "item:(%d+)");
         local spellID;
