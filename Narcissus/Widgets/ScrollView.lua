@@ -200,7 +200,17 @@ do
 
     function ScrollBarMixin:UpdateThumbRange()
         local railLength = self.Rail:GetHeight();
-        local range = Round(railLength - self.Thumb:GetHeight());
+        local thumbHeight = 0;
+        local viewableRangeRatio = self:GetParent():GetViewableRangeRatio();
+        if viewableRangeRatio > 0 then
+            thumbHeight = Round(railLength * viewableRangeRatio);
+        end
+        if thumbHeight < 16 then
+            thumbHeight = 16;
+        end
+        self.Thumb:SetSize(4, thumbHeight);
+        self.Thumb.Texture:SetSize(4, thumbHeight);
+        local range = Round(railLength - thumbHeight);
         self.thumbRange = range;
         self.ratioPerUnit = 1 / range;
     end
@@ -232,6 +242,9 @@ do
         self:UpdateThumbRange();
         self.t = 0;
         self:SetScript("OnUpdate", self.OnUpdate_ThumbDragged);
+        if self.onDragStartCallback then
+            self.onDragStartCallback();
+        end
     end
 
     function ScrollBarMixin:OnUpdate_ThumbDragged(elapsed)
@@ -455,6 +468,7 @@ local function CreateScrollView(parent)
     f.range = 0;
     f.viewportSize = 0;
     f.blendSpeed = 0.15;
+    f.adaptiveThumbSize = true;
 
     f:SetStepSize(32);
     f:SetBottomOvershoot(0);
@@ -595,7 +609,11 @@ do  --ScrollView Basic Content Render
 
         self.scrollable = scrollable;
         self.ScrollBar:SetScrollable(self.scrollable);
-        self.ScrollBar:SetShown(scrollable or self.alwaysShowScrollBar);
+        if self.alwaysHideScrollBar then
+            self.ScrollBar:Hide();
+        else
+            self.ScrollBar:SetShown(scrollable or self.alwaysShowScrollBar);
+        end
 
         if self.useBoundaryGradient then
             if scrollable then
@@ -606,6 +624,15 @@ do  --ScrollView Basic Content Render
         end
     end
 
+    function ScrollViewMixin:GetViewableRangeRatio()
+        local ratio = 0;
+        if self.adaptiveThumbSize and self.fullViewSize and self.fullViewSize > 0 then
+            ratio = self.viewportSize / self.fullViewSize;
+        end
+        ratio = Clamp(ratio, 0, 1);
+        return ratio
+    end
+
     function ScrollViewMixin:IsScrollable()
         return self.scrollable
     end
@@ -614,12 +641,14 @@ do  --ScrollView Basic Content Render
         self.content = content or {};
 
         if #self.content > 0 then
-            local range = content[#self.content].bottom - self.viewportSize;
+            self.fullViewSize = content[#self.content].bottom;
+            local range = self.fullViewSize - self.viewportSize;
             if range > 0 then
                 range = range + self.bottomOvershoot;
             end
             self:SetScrollRange(range);
         else
+            self.fullViewSize = 0;
             self:SetScrollRange(0);
         end
         self:ReleaseAllObjects();
@@ -875,6 +904,14 @@ do  --ScrollView Scroll Behavior
     function ScrollViewMixin:SetAlwaysShowScrollBar(state)
         --If false, hide the scroll bar when it's not scrollable
         self.alwaysShowScrollBar = state;
+        self.alwaysHideScrollBar = nil;
+    end
+
+    function ScrollViewMixin:SetAlwaysHideScrollBar(state)
+        self.alwaysHideScrollBar = state;
+        if state and self.ScrollBar then
+            self.ScrollBar:Hide();
+        end
     end
 
     function ScrollViewMixin:IsAtTop()
@@ -983,6 +1020,10 @@ do  --ScrollView Callback
 
     function ScrollViewMixin:SetOnScrollStopCallback(onScrollStopCallback)
         self.onScrollStopCallback = onScrollStopCallback;
+    end
+
+    function ScrollViewMixin:SetOnDragStartCallback(onDragStartCallback)
+        self.ScrollBar.onDragStartCallback = onDragStartCallback;
     end
 end
 

@@ -178,28 +178,6 @@
 				</Texture>
 			</Layer>
 		</Layers>
-
-		<Frames>
-			<Frame parentKey="Drawer" clipChildren="true" frameLevel="1" alpha="0">
-				<Size x="192" y="16"/>
-				<Anchors>
-					<Anchor point="TOPLEFT" relativeKey="$parent" relativePoint="TOPLEFT" y="0"/>
-					<Anchor point="TOPRIGHT" relativeKey="$parent" relativePoint="TOPRIGHT" y="0"/>
-				</Anchors>
-			</Frame>
-		</Frames>
-		<Scripts>
-			<OnEnter>
-				if self.Highlight:IsShown() then
-					UIFrameFadeIn(self.Highlight, 0.12, self.Highlight:GetAlpha(), 1);
-				end
-			</OnEnter>
-			<OnLeave>
-				if self.Highlight:IsShown() then
-					UIFrameFadeOut(self.Highlight, 0.2, self.Highlight:GetAlpha(), 0);
-				end
-			</OnLeave>
-		</Scripts>
 	</Button>
 	
 	<Button name="NarciNPCMatchButtonTemplate" virtual="true" inherits="NarciNPCButtonTemplate" hidden="true">

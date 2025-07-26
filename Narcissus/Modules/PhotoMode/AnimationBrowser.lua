@@ -8,7 +8,6 @@ local After = C_Timer.After;
 
 local BrowserFrame, QuickFavoriteButton;
 
-local floor = math.floor;
 
 local outQuart = addon.EasingFunctions.outQuart;
 
@@ -55,6 +54,7 @@ function NarciAnimationOptionButtonMixin:OnEnter()
     Star:Show();
     Star.animationID = self.animationID;
     Star:SetFavorite(self.isFavorite);
+    Star:SetParent(self);
 end
 
 function NarciAnimationOptionButtonMixin:OnLeave()
@@ -175,6 +175,9 @@ function NarciAnimationBrowserMixin:Init()
     ScrollView:SetStepSize(16 * 3);
     ScrollView:OnSizeChanged();
 
+    ScrollView:SetOnDragStartCallback(function()
+        QuickFavoriteButton:Hide();
+    end);
 
     local function AnimationButton_Create()
         local obj = CreateFrame("Button", nil, ScrollView, "Narci_AnimationButtonTemplate");

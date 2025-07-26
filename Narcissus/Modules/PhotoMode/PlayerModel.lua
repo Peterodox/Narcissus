@@ -2147,7 +2147,9 @@ function NarciFavoriteStarMixin:OnClick()
 	local id = AnimationIDEditBox:GetNumber();
 	if isFavorite then
 		NarciAnimationInfo.AddFavorite(id);
-		self:PlayStarAnimation();
+		if not Narci_AnimationBrowser:IsShown() then
+			self:PlayStarAnimation();
+		end
 	else
 		NarciAnimationInfo.RemoveFavorite(id);
 	end
@@ -4371,7 +4373,6 @@ end
 function NarciModelSettingsMixin:SetPanelAlpha(value, smoothing)
     local SpellVisualBrowser = self.SpellPanel;
     local fromAlpha = self.BasicPanel:GetAlpha();
-	local UIFrameFadeIn = FadeFrame;
     if smoothing then
         local fadeDuation;
         if value == 1 then
@@ -4380,10 +4381,10 @@ function NarciModelSettingsMixin:SetPanelAlpha(value, smoothing)
             fadeDuation = 0.5;
         end
         if SpellVisualBrowser.isActive then
-            UIFrameFadeIn(SpellVisualBrowser, fadeDuation, fromAlpha, value);
+            FadeFrame(SpellVisualBrowser, fadeDuation, fromAlpha, value);
         end
-        UIFrameFadeIn(self.ActorPanel, fadeDuation, fromAlpha, value);
-        UIFrameFadeIn(self.BasicPanel, fadeDuation, fromAlpha, value);
+        FadeFrame(self.ActorPanel, fadeDuation, fromAlpha, value);
+        FadeFrame(self.BasicPanel, fadeDuation, fromAlpha, value);
     else
         if SpellVisualBrowser.isActive then
             SpellVisualBrowser:SetAlpha(value);
