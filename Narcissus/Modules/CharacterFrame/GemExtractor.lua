@@ -25,7 +25,8 @@ local function CanPlayerRemoveGem(itemID)
 end
 
 local function CanPlayerRemoveGemFromItem(itemID)
-    return itemID and RemovableItems[itemID]
+    --return itemID and RemovableItems[itemID]
+    return true
 end
 
 local function GetExtractAction()
@@ -269,6 +270,14 @@ function NarciItemSocketingActionButtonMixin:OnDisable()
     self.Label:SetTextColor(0.5, 0.5, 0.5);
 end
 
+function NarciItemSocketingActionButtonMixin:RegisterClicks()
+    if C_CVar.GetCVarBool("ActionButtonUseKeyDown") then
+        self:RegisterForClicks("LeftButtonDown", "RightButtonDown");
+    else
+        self:RegisterForClicks("LeftButtonUp", "RightButtonUp");
+    end
+end
+
 function NarciItemSocketingActionButtonMixin:SetActionForNarcissusUI()
     local equipmentItemID;
     local equipmentSlotIndex = Narci_EquipmentOption.slotID;
@@ -281,7 +290,7 @@ function NarciItemSocketingActionButtonMixin:SetActionForNarcissusUI()
         self:SetAttribute("type1", "macro");
         self:SetAttribute("macrotext", macroText);
         self:AttemptToEnable();
-        self:RegisterForClicks("LeftButtonDown", "LeftButtonUp", "RightButtonDown", "RightButtonUp");
+        self:RegisterClicks();
         self:SetScript("PostClick", NarcissusActionButton_PostClick);
         self.preclickFunc = SocketInventoryItem;
         self.preclickArg1 = equipmentSlotIndex;
@@ -297,7 +306,7 @@ function NarciItemSocketingActionButtonMixin:SetExtractAction()
         self:SetAttribute("type1", "macro");
         self:SetAttribute("macrotext", macroText);
         self:AttemptToEnable();
-        self:RegisterForClicks("LeftButtonDown", "LeftButtonUp", "RightButtonDown", "RightButtonUp");
+        self:RegisterClicks();
     else
         self:DisableButton();
     end

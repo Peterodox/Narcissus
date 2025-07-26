@@ -316,6 +316,7 @@ L["Animation"] = "Animation";
 L["Animation Tooltip"] = "Browse, search animations";
 L["Animation Variation"] = "Variation";
 L["Reset Slider"] = "Reset to zero";
+L["Available Count"] = "%d available";
 
 --Spell Visual Browser--
 L["Visuals"] = "Visuals";

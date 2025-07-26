@@ -284,6 +284,7 @@ L["Animation"] = "角色动画";
 L["Animation Tooltip"] = "浏览和搜索动画";
 L["Animation Variation"] = "子类型";
 L["Reset Slider"] = "重置为零";
+L["Available Count"] = "%d个可用";
 
 --Spell Visual Browser--
 L["Visuals"] = "法术效果";

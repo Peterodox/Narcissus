@@ -251,6 +251,27 @@ local SingingWind = {
 local IsSingCitrine;
 
 
+local ReshiiFiber = {
+    238044,     --Pure Precise Fiber
+    238045,     --Pure Chronomantic Fiber
+    238046,     --Pure Energizing Fiber
+    238042,     --Pure Dexterous Fiber
+
+    238040,
+    238039,
+    238037,
+    238041,
+}
+GemEffects[238044] = 1;
+GemEffects[238045] = 2;
+GemEffects[238046] = 3;
+GemEffects[238042] = 4;
+GemEffects[238040] = 1;
+GemEffects[238039] = 2;
+GemEffects[238037] = 3;
+GemEffects[238041] = 4;
+
+
 local GemData = {
     prismatic = PrismaticGems,
     domination = DominationGems,
@@ -265,6 +286,7 @@ local GemData = {
     singingthunder = SingingThunder,
     singingsea = SingingSea,
     singingwind = SingingWind,
+    fiber = ReshiiFiber,
 };
 
 local RemovableSocket = {
@@ -272,6 +294,7 @@ local RemovableSocket = {
     singingthunder = true,
     singingsea = true,
     singingwind = true,
+    fiber = true,
 };
 
 local SocketNameXTypeName = {};
@@ -279,7 +302,7 @@ local SocketNameXTypeName = {};
 do
     local postfixes = {
         "BLUE", "COGWHEEL", "HYDRAULIC", "META", "PRISMATIC", "PUNCHCARDBLUE", "PUNCHCARDRED", "PUNCHCARDYELLOW",
-        "RED", "TINKER", "YELLOW", "PRIMORDIAL", "FRAGRANCE",
+        "RED", "TINKER", "YELLOW", "PRIMORDIAL", "FRAGRANCE", "FIBER",
     };
 
     local postfixLocal = {
@@ -324,7 +347,7 @@ end
 
 function DataProvider:SetSubsetBySocketName(englishName)
     local socketTypeName;
-
+    --print(englishName)
     if englishName then
         socketTypeName = string.lower(englishName);
         self.isDominationItem = socketTypeName == "domination";

@@ -2537,7 +2537,8 @@
 			<OnLoad method="OnLoad"/>
 			<OnEnter method="OnEnter"/>
 			<OnLeave method="OnLeave"/>
-			<OnMouseUp method="OnMouseUp"/>
+			<OnEvent method="OnEvent"/>
+			<OnHide method="OnHide"/>
 		</Scripts>
 	</Slider>
 

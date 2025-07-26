@@ -1320,17 +1320,13 @@ end
 
 function NarciVerticalLineSliderMixin:OnEnter()
     self:FadeIn();
+    self:RegisterEvent("GLOBAL_MOUSE_UP");
 end
 
 function NarciVerticalLineSliderMixin:OnLeave()
     if not self:IsDraggingThumb() then
         self:FadeOut();
-    end
-end
-
-function NarciVerticalLineSliderMixin:OnMouseUp()
-    if not self:IsMouseOver() then
-        self:FadeOut();
+        self:UnregisterEvent("GLOBAL_MOUSE_UP");
     end
 end
 
@@ -1342,6 +1338,16 @@ end
 function NarciVerticalLineSliderMixin:FadeOut()
     FadeFrame(self.Background, 0.25, 0.4);
     self.Thumb:SetVertexColor(0.5, 0.5, 0.5);
+end
+
+function NarciVerticalLineSliderMixin:OnHide()
+    self:UnregisterEvent("GLOBAL_MOUSE_UP");
+end
+
+function NarciVerticalLineSliderMixin:OnEvent()
+    if (not self:IsMouseMotionFocus()) then
+        self:OnLeave();
+    end
 end
 
 
