@@ -35,6 +35,7 @@ local max = math.max;
 local floor = math.floor;
 local tinsert = table.insert;
 local tremove = table.remove;
+local After = C_Timer.After;
 
 local outSine = addon.EasingFunctions.outSine;
 local inOutSine = addon.EasingFunctions.inOutSine;
@@ -60,47 +61,6 @@ local function HexToRGBPercent(hexColor)
     return GetApproximation(tonumber(sub(hexColor, 1, 2), 16)/255), GetApproximation(tonumber(sub(hexColor, 3, 4), 16)/255), GetApproximation(tonumber(sub(hexColor, 5, 6), 16)/255)
 end
 
-------------------------------------------------------
-local LOADING_RATE_PER_FRAME = 4;
-local numLoadingThisFrame = 0;
-local numTexturesInQueue = 0;
-local isTextureLoading = false;
-local TextureQueue = {};
-local After = C_Timer.After;
-
-local function LoadTexture(fadeIn)
-    local object = TextureQueue[numTexturesInQueue];
-    if object then
-        object[1]:SetTexture(object[3]);
-        object[2]:SetTexture(object[3]);
-        numTexturesInQueue = numTexturesInQueue - 1;
-        if fadeIn then
-            FadeFrame(object[1], 0.25, 1, 0);
-        else
-            object[1]:Show();
-        end
-    end
-    numLoadingThisFrame = numLoadingThisFrame + 1;
-    if numTexturesInQueue > 0 then
-        if numLoadingThisFrame <= LOADING_RATE_PER_FRAME then
-            LoadTexture(fadeIn);
-        else
-            --print(numTexturesInQueue)
-            numLoadingThisFrame = 0;
-            After(0, function()
-                LoadTexture(fadeIn)
-            end);
-        end
-    else
-        TextureQueue = {};
-        isTextureLoading = false;
-    end
-end
-
-local function QueueTexture(textureObject1, textureObject2, file)
-    tinsert(TextureQueue, {textureObject1, textureObject2, file});
-    numTexturesInQueue = numTexturesInQueue + 1;
-end
 
 ------------------------------------------------------
 --Tab Changing Animation    (Choose a category and go)
@@ -158,34 +118,6 @@ local function GoToTab(index, isFavoriteTab)
     end
 
     MouseOverButtons:Hide();
-end
-
-
---Tab collapsing Animation
-local CollapseAnim = NarciAPI_CreateAnimationFrame(0.2);
-
-CollapseAnim:SetScript("OnShow", function(self)
-    self.startHeight = self.tab:GetHeight();
-end);
-
-local function Collapse_OnUpdate(self, elapsed)
-	self.total = self.total + elapsed;
-	local height = outSine(self.total, self.startHeight, self.endHeight, self.duration);
-
-	if self.total >= self.duration then
-		height = self.endHeight;
-		self:Hide();
-    end
-    self.tab:SetHeight(height);
-end
-
-CollapseAnim:SetScript("OnUpdate", Collapse_OnUpdate);
-
-local function CollapseTab(tab, endHeight)
-    CollapseAnim:Hide();
-    CollapseAnim.tab = tab;
-    CollapseAnim.endHeight = endHeight;
-    CollapseAnim:Show();
 end
 
 
@@ -2257,60 +2189,6 @@ local function UpdatePreviewModel(id, isDisplayID, isFileID)
 end
 
 -----------------------------------------------------------------------------------------------
-local function UpdateRenderAreaEntry(value)
-    local buttons = EntryTab.buttons;
-    local button;
-    local offset = 0;
-    local npcHeight = NPC_BUTTON_HEIGHT;
-    local categoryHeight = npcHeight / 2;
-    local endValue = value + TAB_HEIGHT + 4 * npcHeight;
-    local i = 1;
-
-    value = value - 4 * npcHeight;
-
-    while (i <= EntryTab.numActiveButton) do
-        button = buttons[i];
-        if button.mode == "npc" then
-            offset = offset + npcHeight;
-            if offset > value and offset <= endValue then
-                button:Show();
-            else
-                button:Hide();
-            end
-        else
-            offset = offset + categoryHeight;
-            if button.isCollapsed then
-                i = i + button.numChild;
-            end
-        end
-
-        i = i + 1;
-    end
-end
-
-local function UpdateRenderAreaMatch(value)
-    local buttons = MatchTab.buttons;
-    local button;
-    local offset = 0;
-    local npcHeight = NPC_BUTTON_HEIGHT;
-    local endValue = value + TAB_HEIGHT + 4 * npcHeight;
-    local i = 1;
-
-    value = value - 4 * npcHeight;
-
-    while (i <= MatchTab.numActiveButton) do
-        button = buttons[i];
-        offset = offset + npcHeight;
-        if offset > value and offset <= endValue then
-            button:Show();
-        else
-            button:Hide();
-        end
-
-        i = i + 1;
-    end
-end
-
 local function UpdateScrollRange(scrollFrame, smoothing, frameType)
     --frameType  0 Each button has the same height  1 Heights varies
     local scrollBar = scrollFrame.scrollBar;
@@ -2342,12 +2220,6 @@ local function UpdateScrollRange(scrollFrame, smoothing, frameType)
         scrollBar:SetMinMaxValues(0, maxScroll);
         UpdateInnerShadowStates(scrollBar, maxScroll, false);
     end
-    
-    if frameType == 1 then
-        UpdateRenderAreaEntry(scrollBar:GetValue());
-    else
-        --UpdateRenderAreaMatch(scrollBar:GetValue());
-    end
 end
 
 --------------------
@@ -2355,11 +2227,47 @@ end
 --------------------
 local find = string.find;
 local NARCI_NPC_BROWSER_TITLE_LEVEL = NARCI_NPC_BROWSER_TITLE_LEVEL;      --"Level ??"
-local EMBEDED_TOOLTIP_NAME = "Narci_NPCSearchBoxTooltip";
 
 local CreatureInfoUtil = {};
 
 do
+    function CreatureInfoUtil:LoadDatabaseAndGetUnloadedNPC()
+        if not NarciPhotoModeDB then
+            NarciPhotoModeDB = {};
+        end
+
+        if not NarciPhotoModeDB.CreatureInfo then
+            NarciPhotoModeDB.CreatureInfo = {};
+        end
+
+        local locale = GetLocale();
+        if not NarciPhotoModeDB.CreatureInfo[locale] then
+            NarciPhotoModeDB.CreatureInfo[locale] = {};
+        end
+
+        local db = NarciPhotoModeDB.CreatureInfo[locale];
+        self.db = db;
+
+
+        local npcIDList = {};
+        local n = 0;
+        local info;
+        for creatureID, v in pairs(NPCInfo) do
+            info = db[creatureID];
+            if info then
+                NPCInfo[creatureID][1] = info;
+            else
+                n = n + 1;
+                npcIDList[n] = creatureID;
+                self:RequestInfo(creatureID);
+            end
+        end
+
+        return npcIDList
+    end
+
+
+    --For different versions of API
     if C_TooltipInfo and C_TooltipInfo.GetHyperlink then
         local GetInfoByHyperlink = C_TooltipInfo.GetHyperlink;
 
@@ -2412,7 +2320,10 @@ do
                 if titleText and (find(titleText, "%?") or find(titleText, NARCI_NPC_BROWSER_TITLE_LEVEL)) then
                     titleText = nil;
                 end
-                return {nameText, titleText}, nameText == ""
+
+                local info = {nameText, titleText};
+                self.db[creatureID] = info;
+                return info, nameText == ""
             else
                 return {""}, true
             end
@@ -2431,7 +2342,7 @@ do
         end
         local lineName = _G[VirtualTooltipName.. "TextLeft1"];
         local lineTitle = _G[VirtualTooltipName.. "TextLeft2"];
-        
+
         local function IsTooltipLineTitle(text)
             if not text then
                 return false
@@ -2439,7 +2350,7 @@ do
                 return not (find(text, "%?") or find(text, NARCI_NPC_BROWSER_TITLE_LEVEL))--"Level %d"
             end
         end
-        
+
         function CreatureInfoUtil:RequestInfo(creatureID)
             VirtualTooltip:SetHyperlink("unit:Creature-0-0-0-0-"..creatureID);
         end
@@ -2449,13 +2360,13 @@ do
                 VirtualTooltip:SetHyperlink("unit:Creature-0-0-0-0-"..creatureID);
             end
         end
-        
+
         function CreatureInfoUtil:GetName(creatureID)
             VirtualTooltip:SetOwner(UIParent, "ANCHOR_NONE");
             VirtualTooltip:SetHyperlink("unit:Creature-0-0-0-0-"..creatureID);
             return lineName:GetText()
         end
-        
+
         function CreatureInfoUtil:GetTitle(creatureID)
             VirtualTooltip:SetOwner(UIParent, "ANCHOR_NONE");
             VirtualTooltip:SetHyperlink("unit:Creature-0-0-0-0-"..creatureID);
@@ -2465,22 +2376,25 @@ do
                 return false
             end
         end
-        
+
         local TEMP_NAME;
         function CreatureInfoUtil:GetNameAndTitle(creatureID)
             VirtualTooltip:SetOwner(UIParent, "ANCHOR_NONE");
             VirtualTooltip:SetHyperlink(format("unit:Creature-0-0-0-0-%d", creatureID));
             TEMP_NAME = lineName:GetText() or "";
-        
+
             if find(TEMP_NAME, "%?") then
                 return {creatureID}, false
             end
-        
+
+            local info;
             if IsTooltipLineTitle(lineTitle:GetText()) then
-                return {TEMP_NAME, lineTitle:GetText()}, (TEMP_NAME == "")
+                info = {TEMP_NAME, lineTitle:GetText()};
             else
-                return {TEMP_NAME, nil}, (TEMP_NAME == "")
+                info = {TEMP_NAME};
             end
+            self.db[creatureID] = info;
+            return info, (TEMP_NAME == "")
         end
     end
 end
@@ -2948,32 +2862,6 @@ local function CreateSmoothScroll(scrollFrame, buttonHeight, numButtonPerpage, s
     NarciAPI_SmoothScroll_Initialization(scrollFrame, nil, nil, step/(numButtonPerpage), 0.14, nil, positionFunc);
 end
 
-local function CreateButtonsForScrollFrame(frame, sum, template, onEnterFunc, onClickFunc)
-    --print("Total Buttons: ".. sum)
-    local buttons = {};
-    local button;
-    for i = 1, sum do
-        button = CreateFrame("Button", nil, frame.ScrollChild, template);
-        button.index = i;
-        buttons[i] = button;
-        if i == 1 then
-            button:SetPoint("TOP", frame.ScrollChild, "TOP", 0, 0);
-        else
-            button:SetPoint("TOP", buttons[i - 1], "BOTTOM", 0, 0);
-        end
-
-        if onEnterFunc then
-            button:SetScript("OnEnter", onEnterFunc);
-        end
-
-        if onClickFunc then
-            button:SetScript("OnClick", onClickFunc);
-        end
-    end
-    frame.buttons = buttons;
-    frame.numActiveButton = 0;
-end
-
 local function SetUpMatchButton(button, creatureData, keyword)
     if creatureData then
         button:Show();
@@ -3372,8 +3260,6 @@ local function NPCBrowser_OnLoad(self)
     SearchTrigger = HeaderFrame.SearchTrigger;
     LoadingIndicator = self.Container.LoadingIndicator;
 
-    CreateSmoothScroll(EntryTab, NPC_BUTTON_HEIGHT, NUM_BUTTONS_PER_PAGE, 2, UpdateRenderAreaEntry);
-
     ScrollCategory:Update();
     CreateSmoothScroll(CategoryTab, COVER_BUTTON_HEIGHT, NUM_COVER_ROW_PER_PAGE, 1);
     CategoryTab.scrollBar:SetScript("OnValueChanged", function(bar, value)
@@ -3507,18 +3393,6 @@ local function SearchByID(id)
             };
         end
     end
-
-    --[[
-    if NarciAPI.DoesModelFileExist(id) then
-        if result then
-            tinsert(result, {"File", 0, nil, id});
-        else
-            result = {
-                {"File", 0, nil, id},
-            };
-        end
-    end
-    --]]
 
     DisplaySearchResult(result, nil);
 end
@@ -3659,20 +3533,8 @@ end
 
 ------------------------------------------------------
 local function BuildNPCList()
-    CreatureInfoUtil:RequestInfoFromList(NPCInfo);
-    CreateButtonsForScrollFrame(BrowserFrame.Container.EntryTab, NUM_MAX_ENTRY_BUTTONS, "NarciNPCButtonWithPortaitTemplate", NPCCard_OnEnter);
+    local npcIDList = CreatureInfoUtil:LoadDatabaseAndGetUnloadedNPC();
 
-    local function GetKeyTable(table)
-        local keys = {};
-        for k, v in pairs(table) do
-            tinsert(keys, k);
-            NUM_NPC_TOTAL = NUM_NPC_TOTAL + 1;
-        end
-        return keys;
-    end
-
-    local npcIDList = GetKeyTable(NPCInfo);
-    local Loader = CreateFrame("Frame");
     local numTotal = #npcIDList;
     local numLeft = numTotal;
 
@@ -3690,22 +3552,25 @@ local function BuildNPCList()
                 return
             end
         end
-        id = npcIDList[numLeft];
-        NPCInfo[id][1], shouldQueue = CreatureInfoUtil:GetNameAndTitle(id);
-        if shouldQueue then
-            if idQueued[id] then
-                numLeft = numLeft - 1;
-            else
-                idQueued[id] = true;
-                paused = true;
-                pausedTime = 0;
-            end
-        else
-            numLeft = numLeft - 1;
-        end
 
-        if numLeft % 2 == 0 then
-            LoadingIndicator.Progress:SetText( (numTotal - numLeft) .."/"..numTotal);
+        id = npcIDList[numLeft];
+        if id then
+            NPCInfo[id][1], shouldQueue = CreatureInfoUtil:GetNameAndTitle(id);
+            if shouldQueue then
+                if idQueued[id] then
+                    numLeft = numLeft - 1;
+                else
+                    idQueued[id] = true;
+                    paused = true;
+                    pausedTime = 0;
+                end
+            else
+                numLeft = numLeft - 1;
+            end
+
+            if numLeft % 2 == 0 then
+                LoadingIndicator.Progress:SetText( (numTotal - numLeft) .."/"..numTotal);
+            end
         end
 
         if numLeft == 0 then
@@ -3713,17 +3578,17 @@ local function BuildNPCList()
             f:SetScript("OnUpdate", nil);
             f:Hide();
             NPCBrowser_OnLoad(BrowserFrame);
-            LoadTexture();
             LoadingIndicator.Progress:SetText("");
             LoadingIndicator:Hide();
         end
     end
 
+    FavUtil:Load();
+
+    local Loader = CreateFrame("Frame");
     After(1.5, function()
         Loader:SetScript("OnUpdate", Loader_OnUpdate);
     end);
-
-    FavUtil:Load();
 end
 
 

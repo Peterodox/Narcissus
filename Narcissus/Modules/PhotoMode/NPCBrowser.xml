@@ -265,14 +265,15 @@
 						</Anchors>
 					</ScrollFrame>
 
-					<ScrollFrame parentKey="EntryTab" inherits="Narci_NPCBrowser_ScrollFrameTemplate">
+					<Frame parentKey="EntryTab">
+						<Size x="192" y="192"/>
 						<Anchors>
 							<Anchor point="LEFT" relativeKey="$parent.CategoryTab" relativePoint="RIGHT" x="2"/>
 						</Anchors>
 						<Frames>
 							
 						</Frames>
-					</ScrollFrame>
+					</Frame>
 
 					<ScrollFrame name="Narci_NPCBrowser_MatchTab" parentKey="MatchTab" inherits="Narci_NPCBrowser_ScrollFrameTemplate">
 						<Anchors>
