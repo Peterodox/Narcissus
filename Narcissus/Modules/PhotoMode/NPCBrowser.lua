@@ -12,14 +12,12 @@ local BROWSER_HEIGHT = 208;
 local BROWSER_SHRINK_WIDTH = 16;
 local BROWSER_SHRINK_HEIGHT = 16;
 
-local NUM_NPC_TOTAL = 0;        --For Test
 local TAB_WIDTH = 192;
 local NPC_BUTTON_HEIGHT = 32;
 local COVER_BUTTON_HEIGHT = 96;
 local COVER_BUTTON_WIDTH = 64;
 local NUM_BUTTONS_PER_PAGE = 6;
 local NUM_COVER_ROW_PER_PAGE = 2;
-local NUM_MAX_MATCHES = 80;
 local TAB_HEIGHT = NUM_BUTTONS_PER_PAGE * NPC_BUTTON_HEIGHT;
 
 local BrowserFrame, CategoryTab, EntryTab, MatchTab, HeaderFrame, HomeButton, SearchBox, SearchTrigger, MatchPreviewModel;
@@ -94,6 +92,8 @@ local function GoToTab(index, isFavoriteTab)
     SwipeAnim:Hide();
     SwipeAnim.endOffset = (1 - index) * (TAB_WIDTH + 2);
     SwipeAnim:Show();
+    EntryTab:SetShown(index == 2);
+    MatchTab:SetShown(index == 3);
     if index == 1 then
         SearchTrigger:Show();
         SearchBox:Hide();
@@ -2072,38 +2072,6 @@ end
 Catalogue.numCategory = Catalogue.numCategory + 1;
 
 -----------------------------------------------------------------------------------------------
---Gradually Update Scroll Range
-local RangeAnim = NarciAPI_CreateAnimationFrame(0.5);
-
-RangeAnim:SetScript("OnShow", function(self)
-    _, self.StartValue = self.scrollBar:GetMinMaxValues();
-    if self.EndValue < 0.1 then
-        self.scrollBar.Thumb:Hide();
-    else
-        self.scrollBar.Thumb:Show();
-    end
-end)
-
-local function Range_OnUpdate(self, elapsed)
-	self.total = self.total + elapsed;
-	local range = inOutSine(self.total, self.StartValue, self.EndValue, self.duration);
-
-	if self.total >= self.duration then
-		range = self.EndValue;
-        self:Hide();
-    end
-    self.scrollBar:SetMinMaxValues(0, range);
-end
-
-RangeAnim:SetScript("OnUpdate", Range_OnUpdate);
-
-local function SmoothRange(scrollBar, newRange)
-    RangeAnim:Hide();
-    RangeAnim.scrollBar = scrollBar;
-    RangeAnim.EndValue = newRange;
-    RangeAnim:Show();
-end
-
 local function UpdateInnerShadowStates(scrollBar, newMax, smoothing)
 	local currValue = scrollBar:GetValue();
     local minVal, maxVal = scrollBar:GetMinMaxValues();
@@ -2178,7 +2146,7 @@ end)
 
 local function UpdatePreviewModel(id, isDisplayID, isFileID)
     if id then
-        if MatchPreviewModel.id ~= id or MatchPreviewModel.isDisplayID ~= isDisplayID then
+        if UpdateModelDelay.id ~= id or UpdateModelDelay.isDisplayID ~= isDisplayID then
             UpdateModelDelay.total = 0;
             UpdateModelDelay.id = id;
             UpdateModelDelay.isDisplayID = isDisplayID;
@@ -2189,38 +2157,7 @@ local function UpdatePreviewModel(id, isDisplayID, isFileID)
 end
 
 -----------------------------------------------------------------------------------------------
-local function UpdateScrollRange(scrollFrame, smoothing, frameType)
-    --frameType  0 Each button has the same height  1 Heights varies
-    local scrollBar = scrollFrame.scrollBar;
-    local numActiveButton = scrollFrame.numActiveButton;
-    local categoryButtons = scrollFrame.categoryButtons;
-    local numCollapsedButton, numSubcategory= 0, 0;
 
-    if categoryButtons then
-        numSubcategory = scrollFrame.numSubcategory;
-        local categoryButton;
-        for i = 1, #categoryButtons do
-            categoryButton = categoryButtons[i];
-            if categoryButton.isCollapsed then
-                numCollapsedButton = numCollapsedButton + categoryButton.numChild;
-            end
-        end
-    end
-
-    local buttonHeight = 16;
-    local ButtonPerPage = 8;
-    local totalHeight = (numActiveButton - numCollapsedButton - numSubcategory/2 + 0) * NPC_BUTTON_HEIGHT;
-    local maxScroll = max(0, totalHeight - TAB_HEIGHT);
-    scrollFrame.range = maxScroll;
-
-    if smoothing then
-        SmoothRange(scrollBar, maxScroll);
-        UpdateInnerShadowStates(scrollBar, maxScroll, true);
-    else
-        scrollBar:SetMinMaxValues(0, maxScroll);
-        UpdateInnerShadowStates(scrollBar, maxScroll, false);
-    end
-end
 
 --------------------
 --Build Name Table--
@@ -2604,8 +2541,6 @@ local function DisplayNPCInCategory(categoryID, fromRefresh)
     local offsetY = 0;
     local n = 0;
     local top, bottom;
-    local numChild;
-    local name;
 
     for headerIndex, subCategory in ipairs(category) do
         local firstEntry = true;
@@ -2839,13 +2774,6 @@ function NPCCardAPI:SetMatchedNPC(button, id, name, title, keyword)
     end
 end
 
---[[
-function NPCCardAPI:Render(state)
-    self.Portrait:SetShown(state);
-    self.HighlightNPC:SetShown(state);
-    self.isRendered = state;
-end
---]]
 
 --------------------------------------------------------------------------------------------------
 local function CreateSmoothScroll(scrollFrame, buttonHeight, numButtonPerpage, step, positionFunc)
@@ -2865,7 +2793,6 @@ end
 local function SetUpMatchButton(button, creatureData, keyword)
     if creatureData then
         button:Show();
-        button.Highlight:SetAlpha(0);
         if creatureData[3] then
             --displayID
             local displayID = creatureData[3];
@@ -2949,8 +2876,8 @@ local function SetUpMatchButton(button, creatureData, keyword)
     end
 end
 
-local function Match_OnEnter(self)
-    FadeFrame(self.Highlight, 0.2, 1);
+local function MatchButton_OnEnter(self)
+    self.Highlight:Show();
     SetModelLight(MatchPreviewModel, true, false, - 0.44699833180028 ,  0.72403680806459 , -0.52532198881773, 0.8, 172/255, 172/255, 172/255, 1, 0.8, 0.8, 0.8);
     if self.displayID then
         UpdatePreviewModel(self.displayID, true);
@@ -2964,70 +2891,12 @@ local function Match_OnEnter(self)
     end
 end
 
-local function Match_OnLeave(self)
+local function MatchButton_OnLeave(self)
     if not self:IsMouseOver() then
-        FadeFrame(self.Highlight, 0.2, 0);
+        self.Highlight:Hide();
     end
 end
 
-
-local ScrollMatch = {};
-ScrollMatch.data = {};
-ScrollMatch.indexOffset = -1;
-ScrollMatch.buttons = {};
-ScrollMatch.numButtons = 12; --6 visible, 6 for buffer
-
-function ScrollMatch:HideButtons()
-    for k, button in pairs(self.buttons) do
-        button:Hide();
-    end
-    MatchPreviewModel:Hide();
-    MouseOverButtons:Hide();
-    MatchTab.Notes:Show();
-end
-
-function ScrollMatch:SetMatchData(data, keyword)
-    self.data = data or {};
-    self.keyword = keyword;
-end
-
-function ScrollMatch:UpdateScrollChild(offset, forced)
-    local index = floor((offset + 2) / NPC_BUTTON_HEIGHT);
-    if index == self.indexOffset and not forced then
-        return
-    end
-
-    local anchorTo = MatchTab.ScrollChild;
-    local button;
-
-    if index > self.indexOffset then
-        local topButton = tremove(self.buttons, 1);
-        if topButton then
-            tinsert(self.buttons, topButton);
-        end
-    else
-        local bottomButton = tremove(self.buttons);
-        if bottomButton then
-            tinsert(self.buttons, 1, bottomButton);
-        end
-    end
-    self.indexOffset = index;
-    local dataIndex;
-    for i = 1, self.numButtons do
-        button = self.buttons[i];
-        if not button then
-            button = CreateFrame("Button", nil, anchorTo, "NarciNPCMatchButtonTemplate");
-            button:SetScript("OnEnter", Match_OnEnter);
-            button:SetScript("OnLeave", Match_OnLeave);
-            button:SetScript("OnClick", NPCCard_OnClick);
-            self.buttons[i] = button;
-        end
-        dataIndex = i + index;
-        button:ClearAllPoints();
-        button:SetPoint("TOP", anchorTo, "TOP", 0, NPC_BUTTON_HEIGHT * (1 - dataIndex));
-        SetUpMatchButton(button, self.data[dataIndex], self.keyword);
-    end
-end
 
 local function SetCreaturePreview(id)
     local model = MatchPreviewModel;
@@ -3043,30 +2912,84 @@ local function SetCreaturePreview(id)
     end
 end
 
-local function DisplaySearchResult(matchTable, keyword)
-    ScrollMatch:SetMatchData(matchTable, keyword);
-    local frame = MatchTab;
-    local numMacthes = matchTable and #matchTable or 0;
-    if numMacthes > 0 then
-        frame.Notes:Hide();
-        MouseOverButtons:Hide();
-    else
-        ScrollMatch:HideButtons();
-        SetCreaturePreview(nil);
-        return
-    end
-    local numActiveButton = min(numMacthes, NUM_MAX_MATCHES);
+local function CreateMatchTabScrollView()
+    local ScrollView = NarciAPI.CreateScrollView(MatchTab);
+    MatchTab.ScrollView = ScrollView;
+    ScrollView:SetSize(192, 192);
+    ScrollView:SetPoint("BOTTOM", MatchTab, "BOTTOM", 0, 0);
+    ScrollView:SetStepSize(32 * 2);
+    ScrollView:OnSizeChanged();
+    ScrollView:SetAlwaysHideScrollBar(true);
 
-    frame.numActiveButton = numActiveButton;
 
-    After(0, function()
-        UpdateScrollRange(frame, false, 0);
-        ScrollMatch:UpdateScrollChild(0, true);
-        frame.scrollBar:SetValue(0);
+    ScrollView:SetOnHideCallback(function()
+        UpdateModelDelay.id = nil;
+        ScrollView:ProcessActiveObjects("MatchButton", function(obj)
+            obj.Highlight:Hide();
+        end);
     end);
+
+    local function MatchButton_Create()
+        local button = CreateFrame("Button", nil, MatchTab, "NarciNPCMatchButtonTemplate");
+        button:SetScript("OnEnter", MatchButton_OnEnter);
+        button:SetScript("OnLeave", MatchButton_OnLeave);
+        button:SetScript("OnClick", NPCCard_OnClick);
+        return button
+    end
+
+    local function MatchButton_Remove(obj)
+        obj.Highlight:Hide();
+    end
+
+    ScrollView:AddTemplate("MatchButton", MatchButton_Create, MatchButton_Remove);
+
+
+    return ScrollView
 end
 
-local function CreateFavoritesButton()
+local function DisplaySearchResult(matchTable, keyword)
+    if not matchTable then matchTable = {}; end;
+
+    if not MatchTab.ScrollView then
+        MatchTab.ScrollView = CreateMatchTabScrollView();
+    end
+
+    local numMacthes = #matchTable;
+    MouseOverButtons:Hide();
+    if numMacthes > 0 then
+        MatchTab.Notes:Hide();
+    else
+        MatchPreviewModel:Hide();
+        MatchTab.Notes:Show();
+    end
+
+    local content = {};
+    local buttonHeight = 32;
+    local offsetY = 0;
+    local n = 0;
+    local top, bottom;
+
+    for i, creatureData in ipairs(matchTable) do
+        n = n + 1;
+        top = offsetY;
+        bottom = offsetY + buttonHeight;
+        content[n] = {
+            dataIndex = n,
+            templateKey = "MatchButton",
+            setupFunc = function(obj)
+                SetUpMatchButton(obj, creatureData, keyword);
+            end,
+            top = top,
+            bottom = bottom,
+        };
+        offsetY = bottom;
+        if n >= 100 then break end;
+    end
+
+    MatchTab.ScrollView:SetContent(content);
+end
+
+local function DisplayFavorites()
     --not a RAM friendly way but let it be for now
     local matchedIDs = {};
     local name;
@@ -3089,7 +3012,7 @@ function NarciNPCBrowserCoverButtonMixin:OnClick()
         DisplayNPCInCategory(self.categoryID);
         HeaderFrame.Tab2Label:SetText(self.Name:GetText());
     else
-        CreateFavoritesButton();
+        DisplayFavorites();
     end
 end
 
@@ -3267,11 +3190,6 @@ local function NPCBrowser_OnLoad(self)
         ScrollCategory:UpdateScrollChild(value);
     end);
 
-    CreateSmoothScroll(MatchTab, NPC_BUTTON_HEIGHT, NUM_BUTTONS_PER_PAGE, 2);
-    MatchTab.scrollBar:SetScript("OnValueChanged", function(bar, value)
-        MatchTab:SetVerticalScroll(value);
-        ScrollMatch:UpdateScrollChild(value);
-    end);
 
     local numCover = Catalogue.numCategory;
     local numRow = floor( (numCover + 2) /3 );
@@ -3295,6 +3213,10 @@ local function NPCBrowser_OnLoad(self)
         GoToTab(3);
 
         if not self.isDatabaseLoaded then
+            if MatchTab.ScrollView then
+                MatchTab.ScrollView:SetContent(nil);
+            end
+
             local addOnName = "Narcissus_Database_NPC";
             if C_AddOns.IsAddOnLoaded(addOnName) then
                 self.isDatabaseLoaded = true;
@@ -3370,8 +3292,6 @@ end
 
 local function SearchByID(id)
     if IsKeyDown("BACKSPACE") then return end
-
-    ScrollMatch:HideButtons();
 
     local result;
 
@@ -3481,8 +3401,6 @@ function NarciNPCSearchBoxMixin:OnTextChanged(isUserInput)
     local str = self:GetNumber();
 
     if str ~= 0 then
-        MatchTab.scrollBar:SetValue(0);
-
         self.hasNumber = true;
         self.DefaultText:Hide();
         self.EraseButton:Show();

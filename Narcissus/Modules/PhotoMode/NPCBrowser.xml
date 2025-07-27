@@ -183,7 +183,7 @@
 	<Button name="NarciNPCMatchButtonTemplate" virtual="true" inherits="NarciNPCButtonTemplate" hidden="true">
 		<Layers>
 			<Layer level="ARTWORK" textureSubLevel="2">
-				<Texture parentKey="Highlight" hidden="true" alpha="0" file="Interface\AddOns\Narcissus\Art\Widgets\NPCBrowser\Gradient-90To10"/>
+				<Texture parentKey="Highlight" hidden="true" alpha="1" file="Interface\AddOns\Narcissus\Art\Widgets\NPCBrowser\Gradient-90To10"/>
 			</Layer>
 		</Layers>
 		<Scripts>
@@ -275,7 +275,8 @@
 						</Frames>
 					</Frame>
 
-					<ScrollFrame name="Narci_NPCBrowser_MatchTab" parentKey="MatchTab" inherits="Narci_NPCBrowser_ScrollFrameTemplate">
+					<Frame name="Narci_NPCBrowser_MatchTab" parentKey="MatchTab">
+						<Size x="192" y="192"/>
 						<Anchors>
 							<Anchor point="LEFT" relativeKey="$parent.EntryTab" relativePoint="RIGHT" x="2"/>
 						</Anchors>
@@ -300,14 +301,12 @@
 								</Texture>
 							</Layer>
 						</Layers>
-						<Frames>
-						</Frames>
-					</ScrollFrame>
+					</Frame>
 
 					<Frame parentKey="MouseOverButtons" frameLevel="88">
 						<Size x="36" y="18"/>
 						<Frames>
-							<Button inherits="NarciQuickFavoriteButtonTemplate">
+							<Button inherits="NarciQuickFavoriteButtonTemplate" propagateMouseInput="Motion">
 								<Size x="18" y="18"/>
 								<Anchors>
 									<Anchor point="RIGHT" relativeKey="$parent" relativePoint="RIGHT"/>
@@ -319,7 +318,7 @@
 								</Scripts>
 							</Button>
 
-							<Button parentKey="WeaponMark" registerForClicks="LeftButtonUp, RightButtonUp">
+							<Button parentKey="WeaponMark" registerForClicks="LeftButtonUp, RightButtonUp" propagateMouseInput="Motion">
 								<Size x="12" y="18"/>
 								<Anchors>
 									<Anchor point="RIGHT" relativeKey="$parent.QuickFavoriteButton" relativePoint="LEFT" x="0"/>
@@ -355,8 +354,6 @@
 									</OnMouseUp>
 								</Scripts>
 							</Button>
-
-
 						</Frames>
 					</Frame>
 
