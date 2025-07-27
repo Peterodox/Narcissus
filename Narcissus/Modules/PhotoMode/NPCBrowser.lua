@@ -13,12 +13,9 @@ local BROWSER_SHRINK_WIDTH = 16;
 local BROWSER_SHRINK_HEIGHT = 16;
 
 local TAB_WIDTH = 192;
-local NPC_BUTTON_HEIGHT = 32;
 local COVER_BUTTON_HEIGHT = 96;
 local COVER_BUTTON_WIDTH = 64;
-local NUM_BUTTONS_PER_PAGE = 6;
 local NUM_COVER_ROW_PER_PAGE = 2;
-local TAB_HEIGHT = NUM_BUTTONS_PER_PAGE * NPC_BUTTON_HEIGHT;
 
 local BrowserFrame, CategoryTab, EntryTab, MatchTab, HeaderFrame, HomeButton, SearchBox, SearchTrigger, MatchPreviewModel;
 local MouseOverButtons, QuickFavoriteButton;
@@ -28,7 +25,6 @@ local TARGET_MODEL_INDEX = 1;     --Add an NPC to NarciNPCModelFrame(n)
 local ACTOR_CREATED = false;      --Whether user has added an NPC from browser or not
 
 local _G = _G;
-local min = math.min;
 local max = math.max;
 local floor = math.floor;
 local tinsert = table.insert;
@@ -60,7 +56,7 @@ local function HexToRGBPercent(hexColor)
 end
 
 
-------------------------------------------------------
+--------------------------------------------------------------------------
 --Tab Changing Animation    (Choose a category and go)
 local SwipeAnim = NarciAPI_CreateAnimationFrame(0.25);
 
@@ -197,10 +193,9 @@ local function PlayToggleAnimation(state)
     animSizing:Show();
 end
 
------------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------
 
-local CP = {
-    --Color presets
+local CP = { --Color presets
     ["r"] = "ce7272",
     ["o"] = "cfa972",       --Brown
     ["y"] = "ffd200",
@@ -2014,11 +2009,11 @@ local Catalogue = {
 };
 
 
-local CatalogueUtil = {};
+local ScrollHistory = {};
 do
-    CatalogueUtil.history = {};
+    ScrollHistory.history = {};
 
-    function CatalogueUtil:SetActiveCategory(categoryIndex)
+    function ScrollHistory:SetActiveCategory(categoryIndex)
         if not self.history[categoryIndex] then
             self.history[categoryIndex] = {};
         end
@@ -2026,15 +2021,15 @@ do
         self.activeHistory = self.history[categoryIndex];
     end
 
-    function CatalogueUtil:GetActiveCategoryIndex()
+    function ScrollHistory:GetActiveCategoryIndex()
         return self.activeCategoryIndex
     end
 
-    function CatalogueUtil:IsHeaderExpanded(headerIndex)
+    function ScrollHistory:IsHeaderExpanded(headerIndex)
         return self.activeHistory[headerIndex] == true
     end
 
-    function CatalogueUtil:ToggleHeaderExpanded(headerIndex)
+    function ScrollHistory:ToggleHeaderExpanded(headerIndex)
         if self:IsHeaderExpanded(headerIndex) then
             self.activeHistory[headerIndex] = false;
         else
@@ -2042,11 +2037,11 @@ do
         end
     end
 
-    function CatalogueUtil:SaveOffset()
+    function ScrollHistory:SaveOffset()
         self.activeHistory.lastOffset = EntryTab.ScrollView:GetOffset();
     end
 
-    function CatalogueUtil:GetLastOffset()
+    function ScrollHistory:GetLastOffset()
         return self.activeHistory.lastOffset
     end
 end
@@ -2071,7 +2066,7 @@ for i = 1, Catalogue.numCategory do
 end
 Catalogue.numCategory = Catalogue.numCategory + 1;
 
------------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------
 local function UpdateInnerShadowStates(scrollBar, newMax, smoothing)
 	local currValue = scrollBar:GetValue();
     local minVal, maxVal = scrollBar:GetMinMaxValues();
@@ -2156,12 +2151,8 @@ local function UpdatePreviewModel(id, isDisplayID, isFileID)
     end
 end
 
------------------------------------------------------------------------------------------------
-
-
---------------------
---Build Name Table--
---------------------
+--------------------------------------------------------------------------
+--Creature Name Getter
 local find = string.find;
 local NARCI_NPC_BROWSER_TITLE_LEVEL = NARCI_NPC_BROWSER_TITLE_LEVEL;      --"Level ??"
 
@@ -2406,7 +2397,7 @@ function FavUtil:GetNumFavorites()
 end
 
 
------------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------
 local NPCCardAPI = {};
 
 local function ShowMouseOverButtons(anchorButton)
@@ -2504,7 +2495,7 @@ end
 
 
 local function DisplayNPCInCategory(categoryID, fromRefresh)
-    CatalogueUtil:SetActiveCategory(categoryID);
+    ScrollHistory:SetActiveCategory(categoryID);
 
     local frame = EntryTab;
     if not frame.ScrollView then
@@ -2560,7 +2551,7 @@ local function DisplayNPCInCategory(categoryID, fromRefresh)
                     bottom = bottom,
                 };
                 offsetY = bottom;
-                if not CatalogueUtil:IsHeaderExpanded(headerIndex) then
+                if not ScrollHistory:IsHeaderExpanded(headerIndex) then
                     break
                 end
             end
@@ -2585,7 +2576,7 @@ local function DisplayNPCInCategory(categoryID, fromRefresh)
     frame.ScrollView:SetContent(content, retainPosition);
 
     if not fromRefresh then
-        local lastOffset = CatalogueUtil:GetLastOffset();
+        local lastOffset = ScrollHistory:GetLastOffset();
         if lastOffset then
             frame.ScrollView:SnapTo(lastOffset);
         end
@@ -2597,8 +2588,8 @@ end
 
 
 local function Category_OnClick(self)
-    CatalogueUtil:ToggleHeaderExpanded(self.headerIndex);
-    DisplayNPCInCategory(CatalogueUtil:GetActiveCategoryIndex(), true);
+    ScrollHistory:ToggleHeaderExpanded(self.headerIndex);
+    DisplayNPCInCategory(ScrollHistory:GetActiveCategoryIndex(), true);
 end
 
 
@@ -2696,7 +2687,7 @@ end
 
 function NPCCardAPI:UpdateCollapsed(button)
     if button.headerIndex then
-        if CatalogueUtil:IsHeaderExpanded(button.headerIndex) then
+        if ScrollHistory:IsHeaderExpanded(button.headerIndex) then
             button.ExpandMark:SetTexCoord(0, 1, 1, 0);
         else
             button.ExpandMark:SetTexCoord(0, 1, 0, 1);
@@ -2775,7 +2766,7 @@ function NPCCardAPI:SetMatchedNPC(button, id, name, title, keyword)
 end
 
 
---------------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------
 local function CreateSmoothScroll(scrollFrame, buttonHeight, numButtonPerpage, step, positionFunc)
     local totalHeight = floor(numButtonPerpage * buttonHeight + 0.5);
     local maxScroll = max(0, totalHeight - numButtonPerpage * buttonHeight);
@@ -3199,7 +3190,7 @@ local function NPCBrowser_OnLoad(self)
 
     HomeButton:SetScript("OnClick", function(self)
         if CURRENT_TAB_INDEX == 2 then
-            CatalogueUtil:SaveOffset();
+            ScrollHistory:SaveOffset();
         end
         GoToTab(1);
         FadeFrame(self, 0.2, 0);
@@ -3276,7 +3267,7 @@ end
 
 
 
-------------------------------------------------------
+--------------------------------------------------------------------------
 --Search Box
 
 local SearchDelay = NarciAPI_CreateAnimationFrame(0.5);
@@ -3449,7 +3440,7 @@ function NarciNPCSearchBoxMixin:OnFocusGained()
     end
 end
 
-------------------------------------------------------
+--------------------------------------------------------------------------
 local function BuildNPCList()
     local npcIDList = CreatureInfoUtil:LoadDatabaseAndGetUnloadedNPC();
 

@@ -18,7 +18,7 @@ local FadeFrame = NarciFadeUI.Fade;
 local After = C_Timer.After;
 local tinsert = table.insert;
 
-local BrowserFrame, ListFrame, PreviewFrame, HistoryFrame, Tab1, ListScrollBar, HistoryButtonFrame, QuickFavoriteButton, SuggestionFrame, HomeButton, MyFavoriteEditFrame;
+local BrowserFrame, ListFrame, EntryTab, PreviewFrame, HistoryFrame, Tab1, ListScrollBar, HistoryButtonFrame, QuickFavoriteButton, SuggestionFrame, HomeButton, MyFavoriteEditFrame;
 local NUM_VISIBLE_BUTTONS = 0;
 
 local NarciSpellVisualBrowser = NarciSpellVisualBrowser;
@@ -210,6 +210,52 @@ function Narci_ToggleSpellVisualBrowser(self)
 end
 
 
+local ScrollHistory = {};
+do
+    ScrollHistory.history = {};
+
+    function ScrollHistory:SetActiveCategory(categoryIndex)
+        if not self.history[categoryIndex] then
+            self.history[categoryIndex] = {};
+        end
+        self.activeCategoryIndex = categoryIndex;
+        self.activeHistory = self.history[categoryIndex];
+    end
+
+    function ScrollHistory:GetActiveCategoryIndex()
+        return self.activeCategoryIndex
+    end
+
+    function ScrollHistory:IsHeaderExpanded(headerIndex)
+        return self.activeHistory[headerIndex] == true
+    end
+
+    function ScrollHistory:ToggleHeaderExpanded(headerIndex)
+        if self:IsHeaderExpanded(headerIndex) then
+            self.activeHistory[headerIndex] = false;
+        else
+            self.activeHistory[headerIndex] = true;
+        end
+    end
+
+    function ScrollHistory:SaveOffset()
+        if self.activeHistory then
+            self.activeHistory.lastOffset = EntryTab.ScrollView:GetOffset();
+        end
+    end
+
+    function ScrollHistory:GetLastOffset()
+        return self.activeHistory.lastOffset
+    end
+
+    function ScrollHistory:Reset()
+        self.history = {};
+        self.activeHistory = nil;
+        self.activeCategoryIndex = nil;
+    end
+end
+
+
 --Tab Changing Animation    (Choose a category and go)
 local SwipeAnim = NarciAPI_CreateAnimationFrame(0.25);
 
@@ -231,6 +277,10 @@ end
 SwipeAnim:SetScript("OnUpdate", Swipe_OnUpdate);
 
 local function GoToTab(index)
+    if index == 1 then
+        ScrollHistory:SaveOffset();
+    end
+
     SwipeAnim:Hide();
     SwipeAnim.endOffset = (1 - index) * TAB_WIDTH;
     SwipeAnim:Show();
@@ -466,7 +516,7 @@ local function AddToHistory(visualID)
         end
         NewHistory[NUM_MAX_HISTORY] = visualID;
     end
-    wipe(model.AppliedVisuals);
+
     model.AppliedVisuals = NewHistory;
 end
 
@@ -656,58 +706,10 @@ local function UpdateScrollRange(smoothing)
     end
 end
 
-local function SubcategoryButton_OnClick(self)
-    self.collapsed = not self.collapsed;
-    local tabHeight;
-    if self.collapsed then
-        FadeFrame(self.Drawer, 0.15, 0);
-        self.Icon:SetTexCoord(0, 1, 0, 1);
-        tabHeight = 16;
-    else
-        FadeFrame(self.Drawer, 0.2, 1);
-        self.Icon:SetTexCoord(0, 1, 1, 0);
-        tabHeight = 16 * (self.childNum + 1);
-    end
-
-    CollapseTab(self.Drawer, tabHeight - 1);
-    UpdateScrollRange(true);
-end
 
 local clickCounter = {};
 clickCounter.leftButton = 0;
 
-local function EntryButton_OnClick(self, button)
-    local model = Narci.ActiveModel;
-    if not model then return; end;
-    if button == "LeftButton" then
-        model:ApplySpellVisualKit(self.visualID, true);
-
-        --Show Mouse Button Tooltip:    Right-click to apply visuals
-        if not clickCounter.tooltipShown then
-            clickCounter.leftButton = clickCounter.leftButton + 1;
-            if clickCounter.leftButton >= 3 then
-                clickCounter.tooltipShown = true;
-                BrowserFrame.MouseButton:FadeIn();
-            end
-        end
-
-    elseif button == "RightButton" then
-        SmoothInsert(self.visualID, self.texID, self:GetText());
-    end
-
-    --Set Suggested AnimationID
-    local animID = self.animID;
-    SuggestionFrame.IDButton.animID = animID;
-    if animID then
-        if SuggestionFrame.AutoPlay.IsOn then
-            model:PlayAnimation(animID);
-            animID = "|cffd9cdb4"..animID;
-        end
-    else
-        animID = "|cffa7a7a7".."N/A";
-    end
-    SuggestionFrame.IDButton:SetText(animID);
-end
 
 local function SuggestedID_OnClick(self)
     if self.animID then
@@ -753,174 +755,242 @@ end
 -------------------------------------------------
 local function ShowHighlight(self)
     PreviewTimer.pendingID = self.visualID;
-    FadeFrame(self.Highlight, 0.12,  1);
+    self.Highlight:Show();
 end
 
 local function HideHighlightAndClearID(self)
     PreviewTimer.pendingID = nil;
-    FadeFrame(self.Highlight, 0.2, 0);
+    self.Highlight:Hide();
 end
 
-local function SubcategoryButton_OnEnter(self)
-    ShowHighlight(self);
-    --self:SetIgnoreParentAlpha(true);
-    QuickFavoriteButton:Hide();
-end
-
-local function SubcategoryButton_OnLeave(self)
-    HideHighlightAndClearID(self);
-    self:GetParent():SetAlpha(1);
-    --self:SetIgnoreParentAlpha(false);
-end
 
 local FavoriteSpellVisualKitIDs = {};
 local IsFavorite = {};
 
-local function EnrtyButton_OnEnter(self)
-    ShowHighlight(self);
-    if not self.visualID then return; end;
-    UpdatePreview(self.visualID);
-    local Star = QuickFavoriteButton;
-    Star:SetPoint("CENTER", self.Star, "CENTER", 0, 0);
-    Star.parent = self;
-    Star:Show();
-    Star.visualID = self.visualID;
-    Star:SetFavorite(IsFavorite[self.visualID]);
-end
+
+local EntryButtonMixin = {};
 
 
-local function CreateEntryButtonFrames(Category)
-    local ScrollFrame = ListFrame.ScrollFrame
-    local ScrollChild = ScrollFrame.ScrollChild;
-    local scrollBar = ScrollFrame.scrollBar;
-    scrollBar:SetValue(0);
-    scrollBar.BottomShadow:SetAlpha(0);
-    scrollBar.TopShadow:SetAlpha(0);
-    local button, drawerFrame;
-    local entryFrames = {};
-    local totalFrames = ScrollChild.buttons or {};
-    local parentButtons = {};
-    local list, listLength;
-    local totalButton, totalEntry = 1, 0;
-    local info, tex;
+local function DisplayVisualsByCategory(categoryIndex, fromRefresh)
+    --scrollBar.BottomShadow:SetAlpha(0);
+    --scrollBar.TopShadow:SetAlpha(0);
 
-    if totalFrames then
-        for i = 1, #totalFrames do
-            totalFrames[i]:Hide();
-            totalFrames[i].childNum = 0;
+    ScrollHistory:SetActiveCategory(categoryIndex);
+
+    if not EntryTab.ScrollView then
+        local Mixin = NarciAPI.Mixin;
+        local ScrollView = NarciAPI.CreateScrollView(EntryTab);
+        EntryTab.ScrollView = ScrollView;
+        ScrollView:SetSize(116, 128);
+        ScrollView:SetPoint("BOTTOM", EntryTab, "BOTTOM", 0, 0);
+        ScrollView:SetStepSize(16 * 3);
+        ScrollView:OnSizeChanged();
+        ScrollView:SetAlwaysHideScrollBar(true);
+        ScrollView:SetBottomOvershoot(1);
+
+        local function EntryButton_Create()
+            local obj = CreateFrame("Button", nil, ScrollView, "NarciSpellViusalBrowserEntryButtonTemplate");
+            Mixin(obj, EntryButtonMixin);
+            return obj
+        end
+
+        ScrollView:AddTemplate("EntryButton", EntryButton_Create);
+    end
+
+
+    local content = {};
+    local buttonHeight = 16;
+    local offsetY = 0;
+    local n = 0;
+    local top, bottom;
+
+    local category = SpellVisualList[categoryIndex];
+
+    for headerIndex, visualInfoList in ipairs(category) do
+        n = n + 1;
+        top = offsetY;
+        bottom = offsetY + buttonHeight;
+        local count = #visualInfoList;
+        content[n] = {
+            dataIndex = n,
+            templateKey = "EntryButton",
+            setupFunc = function(obj)
+                obj:SetHeader(headerIndex, visualInfoList.name, count);
+            end,
+            top = top,
+            bottom = bottom,
+        };
+        offsetY = bottom;
+
+        if ScrollHistory:IsHeaderExpanded(headerIndex) then
+            for j, info in ipairs(visualInfoList) do
+                n = n + 1;
+                top = offsetY;
+                bottom = offsetY + buttonHeight;
+                content[n] = {
+                    dataIndex = n,
+                    templateKey = "EntryButton",
+                    setupFunc = function(obj)
+                        obj:SetEntry(info);
+                        if j == count then
+                            obj.Divider:Show();
+                        else
+                            obj.Divider:Hide();
+                        end
+                    end,
+                    top = top,
+                    bottom = bottom,
+                };
+                offsetY = bottom;
+            end
         end
     end
 
-    for i = 1, #SpellVisualList[Category] do
-        --Tab Button--
-        list = SpellVisualList[Category][i];
-        listLength = #list;
-        button = totalFrames[totalButton];
-        if not button then
-            button = CreateFrame("Button", nil, ScrollChild, "Narci_OptionalSpellVisualButtonTemplate");
-            tinsert(totalFrames, button);
-        else
-            button:ClearAllPoints();
-            button:SetParent(ScrollChild);
+    local retainPosition = fromRefresh;
+    EntryTab.ScrollView:SetContent(content, retainPosition);
+
+    if not fromRefresh then
+        local lastOffset = ScrollHistory:GetLastOffset();
+        if lastOffset then
+            EntryTab.ScrollView:SnapTo(lastOffset);
         end
-        tinsert(parentButtons, button);
+    end
+end
 
-        if totalButton == 1 then
-            button:SetPoint("TOP", ScrollChild, "TOP", 0, -16);
-        else
-            button:SetPoint("TOP", parentButtons[i - 1].Drawer, "BOTTOM", 0, 0);
-        end
-        button:Show();
-        button:SetText(list["name"]);
-        button.Drawer:Hide();
-        button.Drawer:SetAlpha(0);
-        button.Drawer:SetHeight(15);
-        button.Divider:Show()
-        button.collapsed = true;
-        button.text = list["name"];
-        button.ButtonText:SetJustifyH("CENTER");
-        button.ButtonText:SetPoint("CENTER", 0, 0);
-        button.Icon:SetTexture("Interface\\AddOns\\Narcissus\\Art\\Widgets\\SpellVisualBrowser\\ExpandMark");
-        button.Icon:SetTexCoord(0, 1, 0, 1);
-        button.Star:Hide();
-        button.visualID = nil;
-        button.Count:SetText(listLength);
-        button.Count:Show();
-        button.Background:Show();
-        button.childNum = listLength;
-        button:SetPushedTextOffset(0, 0);
-        button:SetScript("OnClick", SubcategoryButton_OnClick);
-        button:SetScript("OnEnter", SubcategoryButton_OnEnter);
-        button:SetScript("OnLeave", SubcategoryButton_OnLeave);
 
-        totalButton = totalButton + 1;
-        drawerFrame = button.Drawer;
-
-        for j = listLength, 1, -1 do                                            --1, listLength, 1
-            --Entry button--
-            button = totalFrames[totalButton];
-            if not button then
-                button = CreateFrame("Button", nil, drawerFrame, "Narci_OptionalSpellVisualButtonTemplate");
-                tinsert(totalFrames, button);
-            else
-                button:ClearAllPoints();
-                button:SetParent(drawerFrame);
-            end
-            tinsert(entryFrames, button);
-
-            button:Show();
-            drawerFrame:SetAlpha(0);
-            drawerFrame:Hide();
-            drawerFrame:SetHeight(15);
-            if j == listLength then
-                --button:SetPoint("BOTTOM", drawerFrame, "BOTTOM", 0, 0);    -- 0,-16 When anchor to the top
-                button.Divider:Show()
-            else
-                --button:SetPoint("BOTTOM", entryFrames[totalEntry], "TOP", 0, 0);
-                button.Divider:Hide();
-            end
-            button:SetPoint("BOTTOM", drawerFrame, "BOTTOM", 0, 16*(listLength - j));
-            button.Background:Hide();
-            info = list[j];
-            button.visualID = info[1];
-            button.animID = info[4];
-            if IsFavorite[info[1]] then
-                button.Star:Show();
-            else
-                button.Star:Hide();
-            end
-            button:SetText(info[2]);
-            button.ButtonText:SetJustifyH("LEFT");
-            button.ButtonText:SetPoint("CENTER", 13, 0);
-            button.Count:Hide();
-            tex = info[3];
-            if tex == 1 then
-                tex = 134400;
-            end
-            button.texID = tex;
-            button.Icon:SetTexture(tex);
-            button.Icon:SetTexCoord(0.065, 0.945, 0.065, 0.935);
-
-            button:SetScript("OnClick", EntryButton_OnClick);
-            button:SetScript("OnEnter", EnrtyButton_OnEnter);
-            button:SetScript("OnLeave", HideHighlightAndClearID);
-
-            totalEntry = totalEntry + 1;
-            totalButton = totalButton + 1;
+do
+    function EntryButtonMixin:OnClick_Header()
+        if self.headerIndex then
+            ScrollHistory:ToggleHeaderExpanded(self.headerIndex);
+            DisplayVisualsByCategory(ScrollHistory:GetActiveCategoryIndex(), true);
         end
     end
 
-    ScrollChild.numEffectiveButtons = totalButton - 1;
-    ScrollChild.buttons = totalFrames;
-    ScrollChild.parentButtons = parentButtons;
+    function EntryButtonMixin:OnEnter_Header()
+        ShowHighlight(self);
+        QuickFavoriteButton:Hide();
+    end
+
+    function EntryButtonMixin:OnLeave_Header()
+        HideHighlightAndClearID(self);
+        --self:GetParent():SetAlpha(1);
+    end
+
+    function EntryButtonMixin:OnClick_Entry(button)
+        local model = Narci.ActiveModel;
+        if not model then return; end;
+        if button == "LeftButton" then
+            model:ApplySpellVisualKit(self.visualID, true);
+
+            --Show Mouse Button Tooltip:    Right-click to apply visuals
+            if not clickCounter.tooltipShown then
+                clickCounter.leftButton = clickCounter.leftButton + 1;
+                if clickCounter.leftButton >= 3 then
+                    clickCounter.tooltipShown = true;
+                    BrowserFrame.MouseButton:FadeIn();
+                end
+            end
+
+        elseif button == "RightButton" then
+            SmoothInsert(self.visualID, self.texID, self:GetText());
+        end
+
+        --Set Suggested AnimationID
+        local animID = self.animID;
+        SuggestionFrame.IDButton.animID = animID;
+        if animID then
+            if SuggestionFrame.AutoPlay.IsOn then
+                model:PlayAnimation(animID);
+                animID = "|cffd9cdb4"..animID;
+            end
+        else
+            animID = "|cffa7a7a7".."N/A";
+        end
+        SuggestionFrame.IDButton:SetText(animID);
+    end
+
+    function EntryButtonMixin:OnEnter_Entry()
+        ShowHighlight(self);
+        if not self.visualID then return; end;
+        UpdatePreview(self.visualID);
+        local Star = QuickFavoriteButton;
+        Star:SetPoint("CENTER", self.Star, "CENTER", 0, 0);
+        Star:SetParent(self);
+        Star.parent = self;
+        Star:Show();
+        Star.visualID = self.visualID;
+        Star:SetFavorite(IsFavorite[self.visualID]);
+    end
+
+    function EntryButtonMixin:OnLeave_Entry()
+        HideHighlightAndClearID(self);
+    end
+
+
+    function EntryButtonMixin:SetHeader(headerIndex, name, count)
+        self:SetText(name);
+        self.headerIndex = headerIndex;
+        self.Divider:Show()
+        self.collapsed = true;
+        self.ButtonText:SetJustifyH("CENTER");
+        self.ButtonText:SetPoint("CENTER", 0, 0);
+        self.Icon:SetTexture("Interface\\AddOns\\Narcissus\\Art\\Widgets\\SpellVisualBrowser\\ExpandMark");
+        self:UpdateCollapsed();
+        self.Star:Hide();
+        self.visualID = nil;
+        self.Count:SetText(count);
+        self.Count:Show();
+        self.Background:Show();
+        self:SetPushedTextOffset(0, 0);
+        self:SetScript("OnClick", self.OnClick_Header);
+        self:SetScript("OnEnter", self.OnEnter_Header);
+        self:SetScript("OnLeave", self.OnLeave_Header);
+    end
+
+    function EntryButtonMixin:SetEntry(info)
+        self.visualID = info[1];
+        self.animID = info[4];
+        self.headerIndex = nil;
+        self.collapsed = nil;
+        if IsFavorite[self.visualID] then
+            self.Star:Show();
+        else
+            self.Star:Hide();
+        end
+        self:SetText(info[2]);
+        self.ButtonText:SetJustifyH("LEFT");
+        self.ButtonText:SetPoint("CENTER", 13, 0);
+        self.Count:Hide();
+        self.Background:Hide();
+        self.texID = info[3];
+        if self.texID == 1 then
+            self.texID = 134400;
+        end
+        self.Icon:SetTexture(self.texID);
+        self.Icon:SetTexCoord(0.065, 0.945, 0.065, 0.935);
+        self:SetPushedTextOffset(1, -0.6);
+        self:SetScript("OnClick", self.OnClick_Entry);
+        self:SetScript("OnEnter", self.OnEnter_Entry);
+        self:SetScript("OnLeave", self.OnLeave_Entry);
+    end
+
+    function EntryButtonMixin:UpdateCollapsed()
+        if self.headerIndex then
+            if ScrollHistory:IsHeaderExpanded(self.headerIndex) then
+                self.Icon:SetTexCoord(0, 1, 1, 0);
+            else
+                self.Icon:SetTexCoord(0, 1, 0, 1);
+            end
+        end
+    end
 end
+
 
 local function CategoryButton_OnClick(self)
-    CreateEntryButtonFrames(self.index);
+    DisplayVisualsByCategory(self.index);
     ListFrame.Header.Tab2Label:SetText(self:GetText());
     After(0, function()
-        UpdateScrollRange();
-        GoToTab(2);  
+        GoToTab(2);
     end);
 end
 
@@ -1102,6 +1172,7 @@ function NarciSpellVisualBrowser:SelectPack(index)
     local packName;
     SpellVisualList, packName = self:GetPack(index);
     UpdateCategoryButtons();
+    ScrollHistory:Reset();
     After(0, function()
         HomeButton:Click();
     end)
@@ -1110,12 +1181,7 @@ end
 
 function NarciSpellVisualBrowser:SelectFirstEntry()
     --for tutorial
-    ListFrame.Category.CategoryButtons[1]:Click();
-    After(0.65, function()
-        if ListFrame.ScrollFrame.ScrollChild.buttons[1] then
-            ListFrame.ScrollFrame.ScrollChild.buttons[1]:Click();
-        end
-    end);
+
 end
 -----------------------------------------------------------------------
 --History Tab
@@ -1181,7 +1247,6 @@ local function CreateHistoryButtonFrame(self)
         else
             button:SetPoint("BOTTOMRIGHT", self, "BOTTOMRIGHT", offsetX * (i - 1) , 24);
         end
-        
         button.Icon:SetSize(14, 14);
         button.Icon:SetAlpha(0.6);
         button.ID:SetText(i);
@@ -1347,7 +1412,6 @@ local function DeleteButton_OnClick(self)
             NewHistory[i] = AppliedVisuals[index];
             index = index + 1;
         end
-        wipe(model.AppliedVisuals);
         model.AppliedVisuals = NewHistory;
     else
         return;
@@ -1385,8 +1449,7 @@ local function DeleteButton_OnLongClick(self)
     local model = Narci.ActiveModel;
     if model then
         HistoryButton_RemoveAll();
-        wipe(model.AppliedVisuals);
-        --PrintTable(model.AppliedVisuals);
+        model.AppliedVisuals = {};
         ResetModel();
         self:GetParent().FadeOut:Play();
         self:GetParent():GetParent().Icon:SetSize(18, 18);
@@ -1462,8 +1525,8 @@ local function AddToFavorites(SpellVisualKitID, CustomName, CustomAnimationID)
 
     MyCategoryButton.Count:SetText( tonumber( MyCategoryButton.Count:GetText() ) + 1);
     MyCategoryButton.Differential:SetText("|cff7cc576+1");     --Green 7cc576
-    MyCategoryButton.Differential.FadeText:Play(); 
-    
+    MyCategoryButton.Differential.FadeText:Play();
+
     After(0, CreateMyFavorites);
 
     PlaySound(39672, "SFX");
@@ -1518,8 +1581,7 @@ local function RemoveFromFavortes(IDsToBeDeleted)
             end
         end
     end
-    
-    wipe(NarcissusDB.Favorites.FavoriteSpellVisualKitIDs);
+
     NarcissusDB.Favorites.FavoriteSpellVisualKitIDs = newList;
     FavoriteSpellVisualKitIDs = NarcissusDB.Favorites.FavoriteSpellVisualKitIDs;
     return sum;
@@ -1792,7 +1854,8 @@ end
 
 --[[
     function WipeFavorites()
-    wipe(NarcissusDB.Favorites);
+        NarcissusDB.Favorites = {};
+    end
 end
 --]]
 
@@ -1843,7 +1906,7 @@ function Narci_SpellVisualBrowser_OnLoad(self)
     SuggestionFrame = self.ExpandableFrames.SuggestionFrame;
     HistoryFrame = self.ExpandableFrames.HistoryFrame;
     Tab1 = ListFrame.Category;
-    ListScrollBar = ListFrame.ScrollFrame.scrollBar;
+    EntryTab = ListFrame.EntryTab;
 
     ExpandableFrames.EditBox:SetScript("OnMouseWheel", EditBox_OnMouseWheel);
     ExpandableFrames.EditBox:SetScript("OnEnterPressed", EditBox_OnEnterPressed);
@@ -1876,12 +1939,10 @@ function Narci_SpellVisualBrowser_OnLoad(self)
 
     UpdateCategoryButtons();
     CreateHistoryButtonFrame(HistoryButtonFrame);
-    CreateEntryButtonFrames(1);
 
-    ScrollFrame_OnLoad(ListFrame.ScrollFrame);
     ScrollFrame_OnLoad(ListFrame.MyFavorites);
 
-    QuickFavoriteButton = ListFrame.ScrollFrame.QuickFavoriteButton;
+    QuickFavoriteButton = ListFrame.EntryTab.QuickFavoriteButton;
     QuickFavoriteButton:SetScript("OnClick", QuickFavoriteButton_OnClick);
 
     MyFavoriteEditFrame = ListFrame.MyFavorites.EditFrame;
