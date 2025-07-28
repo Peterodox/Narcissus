@@ -1888,7 +1888,7 @@ end
 
 local function ConcatenateKeyword(str)
 	local names = { split(str) };
-	
+
 	for i = 1, #names do
 		if synonyms[ names[i] ] then
 			return str .." ".. synonyms[ names[i] ]
@@ -2029,11 +2029,11 @@ local function DivideListByInitials()
 
     local function ShouldSkip(str)
         --Skip if including following words
-		if not str or find(str, "Fly ") or find(str, "FlyWA") then
-			return true
-		else
-			return false
-		end
+		--if not str or find(str, "Fly ") or find(str, "FlyWA") then
+		--	return true
+		--else
+		return false
+		--end
     end
 
     for id, name in pairs(officialAnimationName) do
@@ -2070,13 +2070,13 @@ DivideListByInitials();
 
 function NarciAnimationInfo.SearchByName(str)
     if not str or str == "" or IsKeyDown("BACKSPACE") then return {}, 0 end
-	
+
 	--str = gsub(str, "^%s+", "");	--trim left	--Already processed from input
-	
+
     local initial = GetInitial(str);
     local subTable = searchTable[initial];
 	local model = Narci:GetActiveActor();
-	
+
     if not subTable or not model then
         --print("Couldn't find any animation that begins with "..initial);
         return {}, 0
@@ -2084,6 +2084,7 @@ function NarciAnimationInfo.SearchByName(str)
 
     local find = find;
     local lower = lower;
+	local tinsert = table.insert;
     local name, id;
     local nameTemp;
     local matchedIDs = {};
@@ -2104,13 +2105,9 @@ function NarciAnimationInfo.SearchByName(str)
 					numMatches = numMatches + 1;
 				end
 			end
-			
-			if numMatches >= 100 then
-				break
-			end
 		end
     end
-	
+
     return matchedIDs, numMatches
 end
 

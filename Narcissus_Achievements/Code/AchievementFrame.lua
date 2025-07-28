@@ -4137,7 +4137,7 @@ end
 local function OnAchivementEarned(achievementID)
     DataProvider:UpdateAchievementCache(achievementID);
     RefreshInspection(achievementID);
-    
+
     local categoryID = DataProvider:GetAchievementCategory(achievementID);
     if categoryID then
         DataProvider.achievementOrderCache[categoryID] = {};
@@ -4159,10 +4159,11 @@ end
 local EventListener = CreateFrame("Frame");
 EventListener:RegisterEvent("ACHIEVEMENT_EARNED");
 EventListener:RegisterEvent("TRACKED_ACHIEVEMENT_LIST_CHANGED");
+EventListener:RegisterEvent("CONTENT_TRACKING_UPDATE");
 
 EventListener:SetScript("OnEvent", function(self, event, ...)
     if event == "ACHIEVEMENT_EARNED" then
-        local achievementID = ...;
+        local achievementID = ...
         OnAchivementEarned(achievementID);
         if not self.pauseUpdate then
             self.pauseUpdate = true;
@@ -4173,9 +4174,13 @@ EventListener:SetScript("OnEvent", function(self, event, ...)
         end
     elseif event == "TRACKED_ACHIEVEMENT_LIST_CHANGED" then
         UpdateTrackAchievements();
+    elseif event == "CONTENT_TRACKING_UPDATE" then
+        local type, id, isTracked = ...
+        if type == 2 then
+            UpdateTrackAchievements();
+        end
     end
 end)
-
 
 
 addon.ReskinButton = ReskinButton;

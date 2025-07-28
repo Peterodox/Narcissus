@@ -2,7 +2,7 @@
 --Project Page: https://wow.curseforge.com/projects/narcissus/files
 --twitter @Peterodox
 
-NarciSpellVisualBrowser = {};
+NarciSpellVisualUtil = {};
 
 local NEW = "|cfff2f2f2";
 
@@ -1157,7 +1157,7 @@ local Pack1 = {
     },
 };
 
-NarciSpellVisualBrowser.Catalogue = Pack0;
+NarciSpellVisualUtil.Catalogue = Pack0;
 
 local function BuildIconSearchingTable()
     local output = {};
@@ -1213,10 +1213,10 @@ local function IsSpellVisualLogged(id)
     end
 end
 
-NarciSpellVisualBrowser.GetSpellVisualKitInfo = GetSpellVisualKitInfo;
-NarciSpellVisualBrowser.IsSpellVisualLogged = IsSpellVisualLogged;
+NarciSpellVisualUtil.GetSpellVisualKitInfo = GetSpellVisualKitInfo;
+NarciSpellVisualUtil.IsSpellVisualLogged = IsSpellVisualLogged;
 
-function NarciSpellVisualBrowser:GetPack(index)
+function NarciSpellVisualUtil:GetPack(index)
     if index == 1 then
         return Pack1, "Shadowlands"
     else

@@ -18,7 +18,7 @@ do
     if C_ContentTracking then
         if C_ContentTracking.GetTrackedIDs then
             GetTrackedAchievements = function()
-                return C_ContentTracking.GetTrackedIDs(TRACKING_TYPE_ACHV)
+                return unpack(C_ContentTracking.GetTrackedIDs(TRACKING_TYPE_ACHV))
             end
         end
 
@@ -67,8 +67,8 @@ DataProvider.trackedAchievements = {};
 DataProvider.rootCategories = {};
 
 function DataProvider:ClearCache()
-    wipe(self.categoryCache);
-    wipe(self.achievementCache);
+    self.categoryCache = {};
+    self.achievementCache = {};
     collectgarbage("collect");
 end
 
@@ -213,7 +213,7 @@ function DataProvider:GetTrackedAchievements()
 
     self.trackedAchievements = new;
     self.numTrackedAchievements = #new;
-    wipe(self.isTrackedAchievements);
+    self.isTrackedAchievements = {};
     for index, id in pairs(new) do
         self.isTrackedAchievements[id] = true;
     end

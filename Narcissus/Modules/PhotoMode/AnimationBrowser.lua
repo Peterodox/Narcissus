@@ -368,7 +368,7 @@ function NarciAnimationBrowserMixin:OnMouseDown()
 end
 
 function NarciAnimationBrowserMixin:SearchAnimation(keyword)
-    keyword = gsub(keyword, "^%s+", "");  --trim left
+    keyword = string.gsub(keyword, "^%s+", "");  --trim left
     if keyword and keyword ~= "" then
         self.availableAnimations = NarciAnimationInfo.SearchByName(keyword);
         self:RefreshList();

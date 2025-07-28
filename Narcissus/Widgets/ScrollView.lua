@@ -209,7 +209,7 @@ do
             thumbHeight = 16;
         end
         self.Thumb:SetSize(4, thumbHeight);
-        self.Thumb.Texture:SetSize(4, thumbHeight);
+        self.Thumb.Texture:SetSize(3, thumbHeight);
         local range = Round(railLength - thumbHeight);
         self.thumbRange = range;
         self.ratioPerUnit = 1 / range;
@@ -622,6 +622,10 @@ do  --ScrollView Basic Content Render
                 self.BottomGradient:Hide();
             end
         end
+
+        if self.onScrollableChangedCallback then
+            self.onScrollableChangedCallback(scrollable);
+        end
     end
 
     function ScrollViewMixin:GetViewableRangeRatio()
@@ -1006,6 +1010,10 @@ do  --ScrollView Callback
 
     function ScrollViewMixin:SetOnScrollStartCallback(onScrollStartCallback)
         self.onScrollStartCallback = onScrollStartCallback;
+    end
+
+    function ScrollViewMixin:SetOnScrollableChangedCallback(onScrollableChangedCallback)
+        self.onScrollableChangedCallback = onScrollableChangedCallback;
     end
 
     function ScrollViewMixin:OnScrollStop()

@@ -101,7 +101,7 @@ end
 local function SpellVisualBrowser_OnTabChanged(self, value)
     After(2, function()
         BrowserGuide:NewText(L["Guide Spell Headline"], L["Guide Spell Line1"].."\n"..L["Guide Spell Criteria1"].."\n"..L["Guide Spell Criteria2"], Narci_SpellVisualBrowser.ExpandableFrames.ListFrame, 0, 0, MoveToHistoryTab);
-        
+
         hooksecurefunc(NarciPlayerModelFrame1, "ApplySpellVisualKit", function(self, visualID, oneshot)
             if LeftClickUsed and RightClickUsed then
                 return;
@@ -143,25 +143,21 @@ local function BuildSpellVisualBrowserGuide()
     TabListener:SetScript("OnValueChanged", SpellVisualBrowser_OnTabChanged);
     BrowserGuide.TabListener = TabListener;
 
-    local function SelectFirstEntry()
+    local function SelectFirstCategory()
         BrowserGuide:Hide();
-        NarciSpellVisualBrowser:SelectFirstEntry();
+        NarciSpellVisualUtil:SelectFirstCategory();
     end
 
     local ExpandableFrames = Browser.ExpandableFrames;
     ExpandableFrames:SetScript("OnShow", function(self)
         After(0.6, function()
-            BrowserGuide:NewText(L["Category"], L["Guide Spell Choose Category"], ExpandableFrames.ListFrame, 0, 0, SelectFirstEntry);
+            BrowserGuide:NewText(L["Category"], L["Guide Spell Choose Category"], ExpandableFrames.ListFrame, 0, 0, SelectFirstCategory);
             TutorialDB["SpellVisualBrowser"] = false;
         end);
         self:SetScript("OnShow", EmptyFunc);
     end);
 end
 
-local function RelocateGuide(self)
-    local Browser = Narci_SpellVisualBrowser;
-    --BrowserGuide:
-end
 
 
 
@@ -282,5 +278,5 @@ Initialization:SetScript("OnEvent", function(self, event, ...)
 end);
 
 function Narci:ResetGuide()
-    wipe(NarcissusDB.Tutorials);
+    NarcissusDB.Tutorials = {};
 end

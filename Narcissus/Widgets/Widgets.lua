@@ -972,7 +972,7 @@ function NarciSearchBoxSharedMixin:OnLoad()
         if frame.total >= frame.duration then
             frame:Hide();
             if self.onSearchFunc then
-                self.onSearchFunc( self:GetText() )
+                self.onSearchFunc( self:GetText() );
             end
         end
     end)
@@ -982,6 +982,7 @@ function NarciSearchBoxSharedMixin:OnLoad()
 end
 
 function NarciSearchBoxSharedMixin:OnShow()
+    if self.noAutoFocus then return end;
     self:SetFocus();
 end
 
@@ -1050,6 +1051,13 @@ end
 function NarciSearchBoxSharedMixin:OnLeave()
     if not self:IsMouseOver() then
         self.DefaultText:SetTextColor(0.42, 0.42, 0.42);
+    end
+end
+
+function NarciSearchBoxSharedMixin:GetValidText()
+    local str = strtrim(self:GetText());
+    if str ~= "" then
+        return str
     end
 end
 

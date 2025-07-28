@@ -22,7 +22,7 @@ local FadeIn = NarciFadeUI.FadeIn;
 local After = C_Timer.After;
 local SmartSetActorName = NarciAPI.SmartSetActorName;
 local NarciAnimationInfo = NarciAnimationInfo;
-local NarciSpellVisualBrowser = NarciSpellVisualBrowser;
+local NarciSpellVisualUtil = NarciSpellVisualUtil;
 local GetCursorPosition = GetCursorPosition;
 local IsAltKeyDown = IsAltKeyDown;
 local Screenshot = Screenshot;	--This is an API: screen capture
@@ -2569,7 +2569,7 @@ local function SetModelActive(index)
 	end
 	
 	--Load Spell Visual History
-	NarciSpellVisualBrowser:LoadHistory();
+	NarciSpellVisualUtil:LoadHistory();
 
 	--Update Play/Pause Button
 	if model.isPaused then
@@ -2934,6 +2934,7 @@ function NarciGenericModelMixin:OnModelLoaded()
 	self.isAnimationCached = nil;
 	self.animationList = {};
 	RedressPlayerAfterLoading(self);
+	self:ReloadSpellVisuals();
 end
 
 function NarciGenericModelMixin:OnAnimFinished()
@@ -3118,6 +3119,17 @@ function NarciGenericModelMixin:EquipItemBySourceID(sourceID, slotID)
 	end
 end
 
+function NarciGenericModelMixin:ReloadSpellVisuals()
+	--visuals with item model require longer delay to load
+	if self.AppliedVisuals and #self.AppliedVisuals > 0 then
+		After(0.1, function()
+			for _, visualID in ipairs(self.AppliedVisuals) do
+				self:ApplySpellVisualKit(visualID, false);
+			end
+		end);
+	end
+end
+
 --------------------------------------------------------------------------------
 NarciMainModelMixin = CreateFromMixins(NarciGenericModelMixin);
 
@@ -3176,6 +3188,7 @@ function NarciMainModelMixin:OnModelLoaded()
 	self.isAnimationCached = nil;
 	self.animationList = {};
 	RedressPlayerAfterLoading(self);
+	self:ReloadSpellVisuals();
 end
 
 ----------------------------------------------------------------------

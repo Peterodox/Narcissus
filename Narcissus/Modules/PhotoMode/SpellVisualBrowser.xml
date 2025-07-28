@@ -191,10 +191,10 @@
 		</Layers>
 		<Scripts>
 			<OnEnter>
-				UIFrameFadeIn(self.Highlight, 0.12, self.Highlight:GetAlpha(), 1);
+				self.Highlight:Show();
 			</OnEnter>
 			<OnLeave>
-				UIFrameFadeOut(self.Highlight, 0.2, self.Highlight:GetAlpha(), 0);
+				self.Highlight:Hide();
 			</OnLeave>
 			<OnDoubleClick>
 				return;
@@ -238,7 +238,7 @@
 					<Animations>
 						<AnimationGroup parentKey="FadeText" setToFinalAlpha="true">
 							<Alpha fromAlpha="0" toAlpha="1" duration="0.15" order="1"/>
-							<Alpha startDelay="2" fromAlpha="1" toAlpha="0" duration="1" order="2"/>
+							<Alpha startDelay="2" fromAlpha="1" toAlpha="0" duration="0.5" order="2"/>
 						</AnimationGroup>
 					</Animations>
 				</FontString>
@@ -246,7 +246,7 @@
 		</Layers>
 	</Button>
 
-	<Button name="NarciSpellViusalBrowserEntryButtonTemplate" inherits="Narci_SpellVisualCategoryButtonTemplate" virtual="true">
+	<Button name="NarciSpellViusalBrowserEntryButtonTemplate" inherits="Narci_SpellVisualCategoryButtonTemplate" virtual="true" useParentLevel="true">
 		<Layers>
 			<Layer level="OVERLAY">
 				<Texture file="Interface/AddOns/Narcissus/Art/Widgets/SpellVisualBrowser/Icons.tga" parentKey="Star" hidden="true">
@@ -260,7 +260,7 @@
 		</Layers>
 	</Button>
 
-	<Button name="Narci_SavedSpellVisualButton_EditButtonTemplate" virtual="true">
+	<Button name="Narci_SavedSpellVisualButton_EditButtonTemplate" virtual="true" propagateMouseInput="Motion">
 		<Size x="8" y="12"/>
 		<Layers>
 			<Layer level="OVERLAY">
@@ -295,7 +295,7 @@
 		</Scripts>
 	</Button>
 
-	<Button name="Narci_SavedSpellVisualButtonTemplate" inherits="Narci_SpellVisualButtonSharedTemplate" motionScriptsWhileDisabled="true" virtual="true">
+	<Button name="Narci_SavedSpellVisualButtonTemplate" inherits="Narci_SpellVisualButtonSharedTemplate" motionScriptsWhileDisabled="true" virtual="true" useParentLevel="true">
 		<Layers>
 			<Layer level="ARTWORK">
 				<Texture setAllPoints="true" parentKey="Green" alpha="0">
@@ -312,16 +312,6 @@
 				</Texture>
 			</Layer>
 		</Layers>
-		<Scripts>
-			<OnDisable>
-				self.Icon:SetDesaturated(true);
-				self:SetAlpha(0.4);
-			</OnDisable>
-			<OnEnable>
-				self.Icon:SetDesaturated(false);
-				self:SetAlpha(1);
-			</OnEnable>
-		</Scripts>
 	</Button>
 
 	<Button name="Narci_HistoryButtonTemplate" inherits="Narci_SquareButton_Template" virtual="true" hidden="false">
@@ -465,7 +455,7 @@
 		</Scripts>
 	</Button>
 
-	<Frame name="Narci_SpellVisualBrowser" parent="Narci_ModelSettings" alpha="0" hidden="true" parentKey="SpellPanel">
+	<Frame name="Narci_SpellVisualBrowser" parent="Narci_ModelSettings" alpha="0" hidden="true" parentKey="SpellPanel" mixin="NarciSpellVisualBrowserMixin">
 		<Size x="200" y="34"/>	<!-- full height: 216 -->
 		<Anchors>
 			<Anchor point="BOTTOMRIGHT" relativeTo="Narci_AnimationIDFrame" relativePoint="BOTTOMLEFT" x="150" y="-6"/>	<!-- -28 -->
@@ -547,7 +537,7 @@
 						</Scripts>
 					</Button>
 
-					<Frame name="Narci_SpellVisualBrowser_PopUpFrame" parentKey="PopUpFrame" frameLevel="45" hidden="true" alpha="0">
+					<Frame parentKey="PopUpFrame" frameLevel="45" hidden="true" alpha="0">
 						<Size x="137" y="48"/>
 						<HitRectInsets>
 							<AbsInset left="0" right="0" top="0" bottom="12"/>
@@ -1019,10 +1009,10 @@
 									<Frame parentKey="EntryTab">
 										<Size x="116" y="144"/>
 										<Anchors>
-											<Anchor point="LEFT" relativeKey="$parent.Category" relativePoint="RIGHT" x="1"/>
+											<Anchor point="LEFT" relativeKey="$parent.Category" relativePoint="RIGHT" x="0"/>
 										</Anchors>
 										<Frames>
-											<Button inherits="NarciQuickFavoriteButtonTemplate" frameLevel="12" hidden="true">
+											<Button inherits="NarciQuickFavoriteButtonTemplate" frameLevel="12" hidden="true" propagateMouseInput="Motion">
 												<Scripts>
 													<OnLoad>
 														self:SetIconSize(16);
@@ -1032,81 +1022,69 @@
 										</Frames>
 									</Frame>
 
-									<ScrollFrame parentKey="MyFavorites" inherits="Narci_SpellVisualBrowser_ScrollFrameTemplate">
-										<Anchors>
-											<Anchor point="LEFT" relativeKey="$parent.EntryTab" relativePoint="RIGHT" x="0"/>
-										</Anchors>
+									<Frame parentKey="EditFrame" hidden="true" frameLevel="12">
+										<!--Waiting to be assigned anchors-->
+										<Size x="20" y="16"/>
+										<Layers>
+											<Layer level="OVERLAY">
+												<Texture parentKey="EditBoxBackground" hidden="true">
+													<Color r="0.2" g="0.2" b="0.2"/>
+													<Size x="116" y="16"/>
+													<Anchors>
+														<Anchor point="RIGHT"/>
+													</Anchors>
+												</Texture>
+											</Layer>
+										</Layers>
 										<Frames>
-											<Frame parentKey="EditFrame" hidden="true" frameLevel="12">
-												<!--Waiting to be assigned anchors-->
-												<Size x="20" y="16"/>
-												<Layers>
-													<Layer level="OVERLAY">
-														<Texture parentKey="EditBoxBackground" hidden="true">
-															<Color r="0.2" g="0.2" b="0.2"/>
-															<Size x="116" y="16"/>
-															<Anchors>
-																<Anchor point="RIGHT"/>
-															</Anchors>
-														</Texture>
-													</Layer>
-												</Layers>
-												<Frames>
-													<Button inherits="Narci_SavedSpellVisualButton_EditButtonTemplate" parentKey="DeleteButton">
-														<Anchors>
-															<Anchor point="RIGHT" relativeKey="$parent" relativePoint="RIGHT" x="0"/>
-														</Anchors>
-														<Scripts>
-															<OnLoad>
-																self.Icon:SetTexCoord(0.75, 1, 0, 0.25);
-																self.tooltipDescription = Narci.L["Remove"];
-															</OnLoad>
-														</Scripts>
-													</Button>
-													<Button inherits="Narci_SavedSpellVisualButton_EditButtonTemplate" parentKey="RenameButton">
-														<Anchors>
-															<Anchor point="RIGHT" relativeKey="$parent.DeleteButton" relativePoint="LEFT" x="-2"/>
-														</Anchors>
-														<Scripts>
-															<OnLoad>
-																self.Icon:SetTexCoord(0.25, 0.5, 0.25, 0.5);
-																self.tooltipDescription = Narci.L["Rename"];
-																self.IsOn = false;
-															</OnLoad>
-														</Scripts>
-													</Button>
-
-													<EditBox parentKey="EditBox" inherits="NarciEditBoxTemplate" letters="16" multiLine="false" hidden="true">
-														<Size x="90" y="16"/>
-														<Anchors>
-															<Anchor point="RIGHT" relativeKey="$parent" relativePoint="LEFT" x="17"/>
-														</Anchors>
-														<FontString inherits="NarciPastelBrownFont" justifyH="LEFT" justifyV="MIDDLE" maxLines="1">
-															<Color r="0.902" g="0.8" b="0.502" a="1"/>
-														</FontString>
-														<Scripts>
-															<OnHide>
-																self:ClearFocus();
-																self:HighlightText(0,0);
-																self:GetParent().RenameButton.IsOn = false;
-															</OnHide>
-														</Scripts>
-													</EditBox>
-												</Frames>
+											<Button inherits="Narci_SavedSpellVisualButton_EditButtonTemplate" parentKey="DeleteButton">
+												<Anchors>
+													<Anchor point="RIGHT" relativeKey="$parent" relativePoint="RIGHT" x="-5"/>
+												</Anchors>
 												<Scripts>
 													<OnLoad>
+														self.Icon:SetTexCoord(0.75, 1, 0, 0.25);
+														self.tooltipDescription = Narci.L["Remove"];
 													</OnLoad>
-													<OnEnter>
-														return;
-													</OnEnter>
+												</Scripts>
+											</Button>
+											<Button inherits="Narci_SavedSpellVisualButton_EditButtonTemplate" parentKey="RenameButton">
+												<Anchors>
+													<Anchor point="RIGHT" relativeKey="$parent.DeleteButton" relativePoint="LEFT" x="-2"/>
+												</Anchors>
+												<Scripts>
+													<OnLoad>
+														self.Icon:SetTexCoord(0.25, 0.5, 0.25, 0.5);
+														self.tooltipDescription = Narci.L["Rename"];
+														self.IsOn = false;
+													</OnLoad>
+												</Scripts>
+											</Button>
+
+											<EditBox parentKey="EditBox" inherits="NarciEditBoxTemplate" letters="16" multiLine="false" hidden="true">
+												<Size x="90" y="16"/>
+												<Anchors>
+													<Anchor point="RIGHT" relativeKey="$parent" relativePoint="LEFT" x="17"/>
+												</Anchors>
+												<FontString inherits="NarciPastelBrownFont" justifyH="LEFT" justifyV="MIDDLE" maxLines="1">
+													<Color r="0.902" g="0.8" b="0.502" a="1"/>
+												</FontString>
+												<Scripts>
 													<OnHide>
-														self.EditBox:Hide();
-														self.RenameButton.IsOn = false;
+														self:ClearFocus();
+														self:HighlightText(0,0);
+														self:GetParent().RenameButton.IsOn = false;
 													</OnHide>
 												</Scripts>
-											</Frame>
+											</EditBox>
 										</Frames>
-									</ScrollFrame>
+										<Scripts>
+											<OnHide>
+												self.EditBox:Hide();
+												self.RenameButton.IsOn = false;
+											</OnHide>
+										</Scripts>
+									</Frame>
 
 									<Frame parentKey="Header" frameLevel="10">
 										<Size x="116" y="16"/>
@@ -1136,18 +1114,12 @@
 														<Anchor point="TOP" relativeKey="$parent.$parent.EntryTab" relativePoint="TOP" x="6" y="-4"/>
 													</Anchors>
 												</FontString>
-												<FontString inherits="NarciNonInteractiveFont" justifyH="CENTER" justifyV="MIDDLE" maxLines="1" parentKey="Tab3Label" text="My Favorites">
-													<Size x="90" y="0"/>
-													<Anchors>
-														<Anchor point="TOP" relativeKey="$parent.$parent.MyFavorites" relativePoint="TOP" x="6" y="-4"/>
-													</Anchors>
-												</FontString>
 											</Layer>
 										</Layers>
 										<Frames>
 											<Button parentKey="HomeButton" hidden="true" inherits="Narci_NavigationButton_Template" alpha="0">
 												<HitRectInsets>
-													<AbsInset left="0" right="-10" top="-1" bottom="0"/>
+													<AbsInset left="0" right="-2" top="-1" bottom="0"/>
 												</HitRectInsets>
 												<Anchors>
 													<Anchor point="LEFT" relativeKey="$parent" relativePoint="LEFT" x="2" y="0"/> 
@@ -1158,10 +1130,34 @@
 											<OnLoad>
 												self.Tab1Label:SetText(Narci.L["Category"]);
 												self.Tab2Label:SetText(Narci.L["Sub-category"]);
-												self.Tab3Label:SetText(Narci.L["My Favorites"]);
 											</OnLoad>
 										</Scripts>
 									</Frame>
+
+									<EditBox parentKey="SearchBox" autoFocus="false" mixin="NarciSpellVisualSearchBoxMixin" hidden="true" inherits="NarciSearchBoxTemplate">
+										<Size x="98" y="16"/>
+										<Anchors>
+											<Anchor point="TOPLEFT" relativeKey="$parent" relativePoint="TOPLEFT" x="18"/>
+										</Anchors>
+										<TextInsets left="16"/>
+										<FontString inherits="NarciPastelWhiteFont" justifyH="LEFT" justifyV="MIDDLE"/>
+										<Layers>
+											<Layer level="OVELRAY">
+												<Texture file="Interface\AddOns\Narcissus\Art\Widgets\SpellVisualBrowser\Icons" parentKey="SearchIcon">
+													<TexCoords left="0.75" right="1" top="0.5" bottom="0.75"/>
+													<Size x="20" y="20"/>
+													<Anchors>
+														<Anchor point="LEFT" relativeKey="$parent" relativePoint="LEFT" x="-2"/>
+													</Anchors>
+												</Texture>
+											</Layer>
+										</Layers>
+										<Scripts>
+											<OnLoad method="OnLoad"/>
+											<OnTextChanged method="OnTextChanged"/>
+											<OnEditFocusGained method="OnFocusGained"/>
+										</Scripts>
+									</EditBox>
 								</Frames>
 							</Frame>
 							<Frame inherits="NarciArtFrameTemplate">
@@ -1212,7 +1208,9 @@
 			</Frame>
 		</Frames>
 		<Scripts>
-			<OnLoad function="Narci_SpellVisualBrowser_OnLoad"/>
+			<OnLoad method="OnLoad"/>
+			<OnShow method="OnShow"/>
+			<OnHide method="OnHide"/>
 		</Scripts>
 	</Frame>
 
