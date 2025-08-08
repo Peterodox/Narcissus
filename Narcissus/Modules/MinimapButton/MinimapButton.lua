@@ -466,12 +466,13 @@ function NarciMinimapButtonMixin:StartRepositioning()
 	self:StopMovingOrSizing();
 	self.PositionUpdator:Hide();
 	self.TooltipFrame:Hide();
-	self:ClearAllPoints();
+
 	if not IsShiftKeyDown() and self:IsAnchoredToMinimap() then
 		self:SetTooltipText("Hold Shift for free move");
 		self.PositionUpdator.mapX, self.PositionUpdator.mapY = Minimap:GetCenter();
 		self.PositionUpdator.uiScale = Minimap:GetEffectiveScale();
 		self.PositionUpdator:Show();
+		self:ClearAllPoints();
 		NarcissusDB.AnchorToMinimap = true;
 	else
 		self:StartMoving();

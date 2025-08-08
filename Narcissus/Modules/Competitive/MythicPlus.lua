@@ -83,9 +83,11 @@ local MAP_UI_INFO = {
     [506] = {name = 'cinderbrew-meadery'},
     [525] = {name = 'operation-floodgate'},
     [247] = {name = 'the-motherlode'},
+
+    [542] = {name = 'ecodome-aldani'},
 };
 
-local SEASON_MAPS = {501, 376, 505, 353, 375, 507, 502, 503};
+local SEASON_MAPS = {542, 525, 505, 503, 499, 392, 391, 378};
 local IS_MAP_THIS_SEASON = {};
 
 local function ShowNewDungeons()
@@ -93,22 +95,20 @@ local function ShowNewDungeons()
     local maps = C_ChallengeMode.GetMapTable();
     print(string.format("This season has %d dungeons.", #maps));
 
-    local numNew = 0;
+    local n = 0;
 
-    for _, mapChallengeModeID in ipairs(maps) do
+    for i, mapChallengeModeID in ipairs(maps) do
+        local mapName = C_ChallengeMode.GetMapUIInfo(mapChallengeModeID);
+        local text = "#"..i;
         if not MAP_UI_INFO[mapChallengeModeID] then
-            if numNew == 0 then
-                print("Missing UI Info:")
-            end
-            numNew = numNew + 1;
-            local mapName = C_ChallengeMode.GetMapUIInfo(mapChallengeModeID);
-            print(string.format("#%d  %d  %s", numNew, mapChallengeModeID, mapName));
+            text = "|cffffd100Missing|r "..text;
         end
+        print(string.format("%s  %d  %s", text, mapChallengeModeID, mapName));
     end
 end
 
 NarciAPI.ShowNewMythicPlusDungeons = ShowNewDungeons;
---/run NarciAPI.ShowNewMythicPlusDungeons()
+--/run NarciAPI.ShowNewMythicPlusDungeons() --debug
 
 
 

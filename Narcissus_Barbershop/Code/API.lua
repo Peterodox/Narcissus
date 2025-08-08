@@ -159,6 +159,7 @@ local MOUNT_CHR_MODEL = {
     [186] = 1792,   --Algarian Stormrider
     [202] = 2144,   --Delver's Dirigible
     [206] = 2296,   --Delver's Gob-Trotter
+    [207] = 2512,   --Delver's Mana-skimmer
 };
 
 local function IsDragonridingChrModel(chrModelID)
@@ -268,7 +269,7 @@ local CAMERA_DATA_FILEID = {
     [5143343] = {-0.59, -1.86, -2.57, 0.44},    --Grotto Netherwing Drake
     [5228774] = {-0.24, -1.38, -2.56, 0.44},    --Flourishing Whimsydrake
     [5305977] = {0.2, -0.5, -1.87, 0.35},       --Algarian Stormrider
-    [5486691] = {-2.75, -0.37, -1.76, 0.78},    --Delver's Dirigible
+    [5486691] = {-2.75, -0.37, -1.76, 0.78},    --Delver's Dirigible (S1, S2, S3 mounts share the same file)
 
 
     --Druid
@@ -292,6 +293,7 @@ CAMERA_DATA_FILEID[4954741] = CAMERA_DATA_FILEID[4227968];  --Elemental Drake Ab
 CAMERA_DATA_FILEID[4995347] = CAMERA_DATA_FILEID[4252339];  --Obsidian Gladiator
 
 local function GetPortraitCameraInfoByModelFileID(fileID)
+    --print(fileID)
     if fileID and CAMERA_DATA_FILEID[fileID] then
         return CAMERA_DATA_FILEID[fileID]
     end
