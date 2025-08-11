@@ -1,4 +1,4 @@
---Coutesy of ZamestoTV. Thank you!    --Translator: ZamestoTV as of 1.8.1 e
+--Coutesy of ZamestoTV. Thank you!    --Translator: ZamestoTV as of 1.8.2 b
 
 if not (GetLocale() == "ruRU") then
     return;
@@ -27,7 +27,7 @@ if IsMacClient() then
 end
 
 NARCI_WORDBREAK_COMMA = ", ";
-
+BINDING_HEADER_NARCISSUS = "Narcissus";
 
 --Date--
 L["Today"] = COMMUNITIES_CHAT_FRAME_TODAY_NOTIFICATION;
@@ -311,6 +311,7 @@ L["Animation"] = "Анимация";
 L["Animation Tooltip"] = "Просмотр, поиск анимации";
 L["Animation Variation"] = "Вариация";
 L["Reset Slider"] = "Сбросить до нуля";    --reset the value of the slider to zero
+L["Available Count"] = "%d доступно";
 
 --Spell Visual Browser--
 L["Visuals"] = "Визуал";
@@ -480,7 +481,8 @@ L["Error Alert Bookmarks Too Many"] = "Вы можете добавить в с�
 L["Instruction Add To To Do List"] = string.format("%s Щелкните ЛКМ по незаработанному достижению, чтобы добавить его в список дел.", NARCI_MODIFIER_ALT);	
 L["Instruction Remove From To Do List"] = string.format("%s ЛКМ, чтобы удалить из списка дел.", NARCI_MODIFIER_ALT);
 L["DIY"] = "Сделай сам";
-L["DIY Tab Tooltip"] = "Создайте пользовательское достижение для создания скриншотов."												 
+L["DIY Tab Tooltip"] = "Создайте пользовательское достижение для создания скриншотов."		
+L["Binding Name Open Achievement"] = "Включить/выключить интерфейс достижений Narcissus";										 
 
 --Barbershop--
 L["Save New Look"] = "Сохранить новый вид";
