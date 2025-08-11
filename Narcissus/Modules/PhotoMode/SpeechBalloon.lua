@@ -2643,7 +2643,6 @@ end
 
 function NarciCustomTalkingHeadMixin:OnDragStart()
     positionFrame:Hide();
-    self:ClearAllPoints();
     local uiScale = self:GetScale();
     positionFrame.object = self;
     positionFrame.uiScale = uiScale;
@@ -2653,6 +2652,7 @@ function NarciCustomTalkingHeadMixin:OnDragStart()
     positionFrame.offsetX = cursorX - x0;
     positionFrame.offsetY = cursorY - y0;
     positionFrame:Show();
+    self:ClearAllPoints();
 end
 
 function NarciCustomTalkingHeadMixin:OnDragStop()

@@ -946,7 +946,7 @@ local function IconSelectButton_OnLeave(self)
 end
 
 local function IconSelectButton_OnClick(self)
-    OutfitIconSelect:SelectButton(self);
+    OutfitIconSelect:SelectButton(self, true);
 end
 
 function NarciStaticPopupOutfitIconSelectMixin:SetupIcons(iconChoices, defaultIcon)
@@ -1023,13 +1023,54 @@ function NarciStaticPopupOutfitIconSelectMixin:HighlightButton(button)
     end
 end
 
-function NarciStaticPopupOutfitIconSelectMixin:SelectButton(button)
+function NarciStaticPopupOutfitIconSelectMixin:SelectButton(button, fromClicks)
     if button then
         self.IconSelection:ClearAllPoints();
         self.IconSelection:SetPoint("CENTER", button, "CENTER", 0, 0);
         self.IconSelection:Show();
         self.selectedIcon = button.icon;
         self.Toggle.Icon:SetTexture(button.icon);
+        if fromClicks then
+            self:OverrideStaticPopupOnAccept();
+        end
+    end
+end
+
+function NarciStaticPopupOutfitIconSelectMixin:OverrideStaticPopupOnAccept()
+    if self.popupInfoChanged then return end;
+
+    if not (self.parentPopup and self.parentPopup:IsShown()) then return end;
+    self.popupInfoChanged = true;
+
+    local popupInfo = StaticPopupDialogs["NAME_TRANSMOG_OUTFIT"];
+    if popupInfo then
+        local function SaveNewOutfit(popup)
+            local name = popup.EditBox:GetText();
+            local icon = self.selectedIcon;
+
+            if not icon then
+                local noTransmogID = Constants.Transmog.NoTransmogID;
+                for slotID, itemTransmogInfo in ipairs(WardrobeOutfitManager.itemTransmogInfoList) do
+                    local appearanceID = itemTransmogInfo.appearanceID;
+                    if appearanceID ~= noTransmogID then
+                        icon = select(4, C_TransmogCollection.GetAppearanceSourceInfo(appearanceID));
+                        if icon then
+                            break;
+                        end
+                    end
+                end
+            end
+
+            local outfitID = C_TransmogCollection.NewOutfit(name, icon, WardrobeOutfitManager.itemTransmogInfoList);
+            if outfitID then
+                WardrobeOutfitManager:SaveLastOutfit(outfitID);
+            end
+            if WardrobeOutfitManager.dropdown then
+                WardrobeOutfitManager.dropdown:NewOutfit(outfitID);
+            end
+        end
+
+        popupInfo.OnAccept = SaveNewOutfit;
     end
 end
 
@@ -1421,36 +1462,7 @@ local function DressingRoomOverlayFrame_Initialize()
     --]]
 
     local popupInfo = StaticPopupDialogs["NAME_TRANSMOG_OUTFIT"];
-    if popupInfo and OutfitFrame then
-        --!! Override "WardrobeOutfitFrameMixin:NewOutfit(name)" to provide the ability to select icon
-        local function SaveNewOutfit(popup)
-            local name = popup.editBox:GetText();
-            local icon = OutfitIconSelect.selectedIcon;
-
-            if not icon then
-                for slotID, itemTransmogInfo in ipairs(OutfitFrame.itemTransmogInfoList) do
-                    local appearanceID = itemTransmogInfo.appearanceID;
-                    if appearanceID ~= Constants.Transmog.NoTransmogID then
-                        icon = select(4, C_TransmogCollection.GetAppearanceSourceInfo(appearanceID));
-                        if icon then
-                            break;
-                        end
-                    end
-                end
-            end
-
-            local outfitID = C_TransmogCollection.NewOutfit(name, icon, OutfitFrame.itemTransmogInfoList);
-            if outfitID then
-                OutfitFrame:SaveLastOutfit(outfitID);
-            end
-            if ( OutfitFrame.popupDropDown ) then
-                OutfitFrame.popupDropDown:SelectOutfit(outfitID);
-                OutfitFrame.popupDropDown:OnOutfitSaved(outfitID);
-            end
-        end
-
-        popupInfo.OnAccept = SaveNewOutfit;
-
+    if popupInfo then
         local ValidPopupNames = {
             NAME_TRANSMOG_OUTFIT = true,
             --BW_NAME_TRANSMOG_OUTFIT = true,     --BetterWardrobe
@@ -1470,16 +1482,17 @@ local function DressingRoomOverlayFrame_Initialize()
             if ValidPopupNames[name] then
                 --assume it's StaticPopup1
                 local popup = LocateTransmogPopup();
-                if popup and OutfitFrame and OutfitFrame.itemTransmogInfoList then
-                    local editbox = popup.editBox;
-                    editbox:ClearAllPoints();
-                    if popup.text then
-                        local height = popup.text:GetHeight() or 12;
-                        editbox:SetPoint("TOP", 0, -24 - height);
+                if popup and WardrobeOutfitManager and WardrobeOutfitManager.itemTransmogInfoList then
+                    local tinsert = table.insert;
+                    local EditBox = popup.EditBox;
+                    EditBox:ClearAllPoints();
+                    if popup.Text then
+                        local height = popup.Text:GetHeight() or 12;
+                        EditBox:SetPoint("TOP", 0, -24 - height);
                     else
-                        editbox:SetPoint("TOP", 0, -36);
+                        EditBox:SetPoint("TOP", 0, -36);
                     end
-                    OutfitIconSelect:SetParentFrame(popup, editbox);
+                    OutfitIconSelect:SetParentFrame(popup, EditBox);
 
                     --Create Optional Icons
                     local _, icon;
@@ -1501,7 +1514,7 @@ local function DressingRoomOverlayFrame_Initialize()
                         end
                     end
 
-                    for slotID, itemTransmogInfo in ipairs(OutfitFrame.itemTransmogInfoList) do
+                    for slotID, itemTransmogInfo in ipairs(WardrobeOutfitManager.itemTransmogInfoList) do
                         local appearanceID = itemTransmogInfo.appearanceID;
                         if appearanceID ~= NoTransmogID then
                             icon = select(4, C_TransmogCollection.GetAppearanceSourceInfo(appearanceID));
@@ -1510,9 +1523,9 @@ local function DressingRoomOverlayFrame_Initialize()
                                     iconUsed[icon] = true;
                                     if IsHiddenVisual(appearanceID) then
                                         --print(string.format("%s is hidden", NarciAPI.GetInventorySlotNameBySlotID(slotID) ));
-                                        table.insert(hiddenIcons, icon);
+                                        tinsert(hiddenIcons, icon);
                                     else
-                                        table.insert(iconChoices, icon);
+                                        tinsert(iconChoices, icon);
                                         if not oldIcons[icon] and not defaultIcon then
                                             defaultIcon = icon;
                                         end
@@ -1522,13 +1535,18 @@ local function DressingRoomOverlayFrame_Initialize()
                         end
                     end
                     for i = 1, #hiddenIcons do
-                        table.insert(iconChoices, hiddenIcons[i]);
+                        tinsert(iconChoices, hiddenIcons[i]);
                     end
 
                     local extraHeight = OutfitIconSelect:SetupIcons(iconChoices, defaultIcon);
                     if OutfitIconSelect.SelectionFrame:IsShown() then
                         popup:SetHeight(148 + extraHeight);
                     end
+
+                    popup.ButtonContainer.Button1:ClearAllPoints();
+                    popup.ButtonContainer.Button1:SetPoint("BOTTOMRIGHT", popup, "BOTTOM", -5, 16);
+                    popup.ButtonContainer.Button2:ClearAllPoints();
+                    popup.ButtonContainer.Button2:SetPoint("BOTTOMLEFT", popup, "BOTTOM", 5, 16);
                 end
             else
                 --OutfitIconSelect:Hide();    --TRANSMOG_OUTFIT_ALL_INVALID_APPEARANCES, TRANSMOG_OUTFIT_SOME_INVALID_APPEARANCES, TRANSMOG_OUTFIT_CHECKING_APPEARANCES
