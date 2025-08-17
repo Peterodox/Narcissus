@@ -1222,7 +1222,7 @@ local function GetCompleteItemData(tooltipData, itemLink)
                         end
                     end
 
-                    if IS_LEGION_REMIX and i > 10 and not anyMatch then
+                    if IS_LEGION_REMIX and i > 9 and not anyMatch then
                         local statBonus = match(lineText, "^+(%d)");
                         if statBonus then
                             if not data then
