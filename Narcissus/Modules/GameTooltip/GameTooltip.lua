@@ -805,6 +805,13 @@ function NarciEquipmentTooltipMixin:DisplayItemData(link, itemData, slotID, visu
             end
         end
 
+        if itemData.extraLines then
+            self:AddBlankLine();
+            for _, lineText in ipairs(itemData.extraLines) do
+                self:AddLine(lineText, 0.4353, 0.8039, 0.4784);
+            end
+        end
+
         if itemData.itemSet then
             local r, g, b = GetColorByIndex(3);
             self:AddLine(itemData.itemSet.rawName, r, g, b, -SEG_INSETS);
@@ -840,7 +847,7 @@ function NarciEquipmentTooltipMixin:DisplayItemData(link, itemData, slotID, visu
     end
     self:SearchDropLocation(itemName, itemID, self.baseSourceID);
 
-    self:SetAdditionalInfo(itemID);
+    self:SetAdditionalInfo(itemID, slotID);
 
     self:UpdateSize();
     self:SetItemModel();
@@ -1298,8 +1305,8 @@ function NarciEquipmentTooltipMixin:FadeIn()
     self.ItemModel.FadeIn:Play();
 end
 
-function NarciEquipmentTooltipMixin:SetAdditionalInfo(itemID)
-    SetupSpecialItemTooltip(self, itemID);
+function NarciEquipmentTooltipMixin:SetAdditionalInfo(itemID, slotID)
+    SetupSpecialItemTooltip(self, itemID, slotID);
     ADDTIONAL_SETUP_FUNC(self);
 end
 

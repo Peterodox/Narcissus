@@ -1,4 +1,4 @@
-## Interface: 110107, 110200
+## Interface: 110200, 110205
 ## Plain Title: Narcissus Database NPC
 ## Version: 11.0.2
 ## LoadOnDemand: 1

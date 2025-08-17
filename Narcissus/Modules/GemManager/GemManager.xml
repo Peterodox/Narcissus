@@ -19,6 +19,7 @@
     <Script file="Template.lua"/>
     <!--Script file="ItemLinkGenerator.lua"/-->
     <Script file="DataProvider_Pandaria.lua"/>
+    <Script file="DataProvider_Legion.lua"/>
     <Script file="ActionButton.lua"/>
     <Script file="LoadoutPlanner.lua"/>
     <Script file="Loadout.lua"/>

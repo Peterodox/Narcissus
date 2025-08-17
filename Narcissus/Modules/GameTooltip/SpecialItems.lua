@@ -22,7 +22,7 @@ end
 SETUP_FUNC[210333] = TimerunnersAdvantage;
 
 
-local function SetupSpecialItemTooltip(tooltip, itemID)
+local function SetupSpecialItemTooltip(tooltip, itemID, slotID)
     if SETUP_FUNC[itemID] then
         SETUP_FUNC[itemID](tooltip);
     end

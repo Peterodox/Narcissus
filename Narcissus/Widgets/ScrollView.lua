@@ -199,7 +199,7 @@ do
     end
 
     function ScrollBarMixin:UpdateThumbRange()
-        local railLength = self.Rail:GetHeight();
+        local railLength = self.Rail:GetHeight() or 0;
         local thumbHeight = 0;
         local viewableRangeRatio = self:GetParent():GetViewableRangeRatio();
         if viewableRangeRatio > 0 then
@@ -211,8 +211,13 @@ do
         self.Thumb:SetSize(4, thumbHeight);
         self.Thumb.Texture:SetSize(3, thumbHeight);
         local range = Round(railLength - thumbHeight);
-        self.thumbRange = range;
-        self.ratioPerUnit = 1 / range;
+        if range <= 0 then
+            self.thumbRange = 0;
+            self.ratioPerUnit = 1;
+        else
+            self.thumbRange = range;
+            self.ratioPerUnit = 1 / range;
+        end
     end
 
     function ScrollBarMixin:SetScrollable(scrollable)
