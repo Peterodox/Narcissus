@@ -1221,18 +1221,18 @@ local function GetCompleteItemData(tooltipData, itemLink)
                             end
                         end
                     end
+                end
 
-                    if IS_LEGION_REMIX and i > 9 and not anyMatch then
-                        local statBonus = match(lineText, "^+(%d)");
-                        if statBonus then
-                            if not data then
-                                data = {};
-                            end
-                            if not data.extraLines then
-                                data.extraLines = {};
-                            end
-                            tinsert(data.extraLines, lineText);
+                if IS_LEGION_REMIX and i > 3 and not anyMatch then
+                    local statBonus = match(lineText, "^+(%d)");
+                    if statBonus then
+                        if not data then
+                            data = {};
                         end
+                        if not data.extraLines then
+                            data.extraLines = {};
+                        end
+                        tinsert(data.extraLines, {lineText, IsTextColorWhite(lines[i].leftColor)});
                     end
                 end
             else
@@ -1243,6 +1243,9 @@ local function GetCompleteItemData(tooltipData, itemLink)
 
     if data then
         data.dataInstanceID = tooltipData.dataInstanceID;
+        if IS_LEGION_REMIX then
+            data.isLegionRemix = true;
+        end
     end
 
     return data, requestSubData

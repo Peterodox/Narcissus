@@ -481,6 +481,11 @@ local RecordData = {
         recordCurrency = {2548, 2564, 2580},
     },
 
+    [7584] = {--14
+        goldTime = {57, 52, 52},
+        recordCurrency = {2549, 2565, 2581},
+    },
+
     --Outland
     [7589] = {--1
         goldTime = {75, 73, 72},

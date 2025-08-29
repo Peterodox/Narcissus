@@ -714,7 +714,8 @@ function NarciMythicPlusDisplayMixin:PostUpdate()
         overallScore = color:WrapTextInColorCode(overallScore);
     end
     local text = overallScore;
-    local runHistory = C_MythicPlus.GetRunHistory(true, true);
+    local currentSeasonOnly = true;
+    local runHistory = C_MythicPlus.GetRunHistory(true, true, currentSeasonOnly);
     if runHistory then
         local total = 0;
 
@@ -828,7 +829,8 @@ function NarciMythicPlusDisplayMixin:ToggleHistory(state)
         return
     end
     if state then
-        local runHistory = C_MythicPlus.GetRunHistory(true, true);
+        local currentSeasonOnly = true;
+        local runHistory = C_MythicPlus.GetRunHistory(true, true, currentSeasonOnly);
         local numRuns = #runHistory;
         if numRuns > 0 then
             if not f.bars then

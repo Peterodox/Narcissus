@@ -5,9 +5,8 @@ local TEXTURE_PATH = "Interface\\AddOns\\Narcissus\\Art\\Widgets\\Progenitor\\";
 
 local GetInventoryItemID = GetInventoryItemID;
 local GetSpellDescription = addon.TransitionAPI.GetSpellDescription;
-local GetSpecializationInfo = GetSpecializationInfo;
+local GetSpecializationInfo = C_SpecializationInfo.GetSpecializationInfo;
 local GetSetBonusesForSpecializationByItemID = C_Item.GetSetBonusesForSpecializationByItemID;
-local GetNumSpecializations = GetNumSpecializations;
 local InCombatLockdown = InCombatLockdown;
 local DoesPlayerHaveAnyItems = addon.PrivateAPI.DoesPlayerHaveAnyItems;
 
@@ -21,13 +20,15 @@ local PDWC = NarciPaperDollWidgetController;
 local PaperDollIndicator, SplashFrame;
 
 
-local candidateSlots = {
+local CandidateSlots = {
     [1] = true,   --Head
     [3] = true,   --Shoulder
     [5] = true,   --Chest
     [7] = true,   --Legs
     [10] = true,  --Hands
 };
+
+local ClassSetSpellXSubTreeID = {};
 
 
 local LatestClassSetItem = {};
@@ -150,7 +151,7 @@ local function GetEquippedSet(recount)
         local numValid = 0;
 
         OWNED_SLOTS = {};
-        for slotID in pairs(candidateSlots) do
+        for slotID in pairs(CandidateSlots) do
             itemID = GetInventoryItemID("player", slotID);
             if IsItemClassSet(itemID) then
                 EXAMPLE_ITEM = itemID;
@@ -279,7 +280,7 @@ end
 
 function NarciClassSetTooltipMixin:Init()
     local _, _, classID = UnitClass("player");
-    local numSpecs = GetNumSpecializations();
+    local numSpecs = C_SpecializationInfo.GetNumSpecializationsForClassID(classID);
 
     local padding = TOOLTIP_PADDING;
     local width = math.floor(self:GetWidth() + 0.5);
@@ -360,7 +361,7 @@ function NarciClassSetTooltipMixin:DisplayBonus(specIndex)
     local numOwned, _, exampleItemID = GetEquippedSet();
 
     --Spec
-    specIndex = specIndex or GetSpecialization();
+    specIndex = specIndex or C_SpecializationInfo.GetSpecialization();
     self.specIndex = specIndex;
     self.Selection:Hide();
     self.Selection:ClearAllPoints();
@@ -387,9 +388,36 @@ function NarciClassSetTooltipMixin:DisplayBonus(specIndex)
     if specID and exampleItemID then
         local spells = GetSetBonusesForSpecializationByItemID(specID, exampleItemID);
         if spells then  --Can be nil on the first request
-            spell1, spell2 = unpack(spells);
-            text1 = FormatText(GetSpellDescription(spell1));
-            text2 = FormatText(GetSpellDescription(spell2));
+            local found = false;
+            if #spells > 2 then
+                --11.2.0 Class set effects are determined by Hero Talents
+                local subTreeID = C_ClassTalents.GetActiveHeroTalentSpec();
+                if subTreeID then
+                    for _, spellID in ipairs(spells) do
+                        if ClassSetSpellXSubTreeID[spellID] == subTreeID then
+                            if not spell1 then
+                                spell1 = spellID;
+                            elseif not spell2 then
+                                spell2 = spellID;
+                            end
+                        end
+                    end
+                end
+                if spell1 and spell2 then
+                    found = true;
+                end
+            end
+
+            if not found then
+                spell1, spell2 = spells[1], spells[2];
+            end
+
+            if spell1 then
+                text1 = FormatText(GetSpellDescription(spell1));
+            end
+            if spell2 then
+                text2 = FormatText(GetSpellDescription(spell2));
+            end
         end
     end
 
@@ -860,4 +888,90 @@ end
 
 function NarciClassSetIndicatorSplash:FadeOut()
     FadeFrame(self, 0.5, 0);
+end
+
+
+
+
+do  --ClassSetSpellXSubTreeID
+ClassSetSpellXSubTreeID = {
+[1236260] = 31,
+[1236259] = 31,
+[1236356] = 32,
+[1236355] = 32,
+[1236254] = 33,
+[1236253] = 33,
+[1236362] = 34,
+[1236361] = 34,
+[1236360] = 35,
+[1236358] = 35,
+[1236338] = 22,
+[1236337] = 22,
+[1236336] = 23,
+[1236334] = 23,
+[1236333] = 24,
+[1236332] = 24,
+[1236330] = 21,
+[1236331] = 21,
+[1236367] = 36,
+[1236366] = 36,
+[1236365] = 37,
+[1236364] = 37,
+[1236369] = 38,
+[1236368] = 38,
+[1236375] = 42,
+[1236374] = 42,
+[1236373] = 43,
+[1236372] = 43,
+[1236371] = 44,
+[1236370] = 44,
+[1235965] = 39,
+[1235962] = 39,
+[1235964] = 40,
+[1235959] = 40,
+[1235966] = 41,
+[1235963] = 41,
+[1236380] = 65,
+[1236379] = 65,
+[1236378] = 66,
+[1236377] = 66,
+[1236382] = 64,
+[1236381] = 64,
+[1236392] = 48,
+[1236391] = 48,
+[1236390] = 49,
+[1236389] = 49,
+[1236384] = 50,
+[1236383] = 50,
+[1236397] = 18,
+[1236396] = 18,
+[1236395] = 20,
+[1236394] = 20,
+[1236399] = 19,
+[1236398] = 19,
+[1236405] = 51,
+[1236404] = 51,
+[1236403] = 52,
+[1236402] = 52,
+[1236401] = 53,
+[1236400] = 53,
+[1236411] = 54,
+[1236410] = 54,
+[1236409] = 55,
+[1236408] = 55,
+[1236407] = 56,
+[1236406] = 56,
+[1236416] = 57,
+[1236415] = 57,
+[1236414] = 58,
+[1236413] = 58,
+[1236418] = 59,
+[1236417] = 59,
+[1236424] = 60,
+[1236423] = 60,
+[1236422] = 61,
+[1236421] = 61,
+[1236420] = 62,
+[1236419] = 62,
+};
 end

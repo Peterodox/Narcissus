@@ -211,9 +211,9 @@ do  --Legion
             tooltip:SetPoint("TOPLEFT", self, "TOPRIGHT", 0, 0);
 
             local currencyInfo;
-            currencyInfo = C_CurrencyInfo.GetCurrencyInfo(3268);    --3292 Knowledge
+            currencyInfo = C_CurrencyInfo.GetCurrencyInfo(3268);    --Infinite Power
             tooltip:AddDoubleLine(currencyInfo.name, BreakUpLargeNumbers(currencyInfo.quantity), 0.902, 0.800, 0.502, 1, 1, 1);
-            currencyInfo = C_CurrencyInfo.GetCurrencyInfo(3292);
+            currencyInfo = C_CurrencyInfo.GetCurrencyInfo(3292);    --Infinite Knowledge
             tooltip:AddDoubleLine(currencyInfo.name, currencyInfo.quantity.."/"..currencyInfo.maxQuantity, 0.902, 0.800, 0.502, 1, 1, 1);
 
             tooltip:AddLine(" ");
@@ -233,10 +233,6 @@ do  --Legion
             end
 
             tooltip:Show();
-        end,
-
-        OnClickFunc = function(self, button)
-            
         end,
     };
 end

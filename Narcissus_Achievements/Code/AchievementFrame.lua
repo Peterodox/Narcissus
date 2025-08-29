@@ -380,11 +380,11 @@ local function DisplayProgress(id, flags)
             numCompleted = 0;
             numIncomplete = 0;
         else
-            local criteriaString, criteriaType, completed, quantity, reqQuantity, charName, flags, assetID, quantityString;
+            local criteriaString, criteriaType, completed, quantity, reqQuantity, charName, flags, assetID, quantityString, criteriaID;
 
             for i = 1, numCriteria do
-                criteriaString, criteriaType, completed, quantity, reqQuantity, charName, flags, assetID, quantityString = GetAchievementCriteriaInfo(id, i);
-                --print("criteriaType: "..criteriaType)     --debug
+                criteriaString, criteriaType, completed, quantity, reqQuantity, charName, flags, assetID, quantityString, criteriaID = GetAchievementCriteriaInfo(id, i);
+                --print(criteriaString, "criteriaType: "..criteriaType, "criteriaID: "..criteriaID, "assetID: "..assetID)     --debug
 
                 if criteriaType == 8 and assetID then     --Meta, CRITERIA_TYPE_ACHIEVEMENT
                     if completed then

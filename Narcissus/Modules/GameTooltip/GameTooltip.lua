@@ -750,24 +750,38 @@ function NarciEquipmentTooltipMixin:DisplayItemData(link, itemData, slotID, visu
                 statsTable["ITEM_MOD_BLOCK_RATING_SHORT"] = block;
             end
         end
-        local key;
-        local statText;
-        for i = 1, #STATS_ORDER do
-            key = STATS_ORDER[i][1];
-            if statsTable[key] then
-                statText = format(STATS_ORDER[i][2], statsTable[key]) .. _G[key];
-                if STATS_ORDER[i][4] then
-                    statText = statText .. "|cff729a7c" .. NarciAPI.ConvertRatingToPercentage(STATS_ORDER[i][4], statsTable[key]) .. "|r";
+
+        if not (itemData and itemData.isLegionRemix) then
+            local key;
+            local statText;
+            for i = 1, #STATS_ORDER do
+                key = STATS_ORDER[i][1];
+                if statsTable[key] then
+                    statText = format(STATS_ORDER[i][2], statsTable[key]) .. _G[key];
+                    if STATS_ORDER[i][4] then
+                        statText = statText .. "|cff729a7c" .. NarciAPI.ConvertRatingToPercentage(STATS_ORDER[i][4], statsTable[key]) .. "|r";
+                    end
+                    self:AddLine(statText, GetColorByIndex(STATS_ORDER[i][3]));
+                    statsTable[key] = nil;
                 end
-                self:AddLine(statText, GetColorByIndex(STATS_ORDER[i][3]));
-                statsTable[key] = nil;
+            end
+            for k, v in pairs(statsTable) do
+                if _G[k] and not match(k, "^EMPTY_SOCKET") then
+                    statText = format("+%d %s", v, _G[k]);
+                    self:AddLine(statText, GetColorByIndex(2));
+                    --print(k)  --special stats
+                end
             end
         end
-        for k, v in pairs(statsTable) do
-            if _G[k] and not match(k, "^EMPTY_SOCKET") then
-                statText = format("+%d %s", v, _G[k]);
-                self:AddLine(statText, GetColorByIndex(2));
-                --print(k)  --special stats
+    end
+
+
+    if itemData.extraLines then --for Legion Remix
+        for _, lineData in ipairs(itemData.extraLines) do
+            if lineData[2] then --White
+                self:AddLine(lineData[1], 1, 1, 1);
+            else
+                self:AddLine(lineData[1], 0.4353, 0.8039, 0.4784);
             end
         end
     end
@@ -802,13 +816,6 @@ function NarciEquipmentTooltipMixin:DisplayItemData(link, itemData, slotID, visu
                     end
                     --print(itemData.effects[i][2])
                 end
-            end
-        end
-
-        if itemData.extraLines then
-            self:AddBlankLine();
-            for _, lineText in ipairs(itemData.extraLines) do
-                self:AddLine(lineText, 0.4353, 0.8039, 0.4784);
             end
         end
 
