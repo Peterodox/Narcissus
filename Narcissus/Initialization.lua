@@ -1,6 +1,6 @@
-local NARCI_VERSION_INFO = "1.8.2 e";
+local NARCI_VERSION_INFO = "1.8.2 f";
 
-local VERSION_DATE = 1756400000;
+local VERSION_DATE = 1757060000;
 local CURRENT_VERSION = 10802;
 local PREVIOUS_VERSION = CURRENT_VERSION;
 local TIME_SINCE_LAST_UPDATE = 0;
@@ -574,4 +574,15 @@ do  --DB Settings
         end
     end
     addon.SetDBValue = SetDBValue;
+end
+
+
+do  --UIParent Visibility Check
+    local f = CreateFrame("Frame", nil, UIParent);
+    f:SetScript("OnShow", function()
+        CallbackRegistry:Trigger("UIParent.OnShow", true);
+    end);
+    f:SetScript("OnHide", function()
+        CallbackRegistry:Trigger("UIParent.OnHide", true);
+    end);
 end

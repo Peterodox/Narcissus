@@ -137,7 +137,7 @@ local CVAR_UNIT_NAME_VALUES = {			--Unit Name CVars
 
     ["SoftTargetEnemy"] = 1,
     ["SoftTargetInteract"] = 1,
-};
+}
 
 
 local CVAR_CAMERA_BACKUP = {};

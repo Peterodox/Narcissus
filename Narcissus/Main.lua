@@ -180,6 +180,20 @@ function CVarTemp:RestoreDynamicCam()
 	DynamicCam.db.profile.shoulderOffsetZoom.lowerBound = self.DynmicCamShoulderOffsetZoomUpperBound;
 end
 
+function CVarTemp.BackUpAndChangeOccludedSilhouette()
+	CVarTemp.occludedSilhouettePlayer = GetCVar("occludedSilhouettePlayer");
+	SetCVar("occludedSilhouettePlayer", 0);
+end
+CallbackRegistry:Register("UIParent.OnHide", CVarTemp.BackUpAndChangeOccludedSilhouette);
+
+function CVarTemp.RestoreOccludedSilhouette()
+	if CVarTemp.occludedSilhouettePlayer then
+		SetCVar("occludedSilhouettePlayer", CVarTemp.occludedSilhouettePlayer);
+		CVarTemp.occludedSilhouettePlayer = nil;
+	end
+end
+CallbackRegistry:Register("UIParent.OnShow", CVarTemp.RestoreOccludedSilhouette);
+
 local function GetKeepActionCam()
 	return CVarTemp.isDynamicCamLoaded or CVarTemp.isActionCamPlusLoaded or (not CVarTemp.cameraSafeMode)
 end

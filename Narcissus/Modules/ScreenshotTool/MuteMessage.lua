@@ -22,15 +22,15 @@ local function ScreenshotAlert_Override()
     --    UI_HIDDEN = "";
     --end
 
-    if ScreenshotAlert_CheckRequirements() and (not SCREENSHOT_ALERT_CHANGED) then
+    if ScreenshotAlert_CheckRequirements() then
         local function OnUpdate(self, elapsed)
             self.t = self.t + elapsed;
-            if self.t >= 0 then
+
+            if self.t >= 0.5 then
                 local alpha = self:GetAlpha() - 5*elapsed;
                 if alpha <= 0 then
                     alpha = 0;
                     self:Hide();
-                    self.t = 0;
                 end
                 self:SetAlpha(alpha);
             end
@@ -39,7 +39,7 @@ local function ScreenshotAlert_Override()
         local function DisplayMessage(self, text)
             self:SetAlpha(1.0);
             self.Text:SetText(text);
-            self.t = -0.8;
+            self.t = 0;
             self:Show();
         end
 
@@ -65,7 +65,6 @@ local function ScreenshotAlert_Restore()
     end
 end
 
-ScreenshotAlert_Override();
 
 do
     local SettingFunctions = addon.SettingFunctions;

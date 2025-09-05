@@ -775,18 +775,17 @@ function NarciEquipmentTooltipMixin:DisplayItemData(link, itemData, slotID, visu
         end
     end
 
-
-    if itemData.extraLines then --for Legion Remix
-        for _, lineData in ipairs(itemData.extraLines) do
-            if lineData[2] then --White
-                self:AddLine(lineData[1], 1, 1, 1);
-            else
-                self:AddLine(lineData[1], 0.4353, 0.8039, 0.4784);
+    if itemData then
+        if itemData.extraLines then --for Legion Remix
+            for _, lineData in ipairs(itemData.extraLines) do
+                if lineData[2] then --White
+                    self:AddLine(lineData[1], 1, 1, 1);
+                else
+                    self:AddLine(lineData[1], 0.4353, 0.8039, 0.4784);
+                end
             end
         end
-    end
 
-    if itemData then
         if itemData.enchant then
             local r, g, b = GetColorByIndex(2);
             self:AddLine(format(ENCHANTED_TOOLTIP_LINE, itemData.enchant), r, g, b, -SEG_INSETS);
