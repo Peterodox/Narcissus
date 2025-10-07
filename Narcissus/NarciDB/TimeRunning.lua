@@ -133,6 +133,12 @@ do
 end
 
 
+function NarciAPI.GetTimeRunningSeason()
+    local seasonID = PlayerGetTimerunningSeasonID and PlayerGetTimerunningSeasonID();
+    return seasonID
+end
+
+
 --[[
     /dump C_Item.GetItemNumSockets(GetInventoryItemLink("player", 5))
 

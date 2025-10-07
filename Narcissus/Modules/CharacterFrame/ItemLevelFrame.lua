@@ -239,6 +239,15 @@ function NarciItemLevelFrameMixin:UpdateRenownLevel()
 	frame.Header:SetText("RN");
 	frame.Number:SetText(maxLevel);
 end
+NarciItemLevelFrameMixin.UpdateRightButton = NarciItemLevelFrameMixin.UpdateRenownLevel;
+
+function NarciItemLevelFrameMixin:UpdateInfiniteKnowledge()
+	self.RightButton.Header:SetText("IK");
+	local currencyInfo = C_CurrencyInfo.GetCurrencyInfo(3292);
+	if currencyInfo then
+		self.RightButton.Number:SetText(currencyInfo.quantity);
+	end
+end
 
 function NarciItemLevelFrameMixin:SetThemeByName(themeName)
 	if themeName ~= self.theme then
@@ -401,7 +410,7 @@ function NarciItemLevelFrameMixin:InstantUpdate()
 	end
 	self:SetThemeByName(themeName);
 	self:UpdateItemLevel();
-	self:UpdateRenownLevel();
+	self:UpdateRightButton();
 end
 
 function NarciItemLevelFrameMixin:ToggleExtraInfo(state, replayAnimation)
@@ -607,7 +616,25 @@ function NarciItemLevelFrameMixin:Init()
 	local RightButton = self.RightButton;
 	RightButton:SetScript("OnEnter", SideButton_OnEnter);
 	RightButton:SetScript("OnLeave", SideButton_OnLeave);
-	RightButton.onEnterFunc = SideButton_ShowMajorFactionInfo;
+
+	if NarciAPI.GetTimeRunningSeason() == 2 then
+		self.UpdateRightButton = self.UpdateInfiniteKnowledge;
+		RightButton.onEnterFunc = function(f)
+			local DefaultTooltip = NarciGameTooltip;
+			local currencyInfo = C_CurrencyInfo.GetCurrencyInfo(3292);    --Infinite Knowledge
+			if currencyInfo then
+				DefaultTooltip:SetOwner(f, "ANCHOR_NONE");
+				DefaultTooltip:SetPoint("BOTTOM", f, "TOP", 0, 2);
+				DefaultTooltip:AddDoubleLine(currencyInfo.name, string.format("%s/%s", currencyInfo.quantity, currencyInfo.maxQuantity), 0.902, 0.800, 0.502, 1, 1, 1);
+				DefaultTooltip:AddLine(" ");
+				DefaultTooltip:AddLine(currencyInfo.description, 1, 0.82, 0, true);
+				DefaultTooltip:Show();
+				DefaultTooltip:FadeIn();
+			end
+		end;
+	else
+		RightButton.onEnterFunc = SideButton_ShowMajorFactionInfo;
+	end
 end
 
 

@@ -1,5 +1,5 @@
 ## Interface: 110200, 110205
-## Version: 1.8.2
+## Version: 10803
 
 ## Title: Narcissus
 
@@ -122,4 +122,4 @@ Modules\Storyboard\Storyboard.xml
 Modules\DragonridingRaces\Main.xml
 Modules\GossipFrame\GossipFrame.xml
 
-Modules\GemManager\GemManager.xml
+#Modules\GemManager\GemManager.xml

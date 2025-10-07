@@ -40,7 +40,7 @@ end
 
 function ag:Switch(x)
     if x < 0 then
-        Narci_NavBar:SelectTab(3);
+        Narci_NavBar:SelectTab(2);
     end
 end
 

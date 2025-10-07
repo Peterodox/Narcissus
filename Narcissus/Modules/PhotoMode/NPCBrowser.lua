@@ -20,6 +20,7 @@ local NUM_COVER_ROW_PER_PAGE = 2;
 local BrowserFrame, CategoryTab, EntryTab, MatchTab, HeaderFrame, HomeButton, SearchBox, SearchTrigger, MatchPreviewModel;
 local MouseOverButtons, QuickFavoriteButton;
 local LoadingIndicator;
+local CreatureInfoUtil = {};
 
 local TARGET_MODEL_INDEX = 1;     --Add an NPC to NarciNPCModelFrame(n)
 local ACTOR_CREATED = false;      --Whether user has added an NPC from browser or not
@@ -2156,7 +2157,6 @@ end
 local find = string.find;
 local NARCI_NPC_BROWSER_TITLE_LEVEL = NARCI_NPC_BROWSER_TITLE_LEVEL;      --"Level ??"
 
-local CreatureInfoUtil = {};
 
 do
     function CreatureInfoUtil:LoadDatabaseAndGetUnloadedNPC()
@@ -2441,6 +2441,7 @@ local function NPCCard_OnEnter(self)
     FadeFrame(self.Highlight, 0.12, 1);
 
     if self.creatureID then
+        CreatureInfoUtil:RequestInfo(self.creatureID);
         ShowMouseOverButtons(self);
     else
         MouseOverButtons:Hide();

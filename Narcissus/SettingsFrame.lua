@@ -2106,7 +2106,7 @@ local Categories = {
             {type = "subheader", level = 1, text = L["Expansion Features"], extraTopPadding = 1},
             {type = "checkbox", level = 1, key = "PaperDollWidget", text = L["Paperdoll Widget"], onValueChangedFunc = PaperDollWidgetToggle_OnValueChanged, showFeaturePreview = true, onEnterFunc = FeaturePreview.ShowPreview, onLeaveFunc = FeaturePreview.HidePreview},
                 {type = "checkbox", level = 2, key = "PaperDollWidget_ClassSet", text = L["Class Set Indicator"], isChild = true, onValueChangedFunc = PaperDollWidget_Update},
-                {type = "checkbox", level = 2, key = "PaperDollWidget_Remix", text = L["Remix Gem Manager"], isChild = true, onValueChangedFunc = PaperDollWidget_Update},
+                --{type = "checkbox", level = 2, key = "PaperDollWidget_Remix", text = L["Remix Gem Manager"], isChild = true, onValueChangedFunc = PaperDollWidget_Update},
             --{type = "checkbox", level = 1, key = "ConduitTooltip", text = L["Conduit Tooltip"], onValueChangedFunc = ConduitTooltipToggle_OnValueChanged, showFeaturePreview = true, onEnterFunc = FeaturePreview.ShowPreview, onLeaveFunc = FeaturePreview.HidePreview},
         },
     },

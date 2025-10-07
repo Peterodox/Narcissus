@@ -1,3 +1,5 @@
+-- Feature migrated to Plumber!! --
+
 local _, addon = ...
 local L = Narci.L;
 local CallbackRegistry = addon.CallbackRegistry;
@@ -23,7 +25,7 @@ NarciGemManagerPaperdollWidgetMixin = {};
 
 function NarciGemManagerPaperdollWidgetMixin:OnLoad()
     Gemma.PaperdollWidget = self;
-    NarciPaperDollWidgetController:AddWidget(self, 4, "PaperDollWidget_Remix");
+    --NarciPaperDollWidgetController:AddWidget(self, 4, "PaperDollWidget_Remix");
 end
 
 function NarciGemManagerPaperdollWidgetMixin:OnShow()

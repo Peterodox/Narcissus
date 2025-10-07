@@ -30,6 +30,7 @@ local NarciAPI = NarciAPI;
 local GetItemEnchantID = NarciAPI.GetItemEnchantID;
 local GetItemEnchantText = NarciAPI.GetEnchantTextByItemLink;
 local EnchantInfo = Narci.EnchantData;						--Bridge/GearBonus.lua
+local GetOverrideItemIcon = NarciAPI.GetOverrideItemIcon;
 
 local PlayLetteboxAnimation = NarciAPI_LetterboxAnimation;
 local SmartFontType = NarciAPI.SmartFontType;
@@ -1020,7 +1021,10 @@ function NarciEquipmentSlotMixin:Refresh(forceRefresh)
 			local itemID = GetItemInfoInstant(itemLink);
 			borderTexKey, itemVFX, bR, bG, bB, hideItemIcon = GetBorderArtByItemID(itemID);
 
-			itemIcon = ((not hideItemIcon) and GetInventoryItemTexture("player", slotID)) or nil;
+			itemIcon = itemID and GetOverrideItemIcon(itemID);
+			if not itemIcon then
+				itemIcon = ((not hideItemIcon) and GetInventoryItemTexture("player", slotID)) or nil;
+			end
 			itemName = C_Item.GetItemName(itemLocation);
 			itemQuality = C_Item.GetItemQuality(itemLocation);
 			effectiveLvl = C_Item.GetCurrentItemLevel(itemLocation);
@@ -1743,7 +1747,10 @@ function NarciEquipmentFlyoutButtonMixin:SetUp(maxItemLevel)
 	local itemID = C_Item.GetItemID(itemLocation);
 	local itemQuality = C_Item.GetItemQuality(itemLocation);
 	local itemLevel = C_Item.GetCurrentItemLevel(itemLocation);
-	local itemIcon = C_Item.GetItemIcon(itemLocation);
+	local itemIcon = GetOverrideItemIcon(itemID);
+	if not itemIcon then
+		itemIcon = C_Item.GetItemIcon(itemLocation);
+	end
 	local itemLink = C_Item.GetItemLink(itemLocation)
 
 	if C_AzeriteEmpoweredItem.IsAzeriteEmpoweredItem(itemLocation) then
