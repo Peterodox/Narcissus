@@ -27,6 +27,7 @@ local GetItemLocations = C_EquipmentSet.GetItemLocations;
 local GetEquipmentSetInfo = C_EquipmentSet.GetEquipmentSetInfo;
 local UnpackLocation = addon.TransitionAPI.EquipmentManager_UnpackLocation;
 local GetItemInventoryType = C_Item.GetItemInventoryType;
+local UIColorThemeUtil = addon.UIColorThemeUtil;
 
 local After = C_Timer.After;
 local sin = math.sin;
@@ -34,7 +35,6 @@ local cos = math.cos;
 local max = math.max;
 local pi = math.pi;
 
-local NarciThemeUtil = NarciThemeUtil;
 
 -----------------------------------------------------------------------------------
 --[[ LibEasing
@@ -222,13 +222,13 @@ local function FadeInTalentIcons(button, action)
 end
 
 local function SetBackgroundColor(self)
-    local r, g, b = NarciThemeUtil:GetColor();
+    local r, g, b = UIColorThemeUtil:GetActiveColor();
     self.Bar2:SetColorTexture(r, g, b, 0.75);
     self.Color:SetColorTexture(r, g, b, 0.75);
 end
 
 local function AnimateBackgroundColor(self)
-    local r, g, b = NarciThemeUtil:GetColor();
+    local r, g, b = UIColorThemeUtil:GetActiveColor();
 
     self.Color:SetColorTexture(r, g, b, 0.75);
     self.BarColors = {r, g, b};
@@ -905,7 +905,7 @@ local function PlayHighlight(self)
     Highlight:SetPoint("TOPLEFT", self, "TOPLEFT", 0, 0);
     Highlight:SetPoint("BOTTOMRIGHT", self, "BOTTOMRIGHT", 0, 0);
 
-    local r, g, b = NarciThemeUtil:GetColor();
+    local r, g, b = UIColorThemeUtil:GetActiveColor();
     local w = 0.4;
     r, g, b = r + w, g + w, b + w;
 
@@ -1352,7 +1352,7 @@ NarciViewUtil.showSetsCallBack = function()         --NarciViewUtil is declared 
     local Overlay1 = EquipmentSetManagerFrame.ListScrollFrame.OverlayFrame1;
     local SaveItemButton =  Overlay1.SaveItem;
     local SaveTalentButton =  Overlay1.SaveTalent;
-    local r, g, b = NarciThemeUtil:GetColor();
+    local r, g, b = UIColorThemeUtil:GetActiveColor();
     SaveItemButton.r, SaveItemButton.g, SaveItemButton.b = r, g, b;
     SaveTalentButton.r, SaveTalentButton.g, SaveTalentButton.b = r, g, b;
 end

@@ -1,3 +1,5 @@
+local _, addon = ...
+
 local DIGITS = "%.2f";
 local NO_BONUS_ALPHA = 0.5;
 
@@ -7,6 +9,7 @@ local FormatLargeNumbers = NarciAPI.FormatLargeNumbers;
 local BreakUpLargeNumbers = BreakUpLargeNumbers;
 local GetPrimaryStats = NarciAPI.GetPrimaryStats;
 local SplitTooltipByLineBreak = NarciAPI.SplitTooltipByLineBreak;
+local UIColorThemeUtil = addon.UIColorThemeUtil;
 local format = string.format;
 local floor = math.floor;
 local ceil = math.ceil;
@@ -196,7 +199,7 @@ local function GetEffectiveCrit()
 	local rating;
 	local spellCrit, rangedCrit, meleeCrit;
 	local critChance;
-	
+
 	-- Start at 2 to skip physical damage
 	local holySchool = 2;
 	local minCrit = GetSpellCritChance(holySchool);
@@ -830,6 +833,9 @@ function NarciAttributeMixin:Update()
     if UpdateFunc[self.token] then
         UpdateFunc[self.token](nil, self);
     end
+	if self.customValueSetter then
+		self.customValueSetter(self, self.Value, self.ValueRating);
+	end
 end
 
 function NarciAttributeMixin:SetLabelAndValue(label, value, grey)
@@ -842,4 +848,42 @@ function NarciAttributeMixin:SetLabelAndValue(label, value, grey)
 		self.Label:SetTextColor(0.92, 0.92, 0.92);
 		self.Value:SetTextColor(0.92, 0.92, 0.92);
 	end
+end
+
+function NarciAttributeMixin:UpdateColor()
+	local frameID = self:GetID() or 0;
+	local r, g, b = UIColorThemeUtil:GetActiveColor();
+	if frameID % 2 == 0 then
+		if self.Color then
+			self.Color:SetColorTexture(r, g, b, 0.75);
+			return;
+		elseif self.Color1 and self.Color2 then
+			self.Color1:SetColorTexture(r, g, b, 0.75);
+			self.Color2:SetColorTexture(r, g, b, 0.75);
+		end
+	else
+		if self.Color then
+			self.Color:SetColorTexture(0.1, 0.1, 0.1, 0.75);
+			return;
+		elseif self.Color1 and self.Color2 then
+			self.Color1:SetColorTexture(0.1, 0.1, 0.1, 0.75);
+			self.Color2:SetColorTexture(0.1, 0.1, 0.1, 0.75);
+		end
+	end
+end
+
+function NarciAttributeMixin:OnLoad()
+	self:UpdateColor();
+end
+
+function NarciAttributeMixin:OnShow()
+	self:UpdateColor();
+end
+
+function NarciAttributeMixin:OnEnter()
+	Narci_ShowStatTooltip(self);
+end
+
+function NarciAttributeMixin:OnLeave()
+	Narci:HideButtonTooltip();
 end

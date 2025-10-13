@@ -54,6 +54,7 @@ Modules\GameTooltip\GameTooltip.xml
 
 Modules\CharacterFrame\ItemCooldown.xml
 Modules\CharacterFrame\Attributes.xml
+Modules\CharacterFrame\StatsChart.xml
 Modules\CharacterFrame\ItemAlertOverlay.xml
 Modules\MsgAlert\Alert.xml
 Modules\ScreenshotTool\ScreenshotTool.xml

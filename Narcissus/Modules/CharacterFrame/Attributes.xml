@@ -1,5 +1,320 @@
 <Ui xsi:schemaLocation="http://www.blizzard.com/wow/ui/..\FrameXML\UI.xsd">
 	<Script file="Attributes.lua"/>
 
-    <Frame name="NarciAttributeSharedTemplate" virtual="true" mixin="NarciAttributeMixin"/>
+    <Frame name="NarciAttributeSharedTemplate" virtual="true" mixin="NarciAttributeMixin">
+		<Animations>
+			<AnimationGroup parentKey="animIn">
+				<Alpha parentKey="A1" fromAlpha="0" toAlpha="0" duration="0.2" order="1"/>
+				<Alpha parentKey="A2" fromAlpha="0" toAlpha="1" duration="0.4" order="2"/>
+			</AnimationGroup>
+		</Animations>
+		<Scripts>
+			<OnLoad method="OnLoad"/>
+			<OnEnter method="OnEnter"/>
+			<OnLeave method="OnLeave"/>
+			<OnShow method="OnShow"/>
+		</Scripts>
+	</Frame>
+
+	<Frame name="Narci_AttributeTemplate" virtual="true" inherits="NarciAttributeSharedTemplate">
+		<Size>
+			<AbsDimension x="240" y="24"/>
+		</Size>
+		<Layers>
+			<Layer level="OVERLAY">
+				<Texture setAllPoints="true" parentKey="Color1">
+					<Size x="120" y="24" />
+					<Color r="0.06" g="0.627" b="0.537" a="1"/>
+					<Anchors>
+						<Anchor point="RIGHT" relativeKey="$parent" relativePoint="CENTER"  x="0" y="0"/>
+					</Anchors>
+					<Gradient orientation="HORIZONTAL">
+						<MinColor a="1" r="1" g="1" b="1"/>
+						<MaxColor a="1" r="0.6" g="0.6" b="0.6"/>
+					</Gradient>
+				</Texture>
+				<Texture setAllPoints="true" parentKey="Color2">
+					<Size x="120" y="24" />
+					<Color r="0.06" g="0.627" b="0.537" a="1"/>
+					<Anchors>
+						<Anchor point="LEFT" relativeKey="$parent" relativePoint="CENTER"  x="0" y="0"/>
+					</Anchors>
+					<Gradient orientation="HORIZONTAL">
+						<MinColor a="1" r="0.45" g="0.45" b="0.45"/>
+						<MaxColor a="1" r="0.85" g="0.85" b="0.85"/>
+					</Gradient>
+				</Texture>
+
+				<FontString inherits="NarciFontMedium12" justifyH="LEFT" justifyV="MIDDLE" parentKey="Label" text="Label">
+					<Size x="0" y="0"/>
+					<Color r="0.92" g="0.92" b="0.92"/>
+					<Anchors>
+						<Anchor point="LEFT" relativeKey="$parent.GL" relativePoint="LEFT" x="12" y="0"/>
+					</Anchors>
+				</FontString>
+
+				<FontString inherits="NarciFontStatusNumber" justifyH="RIGHT" justifyV="MIDDLE" parentKey="Value" text="1208">
+					<Size x="0" y="0"/>
+					<Color r="0.92" g="0.92" b="0.92"/>
+					<Anchors>
+						<Anchor point="RIGHT" relativeKey="$parent.GR" relativePoint="RIGHT" x="-12" y="0"/>
+					</Anchors>
+				</FontString>
+
+				<FontString inherits="NarciFontStatusNumber" justifyH="RIGHT" justifyV="MIDDLE" parentKey="ValueRating" text="1208" hidden="true">
+					<Size x="0" y="0"/>
+					<Color r="0.92" g="0.92" b="0.92"/>
+					<Anchors>
+						<Anchor point="RIGHT" relativeKey="$parent.Color" relativePoint="RIGHT" x="-12" y="0"/>
+					</Anchors>
+				</FontString>
+			</Layer>
+		</Layers>
+        <Scripts>
+            <OnLoad>
+				self:OnLoad();
+				local delay = (self:GetID())/20;
+				self.animIn.A2:SetStartDelay(delay);
+			</OnLoad>
+			<OnEnter method="OnEnter"/>
+			<OnLeave method="OnLeave"/>
+			<OnShow method="OnShow"/>
+        </Scripts>
+	</Frame>
+
+	<Frame name="Narci_DetailedAttributeTemplate" virtual="true" inherits="NarciAttributeSharedTemplate">
+		<Size>
+			<AbsDimension x="160" y="24"/>
+		</Size>
+		<Layers>
+			<Layer level="OVERLAY">
+				<FontString inherits="NarciFontMedium12" justifyH="LEFT" justifyV="MIDDLE" parentKey="Label" text="Label">
+					<Size x="90" y="0"/>
+					<Color r="0.92" g="0.92" b="0.92"/>
+					<Anchors>
+						<Anchor point="LEFT" relativeKey="$parent" relativePoint="LEFT" x="10" y="0"/>
+					</Anchors>
+				</FontString>
+
+				<FontString inherits="NarciFontStatusNumber" justifyH="RIGHT" justifyV="MIDDLE" parentKey="Value" text="1208">
+					<Size x="0" y="0"/>
+					<Color r="0.92" g="0.92" b="0.92"/>
+					<Anchors>
+						<Anchor point="RIGHT" relativeKey="$parent" relativePoint="RIGHT" x="-10" y="0"/>
+					</Anchors>
+				</FontString>
+			</Layer>
+		</Layers>
+        <Scripts>
+            <OnLoad>
+				self:OnLoad();
+				local delay = (self:GetID())/20;
+				self.animIn.A2:SetStartDelay(delay);
+			</OnLoad>
+			<OnEnter method="OnEnter"/>
+			<OnLeave method="OnLeave"/>
+			<OnShow method="OnShow"/>
+        </Scripts>
+	</Frame>
+
+	<Frame name="Narci_DetailedAttributeTemplateShortLeft" virtual="true" frameLevel="9" inherits="NarciAttributeSharedTemplate">
+		<Size>
+			<AbsDimension x="112" y="48"/>
+		</Size>
+		<KeyValues>
+			<KeyValue key="noAnimation" value="true" type="Boolean"/>
+		</KeyValues>
+		<Layers>
+			<Layer level="BACKGROUND">
+				<Texture setAllPoints="true" parentKey="Black">
+					<Size x="112" y="24"/>
+					<Color r="0.1" g="0.1" b="0.1" a="0.75"/>
+					<Anchors>
+						<Anchor point="TOP" relativeKey="$parent" relativePoint="TOP"  x="0" y="0"/>
+					</Anchors>
+					<Gradient orientation="HORIZONTAL">
+						<MinColor a="1" r="1" g="1" b="1"/>
+						<MaxColor a="1" r="0.6" g="0.6" b="0.6"/>
+					</Gradient>
+				</Texture>
+				<Texture setAllPoints="true" parentKey="Color">
+					<Size x="112" y="24"/>
+					<Color r="0.06" g="0.627" b="0.537" a="1"/>
+					<Anchors>
+						<Anchor point="BOTTOM" relativeKey="$parent" relativePoint="BOTTOM"  x="0" y="0"/>
+					</Anchors>
+					<Gradient orientation="HORIZONTAL">
+						<MinColor a="1" r="1" g="1" b="1"/>
+						<MaxColor a="1" r="0.6" g="0.6" b="0.6"/>
+					</Gradient>
+				</Texture>
+			</Layer>
+
+			<Layer level="OVERLAY">
+				<FontString inherits="NarciFontMedium12" justifyH="CENTER" justifyV="MIDDLE" parentKey="Label" text="Label">
+					<Size x="92" y="0"/>
+					<Color r="0.92" g="0.92" b="0.92"/>
+					<Anchors>
+						<Anchor point="CENTER" relativeKey="$parent.Black" relativePoint="CENTER" x="-1" y="0"/>  <!--Compensate for Radar's Border-->
+					</Anchors>
+				</FontString>
+
+				<FontString inherits="NarciFontStatusNumber" justifyH="LEFT" justifyV="MIDDLE" parentKey="Value" text="12.08%">
+					<Size x="0" y="0"/>
+					<Color r="0.92" g="0.92" b="0.92"/>
+					<Anchors>
+						<Anchor point="LEFT" relativeKey="$parent.Color" relativePoint="LEFT" x="10" y="0"/>
+					</Anchors>
+				</FontString>
+
+				<FontString inherits="NarciFontStatusNumber" justifyH="RIGHT" justifyV="MIDDLE" parentKey="ValueRating" text="1208">
+					<Size x="0" y="0"/>
+					<Color r="0.92" g="0.92" b="0.92"/>
+					<Anchors>
+						<Anchor point="RIGHT" relativeKey="$parent.Color" relativePoint="RIGHT" x="-11" y="0"/>
+					</Anchors>
+				</FontString>
+			</Layer>
+		</Layers>
+        <Scripts>
+            <OnLoad>
+				self:OnLoad();
+			</OnLoad>
+			<OnEnter>
+				self:OnEnter();
+				self:GetParent():SetVerticeSize(self, 15);
+			</OnEnter>
+			<OnLeave>
+				self:OnLeave();
+				self:GetParent():SetVerticeSize(self, 12);
+			</OnLeave>
+			<OnShow method="OnShow"/>
+        </Scripts>
+	</Frame>
+
+	<Frame name="Narci_DetailedAttributeTemplateShortRight" virtual="true" frameLevel="9" inherits="NarciAttributeSharedTemplate">
+		<Size>
+			<AbsDimension x="112" y="48"/>
+		</Size>
+		<KeyValues>
+			<KeyValue key="noAnimation" value="true" type="Boolean"/>
+		</KeyValues>
+		<Layers>
+			<Layer level="BACKGROUND">
+				<Texture setAllPoints="true" parentKey="Black">
+					<Size x="112" y="24"/>
+					<Color r="0.1" g="0.1" b="0.1" a="0.75"/>
+					<Anchors>
+						<Anchor point="TOP" relativeKey="$parent" relativePoint="TOP"  x="0" y="0"/>
+					</Anchors>
+					<Gradient orientation="HORIZONTAL">
+						<MinColor a="1" r="0.45" g="0.45" b="0.45"/>
+						<MaxColor a="1" r="0.85" g="0.85" b="0.85"/>
+					</Gradient>
+				</Texture>
+				<Texture setAllPoints="true" parentKey="Color">
+					<Size x="112" y="24" />
+					<Color r="0.06" g="0.627" b="0.537" a="1"/>
+					<Anchors>
+						<Anchor point="BOTTOM" relativeKey="$parent" relativePoint="BOTTOM"  x="0" y="0"/>
+					</Anchors>
+					<Gradient orientation="HORIZONTAL">
+						<MinColor a="1" r="0.45" g="0.45" b="0.45"/>
+						<MaxColor a="1" r="0.85" g="0.85" b="0.85"/>
+					</Gradient>
+				</Texture>
+			</Layer>
+
+			<Layer level="OVERLAY">
+				<FontString inherits="NarciFontMedium12" justifyH="CENTER" justifyV="MIDDLE" parentKey="Label" text="Label">
+					<Size x="92" y="0"/>
+					<Anchors>
+						<Anchor point="CENTER" relativeKey="$parent.Black" relativePoint="CENTER" x="1" y="0"/>
+					</Anchors>
+				</FontString>
+
+				<FontString inherits="NarciFontStatusNumber" justifyH="LEFT" justifyV="MIDDLE" parentKey="Value" text="12.08%">
+					<Size x="0" y="0"/>
+					<Anchors>
+						<Anchor point="LEFT" relativeKey="$parent.Color" relativePoint="LEFT" x="11" y="0"/>
+					</Anchors>
+				</FontString>
+
+				<FontString inherits="NarciFontStatusNumber" justifyH="RIGHT" justifyV="MIDDLE" parentKey="ValueRating" text="1208">
+					<Size x="0" y="0"/>
+					<Anchors>
+						<Anchor point="RIGHT" relativeKey="$parent.Color" relativePoint="RIGHT" x="-10" y="0"/>
+					</Anchors>
+				</FontString>
+			</Layer>
+		</Layers>
+        <Scripts>
+            <OnLoad>
+				self:OnLoad();
+			</OnLoad>
+			<OnEnter>
+				self:OnEnter();
+				self:GetParent():SetVerticeSize(self, 15);
+			</OnEnter>
+			<OnLeave>
+				self:OnLeave();
+				self:GetParent():SetVerticeSize(self, 12);
+			</OnLeave>
+			<OnShow method="OnShow"/>
+        </Scripts>
+	</Frame>
+
+	<Frame name="Narci_DetailedAttributeTemplateLeft" inherits="Narci_DetailedAttributeTemplate" virtual="true">
+		<Anchors>
+			<Anchor point="CENTER"/>
+		</Anchors>
+		<Layers>
+			<Layer level="BACKGROUND">
+				<Texture setAllPoints="true" parentKey="Color">
+					<Size x="160" y="24"/>
+					<Color r="0.06" g="0.627" b="0.537" a="1"/>
+					<Anchors>
+						<Anchor point="RIGHT" relativeKey="$parent" relativePoint="RIGHT"  x="0" y="0"/>
+					</Anchors>
+					<Gradient orientation="HORIZONTAL">
+						<MinColor a="1" r="1" g="1" b="1"/>
+						<MaxColor a="1" r="0.6" g="0.6" b="0.6"/>
+					</Gradient>
+				</Texture>
+			</Layer>
+		</Layers>
+	</Frame>
+
+	<Frame name="Narci_DetailedAttributeTemplateRight" inherits="Narci_DetailedAttributeTemplate" virtual="true">
+		<Anchors>
+			<Anchor point="CENTER" x="160"/>
+		</Anchors>
+		<Size>
+			<AbsDimension x="160" y="24"/>
+		</Size>
+		<Layers>
+			<Layer level="BACKGROUND">
+				<Texture setAllPoints="true" parentKey="Color">
+					<Size x="160" y="24" />
+					<Color r="0.06" g="0.627" b="0.537" a="1"/>
+					<Anchors>
+						<Anchor point="LEFT" relativeKey="$parent" relativePoint="LEFT"  x="0" y="0"/>
+					</Anchors>
+					<Gradient orientation="HORIZONTAL">
+						<MinColor a="1" r="0.45" g="0.45" b="0.45"/>
+						<MaxColor a="1" r="0.85" g="0.85" b="0.85"/>
+					</Gradient>
+				</Texture>
+			</Layer>
+		</Layers>
+        <Scripts>
+            <OnLoad>
+				self:OnLoad();
+				local delay = (self:GetID())/20;
+				self.animIn.A2:SetStartDelay(delay);
+			</OnLoad>
+			<OnEnter method="OnEnter"/>
+			<OnLeave method="OnLeave"/>
+        </Scripts>
+	</Frame>
 </Ui>

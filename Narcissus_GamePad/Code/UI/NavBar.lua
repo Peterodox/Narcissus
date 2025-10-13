@@ -62,10 +62,6 @@ end
 
 NarciGamePadNavBarMixin = {};
 
-local function UpdateThemeColor_OnShow(self)
-    self.SelectionHighlight:SetVertexColor( NarciThemeUtil:GetColor() );
-end
-
 function NarciGamePadNavBarMixin:OnLoad()
     addon.GamePadNavBar = self;
     MainFrame = self;
@@ -77,9 +73,8 @@ function NarciGamePadNavBarMixin:OnLoad()
 end
 
 function NarciGamePadNavBarMixin:OnShow()
+    self:SetScript("OnShow", nil);
     self:Init();
-    UpdateThemeColor_OnShow(self);
-    self:SetScript("OnShow", UpdateThemeColor_OnShow);
 end
 
 function NarciGamePadNavBarMixin:SetBumperStyle(id)

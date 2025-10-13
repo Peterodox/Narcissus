@@ -1,6 +1,7 @@
 --Parent: Narci_EquipmentFlyoutFrame (Narcissus.xml)
 local _, addon = ...
 local L = Narci.L;
+local NarciAPI = NarciAPI;
 
 local EquipmentFlyoutFrame;
 local hasGapAdjusted = false;
@@ -172,11 +173,17 @@ local ItemStats = NarciAPI_GetItemStats;
 local function DisplayComparison(key, name, number, baseNumber, ratio, CustomColor)
     local Textframe = Narci_Comparison[key];
     if not number then            --Set Number to "-"
+        Textframe.Label:SetText(name)
         Textframe.Arrow:Hide();
         Textframe.NumDiff:Hide();
         Textframe.PctDiff:Hide();
         Textframe.Num:SetText("-");
-        return;
+        if CustomColor then
+            Textframe.Label:SetTextColor(CustomColor[1], CustomColor[2], CustomColor[3], 1);
+        else
+            Textframe.Label:SetTextColor(1, 0.96, 0.41, 0.6);
+        end
+        return
     end
 
     local differentialNumber = tonumber(number) - tonumber(baseNumber);
@@ -222,7 +229,7 @@ local function DisplayComparison(key, name, number, baseNumber, ratio, CustomCol
         Textframe.Label:SetTextColor(1, 0.96, 0.41, labelAlpha);
     end
 
-    if ratio then
+    if ratio and ratio > 0 then
         if name ~= STAMINA_STRING then
             Textframe.PctDiff:SetText(string.format(FORMAT_DIGIT, ratio*differentialNumber).."%");
         else
@@ -369,7 +376,7 @@ local function BuildAzeiteTraitsFrame(TraitsFrame, itemLocation, itemButton)
                     TraitsFrame.Description2:SetTextColor(0.9, 0.8, 0.5);
                 else
                     TraitsFrame.Description2:SetTextColor(0.5, 0.5, 0.5);
-                end           
+                end
             end
         else
             button.Border0:SetTexCoord(0.5, 0.75, 0, 1);            --Desaturated
@@ -658,6 +665,24 @@ NT:SetScript("OnEvent",function(self,event,...)
     if event == "PLAYER_ENTERING_WORLD" then
         self:UnregisterEvent(event);
         EquipmentFlyoutFrame = Narci_EquipmentFlyoutFrame;
+
+        if NarciAPI.GetTimeRunningSeason() == 2 then
+            local statsGetter = NarciAPI_GetItemStats;
+            ItemStats = function(itemLocation)
+                local statsTable = statsGetter(itemLocation);
+                if statsTable.ilvl > 0 then
+                    local itemLink = GetItemLink(itemLocation);
+                    local stats = NarciAPI.GetTimerunningItemStats(itemLink);
+                    if stats then
+                        statsTable.crit = stats.Crit;
+                        statsTable.haste = stats.Haste;
+                        statsTable.mastery = stats.Mastery;
+                        statsTable.versatility = stats.Versatility;
+                    end
+                end
+                return statsTable
+            end
+        end
     end
 
     if event ~= "AZERITE_ITEM_POWER_LEVEL_CHANGED" then
