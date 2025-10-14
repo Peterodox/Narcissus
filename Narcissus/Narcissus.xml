@@ -1194,15 +1194,25 @@
 								</Texture>
 								<Texture setAllPoints="true" parentKey="Fluid">
 									<Size x="100" y="42" />
-									<Color r="0.64" g="0.21" b="0.93" a="1"/>
 									<Anchors>
-										<Anchor point="BOTTOM" relativeKey="$parent.Reference" relativePoint="BOTTOM"  x="0" y="-3"/>
+										<Anchor point="CENTER" relativeKey="$parent" relativePoint="CENTER"  x="0" y="0"/>
 									</Anchors>
 								</Texture>
+								<MaskTexture parentKey="FluidMask" file="Interface\AddOns\Narcissus\Art\Masks\Full" hWrapMode="CLAMPTOBLACKADDITIVE" vWrapMode="CLAMPTOBLACKADDITIVE">
+									<Size>
+										<AbsDimension x="66" y="66"/>
+									</Size>
+									<Anchors>
+										<Anchor point="BOTTOM" relativeKey="$parent" relativePoint="CENTER" y="-33"/>
+									</Anchors>
+									<MaskedTextures>
+										<MaskedTexture childKey="Fluid"/>
+									</MaskedTextures>
+								</MaskTexture>
 								<Texture setAllPoints="true" parentKey="Surface" alphaMode="ADD">
 									<Size x="100" y="2" />
 									<Anchors>
-										<Anchor point="TOP" relativeKey="$parent.Fluid" relativePoint="TOP"  x="0" y="0"/>
+										<Anchor point="TOP" relativeKey="$parent.FluidMask" relativePoint="TOP" x="0" y="0"/>
 									</Anchors>
 									<Color r="1" g="1" b="1" a="0.8"/>
 									<Gradient orientation="VERTICAL">
@@ -1212,35 +1222,18 @@
 								</Texture>
 								<MaskTexture file="Interface\AddOns\Narcissus\Art\Widgets\ItemLevel\HexagonTube-Mask" hWrapMode="CLAMPTOBLACKADDITIVE" vWrapMode="CLAMPTOBLACKADDITIVE">
 									<Size>
-										<AbsDimension x="91" y="91"/>
+										<AbsDimension x="66" y="66"/>
 									</Size>
 									<Anchors>
 										<Anchor point="CENTER"/>
 									</Anchors>
 									<MaskedTextures>
-										<MaskedTexture childKey="Fluid"/>
 										<MaskedTexture childKey="Surface"/>
 									</MaskedTextures>
 								</MaskTexture>
 							</Layer>
-							<Layer level="BACKGROUND" textureSubLevel="-1">
-								<Texture file="Interface\AddOns\Narcissus\Art\Widgets\ItemLevel\HexagonBackground" hidden="true">
-									<Size x="80" y="80"/>
-									<Anchors>
-										<Anchor point="CENTER" relativeKey="$parent" x="0" y="0"/>
-									</Anchors>
-								</Texture>
-							</Layer>
-							<Layer level="ARTWORK" textureSubLevel="1">
-								<Texture parentKey="Background" hidden="false" file="Interface\AddOns\Narcissus\Art\Widgets\ItemLevel\QualityGrey" snapToPixelGrid="false" texelSnappingBias="0">
-									<Size x="80" y="80"/>
-									<Anchors>
-										<Anchor point="CENTER" relativeKey="$parent" x="0" y="0"/>
-									</Anchors>
-								</Texture>
-							</Layer>
 							<Layer level="ARTWORK" textureSubLevel="2">
-								<Texture parentKey="FluidBackground" file="Interface\AddOns\Narcissus\Art\Widgets\ItemLevel\HexagonTube" snapToPixelGrid="false" texelSnappingBias="0">
+								<Texture parentKey="FluidBackground" file="Interface\AddOns\Narcissus\Art\Widgets\ItemLevel\HexagonTube" texelSnappingBias="0.0" snapToPixelGrid="false">
 									<TexCoords left="0.5" right="1" top="0" bottom="0.5"/>
 									<Size x="104.0" y="104.0"/>
 									<Anchors>
@@ -1249,7 +1242,7 @@
 								</Texture>
 							</Layer>
 							<Layer level="OVERLAY" textureSubLevel="2">
-								<Texture parentKey="TubeBorder" file="Interface\AddOns\Narcissus\Art\Widgets\ItemLevel\HexagonTube" snapToPixelGrid="false" texelSnappingBias="0">
+								<Texture parentKey="TubeBorder" file="Interface\AddOns\Narcissus\Art\Widgets\ItemLevel\HexagonTube" texelSnappingBias="0.0" snapToPixelGrid="false">
 									<TexCoords left="0" right="0.5" top="0" bottom="0.5"/>
 									<Size x="104.0" y="104.0"/>
 									<Anchors>
@@ -1258,6 +1251,20 @@
 								</Texture>
 							</Layer>		
 							<Layer level="OVERLAY" textureSubLevel="1">
+								<FontString parentKey="Level" inherits="NarciFontNumber18" justifyH="CENTER" justifyV="MIDDLE" text="N/A">
+									<Size x="0" y="0"/>
+									<Anchors>
+										<Anchor point="CENTER" relativeKey="$parent.Reference" relativePoint="CENTER" x="0" y="-6"/>
+									</Anchors>
+								</FontString>
+								<FontString inherits="NarciFontSemplicita9" justifyH="CENTER" justifyV="BOTTOM" text="MAX" parentKey="Header">
+									<Size x="0" y="0"/>
+									<Anchors>
+										<Anchor point="BOTTOM" relativeKey="$parent.Level" relativePoint="TOP" x="0" y="1"/>
+									</Anchors>
+								</FontString>
+							</Layer>
+							<Layer level="OVERLAY" textureSubLevel="3">
 								<Texture parentKey="Highlight" hidden="true" file="Interface\AddOns\Narcissus\Art\Widgets\ItemLevel\GenericHighlight" alphaMode="ADD" Alpha="0">
 									<Size x="100" y="100"/>
 									<Anchors>
@@ -1280,18 +1287,6 @@
 										</AnimationGroup>
 									</Animations>
 								</Texture>
-								<FontString parentKey="Level" inherits="NarciFontNumber24" justifyH="CENTER" justifyV="MIDDLE" text="N/A">
-									<Size x="0" y="0"/>
-									<Anchors>
-										<Anchor point="CENTER" relativeKey="$parent.Reference" relativePoint="CENTER" x="0" y="-4"/>
-									</Anchors>
-								</FontString>
-								<FontString inherits="NarciFontSemplicita9" justifyH="CENTER" justifyV="BOTTOM" text="MAX" parentKey="Header">
-									<Size x="0" y="0"/>
-									<Anchors>
-										<Anchor point="BOTTOM" relativeKey="$parent.Level" relativePoint="TOP" x="0" y="2"/>
-									</Anchors>
-								</FontString>
 							</Layer>
 						</Layers>
 						<Frames>
@@ -1329,9 +1324,7 @@
 						</Frames>
 						<Scripts>
 							<OnLoad method="OnLoad"/>
-							<!--OnMouseDown method="OnMouseDown"/>
-							<OnMouseUp method="OnMouseUp"/>		
-							<OnClick method="OnClick"/-->
+							<OnClick method="OnClick"/>
 							<OnEnter method="OnEnter"/>
 							<OnLeave method="OnLeave"/>
 							<OnHide method="OnHide"/>
@@ -1365,8 +1358,7 @@
 								<FontString parentKey="Level" inherits="NarciFontNumber12" justifyH="CENTER" justifyV="MIDDLE" text="128" hidden="false">
 									<Size x="0" y="0"/>
 									<Anchors>
-										<Anchor point="CENTER" relativeKey="$parent" relativePoint="CENTER" x="0"/>
-										<Anchor point="BOTTOM" relativeKey="$parent.$parent.CenterButton.Level" relativePoint="BOTTOM" y="3"/>
+										<Anchor point="TOP" relativeKey="$parent" relativePoint="CENTER" x="0"/>
 									</Anchors>
 								</FontString>
 								<FontString inherits="NarciFontSemplicita9" justifyH="CENTER" justifyV="BOTTOM" text="EA" hidden="false">
@@ -1405,8 +1397,7 @@
 								<FontString parentKey="Number" inherits="NarciFontNumber12" justifyH="CENTER" justifyV="MIDDLE" text="0" hidden="false">
 									<Size x="0" y="0"/>
 									<Anchors>
-										<Anchor point="CENTER" relativeKey="$parent" relativePoint="CENTER" x="0"/>
-										<Anchor point="BOTTOM" relativeKey="$parent.$parent.CenterButton.Level" relativePoint="BOTTOM" y="3"/>
+										<Anchor point="TOP" relativeKey="$parent" relativePoint="CENTER" x="0"/>
 									</Anchors>
 								</FontString>
 								<FontString inherits="NarciFontSemplicita9" justifyH="CENTER" justifyV="BOTTOM" text="RN" hidden="false" parentKey="Header">
@@ -1457,6 +1448,9 @@
 				</Frames>
 				<Scripts>
 					<OnLoad method="OnLoad"/>
+					<OnShow method="OnShow"/>
+					<OnHide method="OnHide"/>
+					<OnEvent method="OnEvent"/>
 				</Scripts>	
 			</Frame>
 			

@@ -784,6 +784,9 @@ L["Format Stat EXP"] = "+%d%% EXP Gain";
 L["Format Rank"] = AZERITE_ESSENCE_RANK or "Rank %d";
 L["Cloak Rank"] = "Cloak Rank";
 
+L["Artifact Ability"] = "Artifact Ability";
+L["Toggle Artifact UI"] = "Click to toggle Artifact UI.";
+
 
 --Gem Manager--
 L["Gem Manager"] = "Gem Manager";

@@ -75,7 +75,7 @@ function V:ShowAttributes()
         FadeFrame(ConciseStats, 0.2, 1);
         FadeFrame(Radar, 0.2, 0);
     end
-    Radar:AnimateValue();
+    Radar:UpdateChart(true);
     Narci.RefreshAllStats();
 
     self.hideSetsCallBack();

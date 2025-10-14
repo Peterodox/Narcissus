@@ -3,7 +3,7 @@ local SetGradient = addon.TransitionAPI.SetGradient;
 
 
 local L = Narci.L;
-local NarciThemeUtil = NarciThemeUtil;
+local UIColorThemeUtil = addon.UIColorThemeUtil;
 local floor = math.floor;
 local max = math.max;
 
@@ -211,10 +211,10 @@ local function CreateTitleOptions(self, buttonTemplate, initialOffsetX, initialO
 	scrollBar:SetValue(0);
 
 	ScrollChild:SetScript("OnShow", function(ScrollChild)
-		local index = NarciThemeUtil:GetColorIndex();
+		local index = UIColorThemeUtil:GetColorIndex();
 		if index ~= ScrollChild.index then
 			ScrollChild.index = index;
-			local r, g, b = NarciThemeUtil:GetColor()
+			local r, g, b = UIColorThemeUtil:GetActiveColor()
 			for i = 1, numButtons do
 				TitleButtons[i].HighlightColor:SetColorTexture(r, g, b);
 				TitleButtons[i].SelectedColor:SetColorTexture(r, g, b);

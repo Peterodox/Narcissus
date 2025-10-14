@@ -364,7 +364,7 @@ function NarciEquipmentOptionMixin:CloseUI(delay)
         self:SetScript("OnUpdate", nil);
         self.countdown = nil;
         self:Hide();
-        Narci_FlyoutBlack:Out();
+        Narci_FlyoutBlack:TryClose();
     end
 end
 

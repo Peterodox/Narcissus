@@ -185,6 +185,28 @@ do  --Legion Remix
         end
         return tbl
     end
+
+
+    local ArtifactSpells = {
+        1233577,
+        1237711,
+        1233775,
+        1233181,
+        1251045,
+    };
+
+    function NarciAPI.GetTimerunningMajorSpell()
+        local knwonSpellID, spellIndex;
+		local IsSpellInSpellBook = C_SpellBook.IsSpellInSpellBook;
+		for index, spellID in ipairs(ArtifactSpells) do
+			if IsSpellInSpellBook(spellID, 0, true) then
+				spellIndex = index;
+                knwonSpellID = spellID;
+				break
+			end
+		end
+        return knwonSpellID, spellIndex
+    end
 end
 
 --[[

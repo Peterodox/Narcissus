@@ -1028,6 +1028,15 @@
 		</Shadow>
 	</Font>
 
+	<Font name="NarciFontNumber18" font="Interface\AddOns\Narcissus\Font\SourceSansPro-Semibold.ttf" height="18">
+		<Shadow>
+			<Offset>
+				<AbsDimension x="2" y="-2"/>
+			</Offset>
+			<Color r="0" g="0" b="0"/>
+		</Shadow>
+	</Font>
+
 	<Font name="NarciFontNumber24" font="Interface\AddOns\Narcissus\Font\SourceSansPro-Semibold.ttf" height="24">
 		<Shadow>
 			<Offset>

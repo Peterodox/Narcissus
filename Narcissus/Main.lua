@@ -26,6 +26,7 @@ local VIGNETTE_ALPHA = 0.5;
 local IS_OPENED = false;									--Addon was opened by clicking
 local MOG_MODE = false;
 local SHOW_MISSING_ENCHANT_ALERT = true;
+local IS_LEGION_REMIX = false;
 
 local NarciAPI = NarciAPI;
 local GetItemEnchantID = NarciAPI.GetItemEnchantID;
@@ -1087,7 +1088,18 @@ function NarciEquipmentSlotMixin:Refresh(forceRefresh)
 					itemIcon = GetRuneForgeLegoIcon(itemLocation) or itemIcon;
 				end
 			end
-	
+
+			if IS_LEGION_REMIX and slotID == 16 then
+				local configID = C_Traits.GetConfigIDByTreeID(1161);
+				if configID then
+					local nodeInfo = C_Traits.GetNodeInfo(configID, 108700);	--Limits Unbound
+					local rank = nodeInfo and nodeInfo.currentRank or 0;
+					if rank > 0 then
+						rank = "|cff00ccff"..rank.."|r";
+						effectiveLvl = effectiveLvl.."  "..rank;
+					end
+				end
+			end
 
 			local enchantText, isEnchanted = GetItemEnchantText(itemLink, true, self.isRight);	--enchantText (effect texts) may not be available yet
 			if enchantText then
@@ -1602,7 +1614,7 @@ local function UpdateCharacterInfoFrame(newLevel)
 		end
 	end
 
-	ItemLevelFrame:UpdateItemLevel(level);
+	ItemLevelFrame:UpdateItemLevel();
 end
 
 local SlotController = {};
@@ -3099,60 +3111,61 @@ end
 
 
 NarciFlyoutOverlayMixin = {};
+do	--Full screen black screen
+	function NarciFlyoutOverlayMixin:In()
+		--FadeFrame(self, 0.2, 1);
+		self:Init();
+		self.animFrame.toAlpha = 1;
+		self.animFrame:Show();
+		self:Show();
+	end
 
-function NarciFlyoutOverlayMixin:In()
-	--FadeFrame(self, 0.2, 1);
-	self:Init();
-	self.animFrame.toAlpha = 1;
-	self.animFrame:Show();
-	self:Show();
-end
+	function NarciFlyoutOverlayMixin:Out()
+		--FadeFrame(self, 0.2, 0);
+		self:Init();
+		self.animFrame.toAlpha = 0;
+		self.animFrame:Show();
+		self:Show();
+	end
 
-function NarciFlyoutOverlayMixin:Out()
-	--FadeFrame(self, 0.2, 0);
-	self:Init();
-	self.animFrame.toAlpha = 0;
-	self.animFrame:Show();
-	self:Show();
-end
+	function NarciFlyoutOverlayMixin:OnHide()
+		self:SetAlpha(0);
+		self:Hide();
+	end
 
-function NarciFlyoutOverlayMixin:OnHide()
-	self:SetAlpha(0);
-	self:Hide();
-end
-
-function NarciFlyoutOverlayMixin:Init()
-	if not self.animFrame then
-		self.animFrame = CreateFrame("Frame", nil, self);
-		self.animFrame:SetScript("OnUpdate", function(f, elapsed)
-			f.t = f.t + elapsed;
-			local alpha;
-			if f.t < 0.25 then
-				alpha = outSine(f.t, f.fromAlpha, f.toAlpha, 0.25);
-			else
-				alpha = f.toAlpha;
-				if alpha <= 0 then
-					self:Hide();
+	function NarciFlyoutOverlayMixin:Init()
+		if not self.animFrame then
+			self.animFrame = CreateFrame("Frame", nil, self);
+			self.animFrame:SetScript("OnUpdate", function(f, elapsed)
+				f.t = f.t + elapsed;
+				local alpha;
+				if f.t < 0.25 then
+					alpha = outSine(f.t, f.fromAlpha, f.toAlpha, 0.25);
+				else
+					alpha = f.toAlpha;
+					if alpha <= 0 then
+						self:Hide();
+					end
+					f:Hide();
 				end
-				f:Hide();
-			end
-			self:SetAlpha(alpha);
-		end);
+				self:SetAlpha(alpha);
+			end);
+		end
+		self.animFrame.t = 0;
+		self.animFrame.fromAlpha = self:GetAlpha();
 	end
-	self.animFrame.t = 0;
-	self.animFrame.fromAlpha = self:GetAlpha();
-end
 
-function NarciFlyoutOverlayMixin:RaiseFrameLevel(widget)
-	local selfLevel = self:GetFrameLevel();
-	if self.lastWidget then
-		self.lastWidget:SetFrameLevel(selfLevel - 1);
-		self.lastWidget = nil;
-	end
-	local widgetLevel = widget:GetFrameLevel();
-	if widgetLevel <= selfLevel then
-		widget:SetFrameLevel(selfLevel + 1);
-		self.lastWidget = widget;
+	function NarciFlyoutOverlayMixin:RaiseFrameLevel(widget)
+		local selfLevel = self:GetFrameLevel();
+		if self.lastWidget then
+			self.lastWidget:SetFrameLevel(selfLevel - 1);
+			self.lastWidget = nil;
+		end
+		local widgetLevel = widget:GetFrameLevel();
+		if widgetLevel <= selfLevel then
+			widget:SetFrameLevel(selfLevel + 1);
+			self.lastWidget = widget;
+		end
 	end
 end
 
@@ -3349,103 +3362,113 @@ end
 
 
 NarciCharacterUIPlayerNameEditBoxMixin = {};
+do
+	function NarciCharacterUIPlayerNameEditBoxMixin:OnLoad()
 
-function NarciCharacterUIPlayerNameEditBoxMixin:OnLoad()
+	end
 
-end
+	function NarciCharacterUIPlayerNameEditBoxMixin:OnShow()
+		self:UpdateSize();
+	end
 
-function NarciCharacterUIPlayerNameEditBoxMixin:OnShow()
-	self:UpdateSize();
-end
+	function NarciCharacterUIPlayerNameEditBoxMixin:OnTextChanged()
+		SmartFontType(self)
+		self:UpdateSize();
+	end
 
-function NarciCharacterUIPlayerNameEditBoxMixin:OnTextChanged()
-	SmartFontType(self)
-	self:UpdateSize();
-end
+	function NarciCharacterUIPlayerNameEditBoxMixin:UpdateSize()
+		local numLetters = self:GetNumLetters();
+		local width = max(numLetters*16, 160);
+		self:SetWidth(width);
+	end
 
-function NarciCharacterUIPlayerNameEditBoxMixin:UpdateSize()
-	local numLetters = self:GetNumLetters();
-	local width = max(numLetters*16, 160);
-	self:SetWidth(width);
-end
+	function NarciCharacterUIPlayerNameEditBoxMixin:SaveAndExit()
+		self:ClearFocus();
+		local text = strtrim(self:GetText());
+		self:SetText(text);
+		NarcissusDB_PC.PlayerAlias = text;
+	end
 
-function NarciCharacterUIPlayerNameEditBoxMixin:SaveAndExit()
-	self:ClearFocus();
-	local text = strtrim(self:GetText());
-	self:SetText(text);
-	NarcissusDB_PC.PlayerAlias = text;
-end
+	function NarciCharacterUIPlayerNameEditBoxMixin:OnEscapePressed()
+		self:SaveAndExit();
+	end
 
-function NarciCharacterUIPlayerNameEditBoxMixin:OnEscapePressed()
-	self:SaveAndExit();
-end
-
-function NarciCharacterUIPlayerNameEditBoxMixin:OnEnterPressed()
-	self:SaveAndExit();
+	function NarciCharacterUIPlayerNameEditBoxMixin:OnEnterPressed()
+		self:SaveAndExit();
+	end
 end
 
 
 NarciCharacterUIAliasButtonMixin = {};
-
-function NarciCharacterUIAliasButtonMixin:OnLoad()
-	local keepInvisibleFrame = true;
-	NarciFadeUI.CreateFadeObject(self, keepInvisibleFrame);
-end
-
-function NarciCharacterUIAliasButtonMixin:OnEnter()
-	self.Label:SetTextColor(0, 0, 0);
-	self.Label:SetShadowColor(1, 1, 1);
-	self.Highlight:Show();
-end
-
-function NarciCharacterUIAliasButtonMixin:OnLeave()
-	self.Label:SetTextColor(0.25, 0.78, 0.92);
-	self.Label:SetShadowColor(0, 0, 0);
-	self.Highlight:Hide();
-end
-
-function NarciCharacterUIAliasButtonMixin:OnClick()
-	NarcissusDB_PC.UseAlias = not NarcissusDB_PC.UseAlias;
-	self:UpdateNames(true);
-end
-
-function NarciCharacterUIAliasButtonMixin:OnShow()
-	self:SetScript("OnShow", nil);
-	self:UpdateNames();
-end
-
-function NarciCharacterUIAliasButtonMixin:OnHide()
-	self:OnLeave();
-end
-
-function NarciCharacterUIAliasButtonMixin:UpdateSize()
-	self:SetWidth(self.Label:GetWidth() + 12);
-end
-
-function NarciCharacterUIAliasButtonMixin:UpdateNames(onClick)
-	local editBox = self:GetParent();
-
-	if NarcissusDB_PC.UseAlias then
-		self.Label:SetText(L["Use Player Name"]);
-		editBox:Enable();
-		editBox:SetText(NarcissusDB_PC.PlayerAlias or UnitName("player"));
-		if onClick then
-			editBox:SetFocus();
-			editBox:HighlightText();
-		end
-	else
-		self.Label:SetText(L["Use Alias"]);
-		local text = strtrim(editBox:GetText());
-		editBox:SetText(text);
-		NarcissusDB_PC.PlayerAlias = text;
-		editBox:Disable();
-		editBox:HighlightText(0,0)
-		editBox:SetText(UnitName("player"));
+do
+	function NarciCharacterUIAliasButtonMixin:OnLoad()
+		local keepInvisibleFrame = true;
+		NarciFadeUI.CreateFadeObject(self, keepInvisibleFrame);
 	end
 
-	self:UpdateSize();
-	editBox:UpdateSize();
+	function NarciCharacterUIAliasButtonMixin:OnEnter()
+		self.Label:SetTextColor(0, 0, 0);
+		self.Label:SetShadowColor(1, 1, 1);
+		self.Highlight:Show();
+	end
+
+	function NarciCharacterUIAliasButtonMixin:OnLeave()
+		self.Label:SetTextColor(0.25, 0.78, 0.92);
+		self.Label:SetShadowColor(0, 0, 0);
+		self.Highlight:Hide();
+	end
+
+	function NarciCharacterUIAliasButtonMixin:OnClick()
+		NarcissusDB_PC.UseAlias = not NarcissusDB_PC.UseAlias;
+		self:UpdateNames(true);
+	end
+
+	function NarciCharacterUIAliasButtonMixin:OnShow()
+		self:SetScript("OnShow", nil);
+		self:UpdateNames();
+	end
+
+	function NarciCharacterUIAliasButtonMixin:OnHide()
+		self:OnLeave();
+	end
+
+	function NarciCharacterUIAliasButtonMixin:UpdateSize()
+		self:SetWidth(self.Label:GetWidth() + 12);
+	end
+
+	function NarciCharacterUIAliasButtonMixin:UpdateNames(onClick)
+		local editBox = self:GetParent();
+
+		if NarcissusDB_PC.UseAlias then
+			self.Label:SetText(L["Use Player Name"]);
+			editBox:Enable();
+			editBox:SetText(NarcissusDB_PC.PlayerAlias or UnitName("player"));
+			if onClick then
+				editBox:SetFocus();
+				editBox:HighlightText();
+			end
+		else
+			self.Label:SetText(L["Use Alias"]);
+			local text = strtrim(editBox:GetText());
+			editBox:SetText(text);
+			NarcissusDB_PC.PlayerAlias = text;
+			editBox:Disable();
+			editBox:HighlightText(0,0)
+			editBox:SetText(UnitName("player"));
+		end
+
+		self:UpdateSize();
+		editBox:UpdateSize();
+	end
 end
 
 
 UIParent:UnregisterEvent("EXPERIMENTAL_CVAR_CONFIRMATION_NEEDED");  --Disable EXPERIMENTAL_CVAR_WARNING
+
+
+addon.AddLoadingCompleteCallback(function()
+    local seasonID = NarciAPI.GetTimeRunningSeason();
+    if seasonID == 2 then
+        IS_LEGION_REMIX = true;
+    end
+end);

@@ -185,7 +185,7 @@ local function DisplayComparison(key, name, number, baseNumber, ratio, CustomCol
         end
         return
     end
-
+    baseNumber = baseNumber or 0;
     local differentialNumber = tonumber(number) - tonumber(baseNumber);
 
     if differentialNumber > 0 then
@@ -252,8 +252,9 @@ end
 
 local function UntruncateText(frame, fontstring)
     local n = 1;
-    frame:SetWidth(frame.WidthBAK)
-    while fontstring:IsTruncated() do
+    local nMax = 20;
+    frame:SetWidth(frame.WidthBAK);
+    while fontstring:IsTruncated() and n < nMax do
         frame:SetWidth(frame.WidthBAK + 20*n);
         n = n + 1;
     end
@@ -629,7 +630,9 @@ function Narci_Comparison_SetComparison(itemLocation, itemButton)
         SubTooltip:Hide();
     end
 
-    UntruncateText(SubTooltip, SubTooltip.Description)
+    --UntruncateText(SubTooltip, SubTooltip.Description)
+    local descHeight = math.max(172, SubTooltip.Description:GetHeight() + 24 + 16);
+    SubTooltip:SetHeight(descHeight);
 
     ---- Pawn ----
     frame.PawnText:Hide();
