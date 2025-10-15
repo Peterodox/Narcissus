@@ -328,7 +328,7 @@ local Themes = {
         highlightBlend = "ADD",
 
 		onClickFunc = function()
-			if Plumber_ToggleArtifactUIForNarcissus then
+			if Plumber_ToggleArtifactUIForNarcissus and PlumberDB and PlumberDB.LegionRemix then
 				Plumber_ToggleArtifactUIForNarcissus();
 				local frame = PlumberRemixArtifactUI;
 				if frame then

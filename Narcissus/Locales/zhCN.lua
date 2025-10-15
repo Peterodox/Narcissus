@@ -719,6 +719,9 @@ L["Format Stat EXP"] = "+%d%% 经验获取";
 L["Format Rank"] = "等级 %d";
 L["Cloak Rank"] = "披风等级";
 
+L["Artifact Ability"] = "神奇技能";
+L["Toggle Artifact UI"] = "点击以显示神器界面";
+
 
 --Gem Manager--
 L["Gem Manager"] = "宝石管理器";
