@@ -8,6 +8,7 @@
 	<Script file="FramerateIndicator.lua"/>
 	<Script file="Widgets.lua"/>
 	<Script file="ScrollView.lua"/>
+	<Script file="BlackScreen.lua"/>
 	
 	<Frame name="NarciArtFrameTemplate" frameLevel="20" virtual="true">
 		<Anchors>

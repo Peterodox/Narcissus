@@ -1,4 +1,6 @@
 local _, addon = ...
+local API = addon.API;
+local Narci = Narci;
 
 local MsgAlertContainer = addon.MsgAlertContainer;
 local TransitionAPI = addon.TransitionAPI;
@@ -8,11 +10,7 @@ local TalentTreeDataProvider = addon.TalentTreeDataProvider;
 local CameraUtil = addon.CameraUtil;
 local UIParentFade = addon.UIParentFade;
 local CallbackRegistry = addon.CallbackRegistry;
-local UIColorThemeUtil = addon.UIColorThemeUtil;
-local API = addon.API;
-
-
-local Narci = Narci;
+local SharedBlackScreen = addon.SharedBlackScreen;
 
 Narci.refreshCombatRatings = true;
 
@@ -1327,6 +1325,9 @@ function NarciEquipmentSlotMixin:UpdateGradientSize()
 end
 
 function NarciEquipmentSlotMixin:OnLoad()
+	self:SetScript("OnLoad", nil);
+	self.OnLoad = nil;
+
 	local slotName = self.slotName;
 	local slotID, textureName = GetInventorySlotInfo(slotName);
 	self.emptyTexture = textureName;
@@ -1344,8 +1345,8 @@ function NarciEquipmentSlotMixin:OnLoad()
 	end
 	SLOT_TABLE[slotID] = self;
 
-	self:SetScript("OnLoad", nil);
-	self.OnLoad = nil;
+	local level = SharedBlackScreen:GetBaseFrameLevel() - 1;
+	self:SetFrameLevel(level);
 end
 
 function NarciEquipmentSlotMixin:OnEvent(event, ...)
@@ -1592,6 +1593,7 @@ end
 function NarciItemLevelFrameMixin:OnLoad()
 	--Declared in Modules\CharacterFrame\ItemLevelFrame.lua
 	ItemLevelFrame = self;
+	SharedBlackScreen:SetParent(Narci_Character);
 	self:Init();
 end
 
@@ -1820,12 +1822,12 @@ local function ShowAllItemInfo()
 		return
 	end
 
-	local level = Narci_FlyoutBlack:GetFrameLevel() - 1;
+	local level = SharedBlackScreen:GetBaseFrameLevel() - 1;
 
 	for slotID, slotButton in pairs(SLOT_TABLE) do
 		ShowLessItemInfo(slotButton, false);
-		slotButton:SetFrameLevel(level -1)
-		slotButton.RuneSlot:SetFrameLevel(level)
+		slotButton:SetFrameLevel(level -1);
+		slotButton.RuneSlot:SetFrameLevel(level);
 	end
 end
 
@@ -1853,7 +1855,7 @@ function NarciEquipmentFlyoutFrameMixin:OnHide()
 	self:StopAnimating();
 
 	if Narci_Character.animOut:IsPlaying() then return; end
-	Narci_FlyoutBlack:Out();
+	SharedBlackScreen:TryHide();
 end
 
 function NarciEquipmentFlyoutFrameMixin:OnShow()
@@ -1890,9 +1892,9 @@ function NarciEquipmentFlyoutFrameMixin:SetItemSlot(slotButton, showArrow)
 	end
 
 	if self.parentButton then
-		local level = Narci_FlyoutBlack:GetFrameLevel() -1
-		self.parentButton:SetFrameLevel(level - 1);
-		self.parentButton.RuneSlot:SetFrameLevel(level);
+		--local level = SharedBlackScreen:GetBaseFrameLevel() -1
+		--self.parentButton:SetFrameLevel(level - 1);
+		--self.parentButton.RuneSlot:SetFrameLevel(level);
 		ShowLessItemInfo(self.parentButton, false);
 	end
 
@@ -1914,8 +1916,8 @@ function NarciEquipmentFlyoutFrameMixin:SetItemSlot(slotButton, showArrow)
 		self.Arrow:Show();
 	end
 
-	Narci_FlyoutBlack:In();
-	slotButton:SetFrameLevel(Narci_FlyoutBlack:GetFrameLevel() + 1)
+	SharedBlackScreen:TryShow();
+	SharedBlackScreen:RaiseFrameLevel(slotButton);
 	self:SetFrameLevel(50);
 
 	NarciEquipmentTooltip:HideTooltip();
@@ -3106,69 +3108,6 @@ function Narci_GuideLineFrame_SnapToFinalPosition()
 		end
 	end
 end
-
-
-
-
-NarciFlyoutOverlayMixin = {};
-do	--Full screen black screen
-	function NarciFlyoutOverlayMixin:In()
-		--FadeFrame(self, 0.2, 1);
-		self:Init();
-		self.animFrame.toAlpha = 1;
-		self.animFrame:Show();
-		self:Show();
-	end
-
-	function NarciFlyoutOverlayMixin:Out()
-		--FadeFrame(self, 0.2, 0);
-		self:Init();
-		self.animFrame.toAlpha = 0;
-		self.animFrame:Show();
-		self:Show();
-	end
-
-	function NarciFlyoutOverlayMixin:OnHide()
-		self:SetAlpha(0);
-		self:Hide();
-	end
-
-	function NarciFlyoutOverlayMixin:Init()
-		if not self.animFrame then
-			self.animFrame = CreateFrame("Frame", nil, self);
-			self.animFrame:SetScript("OnUpdate", function(f, elapsed)
-				f.t = f.t + elapsed;
-				local alpha;
-				if f.t < 0.25 then
-					alpha = outSine(f.t, f.fromAlpha, f.toAlpha, 0.25);
-				else
-					alpha = f.toAlpha;
-					if alpha <= 0 then
-						self:Hide();
-					end
-					f:Hide();
-				end
-				self:SetAlpha(alpha);
-			end);
-		end
-		self.animFrame.t = 0;
-		self.animFrame.fromAlpha = self:GetAlpha();
-	end
-
-	function NarciFlyoutOverlayMixin:RaiseFrameLevel(widget)
-		local selfLevel = self:GetFrameLevel();
-		if self.lastWidget then
-			self.lastWidget:SetFrameLevel(selfLevel - 1);
-			self.lastWidget = nil;
-		end
-		local widgetLevel = widget:GetFrameLevel();
-		if widgetLevel <= selfLevel then
-			widget:SetFrameLevel(selfLevel + 1);
-			self.lastWidget = widget;
-		end
-	end
-end
-
 
 
 Narci.GetEquipmentSlotByID = function(slotID) return SLOT_TABLE[slotID] end;

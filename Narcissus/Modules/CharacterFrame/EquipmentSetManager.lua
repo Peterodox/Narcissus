@@ -28,6 +28,7 @@ local GetEquipmentSetInfo = C_EquipmentSet.GetEquipmentSetInfo;
 local UnpackLocation = addon.TransitionAPI.EquipmentManager_UnpackLocation;
 local GetItemInventoryType = C_Item.GetItemInventoryType;
 local UIColorThemeUtil = addon.UIColorThemeUtil;
+local SharedBlackScreen = addon.SharedBlackScreen;
 
 local After = C_Timer.After;
 local sin = math.sin;
@@ -746,9 +747,9 @@ end
 
 local function ShowFlyoutBlack(state)
     if state then
-        Narci_FlyoutBlack:In();
+        SharedBlackScreen:TryShow();
     else
-        Narci_FlyoutBlack:Out();
+        SharedBlackScreen:TryHide();
     end
 end
 
@@ -802,7 +803,10 @@ local function ShowIconSelector(SetButton)
     end
     Selector:SetPoint("BOTTOMRIGHT", Narci_EquipmentSetManagerFrame, "BOTTOMLEFT", -4, 0);
     FadeFrame(Selector, 0.15, 1);
+
+    SharedBlackScreen:AddOwner(Selector);
     ShowFlyoutBlack(true);
+
     return specName, specIcon;
 end
 

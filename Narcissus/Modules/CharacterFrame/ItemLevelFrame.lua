@@ -6,6 +6,11 @@ local floor = math.floor;
 local After = C_Timer.After;
 local outSine = addon.EasingFunctions.outSine;
 local UIParentFade = addon.UIParentFade;
+local SharedBlackScreen = addon.SharedBlackScreen;
+local UIColorThemeUtil = addon.UIColorThemeUtil;
+
+
+local Temps = {};
 
 
 local function RoundLevel(lvl)
@@ -325,6 +330,20 @@ local Themes = {
 		onClickFunc = function()
 			if Plumber_ToggleArtifactUIForNarcissus then
 				Plumber_ToggleArtifactUIForNarcissus();
+				local frame = PlumberRemixArtifactUI;
+				if frame then
+					if not Temps.plumberUIHooked then
+						Temps.plumberUIHooked = true;
+						frame:HookScript("OnHide", function()
+							SharedBlackScreen:RemoveOwner(frame);
+							SharedBlackScreen:TryHide();
+						end);
+					end
+					if frame:IsShown() then
+						SharedBlackScreen:AddOwner(frame);
+						SharedBlackScreen:TryShow();
+					end
+				end
 			else
 				UIParentFade:ShowUIParent();
 				if not InCombatLockdown() then
@@ -382,6 +401,7 @@ end
 
 do	--NarciItemLevelFrameMixin
 	function NarciItemLevelFrameMixin:OnShow()
+		UIColorThemeUtil:UpdateByMapID();
 		if self.dynamicEvents then
 			for _, event in ipairs(self.dynamicEvents) do
 				self:RegisterEvent(event);

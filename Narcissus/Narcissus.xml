@@ -619,18 +619,6 @@
 					<OnEvent method="OnEvent"/>
 				</Scripts>
 			</Frame>
-			<Frame name="Narci_FlyoutBlack" hidden="false" frameStrata="MEDIUM" setAllPoints="true" Alpha="0" frameLevel="8" mixin="NarciFlyoutOverlayMixin">
-				<Layers>
-					<Layer level="BACKGROUND">
-						<Texture setAllPoints="true" parentKey="Black">
-							<Color r="0" g="0" b="0" a="0.5"/>
-						</Texture>
-					</Layer>
-				</Layers>
-				<Scripts>
-					<OnHide method="OnHide"/>
-				</Scripts>
-			</Frame>
 			<Frame name="Narci_XmogNameFrame" parentKey="XmogNameFrame" Alpha="1" hidden="true" frameStrata="HIGH" ignoreParentScale="true" scale="0.8">
 				<Anchors>
 					<Anchor point="TOPLEFT" relativeTo="Narci_GuideLineFrame" relativePoint="TOPLEFT" x="20" y="-20"/>
@@ -1210,7 +1198,7 @@
 									</MaskedTextures>
 								</MaskTexture>
 								<Texture setAllPoints="true" parentKey="Surface" alphaMode="ADD">
-									<Size x="100" y="2" />
+									<Size x="100" y="2"/>
 									<Anchors>
 										<Anchor point="TOP" relativeKey="$parent.FluidMask" relativePoint="TOP" x="0" y="0"/>
 									</Anchors>

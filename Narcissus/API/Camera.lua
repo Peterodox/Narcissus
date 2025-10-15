@@ -93,16 +93,17 @@ do  --Move Smooth Yaw/Pitch/Shoulder
     do  --Pitch
         CameraUtil.Pitch = CreateProcessFrame(function(self, elapsed)
             self.t = self.t + elapsed
-            local pl = tostring(outSine(self.t, 88,  1, ANGLE_SMOOTH_DURATION));
-            ConsoleExec("pitchlimit "..pl);
+            local pl = outSine(self.t, 88,  4, ANGLE_SMOOTH_DURATION);
+
             if self.t >= ANGLE_SMOOTH_DURATION then
+                --Note: our old pitchlimit is 1, but it can cause a sudden movement at the end for some short races like Dwarves because the camera collides with the floor
                 self:Hide();
                 self.t = 0;
-                ConsoleExec( "pitchlimit 1");
-                After(0, function()
-                    ConsoleExec( "pitchlimit 88");
-                end)
+                ConsoleExec("pitchlimit 4");
+                pl = 88;
             end
+
+            ConsoleExec("pitchlimit "..pl);
         end);
 
         function CameraUtil:SmoothPitch()
