@@ -1,8 +1,9 @@
 local _, addon = ...
-
+local Secret_IsSecret = addon.TransitionAPI.Secret_IsSecret;
 local IsSpecializationActivateSpell = IsSpecializationActivateSpell;
 
 local function IsTalentChangingSpell(spellID)
+    if Secret_IsSecret(spellID) then return end;
     return spellID and IsSpecializationActivateSpell(spellID) or (spellID == 384255);   --COMMIT_COMBAT_TRAIT_CONFIG_CHANGES_SPELL_ID
 end
 

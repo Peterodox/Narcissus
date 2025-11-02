@@ -1,4 +1,4 @@
-## Interface: 110200, 110205
+## Interface: 110205, 110207, 120000
 ## Plain Title: Narcissus GamePad
 ## Version: 1.0
 ## LoadOnDemand: 1

@@ -30,7 +30,7 @@ local SlotData = {
     [17]= {"SecondaryHandSlot", SECONDARYHANDSLOT, "INVTYPE_WEAPONOFFHAND", 0, true, 128},
     [18]= {"AmmoSlot", RANGEDSLOT, "INVSLOT_RANGED", 0},
     [19]= {"TabardSlot", TABARDSLOT, "INVTYPE_TABARD", 0, true},
-}
+};
 
 local InvTypeXSlotID = {
     INVTYPE_WEAPON = 16,

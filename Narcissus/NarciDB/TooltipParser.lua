@@ -1,9 +1,6 @@
 ----Post 10.1----
 
 local _, addon = ...
-if addon.GetTooltipInfoVersion() ~= 2 then
-    return
-end
 
 local C_TooltipInfo = C_TooltipInfo;
 local GetInfoByHyperlink = C_TooltipInfo.GetHyperlink;

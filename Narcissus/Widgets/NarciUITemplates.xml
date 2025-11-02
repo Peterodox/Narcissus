@@ -1,4 +1,6 @@
 <Ui xsi:schemaLocation="http://www.blizzard.com/wow/ui/..\FrameXML\UI.xsd">
+	<Frame name="NarciPropagateKeyboardInputTemplate" propagateKeyboardInput="true" virtual="true"/>
+
 	<Script file="FrameBorder.lua"/>
 	<Script file="ItemBorder.lua"/>
 	<Script file="NineSliceUtil.lua"/>
@@ -693,7 +695,7 @@
 		</Scripts>
 	</Button>
 
-	<Button name="NarciBindingButtonTemplate" virtual="true" registerForClicks="LeftButtonUp, RightButtonUp" mixin="NarciGenericKeyBindingButtonMixin">
+	<Button name="NarciBindingButtonTemplate" virtual="true" registerForClicks="LeftButtonUp, RightButtonUp" mixin="NarciGenericKeyBindingButtonMixin" inherits="NarciPropagateKeyboardInputTemplate">
 		<Size x="120" y="16"/>
 		<HitRectInsets>
 			<AbsInset left="-4" right="-4" top="-4" bottom="-4"/>

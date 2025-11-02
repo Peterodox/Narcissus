@@ -1,6 +1,6 @@
 local _, addon = ...
 
-local DoEmote = DoEmote;
+local DoEmote = addon.TransitionAPI.DoEmote;
 local TakeScreenshot = Screenshot;
 
 local EmoteTokenList = {

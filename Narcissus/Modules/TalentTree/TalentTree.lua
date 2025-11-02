@@ -13,7 +13,7 @@ local TextButtonUtil = addon.TalentTreeTextButtonUtil;
 local TextureUtil = addon.TalentTreeTextureUtil;
 local UniversalFont = addon.UniversalFontUtil.Create();
 local NodeUtil = addon.TalentTreeNodeUtil;
---local ActionBarUtil = addon.TalentTreeActionBarUtil;
+local Secret_IsSecret = addon.TransitionAPI.Secret_IsSecret;
 
 local L = Narci.L;
 
@@ -1152,7 +1152,6 @@ local function PlayActivationAnimationAfterDelay(self, elapsed)
     else
         self:SetScript("OnUpdate", nil);
     end
-
 end
 
 local function BranchUpdater_OnUpdate_OneFrame(self, elapsed)
@@ -1252,7 +1251,6 @@ function NarciMiniTalentTreeMixin:RequestUpdate()
             DataProvider:SetPlayerActiveConfigID(configID);
         end
     end
-    --ActionBarUtil:RequestUpdate();
 end
 
 function NarciMiniTalentTreeMixin:OnShow()
@@ -1960,7 +1958,6 @@ end
 
 NarciTalentTreeSharedEditBoxMixin = {};
 
-
 function NarciTalentTreeSharedEditBoxMixin:OnLoad()
     table.insert(LayoutUtil.editboxes, self);
     self.Exclusion:SetTexture("Interface\\AddOns\\Narcissus\\Art\\Masks\\Exclusion", "CLAMPTOWHITE", "CLAMPTOWHITE", "NEAREST");
@@ -1969,7 +1966,6 @@ function NarciTalentTreeSharedEditBoxMixin:OnLoad()
         self.isClipboard = true;
         self:SetScript("OnTextChanged", NarciTalentTreeSharedEditBoxMixin.OnTextChanged_Forbidden);
         self:SetScript("OnCursorChanged", NarciTalentTreeSharedEditBoxMixin.OnCursorChanged_Forbidden);
-        self:SetPropagateKeyboardInput(false);
 
         local function LabelFadingComplete()
             self.Label:SetText("Copy As Text");
@@ -2258,6 +2254,7 @@ EventCenter.onEvent = function(self, event, ...)
 
     elseif event == "UNIT_SPELLCAST_SUCCEEDED" then
         local spellID = select(3, ...);
+        if Secret_IsSecret(spellID) then return end;
         if spellID then
             if IsSpecializationActivateSpell(spellID) then
                 MainFrame.activationAnimDelay = 0.4;    --use delay for spec change coz game freezes shortly
@@ -2285,9 +2282,6 @@ end
 EventCenter:SetScript("OnEvent", EventCenter.onEvent);
 
 
-
-
-if not addon.IsDragonflight() then return end;
 
 
 local ENABLE_INSPECT = false;

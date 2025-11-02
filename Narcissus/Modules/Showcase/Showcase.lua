@@ -18,6 +18,7 @@ local GetCursorPosition = GetCursorPosition;
 local GetCursorDelta = GetCursorDelta;
 local IsHiddenVisual = C_TransmogCollection.IsAppearanceHiddenVisual;
 local GetPhysicalScreenSize = GetPhysicalScreenSize;
+local InCombatLockdown = InCombatLockdown;
 
 
 local ROTATION_PERIOD = 1/8;
@@ -465,7 +466,6 @@ function NarciShowcaseSheatheButtonMixin:OnLoad()
     SheatheButton = self;
     self.labelText = WEAPON or "weapon";
     self.Icon:SetVertexColor(0.8, 0.8, 0.8);
-    self:SetPropagateKeyboardInput(true);
 end
 
 function NarciShowcaseSheatheButtonMixin:OnEnter()
@@ -485,18 +485,23 @@ function NarciShowcaseSheatheButtonMixin:OnClick()
 end
 
 local function SheatheButton_OnKeyDown(self, key)
+    local propagte;
     if key == self.hotkey then
-        self:SetPropagateKeyboardInput(true);
+        propagte = false;
         self:Click();
     elseif key == "ESCAPE" then
         if DressUpFrame:IsVisible() then
-            self:SetPropagateKeyboardInput(true);
+            propagte = true;
         else
-            self:SetPropagateKeyboardInput(false);
+            propagte = false;
             MainFrame:Close();
         end
     else
-        self:SetPropagateKeyboardInput(true);
+        propagte = true;
+    end
+
+    if not InCombatLockdown() then
+        self:SetPropagateKeyboardInput(propagte);
     end
 end
 
@@ -508,11 +513,18 @@ function NarciShowcaseSheatheButtonMixin:OnShow()
     else
         self.Label:SetText(self.labelText);
     end
-    self:SetScript("OnKeyDown", SheatheButton_OnKeyDown);
+
+    if InCombatLockdown() then
+        NarciAPI.AddToUISpecialFrames(MainFrame, true);
+    else
+        self:SetScript("OnKeyDown", SheatheButton_OnKeyDown);
+        self:SetPropagateKeyboardInput(true);
+    end
 end
 
 function NarciShowcaseSheatheButtonMixin:OnHide()
     self:SetScript("OnKeyDown", nil);
+    NarciAPI.AddToUISpecialFrames(MainFrame, false);
 end
 
 function NarciShowcaseSheatheButtonMixin:UpdateIcon()

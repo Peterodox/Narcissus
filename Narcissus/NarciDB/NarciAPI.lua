@@ -3169,9 +3169,9 @@ do  --Show GameTooltip After Delay
                 tooltip:SetPoint(point, relativeTo, relativePoint, offsetX, offsetY);
 
                 if info.title then
-                    tooltip:SetText(info.title, info.titleR or 1, info.titleG or 1, info.titleB or 1, true);
+                    tooltip:SetText(info.title, info.titleR or 1, info.titleG or 1, info.titleB or 1, 1, true);
                 elseif info.tooltip then
-                    tooltip:SetText(info.tooltip, info.r or 1, info.g or 1, info.b or 1, true);
+                    tooltip:SetText(info.tooltip, info.r or 1, info.g or 1, info.b or 1, 1, true);
                     descAdded = true;
                 end
 
@@ -3223,6 +3223,32 @@ do  --Scripts
         for _, name in ipairs(ValidScripts) do
             if scripts[name] then
                 object:SetScript(name, scripts[name]);
+            end
+        end
+    end
+end
+
+do  --System
+    function NarciAPI.AddToUISpecialFrames(frame, state)
+        if state == nil then state = true; end;
+
+        local name = frame:GetName();
+        if not name then return end;
+
+        if state then
+            for _, v in ipairs(UISpecialFrames) do
+                if v == name then
+                    return
+                end
+            end
+
+            table.insert(UISpecialFrames, name);
+        else
+            for i, v in ipairs(UISpecialFrames) do
+                if v == name then
+                    table.remove(UISpecialFrames, i);
+                    return
+                end
             end
         end
     end

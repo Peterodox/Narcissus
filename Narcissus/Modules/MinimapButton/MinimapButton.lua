@@ -1,6 +1,5 @@
 local addonName, addon = ...
 
-local IS_DRAGONFLIGHT = addon.IsDragonflight();
 local outSine = addon.EasingFunctions.outSine;
 local inOutSine = addon.EasingFunctions.inOutSine
 local FadeFrame = NarciFadeUI.Fade;
@@ -562,10 +561,8 @@ function NarciMinimapButtonMixin:SetBackground(index)
 			customStyleID = 2;
 		elseif IsAddOnLoaded("SexyMap") then
 			customStyleID = 3;
-		elseif IS_DRAGONFLIGHT then
-			customStyleID = 4;
 		else
-			customStyleID = 1;
+			customStyleID = 4;
 		end
 		--NarcissusDB.MinimapIconStyle = customStyleID;
 	end

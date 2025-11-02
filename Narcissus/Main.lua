@@ -1563,9 +1563,10 @@ local function SetStatTooltipText(self)
 end
 
 function Narci_ShowStatTooltip(self, direction)
-	if ( not self.tooltip ) then
-		return;
+	if not TransitionAPI.Secret_DoesStringExist(self.tooltip) then
+		return
 	end
+
 	SetStatTooltipText(self)
 	if (not direction) then
 		DefaultTooltip:SetPoint("TOPRIGHT",self,"TOPLEFT", -4, 0)
@@ -2201,9 +2202,9 @@ function Narci_Open()
 		CameraUtil:SetUseMogOffset(false)
 
 		EL:Show();
+		IntroMotion:Enter();
 
 		After(0, function()
-			IntroMotion:Enter();
 			RadarChart:SetValue(0,0,0,0,1);
 			PlayLetteboxAnimation();
 			local Vignette = Narci_Vignette;
@@ -2229,11 +2230,9 @@ function Narci_Open()
 			if not ExitConfirm:IsShown() then
 				FadeFrame(ExitConfirm, 0.25, 1);
 
-				After(0, function()
-					SetUIVisibility(false);
-					MiniButton:Enable();
-					UIParent:SetAlpha(1);
-				end);
+				SetUIVisibility(false);
+				MiniButton:Enable();
+				UIParent:SetAlpha(1);
 
 				return
 			else
@@ -2272,6 +2271,7 @@ function Narci_OpenGroupPhoto()
 		EL:Show();
 
 		CameraUtil:SmoothPitch();
+		UIParentFade:FadeOutUIParent();
 
 		After(0, function()
 			Toolbar:Expand(true);
@@ -2286,8 +2286,6 @@ function Narci_OpenGroupPhoto()
 			FadeFrame(Vignette, 0.8, 1);
 			Vignette.VignetteRight.animIn:Play();
 			Vignette.VignetteLeft.animIn:Play();
-
-			UIParentFade:FadeOutUIParent();
 		end)
 
 		Narci.isActive = true;

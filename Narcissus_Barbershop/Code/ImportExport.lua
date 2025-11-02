@@ -679,10 +679,10 @@ end
 local CreateKeyChordStringUsingMetaKeyState = CreateKeyChordStringUsingMetaKeyState;
 
 --Show visual feedback (glow) after pressing Ctrl+C
-local HotkeyListener = CreateFrame("Frame");
+local HotkeyListener = CreateFrame("Frame", nil, nil, "NarciPropagateKeyboardInputTemplate");
 HotkeyListener:SetFrameStrata("TOOLTIP");
 HotkeyListener:Hide();
-HotkeyListener:SetPropagateKeyboardInput(true);
+--HotkeyListener:SetPropagateKeyboardInput(true);
 HotkeyListener:SetScript("OnKeyDown", function(self, key)
     local keys = CreateKeyChordStringUsingMetaKeyState(key);
     if keys == "CTRL-C" or key == "COMMAND-C" then

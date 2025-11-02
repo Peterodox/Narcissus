@@ -5,6 +5,7 @@ local LoadingBarUtil = addon.TalentTreeLoadingBarUtil;
 local DataProvider = addon.TalentTreeDataProvider;
 local GetPixelForWidget = NarciAPI.GetPixelForWidget;
 local SetSpecialization = SetSpecialization;
+local IS_MIDNIGHT = addon.IsTOCVersionEqualOrNewerThan(120000);
 
 
 local FONT_PIXEL_SIZE = 16;
@@ -151,8 +152,11 @@ function NarciTalentTreeSideTabMixin:OnLoad()
     SideFrame = self;
     Clipboard = self.InspectTab.Clipboard;
     self:SetMode("class");
-    self.SpecTab:SetScript("OnShow", SpecTab_OnShow);
-    self.SpecTab:SetScript("OnHide", SpecTab_OnHide);
+    if not IS_MIDNIGHT then
+        --Disable the ability to change spec from our UI due to taint
+        self.SpecTab:SetScript("OnShow", SpecTab_OnShow);
+        self.SpecTab:SetScript("OnHide", SpecTab_OnHide);
+    end
 end
 
 function NarciTalentTreeSideTabMixin:Init()
@@ -173,7 +177,7 @@ function NarciTalentTreeSideTabMixin:Init()
 
     local font = self.InspectTab.DividerText:GetFont();
 
-    local numSpec = GetNumSpecializations();
+    local numSpec = (IS_MIDNIGHT and 0) or GetNumSpecializations();
 
     local b;
     local specID, name, description, icon;

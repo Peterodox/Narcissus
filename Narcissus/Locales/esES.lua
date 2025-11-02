@@ -11,6 +11,14 @@ NARCI_GRADIENT = "|cffA236EFN|r|cff9448F1a|r|cff865BF2r|r|cff786DF4c|r|cff6A80F6
 
 L["Developer Info"] = "Desarrolado por Peterodox";
 
+NARCI_NEW_ENTRY_PREFIX = "|cff40C7EB";
+NARCI_COLOR_GREY_70 = "|cffb3b3b3";
+NARCI_COLOR_RED_MILD = "|cffff5050";
+NARCI_COLOR_GREEN_MILD = "|cff7cc576";
+NARCI_COLOR_YELLOW = "|cfffced00";
+NARCI_COLOR_CYAN_DARK = "5385a5";
+NARCI_COLOR_PINK_DARK = "da9bc3";
+
 NARCI_MODIFIER_CONTROL = "Ctrl";
 NARCI_MODIFIER_ALT = "Alt";   --Windows
 NARCI_SHORTCUTS_COPY = "Ctrl+C";
@@ -27,6 +35,7 @@ if IsMacClient() then
 end
 
 NARCI_WORDBREAK_COMMA = ", ";
+BINDING_HEADER_NARCISSUS = "Narcissus";
 
 --Date--
 L["Today"] = COMMUNITIES_CHAT_FRAME_TODAY_NOTIFICATION;
@@ -98,11 +107,19 @@ L["Minimap Tooltip Module Panel"] = "|cffffffffAbrir panel de módulos";
 L["Minimap Tooltip Right Click"] = "Click derecho:";
 L["Minimap Tooltip Shift Left Click"] = "Shift + Left-click";
 L["Minimap Tooltip Shift Right Click"] = "Shift + Right-click";
-L["Minimap Tooltip Hide Button"] = "|cffffffffHide this button|r"
+L["Minimap Tooltip Hide Button"] = "|cffffffffOcultar este botón|r"
 L["Minimap Tooltip Middle Button"] = "|CFFFF1000Middle button |cffffffffReiniciar cámara";
-L["Minimap Tooltip Set Scale"] = "Set Scale: |cffffffff/narci [scale 0.8~1.2]";
+L["Minimap Tooltip Set Scale"] = "Establecer escala: |cffffffff/narci [scale 0.8~1.2]";
+L["MinimapButton Enable Instruction"] = "|cffffd100Has desactivado el botón del minimapa de Narcissus. Puedes escribir|r |cffffffff/narci minimap|r |cffffd100para volver a activarlo.|r";
+L["MinimapButton Reenabled"] = "|cffffd100Has activado el botón del minimapa de Narcissus.|r";
+L["MinimapButton LibDBIcon"] = "Utilizar LibDBIcon";
+L["MinimapButton LibDBIcon Desc"] = "Utilizar LibDBIcon para crear nuestro botón del minimapa.\nEstás viendo esta opción porque has instalado LibDBIcon-1.0 o un complemento que integra esta biblioteca.";
+L["MinimapButton LibDBIcon Hide"] = "Ocultar botón";
 L["Corrupted Item Parser"] = "|cffffffffToggle Corrupted Item Parser|r";
 L["Toggle Dressing Room"] = "|cffffffffToggle "..DRESSUP_FRAME.."|r";
+L["Reset Camera"] = "Restablecer cámara";
+L["Character UI"] = "UI del personaje";
+L["Module Menu"] = "Menú del módulo";
 
 L["Layout"] = "Diseño";
 L["Symmetry"] = "Simetrico";
@@ -148,9 +165,9 @@ L["Open Narcissus"] = "Abrir Narcissus";
 L["Character Panel"] = "Panel de personaje";
 L["Screen Effects"] ="Efectos de pantalla";
 
+L["Gem List"] = "Lista de gemas";
 L["Gemma"] = "\"Gemma\"";   --Don't translate
 L["Gemma Description"] = "Muestra una lista de gemas al engarzar un item.";
-L["Gem Manager"] = "Gestor de gemas";
 L["Dressing Room"] = "Probador"
 L["Dressing Room Description"] = "Panel de probador más grande con la capacidad de ver y copiar las listas de items de otros jugadores y generar enlaces de probador en Wowhead.";
 L["General"] = "General";   --General options
@@ -168,6 +185,8 @@ L["Text Width"] = "Ancho del texto";
 L["Truncate Text"] = "Truncar texto";
 L["Stat Sheet"] = "Hoja de estadísticas";
 L["Minimap Button"] = "Botón del minimapa";
+L["Show Minimap Button"] = "Mostrar botón del minimapa";
+L["Add To AddOn Compartment"] = "Añadir al compartimento de complementos";
 L["Fade Out"] = "Desvanecer al alejar el cursor";
 L["Fade Out Description"] = "El botón se desvanece cuando se mueve el cursor fuera de él.";
 L["Hotkey"] = "Hotkey";
@@ -244,6 +263,10 @@ L["Developer Colon"] = "Desarrollador: ";
 L["Project Page"] = "Página del proyecto";
 L["Press Copy Yellow"] = "Presiona |cffffd100".. NARCI_SHORTCUTS_COPY .."|r para copiar";
 L["New Option"] = NARCI_NEW_ENTRY_PREFIX.." NEW".."|r"
+L["Expansion Features"] = "Características de expansión";
+L["LFR Wing Details"] = "Detalles del ala LFR";
+L["LFR Wing Details Description"] = "Mostrar los nombres de los jefes y los bloqueos cuando hables con los NPCS de LFR en la cola en solitario.";
+L["Speedy Screenshot Alert"] = "Hacer que los mensajes de captura de pantalla desaparezcan más rápido";
 
 --Model Control--
 L["Ranged Weapon"] = "Arma a distancia";
@@ -289,14 +312,14 @@ L["Shadow"] = "Sombra";
 L["Light Source"] = "Fuente de luz";
 L["Light Source Independent"] = "Independiente";
 L["Light Source Interconnected"] = "Interconectado";
-
+L["Adjustment"] = "Ajuste";
 
 --Animation Browser--
 L["Animation"] = "Animación";
 L["Animation Tooltip"] = "Navegar, buscar animaciones";
 L["Animation Variation"] = "Variación de animación";
 L["Reset Slider"] = "Restablecer a cero";
-
+L["Available Count"] = "%d disponible";
 
 --Spell Visual Browser--
 L["Visuals"] = "Efectos";
@@ -325,6 +348,12 @@ L["History Panel Note"] = "Los efectos aplicados se mostrarán aquí";
 L["Return"] = "Regresar";
 L["Close"] = "Cerrar";
 L["Change Pack"] = "Cambiar paquete";
+L["FindVisual Tooltip"] = "Mostrar cómo encontrar el SpellVisualKitID";
+L["FindVisual Guide 1"] = "Buscar SpellID utilizando el nombre del hechizo.";
+L["FindVisual Guide 2"] = "Buscar SpellVisualID utilizando SpellID en:";
+L["FindVisual Guide 3"] = "Buscar |cffccccccSpellVisualKitID|r utilizando SpellVisualID en:";
+L["FindVisual Guide 4"] = "Introducir el |cffccccccSpellVisualKitID|r en el cuadro de edición visual de Narcissus. No se garantiza que encuentre una coincidencia en los pasos 2 o 3, y el elemento visual no siempre se muestra correctamente.";
+
 
 --Dressing Room--
 L["Undress"] = "Desvestir";
@@ -344,6 +373,8 @@ L["Switch Form To Dracthyr"] = "Cambiar a la forma|cffffffff Dracthyr|r";
 L["Switch Form To Worgen"] = "Cambiar a la forma|cffffffff Huargen|r";
 L["Switch Form To Human"] = "Cambiar a la forma|cffffffff Humana|r";
 L["InGame Command"] = "Comando en el juego";
+L["Hide Player Items"] = "Ocultar items del jugador";
+L["Hide Player Items Tooltip"] = "Ocultar todo lo que no pertenezca a este conjunto de items.";
 
 --NPC Browser--
 NARCI_NPC_BROWSER_TITLE_LEVEL = ".*%?%?.?";      --Level ?? --Use this to check if the second line of the tooltip is NPC's title or unit type
@@ -387,6 +418,7 @@ L["NavBar Saved Sets"] = "Guardado:";   --A Saved Equipment Set
 L["NavBar Incomplete Sets"] = INCOMPLETE;
 L["Icon Selector"] = "Selector de iconos";
 L["Delete Equipment Set Tooltip"] = "Eliminar conjunto\n|cff808080(click and hold)|r";
+L["New Set"] = PAPERDOLL_NEWEQUIPMENTSET or "Nuevo conjunto";
 
 --Corruption System
 L["Corruption System"] = "Corruption";
@@ -428,7 +460,7 @@ L["Photo Mode Frame"] = "Marco";    --Frame for photo
 
 --Achievement Frame--
 L["Use Achievement Panel"] = "Usar como panel de logros principal";
-L["Use Achievement Panel Description"] = "Replace the default achievement toast. Enable tooltip enhancement. Click tracked achievements to open this panel.";
+L["Use Achievement Panel Description"] = "Reemplaza la notificación predeterminada de logros. Habilita la mejora de la información sobre herramientas. Click en los logros registrados para abrir este panel.";
 L["Incomplete First"] = "Incompletos primero";
 L["Earned First"] = "Conseguidos primero";
 L["Settings"] = "Ajustes";
@@ -455,12 +487,17 @@ L["Click And Hold"] = "Click and Hold";
 L["To Do List"] = "Por hacer";
 L["Error Alert Bookmarks Too Many"] = "You may only bookmark %d achievements at a time.";
 L["Instruction Add To To Do List"] = string.format("%s Left Click on an unearned achievement to add it to your to-do list.", NARCI_MODIFIER_ALT);
+L["Instruction Remove From To Do List"] = string.format("%s Left Click to remove from to-do list.", NARCI_MODIFIER_ALT);
+L["DIY"] = "DIY";
+L["DIY Tab Tooltip"] = "Crear un logro personalizado para realizar capturas de pantalla.";
+L["Binding Name Open Achievement"] = "Cambiar a la interfaz de usuario de logros de Narcissus";
 
 --Barbershop--
 L["Save New Look"] = "Guardar el nuevo aspecto";
 L["No Available Slot"] = "No hay ranura disponible";
 L["Look Saved"] = "Apariencia guardada";
 L["Cannot Save Forms"] = "No se pueden guardar los formularios";
+L["Profile"] = "Perfil";
 L["Share"] = "Compartir";
 L["Save Notify"] = "Notificación para guardar la nueva apariencia";
 L["Save Notify Tooltip"] = "Te avisa para que guardes la personalización después de hacer click en el botón Aceptar.";
@@ -494,6 +531,7 @@ L["Profile Type Tooltip"] = "Selecciona el perfil que se utilizará en este pers
 L["No Saves"] = "Sin guardar";
 L["Profile Migration Tooltip"] = "Puedes copiar los preajustes existentes en el perfil público.";
 L["Profile Migration Okay"] = "Okey makey";
+L["Profile Migration CopyButton Tooltip"] = "Copiar este ajuste preestablecido en tu perfil público.";
 
 --Tutorial--
 L["Alert"] = "Advertencia";
@@ -644,9 +682,11 @@ L["Loop Animation Alert Kultiran"] = "Bucle - actualmente roto en Kultirano homb
 L["Loop Animation"] = "Animación en bucle";
 
 --Item Sets--
+L["Class Set Indicator"] = "Indicador de conjunto de clases";
 L["Cycle Spec"] = "Presiona Tab para recorrer las especificaciones";
 L["Paperdoll Splash 1"] = "¿Habilitar el indicador de conjunto de clases?";
 L["Paperdoll Splash 2"] = "Elige un tema";
+L["Theme Changed"] = "Tema cambiado";   --the color theme has been changed
 
 --Outfit Select--
 L["Outfit"] = "Atuendo";
@@ -701,6 +741,11 @@ L["Auto Filter Case"] = "Filtra elementos automáticamente cuando...";
 L["Send Mails"] = "Enviar correos";
 L["Create Auctions"] = "Crear subastas";
 L["Socket Items"] = "Items con ranura";
+L["Item Type Mailable"] = MAIL_LABEL or "Enviable por correo";
+L["Item Type Auctionable"] = AUCTIONS or "Subastable";
+L["Item Type Teleportation"] = TUTORIAL_TITLE35 or "Viajes";
+L["Item Type Gems"] = AUCTION_CATEGORY_GEMS or "Gemas";
+L["Item Type Reagent"] = PROFESSIONS_MODIFIED_CRAFTING_REAGENT_BASIC or "Componente de profesión";
 
 --Perks Program--
 L["Perks Program Unclaimed Tender Format"] = "- Tienes |cffffffff%s|r cupones sin recoger en el alijo de recolector.";     --PERKS_PROGRAM_UNCOLLECTED_TENDER
@@ -711,6 +756,14 @@ L["Perks Program See Wares"] = "Ver articulos";
 L["Perks Program No Cache Alert"] = "Habla con los vendedores del Puesto Comercial para ver las mercancías de este mes...";
 L["Perks Program Using Cache Alert"] = "Se usa tu última visita como referencia. Los datos de precios pueden no ser exactos.";
 L["Modify Default Pose"] = "Cambiar la pose predeterminada";   --Change the default pose/animation/camera yaw when viewing transmog items
+L["Modify Default Pose Tooltip"] = "Cuando esté habilitado, cambia la animación de combate predeterminada de WoW o la animación de montura a «Stand» y ajusta la rotación para presentar mejor el objeto.";
+L["Include Header"] = "Incluye:";  --The transmog set includes...
+L["Auto Try On All Items"] = "Probador automático en todos los items";
+L["Full Set Cost"] = "Coste del conjunto completo";   --Purchasing the full set will cost you x Trader's Tender
+L["You Will Receive One Item"] = "Recibirás |cffffffffONE|r item:";
+L["Format Item Belongs To Set"] = "Este item pertenece al conjunto de transfiguración |cffffffff[%s]|r";
+L["Default Animation"] = "Animación predeterminada";
+
 
 --Quest--
 L["Auto Display Quest Item"] = "Visualización automática de la descripción de los items de misiones";
@@ -732,6 +785,9 @@ L["Speed"] = ITEM_MOD_CR_SPEED_SHORT or "Velocidad";
 L["Format Stat EXP"] = "+%d%% EXP Ganada";
 L["Format Rank"] = AZERITE_ESSENCE_RANK or "Rango %d";
 L["Cloak Rank"] = "Hilos del tiempo:";
+
+L["Artifact Ability"] = "Habilidad de artefacto";
+L["Toggle Artifact UI"] = "Click para cambiar a la UI del Artefacto.";
 
 
 --Gem Manager--
@@ -774,6 +830,7 @@ L["Loadout Save Failure Incomplete Choices"] = "|cffff4800Tienes gemas no selecc
 L["Loadout Save Failure Dupe Loadout Format"] = "|cffff4800Esta carga es la misma que|r %s";
 L["Loadout Save Failure Dupe Name Format"] = "|cffff4800A El conjunto con ese nombre ya existe..|r";
 L["Loadout Save Failure No Name"] = "|cffff4800".. (TALENT_FRAME_DROP_DOWN_NEW_LOADOUT_PROMPT or "Introduce un nombre para el nuevo conjunto.") .."|r";
+L["Empty Socket"] = GLYPH_EMPTY or "Vacío";
 
 L["Format Equipping Progress"] = "Equipando %d/%d";
 L["Format Click Times To Equip Singular"] = "Click |cff19ff19%d|r Time to Equip";
@@ -781,3 +838,10 @@ L["Format Click Times To Equip Plural"] = "Click |cff19ff19%d|r Times to Equip";
 L["Format Free Up Bag Slot"] = "Libera %d espacios en las bolsas primero";
 L["Format Number Items Selected"] = "%d Seleccionado";
 L["Format Gem Slot Stat Budget"] = "Las gemas en %s son %s%% efectivas."  --e.g. Gems in trinket are 75% effective
+
+
+--Game Pad--
+L["GamePad Select"] = "Seleccionar";
+L["GamePad Cancel"] = "Cancelar";
+L["GamePad Use"] = "Usar";
+L["GamePad Equip"] = "Equipar";

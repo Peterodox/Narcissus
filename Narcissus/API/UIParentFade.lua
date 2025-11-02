@@ -6,6 +6,8 @@ addon.UIParentFade = UIParentFade;
 
 local UIParent = UIParent;
 local InCombatLockdown = InCombatLockdown;
+local SetUIVisibility = SetUIVisibility;
+UIParentFade.isMidnight = addon.IsTOCVersionEqualOrNewerThan(120000);
 
 
 local ALPHA_UPDATE_INTERVAL = 0.08;     --Limit update frequency to mitigate the impact on FPS
@@ -92,8 +94,15 @@ function UIParentFade:FadeOutUIParent()
 
 	self.t = 0;
     self:UpdateAlpha();
-    self:SetScript("OnUpdate", FadeOut_OnUpdate);
-    self:Show();
+
+	if self.isMidnight then
+		self:StopOnUpdate();
+		SetUIVisibility(false);
+	else
+		self:SetScript("OnUpdate", FadeOut_OnUpdate);
+		self:Show();
+	end
+
 	self:RegisterEvent("PLAYER_REGEN_DISABLED");
 end
 

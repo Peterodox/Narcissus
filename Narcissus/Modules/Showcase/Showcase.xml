@@ -605,7 +605,7 @@
 						</Layers>
 					</Button>
 
-					<Button parentKey="SheatheButton" mixin="NarciShowcaseSheatheButtonMixin">
+					<Button parentKey="SheatheButton" mixin="NarciShowcaseSheatheButtonMixin" inherits="NarciPropagateKeyboardInputTemplate">
 						<Size x="24" y="24"/>
 						<Anchors>
 							<Anchor point="BOTTOMLEFT" relativeKey="$parent" relativePoint="BOTTOMLEFT" x="4" y="4"/>

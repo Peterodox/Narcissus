@@ -26,6 +26,7 @@ local GetNumEquipmentSets = C_EquipmentSet.GetNumEquipmentSets;     --Returns th
 local GetItemLocations = C_EquipmentSet.GetItemLocations;
 local GetEquipmentSetInfo = C_EquipmentSet.GetEquipmentSetInfo;
 local UnpackLocation = addon.TransitionAPI.EquipmentManager_UnpackLocation;
+local Secret_Multiply = addon.TransitionAPI.Secret_Multiply;
 local GetItemInventoryType = C_Item.GetItemInventoryType;
 local UIColorThemeUtil = addon.UIColorThemeUtil;
 local SharedBlackScreen = addon.SharedBlackScreen;
@@ -356,14 +357,14 @@ local HealthFactor = 1;
 
 local function GetHPFactor()
     --Calculate stamina → Health conversion rate
-    local ConversionRate; 
+    local conversionRate;
     local stamina, _, posBuff, negBuff = UnitStat("player", LE_UNIT_STAT_STAMINA);
-    local BasicStamima = stamina - posBuff - negBuff;
-    local Health = UnitHealth("player");
+    local basicStamima = stamina - posBuff - negBuff;
+    local health = UnitHealth("player");
     if stamina == 0 then
-        ConversionRate = 20;
+        conversionRate = 20;
     else
-        ConversionRate = Health / stamina;
+        conversionRate = Secret_Multiply(health, 1/stamina);
     end
 
     --Calculate stamina gain from current equipment
@@ -378,7 +379,11 @@ local function GetHPFactor()
         end
     end
 
-    HealthFactor = ConversionRate * stamina / (StaminaFromItems + BasicStamima) ;
+    if conversionRate then
+        HealthFactor = conversionRate * stamina / (StaminaFromItems + basicStamima) ;
+    else
+        HealthFactor = 1;
+    end
 end
 
 --[[    --Deprecated Method

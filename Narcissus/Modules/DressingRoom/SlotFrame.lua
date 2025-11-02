@@ -684,7 +684,7 @@ do
         self:SetHighlighted(true);
         local tooltip = GameTooltip;
         tooltip:SetOwner(self, "ANCHOR_RIGHT");
-        tooltip:SetText(Narci.L["Toggle Equipment Slots"], 1, 1, 1, true);
+        tooltip:SetText(Narci.L["Toggle Equipment Slots"], 1, 1, 1, 1, true);
         tooltip:Show();
     end
 

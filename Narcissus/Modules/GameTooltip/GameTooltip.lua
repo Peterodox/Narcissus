@@ -90,12 +90,7 @@ end
 local GENERIC_SETUP_FUNC = VoidFunc;
 local GameTooltip_ClearMoney = GameTooltip_ClearMoney or VoidFunc;
 
-if addon.IsDragonflight() and TooltipDataHandlerMixin then
-    NarciGameTooltipMixin = CreateFromMixins(TooltipDataHandlerMixin);
-else
-    NarciGameTooltipMixin = {};
-end
-
+NarciGameTooltipMixin = CreateFromMixins(TooltipDataHandlerMixin);
 
 function NarciGameTooltipMixin:OnLoad()
     GenericTooltip = self;

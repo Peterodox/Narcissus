@@ -54,7 +54,7 @@ function NarciTalentFlatButtonMixin:OnEnter()
         if self.spellID then
             local name = GetSpellInfo(self.spellID);
             if name and name ~= "" then
-                tooltip:SetText(name, 1, 1, 1, true);
+                tooltip:SetText(name, 1, 1, 1, 1, true);
             end
         end
 
@@ -152,13 +152,7 @@ function NarciTalentsMixin:UpdateAllTalents()
 end
 
 function NarciTalentsMixin:OnLoad()
-    local staticEvents;
-    if addon.IsDragonflight() then
-        staticEvents = {"TRAIT_CONFIG_UPDATED", "ACTIVE_TALENT_GROUP_CHANGED", "PLAYER_ENTERING_WORLD"};
-    else
-        staticEvents = {"PLAYER_TALENT_UPDATE", "ACTIVE_TALENT_GROUP_CHANGED", "PLAYER_ENTERING_WORLD"};
-    end
-
+    local staticEvents = {"TRAIT_CONFIG_UPDATED", "ACTIVE_TALENT_GROUP_CHANGED", "PLAYER_ENTERING_WORLD"};
     for _, event in pairs(staticEvents) do
         self:RegisterEvent(event);
     end

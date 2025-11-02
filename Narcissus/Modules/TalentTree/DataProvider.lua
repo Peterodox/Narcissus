@@ -665,26 +665,10 @@ do  --Hero Talents
         return self:GetActiveSubTreeID(configID, specID)
     end
 
-    do
-        if addon.TransitionAPI.IsTWW() then
-            function DataProvider:GetPlayerHeroSpecName()
-                local subTreeInfo = self:GetPlayerActiveHeroTalentTreeInfo();
-                if subTreeInfo then
-                    return subTreeInfo.name;
-                end
-            end
-        else
-            function DataProvider:GetPlayerHeroSpecName()
-                return nil
-            end
-
-            function DataProvider:GetActiveSubTreeID(configID, specID)
-                return nil
-            end
-
-            function DataProvider:GetPlayerActiveSubTreeID()
-                return nil
-            end
+    function DataProvider:GetPlayerHeroSpecName()
+        local subTreeInfo = self:GetPlayerActiveHeroTalentTreeInfo();
+        if subTreeInfo then
+            return subTreeInfo.name;
         end
     end
 end

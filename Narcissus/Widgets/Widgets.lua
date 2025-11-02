@@ -1105,10 +1105,10 @@ local CreateKeyChordStringUsingMetaKeyState = CreateKeyChordStringUsingMetaKeySt
 --Name: Clipboard
 --Notes: Highlight the border when gaining focus. Show visual feedback (glow) after pressing Ctrl+C
 
-local HotkeyListener = CreateFrame("Frame");
+local HotkeyListener = CreateFrame("Frame", nil, nil, "NarciPropagateKeyboardInputTemplate");
 HotkeyListener:SetFrameStrata("TOOLTIP");
 HotkeyListener:Hide();
-HotkeyListener:SetPropagateKeyboardInput(true);
+--HotkeyListener:SetPropagateKeyboardInput(true);
 HotkeyListener:SetScript("OnKeyDown", function(self, key)
     local keys = CreateKeyChordStringUsingMetaKeyState(key);
     if keys == "CTRL-C" or key == "COMMAND-C" then
@@ -1209,7 +1209,7 @@ function NarciResponsiveClipboardMixin:OnTextChanged(userInput)
     end
 end
 
-function NarciResponsiveEditBoxSharedMixin:OnHide()
+function NarciResponsiveClipboardMixin:OnHide()
     self:QuitEdit();
     self.copiedText = nil;
 end

@@ -16,8 +16,6 @@ local BUTTON_LEVEL_OFFSET = 12;
 local CATE_OFFSET = 64;
 local WIDGET_GAP = 16;
 
-local IS_DRAGONFLIGHT = addon.IsDragonflight();
-
 local L = Narci.L;
 local BIND_ACTION_NARCISSUS = "CLICK Narci_MinimapButton:LeftButton";
 _G["BINDING_NAME_"..BIND_ACTION_NARCISSUS] = L["Binding Name Open Narcissus"];
@@ -2125,7 +2123,7 @@ local function InsertCategory(newCategory)
     tinsert(Categories, #Categories -1, newCategory);
 end
 
-if IS_DRAGONFLIGHT then
+do  --Talent Tree
     local function ShowTreeCase1(self, state)
         SettingFunctions.ShowMiniTalentTreeForPaperDoll(state);
     end
@@ -2475,7 +2473,7 @@ function NarciSettingsFrameMixin:OnLoad()
         MainFrame:CloseUI();
     end);
 
-    if IS_DRAGONFLIGHT and SettingsPanel then
+    if SettingsPanel then
         self.Background = CreateFrame("Frame", nil, SettingsPanel);
         self.Background:SetFrameStrata("LOW");
         self.Background:SetFixedFrameStrata(true);

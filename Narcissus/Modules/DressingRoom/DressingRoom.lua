@@ -1,5 +1,6 @@
 local _, addon = ...
 local TransmogSetFrame = addon.DressingRoomSystem.TransmogSetFrame;
+local GetHiddenSourceIDForSlot = addon.DressingRoomSystem.GetHiddenSourceIDForSlot;
 local TransitionAPI = addon.TransitionAPI;
 local CopyTable = addon.CopyTable;
 
@@ -406,7 +407,7 @@ local function SetupPlayerForModelScene(modelScene, itemModifiedAppearanceIDs, s
 				actor:TryOn(itemModifiedAppearanceID);
 			end
 		end
-		actor:SetAnimationBlendOperation(LE_MODEL_BLEND_OPERATION_NONE);
+		actor:SetAnimationBlendOperation(0);    --Enum.ModelBlendOperation.None, LE_MODEL_BLEND_OPERATION_NONE
 	end
 end
 
@@ -478,7 +479,6 @@ function Narci_ShowDressingRoom()
             SetupPlayerForModelScene(frame.ModelScene, itemModifiedAppearanceIDs, sheatheWeapons, autoDress);
             --Narci_UpdateDressingRoom();
         end
-        
 
         if SLOT_FRAME_SUPPORTED then
             UpdateDressingRoomModelByUnit("player");
@@ -488,6 +488,9 @@ function Narci_ShowDressingRoom()
             DressUpFrame.OutfitDetailsPanel:SetShown(GetCVarBool("showOutfitDetails"));
             --DressUpFrame:SetShownOutfitDetailsPanel(GetCVarBool("showOutfitDetails"));
         end
+
+        local _, classFilename = UnitClass("player");
+        DressUpFrame.ModelBackground:SetAtlas("dressingroom-background-"..classFilename);
 	end
 end
 
@@ -1036,6 +1039,17 @@ function NarciStaticPopupOutfitIconSelectMixin:SelectButton(button, fromClicks)
     end
 end
 
+local function PopupateInfoListWithHiddenVisuals(itemTransmogInfoList)
+    for slotID, itemTransmogInfo in ipairs(itemTransmogInfoList) do
+        if itemTransmogInfo.appearanceID == 0 then
+            local hiddenVisualID = GetHiddenSourceIDForSlot(slotID);
+            if hiddenVisualID then
+                itemTransmogInfo.appearanceID = hiddenVisualID;
+            end
+        end
+    end
+end
+
 function NarciStaticPopupOutfitIconSelectMixin:OverrideStaticPopupOnAccept()
     if self.popupInfoChanged then return end;
 
@@ -1047,10 +1061,11 @@ function NarciStaticPopupOutfitIconSelectMixin:OverrideStaticPopupOnAccept()
         local function SaveNewOutfit(popup)
             local name = popup.EditBox:GetText();
             local icon = self.selectedIcon;
+            local noTransmogID = Constants.Transmog.NoTransmogID;
+            local itemTransmogInfoList = WardrobeOutfitManager.itemTransmogInfoList;    --/dump DressUpFrame.ModelScene:GetPlayerActor():GetItemTransmogInfoList()
 
             if not icon then
-                local noTransmogID = Constants.Transmog.NoTransmogID;
-                for slotID, itemTransmogInfo in ipairs(WardrobeOutfitManager.itemTransmogInfoList) do
+                for slotID, itemTransmogInfo in ipairs(itemTransmogInfoList) do
                     local appearanceID = itemTransmogInfo.appearanceID;
                     if appearanceID ~= noTransmogID then
                         icon = select(4, C_TransmogCollection.GetAppearanceSourceInfo(appearanceID));
@@ -1061,7 +1076,9 @@ function NarciStaticPopupOutfitIconSelectMixin:OverrideStaticPopupOnAccept()
                 end
             end
 
-            local outfitID = C_TransmogCollection.NewOutfit(name, icon, WardrobeOutfitManager.itemTransmogInfoList);
+            PopupateInfoListWithHiddenVisuals(itemTransmogInfoList);
+
+            local outfitID = C_TransmogCollection.NewOutfit(name, icon, itemTransmogInfoList);
             if outfitID then
                 WardrobeOutfitManager:SaveLastOutfit(outfitID);
             end
@@ -1435,6 +1452,23 @@ local function DressingRoomOverlayFrame_Initialize()
         if Menu and Menu.ModifyMenu then
             OutfitPreview:SetOwner(DressUpFrame.OutfitDropdown);
         end
+
+        local function DressUpOutfitMixin_LoadOutfit(self, outfitID)
+            local itemTransmogInfoList = outfitID and C_TransmogCollection.GetOutfitItemTransmogInfoList(outfitID);
+            if itemTransmogInfoList then
+                local playerActor = DressUpFrame.ModelScene:GetPlayerActor();
+                if not playerActor then
+                    return false
+                end
+                playerActor:Undress();
+                local INVSLOT_MAINHAND = INVSLOT_MAINHAND;  --16
+                for slotID, itemTransmogInfo in ipairs(itemTransmogInfoList) do
+                    local ignoreChildItems = slotID ~= INVSLOT_MAINHAND;
+                    playerActor:SetItemTransmogInfo(itemTransmogInfo, slotID, ignoreChildItems);
+                end
+            end
+        end
+        DressUpFrame.OutfitDropdown.LoadOutfit = DressUpOutfitMixin_LoadOutfit;
     end
 
     --[[
@@ -1534,9 +1568,12 @@ local function DressingRoomOverlayFrame_Initialize()
                             end
                         end
                     end
+
                     for i = 1, #hiddenIcons do
                         tinsert(iconChoices, hiddenIcons[i]);
                     end
+
+                    PopupateInfoListWithHiddenVisuals(WardrobeOutfitManager.itemTransmogInfoList);
 
                     local extraHeight = OutfitIconSelect:SetupIcons(iconChoices, defaultIcon);
                     if OutfitIconSelect.SelectionFrame:IsShown() then
