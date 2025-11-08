@@ -1,4 +1,5 @@
 <Ui xsi:schemaLocation="http://www.blizzard.com/wow/ui/..\FrameXML\UI.xsd">
+    <Script file="Widgets\CreditList.lua"/>
     <Script file="SettingsFrame.lua"/>
 
     <Button name="NarciSettingsCategoryButtonTemplate" virtual="true">
@@ -574,6 +575,13 @@
             </ScrollFrame>
 
             <Frame parentKey="HeartContainer" useParentLevel="false" clipChildren="true">
+                <Anchors>
+                    <Anchor point="TOPLEFT"/>
+                    <Anchor point="BOTTOMRIGHT"/>
+                </Anchors>
+            </Frame>
+
+            <Frame parentKey="ArtContainer" useParentLevel="false" clipChildren="true">
                 <Anchors>
                     <Anchor point="TOPLEFT"/>
                     <Anchor point="BOTTOMRIGHT"/>

@@ -44,7 +44,7 @@ local tinsert = table.insert;
 local GetCursorPosition = GetCursorPosition;
 local SliderUpdator = CreateFrame("Frame");
 
-local CreditList = {};
+local CreditList = addon.CreditList;
 
 local function SetTextColorByID(fontString, id)
     if id == 3 then
@@ -303,8 +303,8 @@ local function FindCurrentCategory(offset)
     if matchID ~= CURRENT_CATE_ID then
         CURRENT_CATE_ID = matchID;
         SetCategory(matchID);
-        CreditList:OnFocused(matchID == CREDIT_TAB_ID);
     end
+    CreditList:OnFocused(matchID == CREDIT_TAB_ID, offset);
 
     UpdateRenderArea(offset);
 end
@@ -784,258 +784,6 @@ end
 
 local function ConduitTooltipToggle_OnValueChanged(self, state)
     SettingFunctions.EnableConduitTooltip(state);
-end
-
-
--- dropping hearts when creadit list is focused
-local LoveGenerator = {};
-
-function LoveGenerator.HeartAnimationOnStop(animGroup)
-    local tex = animGroup:GetParent();
-    tex:Hide();
-    tinsert(LoveGenerator.recyledTextures, tex);
-end
-
-function LoveGenerator:GetHeart()
-    if not self.textures then
-        self.textures = {};
-    end
-    if not self.recyledTextures then
-        self.recyledTextures = {};
-    end
-
-    if #self.recyledTextures > 0 then
-        return table.remove(self.recyledTextures, #self.recyledTextures)
-    else
-        local tex = MainFrame.HeartContainer:CreateTexture(nil, "OVERLAY", "NarciPinkHeartTemplate", 2);
-        tex.FlyDown:SetScript("OnFinished", LoveGenerator.HeartAnimationOnStop);
-        tex.FlyDown:SetScript("OnStop", LoveGenerator.HeartAnimationOnStop);
-        self.textures[ #self.textures + 1 ] = tex;
-        return tex
-    end
-end
-
-function LoveGenerator:CreateHeartAtCursorPosition()
-    if MainFrame.HeartContainer:IsMouseOver() then
-        local heart = self:GetHeart();
-
-        local px, py = GetCursorPosition();
-        local scale = MainFrame:GetEffectiveScale();
-        px, py = px / scale, py / scale;
-    
-        local d = math.max(py - MainFrame:GetBottom() + 16, 0); --distance
-        local depth = math.random(1, 8);
-        local scale = 0.25 + 0.25 * depth;
-        local size = 32 * scale;
-        local alpha = 1.35 - 0.15 * depth;
-        local v = 20 + 10 * depth;
-        local t= d / v;
-
-        if alpha > 0.67 then
-            alpha = 0.67;
-        end
-
-        heart.FlyDown.Translation:SetOffset(0, -d);
-        heart.FlyDown.Translation:SetDuration(t);
-        heart:ClearAllPoints();
-        heart:SetPoint("CENTER", UIParent, "BOTTOMLEFT" , px, py);
-    
-        heart:SetSize(size, size);
-        heart:SetAlpha(alpha);
-        heart.FlyDown:Play();
-        heart:Show();
-    end
-end
-
-function LoveGenerator:StopAnimation()
-    if self.textures then
-        for _, tex in ipairs(self.textures) do
-            tex.FlyDown:Stop();
-        end
-    end
-end
-
-
-
-function CreditList:CreateList(parent, anchorTo, fromOffsetY)
-    local active = {"Albator S.", "Lala.Marie", "Erik Shafer", "Celierra&Darvian", "Pierre-Yves Bertolus", "Terradon", "Miroslav Kovac", "Ryan Zerbin", "Helene Rigo", "Kit M", "Rui", "Elrathir"};
-    local inactive = {"Alex Boehm", "Solanya", "Elexys", "Ben Ashley", "Knightlord", "Brian Haberer", "Andrew Phoenix", "Nantangitan", "Blastflight", "Lars Norberg", "Valnoressa", "Nimrodan", "Brux",
-        "Karl", "Webb", "acein", "Christian Williamson", "Tzutzu", "Anthony Cordeiro", "Nina Recchia", "heiteo", "Psyloken", "Jesse Blick", "Victor Torres", "Nisutec", "Tezenari", "Gina", "Markus Magnitz"};
-    local special = {"Marlamin | WoW.tools", "Keyboardturner | Avid Bug Finder(Generator)", "Meorawr | Wondrous Wisdomball", "Ghost | Real Person", "Hubbotu | Translator - Russian", "Romanv | Translator - Spanish", "Onizenos | Translator - Portuguese"};
-
-    local aciveColor = "|cff914270";
-
-    local numTotal = #active;
-    local mergedList = active;
-    local totalHeight;
-
-    for i = 1, #active do
-        active[i] = aciveColor ..active[i].."|r";
-    end
-
-    for i = 1, #inactive do
-        numTotal = numTotal + 1;
-        mergedList[numTotal] = inactive[i];
-    end
-
-    local upper = string.upper;
-    local gsub = string.gsub;
-
-    table.sort(mergedList, function(a, b)
-        return upper( gsub(a, aciveColor, "") ) < upper( gsub(b, aciveColor, "") )
-    end);
-
-
-    local header = parent:CreateFontString(nil, "OVERLAY", "NarciFontMedium13");
-    header:SetPoint("TOP", anchorTo, "TOP", 0, fromOffsetY);
-    header:SetText(string.upper("Patrons"));
-    SetTextColorByID(header, 1);
-
-    totalHeight = header:GetHeight() + 12;
-    fromOffsetY = fromOffsetY - totalHeight;
-
-    local numRow = math.ceil(numTotal/3);
-
-    local sidePadding = PADDING_H + BUTTON_LEVEL_OFFSET;
-    self.sidePadding = sidePadding;
-    self.anchorTo = anchorTo;
-    self.parent = parent;
-
-    local colWidth = (MainFrame.ScrollFrame:GetWidth() - sidePadding*2) / 3;
-    local text;
-    local fontString;
-    local height;
-
-    local i = 0;
-    local maxHeight = 0;
-    local totalTextWidth = 0;
-    local width = 0;
-
-    local fontStrings = {};
-
-    for col = 1, 3 do
-        fontString = parent:CreateFontString(nil, "OVERLAY", "NarciFontMedium13");
-        fontString:SetWidth(colWidth);
-        fontString:SetPoint("TOPLEFT", anchorTo, "TOPLEFT", 0, fromOffsetY);
-        fontString:SetJustifyH("LEFT");
-        fontString:SetJustifyV("TOP");
-        fontString:SetSpacing(8);
-        fontStrings[col] = fontString;
-        SetTextColorByID(fontString, 1);
-
-        text = nil;
-        for row = 1, numRow do
-            i = i + 1;
-            if mergedList[i] then
-                if text then
-                    text = text .. "\n" .. mergedList[i];
-                else
-                    text = mergedList[i];
-                end
-            end
-        end
-
-        fontString:SetText(text);
-        height = fontString:GetHeight();
-        width = fontString:GetWrappedWidth();
-        totalTextWidth = totalTextWidth + width;
-
-        if height > maxHeight then
-            maxHeight = height;
-        end
-    end
-
-    self.totalTextWidth = totalTextWidth;
-    self.fontStrings = fontStrings;
-    self.offsetY = fromOffsetY;
-
-    fromOffsetY = fromOffsetY - maxHeight - 48;
-
-    local header2 = parent:CreateFontString(nil, "OVERLAY", "NarciFontMedium13");
-    header2:SetPoint("TOP", anchorTo, "TOP", 0, fromOffsetY);
-    header2:SetText(string.upper("special thanks"));
-    SetTextColorByID(header2, 1);
-
-
-    text = nil;
-    for i = 1, #special do
-        if i == 1 then
-            text = special[i];
-        else
-            text = text .. "\n" .. special[i];
-        end
-    end
-
-    fromOffsetY = fromOffsetY - header2:GetHeight() - 12;
-
-    fontString = parent:CreateFontString(nil, "OVERLAY", "NarciFontMedium13");
-    fontString:SetPoint("TOPLEFT", anchorTo, "TOPLEFT", sidePadding, fromOffsetY);
-    fontString:SetJustifyH("LEFT");
-    fontString:SetJustifyV("TOP");
-    fontString:SetSpacing(8);
-    fontString:SetText(text);
-    SetTextColorByID(fontString, 1);
-
-    self.specialNames = fontString;
-    self.specialNamesOffsetY = fromOffsetY;
-
-    totalHeight = Round0(header:GetTop() - fontString:GetBottom() + 36);
-
-    self:UpdateAlignment();
-
-    active = nil;
-    inactive = nil;
-
-    return totalHeight
-end
-
-function CreditList:UpdateAlignment()
-    if self.fontStrings then
-        local offsetX = self.sidePadding;
-        local parentWidth = MainFrame.ScrollFrame:GetWidth();
-
-        local gap = (parentWidth - self.sidePadding*2 - self.totalTextWidth) * 0.5;
-        for col = 1, 3 do
-            self.fontStrings[col]:ClearAllPoints();
-            self.fontStrings[col]:SetPoint("TOPLEFT", self.anchorTo, "TOPLEFT", offsetX, self.offsetY);
-            offsetX = offsetX + self.fontStrings[col]:GetWrappedWidth() + gap;
-        end
-
-        local specialNameWidth = self.specialNames:GetWrappedWidth();
-        offsetX = (parentWidth - specialNameWidth) * 0.5;
-        self.specialNames:SetPoint("TOPLEFT", self.anchorTo, "TOPLEFT", offsetX, self.specialNamesOffsetY);
-    end
-end
-
-function CreditList.TimerOnUpdate(f, elapsed)
-    f.t = f.t + elapsed;
-    if f.t > 3 then
-        f.t = 0;
-        LoveGenerator:CreateHeartAtCursorPosition();
-    end
-end
-
-function CreditList:OnFocused(state)
-    if state then
-        if not self.focused then
-            self.focused = true;
-            self.parent.t = 0;
-            self.parent:SetScript("OnUpdate", CreditList.TimerOnUpdate);
-            FadeFrame(MainFrame.HeartContainer, 0.5, 1);
-        end
-    else
-        if self.focused then
-            self.focused = nil;
-            self.parent:SetScript("OnUpdate", nil);
-            FadeFrame(MainFrame.HeartContainer, 0.5, 0);
-        end
-    end
-end
-
-function CreditList:StopAnimation()
-    if self.focused then
-        LoveGenerator:StopAnimation();
-    end
 end
 
 
@@ -2300,6 +2048,7 @@ local function SetupFrame()
     DB = NarcissusDB;
 
     local f = MainFrame;
+
     local texPath = "Interface\\AddOns\\Narcissus\\Art\\SettingsFrame\\";
 
     f.CategoryFrame:SetWidth(DEFAULT_LEFT_WIDTH);
@@ -2462,6 +2211,7 @@ NarciSettingsFrameMixin = {};
 
 function NarciSettingsFrameMixin:OnLoad()
     MainFrame = self;
+    CreditList.MainFrame = MainFrame;
 
     local panel = NarciInterfaceOptionsPanel;
     panel:HookScript("OnShow", function(f)

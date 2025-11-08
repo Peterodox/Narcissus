@@ -372,6 +372,8 @@ L["Switch Form To Human"] = "Switch to|cffffffff Human|r form";
 L["InGame Command"] = "In-Game Command";
 L["Hide Player Items"] = "Hide Player Items";
 L["Hide Player Items Tooltip"] = "Hide anything that doesn\'t belong to this item set.";
+L["Hide Duplicated Appearance"] = "Hide Duplicates";
+L["Hide Duplicated Appearance Tooltip"] = "Some ensembles may contain items with the same appearances. Enable this option to show the unique ones.";
 
 --NPC Browser--
 NARCI_NPC_BROWSER_TITLE_LEVEL = ".*%?%?.?";      --Level ?? --Use this to check if the second line of the tooltip is NPC's title or unit type

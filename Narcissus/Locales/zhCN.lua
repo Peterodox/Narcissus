@@ -333,6 +333,8 @@ L["Switch Form To Human"] = "切换到|cffffffff人|r形态";
 L["InGame Command"] = "游戏内命令";
 L["Hide Player Items"] = "隐藏玩家装备";
 L["Hide Player Items Tooltip"] = "移除不属于此套装的装备。";
+L["Hide Duplicated Appearance"] = "隐藏重复物品";
+L["Hide Duplicated Appearance Tooltip"] = "一些套装物品有着完全相同的外观，勾选此选项可隐藏重复的物品。";
 
 --NPC Browser--
 NARCI_NPC_BROWSER_TITLE_LEVEL = ".*%?%?.?";      --Level ?? --Use this to check if the second line of the tooltip is NPC's title or unit type

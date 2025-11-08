@@ -308,7 +308,7 @@
 		</Scripts>
 	</Frame>
 
-    <Button name="Narci_ChatButtonTemplate" virtual="true">
+    <!--Button name="Narci_ChatButtonTemplate" virtual="true">
         <Size x="160" y="20"/>
         <Layers>
 			<Layer level="BACKGROUND" textureSubLevel="1">
@@ -374,14 +374,14 @@
 				self.Bling.animIn:Stop();
 			</OnDisable>
         </Scripts>
-    </Button>
+    </Button-->
 
-	<FontString name="Narci_ECDConversationFontstring" inherits="NarciFontMedium12" justifyV="TOP" virtual="true" hidden="true">
+	<!--FontString name="Narci_ECDConversationFontstring" inherits="NarciFontMedium12" justifyV="TOP" virtual="true" hidden="true">
 		<Size x="140" y="0"/>
 		<Color r="0.88" g="0.88" b="0.88"/>
-	</FontString>
+	</FontString-->
 
-    <Frame name="Narci_ECDConversation" frameLevel="11" frameStrata="TOOLTIP" ignoreParentScale="true" virtual="true" hidden="true" clampedToScreen="true">
+    <!--Frame name="Narci_ECDConversation" frameLevel="11" frameStrata="TOOLTIP" ignoreParentScale="true" virtual="true" hidden="true" clampedToScreen="true">
         <Size x="250" y="48"/>
         <Layers>
             <Layer level="OVERLAY">
@@ -552,5 +552,5 @@
 				self:StopAnimating();
 			</OnHide>
 		</Scripts>
-    </Frame>
+    </Frame-->
 </Ui>

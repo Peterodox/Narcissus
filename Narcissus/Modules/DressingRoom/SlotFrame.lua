@@ -349,20 +349,22 @@ NarciDressingRoomItemButtonMixin = {};
 --]]
 
 local function SecondaryButton_OnEnter(itemButton)
-    GameTooltip:SetOwner(itemButton, "ANCHOR_NONE");
-    GameTooltip:SetPoint("BOTTOMLEFT", itemButton, "TOPLEFT", 0, 8);
+    local tooltip = GameTooltip;
+    tooltip:SetOwner(itemButton, "ANCHOR_NONE");
+    tooltip:SetPoint("BOTTOMLEFT", itemButton, "TOPLEFT", 0, 8);
     if (itemButton.name) then
-        GameTooltip:SetText(itemButton.name);
+        tooltip:SetText(itemButton.name);
         local sourceText = DataProvider:GetIllusionSourceText(itemButton.sourceID);
 		if sourceText then
-			GameTooltip:AddLine(sourceText, 1, 1, 1, 1);
+			tooltip:AddLine(sourceText, 1, 1, 1, 1);
 		end
-        GameTooltip:Show();
+        tooltip:Show();
     elseif (itemButton.hyperlink) then
-        GameTooltip:SetHyperlink(itemButton.hyperlink);
-        GameTooltip:Show();
+        tooltip:SetHyperlink(itemButton.hyperlink);
+        tooltip:Show();
+        TooltipComparisonManager:Clear(tooltip);
     else
-        GameTooltip:Hide();
+        tooltip:Hide();
     end
 end
 
@@ -402,16 +404,18 @@ function NarciDressingRoomItemButtonMixin:Init(slotName)
 end
 
 function NarciDressingRoomItemButtonMixin:OnEnter()
-    GameTooltip:SetOwner(self, "ANCHOR_NONE");
-    GameTooltip:SetPoint("BOTTOMLEFT", self, "TOPLEFT", 2, 4);
+    local tooltip = GameTooltip;
+    tooltip:SetOwner(self, "ANCHOR_NONE");
+    tooltip:SetPoint("BOTTOMLEFT", self, "TOPLEFT", 2, 4);
     if (self.hyperlink) then
-        GameTooltip:SetHyperlink(self.hyperlink);
-        GameTooltip:Show();
+        tooltip:SetHyperlink(self.hyperlink);
+        tooltip:Show();
+        TooltipComparisonManager:Clear(tooltip);
     elseif self.localizedName then
-        GameTooltip:SetText(self.localizedName);
-        GameTooltip:Show();
+        tooltip:SetText(self.localizedName);
+        tooltip:Show();
     else
-        GameTooltip:Hide();
+        tooltip:Hide();
     end
 
     if self:HasItem() then

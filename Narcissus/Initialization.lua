@@ -1,6 +1,6 @@
-local NARCI_VERSION_INFO = "1.8.3 c";
+local NARCI_VERSION_INFO = "1.8.3 d";
 
-local VERSION_DATE = 1762100000;
+local VERSION_DATE = 1762600000;
 local CURRENT_VERSION = 10803;
 local PREVIOUS_VERSION = CURRENT_VERSION;
 local TIME_SINCE_LAST_UPDATE = 0;
@@ -74,6 +74,7 @@ local DefaultValues = {
     DressingRoomShowIconSelect = false,         --Display a list of icons when saving a new outfit
     DressingRoomAutoRemoveNonSetItem = false,
     DressingRoomShowSlot = true,                --Show/hide SlotFrame (See SlotToggle)
+    DressingRoomItemSetListHideDupes = true,
 
     -- Minimap Button --
     UseAddonCompartment = true,
