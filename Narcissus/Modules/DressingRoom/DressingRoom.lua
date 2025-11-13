@@ -1248,7 +1248,12 @@ do  --Transmog Set Selection
         end
 
         TransmogSetFrame:SetItemSet(setName, setItems, fromLink);
-        DressUpFrame.OutfitDetailsPanel:Hide();
+
+        if DressUpFrame.OutfitDetailsPanel then
+            DressUpFrame.OutfitDetailsPanel:Hide();
+        elseif DressUpFrame.CustomSetDetailsPanel then
+            DressUpFrame.CustomSetDetailsPanel:Hide();
+        end
 
         if not (SetSelectionModule.autoRemoveNonSetItem or equipPlayerItem) then return end;
 
@@ -1666,7 +1671,12 @@ EL:SetScript("OnEvent",function(self, event, ...)
         TransmogSetFrame:SetPoint("TOPLEFT", DressUpFrame, "TOPRIGHT", -1, -32);
         local baseFrameLevel = DressUpFrame.NineSlice:GetFrameLevel();
         TransmogSetFrame:SetFrameLevel(baseFrameLevel + 1);
-        DressUpFrame.OutfitDetailsPanel:SetFrameLevel(baseFrameLevel + 5);
+
+        if DressUpFrame.OutfitDetailsPanel then
+            DressUpFrame.OutfitDetailsPanel:SetFrameLevel(baseFrameLevel + 5);
+        elseif DressUpFrame.CustomSetDetailsPanel then
+            DressUpFrame.CustomSetDetailsPanel:SetFrameLevel(baseFrameLevel + 5);
+        end
     end
 end);
 

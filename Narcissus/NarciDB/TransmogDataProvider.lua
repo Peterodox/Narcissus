@@ -5,6 +5,7 @@ local MogAPI = C_TransmogCollection;
 local PlayerHasTransmog = MogAPI.PlayerHasTransmogItemModifiedAppearance;
 local IsAppearanceFavorite = MogAPI.GetIsAppearanceFavorite;
 local GetSourceInfo = MogAPI.GetSourceInfo;
+local GetAllAppearanceSources = MogAPI.GetAllAppearanceSources;
 local C_TransmogSets = C_TransmogSets;
 local CreateItemTransmogInfo = ItemUtil.CreateItemTransmogInfo;
 local GetItemInfoInstant = C_Item.GetItemInfoInstant;
@@ -16,55 +17,27 @@ local DataProvider = {};
 addon.TransmogDataProvider = DataProvider;
 
 local ValidSlotForSecondaryAppearance = {
+    [3] = true,
     [16] = true,
     [17] = true,
 };
 
-do
-    local version, build, date, tocversion = GetBuildInfo();
-    if tocversion and tocversion > 90005 then
-        --Use New API
-        ValidSlotForSecondaryAppearance[3] = true;
 
-        function DataProvider:GetIllusionName(illusionID)
-            return MogAPI.GetIllusionStrings(illusionID)
-        end
+function DataProvider:GetIllusionName(illusionID)
+    return MogAPI.GetIllusionStrings(illusionID)
+end
 
-        function DataProvider:GetIllusionInfo(illusionID)
-            local illusionInfo = MogAPI.GetIllusionInfo(illusionID);
-            if illusionInfo then
-                return illusionInfo.visualID, self:GetIllusionName(illusionID), illusionInfo.icon, illusionInfo.isCollected;
-            end
-        end
-
-        function DataProvider:GetIllusionSourceText(illusionID)
-            local name, hyperlink, sourceText = MogAPI.GetIllusionStrings(illusionID);
-            return sourceText
-        end
-    else
-        function DataProvider:GetIllusionName(illusionID)
-            local _, name= MogAPI.GetIllusionSourceInfo(illusionID);
-            return name;
-        end
-
-        function DataProvider:GetIllusionInfo(illusionID)
-            local visualID, name, hyperlink, icon = MogAPI.GetIllusionSourceInfo(illusionID);
-            return visualID, name, icon, false
-        end
-
-        function DataProvider:GetIllusionSourceText(illusionID)
-            if not self.illusionSources then
-                self.illusionSources = {};
-                local illusionList = MogAPI.GetIllusions();
-                for i, illusionInfo in pairs(illusionList) do
-                    self.illusionSources[illusionInfo.sourceID] = illusionInfo.sourceText;
-                end
-            end
-            return self.illusionSources[illusionID]
-        end
+function DataProvider:GetIllusionInfo(illusionID)
+    local illusionInfo = MogAPI.GetIllusionInfo(illusionID);
+    if illusionInfo then
+        return illusionInfo.visualID, self:GetIllusionName(illusionID), illusionInfo.icon, illusionInfo.isCollected;
     end
 end
 
+function DataProvider:GetIllusionSourceText(illusionID)
+    local name, hyperlink, sourceText = MogAPI.GetIllusionStrings(illusionID);
+    return sourceText
+end
 
 function DataProvider:GetVisualIDBySourceID(sourceID)
     if sourceID and sourceID > 0 then
@@ -118,7 +91,7 @@ end
 
 function DataProvider:FindKnwonSourceByVisualID(visualID)
     local isKnown, sourceID;
-    local sources = MogAPI.GetAllAppearanceSources(visualID);
+    local sources = GetAllAppearanceSources(visualID);
     for i = 1, #sources do
         if not sourceID then
             sourceID = sources[i];
@@ -151,6 +124,19 @@ function DataProvider:GetSourceName(sourceID)
     local sourceInfo = GetSourceInfo(sourceID);
     if not sourceInfo then return end;
     return sourceInfo.name
+end
+
+function DataProvider.IsAppearanceCollected(appearanceID)
+    local sources = GetAllAppearanceSources(appearanceID);
+    if sources then
+        for _, itemModifiedAppearanceID in ipairs(sources) do
+            local sourceInfo = GetSourceInfo(itemModifiedAppearanceID);
+            if sourceInfo and sourceInfo.isCollected then
+                return true
+            end
+        end
+    end
+    return false
 end
 
 

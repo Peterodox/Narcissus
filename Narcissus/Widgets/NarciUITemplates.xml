@@ -687,7 +687,7 @@
 				local action = self.parentObject.actionName;
 				local key = self.parentObject.key;
 				if action and key then
-					if SetBinding(key, action, 1) then
+					if SetBinding(key, action) then
 						self.parentObject:VerifyKey(true);
 					end
 				end
@@ -2376,6 +2376,7 @@
 							<OnEditFocusLost method="OnEditFocusLost"/>
 							<OnEscapePressed method="QuitEdit"/>
 							<OnHide method="QuitEdit"/>
+							<OnTextChanged method="OnTextChanged"/>
 							<OnEnter>
 								self:GetParent():GetParent():OnEnter();
 							</OnEnter>

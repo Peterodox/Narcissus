@@ -6,6 +6,12 @@ local DB;
 local CharacterData;   --NarciCharacterProfiles
 local Roaster = {};    --uid
 
+
+local GetOutfitInfo = C_TransmogCollection.GetCustomSetInfo or C_TransmogCollection.GetOutfitInfo;
+local GetOutfits = C_TransmogCollection.GetCustomSets or C_TransmogCollection.GetOutfits;
+local GetOutfitItemTransmogInfoList = C_TransmogCollection.GetCustomSetItemTransmogInfoList or C_TransmogCollection.GetOutfitItemTransmogInfoList;
+
+
 local ProfileAPI = {};
 addon.ProfileAPI = ProfileAPI;
 
@@ -57,9 +63,8 @@ end
 function ProfileAPI:SaveOutfits()
     self:Init();
 
-    local C_TransmogCollection = C_TransmogCollection;
 
-    local outfitIDs =  C_TransmogCollection.GetOutfits();
+    local outfitIDs =  GetOutfits();
     local numOutfits = (outfitIDs and #outfitIDs) or 0;
 
     CharacterData.outfits = {};
@@ -67,10 +72,10 @@ function ProfileAPI:SaveOutfits()
     local outfitID, name;
     for i = 1, numOutfits do
         outfitID = outfitIDs[i];
-        name = C_TransmogCollection.GetOutfitInfo(outfitID);
+        name = GetOutfitInfo(outfitID);
         CharacterData.outfits[i] = {
             n = name;
-            s = TransmogDataProvider:ConvertTransmogListToString(C_TransmogCollection.GetOutfitItemTransmogInfoList(outfitID))
+            s = TransmogDataProvider:ConvertTransmogListToString(GetOutfitItemTransmogInfoList(outfitID))
         };
     end
 end

@@ -60,3 +60,38 @@ do  --Chat
         TransitionAPI.DoEmote = DoEmote;
     end
 end
+
+
+do  --Transmog
+    local GetSlotVisualInfo = C_Transmog.GetSlotVisualInfo;
+
+    if IS_MIDNIGHT then
+        function TransitionAPI.SetTransmogLocationData(transmogLocation, slotID, transmogType, modification)
+            local slot = C_TransmogOutfitInfo.GetTransmogOutfitSlotFromInventorySlot(slotID - 1);
+            local locationData = {
+                slotID = slotID,
+                slot = slot,
+                transmogType = transmogType or 0,
+                isSecondary = modification and modification == 1 or false,
+            }
+            transmogLocation:Set(locationData);
+        end
+
+        function TransitionAPI.GetSlotVisualInfo(transmogLocation)
+            local slotVisualInfo = transmogLocation and GetSlotVisualInfo(transmogLocation:GetData());
+            if slotVisualInfo then
+                return slotVisualInfo.baseSourceID, slotVisualInfo.baseVisualID, slotVisualInfo.appliedSourceID, slotVisualInfo.appliedVisualID
+            end
+        end
+    else
+        function TransitionAPI.SetTransmogLocationData(transmogLocation, slotID, transmogType, modification)
+            transmogLocation:Set(slotID, transmogType or 0, modification or 0);
+        end
+
+        function TransitionAPI.GetSlotVisualInfo(transmogLocation)
+            if transmogLocation then
+                return GetSlotVisualInfo(transmogLocation)
+            end
+        end
+    end
+end

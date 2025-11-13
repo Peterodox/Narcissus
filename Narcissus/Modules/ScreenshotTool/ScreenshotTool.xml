@@ -471,7 +471,7 @@
                 <Frames>
                     <Button parentKey="ExpandButton" inherits="NarciEmoteButtonTemplate">
                         <Anchors>
-                            <Anchor point="BOTTOM"/>
+                            <Anchor point="BOTTOMLEFT"/>
                         </Anchors>
                         <Layers>
                             <Layer level="OVERLAY">
@@ -479,7 +479,7 @@
 									<Size x="8" y="8"/>
 									<TexCoords left="0" right="1" top="1" bottom="0"/>
 									<Anchors>
-										<Anchor point="RIGHT" relativeKey="$parent" relativePoint="RIGHT" x="-6" y="0"/>
+										<Anchor point="RIGHT" relativeKey="$parent" relativePoint="RIGHT" x="-14" y="0"/>
 									</Anchors>
 								</Texture>
                             </Layer>
@@ -510,7 +510,7 @@
                                 </KeyValues>
                                 <Size x="240" y="112"/>
                                 <Anchors>
-                                    <Anchor point="BOTTOMLEFT" relativeKey="$parent" relativePoint="BOTTOMLEFT" x="8" y="8"/>
+                                    <Anchor point="TOPLEFT" relativeKey="$parent" relativePoint="TOPLEFT" x="8" y="-38"/>
                                 </Anchors>
                             </Frame>
 

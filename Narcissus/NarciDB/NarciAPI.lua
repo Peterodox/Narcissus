@@ -94,17 +94,17 @@ local function NarciAPI_GetSlotVisualID(slotID)
             end
             modification = 1;       --Enum.TransmogModification : 0 ~ Main, 1 ~ Secondary
         end
-        transmogLocation:Set(slotID, transmogType, modification);
-        local baseSourceID, baseVisualID, appliedSourceID, appliedVisualID, pendingSourceID, pendingVisualID, hasPendingUndo, isHideVisual, itemSubclass = C_Transmog.GetSlotVisualInfo(transmogLocation);
+        TransitionAPI.SetTransmogLocationData(transmogLocation, slotID, transmogType, modification);
+        local baseSourceID, baseVisualID, appliedSourceID, appliedVisualID = TransitionAPI.GetSlotVisualInfo(transmogLocation);
         if ( appliedSourceID == 0 ) then
             appliedSourceID = baseSourceID;
             appliedVisualID = baseVisualID;
         end
         return appliedSourceID, appliedVisualID, hasSecondaryAppearance;
     else
-        transmogLocation:Set(slotID, transmogType, modification);
+        TransitionAPI.SetTransmogLocationData(transmogLocation, slotID, transmogType, modification);
 
-        local baseSourceID, baseVisualID, appliedSourceID, appliedVisualID, pendingSourceID, pendingVisualID, hasPendingUndo, isHideVisual, itemSubclass = C_Transmog.GetSlotVisualInfo(transmogLocation);
+        local baseSourceID, baseVisualID, appliedSourceID, appliedVisualID = TransitionAPI.GetSlotVisualInfo(transmogLocation);
         if ( appliedSourceID == 0 ) then
             appliedSourceID = baseSourceID;
             appliedVisualID = baseVisualID;

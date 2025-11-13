@@ -236,6 +236,9 @@ do
     function NameCardMixin:OnHide()
         self.focused = false;
         self:SetScript("OnUpdate", nil);
+        if self.onHideCallback then
+            self.onHideCallback(self);
+        end
     end
 
     function NameCardMixin:OnMouseDown()
@@ -409,13 +412,27 @@ do
     tinsert(SpecialNameCards, 5, {
         text = "Solanya | CEO of RP",
         setupFunc = function(self)
-            self.SecondaryText = self:CreateFontString(nil, "OVERLAY", "NarciFontMedium13");
-            self.SecondaryText:SetTextColor(1, 0.125, 0.125);
-            self.SecondaryText:SetText("\84\82\80\32\87\73\80\69\68");
-            self.SecondaryText:SetPoint("LEFT", self.Label, "RIGHT", 8, 0);
-            self.SecondaryText:Hide();
+            local f = CreateFrame("Frame");
+            f:SetFrameStrata("FullScreen");
+            f:SetPoint("CENTER", UIParent, "CENTER", 0, 0);
+            f:SetSize(8, 8);
+            f:Hide();
+            self.SecondaryTextContainer = f;
 
-            local ag = self.SecondaryText:CreateAnimationGroup();
+            local Text1 = f:CreateFontString(nil, "OVERLAY");
+            local fontFile, height, flag = NarciFontMedium13:GetFont();
+            Text1:SetFont(fontFile, 96, "");
+            Text1:SetTextColor(1, 0.125, 0.125);
+            Text1:SetText("\87\73\80\69\68\32\89\79\85\82\32\84\82\80");
+            Text1:SetPoint("CENTER", f, "CENTER", 0, -12);
+
+            local Text2 = f:CreateFontString(nil, "OVERLAY");
+            Text2:SetFont(fontFile, 24, "");
+            Text2:SetTextColor(1, 1, 1);
+            Text2:SetText("\84\72\69\32\67\69\79\32\79\70\32\82\80");
+            Text2:SetPoint("BOTTOM", Text1, "TOP", 0, 0);
+
+            local ag = f:CreateAnimationGroup();
             self.AnimFade = ag;
             ag:SetToFinalAlpha(true);
             local a1 = ag:CreateAnimation("alpha");
@@ -426,17 +443,22 @@ do
             local a2 = ag:CreateAnimation("alpha");
             a2:SetFromAlpha(1);
             a2:SetToAlpha(0);
-            a2:SetStartDelay(1.5);
+            a2:SetStartDelay(2);
             a2:SetDuration(0.5);
             a2:SetOrder(2);
+
+            self.onHideCallback = function()
+                f:Hide();
+                ag:Stop();
+            end;
         end,
 
         mixin = {
             onClickFunc = function(self)
-                if self.focused then
+                if self.focused and not self.AnimFade:IsPlaying() then
                     self.AnimFade:Stop();
                     self.AnimFade:Play();
-                    self.SecondaryText:Show();
+                    self.SecondaryTextContainer:Show();
                 end
             end,
 
@@ -457,17 +479,31 @@ do
 
             self.AltText = self:CreateFontString(nil, "OVERLAY", "NarciFontMedium13");
             SetFontStringColor(self.AltText);
-            self.AltText:SetText("\65\110\100\32\70\111\114\32\66\101\105\110\103\32\77\121\32\70\114\105\101\110\100");
+            self.AltText:SetText(""); --"\65\110\100\32\70\111\114\32\66\101\105\110\103\32\77\121\32\70\114\105\101\110\100"
             self.AltText:SetPoint("LEFT", self.Label, "RIGHT", 0, 0);
             self.AltText:SetAlpha(0);
         end,
 
         mixin = {
             onFocusdFunc = function(self)
-                self.t = 1;
+                self.t1 = 1;
+                self.t2 = 1;
+
+                local letters = {
+                    "\65", "\110", "\100", "\32", "\70", "\111", "\114", "\32", "\66", "\101", "\105", "\110", "\103", "\32", "\77", "\121", "\32", "\70", "\114", "\105", "\101", "\110", "\100",
+                };
+
+                self.total = #letters;
+                if not self.i then
+                    self.i = 0;
+                end
+                self.delay = 0.5;
+
                 self:SetScript("OnUpdate", function(_, elapsed)
-                    self.t = self.t + elapsed;
-                    if self.t > 0.032 then
+                    self.t1 = self.t1 + elapsed;
+                    self.t2 = self.t2 + elapsed;
+                    if self.t1 > 0.032 then
+                        self.t1 = 0;
                         self.altKeyDown = IsAltKeyDown();
                     end
                     if self.altKeyDown then
@@ -478,6 +514,27 @@ do
                         end
                         self.AltText:SetAlpha(self.alpha);
                         self.Label2:SetAlpha(1 - self.alpha);
+                        if self.t2 > self.delay then
+                            self.t2 = 0;
+                            self.i = self.i + 1;
+                            if self.i > self.total then
+                                self.i = self.total + 1;
+                                self.delay = 1;
+                            else
+                                local text = "";
+                                for i = 1, self.i do
+                                    text = text..letters[i];
+                                end
+                                self.AltText:SetText(text);
+                                if self.i < 13 then
+                                    self.delay = 0.5;
+                                elseif self.i > 13 then
+                                    self.delay = 0.05;
+                                else
+                                    self.delay = 2;
+                                end
+                            end
+                        end
                     else
                         self.alpha = self.AltText:GetAlpha();
                         self.alpha = self.alpha - 5 * elapsed;

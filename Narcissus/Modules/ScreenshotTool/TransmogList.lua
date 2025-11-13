@@ -3,7 +3,7 @@ local _, addon = ...
 local outQuart = addon.EasingFunctions.outQuart;
 
 
-local EXPANDED_WIDTH, EXPANDED_HEIGHT = 256, 156;
+local EXPANDED_WIDTH, EXPANDED_HEIGHT = 256, 180;
 local COLLAPSED_WIDTH, COLLAPSED_HEIGHT = 60, 24;
 
 local Toolbar, MainFrame;
@@ -46,7 +46,7 @@ end
 
 function NarciScreenshotToolbarTransmogListMixin:UpdateTransmogList(forceUpdateWhenHidden)
     if self.getItemListFunc and (self.Subframe:IsShown() or forceUpdateWhenHidden) then
-        self.Subframe.TextContainer:SetText(self.getItemListFunc(self:GetFormat(), self.includeItemID));
+        self.Subframe.TextContainer:SetProtectedText(self.getItemListFunc(self:GetFormat(), self.includeItemID));
     end
 end
 
@@ -146,6 +146,8 @@ end
 function NarciScreenshotToolbarTransmogListMixin:Init()
     MainFrame = self;
 
+    local padding = 14;
+
     --Create Token Buttons
     local textFormats = {
         "text", "reddit", "wowhead", "nga", "mmochampion",
@@ -154,7 +156,7 @@ function NarciScreenshotToolbarTransmogListMixin:Init()
     self.tokens = {};
     for i, token in ipairs(textFormats) do
         self.tokens[i] = TokenButton_Create(self.Subframe, i);
-        self.tokens[i]:SetPoint("TOPLEFT", self, "TOPLEFT", 14 + 22*(i - 1), -14);
+        self.tokens[i]:SetPoint("TOPLEFT", self, "TOPLEFT", padding + 22*(i - 1), -padding);
         self.tokens[i].token = token;
     end
 
@@ -163,15 +165,17 @@ function NarciScreenshotToolbarTransmogListMixin:Init()
     self.Subframe.ItemIDToggle:SetScript("OnLeave", ItemIDButton_OnLeave);
 
     local eb = self.ExpandButton;
-    eb.ButtonText:SetText(Narci.L["Copy Texts"]);
+    eb.ButtonText:SetText(Narci.L["Toggle Item List"]);
+    eb.ButtonText:ClearAllPoints();
+    eb.ButtonText:SetPoint("LEFT", eb, "LEFT", padding, 0);
 
-    local buttonWidth = math.floor((eb.ButtonText:GetWidth() or 120) + 0.5) + 26;
+    local buttonWidth = math.floor((eb.ButtonText:GetWidth() or 120) + 0.5) + padding * 2 + 16;
     self.collapsedWidth = buttonWidth;
     COLLAPSED_WIDTH = buttonWidth;
 
     eb:SetWidth(buttonWidth);
     eb:SetScript("OnClick", function()
-        self:Expand();
+        self:ToggleCollapse();
     end);
     eb:SetScript("OnEnter", ExpandButton_OnEnter);
     eb:SetScript("OnLeave", ExpandButton_OnLeave);
@@ -212,7 +216,7 @@ end
 
 function NarciScreenshotToolbarTransmogListMixin:Expand(instant)
     self.Subframe:Show();
-    self.ExpandButton:Hide();
+    self.ExpandButton.Arrow:SetTexCoord(0, 1, 0, 1);
     self:RegisterEvent("GLOBAL_MOUSE_DOWN");
     self.lastW = nil;
 
@@ -232,7 +236,7 @@ end
 
 function NarciScreenshotToolbarTransmogListMixin:Collapse(instant)
     self.Subframe:Hide();
-    self.ExpandButton:Show();
+    self.ExpandButton.Arrow:SetTexCoord(0, 1, 1, 0);
     self:UnregisterEvent("GLOBAL_MOUSE_DOWN");
     self.lastW = nil;
 
@@ -244,6 +248,14 @@ function NarciScreenshotToolbarTransmogListMixin:Collapse(instant)
         self.fromW, self.fromH = self:GetSize();
         self.toW, self.toH = COLLAPSED_WIDTH, COLLAPSED_HEIGHT;
         self:SetScript("OnUpdate", Expand_OnUpdate);
+    end
+end
+
+function NarciScreenshotToolbarTransmogListMixin:ToggleCollapse()
+    if self.Subframe:IsShown() then
+        self:Collapse();
+    else
+        self:Expand();
     end
 end
 

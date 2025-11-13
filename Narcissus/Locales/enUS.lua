@@ -122,6 +122,7 @@ L["Layout"] = "Layout";
 L["Symmetry"] = "Symmetry";
 L["Asymmetry"] = "Asymmetry";
 L["Copy Texts"] = "Copy Item List";
+L["Toggle Item List"] = "Toggle Item List";
 L["Syntax"] = "Syntax";
 L["Plain Text"] = "Plain Text";
 L["BB Code"] = "BB Code";

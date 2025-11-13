@@ -22,7 +22,7 @@ local GetInventoryItemLink = GetInventoryItemLink;
 local GetInventoryItemDurability = GetInventoryItemDurability;
 local Model_ApplyUICamera = Model_ApplyUICamera;
 local C_TransmogCollection = C_TransmogCollection;
-local GetSlotVisualInfo = C_Transmog.GetSlotVisualInfo;
+
 local EJ_SetSearch = EJ_SetSearch;
 
 local GetItemQualityColor = NarciAPI.GetItemQualityColor;
@@ -30,6 +30,8 @@ local GetItemQualityColor = NarciAPI.GetItemQualityColor;
 local SharedTooltipDelay = addon.SharedTooltipDelay;
 local TransmogDataProvider = addon.TransmogDataProvider;
 local SetModelByUnit = addon.TransitionAPI.SetModelByUnit;
+local SetTransmogLocationData = addon.TransitionAPI.SetTransmogLocationData;
+local GetSlotVisualInfo = addon.TransitionAPI.GetSlotVisualInfo;
 local ItemCacheUtil = addon.ItemCacheUtil;
 local SetupSpecialItemTooltip = addon.SetupSpecialItemTooltip;
 
@@ -608,7 +610,7 @@ end
 
 
 function NarciEquipmentTooltipMixin:SetInventoryItem(slotID)
-    self.transmogLocation:Set(slotID, 0, 0);
+    SetTransmogLocationData(self.transmogLocation, slotID);
     self.slotID = slotID;
     self:ClearLines();
     self:SetUseTransmogLayout(false);
@@ -1103,8 +1105,6 @@ function NarciEquipmentTooltipMixin:SetItemModel()
     if self.baseSourceID and self.baseVisualID then
         self.ItemModel:Show();
         self.ItemModel:SetUseTransmogSkin(true);
-        --local baseSourceID, baseVisualID = GetSlotVisualInfo(self.transmogLocation);
-        --local sourceID = transmogInfo.appearanceID;
         local cameraID = C_TransmogCollection.GetAppearanceCameraIDBySource(self.baseSourceID);
         if cameraID == 0 then
             cameraID = 238; --Use the Sword camera if the weapon is not transmoggable

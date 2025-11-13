@@ -8,9 +8,10 @@ local _G = _G;
 local DressUpFrame = DressUpFrame;
 local C_Item = C_Item;
 local RequestLoadItemDataByID = C_Item.RequestLoadItemDataByID;
-local PlayerHasTransmog = C_TransmogCollection.PlayerHasTransmog;
 local GetSourceItemID = C_TransmogCollection.GetSourceItemID;
 local GetAppearanceInfoBySource = C_TransmogCollection.GetAppearanceInfoBySource;
+local GetSourceInfo = C_TransmogCollection.GetSourceInfo;
+local IsAppearanceCollected = TransmogDataProvider.IsAppearanceCollected;
 
 
 local FRAME_WIDTH_BASE = 320;
@@ -193,32 +194,62 @@ function TransmogSetFrame:SetItemSet(setName, items, setItemLink)
     local tbl = {};
     local addItem, appearanceID;
     local n = 0;
-    local numKnown = 0;
+    local numCollected = 0;
     local numDupes = 0;
     local showDupes = not HIDE_DUPES;
+    local isSourceCollected;
+    local isCollected;
+    local collecedAppearance = {};
+
 
     for _, transmogSetItemInfo in ipairs(items) do
         addItem = false;
+        isSourceCollected = false;
         appearanceInfo = GetAppearanceInfoBySource(transmogSetItemInfo.itemModifiedAppearanceID);
+        appearanceID = nil;
+
+        local sourceInfo = GetSourceInfo(transmogSetItemInfo.itemModifiedAppearanceID);
+        if sourceInfo and sourceInfo.isCollected then
+            isSourceCollected = true;
+        end
 
         if appearanceInfo then
             appearanceID = appearanceInfo.appearanceID;
+
+            if collecedAppearance[appearanceID] == nil then
+                collecedAppearance[appearanceID] = IsAppearanceCollected(appearanceID);
+            end
+
             if usedAppearance[appearanceID] then
                 numDupes = numDupes + 1;
             else
                 usedAppearance[appearanceID] = true;
                 addItem = true;
-                if appearanceInfo.appearanceIsCollected or appearanceInfo.sourceIsCollected then
-                    numKnown = numKnown + 1;
-                end
             end
         else
             addItem = true;
         end
 
+        if showDupes then
+            --See if the source is collected, similar to cvar "missingTransmogSourceInItemTooltips"
+            isCollected = isSourceCollected;
+        else
+            --See if the appearance is collected
+            if appearanceID then
+                isCollected = collecedAppearance[appearanceID];
+            else
+                isCollected = isSourceCollected;
+            end
+        end
+
         if addItem or showDupes then
             n = n + 1;
             tbl[n] = transmogSetItemInfo;
+
+            if isCollected then
+                numCollected = numCollected + 1;
+                tbl[n].isCollected = true;
+            end
         end
     end
 
@@ -256,12 +287,13 @@ function TransmogSetFrame:SetItemSet(setName, items, setItemLink)
     MAX_LABEL_WIDTH = anyWeapon and self.maxWidth_Weapon or self.maxWidth_Armor;
     FRAME_WIDTH = FRAME_WIDTH_BASE + MAX_LABEL_WIDTH - 24;
 
-    self.Subtitle:SetText(string.format("%s:  |cffcccccc%d / %d|r", TRANSMOG_COLLECTED or "Collected", numKnown, numItems));
+    self.Subtitle:SetText(string.format("%s:  |cffcccccc%d / %d|r", TRANSMOG_COLLECTED or "Collected", numCollected, numItems));
     --self:UpdateLabels(true);
 
     local numButtons = NarciAPI.Clamp(numItems, 4, 16.4);
     local height = numButtons * ITEMBUTTON_HEIGHT - self.itemlistFromY + 80 * SIZE_SCALE + ITEMLIST_PADDING_Y;
     self:SetSize(FRAME_WIDTH, height);
+    self.ScrollView:SetWidth(FRAME_WIDTH);
     self.ScrollView:OnSizeChanged();
 
     self:UpdateEquippedItems();
@@ -281,6 +313,8 @@ function TransmogSetFrame:SetItemSet(setName, items, setItemLink)
             setupFunc = function(obj)
                 obj:SetItem(v.itemID, v.itemModifiedAppearanceID, v.invType);
                 obj.SlotName:SetShown(v.showSlotName);
+                obj.BlueDot:SetShown(not v.isCollected);
+                obj:SetWidth(FRAME_WIDTH);
                 obj:Layout();
             end,
             top = top,
@@ -579,6 +613,14 @@ do  --ItemButton
         self.SlotName:SetJustifyH("LEFT");
         self.SlotName:SetPoint("LEFT", self, "LEFT", PADDING_H, 0);
         self.SlotName:SetTextColor(COLOR_2, COLOR_2, COLOR_2);
+
+        self.BlueDot = self:CreateTexture(nil, "OVERLAY");
+        self.BlueDot:SetTexture(FILE);
+        self.BlueDot:SetTexCoord(512/1024, 528/1024, 48/1024, 64/1024);
+        self.BlueDot:SetSize(8, 8);
+        self.BlueDot:SetPoint("RIGHT", self.Icon, "LEFT", -4, 0);
+        self.BlueDot:Hide();
+        self.BlueDot:SetAlpha(0.8);
 
         self:SetScript("OnEnter", self.OnEnter);
         self:SetScript("OnLeave", self.OnLeave);

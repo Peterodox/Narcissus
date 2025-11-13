@@ -1179,7 +1179,12 @@ function NarciResponsiveEditBoxSharedMixin:OnHide()
 end
 
 function NarciResponsiveEditBoxSharedMixin:OnTextChanged(userInput)
-
+    if userInput then
+        if self.forbidEdit then
+            self:QuitEdit();
+            self:SetText(self.protectedText);
+        end
+    end
 end
 
 function NarciResponsiveEditBoxSharedMixin:SetDefaultCursorPosition(offset)
@@ -1218,6 +1223,17 @@ end
 NarciScrollEditBoxMixin = CreateFromMixins(NarciFrameBorderMixin);
 
 function NarciScrollEditBoxMixin:SetText(str)
+    self.ScrollFrame.EditBox.forbidEdit = nil;
+    self.ScrollFrame.EditBox.protectedText = "";
+    self.ScrollFrame.EditBox:SetText(str);
+    After(0, function()
+        self:UpdateScrollRange(true);
+    end);
+end
+
+function NarciScrollEditBoxMixin:SetProtectedText(str)
+    self.ScrollFrame.EditBox.forbidEdit = true;
+    self.ScrollFrame.EditBox.protectedText = str;
     self.ScrollFrame.EditBox:SetText(str);
     After(0, function()
         self:UpdateScrollRange(true);
@@ -1621,10 +1637,10 @@ end
 local function ClearBindingKey(actionName)
     local key1, key2 = GetBindingKey(actionName);
     if key1 then
-        SetBinding(key1, nil, 1);
+        SetBinding(key1);
     end
     if key2 then
-        SetBinding(key2, nil, 1);
+        SetBinding(key2);
     end
     SaveBindings(1);
 end
@@ -1753,7 +1769,7 @@ function NarciGenericKeyBindingButtonMixin:VerifyKey(override)
             return true
         else
             ClearBindingKey(self.actionName);
-            if SetBinding(key, self.actionName, 1) then
+            if SetBinding(key, self.actionName) then
                 SaveBindings(1);    --account wide
                 self:ExitKeyBinding(true);
             else
