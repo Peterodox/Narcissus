@@ -560,7 +560,7 @@ do
         self:SetScript("OnHide", self.OnHide);
 
         self.GetMouseFocus = TransitionAPI.GetMouseFocus;
-        self.StripHyperlinks = StripHyperlinks;
+        self.StripHyperlinks = C_StringUtil and C_StringUtil.StripHyperlinks or StripHyperlinks;
 
         Menu.ModifyMenu("MENU_WARDROBE_OUTFITS", function(owner, rootDescription, contextData)
             rootDescription:AddMenuAcquiredCallback(function()

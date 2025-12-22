@@ -96,6 +96,7 @@ local function NarciAPI_GetSlotVisualID(slotID)
         end
         TransitionAPI.SetTransmogLocationData(transmogLocation, slotID, transmogType, modification);
         local baseSourceID, baseVisualID, appliedSourceID, appliedVisualID = TransitionAPI.GetSlotVisualInfo(transmogLocation);
+
         if ( appliedSourceID == 0 ) then
             appliedSourceID = baseSourceID;
             appliedVisualID = baseVisualID;
@@ -105,6 +106,7 @@ local function NarciAPI_GetSlotVisualID(slotID)
         TransitionAPI.SetTransmogLocationData(transmogLocation, slotID, transmogType, modification);
 
         local baseSourceID, baseVisualID, appliedSourceID, appliedVisualID = TransitionAPI.GetSlotVisualInfo(transmogLocation);
+        --print(slotID, baseSourceID, baseVisualID, appliedSourceID, appliedVisualID)
         if ( appliedSourceID == 0 ) then
             appliedSourceID = baseSourceID;
             appliedVisualID = baseVisualID;
@@ -2748,8 +2750,15 @@ NarciAPI.WrapNameWithClassColor = WrapNameWithClassColor;
 local function GetOutfitSlashCommand()
 	local playerActor = DressUpFrame.ModelScene:GetPlayerActor();
 	local itemTransmogInfoList = playerActor and playerActor:GetItemTransmogInfoList();
-    local slashCommand = TransmogUtil.CreateOutfitSlashCommand(itemTransmogInfoList);
-    return slashCommand
+    if itemTransmogInfoList then
+        local slashCommand;
+        if TransmogUtil.CreateCustomSetSlashCommand then
+            slashCommand = TransmogUtil.CreateCustomSetSlashCommand(itemTransmogInfoList);
+        elseif TransmogUtil.CreateOutfitSlashCommand then
+            slashCommand = TransmogUtil.CreateOutfitSlashCommand(itemTransmogInfoList);
+        end
+        return slashCommand or ""
+    end
 end
 
 NarciAPI.GetOutfitSlashCommand = GetOutfitSlashCommand;

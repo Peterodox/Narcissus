@@ -40,7 +40,7 @@ local GetItemGem = C_Item.GetItemGem;
 local GetItemNumSockets = C_Item.GetItemNumSockets;
 local GetItemStats = C_Item.GetItemStats;
 local GetInventoryItemLink = GetInventoryItemLink;
-local StripHyperlinks = StripHyperlinks;    --Added in 10.1.0
+local StripHyperlinks = C_StringUtil and C_StringUtil.StripHyperlinks or StripHyperlinks;
 local GetSpellInfo = addon.TransitionAPI.GetSpellInfo;
 
 local function IsArtifactRelic(item)

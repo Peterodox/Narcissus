@@ -94,4 +94,30 @@ do  --Transmog
             end
         end
     end
+
+    if addon.IsTOCVersionEqualOrNewerThan(120001) then
+        local SourceTypeXGlobalIndex = {
+            [1] = 1,
+            [2] = 2,
+            [3] = 3,
+            [4] = 4,
+            [7] = 5,
+            [8] = 6,
+            [10]= 7,
+        };
+
+        function TransitionAPI.GetTransmogSourceName(sourceType)
+            if sourceType then
+                sourceType = sourceType - 1;    --Bug in 12.0.1? Doesn't match Enum.TransmogSource
+                local newIndex = SourceTypeXGlobalIndex[sourceType];
+                if newIndex then
+                    return _G["TRANSMOG_SOURCE_".. newIndex]
+                end
+            end
+        end
+    else
+        function TransitionAPI.GetTransmogSourceName(sourceType)
+            return sourceType and _G["TRANSMOG_SOURCE_".. sourceType]
+        end
+    end
 end

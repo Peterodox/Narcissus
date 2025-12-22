@@ -622,6 +622,75 @@ do  --Transmog Set invType to slotID, Slot Sorting
 end
 
 
+do  --Current Transmog Getter (Get itemTransmogInfoList from a model, due to API change in Midnight)
+    local Getter = CreateFrame("Frame");
+
+    function Getter.ModelSceneOnUpdate(self, elapsed)
+        self.t = self.t + elapsed;
+        if self.t > 0.0 then
+            self.t = 0;
+            self:SetScript("OnUpdate", nil);
+            Getter:OnModelDressed();
+        end
+    end
+
+    function Getter:Init()
+        if not self.playerActor then
+            local ModelScene = CreateFrame("ModelScene", nil, self);
+            ModelScene:SetSize(2, 2);
+            ModelScene:SetPoint("TOP", UIParent, "BOTTOM", 0, -8);
+            ModelScene:SetScript("OnDressModel", function(_, itemModifiedAppearanceID, invSlot, removed)
+                ModelScene.t = 0;
+                ModelScene:SetScript("OnUpdate", Getter.ModelSceneOnUpdate);
+            end);
+            self.playerActor = ModelScene:CreateActor(nil);
+        end
+    end
+
+    function Getter:OnUpdate(elapsed)
+        self.t = self.t + elapsed;
+        if self.t > 0.1 then
+            self.t = 0;
+            self:SetScript("OnUpdate", nil);
+            self.pauseUpdate = nil;
+        end
+    end
+
+    function Getter:RequestUpdate()
+        if not self.pauseUpdate then
+            self.pauseUpdate = true;
+            self:Init();
+            self.t = 0;
+            self:SetScript("OnUpdate", Getter.OnUpdate);
+            self.playerActor:SetModelByUnit("player", false, true, false, false);
+        end
+    end
+
+    function Getter:OnModelDressed()
+        local itemTransmogInfoList = self.playerActor:GetItemTransmogInfoList();
+        if not itemTransmogInfoList then
+            return
+        end
+
+        local mainHandInfo = itemTransmogInfoList[16];  --INVSLOT_MAINHAND
+        if mainHandInfo and mainHandInfo.secondaryAppearanceID == Constants.Transmog.MainHandTransmogIsPairedWeapon then
+            local pairedTransmogID = C_TransmogCollection.GetPairedArtifactAppearance(mainHandInfo.appearanceID);
+            if pairedTransmogID and itemTransmogInfoList[17] then
+                itemTransmogInfoList[17].appearanceID = pairedTransmogID;   --INVSLOT_OFFHAND
+            end
+        end
+
+        addon.DisplayItemTransmogInfoList(itemTransmogInfoList);
+    end
+
+    local function RequestUpdateCharacterUI()
+        Getter:RequestUpdate();
+        return true
+    end
+    DataProvider.RequestUpdateCharacterUI = RequestUpdateCharacterUI;
+end
+
+
 --Debug
 --[[
 function GetTransmogStringByOutfitID(outfitID)
