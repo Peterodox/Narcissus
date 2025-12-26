@@ -146,6 +146,9 @@ local TranslateValue_Male = {
 
 	[84] = {[1] = {-0.1, 1.02, -0.57},
 				[2] = {-0.6, 1.24, 0.05}},		--84/85 Earthen √
+
+	[86] = {[1] = {-0.25, 1.45, -0.17},
+				[2] = {-0.25, 1.45, -0.17}},		--86 Haranir
 };
 
 local TranslateValue_Female = {
@@ -209,6 +212,9 @@ local TranslateValue_Female = {
 
 	[84] = {[1] = {-0.1, 1.02, -0.57},
 				[2] = {-0.4, 1.15, 0.00}},		--84/85 Earthen √
+
+	[86] = {[1] = {-0.3, 1.46, -0.17},
+				[2] = {-0.3, 1.46, -0.17}},		--86 Haranir
 }
 
 TranslateValue_Female[36] = TranslateValue_Female[2];
@@ -244,6 +250,8 @@ local function ReAssignRaceID(raceID, custom)
 		end
 	elseif raceID == 85 then	--Earthen
 		raceID = 84;
+	elseif raceID == 91 then	--Haranir Horde
+		raceID = 86;
 	end
 
 	return raceID;
@@ -2852,7 +2860,7 @@ function NarciGenericModelMixin:OnUpdate()
 			local posY = self.posY + dx;
 			local posZ = self.posZ + dy;
 			self:SetPosition(self.posX, posY, posZ);
-			--print("Y: "..posY.." Z: "..posZ.." Dis: "..self.cameraDistance)
+			--print("Y: "..posY.." Z: "..posZ.." Dis: "..self.cameraDistance)	--debug
 		else
 			if LINK_SCALE then
 				for i = 1, #ModelFrames do

@@ -2883,11 +2883,12 @@ local RESERVED_KEYS = {
 
 local function ClearBindingKey(actionName)
     local key1, key2 = GetBindingKey(actionName);
+    local bindingContext = C_KeyBindings.GetBindingContextForAction(actionName);
     if key1 then
-        SetBinding(key1, nil, 1);
+        SetBinding(key1, nil, bindingContext);
     end
     if key2 then
-        SetBinding(key2, nil, 1);
+        SetBinding(key2, nil, bindingContext);
     end
     SaveBindings(1);
 end
@@ -3036,7 +3037,9 @@ function NarciSettingsKeybindingButton:AttemptToBind(override)
         return
     else
         ClearBindingKey(self.actionName);
-        if SetBinding(self.newKey, self.actionName, 1) then
+        local bindingContext = C_KeyBindings.GetBindingContextForAction(action);
+        local result = SetBinding(self.newKey, self.actionName, bindingContext);
+        if result then
             --Successful
             self.TextBackground.AnimFadeOut:Stop();
             self.TextBackground:SetColorTexture(0.35, 0.61, 0.38);  --green

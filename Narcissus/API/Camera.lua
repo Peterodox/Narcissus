@@ -350,6 +350,9 @@ do  --Camera Parameters
         ["Dracthyr"] = {[2] = {2.6, 0.1704, 0.0749, 5},		--Dracthyr Dragon Form
                         [3] = {2.6, 0.1704, 0.0749, 5}},
 
+        [86] = {[2] = {2.3, 0.2915, 0.0175, 4.5},			    --86 Haranir
+            [3] = {2.1, 0.3309, -0.0113, 4.0}},
+
         --1 	Human 32 Kultiran
         --2 	Orc
         --3 	Dwarf
@@ -457,6 +460,8 @@ do  --Camera Parameters
             CameraUtil.GetRaceKey = CameraUtil.GetRaceKey_Dracthyr;
         elseif RACE == 84 or RACE == 85 then	    --Earthen
             RACE = 3;
+        elseif RACE == 91 then                      --Haranir Horde
+            RACE = 86;
         end
 
         local _, _, playerClassID = UnitClass("player");

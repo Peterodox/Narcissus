@@ -403,7 +403,7 @@ local ToolbarButtonInfo = {
 };
 
 local Layouts = {
-    Narcissus = {"Mog", "Emote", "HideTexts", "TopQuality",
+    Narcissus = {"Mog", "Emote", "HideTexts", "TopQuality", "Camera", --Including Camera when adding profile for new races
         showSwitch = true,
     },
 
@@ -491,7 +491,7 @@ local function ShoulderSlider_OnValueChanged(self, value, userInput)
     end
 
     --self:SetLabel( string.format("Offset |cff62c497%.1f|r", value) );
-    self:SetValueText(string.format("|cff62c497%.1f|r", value));
+    self:SetValueText(string.format("|cff62c497%.2f|r", value));
 
     if userInput then
         SetCVar("test_cameraOverShoulder", -value);

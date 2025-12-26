@@ -1636,11 +1636,12 @@ end
 
 local function ClearBindingKey(actionName)
     local key1, key2 = GetBindingKey(actionName);
+    local bindingContext = C_KeyBindings.GetBindingContextForAction(actionName);
     if key1 then
-        SetBinding(key1);
+        SetBinding(key1, nil, bindingContext);
     end
     if key2 then
-        SetBinding(key2);
+        SetBinding(key2, nil, bindingContext);
     end
     SaveBindings(1);
 end
@@ -1769,7 +1770,8 @@ function NarciGenericKeyBindingButtonMixin:VerifyKey(override)
             return true
         else
             ClearBindingKey(self.actionName);
-            if SetBinding(key, self.actionName) then
+            local bindingContext = C_KeyBindings.GetBindingContextForAction(self.actionName);
+            if SetBinding(key, self.actionName, bindingContext) then
                 SaveBindings(1);    --account wide
                 self:ExitKeyBinding(true);
             else
