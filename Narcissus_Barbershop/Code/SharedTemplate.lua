@@ -40,6 +40,7 @@ function NarciBarberShopSharedTemplateMixin:SetBackgroundColor(r, g, b, a)
 end
 
 function NarciBarberShopSharedTemplateMixin:OnEnter()
+    self:PlayGlowEffect(false);
     self:SetBorderColor("focused");
     if self.ButtonText then
         self.ButtonText:SetTextColor(1, 1, 1);
@@ -55,6 +56,7 @@ function NarciBarberShopSharedTemplateMixin:OnLeave()
 end
 
 function NarciBarberShopSharedTemplateMixin:OnDisable()
+    self:PlayGlowEffect(false);
     self:SetBorderColor("disabled");
     if self.ButtonText then
         self.ButtonText:SetTextColor(0.5, 0.5, 0.5);
@@ -85,6 +87,35 @@ function NarciBarberShopSharedTemplateMixin:SetButtonText(text)
         end
 
         self:SetWidth(buttonWidth);
+    end
+end
+
+function NarciBarberShopSharedTemplateMixin:OnUpdate_Glow(elapsed)
+    if self.delta > 0 then
+        self.a = self.a + 0.5 * elapsed;
+    else
+        self.a = self.a - 0.5 * elapsed;
+    end
+
+    if self.a > self.to then
+        self.delta = -1;
+        self.a = self.to;
+    elseif self.a < self.from then
+        self.delta = 1;
+        self.a = self.from;
+    end
+
+    self.Border:SetColorTexture(self.a, self.a, self.a, 1);
+end
+
+function NarciBarberShopSharedTemplateMixin:PlayGlowEffect(state)
+    if state and not self:IsMouseMotionFocus() then
+        self.delta = 1;
+        self.from, self.to = 0.2, 0.8;
+        self.a = self.from;
+        self:SetScript("OnUpdate", self.OnUpdate_Glow);
+    else
+        self:SetScript("OnUpdate", nil);
     end
 end
 

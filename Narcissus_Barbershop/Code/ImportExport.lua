@@ -835,6 +835,7 @@ local function ImportEditBox_Repeat(self, elapsed)
         self.SaveButton:SetText(reason);
         if canSave then
             self.SaveButton:Enable();
+            self.SaveButton:PlayGlowEffect(true);
         else
             self.SaveButton:Disable();
         end
@@ -852,7 +853,9 @@ local function ImportEditBox_OnTextChanged(self, userInput)
 
     if text == "" then
         self.colorKey = nil;
-        self:HighlightBorder(true);
+        if self:IsMouseMotionFocus() or self:HasFocus() then
+            self:HighlightBorder(true);
+        end
         self.AlertText:SetText("");
         self.SaveButton:Hide();
         return
@@ -917,6 +920,10 @@ local function ImportEditBox_OnHide(self)
     end
 end
 
+local function ImportEditBox_OnEnterPressed(self)
+    ImportEditBox_OnTextChanged(self, true);
+end
+
 local function SaveImportButton_OnClick(self)
     Narci_BarbershopFrame:FadeIn(0.2);
     local result = API.SaveCurrentAppearance(IMPORTED_PROFILE_NAME);
@@ -940,6 +947,11 @@ function NarciBarberShopProfileTextBoxMixin:OnLoad()
         self.DefaultText:Show();
         self:SetScript("OnTextChanged", ImportEditBox_OnTextChanged);
         self:SetScript("OnHide", ImportEditBox_OnHide);
+        self:SetScript("OnEnterPressed", ImportEditBox_OnEnterPressed);
+
+        self.Update = function()
+            ImportEditBox_OnTextChanged(self, true);
+        end;
 
         self.SaveButton.onClickFunc = SaveImportButton_OnClick;
 

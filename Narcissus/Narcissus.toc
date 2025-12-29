@@ -8,7 +8,7 @@
 ## Notes-zhTW: 為展示和分享而生的沈浸式角色界面|n|cff959595命令: /narci|r
 
 ## Author: Peterodox
-## SavedVariables: NarcissusDB, NarciAchievementOptions, NarciStatisticsDB, NarciTurntableOptions, NarciCharacterProfiles, NarciPhotoModeDB, NarciDevToolOutput
+## SavedVariables: NarcissusDB, NarciAchievementOptions, NarciStatisticsDB, NarciTurntableOptions, NarciCharacterProfiles, NarciPhotoModeDB, NarciDevToolOutput, NarciTransmogUIDB
 ## SavedVariablesPerCharacter: NarcissusDB_PC, NarciStatisticsDB_PC
 
 ## IconTexture: Interface\AddOns\Narcissus\Art\Logos\NarcissusLogo32
@@ -85,42 +85,46 @@ Modules\PhotoMode\ExitConfirmationDialog.xml
 Modules\PhotoMode\SpeechBalloon.xml
 Modules\PhotoMode\Sticker.xml
 Modules\PhotoMode\OutfitSelect.xml
+Modules\PhotoModeNew\LightingPreset.xml
 
 Modules\DressingRoom\DressingRoom.xml
 Modules\Showcase\Showcase.xml
+Modules\TransmogUI\TransmogUI.xml
 
 Modules\AFKScreen\AFKScreen.xml
 Modules\AR\AR.xml
-#Modules\Splash\FakeMail.xml
-#Modules\Splash\Splash.xml
 
 Modules\PerksProgram\Core.xml
 Modules\Achievement\Core.xml
 Modules\Statistics\Core.lua
 Modules\AddOnError\AddOnError.xml
-#Modules\PrimordialStone\Core.xml
-
-#Modules\ParticleSystem\ParticleSystem.xml
 
 Filters\CameraEffect.xml
 Filters\Letterbox.xml
 
 Guide\Guide.xml
 
-# Modules\DevTool\DevTool.xml
-#Modules\DevTool\DevWardrobe.lua
 
-#Test
-# Modules\Inspector\Inspector.xml
-# Modules\LootTracker\Main.lua
-# Modules\AnimKit\AnimKit.xml
 
-#Experimental Features
-#Modules\CraftingOrder\CraftingOrder.lua
-Modules\PhotoModeNew\LightingPreset.xml
 
 Modules\Storyboard\Storyboard.xml
 Modules\DragonridingRaces\Main.xml
 Modules\GossipFrame\GossipFrame.xml
 
-#Modules\GemManager\GemManager.xml
+# Modules\GemManager\GemManager.xml
+# Modules\PrimordialStone\Core.xml
+# Modules\ParticleSystem\ParticleSystem.xml
+
+# Modules\DevTool\DevTool.xml
+# Modules\DevTool\DevWardrobe.lua
+
+# Modules\Splash\FakeMail.xml
+# Modules\Splash\Splash.xml
+
+# Test
+# Modules\Inspector\Inspector.xml
+# Modules\LootTracker\Main.lua
+# Modules\AnimKit\AnimKit.xml
+
+# Experimental Features
+# Modules\CraftingOrder\CraftingOrder.lua

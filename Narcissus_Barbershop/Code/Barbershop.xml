@@ -963,6 +963,38 @@
 							<Anchor point="LEFT" relativeKey="$parent" relativePoint="LEFT" x="80"/>
 						</Anchors>
 					</Frame>
+
+					<Frame parentKey="MouseBlocker" hidden="true" enableMouse="true" frameLevel="128">
+						<Anchors>
+							<Anchor point="TOPLEFT" relativeKey="$parent" relativePoint="TOPLEFT" x="4" y="-4"/>
+							<Anchor point="BOTTOMRIGHT" relativeKey="$parent" relativePoint="BOTTOMRIGHT" x="-4" y="4"/>
+						</Anchors>
+						<Layers>
+							<Layer level="OVERLAY">
+								<Texture parentKey="Black" setAllPoints="true">
+									<Color r="0" g="0" b="0" a="0.8"/>
+								</Texture>
+							</Layer>
+							<Layer level="OVERLAY" textureSubLevel="4">
+								<Texture parentKey="Ring" file="Interface\AddOns\Narcissus\Art\Modules\BarberShop\LoadingIndicator">
+									<Size x="80" y="80"/>
+									<Anchors>
+										<Anchor point="CENTER"/>
+									</Anchors>
+									<Animations>
+										<AnimationGroup parentKey="AnimSpin" looping="REPEAT">
+											<Rotation degrees="-360" duration="2" order="1"/>
+										</AnimationGroup>
+									</Animations>
+									<Scripts>
+										<OnShow>
+											self.AnimSpin:Play();
+										</OnShow>
+									</Scripts>
+								</Texture>
+							</Layer>
+						</Layers>
+					</Frame>
 				</Frames>
 				<Scripts>
 					<OnLoad method="OnLoad"/>

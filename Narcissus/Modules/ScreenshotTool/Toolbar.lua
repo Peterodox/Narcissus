@@ -403,7 +403,7 @@ local ToolbarButtonInfo = {
 };
 
 local Layouts = {
-    Narcissus = {"Mog", "Emote", "HideTexts", "TopQuality", "Camera", --Including Camera when adding profile for new races
+    Narcissus = {"Mog", "Emote", "HideTexts", "TopQuality", --Debug Including "Camera" when adding profile for new races
         showSwitch = true,
     },
 

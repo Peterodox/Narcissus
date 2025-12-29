@@ -3154,6 +3154,7 @@ end
 function NarciBarberShopSettingsMixin:OnHide()
     self:Hide();
     self:UnregisterEvent("GLOBAL_MOUSE_DOWN");
+    self:ShowMouseBlocker(false);
 
     autoHideTimer:Show();
 end
@@ -3177,6 +3178,19 @@ function NarciBarberShopSettingsMixin:SelectTab(tab)
             range = 0;
         end
         self.ScrollFrame:SetScrollRange(range);
+    end
+end
+
+function NarciBarberShopSettingsMixin:ShowMouseBlocker(state)
+    self.MouseBlocker:SetShown(state);
+
+    if self.ShareTab:IsVisible() then
+        self.ShareTab.ImportEditBox.SaveButton:Hide();
+        self.ShareTab.ImportEditBox.AlertText:Hide();
+
+        if not state then
+            self.ShareTab.ImportEditBox:Update();
+        end
     end
 end
 
@@ -3226,7 +3240,7 @@ NarciDevToolPortraitMixin = {};
 
 function NarciDevToolPortraitMixin:OnLoad()
     if false then return end;
-    
+
     local model = self.Model;
     model:SetUnit("player");
     model:SetKeepModelOnHide(true);
@@ -3473,6 +3487,9 @@ function NarciBarberShopLoadingFrameMixin:LoadPortraits()
     if total == 0 then
         self:Hide();
         self:SetScript("OnUpdate", nil);
+        if SettingFrame then
+            SettingFrame:ShowMouseBlocker(false);
+        end
         return
     else
         self.total = total;
@@ -3487,6 +3504,10 @@ function NarciBarberShopLoadingFrameMixin:LoadPortraits()
     self:SetScript("OnUpdate", LoadingFrame_InitiateLoadingDelay);
 
     FadeFrame(self, 0.25, 1, 0);
+
+    if SettingFrame then
+        SettingFrame:ShowMouseBlocker(true);
+    end
 end
 
 function NarciBarberShopLoadingFrameMixin:OnHide()
@@ -3527,6 +3548,10 @@ function NarciBarberShopLoadingFrameMixin:OnLoadingComplete()
 
     FadeFrame(self, 0.5, 0);
     MainFrame:ResetCustomizationInternally();
+
+    if SettingFrame then
+        SettingFrame:ShowMouseBlocker(false);
+    end
 
     --if MainFrame:IsCharacterCategoryChanged() then
 
