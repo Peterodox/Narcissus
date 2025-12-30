@@ -3007,6 +3007,7 @@ do  --11.0 Menu Formatter
         --Currently we only use this function to create a minimap menu.
         --Owner is set to UIParent so when the mini button is hidden by addon manager, the menu won't hide with it.
         ownerRegion = UIParent;
+        contextData = contextData or {};
 
         local menu = MenuUtil.CreateContextMenu(ownerRegion, function(ownerRegion, rootDescription)
             rootDescription:SetTag(schematic.tag, contextData);
@@ -3026,6 +3027,10 @@ do  --11.0 Menu Formatter
                     elementDescription = rootDescription:CreateButton(info.name, info.OnClick);
                 elseif info.type == "Checkbox" then
                     elementDescription = rootDescription:CreateCheckbox(info.name, info.IsSelected, info.ToggleSelected);
+                end
+
+                if info.enabled == false or info.disabled then
+                    elementDescription:Disable();
                 end
 
                 if info.tooltip then

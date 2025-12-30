@@ -6,6 +6,10 @@ TransmogUIManager.modules = {};
 
 local GetAppearanceSources = C_TransmogCollection.GetAppearanceSources;
 local GetAppearanceInfoBySource = C_TransmogCollection.GetAppearanceInfoBySource;
+local GetTransmogOutfitSlotFromInventorySlot = C_TransmogOutfitInfo.GetTransmogOutfitSlotFromInventorySlot;
+local IsAppearanceHiddenVisual = C_TransmogCollection.IsAppearanceHiddenVisual;
+local SetPendingTransmog = C_TransmogOutfitInfo.SetPendingTransmog;
+local Enum = Enum;
 
 
 local SharedModuleMixin = {};
@@ -86,49 +90,45 @@ function TransmogUIManager:GetHiddenSourceIDForSlot(invSlotID)
     end
 end
 
+local function ApplyTransmog(invSlotID, slot, transmogID, illusionID)
+    local option = Enum.TransmogOutfitSlotOption.None;
+
+    local transmogType;
+    if illusionID and illusionID ~= 0 then
+        transmogType = Enum.TransmogType.Illusion;
+    else
+        transmogType = Enum.TransmogType.Appearance;
+    end
+
+    local isHiddenVisual;
+    local displayType;
+    if IsAppearanceHiddenVisual(transmogID) or transmogID == 0 then
+        displayType = Enum.TransmogOutfitDisplayType.Hidden;
+        isHiddenVisual = true;
+    else
+        displayType = Enum.TransmogOutfitDisplayType.Assigned;
+    end
+
+    if isHiddenVisual then
+        if transmogID == 0 then
+            transmogID = TransmogUIManager:GetHiddenSourceIDForSlot(invSlotID) or transmogID;
+        end
+    end
+
+    if slot and transmogID then
+        SetPendingTransmog(slot, transmogType, option, transmogID, displayType);
+    else
+        --print(string.format("Missing Slot %s, AppearanceID: %s", invSlotID, transmogID));
+    end
+end
+
 function TransmogUIManager:SetPendingFromTransmogInfoList(transmogInfoList)
-    local GetTransmogOutfitSlotFromInventorySlot = C_TransmogOutfitInfo.GetTransmogOutfitSlotFromInventorySlot;
-    local IsAppearanceHiddenVisual = C_TransmogCollection.IsAppearanceHiddenVisual;
-    local SetPendingTransmog = C_TransmogOutfitInfo.SetPendingTransmog;
-    local Enum = Enum;
+    --WoW uses C_TransmogOutfitInfo.SetOutfitToCustomSet(customSetID) to directly apply the sets
+    --But we need to do it by slot
 
     local mainHandSlot = 16;
     local offsetHandSlot = 17;
     local shoulderSlot = 3;
-
-
-    local function ApplyTransmog(invSlotID, slot, transmogID, illusionID)
-        local option = Enum.TransmogOutfitSlotOption.None;
-
-        local transmogType;
-        if illusionID and illusionID ~= 0 then
-            transmogType = Enum.TransmogType.Illusion;
-        else
-            transmogType = Enum.TransmogType.Appearance;
-        end
-
-        local isHiddenVisual;
-        local displayType;
-        if IsAppearanceHiddenVisual(transmogID) or transmogID == 0 then
-            displayType = Enum.TransmogOutfitDisplayType.Hidden;
-            isHiddenVisual = true;
-        else
-            displayType = Enum.TransmogOutfitDisplayType.Assigned;
-        end
-
-        if isHiddenVisual then
-            if transmogID == 0 then
-                transmogID = self:GetHiddenSourceIDForSlot(invSlotID) or transmogID;
-            end
-        end
-
-        if slot and transmogID then
-            SetPendingTransmog(slot, transmogType, option, transmogID, displayType);
-        else
-            --print(string.format("Missing Slot %s, AppearanceID: %s", invSlotID, transmogID));
-        end
-    end
-
 
     for invSlotID, transmogInfo in ipairs(transmogInfoList) do
         if not IgnoredInvSlots[invSlotID] then
@@ -180,6 +180,20 @@ function TransmogUIManager:IsCustomSetCollected(customSetID, showMissingSlots)
 	return self:IsTransmogInfoListCollected(transmogInfoList, showMissingSlots)
 end
 
+function TransmogUIManager:Tooltip_AddColoredLine(tooltip, text)
+    --Disabled Text: The default Grey (0.5, 0.5, 0.5) might not be legible enough
+    tooltip:AddLine(text, 0.6, 0.6, 0.6, true);
+end
+
+function TransmogUIManager:PostTransmogInChat(transmogInfoList)
+    local hyperlink = C_TransmogCollection.GetCustomSetHyperlinkFromItemTransmogInfoList(transmogInfoList);
+    if hyperlink then
+        if not ChatFrameUtil.InsertLink(hyperlink) then
+            ChatFrameUtil.OpenChat(hyperlink);
+        end
+        return true
+    end
+end
 
 --[[
 function Narci_SetPendingTransmogByCustomSet(setID)

@@ -846,3 +846,13 @@ L["GamePad Select"] = "Select";
 L["GamePad Cancel"] = "Cancel";
 L["GamePad Use"] = "Use";
 L["GamePad Equip"] = "Equip";
+
+
+--TransmogUI--
+L["OutfitSource Default"] = "Current Character";
+L["OutfitSource Shared"] = "Shared";
+L["OutfitSource Shared Tooltip"] = "This list can be accessed by all your characters of the same armor type.\n\nThe data is stored locally in the Narcissus addon.\n\nWe will attempt to save a copy of the newly created set on the server until reaching 25 custom sets on the current character.";
+L["OutfitSource Alts"] = "Other Characters";
+L["OutfitSource Alts Tooltip"] = "You can view the custom sets from another character if you have logged in on them with Narcissus addon enabled.\n\nYou will not be able to modify the sets on your current character.";
+L["Cannot Delete On Alts"] = "You cannot modify this set because it's from another character";
+L["Your Money Amount"] = "Your Balance";
