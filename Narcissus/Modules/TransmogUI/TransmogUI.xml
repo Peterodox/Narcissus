@@ -2,7 +2,38 @@
 	<Script file="Preload.lua"/>
 
 	<Script file="MoneyDisplay.lua"/>
+	<Script file="CustomSetsMenu.lua"/>
 	<Script file="CustomSetsTab.lua"/>
 
 	<Script file="TransmogUI.lua"/>
+
+
+	<Button name="NarciCustomSetsMenuButtonTemplate" motionScriptsWhileDisabled="true" virtual="true">
+		<Size x="128" y="20"/>
+		<Layers>
+			<Layer level="OVERLAY">
+				<Texture parentKey="Texture1">
+					<Size x="18" y="18"/>
+					<Anchors>
+						<Anchor point="LEFT" x="0"/>
+					</Anchors>
+				</Texture>
+
+				<FontString parentKey="ButtonText" inherits="GameFontNormal" maxLines="1" text="Current Character">
+					<Size y="20"/>
+					<Anchors>
+						<Anchor point="LEFT" x="24"/>
+					</Anchors>
+				</FontString>
+			</Layer>
+			<Layer level="OVERLAY" textureSubLevel="1">
+				<Texture parentKey="Texture2">
+					<Size x="18" y="18"/>
+					<Anchors>
+						<Anchor point="LEFT" x="0"/>
+					</Anchors>
+				</Texture>
+			</Layer>
+		</Layers>
+	</Button>
 </Ui>

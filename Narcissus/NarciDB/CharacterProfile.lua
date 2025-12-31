@@ -133,7 +133,13 @@ function ProfileAPI:GetRoster(sortMethod, filter)
     local total = 0;
     local ignored = 0;
 
-    local filterFunc = filter and DataFilters[filter];
+    local filterFunc;
+    if type(filter) == "function" then
+        filterFunc = filter;
+    else
+        filterFunc = filter and DataFilters[filter];
+    end
+
     if filterFunc then
         for uid, data in pairs(DB) do
             if filterFunc(data) then

@@ -6,9 +6,10 @@ TransmogUIManager.modules = {};
 
 local GetAppearanceSources = C_TransmogCollection.GetAppearanceSources;
 local GetAppearanceInfoBySource = C_TransmogCollection.GetAppearanceInfoBySource;
-local GetTransmogOutfitSlotFromInventorySlot = C_TransmogOutfitInfo.GetTransmogOutfitSlotFromInventorySlot;
+local GetTransmogOutfitSlotFromInventorySlot = C_TransmogOutfitInfo and C_TransmogOutfitInfo.GetTransmogOutfitSlotFromInventorySlot;
 local IsAppearanceHiddenVisual = C_TransmogCollection.IsAppearanceHiddenVisual;
-local SetPendingTransmog = C_TransmogOutfitInfo.SetPendingTransmog;
+local SetPendingTransmog =  C_TransmogOutfitInfo and C_TransmogOutfitInfo.SetPendingTransmog;
+local ipairs = ipairs;
 local Enum = Enum;
 
 
@@ -194,6 +195,52 @@ function TransmogUIManager:PostTransmogInChat(transmogInfoList)
         return true
     end
 end
+
+
+do  --Shared Custom Sets
+    local CharacterProfile = addon.ProfileAPI;
+
+    local ArmorTypeXPlayerClass = {
+        --1:Cloth, 2:Leather, 3:Mail, 4:Plate
+        [1] = {5, 8, 9},
+        [2] = {4, 10, 11, 12},
+        [3] = {3, 7, 13},
+        [4] = {1, 2, 6},
+    };
+
+    function TransmogUIManager:GetCharacterListByPlayerClass()
+        local _, _, classID = UnitClass("player");
+        local classesWidthSameArmorType;
+
+        for _armorType, classes in pairs(ArmorTypeXPlayerClass) do
+            for _, _classID in ipairs(classes) do
+                if classID == _classID then
+                    classesWidthSameArmorType = classes;
+                    break
+                end
+            end
+
+            if classesWidthSameArmorType then
+                break
+            end
+        end
+
+        local function filterFunc(data)
+            if data.class then
+                for _, classID in ipairs(classesWidthSameArmorType) do
+                    if data.class == classID then
+                        print(data.class, data.name)
+                        return true
+                    end
+                end
+            end
+        end
+
+        local sortMethod = "name";
+        local UIDRoster = CharacterProfile:GetRoster(sortMethod, filterFunc) or {};
+    end
+end
+
 
 --[[
 function Narci_SetPendingTransmogByCustomSet(setID)

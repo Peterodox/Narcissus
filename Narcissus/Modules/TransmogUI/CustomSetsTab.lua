@@ -38,7 +38,7 @@ local Def = {
 
 do  --CharacterDropdown
     function CharacterDropdownMixin:OnClick(button)
-
+        TransmogUIManager:ToggleCustomSetsMenu(self);
     end
 
     function CharacterDropdownMixin:OnLoad()
@@ -676,3 +676,10 @@ function OutfitModule:OnLoad()
 
     --C_EncodingUtil
 end
+
+
+
+--[[
+/dump C_TransmogOutfitInfo.GetOutfitInfo(2);    GetOutfitSituation
+
+--]]
