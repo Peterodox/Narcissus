@@ -12,25 +12,33 @@
 		<Size x="128" y="20"/>
 		<Layers>
 			<Layer level="OVERLAY">
-				<Texture parentKey="Texture1">
-					<Size x="18" y="18"/>
+				<Texture parentKey="Texture1" hidden="true">
+					<Size x="16" y="16"/>
 					<Anchors>
-						<Anchor point="LEFT" x="0"/>
+						<Anchor point="LEFT" x="10"/>
 					</Anchors>
 				</Texture>
 
 				<FontString parentKey="ButtonText" inherits="GameFontNormal" maxLines="1" text="Current Character">
 					<Size y="20"/>
 					<Anchors>
-						<Anchor point="LEFT" x="24"/>
+						<Anchor point="LEFT" x="10"/>
+					</Anchors>
+				</FontString>
+
+				<FontString parentKey="RightText" inherits="GameFontNormal" maxLines="1" justifyH="RIGHT">
+					<Size y="20"/>
+					<Color r="0.5" g="0.5" b="0.5"/>
+					<Anchors>
+						<Anchor point="RIGHT" x="-10"/>
 					</Anchors>
 				</FontString>
 			</Layer>
 			<Layer level="OVERLAY" textureSubLevel="1">
-				<Texture parentKey="Texture2">
-					<Size x="18" y="18"/>
+				<Texture parentKey="Texture2" hidden="true">
+					<Size x="16" y="16"/>
 					<Anchors>
-						<Anchor point="LEFT" x="0"/>
+						<Anchor point="LEFT" x="10"/>
 					</Anchors>
 				</Texture>
 			</Layer>

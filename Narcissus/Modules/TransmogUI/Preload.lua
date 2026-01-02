@@ -4,6 +4,7 @@ addon.TransmogUIManager = TransmogUIManager;
 TransmogUIManager.modules = {};
 
 
+local TransmogDataProvider = addon.TransmogDataProvider;
 local GetAppearanceSources = C_TransmogCollection.GetAppearanceSources;
 local GetAppearanceInfoBySource = C_TransmogCollection.GetAppearanceInfoBySource;
 local GetTransmogOutfitSlotFromInventorySlot = C_TransmogOutfitInfo and C_TransmogOutfitInfo.GetTransmogOutfitSlotFromInventorySlot;
@@ -92,8 +93,6 @@ function TransmogUIManager:GetHiddenSourceIDForSlot(invSlotID)
 end
 
 local function ApplyTransmog(invSlotID, slot, transmogID, illusionID)
-    local option = Enum.TransmogOutfitSlotOption.None;
-
     local transmogType;
     if illusionID and illusionID ~= 0 then
         transmogType = Enum.TransmogType.Illusion;
@@ -117,6 +116,16 @@ local function ApplyTransmog(invSlotID, slot, transmogID, illusionID)
     end
 
     if slot and transmogID then
+        local option;
+        if invSlotID == 16 or invSlotID == 17 then
+            --option = Enum.TransmogOutfitSlotOption.OneHandedWeapon;
+            option = C_TransmogOutfitInfo.GetEquippedSlotOptionFromTransmogSlot(slot);
+            if not option then
+                option = Enum.TransmogOutfitSlotOption.None;
+            end
+        else
+            option = Enum.TransmogOutfitSlotOption.None;
+        end
         SetPendingTransmog(slot, transmogType, option, transmogID, displayType);
     else
         --print(string.format("Missing Slot %s, AppearanceID: %s", invSlotID, transmogID));
@@ -157,13 +166,28 @@ end
 
 function TransmogUIManager:IsTransmogInfoListCollected(transmogInfoList, showMissingSlots)
     local isCollected = true;
+    local allMissing = showMissingSlots and true or nil;
     local missingSlots;
 
 	for invSlotID, transmogInfo in ipairs(transmogInfoList) do
-		local appearanceInfo = GetAppearanceInfoBySource(transmogInfo.appearanceID);
-		if appearanceInfo and not appearanceInfo.appearanceIsCollected then
-			isCollected = false;
-			if showMissingSlots then
+        if not IgnoredInvSlots[invSlotID] then
+            local appearanceInfo = GetAppearanceInfoBySource(transmogInfo.appearanceID);
+            local valid = true;
+            if appearanceInfo then
+                if appearanceInfo.appearanceIsCollected and appearanceInfo.canDisplayOnPlayer then
+                    valid = true;
+                else
+                    valid = false;
+                end
+            elseif transmogInfo.appearanceID ~= 0 and not IsAppearanceHiddenVisual(transmogInfo.appearanceID) then
+                valid = false;
+            end
+
+            if not valid then
+                isCollected = false;
+            end
+
+            if showMissingSlots then
                 if not missingSlots then
                     missingSlots = {};
                 end
@@ -171,9 +195,10 @@ function TransmogUIManager:IsTransmogInfoListCollected(transmogInfoList, showMis
             else
                 break
             end
-		end
+        end
 	end
-    return isCollected, missingSlots
+
+    return isCollected, missingSlots, allMissing
 end
 
 function TransmogUIManager:IsCustomSetCollected(customSetID, showMissingSlots)
@@ -181,7 +206,7 @@ function TransmogUIManager:IsCustomSetCollected(customSetID, showMissingSlots)
 	return self:IsTransmogInfoListCollected(transmogInfoList, showMissingSlots)
 end
 
-function TransmogUIManager:Tooltip_AddColoredLine(tooltip, text)
+function TransmogUIManager:Tooltip_AddGreyLine(tooltip, text)
     --Disabled Text: The default Grey (0.5, 0.5, 0.5) might not be legible enough
     tooltip:AddLine(text, 0.6, 0.6, 0.6, true);
 end
@@ -208,7 +233,7 @@ do  --Shared Custom Sets
         [4] = {1, 2, 6},
     };
 
-    function TransmogUIManager:GetCharacterListByPlayerClass()
+    function TransmogUIManager:GetCharacterList()
         local _, _, classID = UnitClass("player");
         local classesWidthSameArmorType;
 
@@ -226,18 +251,50 @@ do  --Shared Custom Sets
         end
 
         local function filterFunc(data)
-            if data.class then
-                for _, classID in ipairs(classesWidthSameArmorType) do
-                    if data.class == classID then
-                        print(data.class, data.name)
-                        return true
-                    end
+            if data.outfits and #data.outfits > 0 then
+                return true
+            end
+        end
+
+        local sortMethod = "name"
+        local uids = CharacterProfile:GetRoster(filterFunc, sortMethod) or {};
+
+        return uids
+    end
+
+    function TransmogUIManager:GetAllCharacterCustomSets()
+        if self.allCharacterCustomSets then
+            return self.allCharacterCustomSets
+        end
+
+        local WrapNameWithClassColor = NarciAPI.WrapNameWithClassColor;
+        local uids = self:GetCharacterList();
+        local n = 0;
+        local tbl = {};
+
+        for _, uid in ipairs(uids) do
+            local outfits = CharacterProfile:GetOutfits(uid);
+            if outfits then
+                local characterInfo = CharacterProfile:CopyBasicInfo(uid);
+                local sets = {};
+
+                for i, v in ipairs(outfits) do
+                    sets[i] = TransmogDataProvider:DecodeSavedOutfit(v); --setsInfo = {name = string, transmogInfoList = table}
+                end
+
+                characterInfo.sets = sets;
+                characterInfo.numSets = #sets;
+                characterInfo.colorizedName = WrapNameWithClassColor(characterInfo.name, characterInfo.classID);
+
+                if true then
+                    n = n + 1;
+                    tbl[n] = characterInfo;
                 end
             end
         end
 
-        local sortMethod = "name";
-        local UIDRoster = CharacterProfile:GetRoster(sortMethod, filterFunc) or {};
+        self.allCharacterCustomSets = tbl;
+        return tbl
     end
 end
 

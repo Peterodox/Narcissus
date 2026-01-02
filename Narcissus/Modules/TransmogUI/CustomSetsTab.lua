@@ -8,7 +8,7 @@
 local _, addon = ...
 local L = Narci.L;
 local TransmogUIManager = addon.TransmogUIManager;
-local TransmogDataProvider = addon.TransmogDataProvider;
+local CallbackRegistry = addon.CallbackRegistry;
 
 
 local OutfitModule = TransmogUIManager:CreateModule("CustomSetsTab");
@@ -44,6 +44,18 @@ do  --CharacterDropdown
     function CharacterDropdownMixin:OnLoad()
         self:SetScript("OnClick", self.OnClick);
         self:SetText(L["OutfitSource Default"]);
+
+        CallbackRegistry:Register("TransmogUI.LoadAltSets", function(characterInfo)
+            self:SetText(characterInfo.colorizedName);
+        end);
+
+        CallbackRegistry:Register("TransmogUI.LoadDefaultSets", function(characterInfo)
+            self:SetText(L["OutfitSource Default"]);
+        end);
+
+        CallbackRegistry:Register("TransmogUI.LoadSharedSets", function(characterInfo)
+            self:SetText(L["OutfitSource Shared"]);
+        end);
     end
 end
 
@@ -105,6 +117,8 @@ end
 local SetModelMixin = {};
 do
     function SetModelMixin:OnModelLoaded()
+        self.isModelLoaded = true;
+
         self:RefreshCameraNew();
         self:RequestLoadSet();
 
@@ -130,7 +144,17 @@ do
         self:SetModelAlpha(0);
     end
 
+    function SetModelMixin:UnloadModel()
+        self:ClearModel();
+        self.isModelLoaded = false;
+    end
+
     function SetModelMixin:RequestLoadSet()
+        if not self.isModelLoaded then
+            self:LoadModel();
+            return
+        end
+
         self.modelAlpha = 0;
         self.setEquipped = false;
         self:SetScript("OnUpdate", self.OnUpdate);
@@ -160,7 +184,7 @@ do
                     self.IncompleteOverlay:SetShown(not collected);
                 end
             else
-                self:ClearModel();
+                self:UnloadModel();
             end
         end
 
@@ -220,17 +244,25 @@ do
         if not data.collected then
             self:RegisterEvent("MODIFIER_STATE_CHANGED");
             self:SetScript("OnEvent", self.OnEvent);
-            local _, missingSlots = TransmogUIManager:IsTransmogInfoListCollected(data.transmogInfoList, true);
-            TransmogUIManager:Tooltip_AddColoredLine(tooltip, ITEMS_NOT_IN_INVENTORY:format(#missingSlots));
-            if NarcissusDB.TransmogUI_ShowMisingItemDetail then
+            local _, missingSlots, allMissing = TransmogUIManager:IsTransmogInfoListCollected(data.transmogInfoList, true);
+            if allMissing then
+                tooltip:AddLine(L["TransmogSet No Valid Items"], 1, 0.125, 0.125, true);
+            else
+                TransmogUIManager:Tooltip_AddGreyLine(tooltip, ITEMS_NOT_IN_INVENTORY:format(#missingSlots));
+            end
+            
+            if (not allMissing) and NarcissusDB.TransmogUI_ShowMisingItemDetail then
                 local slotName;
                 for _, slotID in ipairs(missingSlots) do
                     slotName = NarciAPI.GetSlotNameAndTexture(slotID);
                     if slotName then
-                        TransmogUIManager:Tooltip_AddColoredLine(tooltip, "- "..slotName);
+                        TransmogUIManager:Tooltip_AddGreyLine(tooltip, "- "..slotName);
                     end
                 end
             end
+        else
+            --debug
+            TransmogUIManager:IsTransmogInfoListCollected(data.transmogInfoList, true);
         end
 
         tooltip:Show();
@@ -310,7 +342,7 @@ do
                 end,
             });
         else
-            if OutfitModule:GetOutfitSource() == Def.OutfitSource.Shared then
+            if OutfitModule:IsOutfitSource("Shared") then
                 --Rename
                 table.insert(Schematic.objects, {
                     type = "Button",
@@ -342,12 +374,6 @@ do
 
         NarciAPI.TranslateContextMenu(self, Schematic);
     end
-end
-
-
-local Shared
-do
-    
 end
 
 
@@ -401,19 +427,24 @@ do
     end
 
     function SetsFrameMixin:OnShow()
-        self:LoadDefaultSets();
         FrameUtil.RegisterFrameForEvents(self, DynamicEvents);
         local hasAlternateForm, inAlternateForm = C_PlayerInfo.GetAlternateFormInfo();
         if hasAlternateForm then
             self:RegisterUnitEvent("UNIT_FORM_CHANGED", "player");
         end
         self:SetScript("OnEvent", self.OnEvent);
+
+        if not OutfitModule.outfitSource then
+            CallbackRegistry:Trigger("TransmogUI.LoadDefaultSets");
+        else
+            self:UpdatePage(true);
+        end
     end
 
     function SetsFrameMixin:ClearAllModels()
         self.Loader:Stop();
         for _, model in ipairs(self.Models) do
-            model:ClearModel();
+            model:UnloadModel();
         end
     end
 
@@ -431,13 +462,14 @@ do
 
         local customSets = C_TransmogCollection.GetCustomSets() or {};
         local dataList = {};
+        local n = 0;
         local name;
 
         for i, customSetID in ipairs(customSets) do
             name = GetCustomSetInfo(customSetID);
             local transmogInfoList = GetCustomSetItemTransmogInfoList(customSetID);
-
-            dataList[i] = {
+            n = n + 1;
+            dataList[n] = {
                 customSetID = customSetID,
                 name = name,
                 transmogInfoList = transmogInfoList,
@@ -446,16 +478,63 @@ do
         end
 
         table.sort(dataList, SortFunc.Default);
-
-        OutfitModule:SetOutfitSource(Def.OutfitSource.Default);
+        OutfitModule:SetOutfitSource("Default");
         self:SetDataList(dataList);
+    end
+    CallbackRegistry:Register("TransmogUI.LoadDefaultSets", function()
+        TransmogUIManager.selectedCharacterUID = nil;
+        OutfitModule.SetsFrame:LoadDefaultSets();
+    end);
+
+    function SetsFrameMixin:LoadSharedSets()
+        self:SetScript("OnMouseWheel", nil);
+        self:ClearAllModels();
+
+        local dataList = {};
+
+        table.sort(dataList, SortFunc.Default);
+        OutfitModule:SetOutfitSource("Shared");
+        self:SetDataList(dataList);
+    end
+    CallbackRegistry:Register("TransmogUI.LoadSharedSets", function()
+        TransmogUIManager.selectedCharacterUID = nil;
+        OutfitModule.SetsFrame:LoadSharedSets();
+    end);
+
+    function SetsFrameMixin:LoadAltSets(characterInfo)
+        self:SetScript("OnMouseWheel", nil);
+        self:ClearAllModels();
+
+        local dataList = {};
+
+        if characterInfo and characterInfo.sets then
+            for i, setInfo in ipairs(characterInfo.sets) do
+                dataList[i] = {
+                    name = setInfo.name;
+                    transmogInfoList = setInfo.transmogInfoList,
+                    collected = TransmogUIManager:IsTransmogInfoListCollected(setInfo.transmogInfoList),
+                };
+            end
+        end
+
+        table.sort(dataList, SortFunc.Default);
+        OutfitModule:SetOutfitSource("Alts");
+        self:SetDataList(dataList);
+    end
+    CallbackRegistry:Register("TransmogUI.LoadAltSets", function(characterInfo)
+        TransmogUIManager.selectedCharacterUID = characterInfo.uid;
+        OutfitModule.SetsFrame:LoadAltSets(characterInfo)
+    end);
+
+    function TransmogUIManager:GetSelectedCharacterUID()
+        return self.selectedCharacterUID
     end
 
     function SetsFrameMixin:SetDataList(dataList)
         self.dataList = dataList;
         self.maxPage = math.ceil(#dataList/self.modelsPerPage);
 
-        if not self.page then
+        if (not self.page) or (self.page < 1) then
             self.page = 1;
         elseif self.page > self.maxPage then
             self.page = self.maxPage;
@@ -471,8 +550,8 @@ do
 
     function SetsFrameMixin:ReloadPage()
         --Update Sets Data
-        if OutfitModule:GetOutfitSource() == Def.OutfitSource.Default then
-            self:LoadDefaultSets();
+        if OutfitModule:IsOutfitSource("Default") then
+            CallbackRegistry:Trigger("TransmogUI.LoadDefaultSets");
         end
     end
 
@@ -500,9 +579,9 @@ do
                         model:SetScript("OnUpdate", nil);
                         model:SetKeepModelOnHide(true);
                         model:UnregisterAllEvents();
-                        model:ClearModel();
 
                         Mixin(model, SetModelMixin);
+                        model:UnloadModel();
                         model:SetScript("OnModelLoaded", SetModelMixin.OnModelLoaded);
                         model:SetScript("OnMouseDown", SetModelMixin.OnMouseDown);
                         model:SetScript("OnMouseUp", SetModelMixin.OnMouseUp);
@@ -577,7 +656,7 @@ do
     end
 
     function SetsFrameMixin:OnEvent(event, ...)
-        print(event, ...)
+        --print(event, ...)
         if event == "TRANSMOG_CUSTOM_SETS_CHANGED" or event == "UNIT_FORM_CHANGED" then
             self:RequestUpdate("All");
         elseif event == "UI_SCALE_CHANGED" or event == "DISPLAY_SIZE_CHANGED" then
@@ -645,13 +724,14 @@ function OutfitModule:ModifyStockUI()
     end
 end
 
-function OutfitModule:SetOutfitSource(outfitSource)
-    self.outfitSource = outfitSource;
+function OutfitModule:SetOutfitSource(key)
+    self.outfitSource = Def.OutfitSource[key]
 end
 
-function OutfitModule:GetOutfitSource()
-    return self.outfitSource
+function OutfitModule:IsOutfitSource(key)
+    return OutfitModule.outfitSource == Def.OutfitSource[key]
 end
+TransmogUIManager.IsOutfitSource = OutfitModule.IsOutfitSource;
 
 function OutfitModule:OnLoad()
     local ParentTab = TransmogFrame.WardrobeCollection.TabContent.CustomSetsFrame;
@@ -671,7 +751,6 @@ function OutfitModule:OnLoad()
     Mixin(CharacterDropdown, CharacterDropdownMixin);
     CharacterDropdown:OnLoad();
 
-    self:SetOutfitSource(Def.OutfitSource.Default);
     self:ModifyStockUI();
 
     --C_EncodingUtil

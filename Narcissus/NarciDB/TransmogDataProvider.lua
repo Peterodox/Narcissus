@@ -258,7 +258,22 @@ function DataProvider:ConvertTransmogStringToList(itemTransmogString)
         itemTransmogInfoList[slotID] = CreateItemTransmogInfo(primaryID, secondaryID, illusionID);
     end
 
+    for slotID = 1, 19 do
+        if not itemTransmogInfoList[slotID] then
+            itemTransmogInfoList[slotID] = CreateItemTransmogInfo(0, 0, 0);
+        end
+    end
+
     return itemTransmogInfoList
+end
+
+function DataProvider:DecodeSavedOutfit(narcissusSavedOutfit)
+    --See CharacterProfile.lua
+
+    return {
+        name = narcissusSavedOutfit.n,
+        transmogInfoList = self:ConvertTransmogStringToList(narcissusSavedOutfit.s),
+    }
 end
 
 

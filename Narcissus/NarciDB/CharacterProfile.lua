@@ -126,7 +126,7 @@ local DataFilters = {
     outfit = Filter_AnyOutfit,
 };
 
-function ProfileAPI:GetRoster(sortMethod, filter)
+function ProfileAPI:GetRoster(filter, sortMethod)
     self:Init();
 
     local uidList = {};
@@ -156,9 +156,10 @@ function ProfileAPI:GetRoster(sortMethod, filter)
         end
     end
 
-    sortMethod = sortMethod or "name";
-    local sortFunc = SortMethodFuncs[sortMethod] or SortByName;
-    table.sort(uidList, sortFunc);
+    local sortFunc = sortMethod and SortMethodFuncs[sortMethod];
+    if sortFunc then
+        table.sort(uidList, sortFunc);
+    end
 
     return uidList, total, ignored
 end
@@ -170,5 +171,37 @@ function ProfileAPI:GetPlayerInfo(uid, key)
         else
             return DB[uid]
         end
+    end
+end
+
+function ProfileAPI:GetPlayerName(uid, colorized)
+    local name = self:GetPlayerInfo(uid, "name");
+    if name then
+        if colorized then
+            name = NarciAPI.WrapNameWithClassColor(name, self:GetPlayerInfo(uid, "class"));
+        end
+        return name
+    end
+end
+
+function ProfileAPI:GetOutfits(uid)
+    return self:GetPlayerInfo(uid, "outfits")
+end
+
+function ProfileAPI:GetNumOutfits(uid)
+    local outfits = self:GetOutfits(uid);
+    return outfits and #outfits or 0
+end
+
+function ProfileAPI:CopyBasicInfo(uid)
+    local data = self:GetPlayerInfo(uid);
+    if data then
+        return {
+            uid = uid,
+            name = data.name,
+            classID = data.class,
+            serverID = data.serverID,
+            lastVisit = data.lastVisit,
+        }
     end
 end

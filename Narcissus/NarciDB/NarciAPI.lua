@@ -3030,7 +3030,7 @@ do  --11.0 Menu Formatter
                 end
 
                 if info.enabled == false or info.disabled then
-                    elementDescription:Disable();
+                    elementDescription:SetEnabled(false);
                 end
 
                 if info.tooltip then
@@ -3069,6 +3069,7 @@ do  --11.0 Menu Formatter
                         local width = pad + fontString:GetWrappedWidth() + fontString2:GetWrappedWidth();
 
                         local height = 20;
+
                         return width, height;
                     end);
                 end

@@ -24,7 +24,6 @@ local GetOutfitItemTransmogInfoList = C_TransmogCollection.GetCustomSetItemTrans
 
 local BUTTON_PER_PAGE = 8;
 local PIXEL = NarciAPI.GetPixelByScale(1);
-local IGNORE_NO_OUTFIT_CHARS = true;
 
 local MainFrame, ActivePreviewModel, CharacterList, FilterButton, SimpleTooltip;
 local PreviewModels = {};
@@ -618,7 +617,7 @@ function CharacterListMixin:Init(sortMethod)
     if sortMethod == "BetterWardrobe" then
         UIDRoster, numCharacters, numIgnored = TransmogDataProvider:GetBWCharacters();
     else
-        UIDRoster, numCharacters, numIgnored = CharacterProfile:GetRoster(sortMethod, IGNORE_NO_OUTFIT_CHARS and "outfit");
+        UIDRoster, numCharacters, numIgnored = CharacterProfile:GetRoster("outfit", sortMethod);
     end
 
     table.insert(UIDRoster, 1, "actors");   --the first entry is reserved for actors' original outfits
