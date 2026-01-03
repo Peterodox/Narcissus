@@ -11,7 +11,7 @@ Menu:Hide();
 local Def = {
     TextureFile = "Interface/AddOns/Narcissus/Art/Modules/DressingRoom/CustomSetsMenu.png",
 
-    MenuWidthMin = 240,
+    MenuWidthMin = 256,
     MenuPaddingY = 8,
     MenuButtonHeight = 24,
     CharacterButtonPerPage = 8,
@@ -69,7 +69,7 @@ do
         self:ShowRadioIcon(true, selected);
         self.ButtonText:SetPoint("LEFT", self, "LEFT", Def.ButtonTextOffset2, 0);
         self.RightText:ClearAllPoints();
-        self.RightText:SetPoint("CENTER", self, "RIGHT", -Def.ButtonTextOffset2, 0);
+        self.RightText:SetPoint("RIGHT", self, "RIGHT", -Def.ButtonTextOffset2, 0);
     end
 
     function MenuButtonMixin:ShowRadioIcon(state, selected)
@@ -94,7 +94,7 @@ do
         if characterInfo.numSets > 0 then
             self.RightText:SetText(characterInfo.numSets);
             self.RightText:ClearAllPoints();
-            self.RightText:SetPoint("CENTER", self, "RIGHT", -Def.ButtonTextOffset2, 0);
+            self.RightText:SetPoint("CENTER", self, "RIGHT", -Def.ButtonTextOffset2 -2, 0);
             self.RightText:SetTextColor(0.5, 0.5, 0.5);
             self.ButtonText:SetAlpha(1);
         else
@@ -135,6 +135,87 @@ do
     end
 end
 
+local CreateSearchBox;
+do
+    local SearchBoxMixin = {};
+
+    function SearchBoxMixin:GetValidText()
+        local text = strtrim(self:GetText());   --C_StringUtil in the future?
+        if text ~= "" then
+            return text
+        end
+    end
+
+    function SearchBoxMixin:OnEditFocusLost()
+        if not self:GetValidText() then
+            self.SearchIcon:SetVertexColor(0.6, 0.6, 0.6);
+        end
+        self:ClearHighlightText();
+    end
+
+    function SearchBoxMixin:OnEditFocusGained()
+        self.SearchIcon:SetVertexColor(0.9, 0.9, 0.9);
+    end
+
+    function SearchBoxMixin:OnTextChanged()
+        if self:GetText() ~= "" then
+            self.SearchIcon:SetVertexColor(0.9, 0.9, 0.9);
+            self.Instructions:Hide();
+        else
+            self.Instructions:Show();
+            if not self:HasFocus() then
+                self.SearchIcon:SetVertexColor(0.5, 0.5, 0.5);
+            end
+        end
+    end
+
+    function SearchBoxMixin:OnEnter()
+        Menu:FocusObject(self);
+    end
+
+    function SearchBoxMixin:OnLeave()
+        Menu:FocusObject(nil);
+        GameTooltip:Hide();
+    end
+
+    function SearchBoxMixin:OnFocused()
+        local tooltip = GameTooltip;
+        tooltip:SetOwner(self, "ANCHOR_NONE");
+        tooltip:SetPoint("TOPLEFT", self, "TOPRIGHT", 12, 0);
+        tooltip:SetText(L["OutfitSource Alts"], 1, 1, 1);
+        tooltip:AddLine(L["OutfitSource Alts Tooltip"], 1, 0.82, 0, true);
+        tooltip:Show();
+    end
+
+    function CreateSearchBox(parent)
+        local f = CreateFrame("EditBox", nil, parent, "NarciCustomSetsMenuSearchBoxTemplate");
+        Mixin(f, SearchBoxMixin);
+
+        f:SetSize(Def.MenuWidthMin - 32, Def.MenuButtonHeight);
+        f.hideHighlight = true;
+
+        f.Left:SetTexture(Def.TextureFile);
+        f.Left:SetTexCoord(0, 24/512, 44/512, 92/512);
+        f.Right:SetTexture(Def.TextureFile);
+        f.Right:SetTexCoord(232/512, 256/512, 44/512, 92/512);
+        f.Center:SetTexture(Def.TextureFile);
+        f.Center:SetTexCoord(24/512, 232/512, 44/512, 92/512);
+        f.SearchIcon:SetTexture(Def.TextureFile);
+        f.SearchIcon:SetTexCoord(260/512, 308/512, 44/512, 92/512);
+        f.SearchIcon:SetVertexColor(0.5, 0.5, 0.5);
+
+        f:SetScript("OnEditFocusLost", f.OnEditFocusLost);
+        f:SetScript("OnEditFocusGained", f.OnEditFocusGained);
+        f:SetScript("OnTextChanged", f.OnTextChanged);
+        f:SetScript("OnEnterPressed", f.ClearFocus);
+        f:SetScript("OnEscapePressed", f.ClearFocus);
+        f:SetScript("OnEnter", f.OnEnter);
+        f:SetScript("OnLeave", f.OnLeave);
+
+        return f
+    end
+end
+
 do  --MenuMixin
     local Schematic_Static = {
         {type = "Radio", key = "CurrentSourceButton", text = L["OutfitSource Default"],
@@ -148,13 +229,13 @@ do  --MenuMixin
             end,
         },
         {type = "Divider", key = "Divider"},
-        {type = "Radio", key = "ListHeaderButton", text = L["OutfitSource Alts"], tooltip = L["OutfitSource Alts Tooltip"], disabled = true},
+        --{type = "Radio", key = "ListHeaderButton", text = L["OutfitSource Alts"], tooltip = L["OutfitSource Alts Tooltip"], disabled = true},
     };
 
     function Menu:Init()
         self.Init = nil;
 
-        self:SetSize(240, 240);
+        self:SetSize(Def.MenuWidthMin, 240);
         self:SetFrameStrata("HIGH");
 
         --See MenuStyle1Mixin:Generate (Blizzard_Menu/Mainline/MenuTemplates.lua)
@@ -221,8 +302,6 @@ do  --MenuMixin
             end
         end
 
-        self.ListHeaderButton.Texture1:Hide();
-
         self.staticHeight = offsetY + Def.MenuPaddingY;
     end
 
@@ -272,7 +351,7 @@ do  --MenuMixin
         self.ListButtons:ReleaseAll();
         local uid = TransmogUIManager:GetSelectedCharacterUID();
         local fromDataIndex = (self.page - 1) * Def.CharacterButtonPerPage;
-        local offsetY = Def.MenuButtonHeight;
+        local offsetY = Def.MenuButtonHeight + Def.MenuPaddingY;
         local characterInfo;
         for index = fromDataIndex + 1, fromDataIndex + Def.CharacterButtonPerPage do
             characterInfo = self.allCharacterCustomSets[index];
@@ -361,6 +440,12 @@ do  --MenuMixin
         local NextButton = CreatePageButton(-1);
         self.NextButton = NextButton;
         NextButton:SetPoint("LEFT", PageText, "RIGHT", 0, 0);
+
+
+        --Search Bar
+        local SearchBox = CreateSearchBox(ListFrame);
+        SearchBox:SetPoint("TOP", ListFrame, "TOP", 0, 0);
+        SearchBox.Instructions:SetText(L["OutfitSource Alts"]);
     end
 
     function Menu:SetModeTransmogUI()
@@ -376,9 +461,9 @@ do  --MenuMixin
             self.page = 1;
         end
 
-        local offsetY = self.staticHeight - Def.MenuPaddingY;
-        local listHeight = Def.CharacterButtonPerPage * Def.MenuButtonHeight + Def.MenuPaddingY + 22;
-        self.ListFrame:SetPoint("TOPLEFT", self, "TOPLEFT", 0, -offsetY + Def.MenuButtonHeight);
+        local offsetY = self.staticHeight;
+        local listHeight = (Def.CharacterButtonPerPage + 1) * Def.MenuButtonHeight + 2*Def.MenuPaddingY + 22;
+        self.ListFrame:SetPoint("TOPLEFT", self, "TOPLEFT", 0, -offsetY);
         self.ListFrame:SetPoint("BOTTOMRIGHT", self, "BOTTOMRIGHT", 0, 0);
         self.menuHeight = offsetY + listHeight;
 
@@ -415,7 +500,7 @@ do  --MenuMixin
         self.focusedObject = object;
         self.t = 0;
         if object then
-            if object:IsEnabled() then
+            if object:IsEnabled() and not object.hideHighlight then
                 self.ButtonHighlight:SetPoint("TOPLEFT", object, "TOPLEFT", 0, 0);
                 self.ButtonHighlight:SetPoint("BOTTOMRIGHT", object, "BOTTOMRIGHT", 0, 0);
                 self.ButtonHighlight:Show();

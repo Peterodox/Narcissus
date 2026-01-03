@@ -9,7 +9,7 @@
 
 
 	<Button name="NarciCustomSetsMenuButtonTemplate" motionScriptsWhileDisabled="true" virtual="true">
-		<Size x="128" y="20"/>
+		<Size x="128" y="24"/>
 		<Layers>
 			<Layer level="OVERLAY">
 				<Texture parentKey="Texture1" hidden="true">
@@ -44,4 +44,48 @@
 			</Layer>
 		</Layers>
 	</Button>
+
+	<EditBox name="NarciCustomSetsMenuSearchBoxTemplate" inherits="InputBoxInstructionsNineSliceTemplate" autoFocus="false" virtual="true">
+		<Size x="128" y="24"/>
+		<FontString inherits="GameFontHighlightSmall" justifyH="LEFT"/>
+		<TextInsets left="22" right="22" bottom="0" top="0"/>
+		<Layers>
+			<Layer level="BACKGROUND">
+				<Texture parentKey="Left">
+					<Size x="12" y="24"/>
+					<Anchors>
+						<Anchor point="LEFT"/>
+					</Anchors>
+				</Texture>
+				<Texture parentKey="Right">
+					<Size x="12" y="24"/>
+					<Anchors>
+						<Anchor point="RIGHT"/>
+					</Anchors>
+				</Texture>
+				<Texture parentKey="Center">
+					<Size y="24"/>
+					<Anchors>
+						<Anchor point="TOPLEFT" relativeKey="$parent.Left" relativePoint="TOPRIGHT"/>
+						<Anchor point="BOTTOMRIGHT" relativeKey="$parent.Right" relativePoint="BOTTOMLEFT"/>
+					</Anchors>
+				</Texture>
+			</Layer>
+			<Layer level="ARTWORK">
+				<FontString parentKey="Instructions" justifyH="LEFT" justifyV="MIDDLE" inherits="GameFontDisableSmall">
+					<Anchors>
+						<Anchor point="TOPLEFT" x="22" y="0"/>
+						<Anchor point="BOTTOMRIGHT" x="-22" y="0"/>
+					</Anchors>
+					<Color r="0.5" g="0.5" b="0.5"/>
+				</FontString>
+				<Texture parentKey="SearchIcon">
+					<size x="24" y="24"/>
+					<Anchors>
+						<Anchor point="LEFT" x="0" y="0"/>
+					</Anchors>
+				</Texture>
+			</Layer>
+		</Layers>
+	</EditBox>
 </Ui>
