@@ -67,12 +67,13 @@ do
         self.useNativeForm = PlayerUtil.ShouldUseNativeFormInModelScene();
         self.t = 0;
         self.index = 0;
+        self.pendingModel = nil;
         self.modelList = modelList;
         self.toIndex = modelList and #modelList or 0;
         self:LoadNext();
     end
 
-    function ModelLoaderMixin:OnUpdate(elapsed)
+    function ModelLoaderMixin:OnUpdate_LoadNext(elapsed)
         self.t = self.t + elapsed;
         if self.t >= 0.03 then
             self.t = 0;
@@ -83,14 +84,31 @@ do
             else
                 local model = self.modelList[self.index];
                 model.useNativeForm = self.useNativeForm;
+                -- For some reason the model loading may fail after UNIT_FORM_CHANGED even IsUnitModelReadyForUI("player") == true
+                -- If the model fails to load after 0.1s, we reload it
+                self.modelReloadTime = 0.05;
+                self.pendingModel = model;
+                self:SetScript("OnUpdate", self.OnUpdate_WatchModel);
                 model:LoadModel();
             end
         end
     end
 
+    function ModelLoaderMixin:OnUpdate_WatchModel(elapsed)
+        self.t = self.t + elapsed;
+        if self.t >= self.modelReloadTime then
+            self.t = 0;
+            self.modelReloadTime = self.modelReloadTime + 0.05;
+            if self.pendingModel then
+                self.pendingModel:LoadModel();
+            end
+        end
+    end
+
     function ModelLoaderMixin:LoadNext()
+        self.pendingModel = nil;
         if self.index and self.index < self.toIndex then
-            self:SetScript("OnUpdate", self.OnUpdate);
+            self:SetScript("OnUpdate", self.OnUpdate_LoadNext);
         end
     end
 
@@ -105,11 +123,15 @@ end
 local SortFunc = {};
 do
     function SortFunc.Default(a, b)
-        if a.collected ~= b.collected then
-            return a.collected;
+        if a.anyUsable ~= b.anyUsable then
+            return a.anyUsable
         end
 
-        return a.name < b.name;
+        if a.collected ~= b.collected then
+            return a.collected
+        end
+
+        return a.name < b.name
     end
 end
 
@@ -134,7 +156,8 @@ do
     end
 
     function SetModelMixin:LoadModel()
-        --Notice: equipping sets triggers OnModelLoaded
+        --Notice: equipping some items triggers OnModelLoaded
+
         self.manualLoading = true;
         self.setEquipped = nil;
         self:SetScript("OnUpdate", nil);
@@ -147,6 +170,7 @@ do
     function SetModelMixin:UnloadModel()
         self:ClearModel();
         self.isModelLoaded = false;
+        self.setEquipped = false;
     end
 
     function SetModelMixin:RequestLoadSet()
@@ -175,7 +199,7 @@ do
                     self:SetItemTransmogInfo(itemTransmogInfo, slotID);
                 end
 
-                local collected = data.collected;
+                local collected = data.collected and data.anyUsable;
                 if collected ~= self.collected then
                     self.collected = collected;
                     local borderAtlas = collected and "transmog-setcard-default" or "transmog-setcard-incomplete";
@@ -245,12 +269,12 @@ do
             self:RegisterEvent("MODIFIER_STATE_CHANGED");
             self:SetScript("OnEvent", self.OnEvent);
             local _, missingSlots, allMissing = TransmogUIManager:IsTransmogInfoListCollected(data.transmogInfoList, true);
-            if allMissing then
+            if allMissing or not data.anyUsable then
                 tooltip:AddLine(L["TransmogSet No Valid Items"], 1, 0.125, 0.125, true);
             else
                 TransmogUIManager:Tooltip_AddGreyLine(tooltip, ITEMS_NOT_IN_INVENTORY:format(#missingSlots));
             end
-            
+
             if (not allMissing) and NarcissusDB.TransmogUI_ShowMisingItemDetail then
                 local slotName;
                 for _, slotID in ipairs(missingSlots) do
@@ -260,9 +284,6 @@ do
                     end
                 end
             end
-        else
-            --debug
-            TransmogUIManager:IsTransmogInfoListCollected(data.transmogInfoList, true);
         end
 
         tooltip:Show();
@@ -407,10 +428,16 @@ do
         local NextPageButton = CreateFrame("Button", nil, PagingControls, "PagingControlsNextPageButtonTemplate");
         NextPageButton:SetPoint("RIGHT", PagingControls, "RIGHT", 0, 0);
         OutfitModule:AddNewObject(NextPageButton);
+        NextPageButton:SetScript("OnClick", function()
+            self:OnMouseWheel(-1);
+        end);
 
         local PrevPageButton = CreateFrame("Button", nil, PagingControls, "PagingControlsPrevPageButtonTemplate");
         PrevPageButton:SetPoint("RIGHT", NextPageButton, "LEFT", -5, 0);
         OutfitModule:AddNewObject(NextPageButton);
+        PrevPageButton:SetScript("OnClick", function()
+            self:OnMouseWheel(1);
+        end);
 
         local PageText = PagingControls:CreateFontString(nil, "OVERLAY", "GameFontHighlight");
         PageText:SetSize(0, 32);
@@ -456,6 +483,16 @@ do
         self:UnregisterAllEvents();
     end
 
+    local function CreateTransmogData(name, transmogInfoList, customSetID)
+        return {
+            customSetID = customSetID,
+            name = name,
+            transmogInfoList = transmogInfoList,
+            collected = TransmogUIManager:IsTransmogInfoListCollected(transmogInfoList),
+            anyUsable = TransmogUIManager:IsTransmogInfoListUsable(transmogInfoList),
+        };
+    end
+
     function SetsFrameMixin:LoadDefaultSets()
         self:SetScript("OnMouseWheel", nil);
         self:ClearAllModels();
@@ -469,12 +506,7 @@ do
             name = GetCustomSetInfo(customSetID);
             local transmogInfoList = GetCustomSetItemTransmogInfoList(customSetID);
             n = n + 1;
-            dataList[n] = {
-                customSetID = customSetID,
-                name = name,
-                transmogInfoList = transmogInfoList,
-                collected = TransmogUIManager:IsTransmogInfoListCollected(transmogInfoList),
-            };
+            dataList[n] = CreateTransmogData(name, transmogInfoList, customSetID);
         end
 
         table.sort(dataList, SortFunc.Default);
@@ -509,16 +541,13 @@ do
 
         if characterInfo and characterInfo.sets then
             for i, setInfo in ipairs(characterInfo.sets) do
-                dataList[i] = {
-                    name = setInfo.name;
-                    transmogInfoList = setInfo.transmogInfoList,
-                    collected = TransmogUIManager:IsTransmogInfoListCollected(setInfo.transmogInfoList),
-                };
+                dataList[i] = CreateTransmogData(setInfo.name, setInfo.transmogInfoList);
             end
         end
 
         table.sort(dataList, SortFunc.Default);
         OutfitModule:SetOutfitSource("Alts");
+        self.page = 1;
         self:SetDataList(dataList);
     end
     CallbackRegistry:Register("TransmogUI.LoadAltSets", function(characterInfo)
@@ -572,6 +601,7 @@ do
                     if not model then
                         model = CreateFrame("DressUpModel", nil, self, "TransmogSetBaseModelTemplate");
                         self.Models[i] = model;
+                        model.index = i;
                         model:Hide();
                         model:SetScript("OnShow", nil);
                         model:SetScript("OnHide", nil);
@@ -581,7 +611,6 @@ do
                         model:UnregisterAllEvents();
 
                         Mixin(model, SetModelMixin);
-                        model:UnloadModel();
                         model:SetScript("OnModelLoaded", SetModelMixin.OnModelLoaded);
                         model:SetScript("OnMouseDown", SetModelMixin.OnMouseDown);
                         model:SetScript("OnMouseUp", SetModelMixin.OnMouseUp);
@@ -656,7 +685,6 @@ do
     end
 
     function SetsFrameMixin:OnEvent(event, ...)
-        --print(event, ...)
         if event == "TRANSMOG_CUSTOM_SETS_CHANGED" or event == "UNIT_FORM_CHANGED" then
             self:RequestUpdate("All");
         elseif event == "UI_SCALE_CHANGED" or event == "DISPLAY_SIZE_CHANGED" then

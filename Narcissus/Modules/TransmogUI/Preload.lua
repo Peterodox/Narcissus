@@ -5,6 +5,7 @@ TransmogUIManager.modules = {};
 
 
 local TransmogDataProvider = addon.TransmogDataProvider;
+local GetSourceInfo = C_TransmogCollection.GetSourceInfo;
 local GetAppearanceSources = C_TransmogCollection.GetAppearanceSources;
 local GetAppearanceInfoBySource = C_TransmogCollection.GetAppearanceInfoBySource;
 local GetTransmogOutfitSlotFromInventorySlot = C_TransmogOutfitInfo and C_TransmogOutfitInfo.GetTransmogOutfitSlotFromInventorySlot;
@@ -164,41 +165,93 @@ function TransmogUIManager:SetPendingFromTransmogInfoList(transmogInfoList)
     end
 end
 
+local UsableItemModifiedAppearances = {};
+
+function TransmogUIManager:IsAppearanceUsable(appearanceID)
+    --Race/Class errors
+
+    if UsableItemModifiedAppearances[appearanceID] == nil then
+        if not IsAppearanceHiddenVisual(appearanceID) then
+            local sourceInfo = GetSourceInfo(appearanceID);
+            if sourceInfo then
+                UsableItemModifiedAppearances[appearanceID] = sourceInfo.useError == nil;
+            end
+        end
+    end
+
+    return UsableItemModifiedAppearances[appearanceID]
+end
+
 function TransmogUIManager:IsTransmogInfoListCollected(transmogInfoList, showMissingSlots)
-    local isCollected = true;
+    local allCollected = true;
     local allMissing = showMissingSlots and true or nil;
     local missingSlots;
 
 	for invSlotID, transmogInfo in ipairs(transmogInfoList) do
-        if not IgnoredInvSlots[invSlotID] then
+        if (not IgnoredInvSlots[invSlotID]) and transmogInfo.appearanceID ~= 0 then
             local appearanceInfo = GetAppearanceInfoBySource(transmogInfo.appearanceID);
             local valid = true;
+
             if appearanceInfo then
-                if appearanceInfo.appearanceIsCollected and appearanceInfo.canDisplayOnPlayer then
-                    valid = true;
-                else
+                if not appearanceInfo.appearanceIsCollected then
                     valid = false;
                 end
-            elseif transmogInfo.appearanceID ~= 0 and not IsAppearanceHiddenVisual(transmogInfo.appearanceID) then
+            elseif not IsAppearanceHiddenVisual(transmogInfo.appearanceID) then
                 valid = false;
             end
 
-            if not valid then
-                isCollected = false;
+            if valid then
+                allMissing = false;
+            else
+                allCollected = false;
             end
 
             if showMissingSlots then
-                if not missingSlots then
-                    missingSlots = {};
+                if not valid then
+                    if not missingSlots then
+                        missingSlots = {};
+                    end
+                    table.insert(missingSlots, invSlotID);
                 end
-                table.insert(missingSlots, invSlotID);
-            else
+            elseif not allCollected then
                 break
             end
         end
 	end
 
-    return isCollected, missingSlots, allMissing
+    return allCollected, missingSlots, allMissing
+end
+
+
+
+function TransmogUIManager:IsTransmogInfoListUsable(transmogInfoList)
+    local total = 0;
+    local numNotHidden = 0;
+    local numHidden = 0;
+
+    for invSlotID, transmogInfo in ipairs(transmogInfoList) do
+        if (not IgnoredInvSlots[invSlotID]) and transmogInfo.appearanceID ~= 0 then
+            total = total + 1;
+            if IsAppearanceHiddenVisual(transmogInfo.appearanceID) then
+                numHidden = numHidden + 1;
+            elseif TransmogUIManager:IsAppearanceUsable(transmogInfo.appearanceID) then
+                numNotHidden = numNotHidden + 1;
+            end
+        end
+    end
+
+    if total > 0 then
+        --If all items are hidden visual, consider it usable
+        if numHidden == total then
+            return true
+        end
+
+        if numNotHidden > 0 then
+            return true
+        end
+    end
+
+    return false
 end
 
 function TransmogUIManager:IsCustomSetCollected(customSetID, showMissingSlots)
@@ -256,7 +309,7 @@ do  --Shared Custom Sets
             end
         end
 
-        local sortMethod = "name"
+        local sortMethod = "name";
         local uids = CharacterProfile:GetRoster(filterFunc, sortMethod) or {};
 
         return uids
@@ -268,27 +321,30 @@ do  --Shared Custom Sets
         end
 
         local WrapNameWithClassColor = NarciAPI.WrapNameWithClassColor;
+        local playerUID = CharacterProfile:GetCurrentPlayerUID();
         local uids = self:GetCharacterList();
         local n = 0;
         local tbl = {};
 
         for _, uid in ipairs(uids) do
-            local outfits = CharacterProfile:GetOutfits(uid);
-            if outfits then
-                local characterInfo = CharacterProfile:CopyBasicInfo(uid);
-                local sets = {};
+            if uid ~= playerUID then
+                local outfits = CharacterProfile:GetOutfits(uid);
+                if outfits then
+                    local characterInfo = CharacterProfile:CopyBasicInfo(uid);
+                    local sets = {};
 
-                for i, v in ipairs(outfits) do
-                    sets[i] = TransmogDataProvider:DecodeSavedOutfit(v); --setsInfo = {name = string, transmogInfoList = table}
-                end
+                    for i, v in ipairs(outfits) do
+                        sets[i] = TransmogDataProvider:DecodeSavedOutfit(v); --setsInfo = {name = string, transmogInfoList = table}
+                    end
 
-                characterInfo.sets = sets;
-                characterInfo.numSets = #sets;
-                characterInfo.colorizedName = WrapNameWithClassColor(characterInfo.name, characterInfo.classID);
+                    characterInfo.sets = sets;
+                    characterInfo.numSets = #sets;
+                    characterInfo.colorizedName = WrapNameWithClassColor(characterInfo.name, characterInfo.classID);
 
-                if true then
-                    n = n + 1;
-                    tbl[n] = characterInfo;
+                    if true then
+                        n = n + 1;
+                        tbl[n] = characterInfo;
+                    end
                 end
             end
         end

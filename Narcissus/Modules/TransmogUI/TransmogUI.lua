@@ -29,7 +29,7 @@ do
     end
 
     function MainFrameMixin:OnEvent(event, ...)
-        print(event, ...);
+        --print(event, ...);
     end
 end
 

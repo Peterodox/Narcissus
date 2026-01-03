@@ -272,7 +272,7 @@ do  --MenuMixin
         self.ListButtons:ReleaseAll();
         local uid = TransmogUIManager:GetSelectedCharacterUID();
         local fromDataIndex = (self.page - 1) * Def.CharacterButtonPerPage;
-        local offsetY = 0;
+        local offsetY = Def.MenuButtonHeight;
         local characterInfo;
         for index = fromDataIndex + 1, fromDataIndex + Def.CharacterButtonPerPage do
             characterInfo = self.allCharacterCustomSets[index];
@@ -285,7 +285,7 @@ do  --MenuMixin
                 offsetY = offsetY + Def.MenuButtonHeight;
             end
         end
-        self.PageText:SetText(string.format("%d/%d", self.page, self.maxPage));
+        self.PageText:SetText(string.format("%d/%d", self.page <= self.maxPage and self.page or 0, self.maxPage));
         self.PrevButton:SetEnabled(self.page > 1);
         self.NextButton:SetEnabled(self.page < self.maxPage);
     end
@@ -378,7 +378,7 @@ do  --MenuMixin
 
         local offsetY = self.staticHeight - Def.MenuPaddingY;
         local listHeight = Def.CharacterButtonPerPage * Def.MenuButtonHeight + Def.MenuPaddingY + 22;
-        self.ListFrame:SetPoint("TOPLEFT", self, "TOPLEFT", 0, -offsetY);
+        self.ListFrame:SetPoint("TOPLEFT", self, "TOPLEFT", 0, -offsetY + Def.MenuButtonHeight);
         self.ListFrame:SetPoint("BOTTOMRIGHT", self, "BOTTOMRIGHT", 0, 0);
         self.menuHeight = offsetY + listHeight;
 
