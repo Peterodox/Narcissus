@@ -189,6 +189,17 @@ do
         return data
     end
 
+    local function IsCustomSetDressed(currentItemTransmogInfoList, customSetItemTransmogInfoList)
+        for slotID, itemTransmogInfo in ipairs(currentItemTransmogInfoList) do
+            if not itemTransmogInfo:IsEqual(customSetItemTransmogInfoList[slotID]) then
+                if itemTransmogInfo.appearanceID ~= 0 then
+                    return false;
+                end
+            end
+        end
+        return true
+    end
+
     function SetModelMixin:OnUpdate(elapsed)
         if not self.setEquipped then
             self.setEquipped = true;
@@ -228,13 +239,18 @@ do
     end
 
     function SetModelMixin:OnMouseDown(button)
+        if TransmogUIManager:IsCustomSetsMenuShown() then
+            --Block clicks while the menu is shown
+            return
+        end
+
         if button == "LeftButton" then
             local data = self:GetData();
             if not data then return end;
 
             if IsModifiedClick() then
                 if IsModifiedClick("CHATLINK") then
-                    TransmogUIManager:PostTransmogInChat(data.transmogInfoList)
+                    TransmogUIManager:PostTransmogInChat(data.transmogInfoList);
                     return
                 end
             end
@@ -780,8 +796,6 @@ function OutfitModule:OnLoad()
     CharacterDropdown:OnLoad();
 
     self:ModifyStockUI();
-
-    --C_EncodingUtil
 end
 
 

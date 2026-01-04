@@ -193,15 +193,30 @@ function ProfileAPI:GetNumOutfits(uid)
     return outfits and #outfits or 0
 end
 
+local GetRaceInfo = C_CreatureInfo.GetRaceInfo;
+local GetClassInfo = C_CreatureInfo.GetClassInfo;
+
 function ProfileAPI:CopyBasicInfo(uid)
     local data = self:GetPlayerInfo(uid);
     if data then
+        local raceName, className;
+        local info = GetRaceInfo(data.race);
+        if info then
+            raceName = info.raceName;
+        end
+        info = GetClassInfo(data.class);
+        if info then
+            className = info.className;
+        end
         return {
             uid = uid,
             name = data.name,
             classID = data.class,
+            raceID = data.race,
             serverID = data.serverID,
             lastVisit = data.lastVisit,
+            raceName = raceName,
+            className = className,
         }
     end
 end

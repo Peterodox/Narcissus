@@ -315,12 +315,27 @@ do  --Shared Custom Sets
         return uids
     end
 
+    local WrapNameWithClassColor = NarciAPI.WrapNameWithClassColor;
+
+    local function CharacterInfo_LoadData(self)
+        if self.loaded then return end;
+        self.loaded = true;
+
+        self.colorizedName = WrapNameWithClassColor(self.name, self.classID);
+        local outfits = CharacterProfile:GetOutfits(self.uid);
+        local sets = {};
+        for i, v in ipairs(outfits) do
+            sets[i] = TransmogDataProvider:DecodeSavedOutfit(v); --setsInfo = {name = string, transmogInfoList = table}
+        end
+        self.sets = sets;
+        self.numSets = #sets;
+    end
+
     function TransmogUIManager:GetAllCharacterCustomSets()
         if self.allCharacterCustomSets then
             return self.allCharacterCustomSets
         end
 
-        local WrapNameWithClassColor = NarciAPI.WrapNameWithClassColor;
         local playerUID = CharacterProfile:GetCurrentPlayerUID();
         local uids = self:GetCharacterList();
         local n = 0;
@@ -331,16 +346,7 @@ do  --Shared Custom Sets
                 local outfits = CharacterProfile:GetOutfits(uid);
                 if outfits then
                     local characterInfo = CharacterProfile:CopyBasicInfo(uid);
-                    local sets = {};
-
-                    for i, v in ipairs(outfits) do
-                        sets[i] = TransmogDataProvider:DecodeSavedOutfit(v); --setsInfo = {name = string, transmogInfoList = table}
-                    end
-
-                    characterInfo.sets = sets;
-                    characterInfo.numSets = #sets;
-                    characterInfo.colorizedName = WrapNameWithClassColor(characterInfo.name, characterInfo.classID);
-
+                    characterInfo.LoadData = CharacterInfo_LoadData;
                     if true then
                         n = n + 1;
                         tbl[n] = characterInfo;

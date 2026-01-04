@@ -148,7 +148,8 @@ do
 
     function SearchBoxMixin:OnEditFocusLost()
         if not self:GetValidText() then
-            self.SearchIcon:SetVertexColor(0.6, 0.6, 0.6);
+            self:SetText("");
+            self.SearchIcon:SetVertexColor(0.5, 0.5, 0.5);
         end
         self:ClearHighlightText();
     end
@@ -157,15 +158,22 @@ do
         self.SearchIcon:SetVertexColor(0.9, 0.9, 0.9);
     end
 
-    function SearchBoxMixin:OnTextChanged()
+    function SearchBoxMixin:OnTextChanged(userInput)
         if self:GetText() ~= "" then
             self.SearchIcon:SetVertexColor(0.9, 0.9, 0.9);
             self.Instructions:Hide();
+            self.ClearButton:Show();
         else
             self.Instructions:Show();
+            self.ClearButton:Hide();
             if not self:HasFocus() then
                 self.SearchIcon:SetVertexColor(0.5, 0.5, 0.5);
             end
+        end
+
+        if userInput then
+            self.t = 0;
+            self:SetScript("OnUpdate", self.OnUpdate);
         end
     end
 
@@ -187,6 +195,76 @@ do
         tooltip:Show();
     end
 
+    function SearchBoxMixin:OnUpdate(elapsed)
+        self.t = self.t + elapsed;
+        if self.t >= 0.2 then
+            self.t = 0;
+            self:SetScript("OnUpdate", nil);
+            self:RunSearch();
+        end
+    end
+
+    local lower = string.lower;
+    local find = string.find;
+
+    local function StringMatch(baseString, word)
+        if baseString and baseString ~= "" and find(lower(baseString), word, 1, true) then
+            return true
+        end
+        return false
+    end
+
+    local function CheckCharacterDataForMatch(data, words)
+        local matched = false;
+
+        for _, word in ipairs(words) do
+            if word ~= "" then
+                if StringMatch(data.name, word) or StringMatch(data.raceName, word) or StringMatch(data.className, word) then
+                    matched = true;
+                    break
+                end
+            end
+        end
+
+        return matched
+    end
+
+    function SearchBoxMixin:RunSearch()
+        local text = self:GetValidText();
+        local filteredCharacters;
+
+        if text then
+            text = lower(text);
+            local words = { string.split(" ", text) };
+            local hasValidTerms;
+            if words then
+                for _, word in ipairs(words) do
+                    if word ~= "" then
+                        hasValidTerms = true;
+                        break
+                    end
+                end
+            end
+
+            if hasValidTerms then
+                filteredCharacters = {};
+                local n = 0;
+                for _, characterInfo in ipairs(TransmogUIManager:GetAllCharacterCustomSets()) do
+                    if CheckCharacterDataForMatch(characterInfo, words) then
+                        n = n + 1;
+                        filteredCharacters[n] = characterInfo;
+                    end
+                end
+            end
+        else
+            filteredCharacters = TransmogUIManager:GetAllCharacterCustomSets();
+        end
+
+        Menu.filteredCharacters = filteredCharacters or {};
+        Menu.page = 1;
+        Menu:Refresh();
+    end
+
     function CreateSearchBox(parent)
         local f = CreateFrame("EditBox", nil, parent, "NarciCustomSetsMenuSearchBoxTemplate");
         Mixin(f, SearchBoxMixin);
@@ -203,6 +281,17 @@ do
         f.SearchIcon:SetTexture(Def.TextureFile);
         f.SearchIcon:SetTexCoord(260/512, 308/512, 44/512, 92/512);
         f.SearchIcon:SetVertexColor(0.5, 0.5, 0.5);
+
+        f.ClearButton.Icon:SetTexture(Def.TextureFile);
+        f.ClearButton.Icon:SetTexCoord(308/512, 356/512, 44/512, 92/512);
+        f.ClearButton.Icon:SetVertexColor(0.6, 0.6, 0.6);
+        f.ClearButton.Highlight:SetTexture(Def.TextureFile);
+        f.ClearButton.Highlight:SetTexCoord(308/512, 356/512, 44/512, 92/512);
+        f.ClearButton.Highlight:SetVertexColor(0.4, 0.4, 0.4);
+        f.ClearButton:SetScript("OnClick", function()
+            f:SetText("");
+            f:RunSearch();
+        end);
 
         f:SetScript("OnEditFocusLost", f.OnEditFocusLost);
         f:SetScript("OnEditFocusGained", f.OnEditFocusGained);
@@ -246,7 +335,6 @@ do  --MenuMixin
         local x = 8;      --Adjust background so its border line up with frame's
         Background:SetPoint("TOPLEFT", -x, 6);
         Background:SetPoint("BOTTOMRIGHT", x, -12);
-
 
         self:SetScript("OnShow", self.OnShow);
         self:SetScript("OnHide", self.OnHide);
@@ -306,6 +394,7 @@ do  --MenuMixin
     end
 
     function Menu:OnShow()
+        self.wasShown = true;
         self:RegisterEvent("GLOBAL_MOUSE_DOWN");
     end
 
@@ -314,6 +403,9 @@ do  --MenuMixin
         self:ClearAllPoints();
         self:FocusObject(nil);
         self:UnregisterEvent("GLOBAL_MOUSE_DOWN");
+        C_Timer.After(0, function()
+            self.wasShown = nil;
+        end);
     end
 
     function Menu:IsFocused()
@@ -348,14 +440,24 @@ do  --MenuMixin
     end
 
     function Menu:UpdateListFrame()
+        local total = #self.filteredCharacters;
+        self.maxPage = math.ceil(total / Def.CharacterButtonPerPage);
+
+        if not self.page then
+            self.page = 1;
+        end
+
+        self.NoDataAlert:SetShown(total == 0);
+
         self.ListButtons:ReleaseAll();
         local uid = TransmogUIManager:GetSelectedCharacterUID();
         local fromDataIndex = (self.page - 1) * Def.CharacterButtonPerPage;
         local offsetY = Def.MenuButtonHeight + Def.MenuPaddingY;
         local characterInfo;
         for index = fromDataIndex + 1, fromDataIndex + Def.CharacterButtonPerPage do
-            characterInfo = self.allCharacterCustomSets[index];
+            characterInfo = self.filteredCharacters[index];
             if characterInfo then
+                characterInfo:LoadData();
                 local button = self.ListButtons:Acquire();
                 button:SetPoint("TOP", self.ListFrame, "TOP", 0, -offsetY);
                 button:SetCharacterInfo(characterInfo);
@@ -393,7 +495,7 @@ do  --MenuMixin
         PageText:SetJustifyH("CENTER");
         PageText:SetPoint("BOTTOM", ListFrame, "BOTTOM", 0, 4);
         PageText:SetTextColor(0.88, 0.88, 0.88);
-        PageText:SetText("1/2");
+        PageText:SetText("1/1");
 
         local function PageButton_OnEnable(f)
             f.Icon:SetVertexColor(1, 0.82, 0);
@@ -433,14 +535,19 @@ do  --MenuMixin
             return f
         end
 
-        local PrevButton = CreatePageButton(1);
-        self.PrevButton = PrevButton;
-        PrevButton:SetPoint("RIGHT", PageText, "LEFT", 0, 0);
+        self.PrevButton = CreatePageButton(1);
+        self.PrevButton:SetPoint("RIGHT", PageText, "LEFT", 0, 0);
 
-        local NextButton = CreatePageButton(-1);
-        self.NextButton = NextButton;
-        NextButton:SetPoint("LEFT", PageText, "RIGHT", 0, 0);
+        self.NextButton = CreatePageButton(-1);
+        self.NextButton:SetPoint("LEFT", PageText, "RIGHT", 0, 0);
 
+        local NoDataAlert = ListFrame:CreateFontString(nil, "OVERLAY", "GameFontNormal");
+        self.NoDataAlert = NoDataAlert;
+        NoDataAlert:SetTextColor(0.5, 0.5, 0.5);
+        NoDataAlert:SetJustifyH("CENTER");
+        NoDataAlert:SetPoint("LEFT", ListFrame, "LEFT", 16, 0);
+        NoDataAlert:SetPoint("RIGHT", ListFrame, "RIGHT", -16, 0);
+        NoDataAlert:SetText(CLUB_FINDER_APPLICANT_LIST_NO_MATCHING_SPECS);
 
         --Search Bar
         local SearchBox = CreateSearchBox(ListFrame);
@@ -451,22 +558,13 @@ do  --MenuMixin
     function Menu:SetModeTransmogUI()
         self:InitListFrame()
 
-        local allCharacterCustomSets = TransmogUIManager:GetAllCharacterCustomSets(); --GetCharacterList
-        self.allCharacterCustomSets = allCharacterCustomSets;
-        local total = #allCharacterCustomSets;
-        self.maxPage = math.ceil(total / Def.CharacterButtonPerPage);
-
-
-        if not self.page then
-            self.page = 1;
-        end
-
         local offsetY = self.staticHeight;
         local listHeight = (Def.CharacterButtonPerPage + 1) * Def.MenuButtonHeight + 2*Def.MenuPaddingY + 22;
         self.ListFrame:SetPoint("TOPLEFT", self, "TOPLEFT", 0, -offsetY);
         self.ListFrame:SetPoint("BOTTOMRIGHT", self, "BOTTOMRIGHT", 0, 0);
         self.menuHeight = offsetY + listHeight;
 
+        self.filteredCharacters = TransmogUIManager:GetAllCharacterCustomSets();
         self:Refresh();
     end
 
@@ -543,4 +641,8 @@ function TransmogUIManager:ToggleCustomSetsMenu(owner)
     else
         self:ShowCustomSetsMenu(owner);
     end
+end
+
+function TransmogUIManager:IsCustomSetsMenuShown()
+    return Menu:IsShown() or Menu.wasShown
 end

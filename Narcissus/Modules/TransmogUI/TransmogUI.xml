@@ -48,7 +48,7 @@
 	<EditBox name="NarciCustomSetsMenuSearchBoxTemplate" inherits="InputBoxInstructionsNineSliceTemplate" autoFocus="false" virtual="true">
 		<Size x="128" y="24"/>
 		<FontString inherits="GameFontHighlightSmall" justifyH="LEFT"/>
-		<TextInsets left="22" right="22" bottom="0" top="0"/>
+		<TextInsets left="22" right="24" bottom="0" top="0"/>
 		<Layers>
 			<Layer level="BACKGROUND">
 				<Texture parentKey="Left">
@@ -87,5 +87,31 @@
 				</Texture>
 			</Layer>
 		</Layers>
+		<Frames>
+			<Button parentKey="ClearButton" hidden="true">
+				<Size x="24" y="24"/>
+				<Anchors>
+					<Anchor point="RIGHT"/>
+				</Anchors>
+				<Layers>
+					<Layer level="OVERLAY">
+						<Texture parentKey="Icon" snapToPixelGrid="false" texelSnappingBias="0.0">
+							<size x="24" y="24"/>
+							<Anchors>
+								<Anchor point="LEFT" x="0" y="0"/>
+							</Anchors>
+						</Texture>
+					</Layer>
+					<Layer level="HIGHLIGHT">
+						<Texture parentKey="Highlight" alphaMode="ADD" snapToPixelGrid="false" texelSnappingBias="0.0">
+							<size x="24" y="24"/>
+							<Anchors>
+								<Anchor point="LEFT" x="0" y="0"/>
+							</Anchors>
+						</Texture>
+					</Layer>
+				</Layers>
+			</Button>
+		</Frames>
 	</EditBox>
 </Ui>
