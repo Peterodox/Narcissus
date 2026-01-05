@@ -19,7 +19,7 @@
 					</Anchors>
 				</Texture>
 
-				<FontString parentKey="ButtonText" inherits="GameFontNormal" maxLines="1" text="Current Character">
+				<FontString parentKey="ButtonText" inherits="GameFontNormal" maxLines="1" justifyH="LEFT">
 					<Size y="20"/>
 					<Anchors>
 						<Anchor point="LEFT" x="10"/>

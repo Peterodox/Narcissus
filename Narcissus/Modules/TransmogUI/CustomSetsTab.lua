@@ -63,8 +63,8 @@ end
 local ModelLoaderMixin = {};
 do
     function ModelLoaderMixin:LoadModels(modelList)
+        OutfitModule.SetsFrame:SetModelUseNativeForm();
         self:SetScript("OnUpdate", nil);
-        self.useNativeForm = PlayerUtil.ShouldUseNativeFormInModelScene();
         self.t = 0;
         self.index = 0;
         self.pendingModel = nil;
@@ -83,7 +83,6 @@ do
                 
             else
                 local model = self.modelList[self.index];
-                model.useNativeForm = self.useNativeForm;
                 -- For some reason the model loading may fail after UNIT_FORM_CHANGED even IsUnitModelReadyForUI("player") == true
                 -- If the model fails to load after 0.1s, we reload it
                 self.modelReloadTime = 0.05;
@@ -133,18 +132,38 @@ do
 
         return a.name < b.name
     end
+
+    function SortFunc.ByDate(a, b)
+        if a.anyUsable ~= b.anyUsable then
+            return a.anyUsable
+        end
+
+        if a.collected ~= b.collected then
+            return a.collected
+        end
+
+        if a.timeCreated ~= b.timeCreated then
+            return a.timeCreated > b.timeCreated
+        end
+
+        return a.name < b.name
+    end
 end
 
 
 local SetModelMixin = {};
 do
     function SetModelMixin:OnModelLoaded()
-        self.isModelLoaded = true;
+        if self:IsShown() then
+            self.isModelLoaded = true;
+        end
 
         self:RefreshCameraNew();
         self:RequestLoadSet();
 
-        OutfitModule.SetsFrame.Loader:LoadNext();
+        if self.isModelLoaded then
+            OutfitModule.SetsFrame.Loader:LoadNext();
+        end
     end
 
     function SetModelMixin:RefreshCameraNew()
@@ -175,7 +194,7 @@ do
 
     function SetModelMixin:RequestLoadSet()
         if not self.isModelLoaded then
-            self:LoadModel();
+            self:SetScript("OnUpdate", self.OnUpdate_LoadModel)
             return
         end
 
@@ -184,20 +203,14 @@ do
         self:SetScript("OnUpdate", self.OnUpdate);
     end
 
+    function SetModelMixin:OnUpdate_LoadModel()
+        self:SetScript("OnUpdate", nil);
+        self:LoadModel();
+    end
+
     function SetModelMixin:GetData()
         local data = self.dataIndex and OutfitModule.SetsFrame:GetTransmogData(self.dataIndex);
         return data
-    end
-
-    local function IsCustomSetDressed(currentItemTransmogInfoList, customSetItemTransmogInfoList)
-        for slotID, itemTransmogInfo in ipairs(currentItemTransmogInfoList) do
-            if not itemTransmogInfo:IsEqual(customSetItemTransmogInfoList[slotID]) then
-                if itemTransmogInfo.appearanceID ~= 0 then
-                    return false;
-                end
-            end
-        end
-        return true
     end
 
     function SetModelMixin:OnUpdate(elapsed)
@@ -326,6 +339,36 @@ do
         self:SetScript("OnEvent", nil);
     end
 
+    function SetModelMixin:SetBorderState(showPurpleBorder, pending)
+        local transmogStateAtlas;
+
+        if showPurpleBorder then
+            if pending then
+                transmogStateAtlas = "transmog-setcard-transmogrified-pending";
+            else
+                transmogStateAtlas = "transmog-setcard-transmogrified";
+            end
+        end
+
+        if transmogStateAtlas then
+            self.TransmogStateTexture:SetAtlas(transmogStateAtlas, TextureKitConstants.IgnoreAtlasSize);
+            self.TransmogStateTexture:Show();
+
+            if pending then
+                self.PendingFrame:Show();
+                self.PendingFrame.Anim:Restart();
+            else
+                self.PendingFrame.Anim:Stop();
+                self.PendingFrame:Hide();
+            end
+        else
+            self.TransmogStateTexture:Hide();
+
+            self.PendingFrame.Anim:Stop();
+            self.PendingFrame:Hide();
+        end
+    end
+
     function SetModelMixin:ShowContextMenu()
         --See TransmogCustomSetModelMixin:OnMouseUp (Interface/AddOns/Blizzard_Transmog/Blizzard_TransmogTemplates.lua)
         --Removed: View in Dressing Room (why)
@@ -340,12 +383,14 @@ do
             objects = {},
         };
 
-        if customSetID then
+        local tinsert = table.insert;
+
+        if customSetID then --Default, Blizzard
             local itemTransmogInfoList = TransmogFrame.WardrobeCollection:GetItemTransmogInfoListCallback();
             local name, _icon = C_TransmogCollection.GetCustomSetInfo(customSetID);
 
             --Rename
-            table.insert(Schematic.objects, {
+            tinsert(Schematic.objects, {
                 type = "Button",
                 name = TRANSMOG_CUSTOM_SET_RENAME,
                 OnClick = function()
@@ -357,9 +402,9 @@ do
             --Overwrite, Replace with current set
             local hasValidAppearance = TransmogUtil.IsValidItemTransmogInfoList(itemTransmogInfoList);
             if hasValidAppearance then
-                table.insert(Schematic.objects, {type = "Divider"});
+                tinsert(Schematic.objects, {type = "Divider"});
 
-                table.insert(Schematic.objects, {
+                tinsert(Schematic.objects, {
                     type = "Button",
                     name = TRANSMOG_CUSTOM_SET_REPLACE,
                     OnClick = function()
@@ -368,10 +413,10 @@ do
                 });
             end
 
-            table.insert(Schematic.objects, {type = "Divider"});
+            tinsert(Schematic.objects, {type = "Divider"});
 
             --Delete
-            table.insert(Schematic.objects, {
+            tinsert(Schematic.objects, {
                 type = "Button",
                 name = RED_FONT_COLOR:WrapTextInColorCode(TRANSMOG_CUSTOM_SET_DELETE),
                 OnClick = function()
@@ -381,32 +426,69 @@ do
         else
             if OutfitModule:IsOutfitSource("Shared") then
                 --Rename
-                table.insert(Schematic.objects, {
+                tinsert(Schematic.objects, {
                     type = "Button",
                     name = TRANSMOG_CUSTOM_SET_RENAME,
                     OnClick = function()
                         --TryRename
                     end,
                 });
-            else
+            else    --Alts
                 --Rename
-                table.insert(Schematic.objects, {
-                    type = "Button",
-                    name = TRANSMOG_CUSTOM_SET_RENAME,
-                    enabled = false,
-                    tooltip = RED_FONT_COLOR:WrapTextInColorCode(L["Cannot Delete On Alts"]),
-                });
+                local function AddDisabledButton(name)
+                    return {
+                        type = "Button",
+                        name = name,
+                        enabled = false,
+                        tooltip = RED_FONT_COLOR:WrapTextInColorCode(L["Cannot Delete On Alts"]),
+                    }
+                end
 
-                table.insert(Schematic.objects, {type = "Divider"});
+                tinsert(Schematic.objects, AddDisabledButton(TRANSMOG_CUSTOM_SET_RENAME));
+
+                tinsert(Schematic.objects, {type = "Divider"});
 
                 --Delete
-                table.insert(Schematic.objects, {
-                    type = "Button",
-                    name = TRANSMOG_CUSTOM_SET_DELETE,
-                    enabled = false,
-                    tooltip = RED_FONT_COLOR:WrapTextInColorCode(L["Cannot Delete On Alts"]),
-                });
+                tinsert(Schematic.objects, AddDisabledButton(TRANSMOG_CUSTOM_SET_DELETE));
             end
+        end
+
+
+        tinsert(Schematic.objects, {type = "Divider"});
+        tinsert(Schematic.objects, {type = "Spacer"});
+
+        tinsert(Schematic.objects, {
+            type = "Button",
+            name = TRANSMOG_OUTFIT_POST_IN_CHAT,
+            OnClick = function()
+                TransmogUIManager:PostTransmogInChat(data.transmogInfoList);
+            end,
+        });
+
+        tinsert(Schematic.objects, {
+            type = "Button",
+            name = TRANSMOG_OUTFIT_COPY_TO_CLIPBOARD,
+            OnClick = function()
+                TransmogUIManager:PostTransmogInChat(data.transmogInfoList);
+            end,
+        });
+
+        if not OutfitModule:IsOutfitSource("Shared") then
+            tinsert(Schematic.objects, {type = "Divider"});
+
+            local buttonData = {
+                type = "Button",
+                name = L["Copy To Shared List"],
+                OnClick = function()
+                    TransmogUIManager:TrySaveSharedSet(data.name, data.transmogInfoList);
+                end,
+            };
+
+            if not TransmogUIManager:CanSaveMoreSharedSet() then
+                buttonData.enabled = false;
+            end
+
+            tinsert(Schematic.objects, buttonData);
         end
 
         NarciAPI.TranslateContextMenu(self, Schematic);
@@ -527,6 +609,7 @@ do
 
         table.sort(dataList, SortFunc.Default);
         OutfitModule:SetOutfitSource("Default");
+        self.page = 1;
         self:SetDataList(dataList);
     end
     CallbackRegistry:Register("TransmogUI.LoadDefaultSets", function()
@@ -540,8 +623,35 @@ do
 
         local dataList = {};
 
-        table.sort(dataList, SortFunc.Default);
+        local n = 0;
+        local ParseCustomSetSlashCommand = TransmogUtil.ParseCustomSetSlashCommand;
+        local _, _, classID = UnitClass("player");
+
+        for i, setInfo in ipairs(TransmogUIManager:GetSharedSets()) do
+            local transmogInfoList = ParseCustomSetSlashCommand(setInfo.cmd);
+            if transmogInfoList then
+                n = n + 1;
+                local data = {
+                    name = setInfo.name,
+                    transmogInfoList = transmogInfoList,
+                    timeCreated = setInfo.timeCreated,
+                    classID = setInfo.classID,
+                    collected = TransmogUIManager:IsTransmogInfoListCollected(transmogInfoList),
+                };
+
+                if classID == setInfo.classID then
+                    data.anyUsable = true;
+                else
+                    data.anyUsable = TransmogUIManager:IsTransmogInfoListUsable(transmogInfoList);
+                end
+
+                dataList[n] = data;
+            end
+        end
+
+        table.sort(dataList, SortFunc.ByDate);
         OutfitModule:SetOutfitSource("Shared");
+        self.page = 1;
         self:SetDataList(dataList);
     end
     CallbackRegistry:Register("TransmogUI.LoadSharedSets", function()
@@ -597,6 +707,8 @@ do
         --Update Sets Data
         if OutfitModule:IsOutfitSource("Default") then
             CallbackRegistry:Trigger("TransmogUI.LoadDefaultSets");
+        elseif OutfitModule:IsOutfitSource("Shared") then
+            CallbackRegistry:Trigger("TransmogUI.LoadSharedSets");
         end
     end
 
@@ -676,6 +788,29 @@ do
         self.PageText:SetText(string.format(PAGE_NUMBER_WITH_MAX, self.page, self.maxPage));
         self.PrevPageButton:SetEnabled(self.page > 1);
         self.NextPageButton:SetEnabled(self.page < self.maxPage);
+
+        self:UpdateSelection();
+    end
+
+    function SetsFrameMixin:UpdateSelection()
+        local currentItemTransmogInfoList = TransmogFrame.CharacterPreview:GetItemTransmogInfoList();
+        local foundModel;
+
+        if currentItemTransmogInfoList then
+            for _, model in ipairs(self.Models) do
+                model:SetBorderState(false);
+                if model:IsShown() and not foundModel then
+                    local data = model:GetData();
+                    if data and TransmogUIManager:IsCustomSetDressed(currentItemTransmogInfoList, data.transmogInfoList) then
+                        foundModel = model;
+                    end
+                end
+            end
+        end
+
+        if foundModel then
+            foundModel:SetBorderState(true);
+        end
     end
 
     function SetsFrameMixin:OnMouseWheel(delta)
@@ -701,10 +836,14 @@ do
     end
 
     function SetsFrameMixin:OnEvent(event, ...)
-        if event == "TRANSMOG_CUSTOM_SETS_CHANGED" or event == "UNIT_FORM_CHANGED" then
+        if event == "TRANSMOG_CUSTOM_SETS_CHANGED" then
             self:RequestUpdate("All");
         elseif event == "UI_SCALE_CHANGED" or event == "DISPLAY_SIZE_CHANGED" then
             self:RequestUpdate("Camera");
+        elseif event == "VIEWED_TRANSMOG_OUTFIT_SLOT_REFRESH" then
+            self:RequestUpdate("Selection");
+        elseif event == "UNIT_FORM_CHANGED" then
+            self:RequestUpdate("Form");
         end
     end
 
@@ -729,7 +868,27 @@ do
                         end
                     end
                 end
+
+                if self.dirtyFlags.Selection then
+                    self.dirtyFlags.Selection = nil;
+                    self:UpdateSelection();
+                end
+
+                if self.dirtyFlags.Form then
+                    self.dirtyFlags.Form = nil;
+                    if self.dataList then
+                        self:ClearAllModels();
+                        self:SetDataList(self.dataList);
+                    end
+                end
             end
+        end
+    end
+
+    function SetsFrameMixin:SetModelUseNativeForm()
+        self.useNativeForm = PlayerUtil.ShouldUseNativeFormInModelScene();
+        for _, model in ipairs(self.Models) do
+            model.useNativeForm = self.useNativeForm;
         end
     end
 end
@@ -788,6 +947,7 @@ function OutfitModule:OnLoad()
 
     local CharacterDropdown = CreateFrame("DropdownButton", nil, ParentTab, "WowStyle1DropdownTemplate");
     self.CharacterDropdown = CharacterDropdown;
+    CharacterDropdown.HandlesGlobalMouseEvent = nil;
     self:AddNewObject(CharacterDropdown);
 
     CharacterDropdown:SetPoint("TOPRIGHT", ParentTab, "TOPRIGHT", -28, -24);

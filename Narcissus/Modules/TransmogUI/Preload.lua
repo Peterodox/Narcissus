@@ -55,6 +55,10 @@ function TransmogUIManager:LoadModules()
         NarciTransmogUIDB = {};
     end
 
+    if not NarciTransmogUIDB.SharedSets then
+        NarciTransmogUIDB.SharedSets = {};
+    end
+
     for _, module in ipairs(self.modules) do
         module:OnLoad();
     end
@@ -94,15 +98,25 @@ function TransmogUIManager:GetHiddenSourceIDForSlot(invSlotID)
 end
 
 local function ApplyTransmog(invSlotID, slot, transmogID, illusionID)
-    local transmogType;
-    if illusionID and illusionID ~= 0 then
-        transmogType = Enum.TransmogType.Illusion;
-    else
-        transmogType = Enum.TransmogType.Appearance;
+    local transmogType, option, displayType;
+
+    if invSlotID == 16 or invSlotID == 17 then
+        option = C_TransmogOutfitInfo.GetEquippedSlotOptionFromTransmogSlot(slot);
     end
 
+    if not option then
+        option = Enum.TransmogOutfitSlotOption.None;
+    end
+
+    if illusionID and illusionID ~= 0 then
+        transmogType = Enum.TransmogType.Illusion;
+        displayType = Enum.TransmogOutfitDisplayType.Assigned;
+        SetPendingTransmog(slot, transmogType, option, illusionID, displayType);
+    end
+
+    transmogType = Enum.TransmogType.Appearance;
+
     local isHiddenVisual;
-    local displayType;
     if IsAppearanceHiddenVisual(transmogID) or transmogID == 0 then
         displayType = Enum.TransmogOutfitDisplayType.Hidden;
         isHiddenVisual = true;
@@ -117,16 +131,6 @@ local function ApplyTransmog(invSlotID, slot, transmogID, illusionID)
     end
 
     if slot and transmogID then
-        local option;
-        if invSlotID == 16 or invSlotID == 17 then
-            --option = Enum.TransmogOutfitSlotOption.OneHandedWeapon;
-            option = C_TransmogOutfitInfo.GetEquippedSlotOptionFromTransmogSlot(slot);
-            if not option then
-                option = Enum.TransmogOutfitSlotOption.None;
-            end
-        else
-            option = Enum.TransmogOutfitSlotOption.None;
-        end
         SetPendingTransmog(slot, transmogType, option, transmogID, displayType);
     else
         --print(string.format("Missing Slot %s, AppearanceID: %s", invSlotID, transmogID));
@@ -136,10 +140,6 @@ end
 function TransmogUIManager:SetPendingFromTransmogInfoList(transmogInfoList)
     --WoW uses C_TransmogOutfitInfo.SetOutfitToCustomSet(customSetID) to directly apply the sets
     --But we need to do it by slot
-
-    local mainHandSlot = 16;
-    local offsetHandSlot = 17;
-    local shoulderSlot = 3;
 
     for invSlotID, transmogInfo in ipairs(transmogInfoList) do
         if not IgnoredInvSlots[invSlotID] then
@@ -151,7 +151,7 @@ function TransmogUIManager:SetPendingFromTransmogInfoList(transmogInfoList)
                 illusionID = nil;
             end
 
-            if invSlotID == shoulderSlot then
+            if invSlotID == 3 then
                 ApplyTransmog(invSlotID, Enum.TransmogOutfitSlot.ShoulderRight, transmogID, illusionID);
                 if secondaryAppearanceID == 0 then
                     secondaryAppearanceID = transmogID;
@@ -222,8 +222,6 @@ function TransmogUIManager:IsTransmogInfoListCollected(transmogInfoList, showMis
     return allCollected, missingSlots, allMissing
 end
 
-
-
 function TransmogUIManager:IsTransmogInfoListUsable(transmogInfoList)
     local total = 0;
     local numNotHidden = 0;
@@ -274,6 +272,44 @@ function TransmogUIManager:PostTransmogInChat(transmogInfoList)
     end
 end
 
+local function AreAppearancesEqualOrHidden(id1, id2)
+    if id1 ~= id2 then
+        if not( (id1 == 0 or IsAppearanceHiddenVisual(id1)) and (id2 == 0 or IsAppearanceHiddenVisual(id2)) ) then
+            return false
+        end
+    end
+    return true
+end
+
+function TransmogUIManager:IsCustomSetDressed(currentItemTransmogInfoList, customSetItemTransmogInfoList)
+    local rInfo;
+    for slotID, lInfo in ipairs(currentItemTransmogInfoList) do
+        rInfo = customSetItemTransmogInfoList[slotID];
+
+        --[[    --Blizzard Method
+        if not lInfo:IsEqual(rInfo) then
+            if lInfo.appearanceID ~= 0 then
+                return false
+            end
+        end
+        --]]
+
+        if not AreAppearancesEqualOrHidden(lInfo.appearanceID, rInfo.appearanceID) then
+            return false
+        end
+
+        if not AreAppearancesEqualOrHidden(lInfo.illusionID, rInfo.illusionID) then
+            return false
+        end
+
+        if rInfo.secondaryAppearanceID ~= 0 then
+            if not AreAppearancesEqualOrHidden(lInfo.secondaryAppearanceID, rInfo.secondaryAppearanceID) then
+                return false
+            end
+        end
+    end
+    return true
+end
 
 do  --Shared Custom Sets
     local CharacterProfile = addon.ProfileAPI;
@@ -321,7 +357,20 @@ do  --Shared Custom Sets
         if self.loaded then return end;
         self.loaded = true;
 
-        self.colorizedName = WrapNameWithClassColor(self.name, self.classID);
+        local colorizedName = WrapNameWithClassColor(self.name, self.classID);
+        local realmName = CharacterProfile:GetRealmName(self.serverID);
+
+        --if not realmName then realmName = "Culte de la Rive noire" end; --Debug, Longest Name
+
+        if realmName then
+            self.realmName = realmName;
+            if self.fromOtherServer then
+                colorizedName = colorizedName.."|cff808080 - "..realmName.."|r";
+            end
+        end
+
+        self.colorizedName = colorizedName;
+
         local outfits = CharacterProfile:GetOutfits(self.uid);
         local sets = {};
         for i, v in ipairs(outfits) do
@@ -360,6 +409,49 @@ do  --Shared Custom Sets
     end
 end
 
+do  --Save Sets To Shared List
+    local MAX_SHARED_SETS = 90; --10 Pages
+
+    function TransmogUIManager:GetNumMaxSharedSets()
+        return MAX_SHARED_SETS
+    end
+
+    function TransmogUIManager:GetSharedSets()
+        if NarciTransmogUIDB and NarciTransmogUIDB.SharedSets then
+            return NarciTransmogUIDB.SharedSets
+        else
+            return {}
+        end
+    end
+
+    function TransmogUIManager:GetNumSharedSets()
+        return #self:GetSharedSets()
+    end
+
+    function TransmogUIManager:CanSaveMoreSharedSet()
+        return self:GetNumSharedSets() < MAX_SHARED_SETS;
+    end
+
+    function TransmogUIManager:TrySaveSharedSet(name, transmogInfoList)
+        if not self:CanSaveMoreSharedSet() then return end;
+
+        --Use Blizzard encoding so it's easier to salvage saves from SavedVariables
+
+        local cmd = TransmogUtil.CreateCustomSetSlashCommand(transmogInfoList);
+        cmd = string.gsub(cmd, "/customset ", "", 1);
+
+        local _, _, classID = UnitClass("player");
+
+        table.insert(NarciTransmogUIDB.SharedSets, {
+            name = name,
+            cmd = cmd,
+            timeCreated = time(),
+            classID = classID,
+        });
+
+        return true
+    end
+end
 
 --[[
 function Narci_SetPendingTransmogByCustomSet(setID)

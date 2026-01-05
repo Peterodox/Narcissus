@@ -4,7 +4,6 @@ local TransmogDataProvider = addon.TransmogDataProvider;
 
 local DB;
 local CharacterData;   --NarciCharacterProfiles
-local Roaster = {};    --uid
 
 
 local GetOutfitInfo = C_TransmogCollection.GetCustomSetInfo or C_TransmogCollection.GetOutfitInfo;
@@ -16,6 +15,9 @@ local ProfileAPI = {};
 addon.ProfileAPI = ProfileAPI;
 
 local _, CURRENT_SERVER_ID, CURRENT_PLAYER_UID = strsplit("-", UnitGUID("player"));
+if CURRENT_SERVER_ID then
+    CURRENT_SERVER_ID = tonumber(CURRENT_SERVER_ID);
+end
 
 function ProfileAPI:GetCurrentPlayerUID()
     return CURRENT_PLAYER_UID
@@ -31,7 +33,7 @@ function ProfileAPI:Init()
 
     --Create this character table, playerUID as key
     local serverID, playerUID = CURRENT_SERVER_ID, CURRENT_PLAYER_UID;
-    if not CURRENT_PLAYER_UID then return end;
+    if not playerUID then return end;
 
     CharacterData = DB[playerUID];
     if not (CharacterData and type(CharacterData) == "table") then
@@ -56,7 +58,22 @@ function ProfileAPI:Init()
     local total = 0;
     for uid, data in pairs(DB) do
         total = total + 1;
-        Roaster[total] = uid;
+        if data.serverID then
+            data.serverID = tonumber(data.serverID);
+        end
+    end
+
+    if NarcissusDB then
+        if not NarcissusDB.RealmNames then
+            NarcissusDB.RealmNames = {};
+        end
+
+        local realmID = GetRealmID();
+        local realmName = GetRealmName();
+
+        if realmID and realmName then
+            NarcissusDB.RealmNames[realmID] = realmName;
+        end
     end
 end
 
@@ -193,6 +210,12 @@ function ProfileAPI:GetNumOutfits(uid)
     return outfits and #outfits or 0
 end
 
+function ProfileAPI:GetRealmName(realmID)
+    if realmID and NarcissusDB and NarcissusDB.RealmNames then
+        return NarcissusDB.RealmNames[realmID]
+    end
+end
+
 local GetRaceInfo = C_CreatureInfo.GetRaceInfo;
 local GetClassInfo = C_CreatureInfo.GetClassInfo;
 
@@ -217,6 +240,7 @@ function ProfileAPI:CopyBasicInfo(uid)
             lastVisit = data.lastVisit,
             raceName = raceName,
             className = className,
+            fromOtherServer = CURRENT_SERVER_ID ~= data.serverID,
         }
     end
 end

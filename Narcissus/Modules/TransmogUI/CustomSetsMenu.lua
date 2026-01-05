@@ -11,7 +11,7 @@ Menu:Hide();
 local Def = {
     TextureFile = "Interface/AddOns/Narcissus/Art/Modules/DressingRoom/CustomSetsMenu.png",
 
-    MenuWidthMin = 256,
+    MenuWidthMin = 288,
     MenuPaddingY = 8,
     MenuButtonHeight = 24,
     CharacterButtonPerPage = 8,
@@ -26,7 +26,7 @@ local CreateMenuButton;
 local MenuButton_PostCreate;
 do
     local MenuButtonMixin = {};
-    
+
     function MenuButtonMixin:OnEnter()
         Menu:FocusObject(self);
     end
@@ -90,11 +90,12 @@ do
         self.ButtonText:SetText(characterInfo.colorizedName);
         self.Texture1:Hide();
         self.ButtonText:SetPoint("LEFT", self, "LEFT", Def.ButtonTextOffset2, 0);
+        self.ButtonText:SetPoint("RIGHT", self, "RIGHT", -Def.ButtonTextOffset2 - 20, 0);
 
         if characterInfo.numSets > 0 then
             self.RightText:SetText(characterInfo.numSets);
             self.RightText:ClearAllPoints();
-            self.RightText:SetPoint("CENTER", self, "RIGHT", -Def.ButtonTextOffset2 -2, 0);
+            self.RightText:SetPoint("CENTER", self, "RIGHT", -Def.ButtonTextOffset2 -4, 0);
             self.RightText:SetTextColor(0.5, 0.5, 0.5);
             self.ButtonText:SetAlpha(1);
         else
@@ -105,6 +106,15 @@ do
         self.onClickFunc = function(self, button)
             --TransmogUIManager:CustomSetsTab_LoadAltSets(characterInfo);
             addon.CallbackRegistry:Trigger("TransmogUI.LoadAltSets", characterInfo);
+        end
+    end
+
+    function MenuButtonMixin:SetSetsCount(currentVal, maxVal)
+        self.RightText:SetText(currentVal.."/"..maxVal);
+        if currentVal >= maxVal then
+            self.RightText:SetTextColor(1, 0.125, 0.125);
+        else
+            self.RightText:SetTextColor(0.5, 0.5, 0.5);
         end
     end
 
@@ -219,7 +229,7 @@ do
 
         for _, word in ipairs(words) do
             if word ~= "" then
-                if StringMatch(data.name, word) or StringMatch(data.raceName, word) or StringMatch(data.className, word) then
+                if StringMatch(data.name, word) or StringMatch(data.raceName, word) or StringMatch(data.className, word) or StringMatch(data.realmName, word) then
                     matched = true;
                     break
                 end
@@ -588,7 +598,15 @@ do  --MenuMixin
 
     function Menu:Refresh()
         self.CurrentSourceButton:ShowRadioIcon(true, TransmogUIManager:IsOutfitSource("Default"));
+        local currentVal = #(C_TransmogCollection.GetCustomSets() or {});
+        local maxVal = C_TransmogCollection.GetNumMaxCustomSets() or 0;
+        self.CurrentSourceButton:SetSetsCount(currentVal, maxVal);
+
         self.SharedSourceButton:ShowRadioIcon(true, TransmogUIManager:IsOutfitSource("Shared"));
+        currentVal = TransmogUIManager:GetNumSharedSets();
+        maxVal = TransmogUIManager:GetNumMaxSharedSets();
+        self.SharedSourceButton:SetSetsCount(currentVal, maxVal);
+
         self:UpdateListFrame();
     end
 
