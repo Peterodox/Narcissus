@@ -4520,8 +4520,10 @@ end
 
 function Narci:LoadOutfitSlashCommand(msg)
 	msg = string.gsub(msg, "/outfit%s+", "");
+	msg = string.gsub(msg, "/customset%s+", "");
 
-	local itemTransmogInfoList = TransmogUtil.ParseOutfitSlashCommand(msg);
+	local parseFunc = TransmogUtil.ParseOutfitSlashCommand or TransmogUtil.ParseCustomSetSlashCommand;
+	local itemTransmogInfoList = parseFunc(msg);
 	local model = ModelFrames[ACTIVE_MODEL_INDEX];
 
 	if itemTransmogInfoList then

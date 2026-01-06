@@ -3267,4 +3267,15 @@ do  --System
             end
         end
     end
+
+    function NarciAPI.CreateSlashCommand(func, alias1, alias2)
+        local name = "NARCISSUSCMD";
+        if alias1 then
+            _G["SLASH_"..name.."1"] = "/"..alias1;
+        end
+        if alias2 then
+            _G["SLASH_"..name.."2"] = "/"..alias2;
+        end
+        SlashCmdList[name] = func;
+    end
 end

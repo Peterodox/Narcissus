@@ -2641,8 +2641,7 @@ do
 end
 
 
-do
-	--Slash Command
+do	--Slash Command
 	local function callback(msg)
 		if not msg then
 			msg = "";
@@ -2673,43 +2672,7 @@ do
 		end
 	end
 
-	--local commandName = "narci";
-	--local commandAlias = "narcissus";
-	--RegisterNewSlashCommand(callback, commandName, commandAlias);
-
-	---- Alternative method to avoid slash command taint
-
-	if ChatEdit_HandleChatType then
-		local VALID_COMMANDS = {
-			["/NARCI"] = true,
-			["/NARCISSUS"] = true,
-		};
-
-		local c, m;
-
-		hooksecurefunc("ChatEdit_HandleChatType", function(editBox, msg, command, send)
-			c = command;	--Auto capitalized by the game
-			m = msg;
-			if send == 1 then
-				if c then
-					if c == "/NARCISSUSGAMEPAD" then
-						Narci_Open();
-					elseif VALID_COMMANDS[c] then
-						callback(m);
-					end
-				end
-
-				c = nil;
-				m = nil;
-			end
-		end);
-	end
-
-	--local f = CreateFrame("Frame");
-	--f:RegisterEvent("EXECUTE_CHAT_LINE");
-	--f:SetScript("OnEvent", function(self, event, line)
-	--	print(line)
-	--end)
+	NarciAPI.CreateSlashCommand(callback, "narci", "narcissus");
 end
 
 

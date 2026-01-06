@@ -17,7 +17,6 @@ local CharacterDropdownMixin = {};
 
 local GetCustomSetInfo = C_TransmogCollection.GetCustomSetInfo;
 local GetCustomSetItemTransmogInfoList = C_TransmogCollection.GetCustomSetItemTransmogInfoList;
---C_TransmogCollection.GetNumMaxCustomSets
 
 
 local Def = {
@@ -952,7 +951,7 @@ end
 
 
 
+
 --[[
 /dump C_TransmogOutfitInfo.GetOutfitInfo(2);    GetOutfitSituation
-
 --]]
