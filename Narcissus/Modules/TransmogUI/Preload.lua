@@ -4,6 +4,7 @@ addon.TransmogUIManager = TransmogUIManager;
 TransmogUIManager.modules = {};
 
 
+local CallbackRegistry = addon.CallbackRegistry;
 local TransmogDataProvider = addon.TransmogDataProvider;
 local GetSourceInfo = C_TransmogCollection.GetSourceInfo;
 local GetAppearanceSources = C_TransmogCollection.GetAppearanceSources;
@@ -311,7 +312,7 @@ function TransmogUIManager:IsCustomSetDressed(currentItemTransmogInfoList, custo
     return true
 end
 
-do  --Shared Custom Sets
+do  --Alt Character Custom Sets
     local CharacterProfile = addon.ProfileAPI;
 
     local ArmorTypeXPlayerClass = {
@@ -409,23 +410,79 @@ do  --Shared Custom Sets
     end
 end
 
-do  --Save Sets To Shared List
+do  --Shared Custom Sets
     local MAX_SHARED_SETS = 90; --10 Pages
 
     function TransmogUIManager:GetNumMaxSharedSets()
         return MAX_SHARED_SETS
     end
 
-    function TransmogUIManager:GetSharedSets()
-        if NarciTransmogUIDB and NarciTransmogUIDB.SharedSets then
-            return NarciTransmogUIDB.SharedSets
-        else
-            return {}
+    local function SortFunc_ByDate(a, b)
+        if a.anyUsable ~= b.anyUsable then
+            return a.anyUsable
         end
+
+        if a.collected ~= b.collected then
+            return a.collected
+        end
+
+        if a.timeCreated ~= b.timeCreated then
+            return a.timeCreated > b.timeCreated
+        end
+
+        if a.name ~= b.name then
+            return a.name < b.name
+        end
+
+        return a.dataIndex < b.dataIndex
+    end
+
+    function TransmogUIManager:GetSharedSetsDataList()
+        if self.sharedSetsDataList then
+            return self.sharedSetsDataList
+        end
+
+        local n = 1;
+        local _, _, classID = UnitClass("player");
+        local ParseCustomSetSlashCommand = TransmogUtil.ParseCustomSetSlashCommand;
+        local sets = NarciTransmogUIDB.SharedSets;
+        local total = #sets;
+        local setInfo = sets[1];
+        local dataList = {};
+
+        while n <= total and setInfo do
+            setInfo.dataIndex = n;
+            local transmogInfoList = ParseCustomSetSlashCommand(setInfo.cmd);
+            if transmogInfoList then
+                dataList[n] = {
+                    name = setInfo.name,
+                    transmogInfoList = transmogInfoList,
+                    timeCreated = setInfo.timeCreated,
+                    classID = setInfo.classID,
+                    collected = self:IsTransmogInfoListCollected(transmogInfoList),
+                    dataIndex = setInfo.dataIndex,
+                };
+                if classID == setInfo.classID then
+                    dataList[n].anyUsable = true;
+                else
+                    dataList[n].anyUsable = self:IsTransmogInfoListUsable(transmogInfoList);
+                end
+                n = n + 1;
+            else
+                table.remove(sets, n);
+                print("Narcissus Invalid Shared Sets Removed:", setInfo.name);
+            end
+            setInfo = sets[n];
+        end
+
+        table.sort(dataList, SortFunc_ByDate);
+        self.sharedSetsDataList = dataList;
+
+        return dataList
     end
 
     function TransmogUIManager:GetNumSharedSets()
-        return #self:GetSharedSets()
+        return NarciTransmogUIDB and NarciTransmogUIDB.SharedSets and #NarciTransmogUIDB.SharedSets or 0
     end
 
     function TransmogUIManager:CanSaveMoreSharedSet()
@@ -438,20 +495,68 @@ do  --Save Sets To Shared List
         --Use Blizzard encoding so it's easier to salvage saves from SavedVariables
 
         local cmd = TransmogUtil.CreateCustomSetSlashCommand(transmogInfoList);
-        cmd = string.gsub(cmd, "/customset ", "", 1);
+        cmd = string.gsub(cmd, "/customset%s+", "", 1);
 
         local _, _, classID = UnitClass("player");
+        local dataIndex = #NarciTransmogUIDB.SharedSets + 1;
+        local timestamp = time();
 
         table.insert(NarciTransmogUIDB.SharedSets, {
             name = name,
             cmd = cmd,
-            timeCreated = time(),
+            timeCreated = timestamp,
+            timeModified = timestamp,
             classID = classID,
+            dataIndex = dataIndex,
         });
+
+        self.sharedSetsDataList = nil;
 
         return true
     end
+
+    function TransmogUIManager:TryRenameSharedSet(dataIndex, name)
+        local success;
+        if name and strtrim(name) ~= "" then
+            for i, setInfo in ipairs(NarciTransmogUIDB.SharedSets) do
+                if setInfo.dataIndex == dataIndex then
+                    setInfo.name = name;
+                    success = true;
+                    break
+                end
+            end
+        end
+
+        if self.sharedSetsDataList then
+            for i, setInfo in ipairs(self.sharedSetsDataList) do
+                if setInfo.dataIndex == dataIndex then
+                    setInfo.name = name;
+                    break
+                end
+            end
+        end
+
+        if success then
+            CallbackRegistry:Trigger("TransmogUI.SharedSetRenamed");
+        end
+    end
+
+    function TransmogUIManager:DeleteSharedSet(dataIndex)
+        local success;
+        for i, setInfo in ipairs(NarciTransmogUIDB.SharedSets) do
+            if setInfo.dataIndex == dataIndex then
+                table.remove(NarciTransmogUIDB.SharedSets, i);
+                success = true;
+                break
+            end
+        end
+        if success then
+            self.sharedSetsDataList = nil;
+            CallbackRegistry:Trigger("TransmogUI.LoadSharedSets", true);
+        end
+    end
 end
+
 
 --[[
 function Narci_SetPendingTransmogByCustomSet(setID)

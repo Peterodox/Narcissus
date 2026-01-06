@@ -119,31 +119,15 @@ do
 end
 
 
-local SortFunc = {};
+local SortFuncs = {};
 do
-    function SortFunc.Default(a, b)
+    function SortFuncs.Default(a, b)
         if a.anyUsable ~= b.anyUsable then
             return a.anyUsable
         end
 
         if a.collected ~= b.collected then
             return a.collected
-        end
-
-        return a.name < b.name
-    end
-
-    function SortFunc.ByDate(a, b)
-        if a.anyUsable ~= b.anyUsable then
-            return a.anyUsable
-        end
-
-        if a.collected ~= b.collected then
-            return a.collected
-        end
-
-        if a.timeCreated ~= b.timeCreated then
-            return a.timeCreated > b.timeCreated
         end
 
         return a.name < b.name
@@ -197,7 +181,7 @@ do
             self:SetScript("OnUpdate", self.OnUpdate_LoadModel)
             return
         end
-
+        self:UpdateSetName();
         self.modelAlpha = 0;
         self.setEquipped = false;
         self:SetScript("OnUpdate", self.OnUpdate);
@@ -369,6 +353,21 @@ do
         end
     end
 
+    function SetModelMixin:UpdateSetName()
+        local data = self:GetData();
+        if data then
+            self.Title:SetText(data.name);
+            --Similar to border color
+            if data.collected then
+                self.Title:SetTextColor(0.827, 0.776, 0.620); --1, 0.82, 0
+            else
+                self.Title:SetTextColor(0.612, 0.627, 0.690);  --0.773, 0.788, 0.855
+            end
+        else
+            self.Title:SetText(nil);
+        end
+    end
+
     function SetModelMixin:ShowContextMenu()
         --See TransmogCustomSetModelMixin:OnMouseUp (Interface/AddOns/Blizzard_Transmog/Blizzard_TransmogTemplates.lua)
         --Removed: View in Dressing Room (why)
@@ -378,9 +377,18 @@ do
         if not data then return end;
 
         local customSetID = data.customSetID;
+
         local Schematic = {
             tag = "NARCISSUS_TRANSMOG_CUSTOM_SETS_MENU",
-            objects = {},
+            objects = {
+                {type = "Button", name = TRANSMOG_CUSTOM_SET_RENAME},
+                {type = "Divider"},
+                {type = "Button", name = TRANSMOG_CUSTOM_SET_REPLACE},
+                {type = "Divider"},
+                {type = "Button", name = TRANSMOG_CUSTOM_SET_DELETE},
+                {type = "Divider"},
+                {type = "Spacer"},
+            },
         };
 
         local tinsert = table.insert;
@@ -390,72 +398,60 @@ do
             local name, _icon = C_TransmogCollection.GetCustomSetInfo(customSetID);
 
             --Rename
-            tinsert(Schematic.objects, {
-                type = "Button",
-                name = TRANSMOG_CUSTOM_SET_RENAME,
-                OnClick = function()
-                    local data = { name = name, customSetID = customSetID, itemTransmogInfoList = itemTransmogInfoList };
-                    StaticPopup_Show("TRANSMOG_CUSTOM_SET_NAME", nil, nil, data);
-                end,
-            });
+            Schematic.objects[1].OnClick = function()
+                local _data = { name = name, customSetID = customSetID, itemTransmogInfoList = itemTransmogInfoList };
+                StaticPopup_Show("TRANSMOG_CUSTOM_SET_NAME", nil, nil, _data);
+            end
 
             --Overwrite, Replace with current set
             local hasValidAppearance = TransmogUtil.IsValidItemTransmogInfoList(itemTransmogInfoList);
             if hasValidAppearance then
-                tinsert(Schematic.objects, {type = "Divider"});
-
-                tinsert(Schematic.objects, {
-                    type = "Button",
-                    name = TRANSMOG_CUSTOM_SET_REPLACE,
-                    OnClick = function()
-                        C_TransmogCollection.ModifyCustomSet(customSetID, itemTransmogInfoList);
-                    end,
-                });
+                Schematic.objects[3].OnClick = function()
+                    C_TransmogCollection.ModifyCustomSet(customSetID, itemTransmogInfoList);
+                end
+            else
+                Schematic.objects[3].enabled = false;
             end
-
-            tinsert(Schematic.objects, {type = "Divider"});
 
             --Delete
-            tinsert(Schematic.objects, {
-                type = "Button",
-                name = RED_FONT_COLOR:WrapTextInColorCode(TRANSMOG_CUSTOM_SET_DELETE),
-                OnClick = function()
-                    StaticPopup_Show("CONFIRM_DELETE_TRANSMOG_CUSTOM_SET", name, nil, customSetID);
-                end,
-            });
-        else
-            if OutfitModule:IsOutfitSource("Shared") then
-                --Rename
-                tinsert(Schematic.objects, {
-                    type = "Button",
-                    name = TRANSMOG_CUSTOM_SET_RENAME,
-                    OnClick = function()
-                        --TryRename
-                    end,
-                });
-            else    --Alts
-                --Rename
-                local function AddDisabledButton(name)
-                    return {
-                        type = "Button",
-                        name = name,
-                        enabled = false,
-                        tooltip = RED_FONT_COLOR:WrapTextInColorCode(L["Cannot Delete On Alts"]),
-                    }
-                end
-
-                tinsert(Schematic.objects, AddDisabledButton(TRANSMOG_CUSTOM_SET_RENAME));
-
-                tinsert(Schematic.objects, {type = "Divider"});
-
-                --Delete
-                tinsert(Schematic.objects, AddDisabledButton(TRANSMOG_CUSTOM_SET_DELETE));
+            Schematic.objects[5].name = RED_FONT_COLOR:WrapTextInColorCode(TRANSMOG_CUSTOM_SET_DELETE);
+            Schematic.objects[5].OnClick = function()
+                StaticPopup_Show("CONFIRM_DELETE_TRANSMOG_CUSTOM_SET", name, nil, customSetID);
             end
+
+        elseif OutfitModule:IsOutfitSource("Shared") then
+            --Rename
+            Schematic.objects[1].OnClick = function()
+                local _data = { name = data.name, dataIndex = data.dataIndex };
+                StaticPopup_Show("NARCISSUS_TRANSMOG_CUSTOM_SET_NAME", nil, nil, _data);
+            end
+
+            --Overwrite
+            local itemTransmogInfoList = TransmogFrame.WardrobeCollection:GetItemTransmogInfoListCallback();
+            local hasValidAppearance = TransmogUtil.IsValidItemTransmogInfoList(itemTransmogInfoList);
+            if hasValidAppearance then
+                
+            else
+                Schematic.objects[3].enabled = false;
+                Schematic.objects[3].tooltip = RED_FONT_COLOR:WrapTextInColorCode(L["TransmogSet No Valid Items"]);
+            end
+
+            --Delete
+            Schematic.objects[5].name = RED_FONT_COLOR:WrapTextInColorCode(TRANSMOG_CUSTOM_SET_DELETE);
+            Schematic.objects[5].OnClick = function()
+                if IsShiftKeyDown() then
+                    TransmogUIManager:DeleteSharedSet(data.dataIndex);
+                else
+                    local _data = { name = data.name, dataIndex = data.dataIndex};
+                    --StaticPopup_Show("TRANSMOG_CUSTOM_SET_NAME", nil, nil, _data);
+                end
+            end
+
+        else --Alts
+            Schematic.objects[1].enabled = false;
+            Schematic.objects[3].enabled = false;
+            Schematic.objects[5].enabled = false;
         end
-
-
-        tinsert(Schematic.objects, {type = "Divider"});
-        tinsert(Schematic.objects, {type = "Spacer"});
 
         tinsert(Schematic.objects, {
             type = "Button",
@@ -607,13 +603,15 @@ do
             dataList[n] = CreateTransmogData(name, transmogInfoList, customSetID);
         end
 
-        table.sort(dataList, SortFunc.Default);
+        table.sort(dataList, SortFuncs.Default);
         OutfitModule:SetOutfitSource("Default");
-        self.page = 1;
         self:SetDataList(dataList);
     end
-    CallbackRegistry:Register("TransmogUI.LoadDefaultSets", function()
+    CallbackRegistry:Register("TransmogUI.LoadDefaultSets", function(retainPage)
         TransmogUIManager.selectedCharacterUID = nil;
+        if not retainPage then
+            OutfitModule.SetsFrame.page = 1;
+        end
         OutfitModule.SetsFrame:LoadDefaultSets();
     end);
 
@@ -621,41 +619,17 @@ do
         self:SetScript("OnMouseWheel", nil);
         self:ClearAllModels();
 
-        local dataList = {};
+        local dataList = TransmogUIManager:GetSharedSetsDataList();
 
-        local n = 0;
-        local ParseCustomSetSlashCommand = TransmogUtil.ParseCustomSetSlashCommand;
-        local _, _, classID = UnitClass("player");
-
-        for i, setInfo in ipairs(TransmogUIManager:GetSharedSets()) do
-            local transmogInfoList = ParseCustomSetSlashCommand(setInfo.cmd);
-            if transmogInfoList then
-                n = n + 1;
-                local data = {
-                    name = setInfo.name,
-                    transmogInfoList = transmogInfoList,
-                    timeCreated = setInfo.timeCreated,
-                    classID = setInfo.classID,
-                    collected = TransmogUIManager:IsTransmogInfoListCollected(transmogInfoList),
-                };
-
-                if classID == setInfo.classID then
-                    data.anyUsable = true;
-                else
-                    data.anyUsable = TransmogUIManager:IsTransmogInfoListUsable(transmogInfoList);
-                end
-
-                dataList[n] = data;
-            end
-        end
-
-        table.sort(dataList, SortFunc.ByDate);
         OutfitModule:SetOutfitSource("Shared");
         self.page = 1;
         self:SetDataList(dataList);
     end
-    CallbackRegistry:Register("TransmogUI.LoadSharedSets", function()
+    CallbackRegistry:Register("TransmogUI.LoadSharedSets", function(retainPage)
         TransmogUIManager.selectedCharacterUID = nil;
+        if not retainPage then
+            OutfitModule.SetsFrame.page = 1;
+        end
         OutfitModule.SetsFrame:LoadSharedSets();
     end);
 
@@ -671,7 +645,7 @@ do
             end
         end
 
-        table.sort(dataList, SortFunc.Default);
+        table.sort(dataList, SortFuncs.Default);
         OutfitModule:SetOutfitSource("Alts");
         self.page = 1;
         self:SetDataList(dataList);
@@ -705,10 +679,11 @@ do
 
     function SetsFrameMixin:ReloadPage()
         --Update Sets Data
+        local retainPage = true;
         if OutfitModule:IsOutfitSource("Default") then
-            CallbackRegistry:Trigger("TransmogUI.LoadDefaultSets");
+            CallbackRegistry:Trigger("TransmogUI.LoadDefaultSets", retainPage);
         elseif OutfitModule:IsOutfitSource("Shared") then
-            CallbackRegistry:Trigger("TransmogUI.LoadSharedSets");
+            CallbackRegistry:Trigger("TransmogUI.LoadSharedSets", retainPage);
         end
     end
 
@@ -748,6 +723,13 @@ do
                         local col = (i - 1) % 3;
                         local row = math.ceil(i / 3) - 1;
                         model:SetPoint("TOPLEFT", self, "TOPLEFT", col * (Def.SetModelWidth + Def.SetModelPaddingX), -row * (Def.SetModelHeight + Def.SetModelPaddingY));
+
+                        local padding = 8;
+                        model.Title = model:CreateFontString(nil, "OVERLAY", "GameFontNormalOutline");
+                        model.Title:SetPoint("TOPLEFT", model, "TOPLEFT", padding, -padding);
+                        model.Title:SetPoint("TOPRIGHT", model, "TOPRIGHT", -padding, -padding);
+                        model.Title:SetJustifyH("CENTER");
+                        model.Title:SetSpacing(2);
                     end
                     model.dataIndex = dataIndex;
                     model:Show();
@@ -778,12 +760,7 @@ do
             end
         end
 
-        for _, model in ipairs(self.Models) do
-            if model:IsMouseMotionFocus() then
-                model:OnEnter();
-                break
-            end
-        end
+        self:TriggerModelsOnEnter();
 
         self.PageText:SetText(string.format(PAGE_NUMBER_WITH_MAX, self.page, self.maxPage));
         self.PrevPageButton:SetEnabled(self.page > 1);
@@ -791,6 +768,21 @@ do
 
         self:UpdateSelection();
     end
+
+    function SetsFrameMixin:TriggerModelsOnEnter()
+        for _, model in ipairs(self.Models) do
+            if model:IsMouseMotionFocus() then
+                model:OnEnter();
+                break
+            end
+        end
+    end
+    CallbackRegistry:Register("TransmogUI.SharedSetRenamed", function()
+        for _, model in ipairs(OutfitModule.SetsFrame.Models) do
+            model:UpdateSetName();
+        end
+        OutfitModule.SetsFrame:TriggerModelsOnEnter();
+    end);
 
     function SetsFrameMixin:UpdateSelection()
         local currentItemTransmogInfoList = TransmogFrame.CharacterPreview:GetItemTransmogInfoList();
@@ -950,8 +942,8 @@ function OutfitModule:OnLoad()
     CharacterDropdown.HandlesGlobalMouseEvent = nil;
     self:AddNewObject(CharacterDropdown);
 
-    CharacterDropdown:SetPoint("TOPRIGHT", ParentTab, "TOPRIGHT", -28, -24);
-    CharacterDropdown:SetWidth(184);
+    CharacterDropdown:SetPoint("TOPRIGHT", ParentTab, "TOPRIGHT", -26, -24);
+    CharacterDropdown:SetWidth(186);
     Mixin(CharacterDropdown, CharacterDropdownMixin);
     CharacterDropdown:OnLoad();
 
