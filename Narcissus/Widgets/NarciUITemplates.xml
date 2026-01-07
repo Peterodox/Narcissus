@@ -11,6 +11,8 @@
 	<Script file="Widgets.lua"/>
 	<Script file="ScrollView.lua"/>
 	<Script file="BlackScreen.lua"/>
+	<Script file="TopMessageFrame.lua"/>
+	<Script file="StaticPopup.lua"/>
 	
 	<Frame name="NarciArtFrameTemplate" frameLevel="20" virtual="true">
 		<Anchors>
@@ -2745,4 +2747,57 @@
 			<OnLeave method="OnLeave"/>
 		</Scripts>
 	</Frame>
+
+    <Frame name="NarciSharedPopupFrameTemplate" parent="UIParent" frameStrata="DIALOG" toplevel="true" hidden="true" virtual="true">
+        <Size x="320" y="72"/>
+        <Anchors>
+            <Anchor point="TOP" x="0" y="-135"/>
+        </Anchors>
+        <Layers>
+            <Layer level="OVERLAY">
+                <FontString parentKey="Text" inherits="GameFontHighlight" justifyH="CENTER" justifyV="TOP"/>
+            </Layer>
+        </Layers>
+        <Frames>
+            <Frame parentKey="BackgroundFrame" inherits="DialogBorderDarkTemplate"/>
+
+            <Button parentKey="CloseButton" inherits="UIPanelCloseButton">
+                <Anchors>
+                    <Anchor point="TOPRIGHT" x="-3" y="-3"/>
+                </Anchors>
+            </Button>
+
+            <EditBox parentKey="EditBox" multiLine="false" autoFocus="false">
+                <Size x="130" y="24"/>
+                <FontString inherits="NumberFont_Shadow_Small" justifyH="LEFT"/>
+                <TextInsets left="8" right="8"/>
+                <HighlightColor r="0.05" g="0.41" b="0.85"/>
+                <Layers>
+                    <Layer level="BACKGROUND">
+                        <Texture parentKey="Left">
+                            <Size x="12" y="24"/>
+                            <Anchors>
+                                <Anchor point="LEFT"/>
+                            </Anchors>
+                        </Texture>
+                        <Texture parentKey="Right">
+                            <Size x="12" y="24"/>
+                            <Anchors>
+                                <Anchor point="RIGHT"/>
+                            </Anchors>
+                        </Texture>
+                        <Texture parentKey="Center">
+                            <Size y="24"/>
+                            <Anchors>
+                                <Anchor point="TOPLEFT" relativeKey="$parent.Left" relativePoint="TOPRIGHT"/>
+                                <Anchor point="BOTTOMRIGHT" relativeKey="$parent.Right" relativePoint="BOTTOMLEFT"/>
+                            </Anchors>
+                        </Texture>
+                    </Layer>
+                </Layers>
+            </EditBox>
+
+            <Frame parentKey="KeyListener" propagateKeyboardInput="true" frameLevel="1208"/>
+        </Frames>
+    </Frame>
 </Ui>

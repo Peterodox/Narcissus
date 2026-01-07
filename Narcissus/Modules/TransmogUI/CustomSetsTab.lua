@@ -464,7 +464,7 @@ do
             type = "Button",
             name = TRANSMOG_OUTFIT_COPY_TO_CLIPBOARD,
             OnClick = function()
-                TransmogUIManager:PostTransmogInChat(data.transmogInfoList);
+                TransmogUIManager:ShowTransmogClipboard(data.transmogInfoList);
             end,
         });
 

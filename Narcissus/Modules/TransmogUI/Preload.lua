@@ -273,6 +273,11 @@ function TransmogUIManager:PostTransmogInChat(transmogInfoList)
     end
 end
 
+function TransmogUIManager:ShowTransmogClipboard(transmogInfoList)
+    local cmd = TransmogUtil.CreateCustomSetSlashCommand(transmogInfoList);
+    addon.ShowClipboard(cmd);
+end
+
 local function AreAppearancesEqualOrHidden(id1, id2)
     if id1 ~= id2 then
         if not( (id1 == 0 or IsAppearanceHiddenVisual(id1)) and (id2 == 0 or IsAppearanceHiddenVisual(id2)) ) then
@@ -517,6 +522,7 @@ do  --Shared Custom Sets
 
     function TransmogUIManager:TryRenameSharedSet(dataIndex, name)
         local success;
+
         if name and strtrim(name) ~= "" then
             for i, setInfo in ipairs(NarciTransmogUIDB.SharedSets) do
                 if setInfo.dataIndex == dataIndex then
@@ -525,13 +531,13 @@ do  --Shared Custom Sets
                     break
                 end
             end
-        end
 
-        if self.sharedSetsDataList then
-            for i, setInfo in ipairs(self.sharedSetsDataList) do
-                if setInfo.dataIndex == dataIndex then
-                    setInfo.name = name;
-                    break
+            if self.sharedSetsDataList then
+                for i, setInfo in ipairs(self.sharedSetsDataList) do
+                    if setInfo.dataIndex == dataIndex then
+                        setInfo.name = name;
+                        break
+                    end
                 end
             end
         end
@@ -543,6 +549,7 @@ do  --Shared Custom Sets
 
     function TransmogUIManager:DeleteSharedSet(dataIndex)
         local success;
+
         for i, setInfo in ipairs(NarciTransmogUIDB.SharedSets) do
             if setInfo.dataIndex == dataIndex then
                 table.remove(NarciTransmogUIDB.SharedSets, i);
@@ -550,6 +557,7 @@ do  --Shared Custom Sets
                 break
             end
         end
+
         if success then
             self.sharedSetsDataList = nil;
             CallbackRegistry:Trigger("TransmogUI.LoadSharedSets", true);

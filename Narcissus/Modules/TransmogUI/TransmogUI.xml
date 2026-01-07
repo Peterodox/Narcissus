@@ -3,6 +3,7 @@
 
 	<Script file="StaticPopup.lua"/>
 	<Script file="MoneyDisplay.lua"/>
+	<!--Script file="IconSelector.lua"/-->
 	<Script file="CustomSetsMenu.lua"/>
 	<Script file="CustomSetsTab.lua"/>
 
