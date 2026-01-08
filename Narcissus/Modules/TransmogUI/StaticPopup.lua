@@ -52,6 +52,21 @@ PopupModule.Defs["NARCISSUS_TRANSMOG_CUSTOM_SET_NAME"] = {
 	EditBoxOnEscapePressed = StaticPopup_StandardEditBoxOnEscapePressed,
 };
 
+PopupModule.Defs["NARCISSUS_TRANSMOG_CUSTOM_SET_DELETE"] = {
+	text = "",
+	button1 = YES,
+	button2 = NO,
+	OnShow = function(dialog, data)
+		dialog:SetFormattedText(TRANSMOG_CUSTOM_SET_CONFIRM_DELETE, data.name);
+	end,
+	OnAccept = function(dialog, data)
+		TransmogUIManager:DeleteSharedSet(data.dataIndex);
+	end,
+	OnCancel = function(dialog, data) end,
+	hideOnEscape = 1,
+	timeout = 0,
+	whileDead = 1,
+};
 
 function PopupModule:OnLoad()
     for k, v in pairs(self.Defs) do

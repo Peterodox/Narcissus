@@ -275,7 +275,7 @@ do
 
         local tooltip = GameTooltip;
         tooltip:SetOwner(self, "ANCHOR_RIGHT");
-        tooltip:SetText(data.name, 1, 0.82, 0, 1, true);
+        tooltip:SetText(data.name, 1, 1, 1, 1, true);
 
         if not data.collected then
             self:RegisterEvent("MODIFIER_STATE_CHANGED");
@@ -429,7 +429,9 @@ do
             local itemTransmogInfoList = TransmogFrame.WardrobeCollection:GetItemTransmogInfoListCallback();
             local hasValidAppearance = TransmogUtil.IsValidItemTransmogInfoList(itemTransmogInfoList);
             if hasValidAppearance then
-                
+                Schematic.objects[3].OnClick = function()
+                    TransmogUIManager:TryOverwriteSharedSet(data.dataIndex, itemTransmogInfoList);
+                end
             else
                 Schematic.objects[3].enabled = false;
                 Schematic.objects[3].tooltip = RED_FONT_COLOR:WrapTextInColorCode(L["TransmogSet No Valid Items"]);
@@ -437,12 +439,13 @@ do
 
             --Delete
             Schematic.objects[5].name = RED_FONT_COLOR:WrapTextInColorCode(TRANSMOG_CUSTOM_SET_DELETE);
+            Schematic.objects[5].tooltip = L["Insturction Delete Without Confirm"];
             Schematic.objects[5].OnClick = function()
                 if IsShiftKeyDown() then
                     TransmogUIManager:DeleteSharedSet(data.dataIndex);
                 else
                     local _data = { name = data.name, dataIndex = data.dataIndex};
-                    --StaticPopup_Show("TRANSMOG_CUSTOM_SET_NAME", nil, nil, _data);
+                    StaticPopup_Show("NARCISSUS_TRANSMOG_CUSTOM_SET_DELETE", nil, nil, _data);
                 end
             end
 
@@ -953,5 +956,5 @@ end
 
 
 --[[
-/dump C_TransmogOutfitInfo.GetOutfitInfo(2);    GetOutfitSituation
+/dump C_TransmogOutfitInfo.GetOutfitInfo(2);    /dump C_TransmogOutfitInfo.GetOutfitSituation
 --]]

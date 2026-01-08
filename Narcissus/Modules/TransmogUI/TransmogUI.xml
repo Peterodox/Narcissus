@@ -3,7 +3,7 @@
 
 	<Script file="StaticPopup.lua"/>
 	<Script file="MoneyDisplay.lua"/>
-	<!--Script file="IconSelector.lua"/-->
+	<Script file="IconSelector.lua"/>
 	<Script file="CustomSetsMenu.lua"/>
 	<Script file="CustomSetsTab.lua"/>
 
@@ -116,4 +116,24 @@
 			</Button>
 		</Frames>
 	</EditBox>
+
+	<Button name="NarciSelectorIconButtonTemplate" virtual="true">
+		<Size x="36" y="36"/>
+		<Layers>
+			<Layer level="OVERLAY">
+				<Texture parentKey="Icon">
+					<Size x="36" y="36"/>
+					<Anchors>
+						<Anchor point="CENTER" x="0" y="0"/>
+					</Anchors>
+				</Texture>
+			</Layer>
+			<Layer level="OVERLAY" textureSubLevel="1">
+				<Texture parentKey="SelectedTexture" alphaMode="ADD" file="Interface\Buttons\CheckButtonHilight" hidden="true"/>
+			</Layer>
+			<Layer level="HIGHLIGHT">
+				<Texture parentKey="Highlight" alphaMode="ADD" file="Interface\Buttons\ButtonHilight-Square"/>
+			</Layer>
+		</Layers>
+	</Button>
 </Ui>

@@ -65,6 +65,10 @@ function TransmogUIManager:LoadModules()
     end
 end
 
+local function ConverInvSlotToTransmogSlot(invSlotID)
+    return GetTransmogOutfitSlotFromInventorySlot(invSlotID - 1)
+end
+
 
 local HiddenVisuals = {
     --[slotID] = visualID (appearanceID) --sourceID (modifiedAppearanceID)
@@ -87,6 +91,12 @@ local IgnoredInvSlots = {
     [13] = true,
     [14] = true,
     [18] = true,    --Ranged Slot
+};
+
+local TransmogInvSlots = {
+    1, 3, 15, 5, 4, 19, 9,
+    10, 6, 7, 8,
+    16, 17,
 };
 
 
@@ -159,7 +169,7 @@ function TransmogUIManager:SetPendingFromTransmogInfoList(transmogInfoList)
                 end
                 ApplyTransmog(invSlotID, Enum.TransmogOutfitSlot.ShoulderLeft, secondaryAppearanceID, illusionID);
             else
-                local slot = GetTransmogOutfitSlotFromInventorySlot(invSlotID - 1);
+                local slot = ConverInvSlotToTransmogSlot(invSlotID);
                 ApplyTransmog(invSlotID, slot, transmogID, illusionID);
             end
         end
@@ -527,6 +537,7 @@ do  --Shared Custom Sets
             for i, setInfo in ipairs(NarciTransmogUIDB.SharedSets) do
                 if setInfo.dataIndex == dataIndex then
                     setInfo.name = name;
+                    setInfo.timeModified = time();
                     success = true;
                     break
                 end
@@ -547,6 +558,30 @@ do  --Shared Custom Sets
         end
     end
 
+    function TransmogUIManager:TryOverwriteSharedSet(dataIndex, transmogInfoList)
+        local success;
+
+        local cmd = TransmogUtil.CreateCustomSetSlashCommand(transmogInfoList);
+        cmd = string.gsub(cmd, "/customset%s+", "", 1);
+
+        local _, _, classID = UnitClass("player");
+
+        for i, setInfo in ipairs(NarciTransmogUIDB.SharedSets) do
+            if setInfo.dataIndex == dataIndex then
+                setInfo.cmd = cmd;
+                setInfo.timeModified = time();
+                setInfo.classID = classID;
+                success = true;
+                break
+            end
+        end
+
+        if success then
+            self.sharedSetsDataList = nil;
+            CallbackRegistry:Trigger("TransmogUI.LoadSharedSets", true);
+        end
+    end
+
     function TransmogUIManager:DeleteSharedSet(dataIndex)
         local success;
 
@@ -563,6 +598,76 @@ do  --Shared Custom Sets
             CallbackRegistry:Trigger("TransmogUI.LoadSharedSets", true);
         end
     end
+end
+
+do  --Viewd Outfit Info
+    --/dump C_TransmogOutfitInfo.GetViewedOutfitSlotInfo(0, 0, 0)
+    function TransmogUIManager:GetViewedOutfitInfo()
+        if not self.weaponOptions then
+            self.weaponOptions = {};
+            local option = Enum.TransmogOutfitSlotOption;
+            self.weaponOptions = {
+                option.OneHandedWeapon,
+                option.TwoHandedWeapon,
+                option.RangedWeapon,
+                option.OffHand,
+                option.Shield,
+                option.FuryTwoHandedWeapon,
+            };
+        end
+
+        local GetViewedOutfitSlotInfo = C_TransmogOutfitInfo.GetViewedOutfitSlotInfo;
+        local usedTextures = {};
+        local tbl = {};
+        local n = 0;
+
+        local function AddSlotInfo(invSlotID, slot, appearanceType, weaponOption)
+            local slotInfo = GetViewedOutfitSlotInfo(slot, appearanceType, weaponOption);
+            if slotInfo and slotInfo.error == 0 then
+                if slotInfo.texture and not usedTextures[slotInfo.texture] then
+                    usedTextures[slotInfo.texture] = true;
+                    n = n + 1;
+                    tbl[n] = {
+                        texture = slotInfo.texture,
+                        transmogID = slotInfo.transmogID,
+                        invSlotID = invSlotID,
+                        isIllusion = appearanceType == 1,
+                    };
+                end
+            end
+        end
+
+        for _, invSlotID in ipairs(TransmogInvSlots) do
+            local slot = ConverInvSlotToTransmogSlot(invSlotID);
+            if invSlotID == 16 or invSlotID == 17 then
+                for _, weaponOption in ipairs(self.weaponOptions) do
+                    AddSlotInfo(invSlotID, slot, Enum.TransmogType.Appearance, weaponOption);
+                end
+                for _, weaponOption in ipairs(self.weaponOptions) do
+                    AddSlotInfo(invSlotID, slot, Enum.TransmogType.Illusion, weaponOption);
+                end
+            elseif invSlotID == 3 then
+                AddSlotInfo(invSlotID, slot, Enum.TransmogType.Appearance, Enum.TransmogOutfitSlotOption.None);
+                AddSlotInfo(invSlotID, Enum.TransmogOutfitSlot.ShoulderRight, Enum.TransmogType.Appearance, Enum.TransmogOutfitSlotOption.None);
+                AddSlotInfo(invSlotID, Enum.TransmogOutfitSlot.ShoulderLeft, Enum.TransmogType.Appearance, Enum.TransmogOutfitSlotOption.None);
+            else
+                AddSlotInfo(invSlotID, slot, Enum.TransmogType.Appearance, Enum.TransmogOutfitSlotOption.None);
+            end
+        end
+
+        return tbl
+    end
+
+    --[[
+    function Narci_YeetViewdSlots()
+        local tbl = TransmogUIManager:GetViewedOutfitInfo();
+        for _, v in ipairs(tbl) do
+            local sourceInfo = GetSourceInfo(v.transmogID);
+            local name = sourceInfo and sourceInfo.name or "";
+            print(string.format("|T%s:16:16|t %s", v.texture, name));
+        end
+    end
+    --]]
 end
 
 
