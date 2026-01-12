@@ -297,6 +297,18 @@ local function AreAppearancesEqualOrHidden(id1, id2)
     return true
 end
 
+local function AreShoulderAppearancesEqual(lInfo, rInfo)
+    if lInfo.appearanceID ~= rInfo.appearanceID then
+        return false
+    end
+
+    if lInfo.secondaryAppearanceID ~= 0 and rInfo.secondaryAppearanceID ~= 0 then
+        return false
+    end
+
+    return true
+end
+
 function TransmogUIManager:IsCustomSetDressed(currentItemTransmogInfoList, customSetItemTransmogInfoList)
     local rInfo;
     for slotID, lInfo in ipairs(currentItemTransmogInfoList) do
@@ -325,6 +337,12 @@ function TransmogUIManager:IsCustomSetDressed(currentItemTransmogInfoList, custo
         end
     end
     return true
+end
+
+function TransmogUIManager:GetDefaultCustomSetsCount()
+    local currentVal = #(C_TransmogCollection.GetCustomSets() or {});
+    local maxVal = C_TransmogCollection.GetNumMaxCustomSets() or 0;
+    return currentVal, maxVal
 end
 
 do  --Alt Character Custom Sets
@@ -597,6 +615,36 @@ do  --Shared Custom Sets
             self.sharedSetsDataList = nil;
             CallbackRegistry:Trigger("TransmogUI.LoadSharedSets", true);
         end
+    end
+
+    function TransmogUIManager:IsCustomSetShared(transmogInfoList)
+        local info;
+        local dataIndex, name;
+
+        for _, data in ipairs(self:GetSharedSetsDataList()) do
+            dataIndex = data.index;
+            name = data.name;
+            for slotID, _info in ipairs(data.transmogInfoList) do
+                info = transmogInfoList[slotID];
+                if not (info and info:IsEqual(_info)) then
+                    if slotID == 3 then
+                        if not AreShoulderAppearancesEqual(info, _info) then
+                            name = nil;
+                            break
+                        end
+                    else
+                        name = nil;
+                        break
+                    end
+                end
+            end
+
+            if name then
+                break
+            end
+        end
+
+        return name
     end
 end
 

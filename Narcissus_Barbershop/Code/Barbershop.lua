@@ -1386,6 +1386,30 @@ function NarciBarberShopPlusButtonMixin:OnDisable()
     self.Label:SetTextColor(0.5, 0.5, 0.5);
 end
 
+function NarciBarberShopPlusButtonMixin:OnEnter()
+    self.Label:SetAlpha(1);
+    MainFrame:OnEnter();
+    EditButton:Hide();
+    DeleteButton:Hide();
+
+    local labelWidth = self.Label:GetWrappedWidth();
+    self.Count:SetPoint("LEFT", self.Label, "LEFT", labelWidth + 8, 0);
+
+    if IS_SAVE_SUPPORTED then
+        if self.numSaves then
+            self.Count:SetText(self.numSaves.." / "..MAX_SAVES);
+            self.Count:Show();
+        else
+            self.Count:Hide();
+        end
+    end
+end
+
+function NarciBarberShopPlusButtonMixin:OnLeave()
+    self.Label:SetAlpha(0.66);
+    self.Count:Hide();
+end
+
 function NarciBarberShopPlusButtonMixin:SetCase(caseID)
     if caseID == 1 then
         --Can be added
@@ -1410,30 +1434,6 @@ end
 
 function NarciBarberShopPlusButtonMixin:GetCase()
     return self.caseID
-end
-
-function NarciBarberShopPlusButtonMixin:OnEnter()
-    self.Label:SetAlpha(1);
-    MainFrame:OnEnter();
-    EditButton:Hide();
-    DeleteButton:Hide();
-
-    local labelWidth = self.Label:GetWrappedWidth();
-    self.Count:SetPoint("LEFT", self.Label, "LEFT", labelWidth + 8, 0);
-
-    if IS_SAVE_SUPPORTED then
-        if self.numSaves then
-            self.Count:SetText(self.numSaves.." / "..MAX_SAVES);
-            self.Count:Show();
-        else
-            self.Count:Hide();
-        end
-    end
-end
-
-function NarciBarberShopPlusButtonMixin:OnLeave()
-    self.Label:SetAlpha(0.66);
-    self.Count:Hide();
 end
 
 local function SaveCurrentAppearance(customName)

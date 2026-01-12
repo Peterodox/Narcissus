@@ -172,12 +172,23 @@ end
 
 
 function Module:OnLoad()
-    local SelectorPopup = TransmogFrame.OutfitPopup;
+    local SelectorPopup = TransmogFrame.OutfitPopup;	--Taint?
+	local parent = TransmogFrame;
 
-	SuggestionFrame = CreateFrame("Frame", nil, SelectorPopup);
+	SuggestionFrame = CreateFrame("Frame", nil, parent);
+	SuggestionFrame:Hide();
 	Mixin(SuggestionFrame, SuggestionFrameMixin);
 	SuggestionFrame.SelectorPopup = SelectorPopup;
 	SuggestionFrame:OnLoad();
+	SuggestionFrame:SetFrameStrata("HIGH");
+
+	SelectorPopup:HookScript("OnShow", function()
+		SuggestionFrame:Show();
+	end);
+
+	SelectorPopup:HookScript("OnHide", function()
+		SuggestionFrame:Hide();
+	end);
 
 	local function SetIconTexture(texture)
 		SelectorPopup.IconSelector:SetSelectedIndex(SelectorPopup:GetIndexOfIcon(texture));

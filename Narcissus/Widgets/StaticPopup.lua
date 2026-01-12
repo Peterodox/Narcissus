@@ -223,7 +223,13 @@ local function ShowClipboard(text)
     MainFrame:FindBestPosition();
     MainFrame.EditBox:Show();
     MainFrame.EditBox:SetDefaultText(text);
-    MainFrame.Text:SetText(Narci.L["Press To Copy"]);
+    local hotkey;
+    if IsMacClient and IsMacClient() then
+        hotkey = "Command+C";
+    else
+        hotkey = "Ctrl+C";
+    end
+    MainFrame.Text:SetText(Narci.L["Press Key To Copy Format"]:format(hotkey));
     MainFrame.Text:SetTextColor(0.6, 0.6, 0.6);
     MainFrame:Layout();
     MainFrame:ListenHotkey(true);

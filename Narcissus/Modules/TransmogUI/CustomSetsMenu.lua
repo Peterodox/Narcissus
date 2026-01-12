@@ -598,8 +598,7 @@ do  --MenuMixin
 
     function Menu:Refresh()
         self.CurrentSourceButton:ShowRadioIcon(true, TransmogUIManager:IsOutfitSource("Default"));
-        local currentVal = #(C_TransmogCollection.GetCustomSets() or {});
-        local maxVal = C_TransmogCollection.GetNumMaxCustomSets() or 0;
+        local currentVal, maxVal = TransmogUIManager:GetDefaultCustomSetsCount();
         self.CurrentSourceButton:SetSetsCount(currentVal, maxVal);
 
         self.SharedSourceButton:ShowRadioIcon(true, TransmogUIManager:IsOutfitSource("Shared"));

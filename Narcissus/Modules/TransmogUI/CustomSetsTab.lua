@@ -13,6 +13,7 @@ local CallbackRegistry = addon.CallbackRegistry;
 
 local OutfitModule = TransmogUIManager:CreateModule("CustomSetsTab");
 local CharacterDropdownMixin = {};
+local SetsFrame;
 
 
 local GetCustomSetInfo = C_TransmogCollection.GetCustomSetInfo;
@@ -62,7 +63,7 @@ end
 local ModelLoaderMixin = {};
 do
     function ModelLoaderMixin:LoadModels(modelList)
-        OutfitModule.SetsFrame:SetModelUseNativeForm();
+        SetsFrame:SetModelUseNativeForm();
         self:SetScript("OnUpdate", nil);
         self.t = 0;
         self.index = 0;
@@ -145,7 +146,7 @@ do
         self:RequestLoadSet();
 
         if self.isModelLoaded then
-            OutfitModule.SetsFrame.Loader:LoadNext();
+            SetsFrame.Loader:LoadNext();
         end
     end
 
@@ -192,7 +193,7 @@ do
     end
 
     function SetModelMixin:GetData()
-        local data = self.dataIndex and OutfitModule.SetsFrame:GetTransmogData(self.dataIndex);
+        local data = self.dataIndex and SetsFrame:GetTransmogData(self.dataIndex);
         return data
     end
 
@@ -478,9 +479,26 @@ do
                 type = "Button",
                 name = L["Copy To Shared List"],
                 OnClick = function()
-                    TransmogUIManager:TrySaveSharedSet(data.name, data.transmogInfoList);
+                    if TransmogUIManager:TrySaveSharedSet(data.name, data.transmogInfoList) then
+                        data.foundSetName = data.name;
+                    end
                 end,
             };
+
+            if data.foundSetName == nil then
+                local foundSetName = TransmogUIManager:IsCustomSetShared(data.transmogInfoList);
+                if foundSetName then
+                    data.foundSetName = foundSetName;
+                else
+                    data.foundSetName = false;
+                end
+            end
+            if data.foundSetName then
+                buttonData.enabled = false;
+                local icon = "Interface/AddOns/Narcissus/Art/BasicShapes/CheckmarkGrey";
+                buttonData.name = string.format("|T%s:14:14|t%s", icon, L["Added To Shared List"]);
+                buttonData.tooltip = string.format(L["Added To Shared List Alert Format"], data.foundSetName);
+            end
 
             if not TransmogUIManager:CanSaveMoreSharedSet() then
                 buttonData.enabled = false;
@@ -490,6 +508,163 @@ do
         end
 
         NarciAPI.TranslateContextMenu(self, Schematic);
+    end
+end
+
+
+local CreateSaveButton;
+do
+    local SaveButtonMixin = {};
+
+    function SaveButtonMixin:OnMouseDown()
+        self.mouseDown = true;
+        self:UpdateVisual();
+    end
+
+    function SaveButtonMixin:OnMouseUp()
+        self.mouseDown = false;
+        self:UpdateVisual();
+    end
+
+    function SaveButtonMixin:OnEnable()
+        self:UpdateVisual();
+    end
+
+    function SaveButtonMixin:OnDisable()
+        self:UpdateVisual();
+    end
+
+    function SaveButtonMixin:OnEnter()
+        self.Count:Show();
+        self:UpdateVisual();
+
+        local currentVal, maxVal;
+        if OutfitModule:IsOutfitSource("Shared") then
+            currentVal = TransmogUIManager:GetNumSharedSets();
+            maxVal = TransmogUIManager:GetNumMaxSharedSets();
+        else
+            currentVal, maxVal = TransmogUIManager:GetDefaultCustomSetsCount();
+        end
+        self.Count:SetText(currentVal.."/"..maxVal);
+    end
+
+    function SaveButtonMixin:OnLeave()
+        GameTooltip:Hide();
+        self.Count:Hide();
+        self:UpdateVisual();
+    end
+
+    function SaveButtonMixin:UpdateVisual()
+        if self:IsEnabled() then
+            if self.mouseDown then
+                self.Icon:SetTexCoord(0.25, 0.5, 0, 1);
+            else
+                self.Icon:SetTexCoord(0, 0.25, 0, 1);
+            end
+            if self:IsMouseMotionFocus() then
+                self.Label:SetTextColor(1, 1, 1);
+            else
+                self.Label:SetTextColor(1, 0.82, 0);
+            end
+        else
+            self.Icon:SetTexCoord(0.5, 0.75, 0, 1);
+            self.Label:SetTextColor(0.5, 0.5, 0.5);
+        end
+    end
+
+    function SaveButtonMixin:RequestUpdate()
+        self.t = 0;
+        self:SetScript("OnUpdate", nil);
+    end
+
+    function SaveButtonMixin:OnUpdate(elapsed)
+        self.t = self.t + elapsed;
+        if self.t > 0.03 then
+            self.t = 0;
+            self:SetScript("OnUpdate", nil);
+            self:UpdateSaveStatus();
+        end
+    end
+
+    function SaveButtonMixin:OnClick(button)
+        local itemTransmogInfoList = TransmogFrame.WardrobeCollection:GetItemTransmogInfoListCallback();
+        local hasValidAppearance = TransmogUtil.IsValidItemTransmogInfoList(itemTransmogInfoList);
+
+        if hasValidAppearance then
+            if OutfitModule:IsOutfitSource("Shared") then
+
+            else
+                local data = { name = "", customSetID = nil, itemTransmogInfoList = itemTransmogInfoList };
+                StaticPopup_Show("TRANSMOG_CUSTOM_SET_NAME", nil, nil, data);
+            end
+        end
+    end
+
+    function SaveButtonMixin:UpdateSaveStatus()
+        self.tooltipText = nil;
+
+        local itemTransmogInfoList = TransmogFrame.WardrobeCollection:GetItemTransmogInfoListCallback();
+        local hasValidAppearance = TransmogUtil.IsValidItemTransmogInfoList(itemTransmogInfoList);
+
+        if hasValidAppearance then
+            self:Enable();
+            if OutfitModule:IsOutfitSource("Alts") then
+                self.tooltipText = L["New Set Location Default"];
+            elseif OutfitModule:IsOutfitSource("Shared") then
+
+            else
+
+            end
+        else
+            self:Disable();
+            self.tooltipText = TRANSMOG_CUSTOM_SET_NEW_TOOLTIP_DISABLED;
+        end
+    end
+
+
+    function CreateSaveButton(parent)
+        local f = CreateFrame("Button", nil, parent);
+        local texture = "Interface/AddOns/Narcissus/Art/Modules/DressingRoom/SaveButton.png";
+
+        f.Icon = f:CreateTexture(nil, "ARTWORK");
+        f.Icon:SetPoint("LEFT", f, "LEFT", 0, 0);
+        f.Icon:SetSize(32, 32);
+        f.Icon:SetTexture(texture);
+
+        f.Highlight = f:CreateTexture(nil, "HIGHLIGHT");
+        f.Highlight:SetPoint("CENTER", f.Icon, "CENTER", 0, 0);
+        f.Highlight:SetSize(32, 32);
+        f.Highlight:SetTexture(texture);
+        f.Highlight:SetTexCoord(0.75, 1, 0, 1);
+        f.Highlight:SetBlendMode("ADD");
+
+        f.labelOffsetX = 38;
+        f.Label = f:CreateFontString(nil, "OVERLAY", "GameFontNormal");
+        f.Label:SetPoint("LEFT", f, "LEFT", f.labelOffsetX, 0);
+        f.Label:SetJustifyH("LEFT");
+        f.Label:SetText(TRANSMOG_CUSTOM_SET_NEW);
+
+        f.Count = f:CreateFontString(nil, "OVERLAY", "GameFontNormal");
+        f.Count:SetPoint("LEFT", f.Label, "RIGHT", 6, 0);
+        f.Count:SetJustifyH("LEFT");
+        f.Count:SetTextColor(0.5, 0.5, 0.5);
+        f.Count:Hide();
+
+        Mixin(f, SaveButtonMixin);
+
+        f:SetScript("OnMouseDown", f.OnMouseDown);
+        f:SetScript("OnMouseUp", f.OnMouseUp);
+        f:SetScript("OnEnable", f.OnEnable);
+        f:SetScript("OnDisable", f.OnDisable);
+        f:SetScript("OnEnter", f.OnEnter);
+        f:SetScript("OnLeave", f.OnLeave);
+        f:SetScript("OnClick", f.OnClick);
+
+        f:SetSize(192, 32);
+        f:SetMotionScriptsWhileDisabled(true);
+        f:UpdateVisual();
+
+        return f
     end
 end
 
@@ -562,6 +737,8 @@ do
         else
             self:UpdatePage(true);
         end
+
+        self.SaveButton:RequestUpdate();
     end
 
     function SetsFrameMixin:ClearAllModels()
@@ -612,9 +789,9 @@ do
     CallbackRegistry:Register("TransmogUI.LoadDefaultSets", function(retainPage)
         TransmogUIManager.selectedCharacterUID = nil;
         if not retainPage then
-            OutfitModule.SetsFrame.page = 1;
+            SetsFrame.page = 1;
         end
-        OutfitModule.SetsFrame:LoadDefaultSets();
+        SetsFrame:LoadDefaultSets();
     end);
 
     function SetsFrameMixin:LoadSharedSets()
@@ -630,9 +807,9 @@ do
     CallbackRegistry:Register("TransmogUI.LoadSharedSets", function(retainPage)
         TransmogUIManager.selectedCharacterUID = nil;
         if not retainPage then
-            OutfitModule.SetsFrame.page = 1;
+            SetsFrame.page = 1;
         end
-        OutfitModule.SetsFrame:LoadSharedSets();
+        SetsFrame:LoadSharedSets();
     end);
 
     function SetsFrameMixin:LoadAltSets(characterInfo)
@@ -654,7 +831,7 @@ do
     end
     CallbackRegistry:Register("TransmogUI.LoadAltSets", function(characterInfo)
         TransmogUIManager.selectedCharacterUID = characterInfo.uid;
-        OutfitModule.SetsFrame:LoadAltSets(characterInfo)
+        SetsFrame:LoadAltSets(characterInfo)
     end);
 
     function TransmogUIManager:GetSelectedCharacterUID()
@@ -673,6 +850,8 @@ do
 
         self:UpdatePage(true);
         self:SetScript("OnMouseWheel", self.OnMouseWheel);
+
+        self.SaveButton:RequestUpdate();
     end
 
     function SetsFrameMixin:GetTransmogData(dataIndex)
@@ -780,10 +959,10 @@ do
         end
     end
     CallbackRegistry:Register("TransmogUI.SharedSetRenamed", function()
-        for _, model in ipairs(OutfitModule.SetsFrame.Models) do
+        for _, model in ipairs(SetsFrame.Models) do
             model:UpdateSetName();
         end
-        OutfitModule.SetsFrame:TriggerModelsOnEnter();
+        SetsFrame:TriggerModelsOnEnter();
     end);
 
     function SetsFrameMixin:UpdateSelection()
@@ -836,6 +1015,7 @@ do
             self:RequestUpdate("Camera");
         elseif event == "VIEWED_TRANSMOG_OUTFIT_SLOT_REFRESH" then
             self:RequestUpdate("Selection");
+            self.SaveButton:RequestUpdate();
         elseif event == "UNIT_FORM_CHANGED" then
             self:RequestUpdate("Form");
         end
@@ -906,19 +1086,7 @@ function OutfitModule:ModifyStockUI()
     self.ParentTab:SetScript("OnEvent", nil);
     self.ParentTab:UnregisterAllEvents();
     self.ParentTab.PagedContent:Hide();
-
-
-    if not self.SetsFrame then
-        local f = CreateFrame("Frame", nil, self.Container);
-        self.SetsFrame = f;
-
-        --For sizes, see CustomSetsFrame.PagedContent (Interface/AddOns/Blizzard_Transmog/Blizzard_Transmog.xml)
-        f:SetPoint("TOPLEFT", self.Container, "TOPLEFT", 26, -72);
-        f:SetPoint("BOTTOMRIGHT", self.Container, "BOTTOMRIGHT", -26, 10);
-
-        Mixin(f, SetsFrameMixin);
-        f:OnLoad();
-    end
+    self.ParentTab.NewCustomSetButton:Hide();
 end
 
 function OutfitModule:SetOutfitSource(key)
@@ -950,6 +1118,19 @@ function OutfitModule:OnLoad()
     CharacterDropdown:OnLoad();
 
     self:ModifyStockUI();
+
+
+    SetsFrame = CreateFrame("Frame", nil, Container);
+
+    --For sizes, see CustomSetsFrame.PagedContent (Interface/AddOns/Blizzard_Transmog/Blizzard_Transmog.xml)
+    SetsFrame:SetPoint("TOPLEFT", Container, "TOPLEFT", 26, -72);
+    SetsFrame:SetPoint("BOTTOMRIGHT", Container, "BOTTOMRIGHT", -26, 10);
+
+    SetsFrame.SaveButton = CreateSaveButton(SetsFrame);
+    SetsFrame.SaveButton:SetPoint("TOPLEFT", ParentTab, "TOPLEFT", 23, -24);
+
+    Mixin(SetsFrame, SetsFrameMixin);
+    SetsFrame:OnLoad();
 end
 
 
