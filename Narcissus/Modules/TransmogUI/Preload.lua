@@ -340,9 +340,30 @@ function TransmogUIManager:IsCustomSetDressed(currentItemTransmogInfoList, custo
 end
 
 function TransmogUIManager:GetDefaultCustomSetsCount()
-    local currentVal = #(C_TransmogCollection.GetCustomSets() or {});
-    local maxVal = C_TransmogCollection.GetNumMaxCustomSets() or 0;
-    return currentVal, maxVal
+    local current = #(C_TransmogCollection.GetCustomSets() or {});
+    local max = C_TransmogCollection.GetNumMaxCustomSets() or 0;
+    return current, max
+end
+
+function TransmogUIManager:CanSaveMoreCustomSet()
+    local current, max = self:GetDefaultCustomSetsCount();
+    return current < max
+end
+
+do  --For jumping to recently saved set
+    function TransmogUIManager:SetRecentlySavedSharedSetFlag(timeCreated)
+        self.recentlySavedSharedSetFlag = timeCreated;
+        C_Timer.After(0.5, function()
+            self.recentlySavedSharedSetFlag = nil;
+        end);
+    end
+
+    function TransmogUIManager:SetRecentlySavedCustomSetFlag(name)
+        self.recentlySavedCustomSetFlag = name;
+        C_Timer.After(0.5, function()
+            self.recentlySavedCustomSetFlag = nil;
+        end);
+    end
 end
 
 do  --Alt Character Custom Sets
@@ -545,6 +566,8 @@ do  --Shared Custom Sets
 
         self.sharedSetsDataList = nil;
 
+        self:SetRecentlySavedSharedSetFlag(timestamp);
+
         return true
     end
 
@@ -572,6 +595,7 @@ do  --Shared Custom Sets
         end
 
         if success then
+            CallbackRegistry:Trigger("StaticPopup.CloseAll");
             CallbackRegistry:Trigger("TransmogUI.SharedSetRenamed");
         end
     end
@@ -596,6 +620,7 @@ do  --Shared Custom Sets
 
         if success then
             self.sharedSetsDataList = nil;
+            CallbackRegistry:Trigger("StaticPopup.CloseAll");
             CallbackRegistry:Trigger("TransmogUI.LoadSharedSets", true);
         end
     end
@@ -613,6 +638,7 @@ do  --Shared Custom Sets
 
         if success then
             self.sharedSetsDataList = nil;
+            CallbackRegistry:Trigger("StaticPopup.CloseAll");
             CallbackRegistry:Trigger("TransmogUI.LoadSharedSets", true);
         end
     end

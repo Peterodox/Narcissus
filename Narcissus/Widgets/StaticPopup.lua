@@ -1,37 +1,27 @@
 local _, addon = ...
-local L = addon.L;
+local L = Narci.L;
 
 
+local InCombatLockdown = InCombatLockdown;
 local CreateKeyChordStringUsingMetaKeyState = CreateKeyChordStringUsingMetaKeyState;
+
+
+local Def = {
+    FrameWidth = 320,
+    FramePadding = 32,
+
+    WidgetGapY = 8,
+    LargeGapY = 16,
+
+    DefaultWidgetWith = 240,   --192
+};
 
 
 local MainFrame;
 
 
-local function AddFrameToUISpecialFrames(frame, state)
-    local frameName = frame:GetName();
-    if not frameName then return end;
-
-    if state then
-        for i, name in ipairs(UISpecialFrames) do
-            if name == frameName then
-                return
-            end
-        end
-        table.insert(UISpecialFrames, frameName);
-    else
-        for i, name in ipairs(UISpecialFrames) do
-            if name == frameName then
-                table.remove(UISpecialFrames, i);
-                return
-            end
-        end
-    end
-end
-
-
 local StaticPopupMixin = {};
-do
+do  --StaticPopup Basic
     function StaticPopupMixin:Close()
         self:Hide();
     end
@@ -41,39 +31,98 @@ do
         self:SetPoint("TOP", UIParent, "TOP", 0, -135);
     end
 
+    function StaticPopupMixin:Reset()
+        self.layoutObjects = {};
+        self.fontStringPool:ReleaseAll();
+        self.checkboxPool:ReleaseAll();
+        self.EditBox:Hide();
+        self.EditBox.isClipboard = nil;
+        self.CloseButton:Hide();
+        self.Button1:Hide();
+        self.Button2:Hide();
+        self:ListenHotkey(false);
+    end
+
+    function StaticPopupMixin:AddLayoutObject(object, preOffsetY, postOffsetY)
+        table.insert(self.layoutObjects, {
+            object = object,
+            preOffsetY = preOffsetY or 0,
+            postOffsetY = postOffsetY or Def.WidgetGapY;
+        });
+    end
+
     function StaticPopupMixin:Layout()
-        local frameWidth = 320;
-        local padding = 32;
-        local spacing = 8;
+        local frameWidth = Def.FrameWidth;
+        local padding = Def.FramePadding;
 
         local offsetY = padding;
-        local widgetWidth = frameWidth - 2 * padding;
+        local widgetWidth = Def.DefaultWidgetWith --frameWidth - 2 * padding;
+        local total = #self.layoutObjects;
 
-        self.Text:ClearAllPoints();
-        self.Text:SetPoint("TOP", self, "TOP", 0, -offsetY);
-        self.Text:SetWidth(widgetWidth);
-        offsetY = offsetY + math.ceil(self.Text:GetHeight() or 12);
+        for i, v in ipairs(self.layoutObjects) do
+            local object = v.object;
+            if object:IsObjectType("FontString") then
+                object:SetSpacing(2);
+            end
+            object:ClearAllPoints();
+            offsetY = offsetY + v.preOffsetY;
+            object:SetPoint("TOP", self, "TOP", 0, -offsetY);
+            if not object.useFixedWidth then
+                if object.SetEffectiveWidth then
+                    object:SetEffectiveWidth(widgetWidth);
+                else
+                    object:SetWidth(widgetWidth);
+                end
+            end
+            object:Show();
+            offsetY = offsetY + object:GetHeight();
+            if i < total then
+                offsetY = offsetY + v.postOffsetY;
+            end
+            offsetY = math.ceil(offsetY);
+        end
 
-        if self.EditBox:IsShown() then
-            self.EditBox:ClearAllPoints();
-            self.EditBox:SetWidth(widgetWidth);
-            offsetY = offsetY + spacing;
-            self.EditBox:SetPoint("TOP", self, "TOP", 0, -offsetY);
-            offsetY = offsetY + 24;
+        if self.Button1:IsShown() then
+            offsetY = offsetY + Def.LargeGapY + Def.WidgetGapY;
+            self.Button1:ClearAllPoints();
+            self.Button2:ClearAllPoints();
+            local buttonHeight = 28;
+            local buttonWidth;
+            if self.Button2:IsShown() then
+                local buttonGap = Def.WidgetGapY;
+                buttonWidth = 0.5 * (Def.DefaultWidgetWith - buttonGap);
+                self.Button1:SetPoint("TOPRIGHT", self, "TOP", -0.5*buttonGap, -offsetY);
+                self.Button2:SetPoint("TOPLEFT", self, "TOP", 0.5*buttonGap, -offsetY);
+            else
+                buttonWidth = Def.DefaultWidgetWith;
+                self.Button1:SetPoint("TOP", self, "TOP", 0, -offsetY);
+            end
+            self.Button1:SetSize(buttonWidth, buttonHeight);
+            self.Button2:SetSize(buttonWidth, buttonHeight);
+            offsetY = offsetY + buttonHeight;
         end
 
         offsetY = offsetY + padding;
+
         self:SetSize(frameWidth, offsetY);
     end
 
     function StaticPopupMixin:OnShow()
-        AddFrameToUISpecialFrames(self, true);
         PlaySound(SOUNDKIT.IG_MAINMENU_OPEN);
+        self:RegisterEvent("PLAYER_REGEN_ENABLED");
+        self:RegisterEvent("PLAYER_REGEN_DISABLED");
+        self:SetScript("OnEvent", self.OnEvent);
+        if not InCombatLockdown() then
+            self:SetScript("OnKeyDown", self.OnKeyDown);
+        end
     end
 
     function StaticPopupMixin:OnHide()
-        AddFrameToUISpecialFrames(self, false);
         PlaySound(SOUNDKIT.IG_MAINMENU_CLOSE);
+        self:UnregisterEvent("PLAYER_REGEN_ENABLED");
+        self:UnregisterEvent("PLAYER_REGEN_DISABLED");
+        self:SetScript("OnEvent", nil);
+        self:SetScript("OnKeyDown", nil);
     end
 
     function StaticPopupMixin:OnLoad()
@@ -85,6 +134,57 @@ do
 
         self:SetScript("OnShow", self.OnShow);
         self:SetScript("OnHide", self.OnHide);
+    end
+
+    function StaticPopupMixin:TryShow()
+        self:FindBestPosition();
+        self:Layout();
+        self:Show();
+    end
+
+    function StaticPopupMixin:OnKeyDown(key)
+        local propagate;
+        if key == "ESCAPE" then
+            propagate = false;
+            self:Hide();
+        else
+            propagate = true;
+        end
+
+        if not InCombatLockdown() then
+           self:SetPropagateKeyboardInput(propagate);
+        end
+    end
+
+    function StaticPopupMixin:OnEvent(event)
+        if event == "PLAYER_REGEN_ENABLED" then
+            self:SetScript("OnKeyDown", self.OnKeyDown);
+        elseif event == "PLAYER_REGEN_DISABLED" then
+            self:SetScript("OnKeyDown", nil);
+        end
+    end
+end
+
+
+do  --StaticPopup Clipboard
+    function StaticPopupMixin:SetupClipboard(instruction, content)
+        self:Reset();
+
+        local header = self.fontStringPool:Acquire();
+        header:SetText(instruction);
+        header:SetTextColor(0.6, 0.6, 0.6);
+        self:AddLayoutObject(header);
+
+        self.EditBox:Show();
+        self.EditBox:SetDefaultText(content);
+        self.EditBox.isClipboard = true;
+        self:AddLayoutObject(self.EditBox);
+
+        self.CloseButton:Show();
+
+        self:ListenHotkey(true);
+        self:TryShow();
+        self.EditBox:SetFocus();
     end
 
     local function KeyListener_OnKeyDown(self, key)
@@ -148,15 +248,21 @@ do
 
     function EditBoxMixin:OnEditFocusLost()
         self:UpdateVisual();
-        if self.defaultText then
-            self:SetText(self.defaultText);
-        end
         self:ClearHighlightText();
+        if self.isClipboard then
+            if self.defaultText then
+                self:SetText(self.defaultText);
+            end
+        end
     end
 
     function EditBoxMixin:OnTextChanged(userInput)
-        if userInput then
-            self:ClearFocus();
+        if self.isClipboard then
+            if userInput then
+                self:ClearFocus();
+            end
+        elseif self.onTextChangedFunc then
+            self.onTextChangedFunc(self, userInput);
         end
     end
 
@@ -166,20 +272,33 @@ do
     end
 
     function EditBoxMixin:OnEnterPressed()
-        self:ClearFocus();
-        MainFrame:Close();
+        if self.isClipboard then
+            self:ClearFocus();
+            MainFrame:Close();
+        elseif self.onEnterPressedFunc then
+            self.onEnterPressedFunc(self);
+        end
     end
 
     function EditBoxMixin:OnCursorChanged()
-        if self:HasFocus() then
-            self:HighlightText();
+        if self.isClipboard then
+            if self:HasFocus() then
+                self:HighlightText();
+            end
         end
     end
 
     function EditBoxMixin:SetDefaultText(text)
         self.defaultText = text;
-        self:SetText(text);
+        self:SetText(text or "");
         self:SetCursorPosition(0);
+    end
+
+    function EditBoxMixin:GetValidText()
+        local text = strtrim(self:GetText());
+        if text ~= "" then
+            return text
+        end
     end
 
     function EditBoxMixin:OnLoad()
@@ -206,34 +325,112 @@ do
 end
 
 
+local Checkbox_PostCreate;
+do
+    local CheckboxMixin = {};
+
+    function CheckboxMixin:OnEnter()
+        self:UpdateVisual();
+        if self.onEnterFunc then
+            self.onEnterFunc(self);
+        end
+    end
+
+    function CheckboxMixin:OnLeave()
+        self:UpdateVisual();
+        GameTooltip:Hide();
+    end
+
+    function CheckboxMixin:OnClick(button)
+        if self.onClickFunc then
+            self.onClickFunc(self, button);
+        end
+    end
+
+    function CheckboxMixin:OnEnable()
+        self:UpdateVisual();
+    end
+
+    function CheckboxMixin:OnDisable()
+        self:UpdateVisual();
+    end
+
+    function CheckboxMixin:UpdateVisual()
+        if self:IsEnabled() then
+            self.NormalTexture:SetVertexColor(1, 1, 1);
+            if self:IsMouseMotionFocus() then
+                self.Label:SetTextColor(1, 1, 1);
+            else
+                self.Label:SetTextColor(1, 0.82, 0);
+            end
+        else
+            self.NormalTexture:SetVertexColor(0.8, 0.8, 0.8);
+            self.Label:SetTextColor(0.5, 0.5, 0.5);
+        end
+    end
+
+
+    function Checkbox_PostCreate(f)
+        Mixin(f, CheckboxMixin);
+
+        f.useFixedWidth = false;
+
+        f:SetScript("OnEnter", f.OnEnter);
+        f:SetScript("OnLeave", f.OnLeave);
+        f:SetScript("OnClick", f.OnClick);
+        f:SetScript("OnEnable", f.OnEnable);
+        f:SetScript("OnDisable", f.OnDisable);
+    end
+end
+
+
 local function CreatePopup()
     if MainFrame then return end;
 
     MainFrame = CreateFrame("Frame", "NarciSharedStaticPopup", UIParent, "NarciSharedPopupFrameTemplate");
     Mixin(MainFrame, StaticPopupMixin);
+    MainFrame.Def = Def;
     MainFrame:OnLoad();
 
     Mixin(MainFrame.EditBox, EditBoxMixin);
     MainFrame.EditBox:OnLoad();
+
+    MainFrame.fontStringPool = CreateFontStringPool(MainFrame, "OVERLAY", 0, "GameFontNormal");
+    MainFrame.checkboxPool = CreateFramePool("CheckButton", MainFrame, "NarciWoWCheckboxWithLabelTemplate", nil, nil, Checkbox_PostCreate);
+
+    MainFrame:Reset();
 end
 
 
 local function ShowClipboard(text)
     CreatePopup();
-    MainFrame:FindBestPosition();
-    MainFrame.EditBox:Show();
-    MainFrame.EditBox:SetDefaultText(text);
+
     local hotkey;
     if IsMacClient and IsMacClient() then
         hotkey = "Command+C";
     else
         hotkey = "Ctrl+C";
     end
-    MainFrame.Text:SetText(Narci.L["Press Key To Copy Format"]:format(hotkey));
-    MainFrame.Text:SetTextColor(0.6, 0.6, 0.6);
-    MainFrame:Layout();
-    MainFrame:ListenHotkey(true);
-    MainFrame:Show();
-    MainFrame.EditBox:SetFocus();
+
+    MainFrame:SetupClipboard(L["Press Key To Copy Format"]:format(hotkey), text);
 end
 addon.ShowClipboard = ShowClipboard;
+
+
+local function GetStaticPopup()
+    CreatePopup();
+    MainFrame:Hide();
+    MainFrame:Reset();
+    return MainFrame
+end
+addon.GetStaticPopup = GetStaticPopup;
+
+
+local function HideStaticPopup()
+    if MainFrame then
+        MainFrame:Hide();
+    end
+end
+addon.HideStaticPopup = HideStaticPopup;
+
+addon.CallbackRegistry:Register("StaticPopup.CloseAll", HideStaticPopup);

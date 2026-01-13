@@ -850,6 +850,7 @@ L["GamePad Equip"] = "Equip";
 
 --TransmogUI--
 L["OutfitSource Default"] = "Current Character";
+L["OutfitSource Default Tooltip"] = "The data is stored on the server.";
 L["OutfitSource Shared"] = "Shared List";
 L["OutfitSource Shared Tooltip"] = "All your characters can access this list.\n\nThe data is stored locally in the Narcissus addon.";
 L["OutfitSource Alts"] = "Other Characters";
@@ -864,3 +865,5 @@ L["Added To Shared List"] = "Added to Shared List";
 L["Added To Shared List Alert Format"] = "You have already added this set to the Shared List as \"%s\"";
 L["New Set Location Default"] = "This custom set will be saved on your current character.";
 L["New Set Location Shared"] = "This custom set will be added to the Shared List.";
+L["Save Custom Set Location"] = "Save to:";
+L["Save Slots Colon"] = "Save Slots: ";

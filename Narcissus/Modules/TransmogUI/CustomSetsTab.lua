@@ -258,6 +258,8 @@ do
                 TransmogUIManager:SetPendingFromTransmogInfoList(data.transmogInfoList);
             end
             PlaySound(SOUNDKIT.UI_TRANSMOG_ITEM_CLICK);
+
+            CallbackRegistry:Trigger("StaticPopup.CloseAll");
         end
     end
 
@@ -594,9 +596,10 @@ do
             if OutfitModule:IsOutfitSource("Shared") then
 
             else
-                local data = { name = "", customSetID = nil, itemTransmogInfoList = itemTransmogInfoList };
-                StaticPopup_Show("TRANSMOG_CUSTOM_SET_NAME", nil, nil, data);
+                --local data = { name = "", customSetID = nil, itemTransmogInfoList = itemTransmogInfoList };
+                --StaticPopup_Show("TRANSMOG_CUSTOM_SET_NAME", nil, nil, data);
             end
+            TransmogUIManager:ShowPopup_NewSet(OutfitModule:IsOutfitSource("Shared"), itemTransmogInfoList);
         end
     end
 
@@ -774,6 +777,7 @@ do
         local dataList = {};
         local n = 0;
         local name;
+        local recentlySavedName = TransmogUIManager.recentlySavedCustomSetFlag;
 
         for i, customSetID in ipairs(customSets) do
             name = GetCustomSetInfo(customSetID);
@@ -783,6 +787,16 @@ do
         end
 
         table.sort(dataList, SortFuncs.Default);
+
+        if recentlySavedName then
+            for i, v in ipairs(dataList) do
+                if recentlySavedName == v.name then
+                    self.page = math.ceil(i/self.modelsPerPage);
+                    break
+                end
+            end
+        end
+
         OutfitModule:SetOutfitSource("Default");
         self:SetDataList(dataList);
     end
@@ -799,9 +813,19 @@ do
         self:ClearAllModels();
 
         local dataList = TransmogUIManager:GetSharedSetsDataList();
-
         OutfitModule:SetOutfitSource("Shared");
+
+        local recentlySavedTimestamp = TransmogUIManager.recentlySavedSharedSetFlag;
         self.page = 1;
+        if recentlySavedTimestamp then
+            for i, v in ipairs(dataList) do
+                if v.timeCreated == recentlySavedTimestamp then
+                    self.page = math.ceil(i/self.modelsPerPage);
+                    break
+                end
+            end
+        end
+
         self:SetDataList(dataList);
     end
     CallbackRegistry:Register("TransmogUI.LoadSharedSets", function(retainPage)
@@ -852,6 +876,7 @@ do
         self:SetScript("OnMouseWheel", self.OnMouseWheel);
 
         self.SaveButton:RequestUpdate();
+        CallbackRegistry:Trigger("StaticPopup.CloseAll");
     end
 
     function SetsFrameMixin:GetTransmogData(dataIndex)

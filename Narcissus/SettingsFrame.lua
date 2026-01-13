@@ -1827,7 +1827,7 @@ local Categories = {
             {type = "subheader", level = 1, text = L["Screenshot Quality Description"]},
             {type = "slider", level = 1, key = "ModelPanelScale", text = L["Panel Scale"], onValueChangedFunc = ModelPanelScale_OnValueChanged, minValue = 0.8, maxValue = 1, valueStep = 0.1, extraTopPadding = 1, valueFormatFunc = Round1},
             {type = "slider", level = 1, key = "ShrinkArea", text = L["Interactive Area"], onValueChangedFunc = ModelHitRectShrinkage_OnValueChanged, minValue = 0, maxValue = MAX_MODEL_SHRINKAGE, valueFormatFunc = GetOppositeValue, convertionFunc = Round0},
-            {type = "checkbox", level = 1, key = "SpeedyScreenshotAlert", text = L["Speedy Screenshot Alert"], onValueChangedFunc = SpeedyScreenshotAlert_OnValueChanged},
+            --{type = "checkbox", level = 1, key = "SpeedyScreenshotAlert", text = L["Speedy Screenshot Alert"], onValueChangedFunc = SpeedyScreenshotAlert_OnValueChanged},
         },
     },
 
