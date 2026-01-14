@@ -754,16 +754,26 @@ local function CameraUseBustShot_OnValueChanged(self, value)
     SettingFunctions.SetDefaultZoomClose(value);
 end
 
+local function TransmogFrameToggle_OnValueChanged(self, state)
+    if state then
+        addon.TransmogUIManager.EnableModule();
+        return
+    end
 
-local function GemManagerToggle_OnValueChanged(self, state)
-    if (not state) and Narci_EquipmentOption then
-        Narci_EquipmentOption:CloseUI();
+    if (not state and addon.TransmogUIManager.IsModuleLoaded()) then
+        AlertMessageFrame:ShowRequiresReload();
     end
 end
 
 local function DressingRoomToggle_OnValueChanged(self, state)
     if (state and not NarciDressingRoomOverlay) or (not state and NarciDressingRoomOverlay) then
         AlertMessageFrame:ShowRequiresReload();
+    end
+end
+
+local function GemManagerToggle_OnValueChanged(self, state)
+    if (not state) and Narci_EquipmentOption then
+        Narci_EquipmentOption:CloseUI();
     end
 end
 
@@ -1755,7 +1765,7 @@ local Categories = {
             {type = "header", level = 0, text = L["Character Panel"]},
             {type = "slider", level = 1, key = "GlobalScale", text = UI_SCALE, onValueChangedFunc = CharacterUIScale_OnValueChanged, minValue = 0.7, maxValue = 1, valueStep = 0.1, },
             {type = "slider", level = 1, key = "BaseLineOffset", text = L["Baseline Offset"], validityCheckFunc = IsUsingUltraWideMonitor, onValueChangedFunc = UltraWideOffset_OnValueChanged, minValue = 0, maxValue = ULTRAWIDE_MAX_OFFSET, valueStep = ULTRAWIDE_STEP, },
-            {type = "checkbox", level = 1, key = "MissingEnchantAlert", text = L["Missing Enchant Alert"], onValueChangedFunc = ShowMisingEnchantAlert_OnValueChanged, validityCheckFunc = ShowMisingEnchantAlert_IsValid, isNew = false},
+            {type = "checkbox", level = 1, key = "MissingEnchantAlert", text = L["Missing Enchant Alert"], onValueChangedFunc = ShowMisingEnchantAlert_OnValueChanged, validityCheckFunc = ShowMisingEnchantAlert_IsValid},
             {type = "checkbox", level = 1, key = "DetailedIlvlInfo", text = L["Show Detailed Stats"], onValueChangedFunc = ShowDetailedStats_OnValueChanged},
             {type = "checkbox", level = 1, key = "AFKScreen", text = L["AFK Screen Description"], onValueChangedFunc = AFKToggle_OnValueChanged, },
                 {type = "checkbox", level = 3, key = "AKFScreenDelay", text = L["AFK Screen Delay"], onValueChangedFunc = nil, isChild = true},
@@ -1831,6 +1841,7 @@ local Categories = {
         },
     },
 
+    --[[    --Module Removed
     {name = "NPC", level = 0,  key = "npc",
         widgets = {
             {type = "header", level = 0, text = L["Creature Tooltip"]},
@@ -1842,12 +1853,14 @@ local Categories = {
                 {type = "checkbox", level = 3, text = "Select Languages", isChild = true, setupFunc = LanguageSelector.SetupToggle},
         },
     },
+    --]]
 
     {name = L["Extensions"], level = 0, key = "extensions",
         widgets = {
             {type = "header", level = 0, text = L["Extensions"]},
-            {type = "checkbox", level = 1, key = "GemManager", text = L["Gem List"], onValueChangedFunc = GemManagerToggle_OnValueChanged, description = L["Gemma Description"]},
+            {type = "checkbox", level = 1, key = "TransmogFrame", text = L["Transmog UI"], onValueChangedFunc = TransmogFrameToggle_OnValueChanged, description = L["Dressing Room Description"], isNew = true, validityCheckFunc = function() return addon.TransmogUIManager.IsSupported() end},
             {type = "checkbox", level = 1, key = "DressingRoom", text = L["Dressing Room"], onValueChangedFunc = DressingRoomToggle_OnValueChanged, description = L["Dressing Room Description"]},
+            {type = "checkbox", level = 1, key = "GemManager", text = L["Gem List"], onValueChangedFunc = GemManagerToggle_OnValueChanged, description = L["Gemma Description"]},
             {type = "checkbox", level = 1, key = "SoloQueueLFRDetails", text = L["LFR Wing Details"], onValueChangedFunc = LFRWingDetails_OnValueChanged, description = L["LFR Wing Details Description"]},
             {type = "subheader", level = 1, text = L["Expansion Features"], extraTopPadding = 1},
             {type = "checkbox", level = 1, key = "PaperDollWidget", text = L["Paperdoll Widget"], onValueChangedFunc = PaperDollWidgetToggle_OnValueChanged, showFeaturePreview = true, onEnterFunc = FeaturePreview.ShowPreview, onLeaveFunc = FeaturePreview.HidePreview},
@@ -1856,8 +1869,6 @@ local Categories = {
             --{type = "checkbox", level = 1, key = "ConduitTooltip", text = L["Conduit Tooltip"], onValueChangedFunc = ConduitTooltipToggle_OnValueChanged, showFeaturePreview = true, onEnterFunc = FeaturePreview.ShowPreview, onLeaveFunc = FeaturePreview.HidePreview},
         },
     },
-
-
 
     {name = L["Credits"], level = 0, key = "credits", isBottom = true},
     {name = L["About"], level = 0, key = "about",  isBottom = true,
@@ -2128,8 +2139,8 @@ local function SetupFrame()
             totalCateHeight = totalCateHeight + cateHeight;
     
             if cateData.widgets then
-                for j = 1, #cateData.widgets do
-                    obj, height = CreateWidget(CategoryTabs[p], f.ScrollFrame.ScrollChild, PADDING_H, -totalScrollHeight, cateData.widgets[j]);
+                for _, widgetData in ipairs(cateData.widgets) do
+                    obj, height = CreateWidget(CategoryTabs[p], f.ScrollFrame.ScrollChild, PADDING_H, -totalScrollHeight, widgetData);
                     totalScrollHeight =  totalScrollHeight + height;
                     if obj then
                         obj.categoryID = p;

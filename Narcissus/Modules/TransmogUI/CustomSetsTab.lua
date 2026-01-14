@@ -539,7 +539,21 @@ do
     function SaveButtonMixin:OnEnter()
         self.Count:Show();
         self:UpdateVisual();
+        self:UpdateCount();
+        if self.tooltipText then
+            GameTooltip:SetOwner(self, "ANCHOR_RIGHT");
+            GameTooltip:SetText(self.tooltipText, 1, 1, 1, 1, true);
+            GameTooltip:Show();
+        end
+    end
 
+    function SaveButtonMixin:OnLeave()
+        GameTooltip:Hide();
+        self.Count:Hide();
+        self:UpdateVisual();
+    end
+
+    function SaveButtonMixin:UpdateCount()
         local currentVal, maxVal;
         if OutfitModule:IsOutfitSource("Shared") then
             currentVal = TransmogUIManager:GetNumSharedSets();
@@ -548,12 +562,6 @@ do
             currentVal, maxVal = TransmogUIManager:GetDefaultCustomSetsCount();
         end
         self.Count:SetText(currentVal.."/"..maxVal);
-    end
-
-    function SaveButtonMixin:OnLeave()
-        GameTooltip:Hide();
-        self.Count:Hide();
-        self:UpdateVisual();
     end
 
     function SaveButtonMixin:UpdateVisual()
@@ -576,7 +584,7 @@ do
 
     function SaveButtonMixin:RequestUpdate()
         self.t = 0;
-        self:SetScript("OnUpdate", nil);
+        self:SetScript("OnUpdate", self.OnUpdate);
     end
 
     function SaveButtonMixin:OnUpdate(elapsed)
@@ -593,12 +601,6 @@ do
         local hasValidAppearance = TransmogUtil.IsValidItemTransmogInfoList(itemTransmogInfoList);
 
         if hasValidAppearance then
-            if OutfitModule:IsOutfitSource("Shared") then
-
-            else
-                --local data = { name = "", customSetID = nil, itemTransmogInfoList = itemTransmogInfoList };
-                --StaticPopup_Show("TRANSMOG_CUSTOM_SET_NAME", nil, nil, data);
-            end
             TransmogUIManager:ShowPopup_NewSet(OutfitModule:IsOutfitSource("Shared"), itemTransmogInfoList);
         end
     end
@@ -611,13 +613,6 @@ do
 
         if hasValidAppearance then
             self:Enable();
-            if OutfitModule:IsOutfitSource("Alts") then
-                self.tooltipText = L["New Set Location Default"];
-            elseif OutfitModule:IsOutfitSource("Shared") then
-
-            else
-
-            end
         else
             self:Disable();
             self.tooltipText = TRANSMOG_CUSTOM_SET_NEW_TOOLTIP_DISABLED;
@@ -876,6 +871,7 @@ do
         self:SetScript("OnMouseWheel", self.OnMouseWheel);
 
         self.SaveButton:RequestUpdate();
+        self.SaveButton:UpdateCount();
         CallbackRegistry:Trigger("StaticPopup.CloseAll");
     end
 

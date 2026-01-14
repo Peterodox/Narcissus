@@ -2,7 +2,16 @@ local _, addon = ...
 local TransmogUIManager = addon.TransmogUIManager;
 
 
-if not addon.IsTOCVersionEqualOrNewerThan(120000) then return end;
+if addon.IsTOCVersionEqualOrNewerThan(120000) then
+    function TransmogUIManager.IsSupported()
+        return true
+    end
+else
+    function TransmogUIManager.IsSupported()
+        return false
+    end
+    return
+end
 
 
 local MainModule = TransmogUIManager:CreateModule("Main");
@@ -56,4 +65,30 @@ local function TransmogUI_OnLoad()
 end
 
 
-EventUtil.ContinueOnAddOnLoaded("Blizzard_Transmog", TransmogUI_OnLoad);
+local EL = CreateFrame("Frame")
+EL:RegisterEvent("ADDON_LOADED");
+
+EL:SetScript("OnEvent", function(self, event, name)
+    if name == "Blizzard_Transmog" then
+        self:UnregisterEvent(event);
+        if NarcissusDB and NarcissusDB.TransmogFrame then
+            EL.loaded = true;
+            TransmogUI_OnLoad();
+        end
+    end
+end);
+
+
+function TransmogUIManager.IsModuleLoaded()
+    return EL.loaded
+end
+
+function TransmogUIManager.EnableModule()
+    if not EL.loaded then
+        if C_AddOns.IsAddOnLoaded("Blizzard_Transmog") then
+            EL:UnregisterEvent("ADDON_LOADED");
+            EL.loaded = true;
+            TransmogUI_OnLoad();
+        end
+    end
+end

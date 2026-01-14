@@ -196,6 +196,13 @@ do
         GameTooltip:Hide();
     end
 
+    function SearchBoxMixin:OnEnterPressed()
+        self:ClearFocus();
+        if Menu:IsVisible() and Menu.FirstMatchButton then
+            Menu.FirstMatchButton:Click();
+        end
+    end
+
     function SearchBoxMixin:OnFocused()
         local tooltip = GameTooltip;
         tooltip:SetOwner(self, "ANCHOR_NONE");
@@ -225,12 +232,24 @@ do
     end
 
     local function CheckCharacterDataForMatch(data, words)
+        --[[    --OR Mode
         local matched = false;
-
         for _, word in ipairs(words) do
             if word ~= "" then
                 if StringMatch(data.name, word) or StringMatch(data.raceName, word) or StringMatch(data.className, word) or StringMatch(data.realmName, word) then
                     matched = true;
+                    break
+                end
+            end
+        end
+        --]]
+
+        --AND Mode
+        local matched = true;
+        for _, word in ipairs(words) do
+            if word ~= "" then
+                if not ( StringMatch(data.name, word) or StringMatch(data.raceName, word) or StringMatch(data.className, word) or ( (not data.realmName) or StringMatch(data.realmName, word) ) ) then
+                    matched = false;
                     break
                 end
             end
@@ -306,7 +325,7 @@ do
         f:SetScript("OnEditFocusLost", f.OnEditFocusLost);
         f:SetScript("OnEditFocusGained", f.OnEditFocusGained);
         f:SetScript("OnTextChanged", f.OnTextChanged);
-        f:SetScript("OnEnterPressed", f.ClearFocus);
+        f:SetScript("OnEnterPressed", f.OnEnterPressed);
         f:SetScript("OnEscapePressed", f.ClearFocus);
         f:SetScript("OnEnter", f.OnEnter);
         f:SetScript("OnLeave", f.OnLeave);
@@ -458,6 +477,7 @@ do  --MenuMixin
         end
 
         self.NoDataAlert:SetShown(total == 0);
+        self.FirstMatchButton = nil;
 
         self.ListButtons:ReleaseAll();
         local uid = TransmogUIManager:GetSelectedCharacterUID();
@@ -474,6 +494,10 @@ do  --MenuMixin
                 button:ShowRadioIcon(characterInfo.uid == uid, true);
                 button:Show();
                 offsetY = offsetY + Def.MenuButtonHeight;
+
+                if total == 1 and index == 1 then
+                    self.FirstMatchButton = button;
+                end
             end
         end
         self.PageText:SetText(string.format("%d/%d", self.page <= self.maxPage and self.page or 0, self.maxPage));

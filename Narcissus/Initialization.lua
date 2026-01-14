@@ -67,6 +67,9 @@ local DefaultValues = {
     LoopAnimation = false,                      --Photo Mode Loop Animation
     SpeedyScreenshotAlert = true,               --Make "Screen Captured" message disappear faster
 
+    -- Transmog Frame --
+    TransmogFrame = true,
+
     -- Dressing Room --
     DressingRoom = true,                        --Enable dressing room module
     DressingRoomUseTargetModel = true,          --Replace the the dressing room room with your targeted player

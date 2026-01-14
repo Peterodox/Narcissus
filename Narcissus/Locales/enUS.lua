@@ -849,6 +849,7 @@ L["GamePad Equip"] = "Equip";
 
 
 --TransmogUI--
+L["Transmog UI"] = "Transmog UI";
 L["OutfitSource Default"] = "Current Character";
 L["OutfitSource Default Tooltip"] = "The data is stored on the server.";
 L["OutfitSource Shared"] = "Shared List";
