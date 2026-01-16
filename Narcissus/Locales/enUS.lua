@@ -850,6 +850,7 @@ L["GamePad Equip"] = "Equip";
 
 --TransmogUI--
 L["Transmog UI"] = "Transmog UI";
+L["Transmog UI Description"] = "Create custom sets that can be accessed by all your characters.";
 L["OutfitSource Default"] = "Current Character";
 L["OutfitSource Default Tooltip"] = "The data is stored on the server.";
 L["OutfitSource Shared"] = "Shared List";
@@ -868,3 +869,4 @@ L["New Set Location Default"] = "This custom set will be saved on your current c
 L["New Set Location Shared"] = "This custom set will be added to the Shared List.";
 L["Save Custom Set Location"] = "Save to:";
 L["Save Slots Colon"] = "Save Slots: ";
+L["Error View Outfit In Combat"] = "You cannot view custom sets while in combat";

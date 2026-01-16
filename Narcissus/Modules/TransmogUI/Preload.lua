@@ -7,7 +7,6 @@ TransmogUIManager.modules = {};
 local CallbackRegistry = addon.CallbackRegistry;
 local TransmogDataProvider = addon.TransmogDataProvider;
 local GetSourceInfo = C_TransmogCollection.GetSourceInfo;
-local GetAppearanceSources = C_TransmogCollection.GetAppearanceSources;
 local GetAppearanceInfoBySource = C_TransmogCollection.GetAppearanceInfoBySource;
 local GetTransmogOutfitSlotFromInventorySlot = C_TransmogOutfitInfo and C_TransmogOutfitInfo.GetTransmogOutfitSlotFromInventorySlot;
 local IsAppearanceHiddenVisual = C_TransmogCollection.IsAppearanceHiddenVisual;
@@ -70,20 +69,6 @@ local function ConverInvSlotToTransmogSlot(invSlotID)
 end
 
 
-local HiddenVisuals = {
-    --[slotID] = visualID (appearanceID) --sourceID (modifiedAppearanceID)
-    [1] = 29124,    --77344
-    [3] = 24531,    --77343
-    [5] = 40282,    --104602
-    [4] = 33155,    --83202
-    [19]= 33156,    --83203
-    [9] = 40284,    --104604
-    [10]= 37207,    --94331
-    [6] = 33252,    --84233
-    [7] = 42568,    --198608
-    [8] = 40283,    --104603
-};
-
 local IgnoredInvSlots = {
     [2]  = true,
     [11] = true,
@@ -100,28 +85,27 @@ local TransmogInvSlots = {
 };
 
 
-function TransmogUIManager:GetHiddenSourceIDForSlot(invSlotID)
-    local appearanceID = HiddenVisuals[invSlotID]
-    local sources = appearanceID and GetAppearanceSources(appearanceID);
-    if sources and sources[1] then
-        return sources[1].sourceID
-    end
-end
-
 local function ApplyTransmog(invSlotID, slot, transmogID, illusionID)
     local transmogType, option, displayType;
 
-    if invSlotID == 16 or invSlotID == 17 then
-        option = C_TransmogOutfitInfo.GetEquippedSlotOptionFromTransmogSlot(slot);
-    end
+    --if invSlotID == 16 or invSlotID == 17 then
+    --    option = C_TransmogOutfitInfo.GetEquippedSlotOptionFromTransmogSlot(slot);
+    --    SetPendingTransmog(slot, Enum.TransmogType.Appearance, option, 0, Enum.TransmogOutfitDisplayType.Unassigned);
+    --end
 
     if not option then
         option = Enum.TransmogOutfitSlotOption.None;
     end
 
-    if illusionID and illusionID ~= 0 then
+    if illusionID then
         transmogType = Enum.TransmogType.Illusion;
-        displayType = Enum.TransmogOutfitDisplayType.Assigned;
+        local typeKey;
+        if illusionID == 0 then
+            typeKey = "Unassigned";
+        else
+            typeKey = "Assigned";
+        end
+        displayType = Enum.TransmogOutfitDisplayType[typeKey] or 1;
         SetPendingTransmog(slot, transmogType, option, illusionID, displayType);
     end
 
@@ -137,7 +121,7 @@ local function ApplyTransmog(invSlotID, slot, transmogID, illusionID)
 
     if isHiddenVisual then
         if transmogID == 0 then
-            transmogID = TransmogUIManager:GetHiddenSourceIDForSlot(invSlotID) or transmogID;
+            transmogID = TransmogDataProvider.GetHiddenSourceIDForSlot(invSlotID) or transmogID;
         end
     end
 
@@ -158,16 +142,16 @@ function TransmogUIManager:SetPendingFromTransmogInfoList(transmogInfoList)
             local secondaryAppearanceID = transmogInfo.secondaryAppearanceID;
             local illusionID = transmogInfo.illusionID;
 
-            if illusionID == 0 then
+            if invSlotID ~= 16 and invSlotID ~= 17 then
                 illusionID = nil;
             end
 
             if invSlotID == 3 then
-                ApplyTransmog(invSlotID, Enum.TransmogOutfitSlot.ShoulderRight, transmogID, illusionID);
+                ApplyTransmog(invSlotID, Enum.TransmogOutfitSlot.ShoulderRight, transmogID);
                 if secondaryAppearanceID == 0 then
                     secondaryAppearanceID = transmogID;
                 end
-                ApplyTransmog(invSlotID, Enum.TransmogOutfitSlot.ShoulderLeft, secondaryAppearanceID, illusionID);
+                ApplyTransmog(invSlotID, Enum.TransmogOutfitSlot.ShoulderLeft, secondaryAppearanceID);
             else
                 local slot = ConverInvSlotToTransmogSlot(invSlotID);
                 ApplyTransmog(invSlotID, slot, transmogID, illusionID);

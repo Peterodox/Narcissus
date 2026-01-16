@@ -34,6 +34,8 @@ local TextureUtil = {};
 addon.TalentTreeTextureUtil = TextureUtil;
 
 local SpecIDXBackgroundFile = {
+    --interface/talentframe/talentsclassbackground
+
 	-- DK
     [250] = "deathknight-blood",
     [251] = "deathknight-frost",
@@ -42,6 +44,7 @@ local SpecIDXBackgroundFile = {
     -- DH
     [577] = "demonhunter-havoc",
     [581] = "demonhunter-vengeance",
+    [1480] = "demonhunter-devourer",
 
     -- Druid
     [102] = "druid-balance",

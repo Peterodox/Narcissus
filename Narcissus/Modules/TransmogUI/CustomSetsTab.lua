@@ -889,6 +889,14 @@ do
         end
     end
 
+    CallbackRegistry:Register("TransmogUI.ReloadSharedSets", function()
+        if SetsFrame and SetsFrame:IsVisible() then
+            if OutfitModule:IsOutfitSource("Shared") then
+                CallbackRegistry:Trigger("TransmogUI.LoadSharedSets", true);
+            end
+        end
+    end);
+
     function SetsFrameMixin:UpdatePage(fullUpdate)
         local fromIndex = (self.page - 1) * self.modelsPerPage;
         local dataIndex;

@@ -6,6 +6,7 @@
 	<Script file="IconSelector.lua"/>
 	<Script file="CustomSetsMenu.lua"/>
 	<Script file="CustomSetsTab.lua"/>
+	<Script file="SlashCommand.lua"/>
 
 	<Script file="TransmogUI.lua"/>
 

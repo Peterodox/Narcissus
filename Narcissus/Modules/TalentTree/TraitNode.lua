@@ -50,60 +50,51 @@ local function SetNodeIcon(node, definitionInfo, overrideSpellID)
     end
 end
 
-function NarciTalentTreeNodeMixin:SetNodeType(typeID, ranksPurchased)
+function NarciTalentTreeNodeMixin:SetNodeType(typeID, ranksPurchased, isFull)
     --typeID: this is custom value 0:Square 1:Circle 2:Octagon
 
     if typeID ~= self.typeID then
         self.typeID = typeID;
         if typeID == 0 then
             self.IconMask:SetTexture("Interface\\AddOns\\Narcissus\\Art\\Modules\\TalentTree\\NodeMaskSquare");
-            self.IconBorder:SetTexCoord(0, 0.25, 0, 0.5);
-            --self.Symbol:SetTexCoord(0, 0.25, 0, 0.25);
-            self.Symbol:SetTexCoord(0.75, 1, 0.25, 0.5);    --DEBUG:Invisible
+            self.IconBorder:SetTexCoord(0, 0.25, 0, 0.25);
         elseif typeID == 1 then
             self.IconMask:SetTexture("Interface\\AddOns\\Narcissus\\Art\\Modules\\TalentTree\\NodeMaskCircle");
-            self.IconBorder:SetTexCoord(0.25, 0.5, 0, 0.5);
-            self.Symbol:SetTexCoord(0, 0.25, 0.25, 0.5);
+            self.IconBorder:SetTexCoord(0.25, 0.5, 0, 0.25);
         else    --2
             self.IconMask:SetTexture("Interface\\AddOns\\Narcissus\\Art\\Modules\\TalentTree\\NodeMaskOctagon");
-            self.Symbol:SetTexCoord(0.75, 1, 0, 0.25);
-            self.IconBorder:SetTexCoord(0, 0.25, 0.5, 1);
+            self.IconBorder:SetTexCoord(0, 0.25, 0.5, 0.75);
         end
     end
 
     if ranksPurchased ~= self.points then
         self.points = ranksPurchased;
-        if typeID == 1 then
-            if ranksPurchased == 1 then
-                --1/2, 1/3
-                self.IconBorder:SetTexCoord(0.5, 0.75, 0, 0.5);
-                self.Symbol:SetTexCoord(0, 0.25, 0.5, 0.75);
+        if typeID == 1 then --Circle
+            if isFull then
+                --don't show number for fully purchased talent
+                self.IconBorder:SetTexCoord(0.25, 0.5, 0, 0.25);
+            elseif ranksPurchased == 1 then
+                self.IconBorder:SetTexCoord(0.5, 0.75, 0, 0.25);
             elseif ranksPurchased == 2 then
-                --2/3
-                self.IconBorder:SetTexCoord(0.75, 1, 0, 0.5);
-                self.Symbol:SetTexCoord(0.25, 0.5, 0.75, 1);
+                self.IconBorder:SetTexCoord(0.75, 1, 0, 0.25);
+            elseif ranksPurchased == 3 then
+                self.IconBorder:SetTexCoord(0, 0.25, 0.25, 0.5);
             else
-                --don't show number for fully purchased talent (1/1, 2/2, 3/3)
-                self.IconBorder:SetTexCoord(0.25, 0.5, 0, 0.5);
-                self.Symbol:SetTexCoord(0, 0.25, 0.25, 0.5);
+                self.IconBorder:SetTexCoord(0.25, 0.5, 0, 0.25);
             end
-            self.Symbol:SetTexCoord(0.75, 1, 0.25, 0.5);    --DEBUG:Invisible
         elseif typeID == 2 then
             if ranksPurchased == 0 then
                 --no slecion
-                self.IconBorder:SetTexCoord(0, 0.25, 0.5, 1);
-                self.Symbol:SetTexCoord(0.75, 1, 0, 0.25);
+                self.IconBorder:SetTexCoord(0, 0.25, 0.5, 0.75);
             elseif ranksPurchased == 1 then
                 --select left
-                self.IconBorder:SetTexCoord(0.25, 0.5, 0.5, 1);
-                self.Symbol:SetTexCoord(0.25, 0.5, 0, 0.25);
+                self.IconBorder:SetTexCoord(0.25, 0.5, 0.5, 0.75);
             else
                 --select right
-                self.IconBorder:SetTexCoord(0.5, 0.75, 0.5, 1);
-                self.Symbol:SetTexCoord(0.5, 0.75, 0, 0.25);
+                self.IconBorder:SetTexCoord(0.5, 0.75, 0.5, 0.75);
             end
         else
-            self.IconBorder:SetTexCoord(0, 0.25, 0, 0.5);
+            self.IconBorder:SetTexCoord(0, 0.25, 0, 0.25);
         end
     end
 end
@@ -211,13 +202,10 @@ function NarciTalentTreeNodeMixin:SetComparison(typeID, targetRank, playerRank)
         self.typeID = typeID;
         if typeID == 0 then
             self.IconMask:SetTexture("Interface\\AddOns\\Narcissus\\Art\\Modules\\TalentTree\\NodeMaskSquare");
-            self.Symbol:SetTexCoord(0, 0.25, 0, 0.25);
         elseif typeID == 1 then
             self.IconMask:SetTexture("Interface\\AddOns\\Narcissus\\Art\\Modules\\TalentTree\\NodeMaskCircle");
-            self.Symbol:SetTexCoord(0, 0.25, 0.25, 0.5);
         else
             self.IconMask:SetTexture("Interface\\AddOns\\Narcissus\\Art\\Modules\\TalentTree\\NodeMaskOctagon");
-            self.Symbol:SetTexCoord(0.75, 1, 0, 0.25);
         end
     end
 
@@ -228,52 +216,56 @@ function NarciTalentTreeNodeMixin:SetComparison(typeID, targetRank, playerRank)
             self.IconBorder:SetTexCoord(0, 0.125, 0.5, 0.75);
         end
     elseif typeID == 1 then
-        if targetRank < playerRank then
-            if targetRank == 0 then
-                if playerRank == 1 then --0:1
-                    self.IconBorder:SetTexCoord(0.5, 0.625, 0.75, 1);
-                elseif playerRank == 2 then --0:2
-                    self.IconBorder:SetTexCoord(0.625, 0.75, 0.75, 1);
-                elseif playerRank == 3 then --0:3
-                    self.IconBorder:SetTexCoord(0.75, 0.875, 0.75, 1);
-                else
-                    self.IconBorder:SetTexCoord(0.125, 0.25, 0, 0.25);
-                end
-            elseif targetRank == 1 then
-                if playerRank == 2 then --1:2
-                    self.IconBorder:SetTexCoord(0.5, 0.625, 0, 0.25);
-                elseif playerRank == 3 then --1:3
-                    self.IconBorder:SetTexCoord(0.625, 0.75, 0, 0.25);
-                else
-                    self.IconBorder:SetTexCoord(0.125, 0.25, 0, 0.25);
-                end
-            else    --2:3
-                self.IconBorder:SetTexCoord(0.825, 1, 0.25, 0.5);
-            end
-        elseif targetRank > playerRank then
-            if playerRank == 0 then
-                if targetRank == 1 then --1:0
-                    self.IconBorder:SetTexCoord(0.5, 0.625, 0.5, 0.75);
-                elseif targetRank == 2 then --2:0
-                    self.IconBorder:SetTexCoord(0.625, 0.75, 0.5, 0.75);
-                elseif targetRank == 3 then --3:0
-                    self.IconBorder:SetTexCoord(0.75, 0.875, 0.5, 0.75);
-                else
-                    self.IconBorder:SetTexCoord(0.125, 0.25, 0.5, 0.75);
-                end
-            elseif playerRank == 1 then
-                if targetRank == 2 then --2:1
-                    self.IconBorder:SetTexCoord(0.75, 0.875, 0, 0.25);
-                elseif targetRank == 3 then --3:1
-                    self.IconBorder:SetTexCoord(0.875, 1, 0, 0.25);
-                else
-                    self.IconBorder:SetTexCoord(0.125, 0.25, 0.5, 0.75);
-                end
-            else    --3:2
-                self.IconBorder:SetTexCoord(0.875, 1, 0.25, 0.5);
-            end
-        else
+        if targetRank == playerRank then
             self.IconBorder:SetTexCoord(0.125, 0.25, 0.5, 0.75);
+        else
+            if targetRank == 4 or playerRank == 4 then
+                self.IconBorder:SetTexCoord(0.875, 1, 0.5, 0.75);
+            elseif targetRank < playerRank then
+                if targetRank == 0 then
+                    if playerRank == 1 then --0:1
+                        self.IconBorder:SetTexCoord(0.5, 0.625, 0.75, 1);
+                    elseif playerRank == 2 then --0:2
+                        self.IconBorder:SetTexCoord(0.625, 0.75, 0.75, 1);
+                    elseif playerRank == 3 then --0:3
+                        self.IconBorder:SetTexCoord(0.75, 0.875, 0.75, 1);
+                    else
+                        self.IconBorder:SetTexCoord(0.125, 0.25, 0, 0.25);
+                    end
+                elseif targetRank == 1 then
+                    if playerRank == 2 then --1:2
+                        self.IconBorder:SetTexCoord(0.5, 0.625, 0, 0.25);
+                    elseif playerRank == 3 then --1:3
+                        self.IconBorder:SetTexCoord(0.625, 0.75, 0, 0.25);
+                    else
+                        self.IconBorder:SetTexCoord(0.125, 0.25, 0, 0.25);
+                    end
+                else    --2:3
+                    self.IconBorder:SetTexCoord(0.825, 1, 0.25, 0.5);
+                end
+            else
+                if playerRank == 0 then
+                    if targetRank == 1 then --1:0
+                        self.IconBorder:SetTexCoord(0.5, 0.625, 0.5, 0.75);
+                    elseif targetRank == 2 then --2:0
+                        self.IconBorder:SetTexCoord(0.625, 0.75, 0.5, 0.75);
+                    elseif targetRank == 3 then --3:0
+                        self.IconBorder:SetTexCoord(0.75, 0.875, 0.5, 0.75);
+                    else
+                        self.IconBorder:SetTexCoord(0.125, 0.25, 0.5, 0.75);
+                    end
+                elseif playerRank == 1 then
+                    if targetRank == 2 then --2:1
+                        self.IconBorder:SetTexCoord(0.75, 0.875, 0, 0.25);
+                    elseif targetRank == 3 then --3:1
+                        self.IconBorder:SetTexCoord(0.875, 1, 0, 0.25);
+                    else
+                        self.IconBorder:SetTexCoord(0.125, 0.25, 0.5, 0.75);
+                    end
+                else    --3:2
+                    self.IconBorder:SetTexCoord(0.875, 1, 0.25, 0.5);
+                end
+            end
         end
     elseif typeID == 2 then
         if targetRank == playerRank then

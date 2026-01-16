@@ -1,7 +1,6 @@
 local _, addon = ...
 local L = Narci.L;
 local TransmogUIManager = addon.TransmogUIManager;
-local ProfileAPI = addon.ProfileAPI;
 
 
 local Menu = CreateFrame("Frame", nil, UIParent);

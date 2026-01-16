@@ -6,6 +6,7 @@ local PlayerHasTransmog = MogAPI.PlayerHasTransmogItemModifiedAppearance;
 local IsAppearanceFavorite = MogAPI.GetIsAppearanceFavorite;
 local GetSourceInfo = MogAPI.GetSourceInfo;
 local GetAllAppearanceSources = MogAPI.GetAllAppearanceSources;
+local GetAppearanceSources = MogAPI.GetAppearanceSources;
 local C_TransmogSets = C_TransmogSets;
 local CreateItemTransmogInfo = ItemUtil.CreateItemTransmogInfo;
 local GetItemInfoInstant = C_Item.GetItemInfoInstant;
@@ -275,6 +276,33 @@ function DataProvider:DecodeSavedOutfit(narcissusSavedOutfit)
         transmogInfoList = self:ConvertTransmogStringToList(narcissusSavedOutfit.s),
     }
 end
+
+
+
+
+local HiddenVisuals = {
+    --[slotID] = visualID (appearanceID) --sourceID (modifiedAppearanceID)
+    [1] = 29124,    --77344
+    [3] = 24531,    --77343
+    [5] = 40282,    --104602
+    [4] = 33155,    --83202
+    [19]= 33156,    --83203
+    [9] = 40284,    --104604
+    [10]= 37207,    --94331
+    [6] = 33252,    --84233
+    [7] = 42568,    --198608
+    [8] = 40283,    --104603
+};
+
+function DataProvider.GetHiddenSourceIDForSlot(invSlotID)
+    local appearanceID = HiddenVisuals[invSlotID]
+    local sources = appearanceID and GetAppearanceSources(appearanceID);
+    if sources and sources[1] then
+        return sources[1].sourceID
+    end
+end
+
+
 
 
 ---- Read BetterWardrobe Extra Saved Outfits ----
@@ -703,6 +731,46 @@ do  --Current Transmog Getter (Get itemTransmogInfoList from a model, due to API
         return true
     end
     DataProvider.RequestUpdateCharacterUI = RequestUpdateCharacterUI;
+end
+
+
+do  --Generate "Share/Link Transmog" Dropdown Menu
+    local function GenerateLinkMenu(owner, playerActor)
+        --For DressingRoom.LinkButton and our button on TransmogFrame
+        --Trade-off is players need to manually copy the transmog string.
+
+        local itemTransmogInfoList = playerActor and playerActor:GetItemTransmogInfoList();
+        if not itemTransmogInfoList then return end;
+
+        local Schematic = {
+            tag = "NARCISSUS_LINK_TRANSMOG_MENU",
+            objects = {
+                {type = "Button", name = TRANSMOG_OUTFIT_POST_IN_CHAT, OnClick = function()
+                    local generator = C_TransmogCollection.GetCustomSetHyperlinkFromItemTransmogInfoList or C_TransmogCollection.GetOutfitHyperlinkFromItemTransmogInfoList;
+                    local hyperlink = generator(itemTransmogInfoList);
+                    if not ChatFrameUtil.InsertLink(hyperlink) then
+                        ChatFrameUtil.OpenChat(hyperlink);
+                    end
+                end},
+
+                {type = "Button", name = TRANSMOG_OUTFIT_COPY_TO_CLIPBOARD, OnClick = function()
+                    local generator = TransmogUtil.CreateCustomSetSlashCommand or TransmogUtil.CreateOutfitSlashCommand;
+                    local cmd = generator(itemTransmogInfoList);
+                    addon.ShowClipboard(cmd);
+                end},
+            },
+
+            onMenuClosedCallback = function()
+                owner.NarcissusLinkMenu = nil;
+            end,
+        };
+
+        local menu = NarciAPI.TranslateContextMenu(owner, Schematic);
+        menu:ClearAllPoints();
+        menu:SetPoint("TOPLEFT", owner, "BOTTOMLEFT", 0, 0);
+        owner.NarcissusLinkMenu = menu;
+    end
+    DataProvider.GenerateLinkMenu = GenerateLinkMenu;
 end
 
 

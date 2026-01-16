@@ -1,6 +1,6 @@
 local _, addon = ...
 local TransmogSetFrame = addon.DressingRoomSystem.TransmogSetFrame;
-local GetHiddenSourceIDForSlot = addon.DressingRoomSystem.GetHiddenSourceIDForSlot;
+local GetHiddenSourceIDForSlot = addon.TransmogDataProvider.GetHiddenSourceIDForSlot;
 local TransitionAPI = addon.TransitionAPI;
 local CopyTable = addon.CopyTable;
 
@@ -1409,6 +1409,31 @@ local function DressingRoomOverlayFrame_Initialize()
             UpdateDressingRoomModelByUnit("player");
             TransmogSetFrame:Hide();
         end)
+    end
+
+    if DressUpFrame.LinkButton then
+        DressUpFrame.LinkButton:SetScript("OnClick", function(f)
+            if f.NarcissusLinkMenu then
+                f.NarcissusLinkMenu:Close();
+                f.NarcissusLinkMenu = nil;
+                return
+            end
+
+            if LE_FRAME_TUTORIAL_LINK_TRANSMOG_CUSTOM_SET then
+                SetCVarBitfield("closedInfoFrames", LE_FRAME_TUTORIAL_LINK_TRANSMOG_CUSTOM_SET, true);
+                HelpTip:Hide(f, LINK_TRANSMOG_CUSTOM_SET_HELPTIP);
+            elseif LE_FRAME_TUTORIAL_LINK_TRANSMOG_OUTFIT then
+                SetCVarBitfield("closedInfoFrames", LE_FRAME_TUTORIAL_LINK_TRANSMOG_OUTFIT, true);
+                HelpTip:Hide(f, LINK_TRANSMOG_OUTFIT_HELPTIP);
+            end
+
+            local playerActor = DressUpFrame.ModelScene:GetPlayerActor();
+            addon.TransmogDataProvider.GenerateLinkMenu(f, playerActor);
+        end)
+
+        --Nuke <DropdownButton>
+        DressUpFrame.LinkButton:SetScript("OnMouseDown", nil);
+        DressUpFrame.LinkButton.SetMenuOpen = function() end;
     end
 
     DressingRoomOverlayFrame.SlotFrame:SetScript("OnShow", Narci_UpdateDressingRoom);

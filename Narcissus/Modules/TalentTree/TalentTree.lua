@@ -516,8 +516,17 @@ function NarciMiniTalentTreeMixin:ShowActiveBuild()
     self:ShowConfig(configID);
 end
 
+local ValidTraitNodeEntryType = {
+    --Enum.TraitNodeEntryType
+    [0] = true,     --SpendHex
+    [1] = true,     --SpendSquare
+    [2] = true,     --SpendCircle
+    [13] = true,    --SpendCapstoneCircle (Class Apex)
+    [14] = true,    --SpendCapstoneSquare (Class Apex)
+};
+
 local function IsValidEntryType(entryType)
-    return entryType == nil or entryType == 0 or entryType == 1 or entryType == 2
+    return entryType == nil or ValidTraitNodeEntryType[entryType]
 end
 
 local function IsValidNodeInfo(nodeInfo)
@@ -643,44 +652,20 @@ function NarciMiniTalentTreeMixin:ShowConfig(configID, isPreviewing)
                             node:SetNodeType(1, 0);
                         elseif entryType == 1 then --square
                             node:SetNodeType(0, 1);
-                        elseif entryType == 2 then --circle
-                            if nodeInfo.type == 0 then
-                                if nodeInfo.maxRanks == 1 then  --1/1
-                                    node:SetNodeType(1, 0);
-                                elseif nodeInfo.maxRanks == 2 then
-                                    if nodeInfo.ranksPurchased == 1 then    --1/2
-                                        node:SetNodeType(1, 1);
-                                    else    --2/2
-                                        node:SetNodeType(1, 0);
-                                    end
-                                elseif nodeInfo.maxRanks == 3 then
-                                    if nodeInfo.ranksPurchased == 1 then    --1/3
-                                        node:SetNodeType(1, 1);
-                                    elseif nodeInfo.ranksPurchased == 2 then    --2/3
-                                        node:SetNodeType(1, 2);
-                                    else    --3/3
-                                        node:SetNodeType(1, 0);
-                                    end
-                                else
-                                    --0/4?
-                                    node.Symbol:SetVertexColor(1, 0, 0);
-                                    node:SetNodeType(1, 0);
-                                end
+                        elseif entryType == 2 or entryType == 13 then --circle
+                            if nodeInfo.type == 0 or nodeInfo.type == 1 then
+                                node:SetNodeType(1, nodeInfo.ranksPurchased, nodeInfo.ranksPurchased == nodeInfo.maxRanks);
                             else
                                 node:Hide();
                             end
                         else
                             --nil is unselected octagon
-                            node.Symbol:SetVertexColor(1, 0, 0);
-                            --print(entryType, "Unknown type")
                         end
                     end
                 
                     if node.active then
-                        node.Symbol:SetVertexColor(0.67, 0.67, 0.67);
                         node:SetActive(true);
                     else
-                        node.Symbol:SetVertexColor(0.160, 0.160, 0.160);
                         node:SetActive(false);
                     end
                 
@@ -780,27 +765,23 @@ function NarciMiniTalentTreeMixin:ShowConfig(configID, isPreviewing)
                             nodeTypeID = 1;
                         elseif entryType == 1 then --square
                             nodeTypeID = 0;
-                        elseif entryType == 2 then --circle
+                        elseif entryType == 2 or entryType == 13 then --circle
                             nodeTypeID = 1;
                         else
                             nodeTypeID = 2;
                             --nil is unselected octagon
-                            node.Symbol:SetVertexColor(1, 0, 0);
-                            --print(entryType, "Unknown type")
                         end
 
                         node:SetComparison(nodeTypeID, targetRank, playerRank);
                     end
 
                     if node.active then
-                        node.Symbol:SetVertexColor(0.67, 0.67, 0.67);
                         node.IconBorder:SetDesaturated(false);
                         node.IconBorder:SetVertexColor(1, 1, 1);
                         node.Icon:SetDesaturation(0.5);
                         node.Icon:SetVertexColor(0.67, 0.67, 0.67);
                         node.isActive = nil;
                     else
-                        node.Symbol:SetVertexColor(0.160, 0.160, 0.160);
                         node:SetActive(false);
                     end
 
@@ -1007,7 +988,6 @@ function NarciMiniTalentTreeMixin:AcquireNode()
     self.numAcitveNodes = self.numAcitveNodes + 1;
     if not Nodes[self.numAcitveNodes] then
         Nodes[self.numAcitveNodes] = CreateFrame("Frame", nil, self, "NarciTalentTreeNodeTemplate");
-        Nodes[self.numAcitveNodes].Symbol:SetVertexColor(0.67, 0.67, 0.67);
         Nodes[self.numAcitveNodes].Icon:SetSize(ICON_SIZE, ICON_SIZE);
         Nodes[self.numAcitveNodes]:SetSize(BUTTON_SIZE, BUTTON_SIZE);
     end
@@ -1857,7 +1837,6 @@ function NarciTalentTreePvPFrameMixin:Init()
             slot:SetSize(BUTTON_SIZE, BUTTON_SIZE);
             slot:SetNodeType(0, 1);
             slot.Icon:SetTexCoord(0.0625, 0.9375, 0.0625, 0.9375);
-            slot.Symbol:SetVertexColor(0.160, 0.160, 0.160);
             slot.isPvp = true;
 
             if i <= 3 then

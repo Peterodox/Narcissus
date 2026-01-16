@@ -114,19 +114,26 @@ do  --StaticPopupMixin, Save Custom Set
 			local name = self.EditBox:GetValidText();
 			if not name then return end;
 
+			local refreshSharedSets;
+
 			if checkbox2:GetChecked() and TransmogUIManager:CanSaveMoreSharedSet() then
-				if not TransmogUIManager:TrySaveSharedSet(name, transmogInfoList) then
-					
+				if TransmogUIManager:TrySaveSharedSet(name, transmogInfoList) then
+					refreshSharedSets = true;
 				end
 			end
 
 			if checkbox1:GetChecked() and TransmogUIManager:CanSaveMoreCustomSet() and C_TransmogCollection.IsValidCustomSetName(name) then
+				refreshSharedSets = false;
 				TransmogUIManager:SetRecentlySavedCustomSetFlag(name);
 				WardrobeCustomSetManager:SetItemTransmogInfoList(transmogInfoList);
 				WardrobeCustomSetManager:NameCustomSet(name);
 			end
 
 			self:Hide();
+
+			if refreshSharedSets then
+				addon.CallbackRegistry:Trigger("TransmogUI.ReloadSharedSets");
+			end
 		end
 
         self.Button1:SetScript("OnClick", SaveButton_OnClick);

@@ -23,13 +23,17 @@ do
         self.Text:SetTextColor(r, g, b);
         local textWidth = self.Text:GetWrappedWidth();
         local textHeight = self.Text:GetHeight();
-        local offset = 40;
-        self.Background:SetSize(textWidth + offset, textHeight + offset);
+        local offset = 48;
+        self.Background:SetSize(textWidth + 1.2*offset, textHeight + offset);
         self:FadeIn();
     end
 
     function MessageFrameMixin:AddMessageGreen(text)
         self:AddMessage(text, 124/255, 197/255, 118/255);
+    end
+
+    function MessageFrameMixin:AddMessageRed(text)
+        self:AddMessage(text, 1, 0.125, 0.125);
     end
 
     function MessageFrameMixin:FadeIn()
@@ -102,7 +106,7 @@ local function DisplayTopMessage(text, colorKey)
         Background:SetTextureSliceMode(0);
         Background:SetSize(128, 32);
         Background:SetPoint("CENTER", Text, "CENTER", 0, 0);
-        Background:SetAlpha(0.8);
+        Background:SetAlpha(0.6);
     end
 
     if colorKey and MainFrame["AddMessage"..colorKey] then

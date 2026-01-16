@@ -109,11 +109,6 @@
     <Frame name="NarciTalentTreeNodeTemplate" virtual="true" mixin="NarciTalentTreeNodeMixin">
         <Size x="32" y="32"/>
         <Layers>
-            <Layer level="ARTWORK">
-                <Texture parentKey="Symbol" file="Interface\AddOns\Narcissus\Art\Modules\TalentTree\FlatNodeSymbol" hidden="false">
-                    <TexCoords left="0" right="0.25" top="0" bottom="0.25"/>
-                </Texture>
-            </Layer>
             <Layer level="OVERLAY">
                 <!--FontString parentKey="Order" inherits="NarciFontNormal9" justifyH="CENTER" justifyV="MIDDLE" hidden="true">
                     <Color r="1" g="1" b="1"/>
