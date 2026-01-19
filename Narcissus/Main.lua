@@ -2200,6 +2200,32 @@ function Narci_SetPlayerName(self)
 	SmartFontType(editBox);
 end
 
+local function Narci_Close()
+	if Narci.showExitConfirm and not InCombatLockdown() then
+		local ExitConfirm = Narci_ExitConfirmationDialog;
+		if not ExitConfirm:IsShown() then
+			FadeFrame(ExitConfirm, 0.25, 1);
+
+			SetUIVisibility(false);
+			MiniButton:Enable();
+			UIParent:SetAlpha(1);
+
+			return
+		else
+			FadeFrame(ExitConfirm, 0.15, 0);
+		end
+	end
+	SlotController:PlayAnimOut();
+	ExitFunc();
+	PlayLetteboxAnimation("OUT");
+	EquipmentFlyoutFrame:Hide();
+	Narci_ModelSettings:Hide();
+
+	Toolbar:HideUI();
+	TakeOutFrames(false);
+
+	Narci.showExitConfirm = false;
+end
 
 function Narci_Open()
 	if not IS_OPENED then
@@ -2239,30 +2265,7 @@ function Narci_Open()
 		Narci.isActive = true;
 		CallbackRegistry:Trigger("NarcissusCharacterUI.ShownState", true);
 	else
-		if Narci.showExitConfirm and not InCombatLockdown() then
-			local ExitConfirm = Narci_ExitConfirmationDialog;
-			if not ExitConfirm:IsShown() then
-				FadeFrame(ExitConfirm, 0.25, 1);
-
-				SetUIVisibility(false);
-				MiniButton:Enable();
-				UIParent:SetAlpha(1);
-
-				return
-			else
-				FadeFrame(ExitConfirm, 0.15, 0);
-			end
-		end
-		SlotController:PlayAnimOut();
-		ExitFunc();
-		PlayLetteboxAnimation("OUT");
-		EquipmentFlyoutFrame:Hide();
-		Narci_ModelSettings:Hide();
-
-		Toolbar:HideUI();
-		TakeOutFrames(false);
-
-		Narci.showExitConfirm = false;
+		Narci_Close();
 	end
 
 	NarciAPI.UpdateSessionTime();
@@ -2305,9 +2308,10 @@ function Narci_OpenGroupPhoto()
 		Narci.isActive = true;
 		CallbackRegistry:Trigger("NarcissusCharacterUI.ShownState", true);
 		MsgAlertContainer:Display();
+		NarciAPI.UpdateSessionTime();
+	else
+		Narci_Close();
 	end
-
-	NarciAPI.UpdateSessionTime();
 end
 
 

@@ -81,6 +81,8 @@ L["MinimapButton Reenabled"] = "|cffffd100你已启用Narcissus小地图按钮�
 L["MinimapButton LibDBIcon"] = "使用LibDBIcon";
 L["MinimapButton LibDBIcon Desc"] = "使用LibDBIcon来创建小地图按钮。\n你可以看见此选项因为你已安装LibDBIcon或植入了这个库的插件。";
 L["MinimapButton LibDBIcon Hide"] = "隐藏按钮";
+L["MinimapButton Click Behavior"] = "左键单击行为";
+L["MinimapButton Click Behavior tooltip"] = "选择左键单击小地图按钮进入的界面。";
 L["Corrupted Item Parser"] = "|cffffffff打开腐蚀物品链接解析器|r";
 L["Toggle Dressing Room"] = "|cffffffff打开试衣间|r";
 L["Reset Camera"] = "重置摄像机参数";
@@ -780,3 +782,27 @@ L["GamePad Select"] = "选择";
 L["GamePad Cancel"] = "取消";
 L["GamePad Use"] = "使用";
 L["GamePad Equip"] = "装备";
+
+
+--TransmogUI--
+L["Transmog UI"] = "幻化界面";
+L["Transmog UI Description"] = "允许你访问由你其他角色创建的自定义套装。";
+L["OutfitSource Default"] = "当前角色";
+L["OutfitSource Default Tooltip"] = "此数据在服务器端保存。";
+L["OutfitSource Shared"] = "共享列表";
+L["OutfitSource Shared Tooltip"] = "你的其他角色可以访问和修改此列表。\n\n此数据由Narcissus插件在本地保存。";
+L["OutfitSource Alts"] = "其他角色";
+L["OutfitSource Alts Tooltip"] = "如果你启用Narcissus插件并登入其他角色，你将可以浏览他们的自定义套装。\n\n你无法在当前角色上修改这些套装。";
+L["Cannot Delete On Alts"] = "你不能修改此套装，因为它被保存在另一个角色上。";
+L["Your Money Amount"] = "你的余额";
+L["TransmogSet No Valid Items"] = "没有有效的物品。";
+L["Copy To Shared List"] = "复制到共享列表";
+L["Insturction Delete Without Confirm"] = "按住Shift并单击来跳过确认直接删除。";
+L["Press Key To Copy Format"] = "按 |cffffd100%s|r 复制";
+L["Added To Shared List"] = "已保存到共享列表";
+L["Added To Shared List Alert Format"] = "此套装已在共享列表中存在，其名称为“%s”";
+L["New Set Location Default"] = "此套装将被保存在当前角色上。";
+L["New Set Location Shared"] = "此套装将被保存至共享列表。";
+L["Save Custom Set Location"] = "保存至：";
+L["Save Slots Colon"] = "存档数量：";
+L["Error View Outfit In Combat"] = "你无法在战斗中浏览外观。";

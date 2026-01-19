@@ -277,8 +277,6 @@
 				</Layers>
 			</Frame>
 		</Frames>
-		<Attributes>
-		</Attributes>
 	</Button>
 
 	<Button name="NarciEquipmentFlyoutButtonTemplate" inherits="NarciSlotButtonTemplate" frameStrata="DIALOG" virtual="true" mixin="NarciEquipmentFlyoutButtonMixin">

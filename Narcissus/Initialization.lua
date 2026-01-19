@@ -86,6 +86,7 @@ local DefaultValues = {
     ShowModulePanelOnMouseOver = true,          --Mouseover to show Module panel while mouseover minimap button
     IndependentMinimapButton = false,           --Set Minimap Button Parent to Minimap or UIParent; Handle by other addons like MBB
     AnchorToMinimap = true,                     --Anchor the mini button to Minimap
+    OldMinimapButtonClickBehavior = 1,          --Change which UI to open when clicked. 1:Character UI, 2:Photo Mode (requires ShowModulePanelOnMouseOver == false)
 
     -- Misc QoL ---
     GemManager = true,                          --Enable gem manager for Blizzard item socketing frame

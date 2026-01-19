@@ -247,7 +247,7 @@ do
         local matched = true;
         for _, word in ipairs(words) do
             if word ~= "" then
-                if not ( StringMatch(data.name, word) or StringMatch(data.raceName, word) or StringMatch(data.className, word) or ( (not data.realmName) or StringMatch(data.realmName, word) ) ) then
+                if not ( StringMatch(data.name, word) or StringMatch(data.raceName, word) or StringMatch(data.className, word) or StringMatch(data.realmName, word) ) then
                     matched = false;
                     break
                 end

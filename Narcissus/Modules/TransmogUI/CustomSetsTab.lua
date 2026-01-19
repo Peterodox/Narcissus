@@ -284,13 +284,14 @@ do
             self:RegisterEvent("MODIFIER_STATE_CHANGED");
             self:SetScript("OnEvent", self.OnEvent);
             local _, missingSlots, allMissing = TransmogUIManager:IsTransmogInfoListCollected(data.transmogInfoList, true);
-            if allMissing or not data.anyUsable then
+            local noValidItem = allMissing or not data.anyUsable;
+            if noValidItem then
                 tooltip:AddLine(L["TransmogSet No Valid Items"], 1, 0.125, 0.125, true);
             else
                 TransmogUIManager:Tooltip_AddGreyLine(tooltip, ITEMS_NOT_IN_INVENTORY:format(#missingSlots));
             end
 
-            if (not allMissing) and NarcissusDB.TransmogUI_ShowMisingItemDetail then
+            if (not noValidItem) and NarcissusDB.TransmogUI_ShowMisingItemDetail then
                 local slotName;
                 for _, slotID in ipairs(missingSlots) do
                     slotName = NarciAPI.GetSlotNameAndTexture(slotID);

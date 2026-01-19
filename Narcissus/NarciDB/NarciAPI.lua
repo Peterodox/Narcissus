@@ -3027,6 +3027,12 @@ do  --11.0 Menu Formatter
                     elementDescription = rootDescription:CreateButton(info.name, info.OnClick);
                 elseif info.type == "Checkbox" then
                     elementDescription = rootDescription:CreateCheckbox(info.name, info.IsSelected, info.ToggleSelected);
+                elseif info.type == "Submenu" then
+                    elementDescription = rootDescription:CreateButton(info.name);
+
+                    for index, text in ipairs(info.widgetNames) do
+                        elementDescription:CreateRadio(text, info.IsSelected, info.SetSelected, index);
+                    end
                 end
 
                 if info.enabled == false or info.disabled then

@@ -72,14 +72,14 @@ local function Entrance_Mage(self, elapsed)
 end
 
 local function Entrance_Warlock(self, elapsed)
-	local ModelFrame = NarciPlayerModelFrame1
-	self.t = self.t + elapsed
+	local ModelFrame = NarciPlayerModelFrame1;
+	self.t = self.t + elapsed;
 	local t = 0.25;
 	if self.t >= t then
 		self.t = 0;
 		self:Hide();
 	end
-	ModelFrame:SetAlpha(0);
+	ModelFrame:SetModelAlpha(0);
 	if self.t <=0 then
 		return;
 	elseif self.trigger then
@@ -88,14 +88,14 @@ local function Entrance_Warlock(self, elapsed)
 		After(0, function()
 			ModelFrame:ApplySpellVisualKit(71357, true);
 			After(1, function()
-				ModelFrame:SetAlpha(0);
+				ModelFrame:SetModelAlpha(0);
 			end);
 		end);
 		After(1.8, function()
 			PlaySFX(139198);
 			ModelFrame:SetAnimation(55);
 			After(0.1, function()
-				ModelFrame:SetAlpha(1)
+				ModelFrame:SetModelAlpha(1);
 				ModelFrame:ApplySpellVisualKit(86545, true);
 			end)
 
@@ -511,7 +511,7 @@ Narci.ClassEntranceVisuals = {
 	[6]  = {false, false, false, 141, Entrance_DK, 13168},
 	[7]  = {false, 2, false, 40, Entrance_Shaman, 59081},
 	[8]  = {false, false, false, 1120, Entrance_Mage, 3226},
-	[9]  = {false, false, false, 55, Entrance_Warlock, 116927},
+	[9]  = {false, false, false, 55, Entrance_Warlock, 116927, noAutoFadeIn = true},
 	[10]  = {2.5, false, -pi/2, 732, Entrance_Monk, 32860},
 	[11]  = {false, false, false, 141, Entrance_Druid, 86938},
     [12] = {false, 2, false, 38, Entrance_DH, 119406},	--62730 Spell_DH_ImmolationAura_Cast

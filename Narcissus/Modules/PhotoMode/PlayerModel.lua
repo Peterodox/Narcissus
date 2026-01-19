@@ -786,6 +786,7 @@ PMAI:SetScript("OnShow", function(self)		--PlayerModelAnimIn
 	defaultZ = TranslateValue[ZoomMode][3] or -0.275;
 	model:SetPortraitZoom(zoomLevel);
 	model.zoomLevel = zoomLevel;
+	local noAutoFadeIn;
 
 	if (not self.useAlternateEntrance) or not EntranceAnimation then
 		model:SetPosition(0, startY, defaultZ);
@@ -815,14 +816,17 @@ PMAI:SetScript("OnShow", function(self)		--PlayerModelAnimIn
 		model:FreezeAnimation(animStart, 1, 0);
 		model:SetAnimation(animStart);
 		self:SetScript("OnUpdate", EntranceAnimation[5]);
+		noAutoFadeIn = EntranceAnimation.noAutoFadeIn;
 	end
+
 	model:Show();
 	model:SetModelAlpha(0);
 	model:SetAlpha(0);
 	model.isVirtual = false;
 	model:ResetCameraPosition();
-	FadeFrame(model, 0.6, 1);
-	--FadeFrame(ModelContainer, 0, 1);
+	if not noAutoFadeIn  then
+		FadeFrame(model, 0.6, 1);
+	end
 
 	if self.init then	--Initialize settings
 		self.init = nil;
@@ -3363,7 +3367,7 @@ local function CreateAndSelectNewActor(actorIndex, unit, isVirtual)
 
 	if isVirtual then
 		IndexButton:SetModelType("virtual");
-		model:SetModelAlpha(0)
+		model:SetModelAlpha(0);
 		model.isVirtual = true;
 
 		PlayerInfo[ID].name = "|cff0081a9"..VIRTUAL_ACTOR.."|r";
@@ -3375,7 +3379,7 @@ local function CreateAndSelectNewActor(actorIndex, unit, isVirtual)
 		else
 			IndexButton:SetModelType("npc");
 		end
-		model:SetModelAlpha(1)
+		model:SetModelAlpha(1);
 		model.isVirtual = false;
 	end
 
