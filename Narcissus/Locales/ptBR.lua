@@ -708,3 +708,27 @@ L["Auto Display Quest Item"] = "Exibir automaticamente a descrição dos itens d
 L["Drag To Move"] = "Arraste para mover";
 L["Middle Click Reset Position"] = "Use o botão do meio do mouse para reiniciar a posição."
 L["Change Position"] = "Mudar posição";
+
+
+--TransmogUI--
+L["Transmog UI"] = "Transmogrificação";
+L["Transmog UI Description"] = "Crie conjuntos personalizados que podem ser acessados por todos os seus personagens.";
+L["OutfitSource Default"] = "Personagem Atual";
+L["OutfitSource Default Tooltip"] = "Os dados são armazenados no servidor.";
+L["OutfitSource Shared"] = "Lista Compartilhada";
+L["OutfitSource Shared Tooltip"] = "Todos os seus personagens podem acessar esta lista.\n\nOs dados são armazenados localmente no addon Narcissus.";
+L["OutfitSource Alts"] = "Outros Personagens";
+L["OutfitSource Alts Tooltip"] = "Você pode ver os conjuntos personalizados de outro personagem se já tiver logado nele com o addon Narcissus ativado.\n\nVocê não poderá modificar os conjuntos no seu personagem atual.";
+L["Cannot Delete On Alts"] = "Você não pode modificar este conjunto porque ele é de outro personagem";
+L["Your Money Amount"] = "Seu Saldo";
+L["TransmogSet No Valid Items"] = "Nenhum item válido.";
+L["Copy To Shared List"] = "Copiar para Lista Compartilhada";
+L["Insturction Delete Without Confirm"] = "Shift + clique para excluir sem confirmação.";
+L["Press Key To Copy Format"] = "Pressione |cffffd100%s|r para Copiar";
+L["Added To Shared List"] = "Adicionado à Lista Compartilhada";
+L["Added To Shared List Alert Format"] = "Você já adicionou este conjunto à Lista Compartilhada como \"%s\"";
+L["New Set Location Default"] = "Este conjunto personalizado será salvo no seu personagem atual.";
+L["New Set Location Shared"] = "Este conjunto personalizado será adicionado à Lista Compartilhada.";
+L["Save Custom Set Location"] = "Salvar em:";
+L["Save Slots Colon"] = "Salvar Espaços: ";
+L["Error View Outfit In Combat"] = "Você não pode ver conjuntos personalizados durante o combate";

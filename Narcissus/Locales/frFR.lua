@@ -676,3 +676,27 @@ L["Day Plural"] = "jours";
 L["Day Singular"] = "jour";
 L["Hour Plural"] = "heures";
 L["Hour Singular"] = "heure";
+
+
+--TransmogUI--
+L["Transmog UI"] = "Transmog UI";
+L["Transmog UI Description"] = "Créez des ensembles personnalisés accessibles par tous vos personnages.";
+L["OutfitSource Default"] = "Personnage actuel";
+L["OutfitSource Default Tooltip"] = "Les données sont stockées sur le serveur.";
+L["OutfitSource Shared"] = "Liste partagée";
+L["OutfitSource Shared Tooltip"] = "Tous vos personnages peuvent accéder à cette liste.\n\nLes données sont stockées localement dans l'addon Narcissus.";
+L["OutfitSource Alts"] = "Autres personnages";
+L["OutfitSource Alts Tooltip"] = "Vous pouvez consulter les ensembles personnalisés d'un autre personnage si vous vous êtes connecté avec celui-ci et l'addon Narcissus activé.\n\nVous ne pourrez pas modifier les ensembles sur votre personnage actuel.";
+L["Cannot Delete On Alts"] = "Vous ne pouvez pas modifier cet ensemble car il provient d'un autre personnage";
+L["Your Money Amount"] = "Votre solde";
+L["TransmogSet No Valid Items"] = "Aucun objet valide.";
+L["Copy To Shared List"] = "Copier vers la Liste partagée";
+L["Insturction Delete Without Confirm"] = "Shift-clic pour supprimer sans confirmation.";
+L["Press Key To Copy Format"] = "Appuyez sur |cffffd100%s|r pour copier";
+L["Added To Shared List"] = "Ajouté à la Liste partagée";
+L["Added To Shared List Alert Format"] = "Vous avez déjà ajouté cet ensemble à la Liste partagée sous le nom « %s »";
+L["New Set Location Default"] = "Cet ensemble personnalisé sera enregistré sur votre personnage actuel.";
+L["New Set Location Shared"] = "Cet ensemble personnalisé sera ajouté à la Liste partagée.";
+L["Save Custom Set Location"] = "Enregistrer sous :";
+L["Save Slots Colon"] = "Emplacements à enregistrer : ";
+L["Error View Outfit In Combat"] = "Vous ne pouvez pas consulter les ensembles personnalisés en combat";

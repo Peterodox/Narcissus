@@ -531,3 +531,27 @@ L["Origin Outfits"] = "原始造型";
 L["Outfit Owner Format"] = "%s的造型";
 L["SortMethod Recent"] = "近期登錄";
 L["SortMethod Name"] = "角色姓名";
+
+
+--TransmogUI--
+L["Transmog UI"] = "幻化介面";
+L["Transmog UI Description"] = "允許你存取由你其他角色建立的自訂套裝。";
+L["OutfitSource Default"] = "目前角色";
+L["OutfitSource Default Tooltip"] = "此資料在伺服器端儲存。";
+L["OutfitSource Shared"] = "共享清單";
+L["OutfitSource Shared Tooltip"] = "你的其他角色可以存取和修改此清單。\n\n此資料由 Narcissus 插件在本機儲存。";
+L["OutfitSource Alts"] = "其他角色";
+L["OutfitSource Alts Tooltip"] = "如果你啟用 Narcissus 插件並登入其他角色，你將可以瀏覽他們的自訂套裝。\n\n你無法在目前角色上修改這些套裝。";
+L["Cannot Delete On Alts"] = "你不能修改此套裝，因為它被儲存在另一個角色上。";
+L["Your Money Amount"] = "你的餘額";
+L["TransmogSet No Valid Items"] = "沒有有效的物品。";
+L["Copy To Shared List"] = "複製到共享清單";
+L["Insturction Delete Without Confirm"] = "按住 Shift 並點選來跳過確認直接刪除。";
+L["Press Key To Copy Format"] = "按 |cffffd100%s|r 複製";
+L["Added To Shared List"] = "已儲存到共享清單";
+L["Added To Shared List Alert Format"] = "此套裝已在共享清單中存在，其名稱為「%s」";
+L["New Set Location Default"] = "此套裝將被儲存在目前角色上。";
+L["New Set Location Shared"] = "此套裝將被儲存至共享清單。";
+L["Save Custom Set Location"] = "儲存至：";
+L["Save Slots Colon"] = "存檔數量：";
+L["Error View Outfit In Combat"] = "你無法在戰鬥中瀏覽外觀。";

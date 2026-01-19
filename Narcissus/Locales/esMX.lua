@@ -806,3 +806,27 @@ L["Format Click Times To Equip Plural"] = "Clic |cff19ff19%d|r veces para Equipa
 L["Format Free Up Bag Slot"] = "Libera %d espacios en el inventario primero";
 L["Format Number Items Selected"] = "%d Seleccionado(s)";
 L["Format Gem Slot Stat Budget"] = "Las gemas en %s son %s%% efectivas."  --ej. Las gemas en el abalorio son un 75% efectivas
+
+
+--TransmogUI--
+L["Transmog UI"] = "Transfiguración";
+L["Transmog UI Description"] = "Crea conjuntos personalizados a los que pueden acceder todos tus personajes.";
+L["OutfitSource Default"] = "Personaje actual";
+L["OutfitSource Default Tooltip"] = "Los datos se almacenan en el servidor.";
+L["OutfitSource Shared"] = "Lista compartida";
+L["OutfitSource Shared Tooltip"] = "Todos tus personajes pueden acceder a esta lista.\n\nLos datos se almacenan localmente en el addon Narcissus.";
+L["OutfitSource Alts"] = "Otros personajes";
+L["OutfitSource Alts Tooltip"] = "Puedes ver los conjuntos personalizados de otro personaje si has iniciado sesión con él y el addon Narcissus activado.\n\nNo podrás modificar los conjuntos en tu personaje actual.";
+L["Cannot Delete On Alts"] = "No puedes modificar este conjunto porque pertenece a otro personaje";
+L["Your Money Amount"] = "Tu saldo";
+L["TransmogSet No Valid Items"] = "No hay objetos válidos.";
+L["Copy To Shared List"] = "Copiar a la lista compartida";
+L["Insturction Delete Without Confirm"] = "Haz clic con Shift para eliminar sin confirmación.";
+L["Press Key To Copy Format"] = "Pulsa |cffffd100%s|r para copiar";
+L["Added To Shared List"] = "Añadido a la lista compartida";
+L["Added To Shared List Alert Format"] = "Ya has añadido este conjunto a la lista compartida como \"%s\"";
+L["New Set Location Default"] = "Este conjunto personalizado se guardará en tu personaje actual.";
+L["New Set Location Shared"] = "Este conjunto personalizado se añadirá a la lista compartida.";
+L["Save Custom Set Location"] = "Guardar en:";
+L["Save Slots Colon"] = "Guardar ranuras: ";
+L["Error View Outfit In Combat"] = "No puedes ver conjuntos personalizados durante el combate";

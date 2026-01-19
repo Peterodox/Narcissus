@@ -835,3 +835,27 @@ L["GamePad Select"] = "Выбрать";
 L["GamePad Cancel"] = "Отмена";
 L["GamePad Use"] = "Использовать";
 L["GamePad Equip"] = "Экипировка";
+
+
+--TransmogUI--
+L["Transmog UI"] = "Трансмогрификация";
+L["Transmog UI Description"] = "Создавайте собственные комплекты, доступные всем вашим персонажам.";
+L["OutfitSource Default"] = "Текущий персонаж";
+L["OutfitSource Default Tooltip"] = "Данные хранятся на сервере.";
+L["OutfitSource Shared"] = "Общий список";
+L["OutfitSource Shared Tooltip"] = "Все ваши персонажи имеют доступ к этому списку.\n\nДанные хранятся локально в аддоне Narcissus.";
+L["OutfitSource Alts"] = "Другие персонажи";
+L["OutfitSource Alts Tooltip"] = "Вы можете просматривать собственные комплекты другого персонажа, если вы входили на него с включенным аддоном Narcissus.\n\nВы не сможете изменять комплекты на вашем текущем персонаже.";
+L["Cannot Delete On Alts"] = "Вы не можете изменить этот комплект, так как он принадлежит другому персонажу";
+L["Your Money Amount"] = "Ваш баланс";
+L["TransmogSet No Valid Items"] = "Нет подходящих предметов.";
+L["Copy To Shared List"] = "Скопировать в Общий список";
+L["Insturction Delete Without Confirm"] = "Shift+клик для удаления без подтверждения.";
+L["Press Key To Copy Format"] = "Нажмите |cffffd100%s|r для копирования";
+L["Added To Shared List"] = "Добавлено в Общий список";
+L["Added To Shared List Alert Format"] = "Вы уже добавили этот комплект в Общий список под названием \"%s\"";
+L["New Set Location Default"] = "Этот собственный комплект будет сохранён на вашем текущем персонаже.";
+L["New Set Location Shared"] = "Этот собственный комплект будет добавлен в Общий список.";
+L["Save Custom Set Location"] = "Сохранить в:";
+L["Save Slots Colon"] = "Сохраняемые слоты: ";
+L["Error View Outfit In Combat"] = "Вы не можете просматривать собственные комплекты в режиме боя";

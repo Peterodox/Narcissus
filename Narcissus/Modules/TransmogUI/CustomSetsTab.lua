@@ -454,6 +454,10 @@ do
             end
 
         else --Alts
+            local disabldTooltip = L["Cannot Delete On Alts"];
+            Schematic.objects[1].tooltip = disabldTooltip;
+            Schematic.objects[3].tooltip = disabldTooltip;
+            Schematic.objects[5].tooltip = disabldTooltip;
             Schematic.objects[1].enabled = false;
             Schematic.objects[3].enabled = false;
             Schematic.objects[5].enabled = false;
