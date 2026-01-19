@@ -796,6 +796,7 @@ function NarciEquipmentSlotMixin:SetTransmogSourceID(appliedSourceID, secondaryS
 		self.GradientBackground:Show();
 	else
 		self.Icon:SetDesaturated(true);
+		self.Icon:SetTexture(self.emptyTexture);
 		self.Name:SetText(nil);
 		self.ItemLevel:SetText(nil);
 		self.GradientBackground:Hide();	

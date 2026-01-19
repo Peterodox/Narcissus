@@ -1163,6 +1163,7 @@ local function SlotLayerButton_OnClick(self)
 			FadeFrame(NarciModel_RightGradient, 0.25, 1);
 		end
 		FadeFrame(Narci_Character, 0.25, 1);
+		Narci.RefreshAllSlots();
 	else
 		FadeFrame(NarciModel_RightGradient, 0.25, 0);
 		FadeFrame(Narci_Character, 0.25, 0);
