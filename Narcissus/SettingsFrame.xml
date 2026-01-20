@@ -9,7 +9,7 @@
 
             </Layer>
         </Layers>
-        <ButtonText parentKey="ButtonText" inherits="NarciFontMedium13" justifyH="LEFT" justifyV="MIDDLE" spacing="2" maxLines="2">
+        <ButtonText parentKey="Label" inherits="NarciFontMedium13" justifyH="LEFT" justifyV="MIDDLE" spacing="2" maxLines="2">
             <Anchors>
                 <Anchor point="LEFT" relativeKey="$parent" relativePoint="LEFT"/>
                 <Anchor point="RIGHT" relativeKey="$parent" relativePoint="RIGHT" x="-32"/>

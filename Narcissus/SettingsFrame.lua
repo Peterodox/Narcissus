@@ -277,11 +277,11 @@ local function SetCategory(id)
     for i, b in ipairs(CategoryButtons) do
         if i == id then
             b.selected = true;
-            SetTextColorByID(b.ButtonText, 3);
+            SetTextColorByID(b.Label, 3);
         else
             if b.selected then
                 b.selected = nil;
-                SetTextColorByID(b.ButtonText, 1);
+                SetTextColorByID(b.Label, 1);
             end
         end
     end
@@ -311,12 +311,12 @@ end
 
 
 local function CategoryButton_SetLabel(self, text)
-    self.ButtonText:SetText(text);
-    local numLines = self.ButtonText:GetNumLines();
+    self.Label:SetText(text);
+    local numLines = self.Label:GetNumLines();
     if numLines > 1 then
         self:SetHeight(40);
-        if self.ButtonText:IsTruncated() then
-            self.ButtonText:SetFontObject("NarciFontMedium12");
+        if self.Label:IsTruncated() then
+            self.Label:SetFontObject("NarciFontMedium12");
         end
         return 40;
     else
@@ -339,12 +339,12 @@ local function CategoryButton_OnClick(self)
 end
 
 local function CategoryButton_OnEnter(self)
-    SetTextColorByID(self.ButtonText, 3);
+    SetTextColorByID(self.Label, 3);
 end
 
 local function CategoryButton_OnLeave(self)
     if not self.selected then
-        SetTextColorByID(self.ButtonText, 1);
+        SetTextColorByID(self.Label, 1);
     end
 end
 
@@ -1548,6 +1548,19 @@ local function AddObjectAsChild(childObject, isTextObject)
     end
 end
 
+local function AttachNewFeatureLabel(widget, offset)
+    local newFeatureLabel = widget:CreateTexture(nil, "OVERLAY");
+    newFeatureLabel:SetSize(20, 20);
+    newFeatureLabel:SetTexture("Interface\\AddOns\\Narcissus\\Art\\SettingsFrame\\NewFeatureDiamond.png");
+    newFeatureLabel:SetAlpha(1);
+    if widget.Label then
+        local width = widget.Label:GetWrappedWidth();
+        newFeatureLabel:SetPoint("LEFT", widget.Label, "LEFT", width - 2, 3);
+    else
+        newFeatureLabel:SetPoint("LEFT", widget, "LEFT", offset or 0, 0);
+    end
+end
+
 local function CreateWidget(parent, anchorTo, offsetX, offsetY, widgetData)
     if widgetData.validityCheckFunc then
         if not widgetData.validityCheckFunc() then
@@ -1572,12 +1585,6 @@ local function CreateWidget(parent, anchorTo, offsetX, offsetY, widgetData)
         local extraOffset = WIDGET_GAP * widgetData.extraTopPadding;
         offsetY = offsetY - extraOffset;
         height = height + extraOffset;
-    end
-
-    if widgetData.isNew then
-        if widgetData.text then
-            widgetData.text = NARCI_NEW_ENTRY_PREFIX..widgetData.text.."|r"
-        end
     end
 
     if isTextObject then
@@ -1754,6 +1761,10 @@ local function CreateWidget(parent, anchorTo, offsetX, offsetY, widgetData)
         end
     end
 
+    if widgetData.isNewFeature and obj.Label then
+        AttachNewFeatureLabel(obj, -20);
+    end
+
     return obj, Round0(height)
 end
 
@@ -1858,7 +1869,7 @@ local Categories = {
     {name = L["Extensions"], level = 0, key = "extensions",
         widgets = {
             {type = "header", level = 0, text = L["Extensions"]},
-            {type = "checkbox", level = 1, key = "TransmogFrame", text = L["Transmog UI"], onValueChangedFunc = TransmogFrameToggle_OnValueChanged, description = L["Transmog UI Description"], isNew = true, validityCheckFunc = function() return addon.TransmogUIManager.IsSupported() end},
+            {type = "checkbox", level = 1, key = "TransmogFrame", text = L["Transmog UI"], onValueChangedFunc = TransmogFrameToggle_OnValueChanged, description = L["Transmog UI Description"], isNewFeature = true, validityCheckFunc = function() return addon.TransmogUIManager.IsSupported() end},
             {type = "checkbox", level = 1, key = "DressingRoom", text = L["Dressing Room"], onValueChangedFunc = DressingRoomToggle_OnValueChanged, description = L["Dressing Room Description"]},
             {type = "checkbox", level = 1, key = "GemManager", text = L["Gem List"], onValueChangedFunc = GemManagerToggle_OnValueChanged, description = L["Gemma Description"]},
             {type = "checkbox", level = 1, key = "SoloQueueLFRDetails", text = L["LFR Wing Details"], onValueChangedFunc = LFRWingDetails_OnValueChanged, description = L["LFR Wing Details Description"]},
@@ -2097,29 +2108,29 @@ local function SetupFrame()
     for i, cateData in ipairs(Categories) do
         if (not cateData.validityCheckFunc) or (cateData.validityCheckFunc and cateData.validityCheckFunc()) then
             p = p + 1;
-            obj = CreateFrame("Button", nil, f.CategoryFrame, "NarciSettingsCategoryButtonTemplate");
-            CategoryButtons[p] = obj;
+            local categoryButton = CreateFrame("Button", nil, f.CategoryFrame, "NarciSettingsCategoryButtonTemplate");
+            CategoryButtons[p] = categoryButton;
             CategoryOffsets[p] = totalScrollHeight - PADDING_H;
-    
-            obj.id = p;
-            obj.level = cateData.level;
-            obj.key = cateData.key;
-    
-            obj:SetScript("OnClick", CategoryButton_OnClick);
-            obj:SetScript("OnEnter", CategoryButton_OnEnter);
-            obj:SetScript("OnLeave", CategoryButton_OnLeave);
-    
-            obj:SetWidth(DEFAULT_LEFT_WIDTH);
-            obj:SetHitRectInsets(0, 8, 0, 0);
-            obj.ButtonText:SetPoint("LEFT", obj, "LEFT", PADDING_H + CATE_LEVEL_OFFSET*cateData.level, 0);
-    
-            SetTextColorByID(obj.ButtonText, 1);
-    
+
+            categoryButton.id = p;
+            categoryButton.level = cateData.level;
+            categoryButton.key = cateData.key;
+
+            categoryButton:SetScript("OnClick", CategoryButton_OnClick);
+            categoryButton:SetScript("OnEnter", CategoryButton_OnEnter);
+            categoryButton:SetScript("OnLeave", CategoryButton_OnLeave);
+
+            categoryButton:SetWidth(DEFAULT_LEFT_WIDTH);
+            categoryButton:SetHitRectInsets(0, 8, 0, 0);
+            categoryButton.Label:SetPoint("LEFT", categoryButton, "LEFT", PADDING_H + CATE_LEVEL_OFFSET*cateData.level, 0);
+
+            SetTextColorByID(categoryButton.Label, 1);
+
             CategoryTabs[p] = CreateFrame("Frame", nil, f.ScrollFrame.ScrollChild);
-    
+
             if cateData.isBottom then
                 bottomIndex = bottomIndex + 1;
-                obj:SetPoint("BOTTOMLEFT", f.CategoryFrame, "BOTTOMLEFT", 0, PADDING_V + (2 - bottomIndex) * cateButtonHeight);
+                categoryButton:SetPoint("BOTTOMLEFT", f.CategoryFrame, "BOTTOMLEFT", 0, PADDING_V + (2 - bottomIndex) * cateButtonHeight);
                 if cateData.key == "about" then
                     --About Tab
                 else
@@ -2127,32 +2138,41 @@ local function SetupFrame()
                     totalScrollHeight = math.ceil(totalScrollHeight/frameHeight) * frameHeight;
                     totalScrollHeight = totalScrollHeight + WIDGET_GAP;
                     CategoryOffsets[p] = totalScrollHeight - PADDING_H;
-    
+
                     height = CreditList:CreateList(CategoryTabs[p], f.ScrollFrame.ScrollChild, -totalScrollHeight);
                     totalScrollHeight = totalScrollHeight + height;
                 end
             else
-                obj:SetPoint("TOPLEFT", f.CategoryFrame, "TOPLEFT", 0, -PADDING_V -totalCateHeight);
+                categoryButton:SetPoint("TOPLEFT", f.CategoryFrame, "TOPLEFT", 0, -PADDING_V -totalCateHeight);
             end
-    
-            cateHeight = CategoryButton_SetLabel(obj, cateData.name);
+
+            cateHeight = CategoryButton_SetLabel(categoryButton, cateData.name);
             totalCateHeight = totalCateHeight + cateHeight;
-    
+
+            local anyNewFeature;
+
             if cateData.widgets then
                 for _, widgetData in ipairs(cateData.widgets) do
                     obj, height = CreateWidget(CategoryTabs[p], f.ScrollFrame.ScrollChild, PADDING_H, -totalScrollHeight, widgetData);
                     totalScrollHeight =  totalScrollHeight + height;
                     if obj then
                         obj.categoryID = p;
+                        if widgetData.isNewFeature then
+                            anyNewFeature = true;
+                        end
                     end
                 end
             end
-    
+
+            if anyNewFeature then
+                AttachNewFeatureLabel(categoryButton, -2);
+            end
+
             if i == numCate then
                 --About List
                 AboutTab:CreateTab(CategoryTabs[p], f.ScrollFrame.ScrollChild, -totalScrollHeight);
             end
-    
+
             totalScrollHeight = totalScrollHeight + CATE_OFFSET;
         end
     end

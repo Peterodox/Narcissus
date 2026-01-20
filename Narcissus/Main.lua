@@ -2570,8 +2570,9 @@ local function Narci_XmogButton_OnClick(self)
 		if (not InCombatLockdown()) and (not Narci_Character:IsShown()) then
 			Narci_Character:Show();
 			Narci_Character:SetAlpha(1);
-			StatsUpdator:Gradual();
 		end
+
+		StatsUpdator:Gradual();
 	end
 
 	if MOG_MODE then
