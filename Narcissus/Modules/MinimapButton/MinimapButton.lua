@@ -117,8 +117,7 @@ local function ToggleAchievementFrame()
 	end
 end
 
-local function ShouldLeftClickOpenPhotoMode()
-	if MiniButton.useMouseoverMenu then return false end;
+local function IsLeftClickSetToPhotoMode()
 	return NarcissusDB and NarcissusDB.OldMinimapButtonClickBehavior == 2
 end
 
@@ -551,7 +550,7 @@ function NarciMinimapButtonMixin:OnClick(button, down)
 
 	self:Disable();
 
-	if ShouldLeftClickOpenPhotoMode() then
+	if self:ShouldLeftClickOpenPhotoMode() then
 		Narci_OpenGroupPhoto();
 	else
 		Narci_Open();
@@ -560,6 +559,10 @@ function NarciMinimapButtonMixin:OnClick(button, down)
 	After(DURATION_LOCK, function()
 		self:Enable();
 	end)
+end
+
+function NarciMinimapButtonMixin:ShouldLeftClickOpenPhotoMode()
+	return (not self.useMouseoverMenu) and IsLeftClickSetToPhotoMode();
 end
 
 function NarciMinimapButtonMixin:SetBackground(index)
@@ -648,7 +651,7 @@ function NarciMinimapButtonMixin:ShowTooltip(owner, fromBlizzardMenuButton)
 	end
 	--]]
 
-	if ShouldLeftClickOpenPhotoMode() then
+	if fromBlizzardMenuButton and IsLeftClickSetToPhotoMode() then
 		tooltip:AddLine(GetMouseButtonMarkup("LeftClick")..L["Photo Mode"], 1, 1, 1, false);
 	else
 		tooltip:AddLine(GetMouseButtonMarkup("LeftClick")..L["Character UI"], 1, 1, 1, false);
@@ -841,7 +844,7 @@ function NarciMinimapButtonMixin:ShowBlizzardMenu(menuParent)
 		},
 	};
 
-	local clickBehavior = NarcissusDB and NarcissusDB.OldMinimapButtonClickBehavior;
+	local clickBehavior = IsLeftClickSetToPhotoMode() and 2 or 1;
 
 	if clickBehavior == 2 then
 		table.insert(menuInfo.objects, 2, {type = "Button", name = L["Character UI"], OnClick = function() Narci_Open(); end});
@@ -952,7 +955,11 @@ end
 do	--AddOn Compartment
 	function Narci_AddonCompartment_OnClick(self, button)
 		if button == "LeftButton" then
-			MiniButton:OnClick(button);
+			if IsLeftClickSetToPhotoMode() then
+				Narci_OpenGroupPhoto();
+			else
+				Narci_Open();
+			end
 		elseif button == "RightButton" then
 			MiniButton:ShowBlizzardMenu(UIParent);
 		end
