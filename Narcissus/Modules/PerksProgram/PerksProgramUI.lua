@@ -1476,7 +1476,7 @@ function NarciPerksProgramSquareButtonMixin:OnEnter()
         PerksProgramUITooltip:Hide();
         PerksProgramUITooltip:SetOwner(self, "ANCHOR_NONE");
         PerksProgramUITooltip:SetPoint("BOTTOMLEFT", self, "TOPLEFT", 2, 2);
-        PerksProgramUITooltip:SetText(self.tooltipText, 1, 1, 1, true);
+        PerksProgramUITooltip:SetText(self.tooltipText, 1, 1, 1, 1, true);
         PerksProgramUITooltip:Show();
     end
 end

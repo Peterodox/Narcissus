@@ -1,5 +1,5 @@
 -- Show current money when cursor is close to the MoneyFrame next to SaveOutfitButton
--- Only shows when the cost > 10% of player gold
+-- Show ! when the cost > 5% of player gold
 
 
 local _, addon = ...
