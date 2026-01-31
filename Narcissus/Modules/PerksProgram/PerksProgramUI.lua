@@ -297,7 +297,7 @@ local function SetupPetAbilityTooltip(owner, abilityID, level)
 
     local petTypeIcon = GetPetTypeTexture(petType, 24);
     tooltip:SetText(petTypeIcon.." "..name);
-	
+
     if level then
         tooltip:AddLine(string.format(ITEM_MIN_LEVEL, level), 0.6, 0.6, 0.6, true);
     end

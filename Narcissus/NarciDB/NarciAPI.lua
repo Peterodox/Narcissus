@@ -3197,7 +3197,7 @@ do  --Show GameTooltip After Delay
                 end
 
                 if (not descAdded) and info.tooltip then
-                    tooltip:AddLine(info.tooltip, info.r or 1, info.g or 0.82, info.b or 0, true);
+                    tooltip:AddLine(info.tooltip, info.r or 1, info.g or 0.82, info.b or 0, 1, true);
                 end
 
                 if info.setupFunc then

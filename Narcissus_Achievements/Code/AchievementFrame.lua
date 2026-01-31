@@ -3836,7 +3836,7 @@ do
     function BookmarkIconMixin:OnEnter()
         local tooltip = GameTooltip;
         tooltip:SetOwner(self, "ANCHOR_RIGHT");
-        tooltip:SetText(L["To Do List"], 1, 1, 1, true);
+        tooltip:SetText(L["To Do List"], 1, 1, 1, 1, true);
         tooltip:AddLine(L["Instruction Remove From To Do List"], 1, 0.82, 0, true);
         tooltip:Show();
     end
