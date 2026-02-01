@@ -1,4 +1,4 @@
---Coutesy of ZamestoTV. Thank you!    --Translator: ZamestoTV as of 1.8.2 b
+--Coutesy of ZamestoTV. Thank you!    --Translator: ZamestoTV as of 1.8.4
 
 if not (GetLocale() == "ruRU") then
     return;
@@ -107,6 +107,8 @@ L["MinimapButton Reenabled"] = "|cffffd100Вы включили кнопку м�
 L["MinimapButton LibDBIcon"] = "Использовать LibDBIcon";
 L["MinimapButton LibDBIcon Desc"] = "Используйте LibDBIcon для создания кнопки мини-карты.\nВы видите эту опцию, потому что у вас установлена ​​библиотека LibDBIcon-1.0 или дополнение, интегрирующее эту библиотеку.";
 L["MinimapButton LibDBIcon Hide"] = "Скрыть кнопку";
+L["MinimapButton Click Behavior"] = "Поведение кликов";
+L["MinimapButton Click Behavior tooltip"] = "Измените, какой интерфейс Narcissus будет открываться при нажатии ЛКМ на кнопку мини-карты.";
 L["Corrupted Item Parser"] = "|cffffffffПереключить парсер порченого предмета|r";
 L["Toggle Dressing Room"] = "|cffffffffПереключить на "..DRESSUP_FRAME.."|r";
 L["Reset Camera"] = "Сбросить камеру";
@@ -117,6 +119,7 @@ L["Layout"] = "Место";
 L["Symmetry"] = "Симметрия";
 L["Asymmetry"] = "Асимметрия";
 L["Copy Texts"] = "Скопировать Текст";
+L["Toggle Item List"] = "Переключить список предметов";
 L["Syntax"] = "Синтаксис";
 L["Plain Text"] = "Обычный Текст";
 L["BB Code"] = "BB Code";
@@ -366,7 +369,9 @@ L["Switch Form To Worgen"] = "Переключить на форму |cffffffff 
 L["Switch Form To Human"] = "Переключить на форму |cffffffff Человек|r";
 L["InGame Command"] = "Внутриигровая команда";	
 L["Hide Player Items"] = "Скрыть предметы игрока";
-L["Hide Player Items Tooltip"] = "Скрыть все, что не относится к этому набору предметов.";															 
+L["Hide Player Items Tooltip"] = "Скрыть все, что не относится к этому набору предметов.";
+L["Hide Duplicated Appearance"] = "Скрыть дубликаты";
+L["Hide Duplicated Appearance Tooltip"] = "Некоторые комплекты могут содержать предметы с одинаковым внешним видом. Включите эту опцию, чтобы отображать уникальные предметы.";															 
 
 --NPC Browser--
 NARCI_NPC_BROWSER_TITLE_LEVEL = ".*%?%?.?";      --Level ?? --Use this to check if the second line of the tooltip is NPC's title or unit type
@@ -778,6 +783,9 @@ L["Speed"] = ITEM_MOD_CR_UNUSED_3_SHORT or "Скорость передвиже�
 L["Format Stat EXP"] = "+%d%% EXP Прирост";
 L["Format Rank"] = AZERITE_ESSENCE_RANK or "Ранг %d";
 L["Cloak Rank"] = "Ранг плаща";
+
+L["Artifact Ability"] = "Способность артефакта";
+L["Toggle Artifact UI"] = "Нажмите, чтобы переключить интерфейс артефактов.";
 
 
 --Gem Manager--
