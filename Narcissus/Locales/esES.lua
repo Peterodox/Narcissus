@@ -1,4 +1,4 @@
---Coutesy of Romanv. Thank you!    --Translator: Romanv as of 1.6.2
+--Coutesy of Romanv. Thank you!    --Translator: Romanv as of 1.8.4
 
 if not (GetLocale() == "esES") then
     return;
@@ -115,6 +115,8 @@ L["MinimapButton Reenabled"] = "|cffffd100Has activado el botón del minimapa de
 L["MinimapButton LibDBIcon"] = "Utilizar LibDBIcon";
 L["MinimapButton LibDBIcon Desc"] = "Utilizar LibDBIcon para crear nuestro botón del minimapa.\nEstás viendo esta opción porque has instalado LibDBIcon-1.0 o un complemento que integra esta biblioteca.";
 L["MinimapButton LibDBIcon Hide"] = "Ocultar botón";
+L["MinimapButton Click Behavior"] = "Comportamiento del click";
+L["MinimapButton Click Behavior tooltip"] = "Controla qué interfaz de usuario de Narcissus se abre al hacer click en el botón del minimapa.";
 L["Corrupted Item Parser"] = "|cffffffffToggle Corrupted Item Parser|r";
 L["Toggle Dressing Room"] = "|cffffffffToggle "..DRESSUP_FRAME.."|r";
 L["Reset Camera"] = "Restablecer cámara";
@@ -125,6 +127,7 @@ L["Layout"] = "Diseño";
 L["Symmetry"] = "Simetrico";
 L["Asymmetry"] = "Asimetrico";
 L["Copy Texts"] = "Copiar textos";
+L["Toggle Item List"] = "Alternar lista de items";
 L["Syntax"] = "Sintaxis";
 L["Plain Text"] = "Texto sin formato";
 L["BB Code"] = "BB Code";
@@ -375,6 +378,8 @@ L["Switch Form To Human"] = "Cambiar a la forma|cffffffff Humana|r";
 L["InGame Command"] = "Comando en el juego";
 L["Hide Player Items"] = "Ocultar items del jugador";
 L["Hide Player Items Tooltip"] = "Ocultar todo lo que no pertenezca a este conjunto de items.";
+L["Hide Duplicated Appearance"] = "Ocultar duplicados";
+L["Hide Duplicated Appearance Tooltip"] = "Algunos conjuntos pueden contener items con la misma apariencia. Activa esta opción para mostrar los items únicos.";
 
 --NPC Browser--
 NARCI_NPC_BROWSER_TITLE_LEVEL = ".*%?%?.?";      --Level ?? --Use this to check if the second line of the tooltip is NPC's title or unit type
@@ -746,6 +751,7 @@ L["Item Type Auctionable"] = AUCTIONS or "Subastable";
 L["Item Type Teleportation"] = TUTORIAL_TITLE35 or "Viajes";
 L["Item Type Gems"] = AUCTION_CATEGORY_GEMS or "Gemas";
 L["Item Type Reagent"] = PROFESSIONS_MODIFIED_CRAFTING_REAGENT_BASIC or "Componente de profesión";
+
 
 --Perks Program--
 L["Perks Program Unclaimed Tender Format"] = "- Tienes |cffffffff%s|r cupones sin recoger en el alijo de recolector.";     --PERKS_PROGRAM_UNCOLLECTED_TENDER
