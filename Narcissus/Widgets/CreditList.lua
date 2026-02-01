@@ -726,7 +726,7 @@ do  --CreditList
     end
 
     function CreditList:OnFocused(state, offset)
-        if state and offset < 5100 then
+        if state and offset < 4800 then
             if not self.focused then
                 self.focused = true;
                 self.parent.t = 0;
