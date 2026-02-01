@@ -1,6 +1,6 @@
-local NARCI_VERSION_INFO = "1.8.4";
+local NARCI_VERSION_INFO = "1.8.4 b";
 
-local VERSION_DATE = 1768800000;
+local VERSION_DATE = 1769960000;
 local CURRENT_VERSION = 10804;
 local PREVIOUS_VERSION = CURRENT_VERSION;
 local TIME_SINCE_LAST_UPDATE = 0;
@@ -69,6 +69,9 @@ local DefaultValues = {
 
     -- Transmog Frame --
     TransmogFrame = true,
+
+    -- Wardrobe Collection --
+    WardrobeCollectionSetsCheckbox = true,      --Show a checkbox to hide uncollected set pieces
 
     -- Dressing Room --
     DressingRoom = true,                        --Enable dressing room module

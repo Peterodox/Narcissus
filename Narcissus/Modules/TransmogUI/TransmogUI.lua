@@ -2,18 +2,6 @@ local _, addon = ...
 local TransmogUIManager = addon.TransmogUIManager;
 
 
-if addon.IsTOCVersionEqualOrNewerThan(120000) then
-    function TransmogUIManager.IsSupported()
-        return true
-    end
-else
-    function TransmogUIManager.IsSupported()
-        return false
-    end
-    return
-end
-
-
 local MainModule = TransmogUIManager:CreateModule("Main");
 
 

@@ -872,3 +872,10 @@ L["New Set Location Shared"] = "This custom set will be added to the Shared List
 L["Save Custom Set Location"] = "Save to:";
 L["Save Slots Colon"] = "Save Slots: ";
 L["Error View Outfit In Combat"] = "You cannot view custom sets while in combat";
+
+
+--WardrobeCollection--
+L["ModuleName WardrobeCollection"] = "Appearances Tab";
+L["ModuleDescription WardrobeCollection"] = "Added a checkbox to hide uncollected slots on the preview model when viewing a set in the Appearances Tab."
+L["Hide Uncollected Slots"] = "Hide Uncollected";
+L["Hide Uncollected Slots Tooltip"] = "Hide Uncollected Slots |cffffd100(%s)|r";

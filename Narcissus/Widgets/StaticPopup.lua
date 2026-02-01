@@ -325,37 +325,36 @@ do
 end
 
 
-local Checkbox_PostCreate;
-do
-    local CheckboxMixin = {};
+do  --Checkbox Mixin
+    NarciWoWCheckboxWithLabelMixin = {};
 
-    function CheckboxMixin:OnEnter()
+    function NarciWoWCheckboxWithLabelMixin:OnEnter()
         self:UpdateVisual();
         if self.onEnterFunc then
             self.onEnterFunc(self);
         end
     end
 
-    function CheckboxMixin:OnLeave()
+    function NarciWoWCheckboxWithLabelMixin:OnLeave()
         self:UpdateVisual();
         GameTooltip:Hide();
     end
 
-    function CheckboxMixin:OnClick(button)
+    function NarciWoWCheckboxWithLabelMixin:OnClick(button)
         if self.onClickFunc then
             self.onClickFunc(self, button);
         end
     end
 
-    function CheckboxMixin:OnEnable()
+    function NarciWoWCheckboxWithLabelMixin:OnEnable()
         self:UpdateVisual();
     end
 
-    function CheckboxMixin:OnDisable()
+    function NarciWoWCheckboxWithLabelMixin:OnDisable()
         self:UpdateVisual();
     end
 
-    function CheckboxMixin:UpdateVisual()
+    function NarciWoWCheckboxWithLabelMixin:UpdateVisual()
         if self:IsEnabled() then
             self.NormalTexture:SetVertexColor(1, 1, 1);
             if self:IsMouseMotionFocus() then
@@ -369,17 +368,28 @@ do
         end
     end
 
+    function NarciWoWCheckboxWithLabelMixin:SetLabel(text)
+        self.Label:SetText(text);
+    end
 
-    function Checkbox_PostCreate(f)
-        Mixin(f, CheckboxMixin);
+    function NarciWoWCheckboxWithLabelMixin:SetIconSize(size)
+        self.NormalTexture:SetSize(size, size);
+        self.Label:SetPoint("LEFT", self, "LEFT", size + 6, 0);
+    end
 
-        f.useFixedWidth = false;
+    function NarciWoWCheckboxWithLabelMixin:ResizeToFit()
+        local minWidth = 64;
+        local gap = 6;
+        local widgetWidth = self.NormalTexture:GetWidth() + gap + self.Label:GetWrappedWidth();
 
-        f:SetScript("OnEnter", f.OnEnter);
-        f:SetScript("OnLeave", f.OnLeave);
-        f:SetScript("OnClick", f.OnClick);
-        f:SetScript("OnEnable", f.OnEnable);
-        f:SetScript("OnDisable", f.OnDisable);
+        if widgetWidth >= minWidth then
+            self:SetWidth(math.ceil(widgetWidth));
+        else
+            self:SetWidth(minWidth);
+            local offsetX = 0.5*(minWidth - widgetWidth);
+            self.NormalTexture:SetPoint("LEFT", self, "LEFT", offsetX, 0);
+            self.Label:SetPoint("LEFT", self, "LEFT", offsetX + self.NormalTexture:GetWidth() + 6, 0);
+        end
     end
 end
 
@@ -396,7 +406,7 @@ local function CreatePopup()
     MainFrame.EditBox:OnLoad();
 
     MainFrame.fontStringPool = CreateFontStringPool(MainFrame, "OVERLAY", 0, "GameFontNormal");
-    MainFrame.checkboxPool = CreateFramePool("CheckButton", MainFrame, "NarciWoWCheckboxWithLabelTemplate", nil, nil, Checkbox_PostCreate);
+    MainFrame.checkboxPool = CreateFramePool("CheckButton", MainFrame, "NarciWoWCheckboxWithLabelTemplate");
 
     MainFrame:Reset();
 end

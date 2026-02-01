@@ -92,12 +92,12 @@ do  --StaticPopupMixin, Save Custom Set
         self:AddLayoutObject(header, self.Def.LargeGapY);
 
         local checkbox1 = self.checkboxPool:Acquire();
-        checkbox1.Label:SetText(L["OutfitSource Default"]);
+        checkbox1:SetLabel(L["OutfitSource Default"]);
 		checkbox1:SetChecked(not fromSharedSet);
         self:AddLayoutObject(checkbox1);
 
         local checkbox2 = self.checkboxPool:Acquire();
-        checkbox2.Label:SetText(L["OutfitSource Shared"]);
+        checkbox2:SetLabel(L["OutfitSource Shared"]);
 		checkbox2:SetChecked(fromSharedSet);
         self:AddLayoutObject(checkbox2);
 

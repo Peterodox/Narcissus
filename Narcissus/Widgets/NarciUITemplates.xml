@@ -2799,7 +2799,7 @@
         </Frames>
     </Frame>
 
-	<CheckButton name="NarciWoWCheckboxWithLabelTemplate" motionScriptsWhileDisabled="true" virtual="true">
+	<CheckButton name="NarciWoWCheckboxWithLabelTemplate" mixin="NarciWoWCheckboxWithLabelMixin" motionScriptsWhileDisabled="true" virtual="true">
 		<Size x="192" y="24"/>
 		<Layers>
 			<Layer level="OVERLAY">
@@ -2841,5 +2841,12 @@
 				<Anchor point="BOTTOMRIGHT" relativeKey="$parent.NormalTexture" relativePoint="BOTTOMRIGHT"/>
 			</Anchors>
 		</DisabledCheckedTexture>
+		<Scripts>
+			<OnEnter method="OnEnter"/>
+			<OnLeave method="OnLeave"/>
+			<OnClick method="OnClick"/>
+			<OnEnable method="OnEnable"/>
+			<OnDisable method="OnDisable"/>
+		</Scripts>
 	</CheckButton>
 </Ui>

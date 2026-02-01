@@ -806,3 +806,10 @@ L["New Set Location Shared"] = "此套装将被保存至共享列表。";
 L["Save Custom Set Location"] = "保存至：";
 L["Save Slots Colon"] = "存档数量：";
 L["Error View Outfit In Combat"] = "你无法在战斗中浏览外观。";
+
+
+--WardrobeCollection--
+L["ModuleName WardrobeCollection"] = "外观页面";
+L["ModuleDescription WardrobeCollection"] = "在战团藏品-外观页面添加一个按钮，允许你隐藏身上还未收集的套装部位。"
+L["Hide Uncollected Slots"] = "Hide Uncollected";
+L["Hide Uncollected Slots Tooltip"] = "Hide Uncollected Slots |cffffd100(%s)|r";
