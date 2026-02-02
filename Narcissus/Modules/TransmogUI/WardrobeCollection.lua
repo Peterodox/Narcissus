@@ -123,7 +123,7 @@ local function InitModule()
 
     Checkbox:SetScript("OnEvent", function(self, event, ...)
         local key, down = ...
-        if down == 0 and (key == "LALT" or key == "RALT") then
+        if down == 0 and (key == "LALT" or key == "RALT") and WardrobeCollectionFrame:IsMouseOver() then
             --Use key release as Click to avoid being triggered by Alt + Tab
             self:SetChecked(not Def.HideUncollectedSlot);
             self.onClickFunc(self, "LeftButton");
