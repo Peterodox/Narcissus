@@ -1,22 +1,21 @@
+local _, addon = ...
+
 local AFK_MSG = string.format(MARKED_AFK_MESSAGE, DEFAULT_AFK_MESSAGE);
 
 local AFK = CreateFrame("Frame");
 
 local UnitIsAFK = UnitIsAFK;
+local Secret_CanAccess = addon.TransitionAPI.Secret_CanAccess;
 
-do
-    local _, addon = ...
-    local SettingFunctions = addon.SettingFunctions;
 
-    function SettingFunctions.UseAFKScreen(state, db)
-        if state == nil then
-            state = db["AFKScreen"];
-        end
-        if state then
-            AFK:RegisterEvent("CHAT_MSG_SYSTEM");
-        else
-            AFK:UnregisterEvent("CHAT_MSG_SYSTEM");
-        end
+function addon.SettingFunctions.UseAFKScreen(state, db)
+    if state == nil then
+        state = db["AFKScreen"];
+    end
+    if state then
+        AFK:RegisterEvent("CHAT_MSG_SYSTEM");
+    else
+        AFK:UnregisterEvent("CHAT_MSG_SYSTEM");
     end
 end
 
@@ -37,8 +36,7 @@ local function CanShowAFKScreen()
 end
 
 local function ShowAFKScreen()
-    if not Narci.isActive then
-        --securecall("CloseAllWindows");    --cause taint?
+    if (not Narci.isActive) and (not InCombatLockdown()) then
         CloseWindows();
         Narci_MinimapButton:Click();
         Narci.isAFK = true;
@@ -135,12 +133,11 @@ local function CreateAFKCountdown()
 end
 
 
-
 AFK:SetScript("OnEvent", function(self, event, ...)
     if not NarcissusDB or not NarcissusDB.AFKScreen then return; end
 
     local name = ...
-    if name == AFK_MSG and CanShowAFKScreen() then
+    if Secret_CanAccess(name) and name == AFK_MSG and CanShowAFKScreen() then
         if NarcissusDB and NarcissusDB.AKFScreenDelay then
             if not AFKCountdownFrame then
                 CreateAFKCountdown();
@@ -149,12 +146,5 @@ AFK:SetScript("OnEvent", function(self, event, ...)
         else
             ShowAFKScreen();
         end
-        --[[
-        C_Timer.After(0.6, function()
-            if IsResting() then
-                DoEmote("Read", "none");
-            end
-        end)
-        --]]
     end
 end)

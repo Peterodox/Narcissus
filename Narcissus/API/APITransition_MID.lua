@@ -7,11 +7,14 @@ local ipairs = ipairs;
 local pairs = pairs;
 local unpack = unpack;
 local select = select;
-local issecretvalue = issecretvalue or function(_) return false end;
-TransitionAPI.Secret_IsSecret = issecretvalue;
 
 
 do  --Secret General
+    local issecretvalue = issecretvalue or function(_) return false end;
+    TransitionAPI.Secret_IsSecret = issecretvalue;
+
+    local canaccessvalue = canaccessvalue or function(_) return true end;
+
     local function Secret_Multiply(...)
         if select("#", ...) == 1 then
             return ...
@@ -41,6 +44,15 @@ do  --Secret General
         return obj ~= nil
     end
     TransitionAPI.Secret_DoesStringExist = Secret_DoesStringExist;
+
+
+    local function Secret_CanAccess(v)
+        if canaccessvalue(v) then
+            return v ~= nil
+        end
+        return false
+    end
+    TransitionAPI.Secret_CanAccess = Secret_CanAccess;
 end
 
 
