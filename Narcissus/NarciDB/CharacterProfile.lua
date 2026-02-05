@@ -210,6 +210,13 @@ function ProfileAPI:GetNumOutfits(uid)
     return outfits and #outfits or 0
 end
 
+function ProfileAPI:DeleteCharacterOutfits(uid)
+    local data = self:GetPlayerInfo(uid);
+    if data then
+        data.outfits = {};
+    end
+end
+
 function ProfileAPI:GetRealmName(realmID)
     if realmID and NarcissusDB and NarcissusDB.RealmNames then
         return NarcissusDB.RealmNames[realmID]

@@ -13,7 +13,7 @@
 	<Script file="WardrobeCollection.lua"/>
 
 
-	<Button name="NarciCustomSetsMenuButtonTemplate" motionScriptsWhileDisabled="true" virtual="true">
+	<Button name="NarciCustomSetsMenuButtonTemplate" motionScriptsWhileDisabled="true" registerForClicks="LeftButtonUp, RightButtonUp" virtual="true">
 		<Size x="128" y="24"/>
 		<Layers>
 			<Layer level="OVERLAY">

@@ -446,6 +446,17 @@ do  --Alt Character Custom Sets
         self.allCharacterCustomSets = tbl;
         return tbl
     end
+
+    CallbackRegistry:Register("TransmogUI.CharacterInfoDeleted", function(uid)
+        if TransmogUIManager.allCharacterCustomSets then
+            for i, characterInfo in ipairs(TransmogUIManager.allCharacterCustomSets) do
+                if characterInfo.uid == uid then
+                    table.remove(TransmogUIManager.allCharacterCustomSets, i);
+                    break
+                end
+            end
+        end
+    end);
 end
 
 do  --Shared Custom Sets

@@ -872,6 +872,9 @@ L["New Set Location Shared"] = "This custom set will be added to the Shared List
 L["Save Custom Set Location"] = "Save to:";
 L["Save Slots Colon"] = "Save Slots: ";
 L["Error View Outfit In Combat"] = "You cannot view custom sets while in combat";
+L["Profile Management"] = "Profile Management";
+L["Delete Character Data"] = "Delete Character";
+L["Delete Character Data Tooltip"] = "This option is for cleaning up your inactive or deleted characters.\n\nDelete the locally stored custom sets data on this character. The Narcissus addon will store the data again when you log into this character.";
 
 
 --WardrobeCollection--

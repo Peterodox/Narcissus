@@ -3041,10 +3041,14 @@ do  --11.0 Menu Formatter
 
                 if info.tooltip then
                     elementDescription:SetTooltip(function(tooltip, elementDescription)
-                        GameTooltip_SetTitle(tooltip, MenuUtil.GetElementText(elementDescription));
-                        GameTooltip_AddNormalLine(tooltip, info.tooltip);
-                        --GameTooltip_AddInstructionLine(tooltip, "Test Tooltip Instruction");
-                        --GameTooltip_AddErrorLine(tooltip, "Test Tooltip Colored Line");
+                        if type(info.tooltip) == "function" then
+                            info.tooltip(tooltip);
+                        else
+                            GameTooltip_SetTitle(tooltip, MenuUtil.GetElementText(elementDescription));
+                            GameTooltip_AddNormalLine(tooltip, info.tooltip);
+                            --GameTooltip_AddInstructionLine(tooltip, "Test Tooltip Instruction");
+                            --GameTooltip_AddErrorLine(tooltip, "Test Tooltip Colored Line");
+                        end
                     end);
                 end
 

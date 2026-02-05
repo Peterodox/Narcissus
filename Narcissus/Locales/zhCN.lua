@@ -806,6 +806,9 @@ L["New Set Location Shared"] = "此套装将被保存至共享列表。";
 L["Save Custom Set Location"] = "保存至：";
 L["Save Slots Colon"] = "存档数量：";
 L["Error View Outfit In Combat"] = "你无法在战斗中浏览外观。";
+L["Profile Management"] = "存档管理";
+L["Delete Character Data"] = "删除此角色";
+L["Delete Character Data Tooltip"] = "此选项帮助你清理不活跃的或者已不存在的角色。\n\n删除此角色上本地保存的套装。Narcissus插件会在你登陆这个角色后重新储存套装信息。";
 
 
 --WardrobeCollection--
