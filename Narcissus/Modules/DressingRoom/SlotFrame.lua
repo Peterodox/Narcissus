@@ -351,6 +351,7 @@ NarciDressingRoomItemButtonMixin = {};
 local function SecondaryButton_OnEnter(itemButton)
     local tooltip = GameTooltip;
     tooltip:SetOwner(itemButton, "ANCHOR_NONE");
+    tooltip.suppressAutomaticCompareItem = true;
     tooltip:SetPoint("BOTTOMLEFT", itemButton, "TOPLEFT", 0, 8);
     if (itemButton.name) then
         tooltip:SetText(itemButton.name);
@@ -362,7 +363,6 @@ local function SecondaryButton_OnEnter(itemButton)
     elseif (itemButton.hyperlink) then
         tooltip:SetHyperlink(itemButton.hyperlink);
         tooltip:Show();
-        TooltipComparisonManager:Clear(tooltip);
     else
         tooltip:Hide();
     end
@@ -406,11 +406,11 @@ end
 function NarciDressingRoomItemButtonMixin:OnEnter()
     local tooltip = GameTooltip;
     tooltip:SetOwner(self, "ANCHOR_NONE");
+    tooltip.suppressAutomaticCompareItem = true;
     tooltip:SetPoint("BOTTOMLEFT", self, "TOPLEFT", 2, 4);
     if (self.hyperlink) then
         tooltip:SetHyperlink(self.hyperlink);
         tooltip:Show();
-        TooltipComparisonManager:Clear(tooltip);
     elseif self.localizedName then
         tooltip:SetText(self.localizedName);
         tooltip:Show();
