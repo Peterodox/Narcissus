@@ -55,7 +55,3 @@ function SlashCommandModule:OnLoad()
         return self:IsMouseOver()
     end
 end
-
---[[
-    --which = ADDON_ACTION_FORBIDDEN
---]]

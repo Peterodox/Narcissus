@@ -20,6 +20,7 @@ L["Day Plural"] = "天";
 L["Day Singular"] = "天";
 L["Hour Plural"] = "小时";
 L["Hour Singular"] = "小时";
+L["Last Visit"] = "上次登录：";
 
 L["Swap items"] = "更换装备";
 L["Movement Speed"] = STAT_MOVEMENT_SPEED;

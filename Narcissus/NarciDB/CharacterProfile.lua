@@ -217,6 +217,15 @@ function ProfileAPI:DeleteCharacterOutfits(uid)
     end
 end
 
+function ProfileAPI:GetCharacterLastVisit(uid)
+    -- return X days/months ago
+    local data = self:GetPlayerInfo(uid);
+    if data and data.lastVisit then
+        local current = time();
+        return NarciAPI.ConvertSecondsToTimePassed(current - data.lastVisit);
+    end
+end
+
 function ProfileAPI:GetRealmName(realmID)
     if realmID and NarcissusDB and NarcissusDB.RealmNames then
         return NarcissusDB.RealmNames[realmID]

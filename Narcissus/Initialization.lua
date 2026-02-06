@@ -377,6 +377,24 @@ Initialization:SetScript("OnEvent",function(self,event,...)
 end);
 
 
+local function ConvertSecondsToTimePassed(seconds)
+    local timeText;
+    local days = math.floor(TIME_SINCE_LAST_UPDATE / 86400 + 0.5);
+    if days >= 1 then
+        if days < 60 then
+            timeText = string.format(Narci.L["Format Days Ago"], days);
+        else
+            local months = math.floor(days / 30.5 + 0.5);
+            timeText = string.format(Narci.L["Format Months Ago"], months);
+        end
+    else
+        timeText = Narci.L["Today"];
+    end
+    return timeText
+end
+NarciAPI.ConvertSecondsToTimePassed = ConvertSecondsToTimePassed;
+
+
 local function GetAddOnVersionInfo(versionOnly)
     if versionOnly then
         return NARCI_VERSION_INFO

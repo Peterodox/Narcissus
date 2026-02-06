@@ -48,6 +48,7 @@ L["Day Plural"] = "Days";
 L["Day Singular"] = "Day";
 L["Hour Plural"] = "Hours";
 L["Hour Singular"] = "Hour";
+L["Last Visit"] = "Last Visit: ";
 
 L["Swap items"] = "Swap items";
 L["Press Copy"] = NARCI_COLOR_GREY_70.. "Press |r".. NARCI_SHORTCUTS_COPY.. NARCI_COLOR_GREY_70 .." to Copy";

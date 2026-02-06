@@ -47,6 +47,10 @@ do
     end
 
     function MenuButtonMixin:OnClick(button)
+        if Menu:HideContextMenu() then
+            return
+        end
+
         if self.onClickFunc then
             if self.onClickFunc(self, button) then
                 Menu:Hide();
@@ -143,6 +147,10 @@ do
                         tooltip = function(tooltip)
                             tooltip:SetText(L["Delete Character Data"], 1, 1, 1);
                             tooltip:AddLine(characterName, 1, 1, 1);
+                            local timeText = addon.ProfileAPI:GetCharacterLastVisit(uid);
+                            if timeText then
+                                tooltip:AddLine(L["Last Visit"]..timeText, 0.5, 0.5, 0.5);
+                            end
                             tooltip:AddLine(" ");
                             tooltip:AddLine(L["Delete Character Data Tooltip"], 1, 0.82, 0, true);
                             tooltip:Show();
@@ -165,6 +173,10 @@ do
             menu:ClearAllPoints();
             menu:SetPoint("TOPLEFT", self, "TOPRIGHT", -8, 2);
         end
+    end
+
+    function MenuButtonMixin:HandlesGlobalMouseEvent(buttonName, event)
+        return true
     end
 
     function MenuButton_PostCreate(f)
@@ -505,11 +517,16 @@ do  --MenuMixin
         self.owner = owner;
     end
 
-    function Menu:OnMouseWheel(delta)
+    function Menu:HideContextMenu()
         if self.shownContextMenu then
             self.shownContextMenu:Hide();
             self.shownContextMenu = nil;
+            return true
         end
+    end
+
+    function Menu:OnMouseWheel(delta)
+        self:HideContextMenu();
 
         if not self.page then return end;
 
