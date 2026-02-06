@@ -6,7 +6,6 @@ addon.CameraUtil = CameraUtil;
 
 
 local GetCVar = C_CVar.GetCVar;
-local GetCVarBool = C_CVar.GetCVarBool;
 local SetCVar = C_CVar.SetCVar;
 local After = C_Timer.After;
 
@@ -76,6 +75,8 @@ do  --Move Smooth Yaw/Pitch/Shoulder
         end);
 
         function CameraUtil:SmoothYaw()
+            if not NarcissusDB.CameraAutoZoomIn then return end;
+
             --Rotate from player back to front
             local a = 180/(GetCVar("cameraYawMoveSpeed") or 180);
             self.Yaw.toSpeed = a * YAW_SPEED_END;
@@ -107,6 +108,8 @@ do  --Move Smooth Yaw/Pitch/Shoulder
         end);
 
         function CameraUtil:SmoothPitch()
+            if not NarcissusDB.CameraAutoZoomIn then return end;
+
             self.Pitch.t = 0;
             self.Pitch:Show();
         end
@@ -173,6 +176,8 @@ do  --Move Smooth Yaw/Pitch/Shoulder
 
     do  --Zoom
         function CameraUtil:ZoomTo(goal)
+            if not NarcissusDB.CameraAutoZoomIn then return end;
+
             local current = GetCameraZoom();
             if current >= goal then
                 CameraZoomIn(current - goal);   --Calling global because other addons may change it

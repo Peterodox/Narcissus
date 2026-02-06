@@ -174,8 +174,18 @@ function NarciSettingsSharedButtonMixin:SetState(state)
     end
 
     if self.children then
-        for i = 1, #self.children do
-            self.children[i]:SetShown(state);
+        for _, obj in ipairs(self.children) do
+            if state then
+                if obj.SetEnabled then
+                    obj:SetEnabled(true);
+                end
+                obj:SetAlpha(1);
+            else
+                if obj.SetEnabled then
+                    obj:SetEnabled(false);
+                end
+                obj:SetAlpha(0.25);
+            end
         end
     end
 end
@@ -696,6 +706,21 @@ local function ModelHitRectShrinkage_OnValueChanged(self, value)
     SettingFunctions.SetModelHitRectShrinkage(value);
 end
 
+local function CameraAutoZoomIn_SetupDescription(self)
+    if DB[self.key] then
+        if self.description then
+            self.description:SetText(L["Camera Auto Zoom In On"])
+        end
+    else
+        if self.description then
+            self.description:SetText(L["Camera Auto Zoom In Off"])
+        end
+    end
+end
+
+local function CameraAutoZoomIn_OnValueChanged(self, value)
+    CameraAutoZoomIn_SetupDescription(self);
+end
 
 local function CameraTransition_SetupDescription(self)
     if DB[self.key] then
@@ -1036,8 +1061,6 @@ function MinimapButtonSkin.CreateOptions(parentLabel, parent, anchorTo, fromOffs
     self.buttons = {};
     self.anchorTo = anchorTo;
     self.container = CreateFrame("Frame", nil, parent);
-    --self.container:Hide();
-    --self.container:SetAlpha(0);
 
     local col, row = 1, 1;
     local b;
@@ -1071,6 +1094,12 @@ function MinimapButtonSkin.CreateOptions(parentLabel, parent, anchorTo, fromOffs
 
     newObj.UpdateState = function()
         MinimapButtonSkin:UpdateState();
+    end
+
+    newObj.SetEnabled = function(_, state)
+        for _, obj in ipairs(self.buttons) do
+            obj:SetEnabled(state);
+        end
     end
 
     return newHeight, newObj
@@ -1724,6 +1753,11 @@ local function CreateWidget(parent, anchorTo, offsetX, offsetY, widgetData)
 
         height = height + WIDGET_GAP;
 
+        obj.SetEnabled = function(_, state)
+            slider:EnableMouse(state);
+            slider:EnableMouseMotion(state);
+        end
+
         --local left = MainFrame.ScrollFrame:GetLeft();
         --local right = slider:GetRight() + PADDING_H;
         --print(left - right);
@@ -1823,10 +1857,11 @@ local Categories = {
     {name = L["Camera"], level = 1, key = "camera",
         widgets = {
             {type = "header", level = 0, text = L["Camera"]},
-            {type = "checkbox", level = 1, key = "CameraTransition", text = L["Camera Transition"], onValueChangedFunc = CameraTransition_OnValueChanged, description = L["Camera Transition Description Off"], setupFunc = CameraTransition_SetupDescription},
-            {type = "checkbox", level = 1, key = "CameraOrbit", text = L["Orbit Camera"], onValueChangedFunc = CameraOrbitToggle_OnValueChanged, description = L["Orbit Camera Description On"], setupFunc = CameraOrbitToggle_SetupDescription},
+            {type = "checkbox", level = 1, key = "CameraAutoZoomIn", text = L["Camera Auto Zoom In"], onValueChangedFunc = CameraAutoZoomIn_OnValueChanged, description = L["Camera Auto Zoom In Off"], setupFunc = CameraAutoZoomIn_SetupDescription, isNewFeature = true},
+            {type = "checkbox", level = 3, key = "CameraTransition", text = L["Camera Transition"], isChild = true, onValueChangedFunc = CameraTransition_OnValueChanged, description = L["Camera Transition Description Off"], setupFunc = CameraTransition_SetupDescription},
+            {type = "checkbox", level = 3, key = "CameraOrbit", text = L["Orbit Camera"], isChild = true, onValueChangedFunc = CameraOrbitToggle_OnValueChanged, description = L["Orbit Camera Description On"], setupFunc = CameraOrbitToggle_SetupDescription},
+            {type = "checkbox", level = 3, key = "UseBustShot", text = L["Use Bust Shot"], isChild = true, onValueChangedFunc = CameraUseBustShot_OnValueChanged},
             {type = "checkbox", level = 1, key = "CameraSafeMode", text = L["Camera Safe Mode"], onValueChangedFunc = CameraSafeToggle_OnValueChanged, description = L["Camera Safe Mode Description"], validityCheckFunc = CameraSafeToggle_IsValid},
-            {type = "checkbox", level = 1, key = "UseBustShot", text = L["Use Bust Shot"], onValueChangedFunc = CameraUseBustShot_OnValueChanged},
         },
     },
 

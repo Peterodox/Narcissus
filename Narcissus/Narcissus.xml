@@ -339,7 +339,7 @@
 				</Texture>
 			</Layer>
 			<Layer level="OVERLAY">
-				<FontString parentKey="Name" inherits="NarciFontItemName" justifyH="LEFT" justifyV="TOP" text="Item Name" maxLines="2">
+				<FontString parentKey="Name" inherits="NarciFontItemName" justifyH="LEFT" justifyV="TOP" maxLines="2">
 					<Size x="0" y="0"/>
 					<Anchors>
 						<Anchor point="TOPLEFT" relativeKey="$parent.GradientBackground" relativePoint="TOPLEFT" x="30" y="-7"/>
@@ -353,7 +353,7 @@
 						</AnimationGroup>
 					</Animations>
 				</FontString>
-				<FontString parentKey="ItemLevel" inherits="NarciFontNormal10White" justifyH="LEFT" justifyV="TOP" text="355" maxLines="2">
+				<FontString parentKey="ItemLevel" inherits="NarciFontNormal10White" justifyH="LEFT" justifyV="TOP" maxLines="2">
 					<Size x="0" y="0"/>
 					<Anchors>
 						<Anchor point="BOTTOMLEFT" relativeKey="$parent.GradientBackground" relativePoint="BOTTOMLEFT" x="30" y="6"/>
@@ -410,7 +410,7 @@
 				</Texture>
 			</Layer>	
 			<Layer level="OVERLAY">
-				<FontString parentKey="Name" inherits="NarciFontItemName" justifyH="RIGHT" justifyV="TOP" text="Item Name" maxLines="2">
+				<FontString parentKey="Name" inherits="NarciFontItemName" justifyH="RIGHT" justifyV="TOP" maxLines="2">
 					<Size x="0" y="0"/>
 					<Anchors>
 						<Anchor point="TOPRIGHT" relativeKey="$parent.GradientBackground" relativePoint="TOPRIGHT" x="-30" y="-7"/>
@@ -424,7 +424,7 @@
 						</AnimationGroup>
 					</Animations>
 				</FontString>
-				<FontString parentKey="ItemLevel" inherits="NarciFontNormal10White" justifyH="RIGHT" justifyV="TOP" text="355" maxLines="2">
+				<FontString parentKey="ItemLevel" inherits="NarciFontNormal10White" justifyH="RIGHT" justifyV="TOP" maxLines="2">
 					<Size x="0" y="0"/>
 					<Anchors>
 						<Anchor point="BOTTOMRIGHT" relativeKey="$parent.GradientBackground" relativePoint="BOTTOMRIGHT" x="-30" y="6"/>

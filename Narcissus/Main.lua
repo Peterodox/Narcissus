@@ -298,6 +298,15 @@ function IntroMotion:InstantZoomIn()
 end
 
 function IntroMotion:Enter()
+	if not NarcissusDB.CameraAutoZoomIn then
+		After(0.25, function()
+			self:ShowFrame();
+		end);
+		CameraUtil:SmoothShoulderByZoom();
+		UIParentFade:FadeOutUIParent();
+		return
+	end
+
 	SetCVar("test_cameraDynamicPitch", 1);
 
 	if self.useCameraTransition then
