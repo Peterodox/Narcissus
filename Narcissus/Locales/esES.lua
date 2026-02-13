@@ -51,6 +51,7 @@ L["Day Plural"] = "días";
 L["Day Singular"] = "día";
 L["Hour Plural"] = "horas";
 L["Hour Singular"] = "hora";
+L["Last Visit"] = "Última visita: ";
 
 L["Swap items"] = "Intercambiar items";
 L["Press Copy"] = NARCI_COLOR_GREY_70.. "Presiona |r".. NARCI_SHORTCUTS_COPY.. NARCI_COLOR_GREY_70 .." para copiar";
@@ -875,3 +876,13 @@ L["New Set Location Shared"] = "Este conjunto personalizado se añadirá a la li
 L["Save Custom Set Location"] = "Guardar en:";
 L["Save Slots Colon"] = "Guardar ranuras: ";
 L["Error View Outfit In Combat"] = "No puedes ver conjuntos personalizados durante el combate";
+L["Profile Management"] = "Gestión de perfiles";
+L["Delete Character Data"] = "Borrar personaje";
+L["Delete Character Data Tooltip"] = "Esta opción sirve para limpiar tus personajes inactivos o borrados.\n\nElimina los datos de conjuntos personalizados almacenados localmente en este personaje. El complemento Narcissus volverá a almacenar los datos cuando inicies sesión con este personaje.";
+
+
+--WardrobeCollection--
+L["ModuleName WardrobeCollection"] = "Pestaña Apariencias";
+L["ModuleDescription WardrobeCollection"] = "Se ha añadido una casilla de verificación para ocultar las ranuras no conocidas en el modelo de vista previa al ver un conjunto en la pestaña Apariencias."
+L["Hide Uncollected Slots"] = "Ocultar no conocido";
+L["Hide Uncollected Slots Tooltip"] = "Ocultar ranuras no conocidas |cffffd100(%s)|r";
