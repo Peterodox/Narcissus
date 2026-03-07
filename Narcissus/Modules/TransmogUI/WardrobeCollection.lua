@@ -8,6 +8,10 @@ local Def = {
 
 
 local EL = CreateFrame("Frame");
+EL:Hide();
+EL.IsControlKeyDown = IsControlKeyDown;
+EL.GetMouseFocus = addon.TransitionAPI.GetMouseFocus;
+
 
 function EL:RequestUpdate()
     self.t = 0;
@@ -72,6 +76,53 @@ function EL:UpdateSlotVisibility(userInput)
     end
 end
 
+function EL:IsMouseOverList()
+    return false
+end
+
+function EL:GetSetIDFromMouseover()
+    local obj = self.GetMouseFocus();
+    local setID = obj and obj.setID or obj:GetParent().setID;
+    return setID
+end
+
+function EL:OnEvent(event, ...)
+    if event == "GLOBAL_MOUSE_DOWN" then
+        if self:IsControlKeyDown() and self:IsMouseOverList() then
+            local setID = self:GetSetIDFromMouseover();
+            if setID then
+                self:TryOnSetInDressingRoom(setID);
+            end
+        end
+    elseif event == "MODIFIER_STATE_CHANGED" then
+        if self:IsControlKeyDown() and self:IsMouseOverList() and self:GetSetIDFromMouseover() then
+            SetCursor("INSPECT_CURSOR");
+        else
+            ResetCursor();
+        end
+    end
+end
+
+function EL:TryOnSetInDressingRoom(setID)
+    if InCombatLockdown() then
+        addon.DisplayTopMessage(Narci.L["Error View Outfit In Combat"], "Red");
+    else
+        if setID == self.setID then
+            
+        else
+
+        end
+    end
+end
+
+function EL:OnShow()
+    self:RegisterEvent("GLOBAL_MOUSE_DOWN");
+end
+
+function EL:OnHide()
+    self:UnregisterEvent("GLOBAL_MOUSE_DOWN");
+end
+
 
 local function OnDisplaySet(self, setID)
     EL.setID = setID;
@@ -84,6 +135,16 @@ local function InitModule()
     Def.loaded = true;
 
     local f = WardrobeCollectionFrame.SetsCollectionFrame;
+
+    function EL:IsMouseOverList()
+        return f:IsVisible() and f.ListContainer:IsMouseOver()
+    end
+
+    EL:SetParent(f);
+    --EL:SetScript("OnShow", EL.OnShow);
+    --EL:SetScript("OnHide", EL.OnHide);
+    --EL:SetScript("OnEvent", EL.OnEvent);
+    EL:Show();
 
     hooksecurefunc(f, "DisplaySet", OnDisplaySet);
     f.Model:SetViewTranslation(0, Def.ModelViewTranslationY);
@@ -156,6 +217,8 @@ local function EnableModule(state)
 
     elseif (not state) and Def.enabled then
         Def.enabled = nil;
+
+        EL:Hide();
 
         if EL.Checkbox then
             EL.Checkbox:Hide();
