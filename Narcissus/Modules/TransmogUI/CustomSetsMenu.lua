@@ -277,6 +277,7 @@ do
 
     local lower = string.lower;
     local find = string.find;
+    local StripAccents = NarciAPI.StripAccents;
 
     local function StringMatch(baseString, word)
         if baseString and baseString ~= "" and find(lower(baseString), word, 1, true) then
@@ -302,7 +303,11 @@ do
         local matched = true;
         for _, word in ipairs(words) do
             if word ~= "" then
-                if not ( StringMatch(data.name, word) or StringMatch(data.raceName, word) or StringMatch(data.className, word) or StringMatch(data.realmName, word) ) then
+                if not data.searchName then
+                    data.searchName = StripAccents(data.name);
+                end
+
+                if not ( StringMatch(data.searchName, word) or StringMatch(data.raceName, word) or StringMatch(data.className, word) or StringMatch(data.realmName, word) ) then
                     matched = false;
                     break
                 end

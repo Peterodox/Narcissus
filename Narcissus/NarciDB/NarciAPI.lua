@@ -3289,3 +3289,64 @@ do  --System
         SlashCmdList[name] = func;
     end
 end
+
+do  --Diacritical Matching
+    local Mapping = {
+        a = "ÀÁÂÃÄÅÆàáâãäåæĀāĂăĄą",
+        c = "ÇçĆćĈĉĊċČč",
+        e = "ÈÉÊËÐèéêëðĒēĔĕĖėĘęĚě",
+        i = "ÌÍÎÏìíîïĨĩĪīĬĭĮįİıĲĳ",
+        n = "ÑñŃńŅņŇňŉŊŋ",
+        o = "ÒÓÔÕÖØòóôõöøŌōŎŏŐőŒœ",
+        u = "ÙÚÛÜùúûüŨũŪūŬŭŮůŰűŲų",
+        y = "ÝýÿŷŸ",
+        p = "Þþ",
+        s = "ßŚśŜŝŞşŠšſ",
+        d = "ĎďĐđ",
+        g = "ĜĝĞğĠġĢģ",
+        h = "ĤĥĦħ",
+        j = "Ĵĵ",
+        k = "Ķķĸ",
+        l = "ĹĺĻļĽľĿŀŁł",
+        r = "ŔŕŖŗŘř",
+        t = "ŢţŤťŦŧ",
+        w = "Ŵŵ",
+        z = "ŹźŻżŽž",
+    };
+
+    local function ReverseMapping()
+        local sub = string.sub;
+        local i, total;
+        local tbl = {};
+        for char, accents in pairs(Mapping) do
+            i = 1;
+            total = #accents;
+            while i <= total do
+                tbl[sub(accents, i, i + 1)] = char;
+                i = i + 2;
+            end
+        end
+        Mapping = tbl;
+    end
+
+    if TEXT_LOCALE == "zhCN" or TEXT_LOCALE == "zhTW" then
+        function NarciAPI.StripAccents(str)
+            return str
+        end
+    else
+        function NarciAPI.StripAccents(str)
+            if ReverseMapping then
+                local func = ReverseMapping;
+                ReverseMapping = nil;
+                func();
+            end
+
+            local gsub = string.gsub;
+            str = string.lower(str);
+            for accent, char in pairs(Mapping) do
+                str = gsub(str, accent, char);
+            end
+            return str
+        end
+    end
+end
