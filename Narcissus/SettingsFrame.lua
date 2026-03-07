@@ -1857,7 +1857,7 @@ local Categories = {
     {name = L["Camera"], level = 1, key = "camera",
         widgets = {
             {type = "header", level = 0, text = L["Camera"]},
-            {type = "checkbox", level = 1, key = "CameraAutoZoomIn", text = L["Camera Auto Zoom In"], onValueChangedFunc = CameraAutoZoomIn_OnValueChanged, description = L["Camera Auto Zoom In Off"], setupFunc = CameraAutoZoomIn_SetupDescription, isNewFeature = true},
+            {type = "checkbox", level = 1, key = "CameraAutoZoomIn", text = L["Camera Auto Zoom In"], onValueChangedFunc = CameraAutoZoomIn_OnValueChanged, description = L["Camera Auto Zoom In Off"], setupFunc = CameraAutoZoomIn_SetupDescription},
             {type = "checkbox", level = 3, key = "CameraTransition", text = L["Camera Transition"], isChild = true, onValueChangedFunc = CameraTransition_OnValueChanged, description = L["Camera Transition Description Off"], setupFunc = CameraTransition_SetupDescription},
             {type = "checkbox", level = 3, key = "CameraOrbit", text = L["Orbit Camera"], isChild = true, onValueChangedFunc = CameraOrbitToggle_OnValueChanged, description = L["Orbit Camera Description On"], setupFunc = CameraOrbitToggle_SetupDescription},
             {type = "checkbox", level = 3, key = "UseBustShot", text = L["Use Bust Shot"], isChild = true, onValueChangedFunc = CameraUseBustShot_OnValueChanged},

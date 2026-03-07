@@ -1,5 +1,6 @@
 local _, addon = ...
 local EaseFunc = addon.EasingFunctions.outQuart;
+local Secret_CanAccess = addon.TransitionAPI.Secret_CanAccess;
 
 local Scene = {};
 local StoryboardUtil = {};
@@ -192,6 +193,8 @@ function StoryboardUtil.CreateAndSetScene(sceneName)
     StoryboardUtil.SetScene(newCard, sceneName);
 end
 
+
+--[[
 do
     --Serves as an easter egg for now
     local TRIGGER_QUEST_ID = 72920;     --The Endless Burning Sky.  Extinguish the fires consuming Loamm and rescue 5 Loamm villagers.
@@ -224,6 +227,7 @@ do
 
     addon.AddInitializationCallback(SetupSotryboardTrigger);
 end
+--]]
 
 
 local QuestItemTracker = CreateFrame("Frame");
@@ -232,19 +236,16 @@ local match = string.match;
 local select = select;
 local tonumber = tonumber;
 local GetItemInfoInstant = C_Item.GetItemInfoInstant;
-local find = string.find;
-local LOOT_ITEM_SELF = string.gsub(LOOT_ITEM_SELF or "You receive loot: %s", "%%s", "");
 local QuestItemDB = {};
 local PLAYER_GUID = "";
 
 local function QuestItemTracker_OnEvent(self, event, text, playerName, languageName, channelName, playerName2, specialFlags, zoneChannelID, channelIndex, channelBaseName, languageID, lineID, guid)
-    local itemID = match(text, "item:(%d+)", 1);
-    if itemID then
-        itemID = tonumber(itemID);
-        --print(event, itemID)
-        local classID = select(6, GetItemInfoInstant(itemID));
-        if classID == 12 then
-            if guid == PLAYER_GUID then    --find(text, LOOT_ITEM_SELF)
+    if Secret_CanAccess(guid) and Secret_CanAccess(PLAYER_GUID) and guid == PLAYER_GUID then
+        local itemID = Secret_CanAccess(text) and match(text, "item:(%d+)", 1);
+        itemID = itemID and tonumber(itemID);
+        if itemID then
+            local classID = select(6, GetItemInfoInstant(itemID));
+            if classID == 12 then
                 if not QuestItemDB[itemID] then
                     QuestItemDB[itemID]= true;
                     NarciQuestItemDisplay:SetItem(itemID);
