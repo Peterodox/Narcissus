@@ -85,9 +85,17 @@ local MAP_UI_INFO = {
     [247] = {name = 'the-motherlode'},
 
     [542] = {name = 'ecodome-aldani'},
+
+    [558] = {name = 'magisters-terrace'},
+    [560] = {name = 'maisara-caverns'},
+    [559] = {name = 'nexuspoint-xenas'},
+    [556] = {name = 'pit-of-saron'},
+    [583] = {name = 'seat-of-the-triumvirate'},
+    [161] = {name = 'skyreach'},
+    [557] = {name = 'windrunner-spire'},
 };
 
-local SEASON_MAPS = {542, 525, 505, 503, 499, 392, 391, 378};
+local SEASON_MAPS = {402, 558, 560, 559, 556, 583, 161, 557};
 local IS_MAP_THIS_SEASON = {};
 
 local function ShowNewDungeons()
@@ -704,7 +712,7 @@ function NarciMythicPlusDisplayMixin:PostUpdate()
     end
     self.requireUpdate = false;
 
-    local seasonID = (C_MythicPlus.GetCurrentSeason() or 6) - 4;
+    --local seasonID = (C_MythicPlus.GetCurrentSeason() or 6) - 4;
     --self.SeasonText:SetText(string.format(SL_SEASON_NUMBER, seasonID));
     --self.CardContainer.GraphDescription:SetText(string.format("%s    %s    %s", PVP_RATING_HEADER or "Rating", AFFIX_TYRANNICAL, AFFIX_FORTIFIED));  --MYTHIC_PLUS_SEASON_BEST
 
