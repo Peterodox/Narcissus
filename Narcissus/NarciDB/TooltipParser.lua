@@ -270,6 +270,7 @@ end
 
 local function ReformatCraftingQualityText(text, addTierTextToRight)
     local quality = match(text, "[Qq]uality%-[Tt]ier(%d)", 1);     --10.0.7: Changed to Professions-(Chat)Icon-Quality-Tier
+
     if quality then
         local tempText = gsub(text, "%s?|A[^|]+|a", "");
         if tempText then
@@ -296,6 +297,29 @@ local function ReformatCraftingQualityText(text, addTierTextToRight)
             end
         end
     end
+
+    quality = match(text, "[Qq]uality%-12%-[Tt]ier(%d)", 1);
+    if quality then
+        local tempText = gsub(text, "%s?|A[^|]+|a", "");
+        if tempText then
+            local color;
+            quality = tonumber(quality);
+            if quality == 1 then
+                color = "|cffbbbbbb";
+            elseif quality == 2 then
+                color = "|cffe8d05e";
+            else
+                color = "|cffffffff";
+            end
+
+            if addTierTextToRight then
+                return tempText .."  "..color.."T"..quality.."|r", true
+            else
+                return color.."T"..quality.."|r  "..tempText, true
+            end
+        end
+    end
+
     return text, quality ~= nil
 end
 

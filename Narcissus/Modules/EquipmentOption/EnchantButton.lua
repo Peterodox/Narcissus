@@ -497,7 +497,7 @@ function NarciEquipmentEnchantButtonMixin:SetEnchantData(spellID, itemID, enchan
             notLoaded = true;
         end
         if name and name ~= "" then
-            notLoaded = notLoaded or false
+            notLoaded = notLoaded or false;
             if name == enchantText then
                 name = nil;
             end
