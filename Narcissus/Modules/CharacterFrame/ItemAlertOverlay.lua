@@ -69,18 +69,18 @@ local SLOT_PRIORITY_INT = {
     [17] = 1,
 };
 
-local SLOT_PRIORITY_TWW_S1 = {
+local SLOT_PRIORITY_MID_S1 = {
+    [1] = 0,    --Head
+    [3] = 0,    --Shoulders
     [5] = 1,    --Chest
     [7] = 1,    --Legs
     [8] = 0,    --Feet
-    [9] = 0,    --Wrist
     [11] = 1,   --Finger1
     [12] = 1,   --Finger2
-    [15] = 0,   --Back
     [16] = 1,   --Main Hand
     [17] = 1,   --Off Hand
 };
-SLOT_PRIORITY = SLOT_PRIORITY_TWW_S1;
+SLOT_PRIORITY = SLOT_PRIORITY_MID_S1;
 
 local NO_FLASH_ITEMS = {
     --Disable flash for some items with special border art.

@@ -32,6 +32,30 @@ local enchantData = {
 
 
     [16] = {    --Weapon
+        -- MID
+        {1224328, 237371, 7905, 2},    --T2 Refulgent Whetstone
+        {1224331, 237370, 7906, 2},    --T1 Refulgent Whetstone
+
+        {1224333, 237369, 7908, 1},    --T2 Refulgent Weightstone
+        {1224332, 237367, 7907, 1},    --T1 Refulgent Weightstone
+
+        {1237006, 243734, 8052},    --T2 Thalassian Phoenix Oil
+        {1237008, 243733, 8051},    --T1 Thalassian Phoenix Oil
+
+        {1237003, 243738, 8056},    --T2 Smuggler's Enchanted Edge
+        {1237004, 243737, 8055},    --T1 Smuggler's Enchanted Edge
+
+        {1237001, 243736, 8054},    --T2 Oil of Dawn
+        {1237002, 243735, 8053},    --T1 Oil of Dawn
+
+        {1262123, 257752, 8611, 3},    --T2 Weighted Boomshots
+        {1262121, 257751, 8610, 3},    --T1 Weighted Boomshots
+
+        {1262110, 257750, 8609, 3},    --T2 Laced Zoomshots
+        {1262057, 257749, 8608, 3},    --T1 Laced Zoomshots
+
+
+        -- TWW
         {451874, 224107, 7495},        --T3 Algari Mana Oil (Crit, Haste)
         {451873, 224106, 7494},        --T2 Algari Mana Oil
         {451869, 224105, 7493},        --T1 Algari Mana Oil

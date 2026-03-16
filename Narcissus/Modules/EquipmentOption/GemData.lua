@@ -5,7 +5,65 @@ local tinsert = table.insert;
 local GemEffects = {};
 
 local PrismaticGems = {
-    ----11 TWW---- itemID order: better-lower quality
+    -- itemID order: better-lower quality
+
+    ----12 MID----
+    240983, 240982,             --Indecipherable Eversong Diamond
+    240967, 240966,             --Powerful Eversong Diamond
+    240969, 240968,             --Telluric Eversong Diamond
+    240971, 240970,             --Stoic Eversong Diamond
+
+    --PvP Heliotrope
+    241142, 241143, 241144,
+
+    --Garnet
+    240904, 240903,
+    240906, 240905,
+    240908, 240907,
+    240910, 240909,
+
+    240872, 240871,
+    240874, 240873,
+    240876, 240875,
+    240878, 240877,
+
+    --Peridot
+    240890, 240889,
+    240888, 240887,
+    240892, 240891,
+    240894, 240893,
+
+    240858, 240857,
+    240856, 240855,
+    240860, 240869,
+    240862, 240861,
+
+    --Amethyst
+    240898, 240897,
+    240900, 240899,
+    240896, 240895,
+    240902, 240901,
+
+    240866, 240865,
+    240868, 240867,
+    240864, 240863,
+    240870, 240869,
+
+    --Lapis
+    240914, 240913,
+    240916, 240915,
+    240918, 240917,
+    240912, 240911,
+
+    240882, 240881,
+    240884, 240883,
+    240886, 240885,
+    240880, 240880,
+
+
+
+
+    ----11 TWW----
     213743, 213742, 213741,     --Culminating Blasphemite
     213746, 213745, 213744,     --Elusive Blasphemite
     213740, 213739, 213738,     --Insightful Blasphemite
@@ -261,7 +319,7 @@ local ReshiiFiber = {
     238039,
     238037,
     238041,
-}
+};
 GemEffects[238044] = 1;
 GemEffects[238045] = 2;
 GemEffects[238046] = 3;
