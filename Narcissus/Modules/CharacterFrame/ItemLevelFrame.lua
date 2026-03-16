@@ -69,6 +69,12 @@ do
 end
 
 
+local OverrideUIPriority = {
+	[2742] = 101,	--Delves S1
+	[2764] = 100,	--Prey S1
+};
+
+
 local SideButtonScripts = {};
 do
 	function SideButtonScripts.ShowDetailedItemLevel(f)
@@ -106,16 +112,24 @@ do
 			for _, majorFactionID in ipairs(factionIDs) do
 				factionData = C_MajorFactions.GetMajorFactionData(majorFactionID);
 				if factionData then
+					if OverrideUIPriority[majorFactionID] then
+						factionData.uiPriority = OverrideUIPriority[majorFactionID];
+					end
+					--print(majorFactionID, factionData.name, factionData.uiPriority);
 					table.insert(factionList, factionData);
 				end
 			end
 
 			local function UnlockOrderSort(faction1, faction2)
-				if faction1.uiPriority then
-					return faction1.uiPriority < faction2.uiPriority;
-				else
-					return faction1.unlockOrder < faction2.unlockOrder;
+				if faction1.isUnlocked ~= faction2.isUnlocked then
+					return faction1.isUnlocked
 				end
+
+				if faction1.uiPriority and faction2.uiPriority then
+					return faction1.uiPriority < faction2.uiPriority;
+				end
+
+				return faction1.name < faction2.name
 			end
 
 			table.sort(factionList, UnlockOrderSort);
@@ -464,9 +478,12 @@ do	--NarciItemLevelFrameMixin
 	function NarciItemLevelFrameMixin:UpdateRenownLevel()
 		if not self.majorFactionIDs then
 			local bestExpansionID;
-			local playerLevel = UnitLevel("player");
+			local playerLevel = UnitLevel("player") or 90;
 
-			if playerLevel and playerLevel > 70 then
+			if playerLevel > 78 then
+				bestExpansionID = 11;
+				self.majorFactionLandingPageTitle = EXPANSION_NAME11;
+			elseif playerLevel > 68 then
 				bestExpansionID = 10;
 				self.majorFactionLandingPageTitle = WAR_WITHIN_LANDING_PAGE_TITLE;
 			else
