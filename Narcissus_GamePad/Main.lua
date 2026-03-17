@@ -135,14 +135,23 @@ function KeyListener:ResetButtonStates()
     self.isButtonDown = {};
 end
 
+function KeyListener:PropagateInput(state)
+    if not InCombatLockdown() then
+        self:SetPropagateKeyboardInput(state);
+    else
+        self:ExitGamePadMode();
+        Narci:CloseCharacterUI();
+    end
+end
+
 KeyListener:SetScript("OnKeyDown", function(self, key, down)
     --print("|cFF8cd964"..key);
-    self:SetPropagateKeyboardInput(true);
+    self:PropagateInput(true);
 end);
 
 KeyListener:SetScript("OnKeyUp", function(self, key, down)
     --print("|cFFff8000"..key);
-    self:SetPropagateKeyboardInput(true);
+    self:PropagateInput(true);
 end);
 
 KeyListener:SetScript("OnGamePadStick", function(self, ...)
@@ -157,15 +166,19 @@ KeyListener:SetScript("OnGamePadStick", function(self, ...)
             else
 
             end
-            self:SetPropagateKeyboardInput(false);
+            self:PropagateInput(false);
+            return
         end
     else
         local stick, x, y, a = ...
         if stick == "Right" then
             addon.CameraRotater:Yaw(x);
-            self:SetPropagateKeyboardInput(false);
+            self:PropagateInput(false);
+            return
         end
     end
+
+    self:PropagateInput(true);
 end)
 
 KeyListener:SetScript("OnGamePadButtonDown", function(self, key)
@@ -184,7 +197,7 @@ KeyListener:SetScript("OnGamePadButtonDown", function(self, key)
         Repeater:Stop();
     end
 
-    self:SetPropagateKeyboardInput(propagate);
+    self:PropagateInput(propagate);
     if SIGNAL_PRESS[key] then
         GamePadButtonPool:SignalPress(key);
     end
@@ -244,7 +257,7 @@ end
 
 function KeyListener:Deactivate()
     self:Hide();
-    self:SetPropagateKeyboardInput(true);
+    self:PropagateInput(true);
     Proxy:Remove();
 end
 
@@ -430,4 +443,4 @@ Loader:SetScript("OnEvent", function(self, event, ...)
     elseif event == "GAME_PAD_DISCONNECTED" then
         self:OnDisconnected(...);
     end
-end)
+end);

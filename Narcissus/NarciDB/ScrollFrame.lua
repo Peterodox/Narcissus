@@ -291,7 +291,7 @@ function ScrollFrameMixin:ScrollToOffset(offset)
     end
 
     d.isScrolling = true;
-    d.t = nil;
+    d.t = 0;
     d:SetScript("OnUpdate", Driver_OnUpdate);
     d:Show();
 end

@@ -7,8 +7,9 @@ addon.CameraRotater = CameraRotater;
 CameraRotater:Hide();
 CameraRotater.value = 0;
 CameraRotater.newValue = 0;
+--[[    --We no longer use inertia at the end of camera yaw
 CameraRotater:SetScript("OnUpdate", function(self, elapsed)
-    self.value = self.value + (0 - self.value) * 10 * elapsed;
+    --self.value = self.value + (0 - self.value) * 10 * elapsed;
     if self.processIntertia and (self.value < 0.01 and self.value > -0.01) then
         self.value = 0;
         self:Hide();
@@ -27,6 +28,7 @@ CameraRotater:SetScript("OnUpdate", function(self, elapsed)
         end
     end
 end);
+--]]
 
 function CameraRotater:Yaw(x)
     if not self.cameraYawMoveSpeed then
@@ -40,15 +42,17 @@ function CameraRotater:Yaw(x)
         MoveViewLeftStart(-x/self.cameraYawMoveSpeed);
         MoveViewRightStop();
         self.value = x/self.cameraYawMoveSpeed;
+        self.delta = -1;
     elseif x > 0 then
         MoveViewRightStart(x/self.cameraYawMoveSpeed);
         MoveViewLeftStop();
         self.value = x/self.cameraYawMoveSpeed;
+        self.delta = 1;
     else
-        --MoveViewLeftStop();
-        --MoveViewRightStop();
-        self.processIntertia = true;
-        self:Show();
+        MoveViewLeftStop();
+        MoveViewRightStop();
+        --self.processIntertia = true;
+        --self:Show();
     end
 end
 
