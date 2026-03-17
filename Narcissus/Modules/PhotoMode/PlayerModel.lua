@@ -4249,7 +4249,7 @@ end
 function NarciModelIndexButtonMixin:OnDragStart()
 	if not self.hasModel then return; end;
 	self:GetFrameLevel(60);
-	self:GetParent().ArtFrame.Label:SetText(L["Move To Font"]);
+	--self:GetParent().ArtFrame.Label:SetText(L["Move To Font"]);	--Disabled because Models are now in the same space. FrameLevel no longer affects front/back
 	self.lockHighlight = true;
 	local UpdateFrame = self:GetParent().UpdateFrame;
 	UpdateFrame.ActiveButton = self:GetID();

@@ -1834,7 +1834,7 @@
 									</Layer>
 								</Layers>
 								<Frames>
-									<Frame parentKey="InteractiveArea">
+									<Frame parentKey="InteractiveArea" hidden="true">
 										<Size x="36" y="22"/>
 										<Anchors>
 											<Anchor point="LEFT" relativeKey="$parent" relativePoint="LEFT"/>
