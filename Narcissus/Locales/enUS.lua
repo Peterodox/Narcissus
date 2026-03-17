@@ -883,6 +883,6 @@ L["Delete Character Data Tooltip"] = "This option is for cleaning up your inacti
 
 --WardrobeCollection--
 L["ModuleName WardrobeCollection"] = "Appearances Tab";
-L["ModuleDescription WardrobeCollection"] = "Added a checkbox to hide uncollected slots on the preview model when viewing a set in the Appearances Tab."
+L["ModuleDescription WardrobeCollection"] = "Added a checkbox to hide uncollected slots on the preview model when viewing a set in the Appearances Tab. Allows you to Ctrl-Click a set to view in it in the Dressing Room."
 L["Hide Uncollected Slots"] = "Hide Uncollected";
 L["Hide Uncollected Slots Tooltip"] = "Hide Uncollected Slots |cffffd100(%s)|r";

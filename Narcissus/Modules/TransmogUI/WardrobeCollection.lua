@@ -38,7 +38,6 @@ function EL:UpdateSlotVisibility(userInput)
 
     self.Checkbox:SetShown(not allCollected);
 
-
     if (not Def.HideUncollectedSlot) and not userInput then return end;
 
     local f = WardrobeCollectionFrame.SetsCollectionFrame;
@@ -82,16 +81,27 @@ end
 
 function EL:GetSetIDFromMouseover()
     local obj = self.GetMouseFocus();
-    local setID = obj and obj.setID or obj:GetParent().setID;
-    return setID
+    if obj then
+        local setID, isIconFrame;
+        if obj.setID then
+            setID = obj.setID;
+            isIconFrame = false;
+        else
+            setID = obj:GetParent().setID;
+            if setID then
+                isIconFrame = true;
+            end
+        end
+        return setID, isIconFrame
+    end
 end
 
 function EL:OnEvent(event, ...)
-    if event == "GLOBAL_MOUSE_DOWN" then
+    if event == "GLOBAL_MOUSE_UP" then
         if self:IsControlKeyDown() and self:IsMouseOverList() then
-            local setID = self:GetSetIDFromMouseover();
+            local setID, isIconFrame = self:GetSetIDFromMouseover();
             if setID then
-                self:TryOnSetInDressingRoom(setID);
+                self:TryOnSetInDressingRoom(setID, isIconFrame);
             end
         end
     elseif event == "MODIFIER_STATE_CHANGED" then
@@ -103,24 +113,44 @@ function EL:OnEvent(event, ...)
     end
 end
 
-function EL:TryOnSetInDressingRoom(setID)
+function EL:TryOnSetInDressingRoom(setID, isIconFrame)
     if InCombatLockdown() then
         addon.DisplayTopMessage(Narci.L["Error View Outfit In Combat"], "Red");
-    else
-        if setID == self.setID then
-            
-        else
+    elseif self.setID then
+        setID = isIconFrame and setID or self.setID;
+        local baseSetID = isIconFrame and C_TransmogSets.GetBaseSetID(self.setID);
+        if baseSetID == setID then
+            setID = self.setID;
+        end
+        local sources = setID and C_TransmogSets.GetAllSourceIDs(setID);
+        if sources and #sources > 0 then
+            local frame = DressUpFrame;
+            local raceFilename = select(2, UnitRace("player"));
+            local classFilename = select(2, UnitClass("player"));
+            SetDressUpBackground(frame, raceFilename, classFilename);
 
+            local forcePlayerRefresh = (not DressUpFrame:IsShown()) and true or false;
+
+            DressUpFrame_Show(frame, nil, forcePlayerRefresh);
+            local actor = frame.ModelScene:GetPlayerActor();
+            if actor then
+                actor:Undress();
+                for _, sourceID in ipairs(sources) do
+                    actor:TryOn(sourceID);
+                end
+            end
         end
     end
 end
 
 function EL:OnShow()
-    self:RegisterEvent("GLOBAL_MOUSE_DOWN");
+    self:RegisterEvent("GLOBAL_MOUSE_UP");
+    self:RegisterEvent("MODIFIER_STATE_CHANGED");
 end
 
 function EL:OnHide()
-    self:UnregisterEvent("GLOBAL_MOUSE_DOWN");
+    self:UnregisterEvent("GLOBAL_MOUSE_UP");
+    self:UnregisterEvent("MODIFIER_STATE_CHANGED");
 end
 
 
@@ -141,9 +171,9 @@ local function InitModule()
     end
 
     EL:SetParent(f);
-    --EL:SetScript("OnShow", EL.OnShow);
-    --EL:SetScript("OnHide", EL.OnHide);
-    --EL:SetScript("OnEvent", EL.OnEvent);
+    EL:SetScript("OnShow", EL.OnShow);
+    EL:SetScript("OnHide", EL.OnHide);
+    EL:SetScript("OnEvent", EL.OnEvent);
     EL:Show();
 
     hooksecurefunc(f, "DisplaySet", OnDisplaySet);

@@ -817,6 +817,6 @@ L["Delete Character Data Tooltip"] = "此选项帮助你清理不活跃的或者
 
 --WardrobeCollection--
 L["ModuleName WardrobeCollection"] = "外观页面";
-L["ModuleDescription WardrobeCollection"] = "在战团藏品-外观页面添加一个按钮，允许你隐藏身上还未收集的套装部位。"
-L["Hide Uncollected Slots"] = "Hide Uncollected";
-L["Hide Uncollected Slots Tooltip"] = "Hide Uncollected Slots |cffffd100(%s)|r";
+L["ModuleDescription WardrobeCollection"] = "在战团藏品-外观页面添加一个按钮，允许你隐藏身上还未收集的套装部位。允许你Ctrl+左键单击套装来在试衣间中预览它。";
+L["Hide Uncollected Slots"] = "隐藏未收集的部位";
+L["Hide Uncollected Slots Tooltip"] = "隐藏未收集的部位 |cffffd100(%s)|r";
