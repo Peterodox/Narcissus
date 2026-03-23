@@ -133,6 +133,7 @@ local AreaData = {
     {"the_heartland", 5992},
     {"queens_court", 10425},
     {"nyalotha", 12877},
+    {"harandar", 15355},
 };
 
 local MAX_INDEX = #AreaData;
@@ -165,6 +166,9 @@ local RaceImage = {
     [35]= 23,   --Vulpera
     [36]= 21,   --Maghar
     [37]= 12,   --Mechagnome
+
+    [86] = 93,  --Haranir
+    [91] = 93,  --Haranir
 };
 
 local ClassImage = {

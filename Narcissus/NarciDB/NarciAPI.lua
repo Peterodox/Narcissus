@@ -3242,6 +3242,7 @@ do  --Scripts
     local ValidScripts = {
         "OnEnter", "OnLeave", "OnClick", "OnMouseDown", "OnMouseUp", "OnMouseWheel",
         "OnEscapePressed", "OnEnterPressed", "OnTabPressed", "OnEditFocusGained", "OnEditFocusLost", "OnTextChanged",
+        "OnShow", "OnHide", "OnEvent",
     };
 
     function PrivateAPI.MixScripts(object, scripts)
