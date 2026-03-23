@@ -129,6 +129,7 @@ local itemIDxBorderArt = {
     [4] = {"Neltharion", nil, CreateColor(252, 185, 54)},           --Class Sets: TWW S2 Undermined
 };
 itemIDxBorderArt[5] = itemIDxBorderArt[4];  --TEMP Class Sets: TWW S3 Manaforge Omega
+itemIDxBorderArt[6] = itemIDxBorderArt[4];  --MID S1 Class Sets
 
 
 local itemVisualGroup = {};

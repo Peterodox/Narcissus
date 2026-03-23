@@ -54,6 +54,23 @@ end
 do  --Old: Individual itemID
     --Maybe switch to C_LootJournal.GetItemSetItems in the future, but unnecessary atm
 
+    ClassSetItemByRaid.MidnightS1 = {
+        249955, 249953, 249952, 249951, 249950,
+        250043, 250042, 250041, 250045, 250040,
+        249982, 249980, 249979, 249978, 249977,
+        250009, 250007, 250006, 250005, 250004,
+        250052, 250051, 250050, 250054, 250049,
+        249964, 249962, 249961, 249960, 249959,
+        250018, 250016, 250015, 250014, 250013,
+        250063, 250061, 250060, 250059, 250058,
+        249991, 249989, 249988, 249987, 249986,
+        250000, 249998, 249997, 249996, 249995,
+        250027, 250025, 250024, 250023, 250022,
+        250036, 250034, 250033, 250032, 250031,
+        249973, 249971, 249970, 249969, 249968,
+    };
+    SetClassSetGroup(ClassSetItemByRaid.MidnightS1, 6);
+
     ClassSetItemByRaid.Karesh = {
         237721, 237719, 237718, 237717, 237716,
         237613, 237611, 237610, 237609, 237608,
@@ -112,17 +129,17 @@ do  --Old: Individual itemID
         --2. Player has acquired a class set item from the new raid
 
         local due = 1756684800;     --Monday, September 1, 2025 12:00:00 AM (TEMP)
-        local raidKey = "Karesh";
+        local raidKey = "MidnightS1";
         local time = time and time() or due;
         local newRaidItems;
 
-        if addon.IsTOCVersionEqualOrNewerThan(110200) and (time >= due or HasPlayerAcquiredItemFromThisRaid(raidKey) or DoesPlayerHaveAnyItems(ClassSetItemByRaid[raidKey])) then
+        if addon.IsTOCVersionEqualOrNewerThan(120000) and (time >= due or HasPlayerAcquiredItemFromThisRaid(raidKey) or DoesPlayerHaveAnyItems(ClassSetItemByRaid[raidKey])) then
             FlagRaidItemAcquired(raidKey);
-            newRaidItems = ClassSetItemByRaid.Karesh;
+            newRaidItems = ClassSetItemByRaid.MidnightS1;
             CURRENT_RAID_KEY = raidKey;
         else
-            newRaidItems = ClassSetItemByRaid.Undermine;
-            CURRENT_RAID_KEY = "Undermine";
+            newRaidItems = ClassSetItemByRaid.Karesh;
+            CURRENT_RAID_KEY = "Karesh";
         end
 
         for _, itemID in pairs(newRaidItems) do
@@ -695,7 +712,7 @@ local function SetTextureByThemeID(texture, themeID)
         name ="PaperDollBase";
     else
         themeID = 3;
-        name = "PaperDollBase-Warm"
+        name = "PaperDollBase-Warm";
     end
     texture:SetTexture(TEXTURE_PATH..name, nil, nil, "LINEAR");
     return themeID
@@ -894,6 +911,7 @@ end
 
 
 do  --ClassSetSpellXSubTreeID
+-- https://wago.tools/db2/ItemSetSpell?build=12.0.1.66527&page=3&sort%5BID%5D=desc
 ClassSetSpellXSubTreeID = {
 [1236260] = 31,
 [1236259] = 31,
