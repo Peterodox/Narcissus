@@ -26,11 +26,12 @@ local function CustomSetCommandCallback(msg)
 end
 
 function SlashCommandModule:OnLoad()
-    local oldCommandKey = "TRANSMOG_CUSTOM_SET_OLD";
-    _G["SLASH_"..oldCommandKey.."1"] = "/outfit";
+    --DELETE ME: WoW has a new use for /outfit in 12.0.5
+    ----local oldCommandKey = "TRANSMOG_CUSTOM_SET_OLD";
+    ----_G["SLASH_"..oldCommandKey.."1"] = "/outfit";
 
-    SlashCommandUtil.CheckAddSlashCommand(SLASH_COMMAND.TRANSMOG_CUSTOM_SET, SLASH_COMMAND_CATEGORY.TRANSMOG, CustomSetCommandCallback);
-    SlashCommandUtil.CheckAddSlashCommand(oldCommandKey, SLASH_COMMAND_CATEGORY.TRANSMOG, CustomSetCommandCallback);
+    ----SlashCommandUtil.CheckAddSlashCommand(SLASH_COMMAND.TRANSMOG_CUSTOM_SET, SLASH_COMMAND_CATEGORY.TRANSMOG, CustomSetCommandCallback);
+    ----SlashCommandUtil.CheckAddSlashCommand(oldCommandKey, SLASH_COMMAND_CATEGORY.TRANSMOG, CustomSetCommandCallback);
 
 
     local ModelFrame = TransmogFrame.CharacterPreview;
