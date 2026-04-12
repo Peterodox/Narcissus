@@ -71,7 +71,7 @@ local function UpdateParent()
                 Controller:UpdateWidgets();
             end
         end);
-    
+
         parent:HookScript("OnHide", function()
             Controller:ListenEvents(false);
         end);
@@ -80,10 +80,13 @@ end
 
 local function UpdatePosition_OnShow()
     --adjustment for serveral addons/WA
-    if CharacterStatsPaneilvl then
+    if CSPilvl then
         --Chonky Character Sheet    wago.io/bRl2gJIgz
+        --Note: is has become a standalone addon due to WA's forced retirement. https://legacy.curseforge.com/wow/addons/chonky-character-sheet
         WidgetContainer:ClearAllPoints();
-        WidgetContainer:SetPoint("CENTER", CharacterStatsPaneilvl, "RIGHT", 22, 0);     --anchor changed after swapping items, IDK why
+        WidgetContainer:SetPoint("LEFT", CSPilvl, "LEFT", 6, 0);
+        WidgetContainer:SetFrameLevel(128);
+        WidgetContainer:SetScale(0.8);
     elseif C_AddOns.IsAddOnLoaded("DejaCharacterStats") then
         WidgetContainer:ClearAllPoints();
         WidgetContainer:SetPoint("CENTER", PaperDollFrame, "TOPRIGHT", -1, -84);
