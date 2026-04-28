@@ -36,6 +36,7 @@ local GetSlotNameAndTexture = NarciAPI.GetSlotNameAndTexture;
 local GetItemQualityColor = NarciAPI.GetItemQualityColor;
 
 local AbbreviateNumbers = AbbreviateNumbers;
+local canaccessvalue = canaccessvalue;
 
 local CR_ConvertRatio = {      --Combat Rating number/percent
     ["stamina"] = 20,              -- 1 stamina = 20 HP
@@ -45,6 +46,10 @@ Narci.ConvertRatio = CR_ConvertRatio;
 
 
 local function SetCombatRatingRatio()
+    if not canaccessvalue(GetHaste()) then
+        return;
+    end
+
     local _;
 	local mastery, bonusCoeff = GetMasteryEffect();
 	local masteryBonus = GetCombatRatingBonus(CR_MASTERY) * bonusCoeff;

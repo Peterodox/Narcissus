@@ -284,6 +284,7 @@ L["Light Source"] = "光源";
 L["Light Source Independent"] = "独立";
 L["Light Source Interconnected"] = "关联";
 L["Adjustment"] = "调整";
+L["Unsupported Model Unit Alert"] = "当你处于副本内时无法添加此目标。";
 
 --Animation Browser--
 L["Animation"] = "角色动画";
