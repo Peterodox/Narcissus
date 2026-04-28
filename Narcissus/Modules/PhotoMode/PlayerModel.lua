@@ -20,7 +20,6 @@ local sqrt = math.sqrt;
 local FadeFrame = NarciFadeUI.Fade;
 local FadeIn = NarciFadeUI.FadeIn;
 local After = C_Timer.After;
-local SmartSetActorName = NarciAPI.SmartSetActorName;
 local NarciAnimationInfo = NarciAnimationInfo;
 local NarciSpellVisualUtil = NarciSpellVisualUtil;
 local GetCursorPosition = GetCursorPosition;
@@ -66,6 +65,14 @@ local function HighlightButton(button, state, sound)
 		if sound then
 			PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_OFF);
 		end
+	end
+end
+
+local function SmartSetText_Safe(fontstring, name)
+	if canaccessvalue(name) then
+		NarciAPI.SmartSetActorName(fontstring, name);
+	else
+		fontstring:SetText(name);
 	end
 end
 
@@ -316,7 +323,7 @@ local function GetUnitRaceIDAndSex(unit)
 end
 
 local function InitializePlayerInfo(index, unit)
-	local unit = unit or "player";
+	unit = unit or "player";
 	local name = UnitName(unit);
 	local _, className = UnitClass(unit);
 	local race, gender =  GetUnitRaceIDAndSex(unit);
@@ -329,9 +336,9 @@ local function InitializePlayerInfo(index, unit)
 	--SetGenderIcon(PlayerInfo[index].gender_Original);
 	local r, g, b = GetClassColor(className);
 	local fontstring = ActorPanel.ExtraPanel.buttons[index].Label;	--name tooltip
-	SmartSetActorName(fontstring, name);
+	SmartSetText_Safe(fontstring, name);
 	fontstring:SetTextColor(r, g, b);
-	
+
 	return race, gender;
 end
 
@@ -351,7 +358,7 @@ local function UpdateActorName(index)
 		r, g, b = r + 0.05, g + 0.05, b + 0.05;
 	end
 
-	SmartSetActorName(str, PlayerInfo[index].name or "Unnamed");
+	SmartSetText_Safe(str, PlayerInfo[index].name or "Unnamed");
 	str:SetTextColor(r, g, b);
 end
 
@@ -2611,7 +2618,7 @@ function Narci_ModelIndexButton_OnClick(self, button)
 	local buttons = self:GetParent().buttons;
 
 	if not self.hasModel then
-		if UnitExists(unit) then
+		if UnitExists(unit) and not C_Secrets.ShouldUnitIdentityBeSecret(unit) then
 			local isPlayer = UnitIsPlayer(unit);
 			local alternateMode = IsAltKeyDown();
 			if isPlayer and not alternateMode then
@@ -2619,7 +2626,7 @@ function Narci_ModelIndexButton_OnClick(self, button)
 			else
 				model = _G["NarciNPCModelFrame"..ID];
 			end
-		
+
 			if not model then
 				if isPlayer and not alternateMode then
 					model = CreateFrame("DressUpModel", "NarciPlayerModelFrame"..ID, ModelContainer, "Narci_CharacterModelFrame_Template");
@@ -3280,8 +3287,8 @@ local function OverrideActorInfo(actorIndex, name, hasWeapon, portraitFile)
 	PlayerInfo[actorIndex].name = name;
 	--ActorPanel.ExtraPanel.buttons[actorIndex].Label:SetText(name);
 	--ActorPanel.ActorButton.ActorName:SetText(name);
-	SmartSetActorName(ActorPanel.ExtraPanel.buttons[actorIndex].Label, name);
-	SmartSetActorName(ActorPanel.ActorButton.ActorName, name);
+	SmartSetText_Safe(ActorPanel.ExtraPanel.buttons[actorIndex].Label, name);
+	SmartSetText_Safe(ActorPanel.ActorButton.ActorName, name);
 
 	--Weapon
 
@@ -4106,17 +4113,29 @@ function NarciActorPanelPopUpMixin:OnLeave()
 	end
 end
 
+local function TrySetTargetText(fontstring)
+	local unit = "target";
+	if C_Secrets.ShouldUnitIdentityBeSecret(unit) then
+		fontstring:SetText(L["Unsupported Model Unit Alert"]);
+		fontstring:SetTextColor(1, 0.3137, 0.3137);		--Pastel Red
+		return false
+	else
+		local name = UnitName(unit);
+		local _, className = UnitClass(unit);
+		local r, g, b = GetClassColor(className);
+		fontstring:SetTextColor(r, g, b);
+		SmartSetText_Safe(fontstring, name);
+		return true
+	end
+end
+
 function NarciActorPanelPopUpMixin:OnEvent(event, ...)
 	if event == "PLAYER_TARGET_CHANGED" then	--fire when target's changed
 		local TargetText = self.AddTarget.Text;
-		if UnitExists("target") then
-			local name = UnitName("target");
-			local _, className = UnitClass("target");
-			local r, g, b = GetClassColor(className);
-			TargetText:SetTextColor(r, g, b);
-			SmartSetActorName(TargetText, name);
-
-			local isTargetNPC = not UnitIsPlayer("target");
+		local unit = "target";
+		if UnitExists(unit) then
+			local success = TrySetTargetText(TargetText);
+			local isTargetNPC = not UnitIsPlayer(unit);
 			self.AddTarget.isTypeLocked = isTargetNPC;
 			if self.AddTarget:IsMouseOver() then
 				self:UpdateWidgetTpe(isTargetNPC);
@@ -4202,16 +4221,22 @@ function NarciModelIndexButtonMixin:OnEnter()
 		if not IsMouseButtonDown() then
 			local PopUp = self:GetParent().PopUp;
 			local TargetText = PopUp.AddTarget.Text;
+			local canAddTarget;
 			if UnitExists("target") then
-				local name = UnitName("target");
-				local _, className = UnitClass("target");
-				local r, g, b = GetClassColor(className);
-				TargetText:SetTextColor(r, g, b);
-				SmartSetActorName(TargetText, name);
+				if TrySetTargetText(TargetText) then
+					canAddTarget = true;
+				else
+					canAddTarget = false;
+				end
 			else
-				TargetText:SetTextColor(1, 0.3137, 0.3137);	--Pastel Red
+				canAddTarget = false;
 				TargetText:SetText(ERR_GENERIC_NO_TARGET);
 			end
+
+			if not canAddTarget then
+				TargetText:SetTextColor(1, 0.3137, 0.3137);	--Pastel Red
+			end
+
 			PopUp.parent = self;
 			PopUp.Index = self:GetID();
 			PopUp:SetPoint("CENTER", self, "CENTER", 0, 16);
