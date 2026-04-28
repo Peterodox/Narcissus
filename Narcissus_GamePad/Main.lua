@@ -183,7 +183,7 @@ end)
 
 KeyListener:SetScript("OnGamePadButtonDown", function(self, key)
     --print("|cFF8cd964"..key);
-    if key == "PADBACK" or key == "PADSYSTEM" then
+    if key == "PADBACK" or key == "PADSYSTEM" or key == "PADSOCIAL" then
         Narci:CloseCharacterUI();
         return
     end
