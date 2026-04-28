@@ -90,12 +90,12 @@ local MAP_UI_INFO = {
     [560] = {name = 'maisara-caverns'},
     [559] = {name = 'nexuspoint-xenas'},
     [556] = {name = 'pit-of-saron'},
-    [583] = {name = 'seat-of-the-triumvirate'},
+    [239] = {name = 'seat-of-the-triumvirate'},
     [161] = {name = 'skyreach'},
     [557] = {name = 'windrunner-spire'},
 };
 
-local SEASON_MAPS = {402, 558, 560, 559, 556, 583, 161, 557};
+local SEASON_MAPS = {402, 558, 560, 559, 556, 239, 161, 557};
 local IS_MAP_THIS_SEASON = {};
 
 local function ShowNewDungeons()

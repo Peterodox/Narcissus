@@ -4,6 +4,7 @@ local FadeFrame = NarciFadeUI.Fade;
 local GetEffectiveCrit = Narci.GetEffectiveCrit;
 local GetCombatRating = GetCombatRating;
 local outSine = addon.EasingFunctions.outSine;
+local canaccessvalue = canaccessvalue;
 
 local max = math.max;
 
@@ -81,6 +82,10 @@ end
 
 
 function NarciRadarChartMixin:SetValue(c, h, m, v)
+	if not canaccessvalue(c) then
+		return;
+	end
+
 	--c, h, m, v: Input manually or use combat ratings
 
 	local chartWidth = 96 / 2;	--In half
@@ -254,6 +259,10 @@ function NarciRadarChartMixin:SetValue(c, h, m, v)
 end
 
 function NarciRadarChartMixin:AnimateValue(c, h, m, v)
+	if not canaccessvalue(c) then
+		return;
+	end
+
 	--Update the radar chart using animation
 
 	local UpdateFrame = self.UpdateFrame;
@@ -332,10 +341,23 @@ end
 
 function NarciRadarChartMixin:UpdateChart(useAnimation)
 	local critChance, critRating = GetEffectiveCrit();
+
+	if not canaccessvalue(critChance) then
+		for _, vertice in ipairs(self.vertices) do
+			vertice:Hide();
+		end
+		return
+	end
+
+	for _, vertice in ipairs(self.vertices) do
+		vertice:Show();
+	end
+
 	local e1 = GetCombatRating(critRating) or 0;
 	local e2 = GetCombatRating(CR_HASTE_MELEE) or 0;
 	local e3 = GetCombatRating(CR_MASTERY) or 0;
 	local e4 = GetCombatRating(CR_VERSATILITY_DAMAGE_DONE) or 0;
+
 	self:CalculateBestSum(e1, e2, e3, e4);
 	if useAnimation then
 		self:AnimateValue(e1, e2, e3, e4);

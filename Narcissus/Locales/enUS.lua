@@ -317,6 +317,7 @@ L["Light Source"] = "Light Source";
 L["Light Source Independent"] = "Independent";
 L["Light Source Interconnected"] = "Interconnected";
 L["Adjustment"] = "Adjustment";
+L["Unsupported Model Unit Alert"] = "Cannot add target in instance.";
 
 --Animation Browser--
 L["Animation"] = "Animation";
