@@ -731,21 +731,25 @@ function UpdateFunc:Regen(object)
 	elseif powerToken == "MANA" then
 		labelText = MANA_REGEN;
 		regenRate = GetManaRegen();
-		regenRatePerSec = tostring(floor(regenRate)).."/s";
 	else
 		local _, class = UnitClass("player");
 		if (class ~= "DEATHKNIGHT") then
 			object:SetLabelAndValue(MANA_REGEN_COMBAT, "N/A", true);		--MANA_REGEN_ABBR
 			return;
 		end
-		local _, regenRate = GetRuneCooldown(1);
-		local regenRateText = (format(STAT_RUNE_REGEN_FORMAT, regenRate));
+		local _;
+		_, regenRate = GetRuneCooldown(1);
+		regenRateText = (format(STAT_RUNE_REGEN_FORMAT, regenRate));
 		object:SetLabelAndValue(STAT_RUNE_REGEN, regenRateText);
 		return;
 	end
-	if labelText then
+
+	if labelText and canaccessvalue(regenRatePerSec) then
 		object.tooltip = "|cffffffff".. labelText .." "..regenRatePerSec.."|r";
+	else
+		object.tooltip = nil;
 	end
+
 	object:SetLabelAndValue(labelText, regenRatePerSec);
 end
 
