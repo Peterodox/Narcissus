@@ -271,6 +271,8 @@ L["Expansion Features"] = "Expansion Features";
 L["LFR Wing Details"] = "LFR Wing Details";
 L["LFR Wing Details Description"] = "Show boss names and lockouts when you talk with solo queue LFR NPCs.";
 L["Speedy Screenshot Alert"] = "Make Screenshot Message Disappear Faster";
+L["Use Game Quality Color"] = "Use WoW\'s Quality Colors";
+L["Use Game Quality Color Desc"] = "Use the item quality colors in the game\'s Options> Accessibility> Colors.";
 
 --Model Control--
 L["Ranged Weapon"] = "Ranged Weapon";

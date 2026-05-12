@@ -114,23 +114,48 @@ for index, hex in pairs(CustomQualityColors) do
 	CustomQualityColors[index] = ConvertHexColorToRGB(hex, true);
 end
 
-local function GetCustomQualityColor(itemQuality)
+
+local function GetNarcissusCustomQualityColor(itemQuality)
     if (not itemQuality) or (not CustomQualityColors[itemQuality]) then
         itemQuality = 1;
     end
     return CustomQualityColors[itemQuality][1], CustomQualityColors[itemQuality][2], CustomQualityColors[itemQuality][3];
 end
 
+local function GetWoWQualityColor(itemQuality)
+    local color = ColorManager.GetColorDataForItemQuality(itemQuality or 1);
+    return color.r, color.g, color.b;
+end
+
+local QualityColorGetter = GetNarcissusCustomQualityColor;
+
+local function SettingChanged_UseWoWQualityColor(useWoWQualityColor)
+    if useWoWQualityColor then
+        QualityColorGetter = GetWoWQualityColor;
+    else
+        QualityColorGetter = GetNarcissusCustomQualityColor;
+    end
+    addon.CallbackRegistry:Trigger("SettingChanged.ItemQualityColor");
+end
+
+addon.CallbackRegistry:Register("SettingChanged.UseWoWQualityColor", SettingChanged_UseWoWQualityColor);
+
+addon.AddInitializationCallback(function()
+    SettingChanged_UseWoWQualityColor(NarcissusDB.UseWoWQualityColor);
+end);
+
+local function GetCustomQualityColor(itemQuality)
+    return QualityColorGetter(itemQuality);
+end
+
 local function GetCustomQualityColorByItemID(itemID)
     local itemQuality = C_Item.GetItemQualityByID(itemID);
-    return GetCustomQualityColor(itemQuality);
+    return QualityColorGetter(itemQuality);
 end
 
 local function GetCustomQualityHexColor(itemQuality)
-    if (not itemQuality) or (not CustomQualityColors[itemQuality]) then
-        itemQuality = 1;
-    end
-    return CustomQualityColors[itemQuality][4]
+    local r, g, b = QualityColorGetter(itemQuality);
+    return C_ColorUtil.GenerateTextColorCode(CreateColor(r, g, b, 1));
 end
 
 

@@ -57,6 +57,7 @@ local DefaultValues = {
     ItemTooltipStyle = 1,
     ShowItemID = false,                         --Show itemID on equipment tooltip
     MissingEnchantAlert = false,                --Show alert if the item isn't enchanted
+    UseWoWQualityColor = false,
 
     -- Photo Mode --
     HideTextsWithUI = false,                     --Hide all texts when UI is hidden

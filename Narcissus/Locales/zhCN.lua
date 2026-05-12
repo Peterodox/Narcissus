@@ -239,6 +239,8 @@ L["Expansion Features"] = "资料片特色";
 L["LFR Wing Details"] = "随机难度团本区域信息";
 L["LFR Wing Details Description"] = "在你单排随机难度的旧团本时，显示boss名称和进度情况。";
 L["Speedy Screenshot Alert"] = "让截图成功通知更快地消失";
+L["Use Game Quality Color"] = "使用魔兽物品品质颜色";
+L["Use Game Quality Color Desc"] = "使用游戏选项> 辅助功能> 颜色中所设置的物品品质颜色。";
 
 --模型控制面板--
 L["Ranged Weapon"] = "远程武器";
