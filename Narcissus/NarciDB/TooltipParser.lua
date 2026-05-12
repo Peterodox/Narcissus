@@ -1726,14 +1726,11 @@ end
 --]]
 
 local ITEM_REQUIREMENT_INCLUDE_LINES = {
-    [21] = true,    --Enum.TooltipDataLineType.RestrictedRaceClass
-    [22] = true,    --Enum.TooltipDataLineType.RestrictedFaction
-    [23] = true,    --Enum.TooltipDataLineType.RestrictedSkill
-    [24] = true,    --Enum.TooltipDataLineType.RestrictedPvPMedal
-    [25] = true,    --Enum.TooltipDataLineType.RestrictedReputation
-    --[26] = true,      --Enum.TooltipDataLineType.RestrictedSpellKnown Already Known
-    [27] = true,    --Enum.TooltipDataLineType.RestrictedLevel
-    [28] = true,    --Enum.TooltipDataLineType.EquipSlot
+    --Enum.TooltipDataLineType
+
+    [21] = true,    --EquipSlot
+    [41] = true,    --ErrorLine
+    [43] = true,    --UsageRequirement
 };
 
 
@@ -1755,7 +1752,7 @@ local function GetItemRequirement(item)
     local data = {};
     local index = 0;
     local leftText, rightText;
-    local lineTypeEquipSlot = 28;   --Enum.TooltipDataLineType.EquipSlot
+    local lineTypeEquipSlot = 21;   --Enum.TooltipDataLineType.EquipSlot
 
     for i, arg in ipairs(tooltipData.lines) do
         if ITEM_REQUIREMENT_INCLUDE_LINES[arg.type] then
