@@ -7,7 +7,6 @@ local ListToggle;
 local FocusedButton;
 local ProductButtons;
 
-local FadeFrame = NarciFadeUI.Fade;
 local NarciAPI = NarciAPI;
 
 local C_Item = C_Item;
@@ -493,10 +492,21 @@ function NarciPerksProgramProductListMixin:SetPage()
     local lastCategory;
     local categoryID;
     local vendorItemID;
-    local button;
 
     local containerIndex = 1;
     local container = self:AcquireFrame(containerIndex);
+
+    local buttonInitializer;
+
+    local function pageSetter()
+        if not numButtonFirstPage then
+            numButtonFirstPage = numButtons - 1;
+        end
+        container:SetHeight(paddingTop + paddingBottom + buttonHeight * (numButtonThisPage - 1));
+        numButtonThisPage = 0;
+        containerIndex = containerIndex + 1;
+        container = self:AcquireFrame(containerIndex);
+    end
 
     for i = 1, self.numItems do
         vendorItemID = self.vendorItemIDs[i];
@@ -505,38 +515,42 @@ function NarciPerksProgramProductListMixin:SetPage()
             if categoryID ~= lastCategory then
                 lastCategory = categoryID;
                 numButtons = numButtons + 1;
-                numButtonThisPage = numButtonThisPage + 1;
-                button = self:AcquireButton(numButtons);
-                button:ClearAllPoints();
-                button:SetPoint("TOPLEFT", container, "TOPLEFT", 0, -paddingTop + (1 - numButtonThisPage)*buttonHeight);
-                button:SetCategoryID(categoryID);
+
+                if numButtonThisPage == MAX_ENTRY_PER_PAGE then
+                    -- Carry the last button to the next page if it's a category
+                    pageSetter();
+                end
+
+                buttonInitializer = function(isCategoryButton, id)
+                    local f = self:AcquireButton(numButtons);
+                    numButtonThisPage = numButtonThisPage + 1;
+                    f:ClearAllPoints();
+                    f:SetPoint("TOPLEFT", container, "TOPLEFT", 0, -paddingTop + (1 - numButtonThisPage) * buttonHeight);
+                    if isCategoryButton then
+                        f:SetCategoryID(id);
+                    else
+                        f:SetVendorItemID(id);
+                    end
+                end
+
+                buttonInitializer(true, categoryID);
             end
 
             numButtons = numButtons + 1;
-            numButtonThisPage = numButtonThisPage + 1;
 
             if numButtonThisPage > MAX_ENTRY_PER_PAGE then
-                if not numButtonFirstPage then
-                    numButtonFirstPage = numButtons - 1;
-                end
-                container:SetHeight(paddingTop + paddingBottom + buttonHeight*(numButtonThisPage - 1));
-                numButtonThisPage = 1;
-                containerIndex = containerIndex + 1;
-                container = self:AcquireFrame(containerIndex);
+                pageSetter();
             end
 
-            button = self:AcquireButton(numButtons);
-            button:ClearAllPoints();
-            button:SetPoint("TOPLEFT", container, "TOPLEFT", 0, -paddingTop + (1 - numButtonThisPage)*buttonHeight);
-            button:SetVendorItemID(self.vendorItemIDs[i]);
+            buttonInitializer(false, self.vendorItemIDs[i]);
         end
     end
 
     if container and container ~= self.Frames[1] then
-        container:SetHeight(paddingTop + paddingBottom + buttonHeight*numButtonThisPage);
+        container:SetHeight(paddingTop + paddingBottom + buttonHeight * numButtonThisPage);
     end
 
-    self:SetHeight(paddingTop + paddingBottom + buttonHeight*(numButtonFirstPage or numButtonThisPage));
+    self:SetHeight(paddingTop + paddingBottom + buttonHeight * (numButtonFirstPage or numButtonThisPage));
 end
 
 --[[

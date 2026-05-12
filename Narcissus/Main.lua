@@ -908,6 +908,11 @@ function NarciEquipmentSlotMixin:SetTransmogSourceID(appliedSourceID, secondaryS
 end
 
 function NarciEquipmentSlotMixin:Refresh(forceRefresh)
+	if forceRefresh then
+		-- Our update will stop at one point if itemLink is unchanged
+		self.itemLink = nil;
+	end
+
 	local _;
 	local slotID = self.slotID;
 	local itemLocation = ItemLocation:CreateFromEquipmentSlot(slotID);
@@ -3109,6 +3114,13 @@ Narci.GetEquipmentSlotByID = function(slotID) return SLOT_TABLE[slotID] end;
 Narci.RefreshSlot = function(slotID) SlotController:Refresh(slotID) return SLOT_TABLE[slotID] end;
 Narci.RefreshAllSlots = SlotController.RefreshAll;
 Narci.RefreshAllStats = StatsUpdator.Instant;
+
+
+addon.CallbackRegistry:Register("SettingChanged.UseWoWQualityColor", function()
+	if Narci_Character:IsVisible() then
+		SlotController:RefreshAll(true);
+	end
+end);
 
 
 function Narci:SetItemTooltipStyle(id)

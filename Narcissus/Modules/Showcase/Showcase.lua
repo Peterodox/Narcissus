@@ -104,44 +104,52 @@ end
 
 local DropDownOptions = {
     imageSizeWithText = {
-        {" ", {1024, 768}},
-        {" ", {800, 600}},
         method = "SetImageSize",
-    };
+        choices = {
+            {" ", {1024, 768}},
+            {" ", {800, 600}},
+        },
+    },
 
     imageSizeNoText = {
-        {" ", {1080, 1080}},
-        {" ", {600, 800}},
-        {" ", {600, 600}},
         method = "SetImageSize",
-    };
+        choices = {
+            {" ", {1080, 1080}},
+            {" ", {600, 800}},
+            {" ", {600, 600}},
+        },
+    },
 
     rotationPeriod = {
-        {"4 s", 4},
-        {"6 s", 6},
-        {"8 s", 8},
         method = "SetRotationPeriod",
-    };
+        choices = {
+            {"4 s", 4},
+            {"6 s", 6},
+            {"8 s", 8},
+        },
+    },
 
     fontSize = {
-        {"15", 15},
-        {"16", 16},
-        {"18", 18},
-        {"20", 20},
         method = "SetFontWeight",
-    };
+        choices = {
+            {"15", 15},
+            {"16", 16},
+            {"18", 18},
+            {"20", 20},
+        },
+    },
 };
 
-for i = 1, #DropDownOptions.imageSizeWithText do
-    local v = DropDownOptions.imageSizeWithText[i];
+for i = 1, #DropDownOptions.imageSizeWithText.choices do
+    local v = DropDownOptions.imageSizeWithText.choices[i];
     local width, height = v[2][1], v[2][2];
-    DropDownOptions.imageSizeWithText[i][1] = string.format("%s x %s (%s)", width, height, GetScreenAspectText(width, height));
+    DropDownOptions.imageSizeWithText.choices[i][1] = string.format("%s x %s (%s)", width, height, GetScreenAspectText(width, height));
 end
 
-for i = 1, #DropDownOptions.imageSizeNoText do
-    local v = DropDownOptions.imageSizeNoText[i];
+for i = 1, #DropDownOptions.imageSizeNoText.choices do
+    local v = DropDownOptions.imageSizeNoText.choices[i];
     local width, height = v[2][1], v[2][2];
-    DropDownOptions.imageSizeNoText[i][1] = string.format("%s x %s (%s)", width, height, GetScreenAspectText(width, height));
+    DropDownOptions.imageSizeNoText.choices[i][1] = string.format("%s x %s (%s)", width, height, GetScreenAspectText(width, height));
 end
 
 DropDownOptions.imageSizeValid = DropDownOptions.imageSizeWithText;
@@ -332,7 +340,6 @@ local function LoadSettings()
 
     if DB.ShowSplash then
         MainFrame.createSplash = true;
-        --/run NarciTurntableOptions.ShowSplash = true
     end
 
     TopLevelButtonScripts.SetState(DB.BringToFront);
@@ -357,9 +364,10 @@ local function SetUpDropDown(parentButton, menuName)
         local selectedText = parentButton.ValueText:GetText();
         local width = parentButton:GetWidth();
         local data = DropDownOptions[menuName];
+        local numChoices = #data.choices;
         p.method = data.method;
-        local numData = #data;
-        for i = 1, numData do
+
+        for i, v in ipairs(data.choices) do
             if not p.buttons then
                 p.buttons = {};
             end
@@ -368,20 +376,24 @@ local function SetUpDropDown(parentButton, menuName)
                 p.buttons[i]:SetPoint("TOPLEFT", p, "TOPLEFT", 0, -16 + 14*(1-i));
             end
             p.buttons[i]:SetWidth(width);
-            p.buttons[i]:SetValueText(data[i][1])
-            if selectedText == data[i][1] then
+            p.buttons[i]:SetValueText(v[1])
+            if selectedText == v[1] then
                 p.Check:SetPoint("LEFT", p.buttons[i], "LEFT", 3, 0.6);
                 p.Check:Show();
             end
-            p.buttons[i].value = data[i][2];
+            p.buttons[i].value = v[2];
             p.buttons[i]:Show();
         end
-        for i = numData + 1, #p.buttons do
-            p.buttons[i]:Hide();
+
+        if p.buttons then
+            for i = numChoices + 1, #p.buttons do
+                p.buttons[i]:Hide();
+            end
         end
+
         p:SetPoint("TOPLEFT", parentButton, "TOPLEFT", 0, 0);
         p:SetPoint("TOPRIGHT", parentButton, "TOPRIGHT", 0, 0);
-        p:SetHeight(numData * 14 + 4 + 14);
+        p:SetHeight(numChoices * 14 + 4 + 14);
         p:Show();
     else
         p:Hide();
@@ -1507,7 +1519,6 @@ function NarciOutfitShowcaseMixin:Init()
     UtilityModel = self.ModelScene.UtilityModel;
     Tooltip = self.Tooltip;
     TabSelection = self.ControlPanel.NavBar.TabSelection;
-    TabSelection.x = 0;
 
     GroundShadow = self.ModelScene.GroundShadow;
 
@@ -1525,15 +1536,20 @@ function NarciOutfitShowcaseMixin:Init()
 
     MixScripts(DropDownPanel, DropDownPanelScripts);
 
+    self:SetMainHandSheathedCategory(0);
+    self:SetOffHandSheathedCategory(0);
+
     PlayerActor = ModelScene:CreateActor(nil, "NarciAutoFittingActorTemplate");
     PlayerActor:SetUseCenterForOrigin(false, false, true);
     PlayerActor:SetPosition(0, 0, 0);
+
     ActiveActor = PlayerActor;
     ModelScene.actor = PlayerActor;
     self.actor = PlayerActor;
     ModelScene:SetCameraPosition(DEFAULT_CAM_DISTANCE, 0, 0);
     ModelScene:SetCameraOrientationByYawPitchRoll(PI, 0, 0);
     ModelScene:SetCameraFieldOfView(FOV_DIAGONAL);
+	ModelScene:SetAllowOverlappedModels(true);
 
     ModelScene:SetLightDiffuseColor(0.8, 0.8, 0.8);
     ModelScene:SetLightAmbientColor(0.6, 0.6, 0.6);
@@ -1591,6 +1607,13 @@ function NarciOutfitShowcaseMixin:Init()
     AnimationSlider.onValueChangedFunc = AnimationSlider_OnValueChangedFunc;
     AnimationSlider.onMouseDownFunc = AnimationSlider_OnMouseDownFunc;
 
+    --Weapon Tab
+    local WeaponTab = self.ControlPanel.WeaponTab;
+    WeaponTab.SheaheCategoryLabel:SetText(L["Sheathing Position"]);
+    WeaponTab.SheaheCategoryLabel:SetTextColor(0.5, 0.5, 0.5);
+    WeaponTab.MainHandSheath.Label:SetText(MAINHANDSLOT);
+    WeaponTab.OffHandSheath.Label:SetText(SECONDARYHANDSLOT);
+
     --Image Settings
     local widget = self.ControlPanel.LayoutTab.ImageSize;
     widget.Label:SetText(L["Image Size"]);
@@ -1613,21 +1636,44 @@ function NarciOutfitShowcaseMixin:Init()
 
     --Create Navigation Buttons
     local bar = ControlPanel.NavBar;
-    local navButton;
     local navButtonNames = {
-        "Animation", "Image", "Quality", "Background",
+        "Animation", "Weapon", "Image", "Quality", "Background",
     };
+
+	local maxLabelWidth = 0;
+	local buttonTextPaddingLeft = 8;
+	local buttonTextPaddingRight = 12;
+	local navButtonHeight = 18;
+	local fromOffsetY = (self.ControlPanel:GetHeight() - #navButtonNames * navButtonHeight) * 0.5;
+
     for i = 1, #navButtonNames do
-        navButton = CreateFrame("Button", nil, bar, "NarciShowcaseNavButtonTemplate");
+        local navButton = CreateFrame("Button", nil, bar, "NarciShowcaseNavButtonTemplate");
         if i == 1 then
-            navButton:SetPoint("BOTTOMLEFT", bar, "BOTTOMLEFT", 4, 0);
+            navButton:SetPoint("TOPLEFT", bar, "TOPLEFT", 0, -fromOffsetY);
         else
-            navButton:SetPoint("BOTTOMLEFT", bar.NavButtons[i - 1], "BOTTOMRIGHT", 0, 0);
+            navButton:SetPoint("TOPLEFT", bar.NavButtons[i - 1], "BOTTOMLEFT", 0, 0);
         end
-        navButton:SetButtonText(L["Turntable Tab "..navButtonNames[i]]);
+		navButton:SetHeight(navButtonHeight);
+		navButton.buttonTextPaddingLeft = buttonTextPaddingLeft;
+		navButton.ButtonText:SetPoint("LEFT", navButton, "LEFT", buttonTextPaddingLeft, 0);
+		local textWidth = navButton:SetButtonText(L["Turntable Tab "..navButtonNames[i]]);
+		if textWidth > maxLabelWidth then
+			maxLabelWidth = textWidth;
+		end
         navButton.id = i;
     end
-    bar.NavButtons[2]:Click();
+
+	local navButtonWidth = math.max(60, math.floor(buttonTextPaddingLeft + buttonTextPaddingRight + maxLabelWidth));
+	local tabWidth = 240;
+
+	for _, navButton in ipairs(bar.NavButtons) do
+		navButton:SetWidth(navButtonWidth);
+	end
+
+	self.ControlPanel:SetWidth(navButtonWidth + tabWidth);
+	self.ControlPanel.NavBar:SetWidth(navButtonWidth);
+
+    bar.NavButtons[3]:Click();
 
 
     local fps = NarciFramerateIndicator;
@@ -1645,7 +1691,7 @@ function NarciOutfitShowcaseMixin:Init()
     --DEBUG Create drop-shadow
     --NarciAPI.NineSliceUtil.SetUpBorder(self.DropShadow, "shadowR0");
 
-    self.ModelScene.BackdropPreview:SetTexture("Interface/AddOns/Narcissus/Art/Modules/Showcase/BackdropThumbnails", nil, nil, "NEAREST");
+    ModelScene.BackdropPreview:SetTexture("Interface/AddOns/Narcissus/Art/Modules/Showcase/BackdropThumbnails", nil, nil, "NEAREST");
     MountToggle:UpdateIcon();
 end
 
@@ -1810,10 +1856,16 @@ end
 function NarciOutfitShowcaseMixin:SyncModel()
     --retrieve the outfit data from dressing room
     --/run NarciOutfitShowcase:SyncModel()
+
+    self:ResetSheathedCategory();
+
+    local autoDress = true;
     local sheatheWeapons = PlayerActor:GetSheathed();
+    local hideWeapons = false;
     local useNativeForm = not IsPlayerInAlteredForm();
     PlayerActor:SetScale(1);
-    PlayerActor:SetModelByUnit("player", sheatheWeapons, nil, nil, useNativeForm);  --autoDress, hideWeapons
+    PlayerActor:UseUnitSheatheCategory(true);
+    PlayerActor:SetModelByUnit("player", false, autoDress, hideWeapons, useNativeForm);
     PlayerActor.bowData = nil;
 
     local sourceActor;
@@ -1830,20 +1882,21 @@ function NarciOutfitShowcaseMixin:SyncModel()
     end
     local transmogInfoList = sourceActor and sourceActor:GetItemTransmogInfoList();
     if transmogInfoList then
-        PlayerActor:Undress();
+        --PlayerActor:Undress();
         for slotID, info in pairs(transmogInfoList) do
             if slotID == 16 or slotID == 17 then
                 local transmogInfo = PlayerActor:GetItemTransmogInfo(slotID);
                 if not (transmogInfo and transmogInfo:IsEqual(info)) then
-                    PlayerActor:SetItemTransmogInfo(info, slotID);
+                    --PlayerActor:SetItemTransmogInfo(info, slotID);
                 end
             else
-                PlayerActor:SetItemTransmogInfo(info, slotID);
+                --PlayerActor:SetItemTransmogInfo(info, slotID);
             end
         end
     else
         return
     end
+
     PlayerActor:SheatheWeapon(sheatheWeapons);
 
     if self.mountMode then
@@ -2159,9 +2212,10 @@ end
 
 function NarciOutfitShowcaseMixin:ShowTab(id)
     self.ControlPanel.AnimationTab:SetShown(id == 1);
-    self.ControlPanel.LayoutTab:SetShown(id == 2);
-    self.ControlPanel.QualityTab:SetShown(id == 3);
-    self.ControlPanel.BackgroundTab:SetShown(id == 4);
+	self.ControlPanel.WeaponTab:SetShown(id == 2);
+    self.ControlPanel.LayoutTab:SetShown(id == 3);
+    self.ControlPanel.QualityTab:SetShown(id == 4);
+    self.ControlPanel.BackgroundTab:SetShown(id == 5);
 end
 
 function NarciOutfitShowcaseMixin:SetMountMode(state, mountOnly)
@@ -2352,7 +2406,7 @@ function NarciAutoFittingActorMixin:AdjustAlignment()
     minY = min(y1, y2, y3, y4, y5, y6, y7, y8);
     maxY = max(y1, y2, y3, y4, y5, y6, y7, y8);
 
-    
+
     --[[
     local centerX = (maxX + minX)*0.5;
     local centerY = (maxY + minY)*0.5;
@@ -2366,7 +2420,7 @@ function NarciAutoFittingActorMixin:AdjustAlignment()
     scene.P4:SetPoint("CENTER", scene, "BOTTOMLEFT", maxX, maxY);
     local x, y = scene:Project3DPointTo2D(0, 0, 0);
     --]]
-    
+
 
     self:UpdateGroundShadow();
 end
@@ -2387,7 +2441,6 @@ function NarciAutoFittingActorMixin:OnModelLoaded()
     end
 end
 
-
 function NarciAutoFittingActorMixin:SheatheWeapon(state)
     self:SetSheathed(state);
     if self.bowData then
@@ -2401,8 +2454,53 @@ function NarciAutoFittingActorMixin:SheatheWeapon(state)
     SheatheButton:UpdateIcon();
 end
 
---/run NarciOutfitShowcase:SetModelFromTarget()
+do -- Sheathe Category
+    local SheatheChoices = { -- TransmogOutfitSlotOptionSheatheCategory: Default, Back, Side, Hide
+        {DEFAULT, 0},
+        {TRANSMOG_SHEATHE_CATEGORY_BACK, 1},
+        {TRANSMOG_SHEATHE_CATEGORY_SIDE, 2},
+        {TRANSMOG_SHEATHE_CATEGORY_HIDE, 3},
+    };
 
+    DropDownOptions.mainHandSheatheCategory = {
+        method = "SetMainHandSheathedCategory",
+        choices = SheatheChoices,
+    };
+
+    DropDownOptions.offHandSheatheCategory = {
+        method = "SetOffHandSheathedCategory",
+        choices = SheatheChoices,
+    };
+
+    local function SetupSheatheCategory(slotID, category, dropdownFrame)
+        if PlayerActor then
+            PlayerActor:SetSheathedCategory(slotID, category);
+        end
+        local index = category + 1;
+        dropdownFrame.ValueText:SetText(SheatheChoices[index][1]);
+    end
+
+    function NarciOutfitShowcaseMixin:SetMainHandSheathedCategory(category)
+        SetupSheatheCategory(16, category, MainFrame.ControlPanel.WeaponTab.MainHandSheath);
+    end
+
+    function NarciOutfitShowcaseMixin:SetOffHandSheathedCategory(category)
+        SetupSheatheCategory(17, category, MainFrame.ControlPanel.WeaponTab.OffHandSheath);
+    end
+
+    function NarciOutfitShowcaseMixin:ResetSheathedCategory()
+        -- Essential for preventing weapons stuck on side (can show 2 weapons on waist and 2 on back simultaneously)
+        if PlayerActor then
+            PlayerActor:SetSheathedCategory(16, 2);
+            PlayerActor:SetSheathedCategory(17, 2);
+            PlayerActor:SetSheathed(false);
+        end
+        MainFrame.ControlPanel.WeaponTab.MainHandSheath.ValueText:SetText(SheatheChoices[1][1]);
+        MainFrame.ControlPanel.WeaponTab.OffHandSheath.ValueText:SetText(SheatheChoices[1][1]);
+    end
+end
+
+--/run NarciOutfitShowcase:SetModelFromTarget()
 
 NarciShowcaseItemTextMixin = {};    --advanced formating
 
@@ -2635,42 +2733,6 @@ function NarciShowcaseDropDownButtonMixin:SetValueText(text)
 end
 
 
-local function TabSelection_OnUpdate(self, elapsed)
-    local complete;
-    local diff = self.toX - self.x;
-    local delta = elapsed * 16 * diff;
-    if diff >= 0 and (diff < 1 or (self.x + delta >= self.toX)) then
-        self.x = self.toX;
-        complete = true;
-    elseif diff <= 0 and (diff > -1 or (self.x + delta <= self.toX)) then
-        self.x = self.toX;
-        complete = true;
-    else
-        self.x = self.x + delta;
-    end
-
-    diff = self.toWidth - self.width;
-    delta = elapsed * 16 * diff;
-    if diff >= 0 and (diff < 1 or (self.width + delta >= self.toWidth)) then
-        self.width = self.toWidth;
-        complete = complete and true;
-    elseif diff <= 0 and (diff > -1 or (self.width + delta <= self.toWidth)) then
-        self.width = self.toWidth;
-        complete = complete and true;
-    else
-        self.width = self.width + delta;
-        complete = false;
-    end
-
-    if complete then
-        self:SetScript("OnUpdate", nil);
-    end
-
-    self:SetPoint("BOTTOM", ControlPanel.NavBar, "BOTTOMLEFT", self.x, 0);
-    self.Center:SetWidth(self.width);
-end
-
-
 NarciShowcaseNavButtonMixin = {};
 
 function NarciShowcaseNavButtonMixin:OnEnter()
@@ -2687,12 +2749,12 @@ end
 
 function NarciShowcaseNavButtonMixin:OnMouseDown()
     if not self.selected then
-        self.ButtonText:SetPoint("CENTER", self, "CENTER", 0, -0.6);
+        self.ButtonText:SetPoint("LEFT", self, "LEFT", self.buttonTextPaddingLeft, -0.6);
     end
 end
 
 function NarciShowcaseNavButtonMixin:OnMouseUp()
-    self.ButtonText:SetPoint("CENTER", self, "CENTER", 0, 0);
+    self.ButtonText:SetPoint("LEFT", self, "LEFT", self.buttonTextPaddingLeft, 0);
 end
 
 function NarciShowcaseNavButtonMixin:OnClick()
@@ -2703,12 +2765,9 @@ function NarciShowcaseNavButtonMixin:OnClick()
     end
     MainFrame:ShowTab(self.id);
 
-    local leftX = self:GetParent():GetLeft();
-    local buttonX = self:GetCenter();
-    TabSelection.width = TabSelection.Center:GetWidth();
-    TabSelection.toWidth = self.ButtonText:GetWidth();
-    TabSelection.toX = buttonX - leftX;
-    TabSelection:SetScript("OnUpdate", TabSelection_OnUpdate);
+    TabSelection:ClearAllPoints();
+	TabSelection:SetPoint("TOPLEFT", self, "TOPLEFT", 2, 0);
+	TabSelection:SetPoint("BOTTOMRIGHT", self, "BOTTOMRIGHT", 2, 0);
 end
 
 function NarciShowcaseNavButtonMixin:SetSelection(state)
@@ -2722,7 +2781,7 @@ end
 
 function NarciShowcaseNavButtonMixin:SetButtonText(text)
     self.ButtonText:SetText(text);
-    self:SetWidth( math.max(self.ButtonText:GetWidth() + 8, 48) );
+    return self.ButtonText:GetWrappedWidth();
 end
 
 

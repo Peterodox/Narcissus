@@ -1,6 +1,6 @@
-local NARCI_VERSION_INFO = "1.8.5 d";
+local NARCI_VERSION_INFO = "1.8.5 e";
 
-local VERSION_DATE = 1777300000;
+local VERSION_DATE = 1778600000;
 local CURRENT_VERSION = 10805;
 local PREVIOUS_VERSION = CURRENT_VERSION;
 local TIME_SINCE_LAST_UPDATE = 0;
@@ -57,6 +57,7 @@ local DefaultValues = {
     ItemTooltipStyle = 1,
     ShowItemID = false,                         --Show itemID on equipment tooltip
     MissingEnchantAlert = false,                --Show alert if the item isn't enchanted
+    UseWoWQualityColor = false,
 
     -- Photo Mode --
     HideTextsWithUI = false,                     --Hide all texts when UI is hidden

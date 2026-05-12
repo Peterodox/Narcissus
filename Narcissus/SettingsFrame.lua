@@ -4,8 +4,8 @@ local inOutSine = addon.EasingFunctions.inOutSine;
 local FadeFrame = NarciFadeUI.Fade;
 
 local DEFAULT_FRAME_WIDTH = 720;    --800 640
-local DEFAULT_FRAME_HEIGHT = 405;   --450 360
-local DEFAULT_LEFT_WIDTH = DEFAULT_FRAME_WIDTH - DEFAULT_FRAME_HEIGHT*4/3;
+local DEFAULT_FRAME_HEIGHT = 450;   --450 360
+local DEFAULT_LEFT_WIDTH = 180;
 local SHRIKNED_LEFT_WIDTH = (640 - 360 * 4/3);
 local MAX_SCROLLFRAME_WIDTH = 394;
 
@@ -626,6 +626,10 @@ end
 
 local function TruncateTextToggle_OnValueChanged(self, state)
     SettingFunctions.SetItemNameTruncated(state);
+end
+
+local function QualityColorToggle_OnValueChanged(self, state)
+    addon.CallbackRegistry:Trigger("SettingChanged.UseWoWQualityColor", state);
 end
 
 local function ShowMinimapModulePanel_OnValueChanged(self, state)
@@ -1822,6 +1826,7 @@ local Categories = {
             {type = "slider", level = 1, key = "FontHeightItemName", text = FONT_SIZE, onValueChangedFunc = ItemNameHeight_OnValueChanged, minValue = 10, maxValue = 12, valueStep = 1, },
             {type = "slider", level = 1, key = "ItemNameWidth", text = L["Text Width"], onValueChangedFunc = ItemNameWidth_OnValueChanged, minValue = 100, maxValue = 200, valueStep = 20, },
             {type = "checkbox", level = 1, key = "TruncateText", text = L["Truncate Text"], onValueChangedFunc = TruncateTextToggle_OnValueChanged},
+            {type = "checkbox", level = 1, key = "UseWoWQualityColor", text = L["Use Game Quality Color"], description = L["Use Game Quality Color Desc"], onValueChangedFunc = QualityColorToggle_OnValueChanged, isNewFeature = true},
         },
     },
 

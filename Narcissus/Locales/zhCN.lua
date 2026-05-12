@@ -239,6 +239,8 @@ L["Expansion Features"] = "资料片特色";
 L["LFR Wing Details"] = "随机难度团本区域信息";
 L["LFR Wing Details Description"] = "在你单排随机难度的旧团本时，显示boss名称和进度情况。";
 L["Speedy Screenshot Alert"] = "让截图成功通知更快地消失";
+L["Use Game Quality Color"] = "使用魔兽物品品质颜色";
+L["Use Game Quality Color Desc"] = "使用游戏选项> 辅助功能> 颜色中所设置的物品品质颜色。";
 
 --模型控制面板--
 L["Ranged Weapon"] = "远程武器";
@@ -602,6 +604,7 @@ L["Turntable"] = "转台";
 L["Picture"] = "图片";
 L["Elapse"] = "时间轴"
 L["Turntable Tab Animation"] = "人物动作";
+L["Turntable Tab Weapon"] = "武器";
 L["Turntable Tab Image"] = "图像参数";
 L["Turntable Tab Quality"] = "抗锯齿";
 L["Turntable Tab Background"] = "背景";
@@ -629,6 +632,7 @@ L["Showcase Splash 2"] = "点击下方按钮来复制试衣间中的物品。";
 L["Showcase Splash 3"] = "点击下方按钮可让你的角色旋转起来。";
 L["Showcase Splash 4"] = "录制屏幕然后将视频转换为GIF动图。";
 L["Loop Animation"] = "循环播放动画";
+L["Sheathing Position"] = "收起时位置";
 
 --Item Sets--
 L["Cycle Spec"] = "使用滚轮切换专精";
