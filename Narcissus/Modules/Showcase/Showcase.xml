@@ -136,13 +136,13 @@
 	</Frame>
 
 	<Button name="NarciShowcaseNavButtonTemplate" mixin="NarciShowcaseNavButtonMixin" virtual="true" parentArray="NavButtons">
-		<Size x="60" y="20"/>
+		<Size x="60" y="16"/>
 		<Layers>
 			<Layer level="OVERLAY">
-				<FontString parentKey="ButtonText" inherits="NarciFontUniversal9" justifyH="CENTER">
+				<FontString parentKey="ButtonText" inherits="NarciFontUniversal9" justifyH="LEFT">
 					<Color r="0.5" g="0.5" b="0.5"/>
 					<Anchors>
-						<Anchor point="CENTER" relativeKey="$parent" relativePoint="CENTER" x="0"/>
+						<Anchor point="LEFT" relativeKey="$parent" relativePoint="LEFT" x="6"/>
 					</Anchors>
 				</FontString>
 			</Layer>
@@ -806,7 +806,7 @@
 				</Layers>
 			</Frame>
 			<Frame parentKey="ControlPanel" clampedToScreen="true" enableMouse="true">
-				<Size x="240" y="106"/>
+				<Size x="300" y="106"/>
 				<Anchors>
 					<Anchor point="TOP" relativeKey="$parent" relativePoint="BOTTOM" y="-12"/>
 				</Anchors>
@@ -818,10 +818,11 @@
 					</Layer>
 				</Layers>
 				<Frames>
-					<Frame parentKey="NavBar" clipChildren="true">
+					<Frame parentKey="NavBar">
+						<Size x="60"/>
 						<Anchors>
 							<Anchor point="TOPLEFT" relativeKey="$parent" relativePoint="TOPLEFT"/>
-							<Anchor point="BOTTOMRIGHT" relativeKey="$parent" relativePoint="TOPRIGHT" y="-20"/>
+							<Anchor point="BOTTOMLEFT" relativeKey="$parent" relativePoint="BOTTOMLEFT"/>
 						</Anchors>
 						<Layers>
 							<Layer level="BACKGROUND">
@@ -830,10 +831,10 @@
 								</Texture>
 							</Layer>
 							<Layer level="BACKGROUND" textureSubLevel="1">
-								<Texture parentKey="Divider" file="Interface\AddOns\Narcissus\Art\Modules\Showcase\HorizontalDivider">
-									<Size y="8"/>
+								<Texture parentKey="Divider" file="Interface\AddOns\Narcissus\Art\Modules\Showcase\ShadowDivider" hidden="false">
+									<Size x="10"/>
 									<Anchors>
-										<Anchor point="BOTTOMLEFT" relativeKey="$parent" relativePoint="BOTTOMLEFT"/>
+										<Anchor point="TOPRIGHT" relativeKey="$parent" relativePoint="TOPRIGHT"/>
 										<Anchor point="BOTTOMRIGHT" relativeKey="$parent" relativePoint="BOTTOMRIGHT"/>
 									</Anchors>
 								</Texture>
@@ -841,59 +842,14 @@
 						</Layers>
 						<Frames>
 							<Frame parentKey="TabSelection" useParentLevel="true">
-								<Size x="48" y="24"/>
+								<Size x="60" y="20"/>
 								<Anchors>
 									<Anchor point="BOTTOM" relativeKey="$parent" relativePoint="BOTTOMLEFT"/>
 								</Anchors>
 								<Layers>
 									<Layer level="BORDER">
-										<Texture parentKey="Center" file="Interface\AddOns\Narcissus\Art\Modules\Showcase\TabSelection">
-											<Size x="40" y="30"/>
-											<Color r="0.1" g="0.1" b="0.1"/>
-											<TexCoords left="0.25" right="0.75" top="0" bottom="1"/>
-											<Anchors>
-												<Anchor point="BOTTOM"/>
-											</Anchors>
-										</Texture>
-										<Texture parentKey="Left" file="Interface\AddOns\Narcissus\Art\Modules\Showcase\TabSelection">
-											<Size x="15" y="30"/>
-											<Color r="0.1" g="0.1" b="0.1"/>
-											<TexCoords left="0" right="0.25" top="0" bottom="1"/>
-											<Anchors>
-												<Anchor point="RIGHT" relativeKey="$parent.Center" relativePoint="LEFT"/>
-											</Anchors>
-										</Texture>
-										<Texture parentKey="Right" file="Interface\AddOns\Narcissus\Art\Modules\Showcase\TabSelection">
-											<Size x="15" y="30"/>
-											<Color r="0.1" g="0.1" b="0.1"/>
-											<TexCoords left="0.75" right="1" top="0" bottom="1"/>
-											<Anchors>
-												<Anchor point="LEFT" relativeKey="$parent.Center" relativePoint="RIGHT"/>
-											</Anchors>
-										</Texture>
-									</Layer>
-									<Layer level="OVERLAY">
-										<Texture parentKey="LightCenter" file="Interface\AddOns\Narcissus\Art\Modules\Showcase\TabSelectionHighlight" alphaMode="ADD">
-											<Size x="40" y="30"/>
-											<TexCoords left="0.25" right="0.75" top="0" bottom="1"/>
-											<Anchors>
-												<Anchor point="TOPLEFT" relativeKey="$parent.Center" relativePoint="TOPLEFT"/>
-												<Anchor point="BOTTOMRIGHT" relativeKey="$parent.Center" relativePoint="BOTTOMRIGHT"/>
-											</Anchors>
-										</Texture>
-										<Texture parentKey="LightLeft" file="Interface\AddOns\Narcissus\Art\Modules\Showcase\TabSelectionHighlight" alphaMode="ADD">
-											<Size x="15" y="30"/>
-											<TexCoords left="0" right="0.25" top="0" bottom="1"/>
-											<Anchors>
-												<Anchor point="RIGHT" relativeKey="$parent.LightCenter" relativePoint="LEFT"/>
-											</Anchors>
-										</Texture>
-										<Texture parentKey="LightRight" file="Interface\AddOns\Narcissus\Art\Modules\Showcase\TabSelectionHighlight" alphaMode="ADD">
-											<Size x="15" y="30"/>
-											<TexCoords left="0.75" right="1" top="0" bottom="1"/>
-											<Anchors>
-												<Anchor point="LEFT" relativeKey="$parent.LightCenter" relativePoint="RIGHT"/>
-											</Anchors>
+										<Texture parentKey="ColorBackground" setAllPoints="true">
+											<Color r="0.1" g="0.1" b="0.1" a="1"/>
 										</Texture>
 									</Layer>
 								</Layers>
@@ -902,7 +858,7 @@
 					</Frame>
 					<Frame parentKey="AnimationTab" hidden="true">
 						<Anchors>
-							<Anchor point="TOPLEFT" relativeKey="$parent.NavBar" relativePoint="BOTTOMLEFT"/>
+							<Anchor point="TOPLEFT" relativeKey="$parent.NavBar" relativePoint="TOPRIGHT"/>
 							<Anchor point="BOTTOMRIGHT" relativeKey="$parent" relativePoint="BOTTOMRIGHT"/>
 						</Anchors>
 						<Frames>
@@ -1138,9 +1094,46 @@
 							</Button>
 						</Frames>
 					</Frame>
+					<Frame parentKey="WeaponTab" hidden="true">
+						<Anchors>
+							<Anchor point="TOPLEFT" relativeKey="$parent.NavBar" relativePoint="TOPRIGHT"/>
+							<Anchor point="BOTTOMRIGHT" relativeKey="$parent" relativePoint="BOTTOMRIGHT"/>
+						</Anchors>
+						<Layers>
+							<Layer level="OVERLAY">
+								<FontString parentKey="SheaheCategoryLabel" inherits="NarciFontUniversal9" justifyH="RIGHT" maxLines="2">
+									<Color r="0.8" g="0.8" b="0.8"/>
+									<Size y="14"/>
+									<Anchors>
+										<Anchor point="TOP" relativeKey="$parent" relativePoint="TOP" y="-16"/>
+									</Anchors>
+								</FontString>
+							</Layer>
+						</Layers>
+						<Frames>
+							<Frame parentKey="MainHandSheath" inherits="NarciShowcaseDropDownFrameTemplate">
+								<KeyValues>
+									<KeyValue key="menuName" value="mainHandSheatheCategory" type="string"/>
+								</KeyValues>
+								<Size x="132" y="14"/>
+								<Anchors>
+									<Anchor point="TOPRIGHT" relativeKey="$parent" relativePoint="TOPRIGHT" x="-16" y="-36"/>
+								</Anchors>
+							</Frame>
+							<Frame parentKey="OffHandSheath" inherits="NarciShowcaseDropDownFrameTemplate">
+								<KeyValues>
+									<KeyValue key="menuName" value="offHandSheatheCategory" type="string"/>
+								</KeyValues>
+								<Size x="132" y="14"/>
+								<Anchors>
+									<Anchor point="TOPRIGHT" relativeKey="$parent" relativePoint="TOPRIGHT" x="-16" y="-56"/>
+								</Anchors>
+							</Frame>
+						</Frames>
+					</Frame>
 					<Frame parentKey="LayoutTab" hidden="false">
 						<Anchors>
-							<Anchor point="TOPLEFT" relativeKey="$parent.NavBar" relativePoint="BOTTOMLEFT"/>
+							<Anchor point="TOPLEFT" relativeKey="$parent.NavBar" relativePoint="TOPRIGHT"/>
 							<Anchor point="BOTTOMRIGHT" relativeKey="$parent" relativePoint="BOTTOMRIGHT"/>
 						</Anchors>
 						<Frames>
@@ -1224,7 +1217,7 @@
 					</Frame>
 					<Frame parentKey="QualityTab" hidden="true">
 						<Anchors>
-							<Anchor point="TOPLEFT" relativeKey="$parent.NavBar" relativePoint="BOTTOMLEFT"/>
+							<Anchor point="TOPLEFT" relativeKey="$parent.NavBar" relativePoint="TOPRIGHT"/>
 							<Anchor point="BOTTOMRIGHT" relativeKey="$parent" relativePoint="BOTTOMRIGHT"/>
 						</Anchors>
 						<Frames>
@@ -1277,7 +1270,7 @@
 					</Frame>
 					<Frame parentKey="BackgroundTab" hidden="true">
 						<Anchors>
-							<Anchor point="TOPLEFT" relativeKey="$parent.NavBar" relativePoint="BOTTOMLEFT"/>
+							<Anchor point="TOPLEFT" relativeKey="$parent.NavBar" relativePoint="TOPRIGHT"/>
 							<Anchor point="BOTTOMRIGHT" relativeKey="$parent" relativePoint="BOTTOMRIGHT"/>
 						</Anchors>
 						<Frames>

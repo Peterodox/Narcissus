@@ -658,6 +658,7 @@ L["Turntable"] = "Turntable";
 L["Picture"] = "Picture";
 L["Elapse"] = "Elapse";
 L["Turntable Tab Animation"] = "Animation";
+L["Turntable Tab Weapon"] = "Weapon";
 L["Turntable Tab Image"] = "Image";
 L["Turntable Tab Quality"] = "Quality";
 L["Turntable Tab Background"] = "Background";
@@ -687,6 +688,7 @@ L["Showcase Splash 3"] = "Click the button below to spin your character.";
 L["Showcase Splash 4"] = "Record the screen with video recording software then convert it to GIF.";
 L["Loop Animation Alert Kultiran"] = "Loop - currently broken on Kultiran male";
 L["Loop Animation"] = "Loop Animation";
+L["Sheathing Position"] = "Sheathing Position";
 
 --Item Sets--
 L["Class Set Indicator"] = "Class Set Indicator";

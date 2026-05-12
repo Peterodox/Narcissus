@@ -602,6 +602,7 @@ L["Turntable"] = "转台";
 L["Picture"] = "图片";
 L["Elapse"] = "时间轴"
 L["Turntable Tab Animation"] = "人物动作";
+L["Turntable Tab Weapon"] = "武器";
 L["Turntable Tab Image"] = "图像参数";
 L["Turntable Tab Quality"] = "抗锯齿";
 L["Turntable Tab Background"] = "背景";
@@ -629,6 +630,7 @@ L["Showcase Splash 2"] = "点击下方按钮来复制试衣间中的物品。";
 L["Showcase Splash 3"] = "点击下方按钮可让你的角色旋转起来。";
 L["Showcase Splash 4"] = "录制屏幕然后将视频转换为GIF动图。";
 L["Loop Animation"] = "循环播放动画";
+L["Sheathing Position"] = "收起时位置";
 
 --Item Sets--
 L["Cycle Spec"] = "使用滚轮切换专精";
