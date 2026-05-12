@@ -1534,6 +1534,7 @@ function NarciOutfitShowcaseMixin:Init()
     ModelScene:SetCameraPosition(DEFAULT_CAM_DISTANCE, 0, 0);
     ModelScene:SetCameraOrientationByYawPitchRoll(PI, 0, 0);
     ModelScene:SetCameraFieldOfView(FOV_DIAGONAL);
+	ModelScene:SetAllowOverlappedModels(true);
 
     ModelScene:SetLightDiffuseColor(0.8, 0.8, 0.8);
     ModelScene:SetLightAmbientColor(0.6, 0.6, 0.6);

@@ -79,6 +79,7 @@ function NarciShowcaseSplashFrameMixin:OnLoad()
         m:SetLightAmbientColor(0.6, 0.6, 0.6);
         m:SetLightPosition(1, 0, 1);
         m:SetLightDirection(-1, 0, -1);
+        m:SetAllowOverlappedModels(true);
         local a = m:CreateActor(nil, "NarciAutoFittingActorTemplate");
         a:SetUseCenterForOrigin(false, false, true);
         a:SetPosition(0, 0, 0);
