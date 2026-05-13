@@ -1868,29 +1868,33 @@ function NarciOutfitShowcaseMixin:SyncModel()
     PlayerActor:SetModelByUnit("player", false, autoDress, hideWeapons, useNativeForm);
     PlayerActor.bowData = nil;
 
+    local equipItemsFromModel;
     local sourceActor;
-    if WardrobeTransmogFrame and WardrobeTransmogFrame:IsVisible() and WardrobeTransmogFrame.ModelScene then
-        sourceActor = WardrobeTransmogFrame.ModelScene:GetPlayerActor();
-        self:UnregisterEvent("INSPECT_READY");
-    elseif DressUpFrame:IsShown() then
+
+    if DressUpFrame:IsShown() then
+        equipItemsFromModel = true;
         sourceActor = DressUpFrame.ModelScene:GetPlayerActor();
         self:UnregisterEvent("INSPECT_READY");
     else
+        equipItemsFromModel = false;
         sourceActor = PlayerActor;
         self:RegisterEvent("INSPECT_READY");
         NotifyInspect("player");  --it seems they fixed the artifact issue
     end
+
     local transmogInfoList = sourceActor and sourceActor:GetItemTransmogInfoList();
     if transmogInfoList then
-        --PlayerActor:Undress();
-        for slotID, info in pairs(transmogInfoList) do
-            if slotID == 16 or slotID == 17 then
-                local transmogInfo = PlayerActor:GetItemTransmogInfo(slotID);
-                if not (transmogInfo and transmogInfo:IsEqual(info)) then
-                    --PlayerActor:SetItemTransmogInfo(info, slotID);
+        if equipItemsFromModel then
+            PlayerActor:Undress();
+            for slotID, info in pairs(transmogInfoList) do
+                if slotID == 16 or slotID == 17 then
+                    local transmogInfo = PlayerActor:GetItemTransmogInfo(slotID);
+                    if not (transmogInfo and transmogInfo:IsEqual(info)) then
+                        PlayerActor:SetItemTransmogInfo(info, slotID);
+                    end
+                else
+                    PlayerActor:SetItemTransmogInfo(info, slotID);
                 end
-            else
-                --PlayerActor:SetItemTransmogInfo(info, slotID);
             end
         end
     else
@@ -2116,7 +2120,11 @@ function NarciOutfitShowcaseMixin:Close()
 end
 
 function NarciOutfitShowcaseMixin:Open()
-    self:Show();
+    if self:IsShown() then
+        self:SyncModel();
+    else
+        self:Show();
+    end
     self:Raise();
     if self.dressingRoomButton then
         self.dressingRoomButton.Icon:SetTexCoord(0.75, 1, 0.5, 0.75);
