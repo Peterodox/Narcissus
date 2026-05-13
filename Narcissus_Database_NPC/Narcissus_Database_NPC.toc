@@ -1,4 +1,4 @@
-## Interface: 120001, 120005
+## Interface: 120005, 120007
 ## Plain Title: Narcissus Database NPC
 ## Version: 11.0.2
 ## LoadOnDemand: 1

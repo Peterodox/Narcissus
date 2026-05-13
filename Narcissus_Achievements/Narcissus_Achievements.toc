@@ -1,5 +1,5 @@
-## Interface: 120001, 120005
-## Version: 12.0.1
+## Interface: 120005, 120007
+## Version: 12.0.5
 ## LoadOnDemand: 1
 ## RequiredDeps: Narcissus
 
