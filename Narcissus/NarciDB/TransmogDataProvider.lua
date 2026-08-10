@@ -491,7 +491,7 @@ do  --Find if an item is a piece of Transmog Set    --Debug
             local GetAllSourceIDs = C_TransmogSets.GetAllSourceIDs;
             local info, expansionID, sources;
 
-            for setID = 5000, 1, -1 do
+            for setID = 6000, 1, -1 do
                 info = GetSetInfo(setID);
                 if info then
                     expansionID = info.expansionID;
