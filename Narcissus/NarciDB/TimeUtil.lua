@@ -217,3 +217,21 @@ local function GetRelativeTime()
     return time() - 1753700000
 end
 NarciAPI.GetRelativeTime = GetRelativeTime;
+
+
+local function ConvertSecondsToTimePassed(seconds)
+    local timeText;
+    local days = math.floor(seconds / 86400 + 0.5);
+    if days >= 1 then
+        if days < 60 then
+            timeText = string.format(Narci.L["Format Days Ago"], days);
+        else
+            local months = math.floor(days / 30.5 + 0.5);
+            timeText = string.format(Narci.L["Format Months Ago"], months);
+        end
+    else
+        timeText = Narci.L["Today"];
+    end
+    return timeText
+end
+NarciAPI.ConvertSecondsToTimePassed = ConvertSecondsToTimePassed;
