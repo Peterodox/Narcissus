@@ -54,6 +54,23 @@ end
 do  --Old: Individual itemID
     --Maybe switch to C_LootJournal.GetItemSetItems in the future, but unnecessary atm
 
+    ClassSetItemByRaid.MidnightS2 = {
+        271459, 271457, 271456, 271455, 271454,
+        271547, 271546, 271545, 271549, 271544,
+        271486, 271484, 271483, 271482, 271481,
+        271513, 271511, 271510, 271509, 271508,
+        271556, 271555, 271554, 271558, 271553,
+        271468, 271466, 271465, 271464, 271463,
+        271522, 271520, 271519, 271518, 271517,
+        271567, 271565, 271564, 271563, 271562,
+        271495, 271493, 271492, 271491, 271490,
+        271504, 271502, 271501, 271500, 271499,
+        271531, 271529, 271528, 271527, 271526,
+        271540, 271538, 271537, 271536, 271535,
+        271477, 271475, 271474, 271473, 271472,
+    };
+    SetClassSetGroup(ClassSetItemByRaid.MidnightS2, 7);
+
     ClassSetItemByRaid.MidnightS1 = {
         249955, 249953, 249952, 249951, 249950,
         250043, 250042, 250041, 250045, 250040,
@@ -128,18 +145,18 @@ do  --Old: Individual itemID
         --1. Reach a certain date (1 month after release)
         --2. Player has acquired a class set item from the new raid
 
-        local due = 1756684800;     --Monday, September 1, 2025 12:00:00 AM (TEMP)
-        local raidKey = "MidnightS1";
+        local due = 1789689600;     --Friday, September 18, 2026
+        local raidKey = "MidnightS2";
         local time = time and time() or due;
         local newRaidItems;
 
-        if addon.IsTOCVersionEqualOrNewerThan(120000) and (time >= due or HasPlayerAcquiredItemFromThisRaid(raidKey) or DoesPlayerHaveAnyItems(ClassSetItemByRaid[raidKey])) then
+        if addon.IsTOCVersionEqualOrNewerThan(120100) and (time >= due or HasPlayerAcquiredItemFromThisRaid(raidKey) or DoesPlayerHaveAnyItems(ClassSetItemByRaid[raidKey])) then
             FlagRaidItemAcquired(raidKey);
-            newRaidItems = ClassSetItemByRaid.MidnightS1;
+            newRaidItems = ClassSetItemByRaid.MidnightS2;
             CURRENT_RAID_KEY = raidKey;
         else
-            newRaidItems = ClassSetItemByRaid.Karesh;
-            CURRENT_RAID_KEY = "Karesh";
+            newRaidItems = ClassSetItemByRaid.MidnightS1;
+            CURRENT_RAID_KEY = "MidnightS1";
         end
 
         for _, itemID in pairs(newRaidItems) do
