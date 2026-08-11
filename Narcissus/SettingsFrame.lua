@@ -1826,7 +1826,7 @@ local Categories = {
             {type = "slider", level = 1, key = "FontHeightItemName", text = FONT_SIZE, onValueChangedFunc = ItemNameHeight_OnValueChanged, minValue = 10, maxValue = 12, valueStep = 1, },
             {type = "slider", level = 1, key = "ItemNameWidth", text = L["Text Width"], onValueChangedFunc = ItemNameWidth_OnValueChanged, minValue = 100, maxValue = 200, valueStep = 20, },
             {type = "checkbox", level = 1, key = "TruncateText", text = L["Truncate Text"], onValueChangedFunc = TruncateTextToggle_OnValueChanged},
-            {type = "checkbox", level = 1, key = "UseWoWQualityColor", text = L["Use Game Quality Color"], description = L["Use Game Quality Color Desc"], onValueChangedFunc = QualityColorToggle_OnValueChanged, isNewFeature = true},
+            {type = "checkbox", level = 1, key = "UseWoWQualityColor", text = L["Use Game Quality Color"], description = L["Use Game Quality Color Desc"], onValueChangedFunc = QualityColorToggle_OnValueChanged},
         },
     },
 
