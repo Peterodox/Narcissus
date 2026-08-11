@@ -93,9 +93,17 @@ local MAP_UI_INFO = {
     [239] = {name = 'seat-of-the-triumvirate'},
     [161] = {name = 'skyreach'},
     [557] = {name = 'windrunner-spire'},
+
+    [588] = {name = 'altar-of-fangs'},
+    [249] = {name = 'kings-rest'},
+    [585] = {name = 'voidscar-arena'},
+    [586] = {name = 'den-of-nalorakk'},
+    [587] = {name = 'murder-row'},
+    [250] = {name = 'temple-of-sethraliss'},
+    [584] = {name = 'the-blinding-vale'},
 };
 
-local SEASON_MAPS = {402, 558, 560, 559, 556, 239, 161, 557};
+local SEASON_MAPS = {585, 584, 250, 399, 587, 249, 586, 588};
 local IS_MAP_THIS_SEASON = {};
 
 local function ShowNewDungeons()
