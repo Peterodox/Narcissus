@@ -595,3 +595,10 @@ do  --Compatibility: Dymaic Cam
         end
     end
 end
+
+
+do  -- For 12.1.0: Disable EXPERIMENTAL_CVAR_CONFIRMATION_NEEDED due to changes.
+    if GameEvent and GameEvent.UnregisterInternalEvent then
+        GameEvent.UnregisterInternalEvent("EXPERIMENTAL_CVAR_CONFIRMATION_NEEDED");
+    end
+end

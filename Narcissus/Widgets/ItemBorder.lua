@@ -130,6 +130,7 @@ local itemIDxBorderArt = {
 };
 itemIDxBorderArt[5] = itemIDxBorderArt[4];  --TEMP Class Sets: TWW S3 Manaforge Omega
 itemIDxBorderArt[6] = itemIDxBorderArt[4];  --MID S1 Class Sets
+itemIDxBorderArt[7] = itemIDxBorderArt[4];  --MID S2 Class Sets
 
 
 local itemVisualGroup = {};

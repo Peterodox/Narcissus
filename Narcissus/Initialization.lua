@@ -1,7 +1,7 @@
-local NARCI_VERSION_INFO = "1.8.5 f";
+local NARCI_VERSION_INFO = "1.8.6";
 
-local VERSION_DATE = 1778600000;
-local CURRENT_VERSION = 10805;
+local VERSION_DATE = 1786400000;
+local CURRENT_VERSION = 10806;
 local PREVIOUS_VERSION = CURRENT_VERSION;
 local TIME_SINCE_LAST_UPDATE = 0;
 
@@ -377,24 +377,6 @@ Initialization:SetScript("OnEvent",function(self,event,...)
         end)
     end
 end);
-
-
-local function ConvertSecondsToTimePassed(seconds)
-    local timeText;
-    local days = math.floor(TIME_SINCE_LAST_UPDATE / 86400 + 0.5);
-    if days >= 1 then
-        if days < 60 then
-            timeText = string.format(Narci.L["Format Days Ago"], days);
-        else
-            local months = math.floor(days / 30.5 + 0.5);
-            timeText = string.format(Narci.L["Format Months Ago"], months);
-        end
-    else
-        timeText = Narci.L["Today"];
-    end
-    return timeText
-end
-NarciAPI.ConvertSecondsToTimePassed = ConvertSecondsToTimePassed;
 
 
 local function GetAddOnVersionInfo(versionOnly)

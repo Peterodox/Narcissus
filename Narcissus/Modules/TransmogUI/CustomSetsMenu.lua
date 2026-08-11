@@ -47,7 +47,7 @@ do
     end
 
     function MenuButtonMixin:OnClick(button)
-        if Menu:HideContextMenu() then
+        if self.isContextMenuOwner and Menu:HideContextMenu() then
             return
         end
 
@@ -164,6 +164,7 @@ do
                 },
 
                 onMenuClosedCallback = function()
+                    self.isContextMenuOwner = nil;
                     Menu.shownContextMenu = nil;
                 end,
             };
@@ -172,6 +173,7 @@ do
             Menu.shownContextMenu = menu;
             menu:ClearAllPoints();
             menu:SetPoint("TOPLEFT", self, "TOPRIGHT", -8, 2);
+            self.isContextMenuOwner = true;
         end
     end
 
