@@ -252,11 +252,9 @@ do
                 end
             end
 
-            if data.customSetID then
-                C_TransmogOutfitInfo.SetOutfitToCustomSet(data.customSetID);
-            else
-                TransmogUIManager:SetPendingFromTransmogInfoList(data.transmogInfoList);
-            end
+            --SetOutfitToCustomSet skips illusions and mis-resolves weapon option/shoulder-split.
+            --Apply manually here too, for parity with shared and alt-character sets.
+            TransmogUIManager:SetPendingFromTransmogInfoList(data.transmogInfoList);
             PlaySound(SOUNDKIT.UI_TRANSMOG_ITEM_CLICK);
 
             CallbackRegistry:Trigger("StaticPopup.CloseAll");
