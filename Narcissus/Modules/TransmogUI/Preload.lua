@@ -160,6 +160,10 @@ end
 function TransmogUIManager:SetPendingFromTransmogInfoList(transmogInfoList)
     --Applied per-slot rather than via SetOutfitToCustomSet, for correct illusion/weapon option/shoulder-split
 
+    --Toggling shoulder split below can force-switch the tab back to Items. Restore it after.
+    local wardrobeCollection = TransmogFrame and TransmogFrame.WardrobeCollection;
+    local tabToRestore = wardrobeCollection and wardrobeCollection:GetTab();
+
     for invSlotID, transmogInfo in ipairs(transmogInfoList) do
         if not IgnoredInvSlots[invSlotID] then
             local transmogID = transmogInfo.appearanceID;
@@ -194,6 +198,10 @@ function TransmogUIManager:SetPendingFromTransmogInfoList(transmogInfoList)
                 ApplyTransmog(invSlotID, slot, transmogID, illusionID);
             end
         end
+    end
+
+    if wardrobeCollection and tabToRestore and wardrobeCollection:GetTab() ~= tabToRestore then
+        wardrobeCollection:SetTab(tabToRestore);
     end
 end
 
