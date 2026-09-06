@@ -9,6 +9,13 @@ local TransmogDataProvider = addon.TransmogDataProvider;
 local GetSourceInfo = C_TransmogCollection.GetSourceInfo;
 local GetAppearanceInfoBySource = C_TransmogCollection.GetAppearanceInfoBySource;
 local GetTransmogOutfitSlotFromInventorySlot = C_TransmogOutfitInfo and C_TransmogOutfitInfo.GetTransmogOutfitSlotFromInventorySlot;
+local GetEquippedSlotOptionFromTransmogSlot = C_TransmogOutfitInfo and C_TransmogOutfitInfo.GetEquippedSlotOptionFromTransmogSlot;
+local GetWeaponOptionsForSlot = C_TransmogOutfitInfo and C_TransmogOutfitInfo.GetWeaponOptionsForSlot;
+local SetViewedWeaponOptionForSlot = C_TransmogOutfitInfo and C_TransmogOutfitInfo.SetViewedWeaponOptionForSlot;
+local GetViewedOutfitSlotInfo = C_TransmogOutfitInfo and C_TransmogOutfitInfo.GetViewedOutfitSlotInfo;
+local GetPairedArtifactAppearance = C_TransmogCollection.GetPairedArtifactAppearance;
+local SetSecondarySlotState = C_TransmogOutfitInfo and C_TransmogOutfitInfo.SetSecondarySlotState;
+local MainHandTransmogIsPairedWeapon = Constants.Transmog.MainHandTransmogIsPairedWeapon;
 local IsAppearanceHiddenVisual = C_TransmogCollection.IsAppearanceHiddenVisual;
 local SetPendingTransmog =  C_TransmogOutfitInfo and C_TransmogOutfitInfo.SetPendingTransmog;
 local ipairs = ipairs;
@@ -88,10 +95,34 @@ local TransmogInvSlots = {
 local function ApplyTransmog(invSlotID, slot, transmogID, illusionID)
     local transmogType, option, displayType;
 
-    --if invSlotID == 16 or invSlotID == 17 then
-    --    option = C_TransmogOutfitInfo.GetEquippedSlotOptionFromTransmogSlot(slot);
-    --    SetPendingTransmog(slot, Enum.TransmogType.Appearance, option, 0, Enum.TransmogOutfitDisplayType.Unassigned);
-    --end
+    if invSlotID == 16 or invSlotID == 17 then
+        --Weapon option isn't saved, so resolve it live. Match against transmogID so main and off
+        --hand don't end up with swapped artifact options.
+        if slot and transmogID and TransmogDataProvider:IsLegionArtifactBySourceID(transmogID) then
+            local _, artifactOptionsInfo = GetWeaponOptionsForSlot(slot);
+            if artifactOptionsInfo then
+                local appearanceType = Enum.TransmogType.Appearance;
+                for _, optionInfo in ipairs(artifactOptionsInfo) do
+                    if optionInfo.enabled then
+                        local slotInfo = GetViewedOutfitSlotInfo(slot, appearanceType, optionInfo.weaponOption);
+                        if slotInfo and slotInfo.transmogID == transmogID then
+                            option = optionInfo.weaponOption;
+                            break;
+                        end
+                    end
+                end
+            end
+        end
+
+        if not option then
+            option = slot and GetEquippedSlotOptionFromTransmogSlot(slot);
+        end
+
+        if slot and option then
+            --A widget rebuild can reset this slot's viewed option to generic, so re-assert ours here.
+            SetViewedWeaponOptionForSlot(slot, option);
+        end
+    end
 
     if not option then
         option = Enum.TransmogOutfitSlotOption.None;
@@ -133,31 +164,65 @@ local function ApplyTransmog(invSlotID, slot, transmogID, illusionID)
 end
 
 function TransmogUIManager:SetPendingFromTransmogInfoList(transmogInfoList)
-    --WoW uses C_TransmogOutfitInfo.SetOutfitToCustomSet(customSetID) to directly apply the sets
-    --But we need to do it by slot
+    --Applied per-slot rather than via SetOutfitToCustomSet, for correct illusion/weapon option/shoulder-split
 
-    for invSlotID, transmogInfo in ipairs(transmogInfoList) do
-        if not IgnoredInvSlots[invSlotID] then
-            local transmogID = transmogInfo.appearanceID;
-            local secondaryAppearanceID = transmogInfo.secondaryAppearanceID;
-            local illusionID = transmogInfo.illusionID;
+    --Toggling shoulder split below can force-switch the tab back to Items. Restore it after.
+    local wardrobeCollection = TransmogFrame and TransmogFrame.WardrobeCollection;
+    local tabToRestore = wardrobeCollection and wardrobeCollection:GetTab();
 
-            if invSlotID ~= 16 and invSlotID ~= 17 then
-                illusionID = nil;
-            end
+    local function ApplyOnce()
+        for invSlotID, transmogInfo in ipairs(transmogInfoList) do
+            if not IgnoredInvSlots[invSlotID] then
+                local transmogID = transmogInfo.appearanceID;
+                local secondaryAppearanceID = transmogInfo.secondaryAppearanceID;
+                local illusionID = transmogInfo.illusionID;
 
-            if invSlotID == 3 then
-                ApplyTransmog(invSlotID, Enum.TransmogOutfitSlot.ShoulderRight, transmogID);
-                if secondaryAppearanceID == 0 then
-                    secondaryAppearanceID = transmogID;
+                if invSlotID ~= 16 and invSlotID ~= 17 then
+                    illusionID = nil;
                 end
-                ApplyTransmog(invSlotID, Enum.TransmogOutfitSlot.ShoulderLeft, secondaryAppearanceID);
-            else
-                local slot = ConverInvSlotToTransmogSlot(invSlotID);
-                ApplyTransmog(invSlotID, slot, transmogID, illusionID);
+
+                if invSlotID == 17 then
+                    --Paired Legion Artifact off-hands derive their appearance from the main-hand, not their own.
+                    local mainHandInfo = transmogInfoList[16];
+                    if mainHandInfo and mainHandInfo.secondaryAppearanceID == MainHandTransmogIsPairedWeapon then
+                        transmogID = GetPairedArtifactAppearance(mainHandInfo.appearanceID) or transmogID;
+                    end
+                end
+
+                if invSlotID == 3 then
+                    --Must run before the appearances below are applied. Toggling it afterward
+                    --wipes the left shoulder's pending value.
+                    local needsSplitShoulders = secondaryAppearanceID ~= 0 and secondaryAppearanceID ~= transmogID;
+                    SetSecondarySlotState(Enum.TransmogOutfitSlot.ShoulderRight, needsSplitShoulders);
+
+                    ApplyTransmog(invSlotID, Enum.TransmogOutfitSlot.ShoulderRight, transmogID);
+                    if secondaryAppearanceID == 0 then
+                        secondaryAppearanceID = transmogID;
+                    end
+                    ApplyTransmog(invSlotID, Enum.TransmogOutfitSlot.ShoulderLeft, secondaryAppearanceID);
+                else
+                    local slot = ConverInvSlotToTransmogSlot(invSlotID);
+                    ApplyTransmog(invSlotID, slot, transmogID, illusionID);
+                end
             end
         end
     end
+
+    local function RestoreTab()
+        if wardrobeCollection and tabToRestore and wardrobeCollection:GetTab() ~= tabToRestore then
+            wardrobeCollection:SetTab(tabToRestore);
+        end
+    end
+
+    ApplyOnce();
+    RestoreTab();
+
+    --Artifact options only resolve once already pending, which needs a frame to settle, so redo next frame.
+    RunNextFrame(function()
+        ApplyOnce();
+		-- Restore the tab for good measure, if it's not necessary this won't do anything.
+        RestoreTab();
+    end);
 end
 
 local UsableItemModifiedAppearances = {};
@@ -685,7 +750,6 @@ do  --Viewd Outfit Info
             };
         end
 
-        local GetViewedOutfitSlotInfo = C_TransmogOutfitInfo.GetViewedOutfitSlotInfo;
         local usedTextures = {};
         local tbl = {};
         local n = 0;
