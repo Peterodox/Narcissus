@@ -2194,58 +2194,64 @@ do
         return npcIDList
     end
 
+    local canaccessvalue = canaccessvalue;
+    local GetInfoByHyperlink = C_TooltipInfo.GetHyperlink;
 
-    --For different versions of API
-    if C_TooltipInfo and C_TooltipInfo.GetHyperlink then
-        local GetInfoByHyperlink = C_TooltipInfo.GetHyperlink;
+    local function GetLineText(lines, index)
+        if lines[index] and lines[index].leftText then
+            return lines[index].leftText;
+        end
+    end
 
-        local function GetLineText(lines, index)
-            if lines[index] and lines[index].leftText then
-                return lines[index].leftText;
+    function CreatureInfoUtil:RequestInfo(creatureID)
+        if not creatureID then return end;
+        GetInfoByHyperlink("unit:Creature-0-0-0-0-"..creatureID);
+    end
+
+    function CreatureInfoUtil:RequestInfoFromList(list)
+        local func = GetInfoByHyperlink;
+        for creatureID, v in pairs(list) do
+            func("unit:Creature-0-0-0-0-"..creatureID);
+        end
+    end
+
+    function CreatureInfoUtil:GetName(creatureID)
+        if not creatureID then return end;
+        local tooltipData = GetInfoByHyperlink("unit:Creature-0-0-0-0-"..creatureID);
+        if tooltipData then
+            local text = GetLineText(tooltipData.lines, 1);
+            if canaccessvalue(text) then
+                return text
             end
         end
+    end
 
-        function CreatureInfoUtil:RequestInfo(creatureID)
-            if not creatureID then return end;
-            GetInfoByHyperlink("unit:Creature-0-0-0-0-"..creatureID);
-        end
-
-        function CreatureInfoUtil:RequestInfoFromList(list)
-            local func = GetInfoByHyperlink;
-            for creatureID, v in pairs(list) do
-                func("unit:Creature-0-0-0-0-"..creatureID);
-            end
-        end
-
-        function CreatureInfoUtil:GetName(creatureID)
-            if not creatureID then return end;
-            local tooltipData = GetInfoByHyperlink("unit:Creature-0-0-0-0-"..creatureID);
-            if tooltipData then
-                return GetLineText(tooltipData.lines, 1);
-            end
-        end
-
-        function CreatureInfoUtil:GetTitle(creatureID)
-            if (not creatureID) or (creatureID == 0) then return end;
-            local tooltipData = GetInfoByHyperlink("unit:Creature-0-0-0-0-"..creatureID);
-            if tooltipData then
-                local text = GetLineText(tooltipData.lines, 2);
-                if text and (not (find(text, "%?") or find(text, NARCI_NPC_BROWSER_TITLE_LEVEL))) then
+    function CreatureInfoUtil:GetTitle(creatureID)
+        if (not creatureID) or (creatureID == 0) then return end;
+        local tooltipData = GetInfoByHyperlink("unit:Creature-0-0-0-0-"..creatureID);
+        if tooltipData then
+            local text = GetLineText(tooltipData.lines, 2);
+            if canaccessvalue(text) then
+                if (not (find(text, "%?") or find(text, NARCI_NPC_BROWSER_TITLE_LEVEL))) then
                     return text
                 end
             end
         end
+    end
 
-        function CreatureInfoUtil:GetNameAndTitle(creatureID)
-            if not creatureID then return end;
-            local tooltipData = GetInfoByHyperlink("unit:Creature-0-0-0-0-"..creatureID);
-            if tooltipData then
-                local nameText = GetLineText(tooltipData.lines, 1);
+    local UnavailableCreatureInfo = { UNAVAILABLE }; -- fallback in restricted environment
+
+    function CreatureInfoUtil:GetNameAndTitle(creatureID)
+        if not creatureID then return end;
+        local tooltipData = GetInfoByHyperlink("unit:Creature-0-0-0-0-"..creatureID);
+        if tooltipData then
+            local nameText = GetLineText(tooltipData.lines, 1);
+            if canaccessvalue(nameText) then
                 if find(nameText, "%?") then
                     return {nameText}, false
                 end
                 local titleText = GetLineText(tooltipData.lines, 2);
-                if titleText and (find(titleText, "%?") or find(titleText, NARCI_NPC_BROWSER_TITLE_LEVEL)) then
+                if (find(titleText, "%?") or find(titleText, NARCI_NPC_BROWSER_TITLE_LEVEL)) then
                     titleText = nil;
                 end
 
@@ -2253,76 +2259,10 @@ do
                 self.db[creatureID] = info;
                 return info, nameText == ""
             else
-                return {""}, true
+                return UnavailableCreatureInfo, false
             end
-        end
-
-    else
-        --Old Method
-        local VirtualTooltipName = "Narci_CreatureNameRetriever";
-        local UIParent = UIParent;
-        local VirtualTooltip = CreateFrame("GameTooltip", VirtualTooltipName, UIParent, "GameTooltipTemplate");
-        if VirtualTooltip:HasScript("OnTooltipAddMoney") then --dragonflight
-            VirtualTooltip:SetScript("OnTooltipAddMoney", nil);
-        end
-        if VirtualTooltip:HasScript("OnTooltipCleared") then
-            VirtualTooltip:SetScript("OnTooltipCleared", nil);
-        end
-        local lineName = _G[VirtualTooltipName.. "TextLeft1"];
-        local lineTitle = _G[VirtualTooltipName.. "TextLeft2"];
-
-        local function IsTooltipLineTitle(text)
-            if not text then
-                return false
-            else
-                return not (find(text, "%?") or find(text, NARCI_NPC_BROWSER_TITLE_LEVEL))--"Level %d"
-            end
-        end
-
-        function CreatureInfoUtil:RequestInfo(creatureID)
-            VirtualTooltip:SetHyperlink("unit:Creature-0-0-0-0-"..creatureID);
-        end
-
-        function CreatureInfoUtil:RequestInfoFromList(list)
-            for creatureID, v in pairs(list) do
-                VirtualTooltip:SetHyperlink("unit:Creature-0-0-0-0-"..creatureID);
-            end
-        end
-
-        function CreatureInfoUtil:GetName(creatureID)
-            VirtualTooltip:SetOwner(UIParent, "ANCHOR_NONE");
-            VirtualTooltip:SetHyperlink("unit:Creature-0-0-0-0-"..creatureID);
-            return lineName:GetText()
-        end
-
-        function CreatureInfoUtil:GetTitle(creatureID)
-            VirtualTooltip:SetOwner(UIParent, "ANCHOR_NONE");
-            VirtualTooltip:SetHyperlink("unit:Creature-0-0-0-0-"..creatureID);
-            if IsTooltipLineTitle(lineTitle:GetText()) then
-                return lineTitle:GetText()
-            else
-                return false
-            end
-        end
-
-        local TEMP_NAME;
-        function CreatureInfoUtil:GetNameAndTitle(creatureID)
-            VirtualTooltip:SetOwner(UIParent, "ANCHOR_NONE");
-            VirtualTooltip:SetHyperlink(format("unit:Creature-0-0-0-0-%d", creatureID));
-            TEMP_NAME = lineName:GetText() or "";
-
-            if find(TEMP_NAME, "%?") then
-                return {creatureID}, false
-            end
-
-            local info;
-            if IsTooltipLineTitle(lineTitle:GetText()) then
-                info = {TEMP_NAME, lineTitle:GetText()};
-            else
-                info = {TEMP_NAME};
-            end
-            self.db[creatureID] = info;
-            return info, (TEMP_NAME == "")
+        else
+            return UnavailableCreatureInfo, true
         end
     end
 end
