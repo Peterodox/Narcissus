@@ -1,4 +1,4 @@
---Coutesy of ZamestoTV. Thank you!    --Translator: ZamestoTV as of 1.8.4
+--Coutesy of ZamestoTV. Thank you!    --Translator: ZamestoTV as of 1.8.6
 
 if not (GetLocale() == "ruRU") then
     return;
@@ -9,7 +9,7 @@ local S = Narci.L.S;
 
 NARCI_GRADIENT = "|cffA236EFN|r|cff9448F1a|r|cff865BF2r|r|cff786DF4c|r|cff6A80F6i|r|cff5D92F7s|r|cff4FA4F9s|r|cff41B7FAu|r|cff33C9FCs|r";
 
-L["Developer Info"] = "Developed by Peterodox";
+L["Developer Info"] = "Разработчик: Peterodox";
 
 NARCI_MODIFIER_CONTROL = "Ctrl";
 NARCI_MODIFIER_ALT = "Alt";   --Windows
@@ -43,6 +43,7 @@ L["Day Plural"] = "д.";
 L["Day Singular"] = "д.";
 L["Hour Plural"] = "ч.";
 L["Hour Singular"] = "ч.";
+L["Last Visit"] = "Последний визит: ";
 
 L["Swap items"] = "Менять предметы";
 L["Press Copy"] = NARCI_COLOR_GREY_70.. "Нажмите |r".. NARCI_SHORTCUTS_COPY.. NARCI_COLOR_GREY_70 .." чтобы скопировать";
@@ -239,6 +240,9 @@ L["Orbit Camera Description Off"] = "Когда вы откроете этот �
 L["Camera Safe Mode"] = "Безопасный Режим Камеры";
 L["Camera Safe Mode Description"] = "Полностью отключить экшн-камеру после закрытия этого аддона.";
 L["Camera Safe Mode Description Extra"] = "Не используется, потому что вы используете динамическую камеру."
+L["Camera Auto Zoom In"] = "Автоприближение камеры";
+L["Camera Auto Zoom In On"] = "Автоматически приближать камеру при открытии окна персонажа.";
+L["Camera Auto Zoom In Off"] = "Камера будет перемещаться только по горизонтали при открытии окна персонажа.";
 L["Camera Transition"] = "Переход камеры";
 L["Camera Transition Description On"] = "Камера плавно переместится в заданное положение, когда вы откроете панель персонажа.";
 L["Camera Transition Description Off"] = "Переход камеры становится мгновенным. Начинается со второго использования панели персонажа.\nМгновенный переход отменяет предустановку камеры #4.";
@@ -261,7 +265,9 @@ L["New Option"] = NARCI_NEW_ENTRY_PREFIX.." НОВЫЙ".."|r"
 L["Expansion Features"] = "Возможности дополнения";	
 L["LFR Wing Details"] = "Детали крыла ЛФР";
 L["LFR Wing Details Description"] = "Показывать имена боссов, когда вы разговариваете с ЛФР НПС в одиночной очереди.";	
-L["Speedy Screenshot Alert"] = "Ускорить исчезновение сообщения со снимком экрана";									   
+L["Speedy Screenshot Alert"] = "Ускорить исчезновение сообщения со снимком экрана";
+L["Use Game Quality Color"] = "Цвета качества из игры";
+L["Use Game Quality Color Desc"] = "Использовать цвета качества предметов из игрового меню «Параметры» > «Доступность» > «Цвета».";
 
 --Model Control--
 L["Ranged Weapon"] = "Дальний бой";
@@ -308,6 +314,7 @@ L["Light Source"] = "Источник света";
 L["Light Source Independent"] = "Свободный";
 L["Light Source Interconnected"] = "Не свободный";
 L["Adjustment"] = "Корректирование";
+L["Unsupported Model Unit Alert"] = "Невозможно добавить цель внутри подземелья.";
 								 						   
 --Animation Browser--
 L["Animation"] = "Анимация";
@@ -648,6 +655,7 @@ L["Turntable"] = "Вращение";
 L["Picture"] = "Картина";
 L["Elapse"] = "Идуший";
 L["Turntable Tab Animation"] = "Анимация";
+L["Turntable Tab Weapon"] = "Оружие";
 L["Turntable Tab Image"] = "Изображение";
 L["Turntable Tab Quality"] = "Сглаживание";
 L["Turntable Tab Background"] = "Фон";
@@ -676,7 +684,8 @@ L["Showcase Splash 2"] = "Нажмите кнопку ниже, чтобы ск�
 L["Showcase Splash 3"] = "Нажмите кнопку ниже, чтобы вращать своего персонажа.";
 L["Showcase Splash 4"] = "Запишите свой экран с помощью программного обеспечения для записи видео, а затем конвертируйте его в GIF.";
 L["Loop Animation Alert Kultiran"] = "Виток - в настоящее время сломана на Культирасце мужчине.";																				
-L["Loop Animation"] = "Циклическая анимация";									   
+L["Loop Animation"] = "Циклическая анимация";
+L["Sheathing Position"] = "Положение оружия в ножнах";
 
 --Item Sets--
 L["Class Set Indicator"] = "Индикатор набора классов";
@@ -867,3 +876,13 @@ L["New Set Location Shared"] = "Этот собственный комплект
 L["Save Custom Set Location"] = "Сохранить в:";
 L["Save Slots Colon"] = "Сохраняемые слоты: ";
 L["Error View Outfit In Combat"] = "Вы не можете просматривать собственные комплекты в режиме боя";
+L["Profile Management"] = "Управление профилями";
+L["Delete Character Data"] = "Удалить персонажа";
+L["Delete Character Data Tooltip"] = "Эта опция предназначена для очистки данных неактивных или удаленных персонажей.\n\nУдаляет локально сохраненные данные пользовательских комплектов для этого персонажа. Аддон Narcissus снова сохранит эти данные, когда вы зайдете за этого персонажа.";
+
+
+--WardrobeCollection--
+L["ModuleName WardrobeCollection"] = "Вкладка «Модели»";
+L["ModuleDescription WardrobeCollection"] = "Добавляет флажок для скрытия неполученных предметов на модели предпросмотра при просмотре комплекта во вкладке «Модели». Позволяет использовать Ctrl+клик по комплекту для его просмотра в примерочной."
+L["Hide Uncollected Slots"] = "Скрыть неполученные";
+L["Hide Uncollected Slots Tooltip"] = "Скрыть неполученные ячейки |cffffd100(%s)|r";
