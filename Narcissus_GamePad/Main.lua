@@ -183,10 +183,6 @@ end)
 
 KeyListener:SetScript("OnGamePadButtonDown", function(self, key)
     --print("|cFF8cd964"..key);
-    if key == "PADBACK" or key == "PADSYSTEM" or key == "PADSOCIAL" then
-        Narci:CloseCharacterUI();
-        return
-    end
 
     self.isButtonDown[key] = true;
     SignalGamePadActive();
@@ -205,6 +201,12 @@ end)
 
 KeyListener:SetScript("OnGamePadButtonUp", function(self, key)
     --print("|cFFff8000"..key);
+
+    if key == "PADBACK" or key == "PADSYSTEM" or key == "PADSOCIAL" then
+        Narci:CloseCharacterUI();
+        return
+    end
+
     self.isButtonDown[key] = false;
     Repeater:Stop();
     self:ProcessKeyUp(key);
