@@ -422,6 +422,7 @@ RaceAtlas.fixedRaceAtlasNames = {
     ["lightforgeddraenei"] = "lightforged",
     ["scourge"] = "undead",
     ["zandalaritroll"] = "zandalari",
+    ["harronir"] = "haranir",
 };
 
 RaceAtlas.alternateFormAtlasNames = {
@@ -1921,7 +1922,7 @@ function NarciBarberShopMixin:OnBarberShopOpen()
     local sex, raceName;
     if currentCharacterData then
         sex = currentCharacterData.sex;
-        self.initialIconAtlas = currentCharacterData.raceData and currentCharacterData.raceData.createScreenIconAtlas;
+        self.initialIconAtlas = currentCharacterData.createScreenIconAtlas;
         raceName = GetRaceFileName(currentCharacterData);
     end
 
@@ -1956,11 +1957,7 @@ function NarciBarberShopMixin:IsCharacterCategoryChanged()
 
     local currentCharacterData = C_BarberShop.GetCurrentCharacterData();
     if currentCharacterData then
-        if currentCharacterData.raceData then
-            return self.initialIconAtlas ~= currentCharacterData.raceData.createScreenIconAtlas;
-        else
-            return true
-        end
+        return self.initialIconAtlas ~= currentCharacterData.createScreenIconAtlas;
     else
         return true
     end
