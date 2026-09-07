@@ -502,7 +502,7 @@ function NarciPerksProgramProductListMixin:SetPage()
         if not numButtonFirstPage then
             numButtonFirstPage = numButtons - 1;
         end
-        container:SetHeight(paddingTop + paddingBottom + buttonHeight * (numButtonThisPage - 1));
+        container:SetHeight(paddingTop + paddingBottom + buttonHeight * numButtonThisPage);
         numButtonThisPage = 0;
         containerIndex = containerIndex + 1;
         container = self:AcquireFrame(containerIndex);
@@ -525,6 +525,7 @@ function NarciPerksProgramProductListMixin:SetPage()
                     local f = self:AcquireButton(numButtons);
                     numButtonThisPage = numButtonThisPage + 1;
                     f:ClearAllPoints();
+                    f.container = container;
                     f:SetPoint("TOPLEFT", container, "TOPLEFT", 0, -paddingTop + (1 - numButtonThisPage) * buttonHeight);
                     if isCategoryButton then
                         f:SetCategoryID(id);
@@ -676,7 +677,7 @@ function NarciPerksProgramProductListMixin:RequestUpdate(useDelay)
             self.updateDelay = -0.5;
             self:SetScript("OnUpdate", UpdateList_NextFrame);
         else
-            self:UpdateList(true);
+            self:UpdateList();
         end
     end
 end
@@ -991,7 +992,7 @@ function NarciPerksProgramProductListMixin:DisplayItem(item, vendorItemID)
     if anchorToButton then
         pf:SetPoint("LEFT", FocusedButton, "RIGHT", 8, 0);
     else
-        pf:SetPoint("TOPLEFT", self, "TOPRIGHT", 8, 0);
+        pf:SetPoint("TOPLEFT", FocusedButton.container, "TOPRIGHT", 8, 0);
     end
 
 
@@ -1171,194 +1172,6 @@ function NarciPerksProgramProductListButtonMixin:SetCategoryID(perksVendorCatego
     self.Container.Icon:SetTexture(nil);
     self.Container.Price:SetText("");
 end
-
---[[
-if true then return end;
-
-do
-    --Debug
-
-    local function GetItemClassID(itemID)
-        return select(6, GetItemInfoInstant(itemID));
-    end
-
-    local function SortFunc_ItemClass(id1, id2)
-        local classID1 = GetItemClassID(id1);
-        local classID2 = GetItemClassID(id2);
-    
-        if classID1 ~= classID2 then
-            return classID1 < classID2
-        end
-    
-        return id1 < id2
-    end
-
-    local DEBUG_ITEMS = {
-        34529, 202692, 200180,  --Weapon
-        15304, 192013, 133615, 140865,  --Armor
-        191658, 199877, --Transmog Set
-        201440, --Mount
-        193834, --Pet
-    };
-
-    function NarciPerksProgramProductListMixin:UpdateList()
-        local vendorItemIDs = DEBUG_ITEMS;
-        local numItems = (vendorItemIDs and #vendorItemIDs) or 0;
-        if numItems > 0 then
-            local sortedList = {};
-            for i = 1, numItems do
-                sortedList[i] = vendorItemIDs[i];
-            end
-    
-            table.sort(sortedList, SortFunc_ItemClass);
-            self.vendorItemIDs = sortedList;
-    
-            if not ProductButtons then
-                ProductButtons = {};
-            end
-    
-            local paddingTop = 6;
-            local paddingBottom = 8;
-            local buttonHeight = 24;
-    
-            local fullHeight;
-
-            local lastCategory;
-            local categoryID;
-            local vendorItemID;
-            local button;
-    
-            local numButtons = 0;
-            for i = 1, numItems do
-                vendorItemID = sortedList[i];
-                categoryID = GetItemClassID(vendorItemID);
-                if categoryID ~= lastCategory then
-                    if fullHeight then
-                        fullHeight = fullHeight + buttonHeight * 1.25;
-                    else
-                        fullHeight = paddingTop;
-                    end
-                    lastCategory = categoryID;
-                    numButtons = numButtons + 1;
-                    button = self:AcquireButton(numButtons);
-                    button:ClearAllPoints();
-                    button:SetPoint("TOPLEFT", self, "TOPLEFT", 0, -fullHeight);
-                    button:SetCategoryID(categoryID);
-                end
-
-                fullHeight = fullHeight + buttonHeight;
-                numButtons = numButtons + 1;
-                button = self:AcquireButton(numButtons);
-                button:ClearAllPoints();
-                button:SetPoint("TOPLEFT", self, "TOPLEFT", 0, -fullHeight);
-                button:SetVendorItemID(sortedList[i]);
-            end
-    
-            self:SetHeight(fullHeight + paddingBottom + buttonHeight);
-            self.AlertText:Hide();
-        else
-            self.AlertText:SetText(Narci.L["Perks Program No Cache Alert"]);
-            self.AlertText:Show();
-            self:SetHeight( math.floor(self.AlertText:GetHeight() + 24.5) );
-        end
-    end
-
-    function NarciPerksProgramProductListButtonMixin:SetCategoryID(itemClassID)
-        self:Disable();
-        local categoryName = GetItemClassInfo(itemClassID);
-        self.Container.Name:SetText(categoryName);
-        self.Container.Name:SetTextColor(0.6, 0.6, 0.6);
-        self.Container.Name:SetPoint("LEFT", self.Container, "LEFT", 10, 0);
-        self.Container.Icon:SetTexture(nil);
-        self.Container.Price:SetText("");
-    end
-
-    local CURRENCY_AMOUNT = 500;
-
-    function NarciPerksProgramProductListButtonMixin:SetVendorItemID(itemID)
-        self:Enable();
-        self.Container.Name:SetTextColor(1, 0.82, 0);
-        local name = C_Item.GetItemNameByID(itemID);
-        if name then
-            name = RemoveEnsembleLabel(name);
-            self.Container.Name:SetText(name);
-            self.Container.Name:SetPoint("LEFT", self.Container.Icon, "RIGHT", 6, 0);
-        else
-            MainFrame:RequestUpdate(true);
-        end
-        self.vendorItemID = itemID;
-        self.itemID = itemID;
-        local iconTexture = GetItemIconByID(itemID);
-        self.Container.Icon:SetTexture(iconTexture);
-        self.Container.Icon:SetVertexColor(0.8, 0.8, 0.8);
-
-        local price = 100*math.random(1, 10);
-        local isCollected = price >= 700;
-
-        if isCollected then
-            self.Container.Price:SetText(CHECK_MARK);
-        else
-            self.Container.Price:SetText(price);
-            if price <= CURRENCY_AMOUNT then
-                self.Container.Price:SetTextColor(0.8, 0.8, 0.8);
-            else
-                self.Container.Price:SetTextColor(1, 0.3137, 0.3137);
-            end
-        end
-    end
-end
-
---]]
---[[
-    /script for k, v in pairs(GetMouseFocus()) do print(k) end
-
-    Right Frame: PerksProgramFrame.ProductsFrame.PerksProgramProductDetailsContainerFrame
-
-    /run PerksProgramFrame.ProductsFrame.PerksProgramProductDetailsContainerFrame:Layout()
-/dump PerksProgramFrame.ModelSceneContainerFrame.MainModelScene
-/run A = PerksProgramFrame.ModelSceneContainerFrame.playerActor
-/run A:PlayAnimationKit(0, false)
-/dump A:SetAnimation(4)
-/run P = PerksProgramFrame.ModelSceneContainerFrame.MainModelScene:GetActorByTag("pet")
-1355687
-
-C_PerksProgram.GetAvailableVendorItemIDs    --vendorItemIDs (NOT itemID)    --visit Trading Post for cache
-/dump C_PerksProgram.GetVendorItemInfo(110)
-
-/run NarciPlayerModelFrame2:SetItemAppearance(69893)
-C_TransmogSets.GetAllSourceIDs
-
-    Name = "PerksVendorItemInfo",
-    Type = "Structure",
-    Fields =
-    {
-        { Name = "name", Type = "string", Nilable = false },
-        { Name = "perksVendorCategoryID", Type = "number", Nilable = false },
-        { Name = "description", Type = "string", Nilable = false },
-        { Name = "timeRemaining", Type = "number", Nilable = false },
-        { Name = "purchased", Type = "bool", Nilable = false },
-        { Name = "refundable", Type = "bool", Nilable = false },
-        { Name = "price", Type = "number", Nilable = false },
-        { Name = "perksVendorItemID", Type = "number", Nilable = false },
-        { Name = "itemID", Type = "number", Nilable = false },
-        { Name = "iconTexture", Type = "string", Nilable = false },
-        { Name = "mountID", Type = "number", Nilable = false },
-        { Name = "speciesID", Type = "number", Nilable = false },
-        { Name = "transmogSetID", Type = "number", Nilable = false },
-        { Name = "itemModifiedAppearanceID", Type = "number", Nilable = false },
-    },
-
-
-    sourceID 169092 (169090) Snowy Scarf
-    Dashing Buccaneer's 190904, 190905, 190906, 190907
-
-    Last 69478
-
-    /run NarciPerksProgramProductList:Show();
---]]
-
---/script LoadAddOn("Blizzard_PerksProgram");ShowUIPanel(PerksProgramFrame);PerksProgramFrame:SetPropagateKeyboardInput(true);
-
 
 local function PrintUniqueVID()
     --Debug

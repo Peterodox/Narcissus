@@ -189,6 +189,10 @@ API.GetChrModelName = GetChrModelName;
 --Camera Profiles---
 local CAMERA_DATA_FILEID = {
     --/dump DressUpFrame.ModelScene:GetPlayerActor():GetModelFileID()
+
+    [5422149] = {3.25, -0.03, -2.22, 0.44},     --Haranir M
+    [5422147] = {3.35, -0.02, -2.07, 0.35},     --Haranir F
+
     [5548261] = {3.14, -0.11, -1.56, 0.52},     --Earthen M
     [5548259] = {3.25, -0.01, -1.56, 0.44},     --Earthen F
 
