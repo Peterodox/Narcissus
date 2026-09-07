@@ -525,6 +525,7 @@ function NarciPerksProgramProductListMixin:SetPage()
                     local f = self:AcquireButton(numButtons);
                     numButtonThisPage = numButtonThisPage + 1;
                     f:ClearAllPoints();
+                    f.container = container;
                     f:SetPoint("TOPLEFT", container, "TOPLEFT", 0, -paddingTop + (1 - numButtonThisPage) * buttonHeight);
                     if isCategoryButton then
                         f:SetCategoryID(id);
@@ -991,7 +992,7 @@ function NarciPerksProgramProductListMixin:DisplayItem(item, vendorItemID)
     if anchorToButton then
         pf:SetPoint("LEFT", FocusedButton, "RIGHT", 8, 0);
     else
-        pf:SetPoint("TOPLEFT", self, "TOPRIGHT", 8, 0);
+        pf:SetPoint("TOPLEFT", FocusedButton.container, "TOPRIGHT", 8, 0);
     end
 
 
