@@ -502,7 +502,7 @@ function NarciPerksProgramProductListMixin:SetPage()
         if not numButtonFirstPage then
             numButtonFirstPage = numButtons - 1;
         end
-        container:SetHeight(paddingTop + paddingBottom + buttonHeight * (numButtonThisPage - 1));
+        container:SetHeight(paddingTop + paddingBottom + buttonHeight * numButtonThisPage);
         numButtonThisPage = 0;
         containerIndex = containerIndex + 1;
         container = self:AcquireFrame(containerIndex);
@@ -676,7 +676,7 @@ function NarciPerksProgramProductListMixin:RequestUpdate(useDelay)
             self.updateDelay = -0.5;
             self:SetScript("OnUpdate", UpdateList_NextFrame);
         else
-            self:UpdateList(true);
+            self:UpdateList();
         end
     end
 end
