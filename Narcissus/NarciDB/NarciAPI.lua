@@ -121,33 +121,6 @@ end
 --/dump C_Transmog.GetSlotVisualInfo((CreateFromMixins(TransmogLocationMixin)):Set(3, 0, 0));
 NarciAPI.GetSlotVisualID = NarciAPI_GetSlotVisualID;
 
---------------------
-----API Datebase----
---------------------
-
---[[
-function GetArtifactVisualModID(colorID)
-    colorID = colorID or 42;
-    local PRINT = false;
-    local baseSourceID, baseVisualID, appliedSourceID, appliedVisualID, pendingSourceID, pendingVisualID, hasPendingUndo, hideVisual = C_Transmog.GetSlotVisualInfo(16, 0);
-    if not appliedSourceID or appliedSourceID == 0 then
-        appliedSourceID = baseSourceID;
-    end
-    local categoryID, visualID, canEnchant, icon, _, itemLink, transmogLink, _ = C_TransmogCollection.GetAppearanceSourceInfo(appliedSourceID)
-    local sourceInfo  = C_TransmogCollection.GetSourceInfo(appliedSourceID)
-    if sourceInfo and PRINT then
-        for k, v in pairs(sourceInfo) do
-            print(k.." "..tostring(v))
-        end
-    else
-        print(sourceInfo.itemModID);
-    end
-    itemID = sourceInfo.itemID or 127829;
-    itemLink = "\124cffe5cc80\124Hitem:".. itemID .."::::::::120::16777472::2:::"..colorID..":::::::::::::\124h[".. (sourceInfo.name or "") .."]\124h\124r"
-    DEFAULT_CHAT_FRAME:AddMessage(itemLink)
-end
---]]
-
 
 --------------------
 ------Item API------
@@ -163,7 +136,6 @@ local function GetItemEnchantID(itemLink)
 end
 
 NarciAPI.GetItemEnchantID = GetItemEnchantID;
-
 
 
 local PrimaryStatsList = {

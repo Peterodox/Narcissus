@@ -631,13 +631,13 @@ do  --ItemButton
         if self.itemModifiedAppearanceID then   --self.itemID
             TransmogSetFrame:HighlightButton(self);
 
-            local itemLink = select(6, C_TransmogCollection.GetAppearanceSourceInfo(self.itemModifiedAppearanceID));
-            if itemLink then
+            local info = C_TransmogCollection.GetAppearanceSourceInfo(self.itemModifiedAppearanceID);
+            if info and info.itemLink then
                 local tooltip = GameTooltip;
                 tooltip:Hide();
                 tooltip:SetOwner(self, "ANCHOR_RIGHT");
                 tooltip.suppressAutomaticCompareItem = true;
-                tooltip:SetHyperlink(itemLink);
+                tooltip:SetHyperlink(info.itemLink);
             end
         end
     end
