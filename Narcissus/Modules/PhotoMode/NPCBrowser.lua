@@ -2231,7 +2231,7 @@ do
         local tooltipData = GetInfoByHyperlink("unit:Creature-0-0-0-0-"..creatureID);
         if tooltipData then
             local text = GetLineText(tooltipData.lines, 2);
-            if canaccessvalue(text) then
+            if canaccessvalue(text) and text then
                 if (not (find(text, "%?") or find(text, NARCI_NPC_BROWSER_TITLE_LEVEL))) then
                     return text
                 end
@@ -2239,19 +2239,24 @@ do
         end
     end
 
-    local UnavailableCreatureInfo = { UNAVAILABLE }; -- fallback in restricted environment
+    local UnavailableCreatureInfo = { UNKNOWN or "Unknown" }; -- fallback in restricted environment
 
     function CreatureInfoUtil:GetNameAndTitle(creatureID)
         if not creatureID then return end;
         local tooltipData = GetInfoByHyperlink("unit:Creature-0-0-0-0-"..creatureID);
         if tooltipData then
             local nameText = GetLineText(tooltipData.lines, 1);
-            if canaccessvalue(nameText) then
+            if canaccessvalue(nameText) and nameText then
                 if find(nameText, "%?") then
                     return {nameText}, false
                 end
+
                 local titleText = GetLineText(tooltipData.lines, 2);
-                if (find(titleText, "%?") or find(titleText, NARCI_NPC_BROWSER_TITLE_LEVEL)) then
+                if canaccessvalue(titleText) and titleText then
+                    if (find(titleText, "%?") or find(titleText, NARCI_NPC_BROWSER_TITLE_LEVEL)) then
+                        titleText = nil;
+                    end
+                else
                     titleText = nil;
                 end
 
