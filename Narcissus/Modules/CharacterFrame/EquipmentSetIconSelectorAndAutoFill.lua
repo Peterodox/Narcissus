@@ -197,13 +197,11 @@ local function GetSelectedPvpTalentIcons()
     end
 end
 
-local GetInventoryItemTexture = GetInventoryItemTexture;
-local GetInventoryItemQuality = GetInventoryItemQuality;
 local DoesItemExist = C_Item.DoesItemExist;
 local function GenerateIcons()                             --Passive talent only
     local icons, names = {}, {};
     local MaxTiers = GetMaxTalentTier();                   --based on the character's level
-    local talentGroup = GetActiveSpecGroup();
+    local talentGroup = C_SpecializationInfo.GetActiveSpecGroup();
     local talentID, icon, spellID, name;
     local IsSpellPassive = IsSpellPassive;
     local tinsert = table.insert;

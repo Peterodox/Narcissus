@@ -2618,7 +2618,7 @@ local function GetAllSelectedTalentIDsAndIcons(ignorePlayerLevel)
     else
         maxTiers = GetMaxTalentTier();    --based on the character's level
     end
-    local talentGroup = GetActiveSpecGroup();
+    local talentGroup = C_SpecializationInfo.GetActiveSpecGroup();
     local _, _, classID = UnitClass("player");
     talentInfo.classID = classID;
 
