@@ -2393,45 +2393,41 @@ local function ActivateMogMode()
 	end
 end
 
-local function UpdateXmogName(SpecOnly)
+local function UpdateXmogName(specOnly)
 	local frame = Narci_XmogNameFrame;
 
-	local currentSpec = C_SpecializationInfo.GetSpecialization();
-	if not currentSpec then
-	   return;
-	end
-	local IsSpellKnown = IsSpellKnown;
+	local IsSpellKnown = C_SpellBook.IsSpellKnown;
 	local token = 159243;
-	local ArmorType;
+	local armorType;
 
-	if not SpecOnly then
+	if not specOnly then
 		Narci_SetPlayerName(frame);
 		if IsSpellKnown(76273) or IsSpellKnown(106904) or IsSpellKnown(202782) or IsSpellKnown(76275) then
-			--ArmorType = "Leather"
+			--armorType = "Leather"
 			token = 159300;
 		elseif IsSpellKnown(76250) or IsSpellKnown(76272) or IsSpellKnown(366522) then
-			--ArmorType = "Mail"
+			--armorType = "Mail"
 			token = 159371;
 		elseif IsSpellKnown(76276) or IsSpellKnown(76277) or IsSpellKnown(76279) then
-			--ArmorType = "Cloth"
+			--armorType = "Cloth"
 			token = 159243;
 		elseif IsSpellKnown(76271) or IsSpellKnown(76282) or IsSpellKnown(76268) then
-			--ArmorType = "Plate"
+			--armorType = "Plate"
 			token = 159418;
 		end
-		local _;
-		_, _, ArmorType = GetItemInfoInstant(token);
-		frame.armorType = ArmorType;
+		local _, _, spellName = GetItemInfoInstant(token);
+		armorType = spellName;
 	end
 
-	ArmorType = frame.armorType or ArmorType or "ArmorType";
 
-	local _, currentSpecName = C_SpecializationInfo.GetSpecializationInfo(currentSpec);
-	currentSpecName = currentSpecName or "";
-
-	local className, englishClass, _ = UnitClass("player");
+	local className, englishClass = UnitClass("player");
 	local _, _, _, rgbHex = GetClassColor(englishClass);
-	frame.ArmorString:SetText("|cFFFFD100"..ArmorType.."|r".."  |  ".."|c"..rgbHex..currentSpecName.." "..className.."|r");
+
+	if armorType then
+		frame.ArmorString:SetText("|cFFFFD100"..armorType.."|r".."  |  ".."|c"..rgbHex..className.."|r");
+	else
+		frame.ArmorString:SetText("|c"..rgbHex..className.."|r");
+	end
 end
 
 local function GetWowHeadDressingRoomURL()
