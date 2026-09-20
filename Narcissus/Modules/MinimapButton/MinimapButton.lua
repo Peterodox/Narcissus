@@ -844,10 +844,13 @@ function NarciMinimapButtonMixin:ShowBlizzardMenu(menuParent)
 			{type = "Title", name = "Narcissus", rightText = function() return NarciAPI.GetAddOnVersionInfo(true) end},
 			{type = "Button", name = L["Dressing Room"], OnClick = function() Narci_ShowDressingRoom(); end},
 			{type = "Button", name = L["Turntable"], OnClick = function() NarciOutfitShowcase:Open(); end},
-			{type = "Button", name = ACHIEVEMENT_BUTTON, OnClick = ToggleAchievementFrame},
 			{type = "Divider"},
 		},
 	};
+
+	if not addon.IS_FOREVER then
+		table.insert(menuInfo.objects, 4, {type = "Button", name = ACHIEVEMENT_BUTTON, OnClick = ToggleAchievementFrame});
+	end
 
 	local clickBehavior = IsLeftClickSetToPhotoMode() and 2 or 1;
 
