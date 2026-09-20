@@ -265,9 +265,9 @@ end
 
 
 do
-    local GetContainerNumSlots = (C_Container and C_Container.GetContainerNumSlots) or GetContainerNumSlots;
-    local GetContainerItemID = (C_Container and C_Container.GetContainerItemID) or GetContainerItemID;
-    local GetContainerItemLink = (C_Container and C_Container.GetContainerItemLink) or GetContainerItemLink;
+    local GetContainerNumSlots = C_Container.GetContainerNumSlots;
+    local GetContainerItemID = C_Container.GetContainerItemID;
+    local GetContainerItemLink = C_Container.GetContainerItemLink;
     local GetInventoryItemID = GetInventoryItemID;
     local GetItemCount = C_Item.GetItemCount;
 

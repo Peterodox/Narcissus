@@ -7,7 +7,6 @@ local FadeFrame = NarciFadeUI.Fade;
 local GetSlotNameByID = NarciAPI.GetSlotButtonNameBySlotID;
 local GetGemBonus = NarciAPI.GetGemBonus;
 local GetItemBagPosition = NarciAPI.GetItemBagPosition;
-local PickupContainerItem = (C_Container and C_Container.PickupContainerItem) or PickupContainerItem;
 
 local MainFrame, SelectionOverlay, EnchantActionButton, GemActionButton;
 
@@ -255,11 +254,11 @@ local function PlaceGemInSlot(gemID, slotID, socketOrderID)
     local bagID, slotIndex = GetItemBagPosition(gemID);
     if not(bagID and slotIndex) then return; end
 
-    PickupContainerItem(bagID, slotIndex);
+    C_Container.PickupContainerItem(bagID, slotIndex);
     SocketInventoryItem(slotID);
-    ClickSocketButton(socketOrderID);
+    C_ItemSocketInfo.ClickSocketButton(socketOrderID);
     ClearCursor();
-    AcceptSockets();
+    C_ItemSocketInfo.AcceptSockets();
 end
 
 local function SocketingEventFrame_OnShow(self)
