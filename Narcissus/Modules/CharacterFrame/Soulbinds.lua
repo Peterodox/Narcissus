@@ -217,8 +217,8 @@ end
 
 function DataProvider:UpdateSpec()
     self.specSetIDs = {};
-    local specIndex = GetSpecialization() or 1;
-	self.currentSpecID = GetSpecializationInfo(specIndex);
+    local specIndex = C_SpecializationInfo.GetSpecialization() or 1;
+	self.currentSpecID = C_SpecializationInfo.GetSpecializationInfo(specIndex);
 end
 
 function DataProvider:IsCurrentSpec(specSetID)

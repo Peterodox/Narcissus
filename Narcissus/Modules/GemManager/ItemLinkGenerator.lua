@@ -11,8 +11,8 @@ end
 local FORMAT_ITEMLINK_ONE_GEM;
 
 local function CreateItemLinkFormat()
-    local specIndex = GetSpecialization() or 1;
-    local specID = GetSpecializationInfo(specIndex) or 0;
+    local specIndex = C_SpecializationInfo.GetSpecialization() or 1;
+    local specID = C_SpecializationInfo.GetSpecializationInfo(specIndex) or 0;
     local level = GetMaxLevelForLatestExpansion() or 70;
 
     --FORMAT_ITEMLINK_ONE_GEM = "|Hitem:%d:::%d:::::"..level..":"..specID.."::0:3:10920:10970:%d|h";

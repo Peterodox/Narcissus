@@ -147,8 +147,8 @@ local PrimaryStatsList = {
 
 local function NarciAPI_GetPrimaryStats()
     --Return name and value
-	local currentSpec = GetSpecialization() or 1;
-    local _, _, _, _, _, primaryStat = GetSpecializationInfo(currentSpec);
+	local currentSpec = C_SpecializationInfo.GetSpecialization() or 1;
+    local _, _, _, _, _, primaryStat = C_SpecializationInfo.GetSpecializationInfo(currentSpec);
     primaryStat = primaryStat or 1;
     local value = UnitStat("player", primaryStat);
 	local name = PrimaryStatsList[primaryStat];
@@ -2698,7 +2698,7 @@ local function WrapNameWithClassColor(name, classID, specID, showIcon, offsetY)
         if color then
             if specID and showIcon then
                 local str = color:WrapTextInColorCode(name);
-                local _, _, _, icon, role = GetSpecializationInfoByID(specID);
+                local _, _, _, icon, role = C_SpecializationInfo.GetSpecializationInfoByID(specID);
                 if icon then
                     offsetY = offsetY or 0;
                     str = "|T"..icon..":12:12:-1:"..offsetY..":64:64:4:60:4:60|t" ..str;

@@ -335,8 +335,8 @@ end
 
 function ESM:GetCurrentSpecializationNameAndIcons()
     LoadEquipmentSetIcons();
-    local currentSpec = GetSpecialization() or 1;
-    local _, currentSpecName, _, specIcon, role = GetSpecializationInfo(currentSpec);
+    local currentSpec = C_SpecializationInfo.GetSpecialization() or 1;
+    local _, currentSpecName, _, specIcon, role = C_SpecializationInfo.GetSpecializationInfo(currentSpec);
     local roleName, subclass;
     currentSpecName = ConvertToUniqueName(currentSpecName);
     if role == "TANK" then

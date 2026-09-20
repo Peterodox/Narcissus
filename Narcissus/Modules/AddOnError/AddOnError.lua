@@ -481,7 +481,7 @@ local function GenerateReport()
     end
 
 	local specName, _;
-    local primaryTalentTree = GetSpecialization();
+    local primaryTalentTree = C_SpecializationInfo.GetSpecialization();
     local sex = UnitSex("player");
     local className = UnitClass("player");
 	if (primaryTalentTree) then

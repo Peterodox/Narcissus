@@ -24,7 +24,7 @@ local UnitStat = UnitStat;
 local GetCombatRating = GetCombatRating;
 local GetCombatRatingBonus = GetCombatRatingBonus;
 local BASE_MOVEMENT_SPEED = BASE_MOVEMENT_SPEED;
-local GetSpecialization = GetSpecialization;
+local GetSpecialization = C_SpecializationInfo.GetSpecialization;
 local GetUnitSpeed = GetUnitSpeed;
 local canaccessvalue = canaccessvalue;
 
@@ -282,7 +282,7 @@ function UpdateFunc:Primary(object)
 	local spec = GetSpecialization();
 	if not spec then return; end
 	local role = GetSpecializationRole(spec);
-	local _, _, _, _, _, primaryStat = GetSpecializationInfo(spec);
+	local _, _, _, _, _, primaryStat = C_SpecializationInfo.GetSpecializationInfo(spec);
 	if type(tonumber(primaryStat)) ~= "number" then return; end		--sometimes changing zones cause Lua error
 	local stat, effectiveStat, posBuff, negBuff = UnitStat(unit, primaryStat);
 

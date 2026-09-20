@@ -185,7 +185,7 @@ function NarciTalentTreeSideTabMixin:Init()
     for i = 1, numSpec do
         SpecButtons[i] = CreateFrame("Button", nil, self.SpecTab, "NarciTalentTreeSpecButtonTemplate");
         b = SpecButtons[i];
-        specID, name, description, icon = GetSpecializationInfo(i);
+        specID, name, description, icon = C_SpecializationInfo.GetSpecializationInfo(i);
         b.specIndex = i;
         b.specID = specID;
         b.Name:SetFont(font, FONT_HEIGHT, "");

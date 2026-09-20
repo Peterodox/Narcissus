@@ -615,8 +615,8 @@ local function GetTraitsIcon(itemLocation)
 	local powerIDs, icon, _;
 	local isRightSpec = true;
 	local traitIcons = {};
-	local specIndex = GetSpecialization() or 1;
-	local specID = GetSpecializationInfo(specIndex);
+	local specIndex = C_SpecializationInfo.GetSpecialization() or 1;
+	local specID = C_SpecializationInfo.GetSpecializationInfo(specIndex);
 	local MAX_TIERS = 5;
 
     for i = 1, MAX_TIERS do
@@ -2396,7 +2396,7 @@ end
 local function UpdateXmogName(SpecOnly)
 	local frame = Narci_XmogNameFrame;
 
-	local currentSpec = GetSpecialization();
+	local currentSpec = C_SpecializationInfo.GetSpecialization();
 	if not currentSpec then
 	   return;
 	end
@@ -2426,7 +2426,7 @@ local function UpdateXmogName(SpecOnly)
 
 	ArmorType = frame.armorType or ArmorType or "ArmorType";
 
-	local _, currentSpecName = GetSpecializationInfo(currentSpec);
+	local _, currentSpecName = C_SpecializationInfo.GetSpecializationInfo(currentSpec);
 	currentSpecName = currentSpecName or "";
 
 	local className, englishClass, _ = UnitClass("player");

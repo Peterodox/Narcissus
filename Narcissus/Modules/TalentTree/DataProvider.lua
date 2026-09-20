@@ -11,8 +11,8 @@ local GetNodeInfo = C_Traits.GetNodeInfo;
 local GetEntryInfo = C_Traits.GetEntryInfo;
 local UnitClass = UnitClass;
 local GetClassColor = GetClassColor;
-local GetSpecialization = GetSpecialization;
-local GetSpecializationInfo = GetSpecializationInfo;
+local GetSpecialization = C_SpecializationInfo.GetSpecialization;
+local GetSpecializationInfo = C_SpecializationInfo.GetSpecializationInfo;
 local GetNumSpecializations = GetNumSpecializations;
 
 local INPSECT_CONFIG_ID = -1;
