@@ -757,6 +757,9 @@ function NarciTitleManagerSwitchMixin:OnLoad()
 	self.isOn = false;
 	self.counter = 0;
 	NarciAPI.NineSliceUtil.SetUpBackdrop(self, "focus");
+	if addon.IS_FOREVER then
+		self:Hide();
+	end
 end
 
 function NarciTitleManagerSwitchMixin:Close()
