@@ -5,8 +5,7 @@
 
 ## Author: Peterodox
 ## Title: Narcissus Bag Filter
-## Notes: Bag item search suggest and auto-filter. [AllowLoadGameType standard]
-## Notes: This module does not support WoW: Forever. [AllowLoadGameType camelot]
+## Notes: Bag item search suggest and auto-filter.
 ## SavedVariables: NarcissusBagFilterDB
 
 ## IconTexture: Interface\AddOns\Narcissus\Art\Logos\AddonListIconT
