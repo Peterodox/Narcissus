@@ -1,15 +1,16 @@
-## Interface: 120007, 120100
+## Interface: 120100, 120105, 16001
 ## Version: 1.0.2
 ## LoadOnDemand: 1
 ## RequiredDeps: Narcissus
 
 ## Author: Peterodox
 ## Title: Narcissus Bag Filter
-## Notes: Bag item search suggest and auto-filter.
+## Notes: Bag item search suggest and auto-filter. [AllowLoadGameType standard]
+## Notes: This module does not support WoW: Forever. [AllowLoadGameType camelot]
 ## SavedVariables: NarcissusBagFilterDB
 
 ## IconTexture: Interface\AddOns\Narcissus\Art\Logos\AddonListIconT
 
-Code\SavedVariables.lua
-Code\API.lua
-Code\ItemSearch.xml
+Code\SavedVariables.lua [AllowLoadGameType standard]
+Code\API.lua [AllowLoadGameType standard]
+Code\ItemSearch.xml [AllowLoadGameType standard]
