@@ -96,14 +96,13 @@ do  --Transmog
         [2] = 2,
         [3] = 3,
         [4] = 4,
-        [7] = 5,
+        [7] = 7, -- Is Achievement/Trading Post mixed up? Enum.TransmogSource
         [8] = 6,
         [10]= 7,
     };
 
     function TransitionAPI.GetTransmogSourceName(sourceType)
         if sourceType then
-            sourceType = sourceType - 1;    --Bug in 12.0.1? Doesn't match Enum.TransmogSource
             local newIndex = SourceTypeXGlobalIndex[sourceType];
             if newIndex then
                 return _G["TRANSMOG_SOURCE_".. newIndex]
