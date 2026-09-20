@@ -390,6 +390,10 @@ do
     postfixLocal = nil;
 end
 
+if addon.IS_FOREVER then
+    GemData = {};
+end
+
 local DataProvider = {};
 addon.GemDataProvider = DataProvider;
 

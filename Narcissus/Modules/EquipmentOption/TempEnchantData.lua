@@ -80,6 +80,9 @@ local enchantData = {
     },
 };
 
+if addon.IS_FOREVER then
+    enchantData = {};
+end
 
 local DataProvider = {};
 addon.TempDataProvider = DataProvider;
