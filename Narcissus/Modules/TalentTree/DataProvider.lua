@@ -693,11 +693,20 @@ function DataProvider:GetPlayerSpecClassName(colorized)
         currentSpecName = "";
     end
 
-    if colorized then
-        local _, _, _, rgbHex = GetClassColor(englishClass);
-        return "|c"..rgbHex..currentSpecName.." "..keyName.."|r"
+    local _, _, _, rgbHex = GetClassColor(englishClass);
+
+    if currentSpecName ~= keyName then
+        if colorized then
+            return "|c"..rgbHex..currentSpecName.." "..keyName.."|r";
+        else
+            return currentSpecName.." "..keyName;
+        end
     else
-        return currentSpecName.." "..keyName
+        if colorized then
+            return "|c"..rgbHex..keyName.."|r";
+        else
+            return keyName;
+        end
     end
 end
 
