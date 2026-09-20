@@ -542,7 +542,7 @@ function NarciRaidCheckMemberFrameMixin:OnItemLoadingComplete()
     local specID = C_SpecializationInfo.GetInspectSpecialization(unit);
 	local _, specName, specIcon;
 	if specID then
-		_, specName, _, specIcon = C_SpecializationInfo.GetSpecializationInfoByID(specID, UnitSex(unit));
+		_, specName, _, specIcon = GetSpecializationInfoByID(specID, UnitSex(unit));
 	end
     self.SpecIcon:SetTexture(specIcon);
 end

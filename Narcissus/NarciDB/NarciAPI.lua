@@ -2698,7 +2698,7 @@ local function WrapNameWithClassColor(name, classID, specID, showIcon, offsetY)
         if color then
             if specID and showIcon then
                 local str = color:WrapTextInColorCode(name);
-                local _, _, _, icon, role = C_SpecializationInfo.GetSpecializationInfoByID(specID);
+                local _, _, _, icon, role = GetSpecializationInfoByID(specID);
                 if icon then
                     offsetY = offsetY or 0;
                     str = "|T"..icon..":12:12:-1:"..offsetY..":64:64:4:60:4:60|t" ..str;

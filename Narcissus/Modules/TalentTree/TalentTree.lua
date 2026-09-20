@@ -936,7 +936,7 @@ function NarciMiniTalentTreeMixin:SetInspectMode(state)
 
 		if specID then
             local sex = UnitSex(unit);
-			local _, specName = C_SpecializationInfo.GetSpecializationInfoByID(specID, sex);
+			local _, specName = GetSpecializationInfoByID(specID, sex);
             --loadoutName = specName.." "..classDisplayName.." - "..playerName;
             loadoutName = classDisplayName.." - "..playerName;
             self.SideTabToggle:Show();
