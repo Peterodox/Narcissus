@@ -182,8 +182,12 @@ local function MasteryFrame_OnEnter(object)
 
 	local masteryRating = GetCombatRating(CR_MASTERY);
 	local primaryTalentTree = GetSpecialization();
-	if (primaryTalentTree) then	--dragonflight
-		local masterySpell, masterySpell2 = GetSpecializationMasterySpells(primaryTalentTree);
+	if primaryTalentTree then	--dragonflight
+		local masterySpell, masterySpell2;
+		local spells = C_SpecializationInfo.GetSpecializationMasterySpells(primaryTalentTree);
+		if spells then
+			masterySpell, masterySpell2 = spells[1], spells[2];
+		end
 		if DefaultTooltip.AddSpellByID then
 			if (masterySpell) then
 				DefaultTooltip:AddSpellByID(masterySpell);
