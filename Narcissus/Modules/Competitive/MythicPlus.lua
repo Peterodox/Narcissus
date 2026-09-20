@@ -103,10 +103,10 @@ local MAP_UI_INFO = {
     [584] = {name = 'the-blinding-vale'},
 };
 
-local SEASON_MAPS = {402, 558, 560, 559, 556, 239, 161, 557};
-if addon.IsTOCVersionEqualOrNewerThan(120100) then
-    SEASON_MAPS = {585, 584, 250, 399, 587, 249, 586, 588};
-end
+local SEASON_MAPS = {585, 584, 250, 399, 587, 249, 586, 588};
+--if addon.IsTOCVersionEqualOrNewerThan(120100) then -- Reserved for future seasons
+--    SEASON_MAPS = {};
+--end
 
 local IS_MAP_THIS_SEASON = {};
 
