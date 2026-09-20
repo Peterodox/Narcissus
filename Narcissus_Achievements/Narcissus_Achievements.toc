@@ -6,8 +6,10 @@
 ## SavedVariables: NarciDevToolOutput
 # Plain Title: Narcissus Achievements
 ## Title: Narcissus Achievements
-## Notes: A standalone achievement UI.
-## Notes-zhCN: Narcissus成就面板
+## Notes: A standalone achievement UI. [AllowLoadGameType standard]
+## Notes: This module does not support WoW: Forever. [AllowLoadGameType camelot]
+## Notes-zhCN: Narcissus成就面板 [AllowLoadGameType standard]
+## Notes-zhCN: 此功能不适用于永恒服 [AllowLoadGameType camelot]
 
 ## Author: Peterodox
 

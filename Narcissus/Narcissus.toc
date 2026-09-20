@@ -94,8 +94,8 @@ Modules\TransmogUI\TransmogUI.xml
 Modules\AFKScreen\AFKScreen.xml
 Modules\AR\AR.xml
 
-Modules\PerksProgram\Core.xml
-Modules\Achievement\Core.xml
+Modules\PerksProgram\Core.xml [AllowLoadGameType standard]
+Modules\Achievement\Core.xml [AllowLoadGameType standard]
 Modules\Statistics\Core.lua
 Modules\AddOnError\AddOnError.xml
 

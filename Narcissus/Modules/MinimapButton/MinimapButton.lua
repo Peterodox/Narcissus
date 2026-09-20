@@ -130,7 +130,12 @@ function NarciMinimapButtonMixin:CreatePanel()
 	local button;
 	local buttons = {};
 
-	local LOCALIZED_NAMES = {L["Photo Mode"], L["Dressing Room"], L["Turntable"], ACHIEVEMENT_BUTTON};	-- CHARACTER_BUTTON, "Character Info" "Dressing Room" "Achievements"
+	local LOCALIZED_NAMES = {L["Photo Mode"], L["Dressing Room"], L["Turntable"]};	-- CHARACTER_BUTTON, "Character Info" "Dressing Room" "Achievements"
+
+	if not addon.IS_FOREVER then
+		table.insert(LOCALIZED_NAMES, ACHIEVEMENT_BUTTON);
+	end
+
 	local frameNames = {};
 	frameNames[4] = "Narci_Achievement";
 
@@ -175,7 +180,7 @@ function NarciMinimapButtonMixin:CreatePanel()
 
 	local BUTTON_HEIGHT = 24;
 	local offsetY = BUTTON_HEIGHT * (numButtons - 1) / 2;
-	local middleHeight = 48 + (numButtons - 4) * BUTTON_HEIGHT;
+	local middleHeight = 48 + math.max(0, (numButtons - 4) * BUTTON_HEIGHT);
 	local button1OffsetY = offsetY - middleHeight/2 + BUTTON_HEIGHT/2
 	local buttonFrameLevel = Panel:GetFrameLevel() + 1;
 
@@ -246,8 +251,8 @@ function NarciMinimapButtonMixin:CreatePanel()
 	end
 
 	function self:IsInBound()
-		for i = 1, numButtons do
-			if buttons[i]:IsMouseOver() then
+		for _, obj in ipairs(buttons) do
+			if obj:IsMouseOver() then
 				return true
 			end
 		end
