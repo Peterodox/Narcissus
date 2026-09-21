@@ -95,7 +95,7 @@ end
 local CVAR_GRAPHICS_BACKUP = {};
 local CVAR_GRAPHICS_VALUES = {
 	["graphicsTextureResolution"] = 2,
-	["graphicsTextureFiltering"] = 5,
+	["textureFilteringMode"] = 5,	--16x Anisotropic
 	["graphicsProjectedTextures"] = 1,
 
 	["graphicsViewDistance"] = 9,
@@ -109,11 +109,27 @@ local CVAR_GRAPHICS_VALUES = {
 	["graphicsSSAO"] = 4,
 	["graphicsDepthEffects"] = 3,
 	--["graphicsLightingQuality"] = 3,
-	["lightMode"] = 2,
     ["ffxAntiAliasingMode"] = 2,    --FXAA High
 	["MSAAQuality"] = 4,	--4 is invalid. But used for backup
 	["shadowrt"] = -1,		--invalid
 }
+
+if C_VideoOptions.IsSpellVisualDensitySystemSupported() then
+	CVAR_GRAPHICS_VALUES["graphicsSpellDensity"] = 2;	--Full
+end
+
+if addon.IS_FOREVER then
+	--Forever only, gated on the same support checks as Blizzard's advanced quality settings
+	if C_VideoOptions.IsSecondaryLightingSupported() then
+		CVAR_GRAPHICS_VALUES["graphicsLightMode"] = 2;
+	end
+	if C_VideoOptions.IsPBRWaterSupported() then
+		CVAR_GRAPHICS_VALUES["graphicsPBRLiquidDetail"] = 2;
+	end
+	if C_VideoOptions.IsLinearEnabledOnStart() then
+		CVAR_GRAPHICS_VALUES["graphicsBloomUserMult"] = 1;
+	end
+end
 
 ---Hide Names and Bubbles---
 local CVAR_UNIT_NAME_BACKUP = {};
@@ -132,11 +148,11 @@ local CVAR_UNIT_NAME_VALUES = {			--Unit Name CVars
 	["UnitNameInteractiveNPC"] = 0,
 	["UnitNameHostleNPC"] = 0,
 	["chatBubbles"] = 0,
-	["floatingCombatTextCombatDamage"] = 0,
-	["floatingCombatTextCombatHealing"] = 0,
+	["floatingCombatTextCombatDamage_v2"] = 0,
+	["floatingCombatTextCombatHealing_v2"] = 0,
 
-    ["SoftTargetEnemy"] = 1,
-    ["SoftTargetInteract"] = 1,
+    ["SoftTargetEnemy"] = 0,
+    ["SoftTargetInteract"] = 0,
 }
 
 
@@ -222,7 +238,7 @@ function CVarUtil:SetHideTextStatus(state)
     if state then
         if not self:IsCVarChanged("HideTexts") then
             CVarUtil:Backup(CVAR_UNIT_NAME_VALUES, CVAR_UNIT_NAME_BACKUP);
-            CVarUtil:Zero(CVAR_UNIT_NAME_BACKUP);
+            CVarUtil:Zero(CVAR_UNIT_NAME_VALUES);
             CVarUtil:SaveTrackingStatus();
             CVarUtil:SetTrackingStatus(false);
             self:MarkCVarChanged("HideTexts", true);
