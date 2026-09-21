@@ -95,7 +95,7 @@ end
 local CVAR_GRAPHICS_BACKUP = {};
 local CVAR_GRAPHICS_VALUES = {
 	["graphicsTextureResolution"] = 2,
-	["graphicsTextureFiltering"] = 5,
+	["textureFilteringMode"] = 5,	--16x Anisotropic
 	["graphicsProjectedTextures"] = 1,
 
 	["graphicsViewDistance"] = 9,
@@ -109,11 +109,27 @@ local CVAR_GRAPHICS_VALUES = {
 	["graphicsSSAO"] = 4,
 	["graphicsDepthEffects"] = 3,
 	--["graphicsLightingQuality"] = 3,
-	["lightMode"] = 2,
     ["ffxAntiAliasingMode"] = 2,    --FXAA High
 	["MSAAQuality"] = 4,	--4 is invalid. But used for backup
 	["shadowrt"] = -1,		--invalid
 }
+
+if C_VideoOptions.IsSpellVisualDensitySystemSupported() then
+	CVAR_GRAPHICS_VALUES["graphicsSpellDensity"] = 2;	--Full
+end
+
+if addon.IS_FOREVER then
+	--Forever only, gated on the same support checks as Blizzard's advanced quality settings
+	if C_VideoOptions.IsSecondaryLightingSupported() then
+		CVAR_GRAPHICS_VALUES["graphicsLightMode"] = 2;
+	end
+	if C_VideoOptions.IsPBRWaterSupported() then
+		CVAR_GRAPHICS_VALUES["graphicsPBRLiquidDetail"] = 2;
+	end
+	if C_VideoOptions.IsLinearEnabledOnStart() then
+		CVAR_GRAPHICS_VALUES["graphicsBloomUserMult"] = 1;
+	end
+end
 
 ---Hide Names and Bubbles---
 local CVAR_UNIT_NAME_BACKUP = {};
