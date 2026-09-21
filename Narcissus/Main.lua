@@ -2393,35 +2393,30 @@ local function ActivateMogMode()
 	end
 end
 
+local ClassArmorSubclass = {
+    MAGE = 1, PRIEST = 1, WARLOCK = 1,    --Cloth
+    ROGUE = 2, DRUID = 2, MONK = 2, DEMONHUNTER = 2,    --Leather
+    HUNTER = 3, SHAMAN = 3, EVOKER = 3,    --Mail
+    WARRIOR = 4, PALADIN = 4, DEATHKNIGHT = 4,    --Plate
+};
+
+local function GetArmorTypeByClass(classFile)
+	local subclassID = ClassArmorSubclass[classFile];
+	if subclassID then
+		return (C_Item.GetItemSubClassInfo(Enum.ItemClass.Armor, subclassID));
+	end
+end
+
 local function UpdateXmogName(specOnly)
 	local frame = Narci_XmogNameFrame;
 
-	local IsSpellKnown = C_SpellBook.IsSpellKnown;
-	local token = 159243;
-	local armorType;
-
 	if not specOnly then
 		Narci_SetPlayerName(frame);
-		if IsSpellKnown(76273) or IsSpellKnown(106904) or IsSpellKnown(202782) or IsSpellKnown(76275) then
-			--armorType = "Leather"
-			token = 159300;
-		elseif IsSpellKnown(76250) or IsSpellKnown(76272) or IsSpellKnown(366522) then
-			--armorType = "Mail"
-			token = 159371;
-		elseif IsSpellKnown(76276) or IsSpellKnown(76277) or IsSpellKnown(76279) then
-			--armorType = "Cloth"
-			token = 159243;
-		elseif IsSpellKnown(76271) or IsSpellKnown(76282) or IsSpellKnown(76268) then
-			--armorType = "Plate"
-			token = 159418;
-		end
-		local _, _, spellName = GetItemInfoInstant(token);
-		armorType = spellName;
 	end
-
 
 	local className, englishClass = UnitClass("player");
 	local _, _, _, rgbHex = GetClassColor(englishClass);
+	local armorType = GetArmorTypeByClass(englishClass);
 
 	if armorType then
 		frame.ArmorString:SetText("|cFFFFD100"..armorType.."|r".."  |  ".."|c"..rgbHex..className.."|r");
