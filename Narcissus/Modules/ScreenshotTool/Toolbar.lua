@@ -151,8 +151,8 @@ local CVAR_UNIT_NAME_VALUES = {			--Unit Name CVars
 	["floatingCombatTextCombatDamage_v2"] = 0,
 	["floatingCombatTextCombatHealing_v2"] = 0,
 
-    ["SoftTargetEnemy"] = 1,
-    ["SoftTargetInteract"] = 1,
+    ["SoftTargetEnemy"] = 0,
+    ["SoftTargetInteract"] = 0,
 }
 
 
