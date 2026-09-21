@@ -10,8 +10,8 @@ local GetSourceInfo = C_TransmogCollection.GetSourceInfo;
 local GetAppearanceInfoBySource = C_TransmogCollection.GetAppearanceInfoBySource;
 local GetTransmogOutfitSlotFromInventorySlot = C_TransmogOutfitInfo and C_TransmogOutfitInfo.GetTransmogOutfitSlotFromInventorySlot;
 local GetEquippedSlotOptionFromTransmogSlot = C_TransmogOutfitInfo and C_TransmogOutfitInfo.GetEquippedSlotOptionFromTransmogSlot;
-local GetWeaponOptionsForSlot = C_TransmogOutfitInfo and C_TransmogOutfitInfo.GetWeaponOptionsForSlot;
-local SetViewedWeaponOptionForSlot = C_TransmogOutfitInfo and C_TransmogOutfitInfo.SetViewedWeaponOptionForSlot;
+local GetOptionsForSlot = C_TransmogOutfitInfo and (C_TransmogOutfitInfo.GetOptionsForSlot or C_TransmogOutfitInfo.GetWeaponOptionsForSlot);
+local SetViewedOptionForSlot = C_TransmogOutfitInfo and (C_TransmogOutfitInfo.SetViewedOptionForSlot or C_TransmogOutfitInfo.SetViewedWeaponOptionForSlot);
 local GetViewedOutfitSlotInfo = C_TransmogOutfitInfo and C_TransmogOutfitInfo.GetViewedOutfitSlotInfo;
 local GetPairedArtifactAppearance = C_TransmogCollection.GetPairedArtifactAppearance;
 local SetSecondarySlotState = C_TransmogOutfitInfo and C_TransmogOutfitInfo.SetSecondarySlotState;
@@ -99,14 +99,15 @@ local function ApplyTransmog(invSlotID, slot, transmogID, illusionID)
         --Weapon option isn't saved, so resolve it live. Match against transmogID so main and off
         --hand don't end up with swapped artifact options.
         if slot and transmogID and TransmogDataProvider:IsLegionArtifactBySourceID(transmogID) then
-            local _, artifactOptionsInfo = GetWeaponOptionsForSlot(slot);
+            local _, artifactOptionsInfo = GetOptionsForSlot(slot);
             if artifactOptionsInfo then
                 local appearanceType = Enum.TransmogType.Appearance;
                 for _, optionInfo in ipairs(artifactOptionsInfo) do
                     if optionInfo.enabled then
-                        local slotInfo = GetViewedOutfitSlotInfo(slot, appearanceType, optionInfo.weaponOption);
+                        local optionType = optionInfo.type or optionInfo.weaponOption;
+                        local slotInfo = GetViewedOutfitSlotInfo(slot, appearanceType, optionType);
                         if slotInfo and slotInfo.transmogID == transmogID then
-                            option = optionInfo.weaponOption;
+                            option = optionType;
                             break;
                         end
                     end
@@ -120,7 +121,7 @@ local function ApplyTransmog(invSlotID, slot, transmogID, illusionID)
 
         if slot and option then
             --A widget rebuild can reset this slot's viewed option to generic, so re-assert ours here.
-            SetViewedWeaponOptionForSlot(slot, option);
+            SetViewedOptionForSlot(slot, option);
         end
     end
 
@@ -558,7 +559,7 @@ do  --Shared Custom Sets
 
         local n = 1;
         local _, _, classID = UnitClass("player");
-        local ParseCustomSetSlashCommand = TransmogUtil.ParseCustomSetSlashCommand;
+        local ParseCustomSetSlashCommand = TransmogDataProvider.ParseCustomSetSlashCommand;
         local sets = NarciTransmogUIDB.SharedSets;
         local total = #sets;
         local setInfo = sets[1];

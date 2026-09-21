@@ -268,6 +268,15 @@ function DataProvider:ConvertTransmogStringToList(itemTransmogString)
     return itemTransmogInfoList
 end
 
+--Forever's CreateCustomSetSlashCommand writes 18 values (ranged slot), ParseCustomSetSlashCommand still expects 17
+--Workaround: drop the ranged value. Revisit once Blizzard fixes this, the shortened string will then be rejected
+function DataProvider.ParseCustomSetSlashCommand(msg)
+    if not addon.IS_FOREVER then return TransmogUtil.ParseCustomSetSlashCommand(msg) end
+    local list = TransmogUtil.ParseCustomSetSlashCommand((string.gsub(msg, ",[^,]*$", "")));
+    if list then list[INVSLOT_RANGED].appearanceID = 0 end  --Blizzard leaves it nil
+    return list
+end
+
 function DataProvider:DecodeSavedOutfit(narcissusSavedOutfit)
     --See CharacterProfile.lua
 
