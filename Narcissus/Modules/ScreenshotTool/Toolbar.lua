@@ -148,8 +148,8 @@ local CVAR_UNIT_NAME_VALUES = {			--Unit Name CVars
 	["UnitNameInteractiveNPC"] = 0,
 	["UnitNameHostleNPC"] = 0,
 	["chatBubbles"] = 0,
-	["floatingCombatTextCombatDamage"] = 0,
-	["floatingCombatTextCombatHealing"] = 0,
+	["floatingCombatTextCombatDamage_v2"] = 0,
+	["floatingCombatTextCombatHealing_v2"] = 0,
 
     ["SoftTargetEnemy"] = 1,
     ["SoftTargetInteract"] = 1,
@@ -238,7 +238,7 @@ function CVarUtil:SetHideTextStatus(state)
     if state then
         if not self:IsCVarChanged("HideTexts") then
             CVarUtil:Backup(CVAR_UNIT_NAME_VALUES, CVAR_UNIT_NAME_BACKUP);
-            CVarUtil:Zero(CVAR_UNIT_NAME_BACKUP);
+            CVarUtil:Zero(CVAR_UNIT_NAME_VALUES);
             CVarUtil:SaveTrackingStatus();
             CVarUtil:SetTrackingStatus(false);
             self:MarkCVarChanged("HideTexts", true);
