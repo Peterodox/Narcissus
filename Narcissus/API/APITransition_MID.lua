@@ -91,22 +91,8 @@ do  --Transmog
         end
     end
 
-    local SourceTypeXGlobalIndex = {
-        [1] = 1,
-        [2] = 2,
-        [3] = 3,
-        [4] = 4,
-        [7] = 7, -- Is Achievement/Trading Post mixed up? Enum.TransmogSource
-        [8] = 6,
-        [10]= 7,
-    };
-
     function TransitionAPI.GetTransmogSourceName(sourceType)
-        if sourceType then
-            local newIndex = SourceTypeXGlobalIndex[sourceType];
-            if newIndex then
-                return _G["TRANSMOG_SOURCE_".. newIndex]
-            end
-        end
+        --sourceType matches the TRANSMOG_SOURCE_# index (same on Standard and Forever)
+        return sourceType and _G["TRANSMOG_SOURCE_".. sourceType]
     end
 end
