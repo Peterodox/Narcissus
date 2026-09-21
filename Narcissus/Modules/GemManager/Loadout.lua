@@ -2843,9 +2843,9 @@ do  --Auto Equip Gems
 
     local IsSocketOccupied = Gemma.IsSocketOccupied;
     local ClearCursor = ClearCursor;
-    local ClickSocketButton = ClickSocketButton;
-    local AcceptSockets = AcceptSockets;
-    local CloseSocketInfo = CloseSocketInfo;
+    local ClickSocketButton = C_ItemSocketInfo.ClickSocketButton;
+    local AcceptSockets = C_ItemSocketInfo.AcceptSockets;
+    local CloseSocketInfo = C_ItemSocketInfo.CloseSocketInfo;
     local PickupContainerItem = C_Container.PickupContainerItem;
     local SocketInventoryItem = SocketInventoryItem;
 

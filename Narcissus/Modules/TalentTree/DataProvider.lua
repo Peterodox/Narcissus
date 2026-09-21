@@ -11,8 +11,8 @@ local GetNodeInfo = C_Traits.GetNodeInfo;
 local GetEntryInfo = C_Traits.GetEntryInfo;
 local UnitClass = UnitClass;
 local GetClassColor = GetClassColor;
-local GetSpecialization = GetSpecialization;
-local GetSpecializationInfo = GetSpecializationInfo;
+local GetSpecialization = C_SpecializationInfo.GetSpecialization;
+local GetSpecializationInfo = C_SpecializationInfo.GetSpecializationInfo;
 local GetNumSpecializations = GetNumSpecializations;
 
 local INPSECT_CONFIG_ID = -1;
@@ -693,11 +693,20 @@ function DataProvider:GetPlayerSpecClassName(colorized)
         currentSpecName = "";
     end
 
-    if colorized then
-        local _, _, _, rgbHex = GetClassColor(englishClass);
-        return "|c"..rgbHex..currentSpecName.." "..keyName.."|r"
+    local _, _, _, rgbHex = GetClassColor(englishClass);
+
+    if currentSpecName ~= keyName then
+        if colorized then
+            return "|c"..rgbHex..currentSpecName.." "..keyName.."|r";
+        else
+            return currentSpecName.." "..keyName;
+        end
     else
-        return currentSpecName.." "..keyName
+        if colorized then
+            return "|c"..rgbHex..keyName.."|r";
+        else
+            return keyName;
+        end
     end
 end
 

@@ -10,8 +10,8 @@ local IsSpellKnownOrOverridesKnown = IsSpellKnownOrOverridesKnown;
 local GetActionInfo = GetActionInfo;
 local HasExtraActionBar = HasExtraActionBar;
 local GetContainerNumFreeSlots = C_Container.GetContainerNumFreeSlots;
-local GetExistingSocketInfo = GetExistingSocketInfo;
-local GetNewSocketInfo = GetNewSocketInfo;
+local GetExistingSocketInfo = C_ItemSocketInfo.GetExistingSocketInfo;
+local GetNewSocketInfo = C_ItemSocketInfo.GetNewSocketInfo;
 
 
 local GemData = {};

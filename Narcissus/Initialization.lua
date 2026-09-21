@@ -417,10 +417,10 @@ NarciAPI.GetAddOnVersionInfo = GetAddOnVersionInfo;
 
 do
     local version, _, _, tocVersion = GetBuildInfo();
-    local expansionID = string.match(version, "(%d+)%.");
+    --local expansionID = string.match(version, "(%d+)%.");
 
     if not tocVersion then
-        tocVersion = 110000;
+        tocVersion = 120000;
     end
 
     tocVersion = tonumber(tocVersion);
@@ -430,6 +430,9 @@ do
         return tocVersion >= v
     end
     addon.IsTOCVersionEqualOrNewerThan = IsTOCVersionEqualOrNewerThan;
+
+
+    addon.IS_FOREVER = tocVersion >= 16000 and tocVersion < 20000;
 end
 
 

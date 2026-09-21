@@ -1,4 +1,6 @@
 local _, addon = ...
+local IS_FOREVER = addon.IS_FOREVER;
+
 local SettingFunctions = addon.SettingFunctions;
 local inOutSine = addon.EasingFunctions.inOutSine;
 local FadeFrame = NarciFadeUI.Fade;
@@ -1599,10 +1601,20 @@ local function AttachNewFeatureLabel(widget, offset)
 end
 
 local function CreateWidget(parent, anchorTo, offsetX, offsetY, widgetData)
+    local isValid = true;
+
     if widgetData.validityCheckFunc then
         if not widgetData.validityCheckFunc() then
-            return nil, 0
+            isValid = false;
         end
+    end
+
+    if widgetData.excludeForever and IS_FOREVER then
+        isValid = false;
+    end
+
+    if not isValid then
+        return nil, 0;
     end
 
     local height;
@@ -1645,7 +1657,7 @@ local function CreateWidget(parent, anchorTo, offsetX, offsetY, widgetData)
         else
             obj:SetText(widgetData.text);
         end
-    
+
     elseif widgetType == "radio" then
         local numButtons = #widgetData.texts;
 
@@ -1750,7 +1762,7 @@ local function CreateWidget(parent, anchorTo, offsetX, offsetY, widgetData)
 
         slider.onValueChangedFunc = widgetData.onValueChangedFunc;
         slider.getValueFunc = widgetData.getValueFunc;
-    
+
         if widgetData.sliderWidth then
             slider:SetSliderWidth(widgetData.sliderWidth, true);
         end
@@ -1916,11 +1928,11 @@ local Categories = {
             {type = "checkbox", level = 1, key = "TransmogFrame", text = L["Transmog UI"], onValueChangedFunc = TransmogFrameToggle_OnValueChanged, description = L["Transmog UI Description"], isNewFeature = true},
             {type = "checkbox", level = 1, key = "WardrobeCollectionSetsCheckbox", text = L["ModuleName WardrobeCollection"], onValueChangedFunc = WardrobeCollectionToggle_OnValueChanged, description = L["ModuleDescription WardrobeCollection"], isNewFeature = true},
             {type = "checkbox", level = 1, key = "DressingRoom", text = L["Dressing Room"], onValueChangedFunc = DressingRoomToggle_OnValueChanged, description = L["Dressing Room Description"]},
-            {type = "checkbox", level = 1, key = "GemManager", text = L["Gem List"], onValueChangedFunc = GemManagerToggle_OnValueChanged, description = L["Gemma Description"]},
-            {type = "checkbox", level = 1, key = "SoloQueueLFRDetails", text = L["LFR Wing Details"], onValueChangedFunc = LFRWingDetails_OnValueChanged, description = L["LFR Wing Details Description"]},
-            {type = "subheader", level = 1, text = L["Expansion Features"], extraTopPadding = 1},
-            {type = "checkbox", level = 1, key = "PaperDollWidget", text = L["Paperdoll Widget"], onValueChangedFunc = PaperDollWidgetToggle_OnValueChanged, showFeaturePreview = true, onEnterFunc = FeaturePreview.ShowPreview, onLeaveFunc = FeaturePreview.HidePreview},
-                {type = "checkbox", level = 2, key = "PaperDollWidget_ClassSet", text = L["Class Set Indicator"], isChild = true, onValueChangedFunc = PaperDollWidget_Update},
+            {type = "checkbox", level = 1, key = "GemManager", text = L["Gem List"], onValueChangedFunc = GemManagerToggle_OnValueChanged, description = L["Gemma Description"], excludeForever = true},
+            {type = "checkbox", level = 1, key = "SoloQueueLFRDetails", text = L["LFR Wing Details"], onValueChangedFunc = LFRWingDetails_OnValueChanged, description = L["LFR Wing Details Description"], excludeForever = true},
+            {type = "subheader", level = 1, text = L["Expansion Features"], extraTopPadding = 1, excludeForever = true},
+            {type = "checkbox", level = 1, key = "PaperDollWidget", text = L["Paperdoll Widget"], onValueChangedFunc = PaperDollWidgetToggle_OnValueChanged, showFeaturePreview = true, onEnterFunc = FeaturePreview.ShowPreview, onLeaveFunc = FeaturePreview.HidePreview, excludeForever = true},
+                {type = "checkbox", level = 2, key = "PaperDollWidget_ClassSet", text = L["Class Set Indicator"], isChild = true, onValueChangedFunc = PaperDollWidget_Update, excludeForever = true},
                 --{type = "checkbox", level = 2, key = "PaperDollWidget_Remix", text = L["Remix Gem Manager"], isChild = true, onValueChangedFunc = PaperDollWidget_Update},
             --{type = "checkbox", level = 1, key = "ConduitTooltip", text = L["Conduit Tooltip"], onValueChangedFunc = ConduitTooltipToggle_OnValueChanged, showFeaturePreview = true, onEnterFunc = FeaturePreview.ShowPreview, onLeaveFunc = FeaturePreview.HidePreview},
         },
@@ -1934,7 +1946,8 @@ local Categories = {
     },
 };
 
-local function InsertCategory(newCategory)
+local function InsertCategory(newCategory, excludeForever)
+    if excludeForever and IS_FOREVER then return; end
     tinsert(Categories, #Categories -1, newCategory);
 end
 
@@ -1980,9 +1993,9 @@ do  --Talent Tree
         }
     };
 
-    InsertCategory(talentCategory);
+    InsertCategory(talentCategory, true);
 
-    
+
     local function NarciBagItemFilter_LoadAddOn()
         if not NarciBagItemFilterSettings then
             C_AddOns.LoadAddOn("Narcissus_BagFilter");
@@ -1998,7 +2011,7 @@ do  --Talent Tree
             NarciBagItemFilterSettings.SetEnableSearchSuggestion(state);
         end
     end
-    
+
     local function ItemSearchDirectionButton_OnValueChanged(self, id)
         NarciBagItemFilterSettings.SetItemSearchPopupDirection(id);
         if id == 1 then
@@ -2007,7 +2020,7 @@ do  --Talent Tree
             self.preview:SetTexCoord(0.5, 1, 0, 0.8125);
         end
     end
-    
+
     local function ItemSearchDirection_Setup(radioButton)
         if radioButton.preview then
             if DB and DB.SearchSuggestDirection == 2 then
@@ -2021,11 +2034,11 @@ do  --Talent Tree
     local function AutoFilterMail_OnValueChanged(self, state)
         NarciBagItemFilterSettings.AutoFilterMail(state);
     end
-    
+
     local function AutoFilterAuction_OnValueChanged(self, state)
         NarciBagItemFilterSettings.AutoFilterAuction(state);
     end
-    
+
     local function AutoFilterGem_OnValueChanged(self, state)
         NarciBagItemFilterSettings.AutoFilterGem(state);
     end
@@ -2049,7 +2062,7 @@ do  --Talent Tree
         {type = "checkbox", level = 3, key = "AutoFilterGem", text = L["Socket Items"], onValueChangedFunc = AutoFilterGem_OnValueChanged, isChild = true},
     }};
 
-    InsertCategory(bagCategory);
+    InsertCategory(bagCategory, true);
 
 
     local function AutoDisplayQuestItemToggle_OnValueChanged(self, state)
@@ -2065,7 +2078,7 @@ do  --Talent Tree
 
         NarciQuestItemDisplay:SetTheme(id);
     end
-    
+
     local function QuestCardStyle_Setup(radioButton)
         if radioButton.preview then
             if DB and DB.QuestCardTheme == 2 then

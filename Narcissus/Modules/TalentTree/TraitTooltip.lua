@@ -17,8 +17,6 @@ local C_Traits = C_Traits;
 local GetSpellInfo = addon.TransitionAPI.GetSpellInfo;
 local C_Spell = C_Spell;
 local IsSpellPassive = addon.TransitionAPI.IsSpellPassive;
-local GetActiveSpecGroup = GetActiveSpecGroup;
-local GetPvpTalentInfoByID = GetPvpTalentInfoByID;
 local GetCursorDelta = GetCursorDelta;
 
 local type = type;
@@ -458,7 +456,7 @@ local function Tooltip_SetPvpTalent(tooltip, talentID, isInspecting, slotIndex)
         return
     end
 
-    local specGroupIndex =  GetActiveSpecGroup(isInspecting);
+    local specGroupIndex =  C_SpecializationInfo.GetActiveSpecGroup(isInspecting);
     tooltip.talentID, tooltip.isInspecting, tooltip.specGroupIndex, tooltip.slotIndex = talentID, isInspecting, specGroupIndex, slotIndex;
 
     local _, talentName, icon, _, _, spellID = GetPvpTalentInfoByID(talentID, isInspecting, specGroupIndex, slotIndex);

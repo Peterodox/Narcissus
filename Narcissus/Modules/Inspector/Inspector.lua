@@ -539,7 +539,7 @@ function NarciRaidCheckMemberFrameMixin:OnItemLoadingComplete()
     self.ItemCount:SetText(math.floor( DataProvider:CalculatePlayerAverageItemLevel(guid) + 0.25 ));  --average item level
 
     local unit = MainFrame.targetUnit;
-    local specID = GetInspectSpecialization(unit);
+    local specID = C_SpecializationInfo.GetInspectSpecialization(unit);
 	local _, specName, specIcon;
 	if specID then
 		_, specName, _, specIcon = GetSpecializationInfoByID(specID, UnitSex(unit));

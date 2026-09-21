@@ -1,4 +1,4 @@
-## Interface: 120007, 120100
+## Interface: 120100, 120105, 16001
 ## Version: 12.1.0
 ## LoadOnDemand: 1
 ## RequiredDeps: Narcissus
@@ -13,4 +13,4 @@
 
 ## IconTexture: Interface\AddOns\Narcissus\Art\Logos\AddonListIconT
 
-Code\Achievements.xml
+Code\Achievements.xml [AllowLoadGameType standard]

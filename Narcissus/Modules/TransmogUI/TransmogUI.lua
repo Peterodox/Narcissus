@@ -7,11 +7,14 @@ local MainModule = TransmogUIManager:CreateModule("Main");
 
 local MainFrameMixin = {};
 do
+    --Forever renamed this event
+    local OptionChangedEvent = C_EventUtils.IsEventValid("VIEWED_TRANSMOG_OUTFIT_SLOT_OPTION_CHANGED") and "VIEWED_TRANSMOG_OUTFIT_SLOT_OPTION_CHANGED" or "VIEWED_TRANSMOG_OUTFIT_SLOT_WEAPON_OPTION_CHANGED";
+
     local DynamicEvents = {
 	    "VIEWED_TRANSMOG_OUTFIT_SLOT_SAVE_SUCCESS",
 		"VIEWED_TRANSMOG_OUTFIT_CHANGED",                       --Fire after clicking an outfit, see TransmogCharacterMixin:RefreshSlots() for how get to appearance from outfitID
 		"VIEWED_TRANSMOG_OUTFIT_SLOT_REFRESH",
-		"VIEWED_TRANSMOG_OUTFIT_SLOT_WEAPON_OPTION_CHANGED",
+		OptionChangedEvent,
 		"VIEWED_TRANSMOG_OUTFIT_SECONDARY_SLOTS_CHANGED",
 		"TRANSMOG_DISPLAYED_OUTFIT_CHANGED",
 		"PLAYER_EQUIPMENT_CHANGED",

@@ -5,8 +5,6 @@ local GetSwipePosition = addon.SwipeTrailFunctions.Polygon;     --defined in Wid
 local tremove = table.remove;
 local tinsert = table.insert;
 
-local GetSpecialization = GetSpecialization;
-local GetSpecializationInfo = GetSpecializationInfo;
 local GetItemInfoInstant = C_Item.GetItemInfoInstant;
 
 local SLOT_PRIORITY = {
@@ -232,9 +230,9 @@ end
 
 function SlotButtonOverlayUtil:UpdateData()
     --[[
-    local specID = GetSpecialization() or 1;
+    local specID = C_SpecializationInfo.GetSpecialization() or 1;
 
-    local _, _, _, _, _, primaryStat = GetSpecializationInfo(specID);   --primaryStat may not be correct after the first PLAYER_ENTERING_WORLD
+    local _, _, _, _, _, primaryStat = C_SpecializationInfo.GetSpecializationInfo(specID);   --primaryStat may not be correct after the first PLAYER_ENTERING_WORLD
     primaryStat = primaryStat or 1;
 
     if primaryStat == 1 then

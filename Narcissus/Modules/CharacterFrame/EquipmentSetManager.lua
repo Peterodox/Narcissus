@@ -418,7 +418,7 @@ local function GetHealthFactor()
     local HeartBonus = 1.03^EXP;    --3%
 
     --Gained from Armor Skill
-	local spec = GetSpecialization() or 1;
+	local spec = C_SpecializationInfo.GetSpecialization() or 1;
     local role = GetSpecializationRole(spec);
     local ArmorBonus = 1;
     if role == "TANK" and UnitLevel("player") >= 50 then    --Prim stat bonus starts at level 50    **9.0 Level Squash

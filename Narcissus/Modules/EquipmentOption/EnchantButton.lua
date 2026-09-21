@@ -21,8 +21,8 @@ local GetItemIcon = C_Item.GetItemIconByID;
 local GetItemInfo = C_Item.GetItemInfo;
 local IsMouseButtonDown = IsMouseButtonDown;
 
-local PickupContainerItem = (C_Container and C_Container.PickupContainerItem) or PickupContainerItem;
-local GetContainerItemLink = (C_Container and C_Container.GetContainerItemLink) or GetContainerItemLink;
+local PickupContainerItem = C_Container.PickupContainerItem;
+local GetContainerItemLink = C_Container.GetContainerItemLink;
 local GetInventoryItemLink = GetInventoryItemLink;
 
 local InUseIDs = {
@@ -64,7 +64,7 @@ local function GetAppliedEnhancement(id1, id2)
         --_, _, _, linkType, id, enchantID, gemID = strsplit(":|H", itemLink);
         enchantID, gemID1, gemID2, gemID3 = string.match(itemLink, "item:%d+:(%d*):(%d*):(%d*):(%d*)");
     end
-    
+
     enchantID = (enchantID and tonumber(enchantID)) or nil;
     gemID1 = (gemID1 and tonumber(gemID1)) or nil;
     gemID2 = (gemID2 and tonumber(gemID2)) or nil;
@@ -91,7 +91,7 @@ end
 local function GetNewGemID(state)
     if state then
         local socketID = MainFrame:GetSocketOrderID();
-        local gemLink = GetNewSocketLink(socketID);
+        local gemLink = C_ItemSocketInfo.GetNewSocketLink(socketID);
         if gemLink then
             local gemID = C_Item.GetItemInfoInstant(gemLink);
             if gemID == 0 then
@@ -113,7 +113,7 @@ local function PlaceGem(gemID, socketOrderID)
     local bagID, slotIndex = GetItemBagPosition(gemID, findHighestItemLevel);
     if not(bagID and slotIndex) then return; end
     PickupContainerItem(bagID, slotIndex);
-    ClickSocketButton(socketOrderID);
+    C_ItemSocketInfo.ClickSocketButton(socketOrderID);
     ClearCursor();
 end
 

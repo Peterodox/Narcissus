@@ -147,8 +147,8 @@ local PrimaryStatsList = {
 
 local function NarciAPI_GetPrimaryStats()
     --Return name and value
-	local currentSpec = GetSpecialization() or 1;
-    local _, _, _, _, _, primaryStat = GetSpecializationInfo(currentSpec);
+	local currentSpec = C_SpecializationInfo.GetSpecialization() or 1;
+    local _, _, _, _, _, primaryStat = C_SpecializationInfo.GetSpecializationInfo(currentSpec);
     primaryStat = primaryStat or 1;
     local value = UnitStat("player", primaryStat);
 	local name = PrimaryStatsList[primaryStat];
@@ -265,9 +265,9 @@ end
 
 
 do
-    local GetContainerNumSlots = (C_Container and C_Container.GetContainerNumSlots) or GetContainerNumSlots;
-    local GetContainerItemID = (C_Container and C_Container.GetContainerItemID) or GetContainerItemID;
-    local GetContainerItemLink = (C_Container and C_Container.GetContainerItemLink) or GetContainerItemLink;
+    local GetContainerNumSlots = C_Container.GetContainerNumSlots;
+    local GetContainerItemID = C_Container.GetContainerItemID;
+    local GetContainerItemLink = C_Container.GetContainerItemLink;
     local GetInventoryItemID = GetInventoryItemID;
     local GetItemCount = C_Item.GetItemCount;
 
@@ -2618,7 +2618,7 @@ local function GetAllSelectedTalentIDsAndIcons(ignorePlayerLevel)
     else
         maxTiers = GetMaxTalentTier();    --based on the character's level
     end
-    local talentGroup = GetActiveSpecGroup();
+    local talentGroup = C_SpecializationInfo.GetActiveSpecGroup();
     local _, _, classID = UnitClass("player");
     talentInfo.classID = classID;
 

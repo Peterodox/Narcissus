@@ -1,4 +1,4 @@
-## Interface: 120007, 120100
+## Interface: 120100, 120105, 16001
 ## Version: 1.0.2
 ## LoadOnDemand: 1
 ## RequiredDeps: Narcissus
@@ -10,6 +10,6 @@
 
 ## IconTexture: Interface\AddOns\Narcissus\Art\Logos\AddonListIconT
 
-Code\SavedVariables.lua
-Code\API.lua
-Code\ItemSearch.xml
+Code\SavedVariables.lua [AllowLoadGameType standard]
+Code\API.lua [AllowLoadGameType standard]
+Code\ItemSearch.xml [AllowLoadGameType standard]

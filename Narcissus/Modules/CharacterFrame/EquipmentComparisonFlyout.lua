@@ -658,9 +658,9 @@ local function UpdateSpectIDAndPrimaryStat()
         [LE_UNIT_STAT_INTELLECT] = NARCI_STAT_INTELLECT,
     };
 
-    local currentSpec = GetSpecialization() or 1;
+    local currentSpec = C_SpecializationInfo.GetSpecialization() or 1;
     local _, primaryStatID;
-    CURRENT_SPEC, _, _, _, _, primaryStatID = GetSpecializationInfo(currentSpec);
+    CURRENT_SPEC, _, _, _, _, primaryStatID = C_SpecializationInfo.GetSpecializationInfo(currentSpec);
     PRIMARY_STAT_NAME = PrimaryStatsList[primaryStatID] or PRIMARY_STAT_NAME;
 end
 

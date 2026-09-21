@@ -1,9 +1,8 @@
+-- This file is not loaded since the WoW's Icon Selector will include transmog icons natively
+
+
 local _, addon = ...
 
-if addon.IsTOCVersionEqualOrNewerThan(120001) then
-	--Icon Selector will include transmog icons natively
-	return
-end
 
 local TransmogUIManager = addon.TransmogUIManager;
 

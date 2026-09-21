@@ -1,4 +1,4 @@
-## Interface: 120100
+## Interface: 120100, 120105, 16001
 ## Version: 1.8.6
 
 ## Title: Narcissus
@@ -94,8 +94,8 @@ Modules\TransmogUI\TransmogUI.xml
 Modules\AFKScreen\AFKScreen.xml
 Modules\AR\AR.xml
 
-Modules\PerksProgram\Core.xml
-Modules\Achievement\Core.xml
+Modules\PerksProgram\Core.xml [AllowLoadGameType standard]
+Modules\Achievement\Core.xml [AllowLoadGameType standard]
 Modules\Statistics\Core.lua
 Modules\AddOnError\AddOnError.xml
 
@@ -108,8 +108,8 @@ Guide\Guide.xml
 
 
 Modules\Storyboard\Storyboard.xml
-Modules\DragonridingRaces\Main.xml
-Modules\GossipFrame\GossipFrame.xml
+Modules\DragonridingRaces\Main.xml [AllowLoadGameType standard]
+Modules\GossipFrame\GossipFrame.xml [AllowLoadGameType standard]
 
 # Modules\GemManager\GemManager.xml
 # Modules\PrimordialStone\Core.xml

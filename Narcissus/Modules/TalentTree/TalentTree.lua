@@ -37,8 +37,6 @@ local C_PvP = C_PvP;
 local CAN_USE_TALENT_UI = true;
 local CanPlayerUseTalentSpecUI = C_SpecializationInfo.CanPlayerUseTalentSpecUI;
 
-local GetSpecializationInfoByID = GetSpecializationInfoByID;
-local GetInspectSpecialization = GetInspectSpecialization;
 local UnitClass = UnitClass;
 local UnitSex = UnitSex;
 local UnitLevel = UnitLevel;
@@ -924,7 +922,7 @@ function NarciMiniTalentTreeMixin:SetInspectMode(state)
         if self.SideTab:IsShown() then
             self.SideTab:CloseFrame(true);
         end
-        
+
         if self.PvPTalentFrame:IsShown() then
             self.PvPTalentFrame:Update();
         end
@@ -932,7 +930,7 @@ function NarciMiniTalentTreeMixin:SetInspectMode(state)
         local loadoutName;
         local unit = self:GetInspectUnit();
         local playerName = UnitName(unit);
-        local specID = GetInspectSpecialization(unit);
+        local specID = C_SpecializationInfo.GetInspectSpecialization(unit);
 		local classDisplayName, class = UnitClass(unit);
         playerName = playerName or "Unknown Player";
 

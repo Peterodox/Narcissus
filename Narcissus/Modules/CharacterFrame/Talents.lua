@@ -140,8 +140,8 @@ function NarciTalentsMixin:UpdateAllTalents()
         button:Show();
     end
 
-    local specIndex = GetSpecialization() or 1;
-	local _, _, _, specIcon = GetSpecializationInfo(specIndex);
+    local specIndex = C_SpecializationInfo.GetSpecialization() or 1;
+	local _, _, _, specIcon = C_SpecializationInfo.GetSpecializationInfo(specIndex);
 
     navBar.specIcon = specIcon;
     if navBar.cycledTabIndex == 0 then

@@ -125,7 +125,7 @@ local ItemTypes = {
     Gun = {2, 3, 2508},
     Mace1H = {2, 4, 36},
     Mace2H = {2, 5, 2361},
-    Polearm = {2, 6, 57243},
+    Polearm = {2, 6, 5200},
     Sword1H = {2, 7, 25},
     Sword2H = {2, 8, 2489},
     Warglaive = {2, 9, 112458},
@@ -148,7 +148,8 @@ for key, data in pairs(ItemTypes) do
         local guid = toGUID(classID, subclassID);
         typeIDKeys[guid] = key;
     else
-        print("Item: "..itemID.." no longer exists");
+        --itemID = data[3];
+        --print("Item: "..itemID.." no longer exists", itemID); -- Debug
     end
 end
 
