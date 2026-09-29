@@ -128,13 +128,13 @@ NarciAPI.GetSlotVisualID = NarciAPI_GetSlotVisualID;
 
 local function GetItemEnchantID(itemLink)
     if itemLink then
-        local _, _, _, linkType, linkID, enchantID = strsplit(":|H", itemLink);
-        return tonumber(enchantID) or 0;
-    else
-        return 0
+        local enchantID = match(itemLink, "item:%d+:(%d+)");
+        enchantID = tonumber(enchantID);
+        if enchantID ~= 0 then
+            return enchantID;
+        end
     end
 end
-
 NarciAPI.GetItemEnchantID = GetItemEnchantID;
 
 
@@ -232,7 +232,7 @@ function NarciAPI_GetItemStats(itemLocation)
     end
 
     local enchantID = GetItemEnchantID(itemLink);
-    if enchantID ~= 0 and EnchantInfo[enchantID] then
+    if enchantID and EnchantInfo[enchantID] then
         local data = EnchantInfo[enchantID]
         statsTable.EnchantPos = data[1];
         if data[1] == "crit" then
