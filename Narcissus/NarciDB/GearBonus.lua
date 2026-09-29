@@ -1,4 +1,12 @@
-local L = Narci.L;
+local _, addon = ...
+
+
+---@alias enchantID number enchantID
+---@alias attribute string Attribute abbreviation
+---@alias amount number The amount of the bonus attribute
+---@alias craftingSpellID number The spellID of the Enchanting recipe
+---@alias enchantScrollItemID number The Enchanting Vellum that holds the enchant
+
 
 local GemData = {
     --[itemID] = {"attribute", amount},
@@ -63,6 +71,16 @@ local GemData = {
 
 Narci.GemData = GemData;
 
+---@class EnchantInfo dwda
+---@field [1] attribute
+---@field [2] amount
+---@field [3] craftingSpellID
+---@field [4] enchantScrollItemID?
+
+---@class NarcissusEnchantData
+---@field [enchantID] EnchantInfo
+
+---@type NarcissusEnchantData
 local EnchantData= {
     --[enchantID] = {"attribute", amount, craftingSpellID, [itemID]},  --need to be parsed from itemstring
 
@@ -127,7 +145,6 @@ local EnchantData= {
     [6208] = {"stamina", 30, 323755},       --Soul Vitality
 
 
-
     ----8 BFA----
     ----Ring----
     [5938] = {"crit", 4, 255094},          --Seal of Critical Strike
@@ -172,7 +189,7 @@ local EnchantData= {
     [5428] = {"haste", 3, 190871},          --Binding of Haste
     [5429] = {"mastery", 3, 190872},        --Binding of Mastery
     [5430] = {"versatility", 3, 190873},    --Binding of Versatility
-    
+
     ----Cloak----
     [5431] = {"STR", 2, 190874},            --Word of Strength
     [5432] = {"AGI", 2, 190875},            --Word of Agility
@@ -181,8 +198,7 @@ local EnchantData= {
     [5434] = {"STR", 3, 190877},            --Binding of Strength
     [5435] = {"AGI", 3, 190878},            --Binding of Agility
     [5436] = {"INT", 3, 190879},            --Binding of Intellect
-    
-}
+};
 
 Narci.EnchantData = EnchantData;
 
@@ -194,6 +210,7 @@ NarciAPI.GetEnchantDataByEnchantID = GetEnchantDataByEnchantID;
 
 
 local TypeAbbr = {
+    undefined = "enh", -- Undefined Enhancement
 	crit = "cri",	  --CRI
 	haste = "has",	 --HAS
 	mastery = "mst", --MST
@@ -262,14 +279,14 @@ for attribute, abbr in pairs(TypeAbbr) do
 end
 
 local function GetVerticalRunicLetters(attributeType)
-    return RunicLetters[attributeType];
+    return RunicLetters[attributeType] or RunicLetters.undefined;
 end
 
 local function GetAttributeAbbrByEnchantID(enchantID)
     if EnchantData[enchantID] then
-        return TypeAbbr[ EnchantData[enchantID][1] ]
+        return TypeAbbr[ EnchantData[enchantID][1] ];
     else
-        return "enh"
+        return TypeAbbr.undefined;
     end
 end
 
