@@ -56,6 +56,7 @@ Modules\CharacterFrame\ItemCooldown.xml
 Modules\CharacterFrame\Attributes.xml
 Modules\CharacterFrame\StatsChart.xml
 Modules\CharacterFrame\ItemAlertOverlay.xml
+Modules\CharacterFrame\EquipmentSlot.xml
 Modules\MsgAlert\Alert.xml
 Modules\ScreenshotTool\ScreenshotTool.xml
 Modules\MinimapButton\MinimapButton.xml

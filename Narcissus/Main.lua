@@ -27,9 +27,7 @@ local SHOW_MISSING_ENCHANT_ALERT = true;
 local IS_LEGION_REMIX = false;
 
 local NarciAPI = NarciAPI;
-local GetItemEnchantID = NarciAPI.GetItemEnchantID;
 local GetItemEnchantText = NarciAPI.GetEnchantTextByItemLink;
-local EnchantInfo = Narci.EnchantData;						--Bridge/GearBonus.lua
 local GetOverrideItemIcon = NarciAPI.GetOverrideItemIcon;
 
 local PlayLetteboxAnimation = NarciAPI_LetterboxAnimation;
@@ -37,7 +35,6 @@ local SmartFontType = NarciAPI.SmartFontType;
 local IsItemSocketable = NarciAPI.IsItemSocketable;
 local SetBorderTexture = NarciAPI.SetBorderTexture;
 local GetBorderArtByItemID = NarciAPI.GetBorderArtByItemID;
-local GetVerticalRunicLetters = NarciAPI.GetVerticalRunicLetters;
 local FadeFrame = NarciFadeUI.Fade;
 
 local outSine = addon.EasingFunctions.outSine;
@@ -549,64 +546,6 @@ local function SetItemSocketingFramePosition(self)		--Let ItemSocketingFrame app
 	end
 end
 
-local IsItemEnchantable = {
-	[11] = true,
-	[12] = true,
-	[16] = true,
-	[17] = true,
-	[5]  = true,
-
-	[8] = true,
-	[9] = true,
-	[10] = true,
-	[15] = true,
-};
-
-local function DisplayRuneSlot(equipmentSlot, slotID, itemQuality, itemLink)
-	--! RuneSlot.Background is disabled
-	if not equipmentSlot.RuneSlot then
-		return;
-	elseif (itemQuality == 0) or (not itemLink) then
-		equipmentSlot.RuneSlot:Hide();
-		return;
-	end
-
-	if IsItemEnchantable[slotID] then
-		equipmentSlot.RuneSlot:Show();
-	else
-		equipmentSlot.RuneSlot:Hide();
-		return;
-	end
-
-	local enchantID = GetItemEnchantID(itemLink);
-	if enchantID ~= 0 then
-		equipmentSlot.RuneSlot.RuneLetter:Show();
-		if EnchantInfo[enchantID] then
-			equipmentSlot.RuneSlot.RuneLetter:SetText( GetVerticalRunicLetters( EnchantInfo[enchantID][1] ) );
-			equipmentSlot.RuneSlot.spellID = EnchantInfo[enchantID][3]
-		end
-	else
-		equipmentSlot.RuneSlot.spellID = nil;
-		equipmentSlot.RuneSlot.RuneLetter:Hide();
-	end
-end
-
-function Narci_RuneButton_OnEnter(self)
-	local spellID = self.spellID;
-	if (not spellID) then
-		return;
-	end
-	DefaultTooltip:SetOwner(self, "ANCHOR_NONE");
-	if self:GetParent().isRight then
-		DefaultTooltip:SetPoint("TOPRIGHT", self, "TOPLEFT", 8, 8);
-	else
-		DefaultTooltip:SetPoint("TOPLEFT", self, "TOPRIGHT", 0, 8);
-	end
-	DefaultTooltip:SetSpellByID(spellID);
-	DefaultTooltip:Show();
-	DefaultTooltip:FadeIn();
-end
-
 ---------------------------------------------------
 local function GetTraitsIcon(itemLocation)
     if not itemLocation then return; end
@@ -1061,10 +1000,10 @@ function NarciEquipmentSlotMixin:Refresh(forceRefresh)
 					gemName, gemLink = IsItemSocketable(itemLink);
 				end
 			end
-			
+
 			self.GemSlot.ItemLevel = effectiveLvl;
 			self.gemLink = gemLink;		--Later used in OnEnter func in NarciSocketing.lua
-			
+
 			if slotID == 2 then
 				isAzeriteItem = C_AzeriteItem.IsAzeriteItem(itemLocation);
 				self.isAzeriteItem = isAzeriteItem;
@@ -1135,7 +1074,9 @@ function NarciEquipmentSlotMixin:Refresh(forceRefresh)
 
 			--Enchant Frame--
 			if itemQuality then	--and not isRuneforgeLegendary
-				DisplayRuneSlot(self, slotID, itemQuality, itemLink);
+				self.RuneSlot:SetEquipmentItemLink(itemLink);
+			else
+				self.RuneSlot:Hide();
 			end
 
 			--Item Visual Effects
@@ -1167,7 +1108,7 @@ function NarciEquipmentSlotMixin:Refresh(forceRefresh)
 		itemIcon = self.emptyTexture;
 		itemName = " " ;
 		effectiveLvl = "";
-		DisplayRuneSlot(self, slotID, 0);
+		self.RuneSlot:Hide();
 	end
 
 	self.itemQuality = itemQuality;
@@ -1824,9 +1765,7 @@ function NarciEquipmentFlyoutButtonMixin:SetUp(maxItemLevel)
 	self.ItemLevelCenter.ItemLevel:SetText(itemLevel);
 	self.ItemLevelCenter:Show();
 
-	if itemLink then
-		DisplayRuneSlot(self, self.slotID, itemQuality, itemLink);
-	end
+	self.RuneSlot:SetEquipmentItemLink(itemLink);
 end
 
 function NarciEquipmentFlyoutButtonMixin:HideButton()
@@ -2791,7 +2730,7 @@ EL:SetScript("OnEvent",function(self, event, ...)
 		Narci_HeartofAzeroth_AnimFrame.Quote:SetText(L["Heart Azerite Quote"]);
 
 		UpdateXmogName();
-		DefaultTooltip = NarciGameTooltip;	--Created in Module\GameTooltip.lua
+		DefaultTooltip = NarciGameTooltip;
 		if not ItemTooltip then
 			ItemTooltip = DefaultTooltip;
 		end

@@ -451,3 +451,16 @@ local TooltipLines = {
 function DataProvider:GetItemTooltipLines(itemID)
     return TooltipLines.Generic
 end
+
+function DataProvider:GetSpellIDByEnchantID(enchantID)
+    if not self.enchantIDXSpellID then
+        local tbl = {};
+        self.enchantIDXSpellID = tbl;
+        for _, v in pairs(enchantData) do
+            for _, enchantInfo in ipairs(v) do
+                tbl[ enchantInfo[3] ] = enchantInfo[1];
+            end
+        end
+    end
+    return self.enchantIDXSpellID[enchantID];
+end

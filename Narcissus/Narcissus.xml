@@ -1,59 +1,6 @@
 <Ui xsi:schemaLocation="http://www.blizzard.com/wow/ui/..\FrameXML\UI.xsd">
     <Script file="Main.lua"/>
 
-	<Button name="NarciRuneSlotTemplate" parentKey="RuneSlot" useParentLevel="true" hidden="true" virtual="true">
-		<Scripts>
-			<OnEnter function="Narci_RuneButton_OnEnter"/>
-			<OnLeave>
-				Narci:HideButtonTooltip();
-			</OnLeave>
-		</Scripts>
-	</Button>
-
-	<Button name="NarciRuneSlotLeftTemplate" inherits="NarciRuneSlotTemplate" virtual="true">
-		<Size x="30" y="30"/>
-		<HitRectInsets>
-			<AbsInset left="6" right="8" top="-4" bottom="-4"/>
-		</HitRectInsets>
-		<Layers>
-			<Layer level="OVERLAY" textureSubLevel="4">
-				<FontString inherits="NarciRuneFont" parentKey="RuneLetter" Alpha="1" hidden="true" justifyH="CENTER">
-					<Anchors>
-						<Anchor point="CENTER" relativeKey="$parent" relativePoint="CENTER" x="0" y="0"/>
-					</Anchors>
-					<Shadow>
-						<Offset>
-							<AbsDimension x="-0.8" y="-0.6"/>
-						</Offset>
-						<Color a="1" r="0.8" g="0.8" b="0.8"/>
-					</Shadow>
-				</FontString>	
-			</Layer>
-		</Layers>
-	</Button>
-
-	<Button name="NarciRuneSlotRightTemplate" inherits="NarciRuneSlotTemplate" virtual="true">
-		<Size x="30" y="30"/>
-		<HitRectInsets>
-			<AbsInset left="8" right="6" top="-4" bottom="-4"/>
-		</HitRectInsets>
-		<Layers>
-			<Layer level="OVERLAY" textureSubLevel="4">
-				<FontString inherits="NarciRuneFont" parentKey="RuneLetter" Alpha="1" hidden="true" justifyH="CENTER"> <!--&#x000A;ᛏ-->
-					<Anchors>
-						<Anchor point="CENTER" relativeKey="$parent" relativePoint="CENTER" x="2" y="0"/>
-					</Anchors>
-					<Shadow>
-						<Offset>
-							<AbsDimension x="0.8" y="-0.6"/>
-						</Offset>
-						<Color a="1" r="0.8" g="0.8" b="0.8"/>
-					</Shadow>
-				</FontString>
-			</Layer>
-		</Layers>
-	</Button>
-
 	<Button name="NarciSlotButtonTemplate" registerForClicks="LeftButtonUp, RightButtonDown, RightButtonUp" virtual="true" frameLevel="6" inherits="SecureActionButtonTemplate" mixin="NarciItemButtonSharedMixin"> <!--inherits="SecureActionButtonTemplate"  inherits="SecureHandlerClickTemplate" -->
 		<Size>
 			<AbsDimension x="70" y="72"/>
@@ -209,14 +156,14 @@
 			<OnEvent method="OnEvent"/>
 		</Scripts>
 		<Frames>
-			<Button inherits="NarciRuneSlotRightTemplate">
+			<Button inherits="NarciRuneSlotTemplate">
+				<KeyValues>
+					<KeyValue key="orientation" value="right" type="string"/>
+					<KeyValue key="isFlyoutButton" value="true" type="boolean"/>
+				</KeyValues>
 				<Anchors>
-					<Anchor point="RIGHT" relativeKey="$parent" x="4" y="0"/>
+					<Anchor point="RIGHT" relativeKey="$parent" x="-4" y="0"/>
 				</Anchors>
-				<Scripts>
-					<OnEnter/>
-					<OnLeave/>
-				</Scripts>
 			</Button>
 		</Frames>
 		<Animations>
@@ -298,9 +245,12 @@
 					<AbsInset left="2" right="8" top="4" bottom="4"/>
 				</HitRectInsets>
 			</Button>
-			<Button inherits="NarciRuneSlotLeftTemplate">
+			<Button inherits="NarciRuneSlotTemplate">
+				<KeyValues>
+					<KeyValue key="orientation" value="left" type="string"/>
+				</KeyValues>
 				<Anchors>
-					<Anchor point="LEFT" relativeKey="$parent" relativePoint="LEFT" x="-4" y="0"/>
+					<Anchor point="LEFT" relativeKey="$parent" relativePoint="LEFT" x="4" y="0"/>
 				</Anchors>
 			</Button>
 		</Frames>
@@ -376,9 +326,12 @@
 					</OnLoad>
 				</Scripts>
 			</Button>
-			<Button inherits="NarciRuneSlotRightTemplate">
+			<Button inherits="NarciRuneSlotTemplate">
+				<KeyValues>
+					<KeyValue key="orientation" value="right" type="string"/>
+				</KeyValues>
 				<Anchors>
-					<Anchor point="RIGHT" relativeKey="$parent" x="4" y="0"/>
+					<Anchor point="RIGHT" relativeKey="$parent" x="-4" y="0"/>
 				</Anchors>
 			</Button>
 		</Frames>
