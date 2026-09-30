@@ -2882,7 +2882,7 @@ do
         end
     end
 
-    local function ConfirmBinding()
+    function NarciAPI.ConfirmBinding()
         if not BindHelper then
             BindHelper = CreateFrame("Frame");
             BindHelper:Hide();
@@ -2935,7 +2935,6 @@ do
         BindHelper.pending = true;
         BindHelper:Show();
     end
-    addon.ConfirmBinding = ConfirmBinding;
 end
 
 local function DoesItemExistByID(itemID)

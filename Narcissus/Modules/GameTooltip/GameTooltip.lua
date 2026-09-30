@@ -913,7 +913,7 @@ function NarciEquipmentTooltipMixin:SetTransmogSource(appliedSourceID)
             end
         else
             if sourceInfo.sourceType then
-                sourceText = addon.TransitionAPI.GetTransmogSourceName(sourceInfo.sourceType);
+                sourceText = TransmogDataProvider.GetTransmogSourceName(sourceInfo.sourceType);
             end
         end
 

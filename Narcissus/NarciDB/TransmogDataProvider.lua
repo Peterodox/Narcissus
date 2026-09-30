@@ -313,6 +313,82 @@ end
 
 
 
+function DataProvider.GetTransmogSourceName(sourceType)
+    --sourceType matches the TRANSMOG_SOURCE_# index (same on Standard and Forever)
+    return sourceType and _G["TRANSMOG_SOURCE_".. sourceType]
+end
+
+function DataProvider.GetFormattedSourceText(sourceInfo)
+	local sourceType = sourceInfo.sourceType;
+	local itemQuality = sourceInfo.quality or 1;
+	local hex = NarciAPI.GetItemQualityHexColor(itemQuality);
+	local difficulty;
+	local bonusID;
+	local colorizedText, plainText, hyperlink;
+
+	--/dump Enum.TransmogSource
+
+	if sourceType == 1 then	--TRANSMOG_SOURCE_BOSS_DROP = 1
+		local drops = C_TransmogCollection.GetAppearanceSourceDrops(sourceInfo.sourceID);
+		if drops and drops[1] then
+			colorizedText = drops[1].encounter.." ".."|cFFFFD100"..drops[1].instance.."|r";
+			plainText = drops[1].encounter.." "..drops[1].instance;
+
+			if sourceInfo.itemModID == 0 then 
+				difficulty = PLAYER_DIFFICULTY1;
+				bonusID = 3561;
+				hyperlink = "|c"..hex.."|Hitem:"..sourceInfo.itemID.."::::::::120::::2:356".."1"..":1476:|h|r";
+			elseif sourceInfo.itemModID == 1 then 
+				difficulty = PLAYER_DIFFICULTY2;
+				bonusID = 3562;
+				hyperlink = "|c"..hex.."|Hitem:"..sourceInfo.itemID.."::::::::120::::2:356".."2"..":1476:|h|r";
+			elseif sourceInfo.itemModID == 3 then 
+				difficulty = PLAYER_DIFFICULTY6;
+				bonusID = 3563;
+				hyperlink = "|c"..hex.."|Hitem:"..sourceInfo.itemID.."::::::::120::::2:356".."3"..":1476:|h|r";
+			elseif sourceInfo.itemModID == 4 then
+				difficulty = PLAYER_DIFFICULTY3;
+				bonusID = 3564;
+				hyperlink = "|c"..hex.."|Hitem:"..sourceInfo.itemID.."::::::::120::::2:356".."4"..":1476:|h|r";
+			end
+
+			if difficulty then
+				colorizedText = colorizedText.." |CFFf8e694"..difficulty.."|r";
+				plainText = plainText.." "..difficulty;
+			end
+		end
+	else
+		if sourceType == 2 then --quest
+			if sourceInfo.itemModID == 3 then 
+				hyperlink= "|c"..hex.."|Hitem:"..sourceInfo.itemID.."::::::::120::::2:512".."6"..":1562:|h|r";
+				bonusID = 5126;
+			elseif sourceInfo.itemModID == 2 then 
+				hyperlink = "|c"..hex.."|Hitem:"..sourceInfo.itemID.."::::::::120::::2:512".."5"..":1562:|h|r";
+				bonusID = 5125;
+			elseif sourceInfo.itemModID == 1 then 
+				hyperlink = "|c"..hex.."|Hitem:"..sourceInfo.itemID.."::::::::120::::2:512".."4"..":1562:|h|r";
+				bonusID = 5124;
+			end
+		end
+	end
+
+    if not plainText then
+        plainText = DataProvider.GetTransmogSourceName(sourceType);
+    end
+
+    if not colorizedText then
+        colorizedText = plainText;
+    end
+
+	if not hyperlink then
+		hyperlink = "|c"..hex.."|Hitem:"..sourceInfo.itemID..":|h|r";
+	end
+
+	return colorizedText, plainText, hyperlink;
+end
+
+
+
 
 ---- Read BetterWardrobe Extra Saved Outfits ----
 local function IsBWDatabaseValid()
