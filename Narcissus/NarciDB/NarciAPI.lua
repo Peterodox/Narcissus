@@ -1269,7 +1269,7 @@ end
 --------------------
 --UI 3D Animation---
 --------------------
-Narci.AnimSequenceInfo = 
+Narci.AnimSequenceInfo =
 {	["Controller"] = {
 		["TotalFrames"] = 30,
 		["cX"] = 0.205078125,
@@ -1277,14 +1277,6 @@ Narci.AnimSequenceInfo =
 		["Column"] = 4,
 		["Row"] = 8,
 	},
-
-	["Heart"] = {
-		["TotalFrames"] = 28,
-		["cX"] = 0.25,
-		["cY"] = 0.140625,
-		["Column"] = 4,
-		["Row"] = 7,
-    },
 
 	["ActorPanel"] = {
 		["TotalFrames"] = 26,

@@ -1561,60 +1561,6 @@ local function AnimationContainer_OnHide(self)
 	end
 end
 
-local PlayAnimationSequence = NarciAPI_PlayAnimationSequence;
-
-local ASC2 = CreateFrame("Frame", "AnimationSequenceContainer_Heart");
-ASC2.Delay = 5;
-ASC2.IsPlaying = false;
-ASC2:Hide();
-
-local function Generic_AnimationSequence_OnUpdate(self, elapsed)
-	if self.Pending then
-		return;
-	end
-
-	self.totalTime = self.totalTime + elapsed;
-	if (not self.OppoDirection and self.totalTime < self.Delay) and (not self.IsPlaying) then
-		return;
-	elseif not self.IsPlaying then
-		if not self.OppoDirection then		--box closing
-			FadeFrame(Narci_HeartofAzeroth_AnimFrame, 0.25, 1)
-			After(0.3, function()
-				Narci_HeartofAzeroth_AnimFrame.Background:SetAlpha(1);
-				Narci_HeartofAzeroth_AnimFrame.Quote:SetAlpha(1);
-				Narci_HeartofAzeroth_AnimFrame.SN:SetAlpha(1);
-			end)
-		end
-		self.IsPlaying = true;
-	end
-	
-	self.t = self.t + elapsed;
-
-	if self.t >= 0.01666 then
-		self.t = 0;
-		if self.OppoDirection then
-			self.Index = self.Index - 1;
-		else
-			self.Index = self.Index + 1;
-		end
-
-		if not PlayAnimationSequence(self.Index, self.SequenceInfo, self.Target) then
-			self:Hide()
-			self.IsPlaying = false;
-			if not self.OppoDirection then
-				Narci_HeartofAzeroth_AnimFrame.Background:SetAlpha(0);
-				Narci_HeartofAzeroth_AnimFrame.Quote:SetAlpha(0);
-				Narci_HeartofAzeroth_AnimFrame.SN:SetAlpha(0);
-				FadeFrame(Narci_HeartofAzeroth_AnimFrame, 0.25, 0)
-			end
-			return;
-		end
-	end
-end
-
-ASC2:SetScript("OnUpdate", Generic_AnimationSequence_OnUpdate);
-ASC2:SetScript("OnHide", AnimationContainer_OnHide);
-
 
 --Static Events
 EL:RegisterEvent("PLAYER_ENTERING_WORLD");
@@ -1637,11 +1583,6 @@ EL:SetScript("OnEvent",function(self, event, ...)
 			UpdateXmogName();
 		end)
 
-		local AnimSequenceInfo = Narci.AnimSequenceInfo;
-		InitializeAnimationContainer(ASC2, AnimSequenceInfo["Heart"], Narci_HeartofAzeroth_AnimFrame.Sequence)
-		local HeartSerialNumber = strsub(UnitGUID("player"), 8, 15);
-		Narci_HeartofAzeroth_AnimFrame.SN:SetText("No."..HeartSerialNumber);
-		Narci_HeartofAzeroth_AnimFrame.Quote:SetText(L["Heart Azerite Quote"]);
 
 		UpdateXmogName();
 		DefaultTooltip = NarciGameTooltip;
