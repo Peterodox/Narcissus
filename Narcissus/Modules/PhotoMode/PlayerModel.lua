@@ -1036,67 +1036,37 @@ end
 
 local function ShowTextAlphaChannel(state, doNotShowModel)
 	--Text Mask
-    local slotTable = Narci_Character.slotTable;
-    if not (slotTable) then
-        return;
-    end
+    local slotTable = Narci.slotTable;
+    if not slotTable then return; end
 
-	local theme = NarcissusDB.BorderTheme;
-	local borderMask;
-	local shadowAlpha = false;
-	local runeAlpha = 1;
-	if theme == "Bright" then
-		borderMask = "Interface/AddOns/Narcissus/Art/Masks/HexagonThin-Mask";
-	elseif theme == "Dark" then
-		borderMask = "Interface/AddOns/Narcissus/Art/Masks/HexagonThick-Mask";
-		shadowAlpha = true;
-		runeAlpha = 0;
-	end
-
-	local slot, sourcePlainText, tempText;
+	local sourcePlainText, tempText;
 	if state then
-		for i=1, #slotTable do
-			slot = slotTable[i];
-			if slot then
-				--slotTable[i].Name:SetFont(font, Height);
-				if slot.RuneSlot then
-					--slot.RuneSlot.AlphaChannelRune:Show();
-					--slot.RuneSlot.Background:SetAlpha(runeAlpha);
-				end
-				slot.GradientBackground:SetColorTexture(1, 1, 1);
-				slot.Name:SetTextColor(1, 1, 1);
-				slot.Name:SetShadowColor(1, 1, 1);
-				tempText = slot.Name:GetText();
-				slot.Name:SetText(" ");		--IDK why shadow color won't be updated until the text got
-				slot.Name:SetText(tempText);
-				sourcePlainText = slot.sourcePlainText;
-				if sourcePlainText then
-					slot.ItemLevel:SetText(" ");
-					slot.ItemLevel:SetText(sourcePlainText);
-				end
-				slot.ItemLevel:SetTextColor(1, 1, 1);
-				slot.ItemLevel:SetShadowColor(1, 1, 1);
-				slot:ShowAlphaChannel();
+		for _, slot in pairs(slotTable) do
+			slot.GradientBackground:SetColorTexture(1, 1, 1);
+			slot.Name:SetTextColor(1, 1, 1);
+			slot.Name:SetShadowColor(1, 1, 1);
+			tempText = slot.Name:GetText();
+			slot.Name:SetText(" ");		--IDK why shadow color won't be updated until the text got
+			slot.Name:SetText(tempText);
+			sourcePlainText = slot.sourcePlainText;
+			if sourcePlainText then
+				slot.ItemLevel:SetText(" ");
+				slot.ItemLevel:SetText(sourcePlainText);
 			end
+			slot.ItemLevel:SetTextColor(1, 1, 1);
+			slot.ItemLevel:SetShadowColor(1, 1, 1);
+			slot:ShowAlphaChannel();
 		end
 		ModelContainer:Hide();
 		Narci_XmogNameFrame:Hide();
 		Narci_Character:SetAlpha(1);
 		Narci_Character:Show();
 	else
-		for i=1, #slotTable do
-			slot = slotTable[i];
-			if slot then
-				--slotTable[i].Name:SetFont(font, Height);
-				if slot.RuneSlot then
-					--slot.RuneSlot.AlphaChannelRune:Hide();
-					--slot.RuneSlot.Background:SetAlpha(runeAlpha);
-				end
-				slot.GradientBackground:SetColorTexture(0, 0, 0);
-				slot.Name:SetShadowColor(0, 0, 0);
-				slot.ItemLevel:SetShadowColor(0, 0, 0);
-				slot:Refresh();
-			end
+		for _, slot in pairs(slotTable) do
+			slot.GradientBackground:SetColorTexture(0, 0, 0);
+			slot.Name:SetShadowColor(0, 0, 0);
+			slot.ItemLevel:SetShadowColor(0, 0, 0);
+			slot:Refresh();
 		end
 
 		if not doNotShowModel then
