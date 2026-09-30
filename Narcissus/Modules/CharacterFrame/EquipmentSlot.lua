@@ -727,6 +727,10 @@ do
         self:SetScript("OnLoad", nil);
         self.OnLoad = nil;
 
+        if self.orientation then
+            self:SetOrientation(self.orientation);
+        end
+
         local slotName = self.slotName;
         local slotID, textureName = GetInventorySlotInfo(slotName);
         self.emptyTexture = textureName;
@@ -943,6 +947,46 @@ do
     function EquipmentSlotMixin:HideVFX()
         if self.VFX then
             self.VFX:Remove();
+        end
+    end
+
+    ---@param orientation WidgetOrientation
+    function EquipmentSlotMixin:SetOrientation(orientation)
+        self.isRight = orientation == "right";
+        self.RuneSlot:SetOrientation(orientation);
+
+        -- for Right Slot: rune, gem are shown on the right, item name and level on the left
+        local alpha00 = CreateColor(0, 0, 0, 0);
+        local alpha80 = CreateColor(0, 0, 0, 0.8);
+        self.GradientBackground:ClearAllPoints();
+        self.Name:ClearAllPoints();
+        self.ItemLevel:ClearAllPoints();
+        self.GemSlot:ClearAllPoints();
+
+        if self.isRight then
+            self.GradientBackground:SetPoint("RIGHT", self, "LEFT", 32, 0);
+            self.GradientBackground:SetGradient("HORIZONTAL", alpha00, alpha80);
+            self.Name:SetPoint("TOPRIGHT", self.GradientBackground, "TOPRIGHT", -30, -7);
+            self.Name:SetJustifyH("RIGHT");
+            self.ItemLevel:SetPoint("BOTTOMRIGHT", self.GradientBackground, "BOTTOMRIGHT", -30, 6);
+            self.ItemLevel:SetJustifyH("RIGHT");
+            self.GemSlot:SetPoint("LEFT", self, "RIGHT", -11, 0);
+            self.GemSlot:SetHitRectInsets(8, 2, 4, 4);
+            self.GemSlot.GemBorder:SetTexCoord(1, 0, 0, 1);
+            self.GemSlot.GemBorderShadow:SetTexCoord(1, 0, 0, 1);
+            self.animOut.Translation1:SetOffset(120, 0);
+        else
+            self.GradientBackground:SetPoint("LEFT", self, "RIGHT", -32, 0);
+            self.GradientBackground:SetGradient("HORIZONTAL", alpha80, alpha00);
+            self.Name:SetPoint("TOPLEFT", self.GradientBackground, "TOPLEFT", 30, -7);
+            self.Name:SetJustifyH("LEFT");
+            self.ItemLevel:SetPoint("BOTTOMLEFT", self.GradientBackground, "BOTTOMLEFT", 30, 6);
+            self.ItemLevel:SetJustifyH("LEFT");
+            self.GemSlot:SetPoint("RIGHT", self, "LEFT", 11, 0);
+            self.GemSlot:SetHitRectInsets(2, 8, 4, 4);
+            self.GemSlot.GemBorder:SetTexCoord(0, 1, 0, 1);
+            self.GemSlot.GemBorderShadow:SetTexCoord(0, 1, 0, 1);
+            self.animOut.Translation1:SetOffset(-120, 0);
         end
     end
 end

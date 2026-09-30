@@ -2,155 +2,15 @@
     <Script file="Main.lua"/>
 
 	<Button name="NarciSlotButtonLeftTemplate" inherits="NarciEquipmentSlotButtonTemplate" virtual="true"> 
-		<Layers>
-			<Layer level="BACKGROUND">
-				<Texture setAllPoints="true" parentKey="GradientBackground">
-					<Size x="140" y="40"/>
-					<Color r="0" g="0" b="0" a="1"/>
-					<Anchors>
-						<Anchor point="LEFT" relativeKey="$parent" relativePoint="RIGHT" x="-32" y="0"/>
-					</Anchors>
-					<Gradient orientation="HORIZONTAL">
-						<MinColor a="0.8" r="1" g="1" b="1"/>
-						<MaxColor a="0" r="1" g="1" b="1"/>
-					</Gradient>
-				</Texture>
-			</Layer>
-			<Layer level="OVERLAY">
-				<FontString parentKey="Name" inherits="NarciFontItemName" justifyH="LEFT" justifyV="TOP" maxLines="2">
-					<Size x="0" y="0"/>
-					<Anchors>
-						<Anchor point="TOPLEFT" relativeKey="$parent.GradientBackground" relativePoint="TOPLEFT" x="30" y="-7"/>
-					</Anchors>
-					<Animations>
-						<AnimationGroup parentKey="anim1">
-							<Alpha fromAlpha="1" toAlpha="0" duration="0.2" order="1"/>
-						</AnimationGroup>
-						<AnimationGroup parentKey="anim2">
-							<Alpha fromAlpha="0" toAlpha="1" duration="0.2" order="1"/>
-						</AnimationGroup>
-					</Animations>
-				</FontString>
-				<FontString parentKey="ItemLevel" inherits="NarciFontNormal10White" justifyH="LEFT" justifyV="TOP" maxLines="2">
-					<Size x="0" y="0"/>
-					<Anchors>
-						<Anchor point="BOTTOMLEFT" relativeKey="$parent.GradientBackground" relativePoint="BOTTOMLEFT" x="30" y="6"/>
-					</Anchors>
-					<Animations>
-						<AnimationGroup parentKey="anim1">
-							<Alpha fromAlpha="1" toAlpha="0" duration="0.2" order="1"/>
-						</AnimationGroup>
-						<AnimationGroup parentKey="anim2">
-							<Alpha fromAlpha="0" toAlpha="1" duration="0.2" order="1"/>
-						</AnimationGroup>
-					</Animations>
-				</FontString>
-			</Layer>
-		</Layers>
-		<Frames>
-			<Button inherits="NarciClickableGemSlotTemplate">
-				<Anchors>
-					<Anchor point="RIGHT" relativeKey="$parent" relativePoint="LEFT" x="11" y="0"/>
-				</Anchors>
-				<HitRectInsets>
-					<AbsInset left="2" right="8" top="4" bottom="4"/>
-				</HitRectInsets>
-			</Button>
-			<Button inherits="NarciRuneSlotTemplate">
-				<KeyValues>
-					<KeyValue key="orientation" value="left" type="string"/>
-				</KeyValues>
-				<Anchors>
-					<Anchor point="LEFT" relativeKey="$parent" relativePoint="LEFT" x="4" y="0"/>
-				</Anchors>
-			</Button>
-		</Frames>
-		<Animations>
-			<AnimationGroup parentKey="animOut">
-				<Translation smoothing="IN" offsetX="-120" duration="0.6" order="1"/>
-			</AnimationGroup>
-		</Animations>
+		<KeyValues>
+			<KeyValue key="orientation" value="left" type="string"/>
+		</KeyValues>
 	</Button>
 
 	<Button name="NarciSlotButtonRightTemplate" inherits="NarciEquipmentSlotButtonTemplate" virtual="true">
 		<KeyValues>
-			<KeyValue key="isRight" value="true" type="boolean"/>
+			<KeyValue key="orientation" value="right" type="string"/>
 		</KeyValues>
-		<Layers>
-			<Layer level="BACKGROUND">
-				<Texture setAllPoints="true" parentKey="GradientBackground">
-					<Size x="140" y="40" />
-					<Color r="0" g="0" b="0" a="1"/>
-					<Anchors>
-						<Anchor point="RIGHT" relativeKey="$parent" relativePoint="LEFT" x="32" y="0"/>
-					</Anchors>
-					<Gradient orientation="HORIZONTAL">
-						<MinColor a="0" r="1" g="1" b="1"/>
-						<MaxColor a="0.8" r="1" g="1" b="1"/>
-					</Gradient>
-				</Texture>
-			</Layer>	
-			<Layer level="OVERLAY">
-				<FontString parentKey="Name" inherits="NarciFontItemName" justifyH="RIGHT" justifyV="TOP" maxLines="2">
-					<Size x="0" y="0"/>
-					<Anchors>
-						<Anchor point="TOPRIGHT" relativeKey="$parent.GradientBackground" relativePoint="TOPRIGHT" x="-30" y="-7"/>
-					</Anchors>
-					<Animations>
-						<AnimationGroup parentKey="anim1">
-							<Alpha fromAlpha="1" toAlpha="0" duration="0.2" order="1"/>
-						</AnimationGroup>
-						<AnimationGroup parentKey="anim2">
-							<Alpha fromAlpha="0" toAlpha="1" duration="0.2" order="1"/>
-						</AnimationGroup>
-					</Animations>
-				</FontString>
-				<FontString parentKey="ItemLevel" inherits="NarciFontNormal10White" justifyH="RIGHT" justifyV="TOP" maxLines="2">
-					<Size x="0" y="0"/>
-					<Anchors>
-						<Anchor point="BOTTOMRIGHT" relativeKey="$parent.GradientBackground" relativePoint="BOTTOMRIGHT" x="-30" y="6"/>
-					</Anchors>
-					<Animations>
-						<AnimationGroup parentKey="anim1">
-							<Alpha fromAlpha="1" toAlpha="0" duration="0.2" order="1"/>
-						</AnimationGroup>
-						<AnimationGroup parentKey="anim2">
-							<Alpha fromAlpha="0" toAlpha="1" duration="0.2" order="1"/>
-						</AnimationGroup>
-					</Animations>
-				</FontString>
-			</Layer>
-		</Layers>
-		<Frames>
-			<Button inherits="NarciClickableGemSlotTemplate">
-				<Anchors>
-					<Anchor point="LEFT" relativeKey="$parent" relativePoint="RIGHT" x="-11" y="0"/>
-				</Anchors>
-				<HitRectInsets>
-					<AbsInset left="8" right="2" top="4" bottom="4"/>
-				</HitRectInsets>
-				<Scripts>
-					<OnLoad>
-						self.isRight = true;
-						self.GemBorder:SetTexCoord(1, 0, 0, 1);
-						self.GemBorderShadow:SetTexCoord(1, 0, 0, 1);
-					</OnLoad>
-				</Scripts>
-			</Button>
-			<Button inherits="NarciRuneSlotTemplate">
-				<KeyValues>
-					<KeyValue key="orientation" value="right" type="string"/>
-				</KeyValues>
-				<Anchors>
-					<Anchor point="RIGHT" relativeKey="$parent" x="-4" y="0"/>
-				</Anchors>
-			</Button>
-		</Frames>
-		<Animations>
-			<AnimationGroup parentKey="animOut">
-				<Translation smoothing="IN" offsetX="120" duration="0.6" order="1"/>
-			</AnimationGroup>
-		</Animations>
 	</Button>
 
 	<Frame name="Narci_GuideLineFrame" setAllPoints="true">
