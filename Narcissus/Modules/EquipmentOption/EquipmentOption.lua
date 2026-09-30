@@ -315,12 +315,12 @@ end
 
 function NarciEquipmentOptionMixin:RegisterEventsForNarcissus(state)
     if state then
-        self:RegisterEvent("GLOBAL_MOUSE_DOWN");
+        self:RegisterEvent("GLOBAL_MOUSE_UP");
         self:RegisterEvent("BAG_UPDATE_DELAYED");
         self:UnregisterEvent("SOCKET_INFO_UPDATE");
         self:UnregisterEvent("BAG_UPDATE");
     else
-        self:UnregisterEvent("GLOBAL_MOUSE_DOWN");
+        self:UnregisterEvent("GLOBAL_MOUSE_UP");
         self:UnregisterEvent("BAG_UPDATE_DELAYED");
         self:RegisterEvent("SOCKET_INFO_UPDATE");
         self:RegisterEvent("BAG_UPDATE");
@@ -328,7 +328,7 @@ function NarciEquipmentOptionMixin:RegisterEventsForNarcissus(state)
 end
 
 function NarciEquipmentOptionMixin:OnHide()
-    self:UnregisterEvent("GLOBAL_MOUSE_DOWN");
+    self:UnregisterEvent("GLOBAL_MOUSE_UP");
     self:UnregisterEvent("SOCKET_INFO_UPDATE");
     self:UnregisterEvent("BAG_UPDATE");
     self:UnregisterEvent("BAG_UPDATE_DELAYED");
@@ -372,7 +372,7 @@ function NarciEquipmentOptionMixin:CloseUI(delay)
 end
 
 function NarciEquipmentOptionMixin:OnEvent(event, ...)
-    if event == "GLOBAL_MOUSE_DOWN" then
+    if event == "GLOBAL_MOUSE_UP" then
         if not self:IsFocused() then
             self:CloseUI();
         end
