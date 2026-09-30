@@ -623,7 +623,7 @@ function NarciItemButtonSharedMixin:AnchorAlertFrame()
 end
 
 function NarciItemButtonSharedMixin:PlayGamePadAnimation()
-	if self.gamepad then
+	if self.hasGamepadAnimation then
 		self.Icon.ScaleUp:Play();
 		self.IconMask.ScaleUp:Play();
 		self.Border.ScaleUp:Play();
@@ -632,7 +632,7 @@ function NarciItemButtonSharedMixin:PlayGamePadAnimation()
 end
 
 function NarciItemButtonSharedMixin:ResetAnimation()
-	if self.gamepad then
+	if self.hasGamepadAnimation then
 		self.Icon.ScaleUp:Stop();
 		self.Border.ScaleUp:Stop();
 		self.Border.BorderMask.ScaleUp:Stop();
@@ -732,7 +732,7 @@ local function GetFormattedSourceText(sourceInfo)
 	return colorizedText, plainText, hyperlink;
 end
 
-NarciEquipmentSlotMixin = CreateFromMixins{NarciItemButtonSharedMixin};
+NarciEquipmentSlotMixin = CreateFromMixins(NarciItemButtonSharedMixin);
 
 function NarciEquipmentSlotMixin:SetTransmogSourceID(appliedSourceID, secondarySourceID)
 	self.sourceID = appliedSourceID;
@@ -1684,7 +1684,7 @@ end
 -----Some of the codes are derivated from EquipmentFlyout.lua-----
 ------------------------------------------------------------------
 
-NarciEquipmentFlyoutButtonMixin = CreateFromMixins{NarciItemButtonSharedMixin};
+NarciEquipmentFlyoutButtonMixin = CreateFromMixins(NarciItemButtonSharedMixin);
 
 function NarciEquipmentFlyoutButtonMixin:OnClick(button, down, isGamepad)
 	if button == "LeftButton" then
