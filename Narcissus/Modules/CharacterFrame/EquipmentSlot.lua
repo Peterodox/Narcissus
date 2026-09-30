@@ -724,29 +724,8 @@ do
     end
 
     function EquipmentSlotMixin:OnLoad()
-        self:SetScript("OnLoad", nil);
-        self.OnLoad = nil;
-
-        if self.orientation then
-            self:SetOrientation(self.orientation);
-        end
-
-        local slotName = self.slotName;
-        local slotID, textureName = GetInventorySlotInfo(slotName);
-        self.emptyTexture = textureName;
-        self:SetID(slotID);
-        self.slotID = slotID;
-        self:SetAttribute("type2", "item");
-        self:SetAttribute("item", slotID);
         self:RegisterForDrag("LeftButton");
         self:RegisterForClicks("LeftButtonUp", "RightButtonDown", "RightButtonUp");
-        if self:GetParent() then
-            if not self:GetParent().slotTable then
-                self:GetParent().slotTable = {}
-            end
-            table.insert(self:GetParent().slotTable, self);
-        end
-        SLOT_TABLE[slotID] = self;
 
         local level = SharedBlackScreen:GetBaseFrameLevel() - 1;
         self:SetFrameLevel(level);
@@ -987,6 +966,20 @@ do
             self.GemSlot.GemBorder:SetTexCoord(0, 1, 0, 1);
             self.GemSlot.GemBorderShadow:SetTexCoord(0, 1, 0, 1);
             self.animOut.Translation1:SetOffset(-120, 0);
+        end
+    end
+
+    function EquipmentSlotMixin:SetSlotByName(slotName)
+        local slotID, texture = GetInventorySlotInfo(slotName);
+        self.emptyTexture = texture;
+        self:SetID(slotID);
+        self.slotID = slotID;
+
+        SLOT_TABLE[slotID] = self;
+
+        if not InCombatLockdown() then
+            self:SetAttribute("type2", "item");
+            self:SetAttribute("item", slotID);
         end
     end
 end

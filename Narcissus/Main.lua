@@ -69,6 +69,60 @@ end
 EL.EVENTS_UNIT = {"UNIT_DAMAGE", "UNIT_ATTACK_SPEED", "UNIT_MAXHEALTH", "UNIT_AURA", "UNIT_PORTRAIT_UPDATE"};
 
 
+local SlotLayout = {};
+
+SlotLayout.Retail = {
+	{"HeadSlot", "NeckSlot", "ShoulderSlot", "BackSlot", "ChestSlot", "WristSlot", "MainHandSlot", "SecondaryHandSlot", "ShirtSlot"},
+	{"HandsSlot", "WaistSlot", "LegsSlot", "FeetSlot", "Finger0Slot", "Finger1Slot", "Trinket0Slot", "Trinket1Slot", "TabardSlot"},
+};
+
+local function InitializeSlotButtons()
+	if not SlotLayout then return; end
+
+	local buttonHeight = 72;
+	local gap = 2;
+	local container = Narci_Character;
+
+	local layout = SlotLayout.Retail;
+
+	local font, _, flag;
+	local maxLines = (NarcissusDB.TruncateText and 1) or 2;
+	local fontHeight = tonumber(NarcissusDB.FontHeightItemName) or 10;
+	local textWidth = tonumber(NarcissusDB.ItemNameWidth) or 200;
+	if textWidth >= 200 then
+		textWidth = 512;
+	end
+
+	for k, v in ipairs(layout) do
+		local isRight = k == 2;
+		local orientation = isRight and "right" or "left";
+		local point = isRight and "RIGHT" or "LEFT";
+		local relativeTo = isRight and Narci_VirtualLineRight or Narci_VirtualLineLeft;
+		local totalHeight = (#v - 1) * (buttonHeight + gap) - gap;
+		local fromOffsetY = 0.5 * totalHeight;
+
+		for i, slotName in ipairs(v) do
+			local slotButton = CreateFrame("Button", nil, container, "NarciEquipmentSlotButtonTemplate");
+			slotButton:SetSlotByName(slotName);
+			slotButton:SetOrientation(orientation);
+			slotButton:SetPoint(point, relativeTo, "CENTER", 0, fromOffsetY + (1 - i) * (buttonHeight + gap));
+
+			-- Apply font settings
+			if not font then
+				font, _, flag = slotButton.Name:GetFont();
+			end
+			slotButton.Name:SetFont(font, fontHeight, flag);
+			slotButton.Name:SetMaxLines(maxLines);
+			slotButton.ItemLevel:SetMaxLines(maxLines);
+			slotButton.Name:SetWidth(textWidth);
+			slotButton.ItemLevel:SetWidth(textWidth);
+		end
+	end
+
+	SlotLayout = nil;
+end
+
+
 --take out frames from UIParent, so they will still be visible when UI is hidden
 local FRAME_TAKEN = false;
 local function TakeOutFrames(state)
@@ -1098,6 +1152,9 @@ function Narci_Open()
 		if InCombatLockdown() then
 			return
 		end
+
+		InitializeSlotButtons();
+
 		IS_OPENED = true;
 		CVarTemp:BackUp();
 		Toolbar:ShowUI("Narcissus");
@@ -1142,6 +1199,9 @@ function Narci_OpenGroupPhoto()
 		if InCombatLockdown() then
 			return;
 		end
+
+		InitializeSlotButtons();
+
 		IS_OPENED = true;
 		CVarTemp:BackUp();
 		Toolbar:ShowUI("PhotoMode");
@@ -1990,7 +2050,7 @@ do
 			scale = db["GlobalScale"];
 		end
 		scale = tonumber(scale) or 1;
-	
+
 		NarciScreenshotToolbar:SetDefaultScale(scale);
 		Narci_Character:SetScale(scale);
 		Narci_Attribute:SetScale(scale);
@@ -2003,9 +2063,12 @@ do
 		end
 		height = tonumber(height) or 10;
 
-		local font, _, flag = SLOT_TABLE[1].Name:GetFont();
+		local font, _, flag;
 
 		for id, slotButton in pairs(SLOT_TABLE) do
+			if not font then
+				font, _, flag = slotButton.Name:GetFont();
+			end
 			slotButton.Name:SetFont(font, height, flag);
 			slotButton:UpdateGradientSize();
 		end
@@ -2039,7 +2102,7 @@ do
 		else
 			maxLines = 2;
 		end
-		
+
 		for id, slotButton in pairs(SLOT_TABLE) do
 			slotButton.Name:SetMaxLines(maxLines);
 			slotButton.ItemLevel:SetMaxLines(maxLines);
