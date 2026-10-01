@@ -275,7 +275,7 @@ do
         if findHighestItemLevel then
             local topLevel = -1;
             local level;
-            local GetDetailedItemLevelInfo = GetDetailedItemLevelInfo;
+            local GetDetailedItemLevelInfo = C_Item.GetDetailedItemLevelInfo;
             local id1, id2;
 
             for bagID = 0, (NUM_BAG_SLOTS or 4) do
@@ -321,6 +321,14 @@ do
         end
     end
     NarciAPI.GetItemPositionByItemID = GetItemPositionByItemID;
+
+    function NarciAPI.PickupContainerItemByItemID(itemID)
+        local bagID, slotID = GetItemBagPosition(itemID);
+        if bagID and slotID then
+            C_Container.PickupContainerItem(bagID, slotID);
+            return true;
+        end
+    end
 
     function PrivateAPI.DoesPlayerHaveAnyItems(itemList)
         if itemList then

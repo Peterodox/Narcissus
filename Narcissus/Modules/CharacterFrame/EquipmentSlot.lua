@@ -7,6 +7,7 @@ local DefaultTooltip = NarciGameTooltip; -- Created in Module\GameTooltip.lua
 local ItemTooltip = NarciEquipmentTooltip;
 local SharedBlackScreen = addon.SharedBlackScreen;
 
+local AmmoUtil = addon.AmmoUtil; ---@class AmmoUtil
 local FadeFrame = NarciFadeUI.Fade;
 local GetBorderArtByItemID = NarciAPI.GetBorderArtByItemID;
 local GetGemBorderTexture = NarciAPI.GetGemBorderTexture;
@@ -1143,32 +1144,51 @@ do
     function AmmoSlotMixin:Refresh()
         self.isSlotDirty = nil;
 
-        local itemName, itemID, count;
+        local itemName, itemIcon, count, currentAmmoType;
+        local r, g, b;
         local quality = 0;
-        local itemIcon = GetInventoryItemTexture("player", 0);
+        local itemID = GetInventoryItemID("player", 0);
+        self.itemID = itemID;
 
-        if itemIcon then
-            itemID = GetInventoryItemID("player", 0);		--GetInventoryItemLink return nil for ammo
+        if itemID then
             itemName, _, quality = C_Item.GetItemInfo(itemID);
+            itemIcon = GetInventoryItemTexture("player", 0)
             count = GetInventoryItemCount("player", 0);
             count = WrapAmmoCountInColor(count);
+            local subClassID = select(7, C_Item.GetItemInfoInstant(itemID));
+            currentAmmoType = (subClassID == 2 and "arrow") or (subClassID == 3 and "bullet");
         else
             itemName = SPELL_FAILED_NO_AMMO;
             itemIcon = 136520;	--ranged slot texture
+            r, g, b = 1, 0, 0;
         end
 
-        self.itemID = itemID;
-
-        -- TEMP: Auto-swap ammo
-        local isAmmoMatched, bestAmmoItemID = true, 0;
-
-        if isAmmoMatched then
-
-        else
-
+        if currentAmmoType ~= self.ammoType then
+            -- Auto-swap ammo if not match
+            local ammos = AmmoUtil.GetAvailableAmmosByType(self.ammoType);
+            if ammos then
+                local bestAmmoItemID = ammos[1];
+                if bestAmmoItemID ~= itemID then
+                    itemName = L["Item Switching In Progress"];
+                    r, g, b = 0.5, 0.5, 0.5;
+                    count = "";
+                    C_Timer.After(0.1, function()
+                        if not InCombatLockdown() then
+                           NarciAPI.PickupContainerItemByItemID(bestAmmoItemID);
+                            if CursorHasItem() then
+                                PickupInventoryItem(18);
+                            end
+                            ClearCursor();
+                        end
+                    end);
+                end
+            end
         end
 
-        local r, g, b = GetItemQualityColor(quality);
+        if not b then
+            r, g, b = GetItemQualityColor(quality);
+        end
+
         self.Name:SetText(itemName);
         self.Name:SetTextColor(r, g, b);
         self.ItemCount:SetText(count);

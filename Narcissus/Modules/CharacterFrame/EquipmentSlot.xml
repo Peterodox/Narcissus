@@ -1,4 +1,5 @@
 <Ui xsi:schemaLocation="http://www.blizzard.com/wow/ui/..\FrameXML\UI.xsd">
+	<Script file="AmmoUtil.lua"/>
 	<Script file="EquipmentSlot.lua"/>
 
 	<Button name="NarciRuneSlotTemplate" parentKey="RuneSlot" virtual="true">
