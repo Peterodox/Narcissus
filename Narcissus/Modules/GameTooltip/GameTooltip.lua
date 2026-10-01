@@ -41,7 +41,6 @@ local PT_DURABILITY = "|TInterface\\AddOns\\Narcissus\\Art\\GameTooltip\\Exclama
 local PT_DPS_TEMPLATE = gsub(DPS_TEMPLATE, "%%s", "%%.1f");
 local ENCHANTED_TOOLTIP_LINE = ENCHANTED_TOOLTIP_LINE or "Enchanted: %s";
 
-local GenericTooltip, EquipmentTooltip;
 
 local function IsColorRelevant(r, g, b)
     return not (r == 1 and g == 0.5 and b == 1)
@@ -95,7 +94,6 @@ local GameTooltip_ClearMoney = GameTooltip_ClearMoney or VoidFunc;
 NarciGameTooltipMixin = CreateFromMixins(TooltipDataHandlerMixin);
 
 function NarciGameTooltipMixin:OnLoad()
-    GenericTooltip = self;
     NarciAPI.NineSliceUtil.SetUpBackdrop(self, "phantom", 0, 20/255, 24/255, 28/255);
     NarciAPI.NineSliceUtil.SetUpBorder(self, "shadowHugeR0", 0);
     local p = 8;

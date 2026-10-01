@@ -25,7 +25,7 @@
 		</Scripts>
 	</Button>
 
-	<Button name="NarciSlotButtonTemplate" registerForClicks="LeftButtonUp, RightButtonDown, RightButtonUp" virtual="true" frameLevel="6" inherits="SecureActionButtonTemplate">
+	<Button name="NarciSlotButtonTemplate" inherits="SecureActionButtonTemplate" registerForClicks="LeftButtonUp, RightButtonDown, RightButtonUp" virtual="true">
 		<Size>
 			<AbsDimension x="70" y="72"/>
 		</Size>
@@ -260,4 +260,89 @@
 			<OnEvent method="OnEvent"/>
         </Scripts>
     </Button>
+
+	<Button name="NarciAmmoSlotButtonTemplate" registerForClicks="LeftButtonUp, RightButtonUp" virtual="true">
+        <Mixins>
+            <Mixin key="AmmoSlotMixin" source="local"/>
+        </Mixins>
+		<Size x="32" y="32"/>
+		<Layers>
+			<Layer level="ARTWORK" textureSubLevel="2">
+				<Texture parentKey="Icon">
+					<Size x="25" y="25"/>
+					<Anchors>
+						<Anchor point="CENTER"/>
+					</Anchors>
+				</Texture>
+			</Layer>
+			<Layer level="OVERLAY" textureSubLevel="2">
+				<Texture parentKey="Border" nounload="true">
+					<Size x="64" y="64"/>
+					<Anchors>
+						<Anchor point="CENTER"/>
+					</Anchors>
+				</Texture>
+			</Layer>
+			<Layer level="OVERLAY">
+				<MaskTexture parentKey="IconMask" file="Interface\AddOns\Narcissus\Art\Masks\HexagonMask" hWrapMode="CLAMPTOBLACKADDITIVE" vWrapMode="CLAMPTOBLACKADDITIVE" nounload="true">
+					<Size>
+						<AbsDimension x="32" y="32"/>
+					</Size>
+					<Anchors>
+						<Anchor point="CENTER"/>
+					</Anchors>
+					<MaskedTextures>
+						<MaskedTexture childKey="Icon"/>
+					</MaskedTextures>
+				</MaskTexture>
+			</Layer>
+			<Layer level="OVERLAY" textureSubLevel="1">
+				<Texture parentKey="Highlight" hidden="true" file="Interface\AddOns\Narcissus\Art\Widgets\ItemLevel\GenericHighlight" alphaMode="ADD" Alpha="0">
+					<Size x="26" y="26"/>
+					<Anchors>
+						<Anchor point="CENTER" relativeKey="$parent" x="0" y="-1"/>
+					</Anchors>
+				</Texture>
+				<FontString parentKey="ItemCount" inherits="NarciFontNumber10Outline" justifyH="CENTER" justifyV="BOTTOM">
+					<Size x="0" y="0"/>
+					<Anchors>
+						<Anchor point="BOTTOM" relativeKey="$parent" relativePoint="BOTTOM" x="1" y="4"/>
+					</Anchors>
+				</FontString>
+			</Layer>
+			<Layer level="OVERLAY">
+				<FontString parentKey="Name" inherits="NarciFontItemName" justifyH="LEFT" justifyV="MIDDLE" text="Item Name">
+					<Size x="0" y="0"/>
+					<Anchors>
+						<Anchor point="LEFT" relativeKey="$parent" relativePoint="RIGHT" x="4" y="0"/>
+					</Anchors>
+				</FontString>
+			</Layer>
+			<Layer level="BACKGROUND">
+				<Texture parentKey="GradientBackground">
+					<Size x="140" y="24"/>
+					<Color r="0" g="0" b="0" a="1"/>
+					<Anchors>
+						<Anchor point="LEFT" relativeKey="$parent" relativePoint="CENTER" x="0" y="0"/>
+					</Anchors>
+					<Gradient orientation="HORIZONTAL">
+						<MinColor a="0.8" r="1" g="1" b="1"/>
+						<MaxColor a="0" r="1" g="1" b="1"/>
+					</Gradient>
+				</Texture>
+			</Layer>
+		</Layers>
+		<Animations>
+			<AnimationGroup parentKey="AnimIn">
+				<Alpha fromAlpha="0" toAlpha="0" duration="0.2" order="1"/>
+				<Alpha fromAlpha="0" toAlpha="1" duration="0.2" order="2"/>
+			</AnimationGroup>
+		</Animations>
+		<Scripts>
+			<OnLoad method="OnLoad"/>
+			<OnEnter method="OnEnter"/>
+			<OnLeave method="OnLeave"/>
+			<OnClick method="OnClick"/>
+		</Scripts>
+	</Button>
 </Ui>

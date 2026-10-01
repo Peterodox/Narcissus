@@ -76,6 +76,11 @@ SlotLayout.Retail = {
 	{"HandsSlot", "WaistSlot", "LegsSlot", "FeetSlot", "Finger0Slot", "Finger1Slot", "Trinket0Slot", "Trinket1Slot", "TabardSlot"},
 };
 
+SlotLayout.Forever = {
+	{"HeadSlot", "NeckSlot", "ShoulderSlot", "BackSlot", "ChestSlot", "WristSlot", "MainHandSlot", "SecondaryHandSlot", "RangedSlot"},
+	{"HandsSlot", "WaistSlot", "LegsSlot", "FeetSlot", "Finger0Slot", "Finger1Slot", "Trinket0Slot", "Trinket1Slot", "ShirtSlot", "TabardSlot"},
+};
+
 local function InitializeSlotButtons()
 	if not SlotLayout then return; end
 
@@ -83,7 +88,7 @@ local function InitializeSlotButtons()
 	local gap = 2;
 	local container = Narci_Character;
 
-	local layout = SlotLayout.Retail;
+	local layout = addon.IS_FOREVER and SlotLayout.Forever or SlotLayout.Retail;
 
 	local font, _, flag;
 	local maxLines = (NarcissusDB.TruncateText and 1) or 2;
@@ -667,7 +672,7 @@ SlotController.updateFrame:SetScript("OnUpdate", function(f, elapsed)
 end);
 
 SlotController.refreshSequence = {
-	1, 2, 3, 15, 5, 9, 16, 17, 4,
+	1, 2, 3, 15, 5, 9, 16, 17, 4, 18,
 	10, 6, 7, 8, 11, 12, 13, 14, 19,
 };
 

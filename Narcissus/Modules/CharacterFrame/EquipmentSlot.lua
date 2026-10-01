@@ -348,6 +348,8 @@ do
             self.itemLink = nil;
         end
 
+        self:RefreshAmmoSlot();
+
         local _;
         local slotID = self.slotID;
         local itemLocation = ItemLocation:CreateFromEquipmentSlot(slotID);
@@ -725,7 +727,6 @@ do
 
     function EquipmentSlotMixin:OnLoad()
         self:RegisterForDrag("LeftButton");
-        self:RegisterForClicks("LeftButtonUp", "RightButtonDown", "RightButtonUp");
 
         local level = SharedBlackScreen:GetBaseFrameLevel() - 1;
         self:SetFrameLevel(level);
@@ -971,6 +972,7 @@ do
 
     function EquipmentSlotMixin:SetSlotByName(slotName)
         local slotID, texture = GetInventorySlotInfo(slotName);
+        self.slotName = slotName;
         self.emptyTexture = texture;
         self:SetID(slotID);
         self.slotID = slotID;
@@ -980,6 +982,37 @@ do
         if not InCombatLockdown() then
             self:SetAttribute("type2", "item");
             self:SetAttribute("item", slotID);
+        end
+    end
+
+    function EquipmentSlotMixin:RefreshAmmoSlot()
+        local ammoType;
+
+        if self.slotID == 18 then
+            local itemID = GetInventoryItemID("player", self.slotID);
+            if itemID then
+                local _, _, _, _, _, classID, subClassID = C_Item.GetItemInfoInstant(itemID);
+                if subClassID == 2 or subClassID == 18 then
+                    ammoType = "arrow";
+                elseif subClassID == 3 then
+                    ammoType = "bullet";
+                end
+            end
+        end
+
+        if ammoType then
+            if not self.AmmoSlot then
+                self.AmmoSlot = CreateFrame("Button", nil, self, "NarciAmmoSlotButtonTemplate");
+                self.AmmoSlot:SetPoint("CENTER", self, "CENTER", 25, -43);
+            end
+            self.AmmoSlot:SetAmmoType(ammoType);
+            if not self.AmmoSlot:IsShown() then
+                self.AmmoSlot.AnimIn:Play();
+                self.AmmoSlot:Show();
+            end
+            self.AmmoSlot:Refresh();
+        elseif self.AmmoSlot then
+            self.AmmoSlot:Hide();
         end
     end
 end
@@ -1075,5 +1108,84 @@ do
         self:Hide();
         self.location = nil;
         self.hyperlink = nil;
+    end
+end
+
+
+local function WrapAmmoCountInColor(count)
+    if not count then return; end
+    if count > 9999 then
+        count = "|cffffffff".."9999+".."|r";
+    elseif count <= 50 then
+        count = "|cffff0000"..count.."|r"
+    elseif count <= 200 then
+        count = "|cffffD100"..count.."|r"
+    end
+    return count;
+end
+
+
+local AmmoSlotMixin = {};
+do
+    addon.AmmoSlotMixin = AmmoSlotMixin;
+
+    function AmmoSlotMixin:OnLoad()
+        local slotID = 0;
+        self.slotName = "AmmoSlot";
+        self:SetID(slotID);
+        self.slotID = slotID;
+    end
+
+    function AmmoSlotMixin:SetAmmoType(ammoType)
+        self.ammoType = ammoType;
+    end
+
+    function AmmoSlotMixin:Refresh()
+        local itemName, itemID, count;
+        local quality = 0;
+        local itemIcon = GetInventoryItemTexture("player", 0);
+
+        if itemIcon then
+            itemID = GetInventoryItemID("player", 0);		--GetInventoryItemLink return nil for ammo
+            itemName, _, quality = C_Item.GetItemInfo(itemID);
+            count = GetInventoryItemCount("player", 0);
+            count = WrapAmmoCountInColor(count);
+        else
+            itemName = SPELL_FAILED_NO_AMMO;
+            itemIcon = 136520;	--ranged slot texture
+        end
+
+        -- TEMP: Auto-swap ammo
+        local isAmmoMatched, bestAmmoItemID = true, 0;
+
+        if isAmmoMatched then
+
+        else
+
+        end
+
+        local r, g, b = GetItemQualityColor(quality);
+        self.Name:SetText(itemName);
+        self.Name:SetTextColor(r, g, b);
+        self.ItemCount:SetText(count);
+        self.Icon:SetTexture(itemIcon);
+
+        ItemButtonSharedMixin.SetBorderTexture(self, self.Border, quality);
+
+        self.GradientBackground:SetWidth(math.max(self.Name:GetWrappedWidth(), 48) + 48);
+    end
+
+    function AmmoSlotMixin:OnClick()
+
+    end
+
+    function AmmoSlotMixin:OnEnter()
+        FadeFrame(self.Highlight, 0.15, 1);
+        DefaultTooltip:SetFromSlotButton(self, -2, 6);
+    end
+
+    function AmmoSlotMixin:OnLeave()
+        FadeFrame(self.Highlight, 0.25, 0);
+        Narci:HideButtonTooltip();
     end
 end
