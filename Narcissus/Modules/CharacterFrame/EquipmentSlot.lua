@@ -1141,6 +1141,8 @@ do
     end
 
     function AmmoSlotMixin:Refresh()
+        self.isSlotDirty = nil;
+
         local itemName, itemID, count;
         local quality = 0;
         local itemIcon = GetInventoryItemTexture("player", 0);
@@ -1154,6 +1156,8 @@ do
             itemName = SPELL_FAILED_NO_AMMO;
             itemIcon = 136520;	--ranged slot texture
         end
+
+        self.itemID = itemID;
 
         -- TEMP: Auto-swap ammo
         local isAmmoMatched, bestAmmoItemID = true, 0;
@@ -1187,5 +1191,39 @@ do
     function AmmoSlotMixin:OnLeave()
         FadeFrame(self.Highlight, 0.25, 0);
         Narci:HideButtonTooltip();
+    end
+
+    function AmmoSlotMixin:OnShow()
+		-- We need this event to update Ammo Slot because "PLAYER_EQUIPMENT_CHANGED" doesn't fire for that
+        self:RegisterUnitEvent("UNIT_INVENTORY_CHANGED", "player");
+    end
+
+    function AmmoSlotMixin:OnHide()
+        self:UnregisterEvent("UNIT_INVENTORY_CHANGED");
+    end
+
+    function AmmoSlotMixin:OnEvent(event, ...)
+        if event == "UNIT_INVENTORY_CHANGED" then
+            self:RequestUpdate();
+        end
+    end
+
+    function AmmoSlotMixin:RequestUpdate()
+        if not self.t then
+            self:SetScript("OnUpdate", self.OnUpdate);
+        end
+        self.isSlotDirty = true;
+        self.t = 0;
+    end
+
+    function AmmoSlotMixin:OnUpdate(elapsed)
+        self.t = self.t + elapsed;
+        if self.t >= 0.1 then
+            self.t = nil;
+            self:SetScript("OnUpdate", nil);
+            if self.isSlotDirty then
+                self:Refresh();
+            end
+        end
     end
 end
