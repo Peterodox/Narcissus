@@ -69,6 +69,86 @@ end
 EL.EVENTS_UNIT = {"UNIT_DAMAGE", "UNIT_ATTACK_SPEED", "UNIT_MAXHEALTH", "UNIT_AURA", "UNIT_PORTRAIT_UPDATE"};
 
 
+local SlotController = CreateFrame("Frame");
+
+SlotController.slotSequence = {}; -- This will be filled automatically in InitializeSlotButtons
+SlotController.tempEnchantSequence = {16, 17};
+
+function SlotController:Refresh(slotID, forceRefresh)
+	if SLOT_TABLE[slotID] then
+		SLOT_TABLE[slotID]:Refresh(forceRefresh);
+		return true;
+	end
+end
+
+function SlotController:RefreshAll(forceRefresh)
+	for slotID, slotButton in pairs(SLOT_TABLE) do
+		slotButton:Refresh(forceRefresh);
+	end
+end
+
+function SlotController:OnUpdate(elapsed)
+	self.t = self.t + elapsed;
+	if self.t >= 0.05 then
+		self.t = 0;
+		if self.i <= self.total then
+			self.i = self.i + 1;
+			self:Refresh(self.currentSequence[self.i], self.forceRefresh);
+		else
+			self:StopRefresh();
+			if MOG_MODE and Toolbar.TransmogListFrame:IsShown() then
+				After(0.5, function()
+					Toolbar.TransmogListFrame:UpdateTransmogList();
+				end);
+			end
+		end
+	end
+end
+
+function SlotController:StopRefresh()
+	self:SetScript("OnUpdate", nil);
+end
+
+function SlotController:LazyRefresh(sequenceName)
+	self:StopRefresh();
+	if sequenceName == "temp" then
+		self.currentSequence = self.tempEnchantSequence;
+		self.forceRefresh = true;
+	else
+		self.currentSequence = self.slotSequence;
+		self.forceRefresh = false;
+	end
+	self.t = 0;
+	self.i = 0;
+	self.total = #self.currentSequence;
+	self:SetScript("OnUpdate", self.OnUpdate);
+end
+
+function SlotController:ClearCache()
+	for slotID, slotButton in pairs(SLOT_TABLE) do
+		slotButton.itemLink = nil;
+	end
+end
+
+function SlotController:PlayAnimOut()
+	if not InCombatLockdown() and Narci_Character:IsShown() then
+		for slotID, slotButton in pairs(SLOT_TABLE) do
+			slotButton.animOut:Play();
+		end
+		Narci_Character.animOut:Play();
+	end
+end
+
+function SlotController:IsMouseOver()
+	for slotID, slotButton in pairs(SLOT_TABLE) do
+		if slotButton:IsMouseOver() then
+			return true;
+		end
+	end
+	return false;
+end
+
+
 local SlotLayout = {};
 
 SlotLayout.Retail = {
@@ -98,6 +178,8 @@ local function InitializeSlotButtons()
 		textWidth = 512;
 	end
 
+	local n = 0;
+
 	for k, v in ipairs(layout) do
 		local isRight = k == 2;
 		local orientation = isRight and "right" or "left";
@@ -121,6 +203,9 @@ local function InitializeSlotButtons()
 			slotButton.ItemLevel:SetMaxLines(maxLines);
 			slotButton.Name:SetWidth(textWidth);
 			slotButton.ItemLevel:SetWidth(textWidth);
+
+			n = n + 1;
+			SlotController.slotSequence[n] = slotButton.slotID;
 		end
 	end
 
@@ -556,12 +641,6 @@ local xmogTable = {
 
 
 -----------------------------------------------------------------------
-local ValidForTempEnchant = {
-	[16] = true,
-	[17] = true,
-};
-
-
 local function SetStatTooltipText(self)
 	DefaultTooltip:ClearAllPoints();
 	DefaultTooltip:SetOwner(self, "ANCHOR_NONE");
@@ -649,96 +728,6 @@ local function DisplayItemTransmogInfoList(itemTransmogInfoList)
 	end
 end
 addon.DisplayItemTransmogInfoList = DisplayItemTransmogInfoList;
-
-
-local SlotController = {};
-SlotController.updateFrame = CreateFrame("Frame");
-SlotController.updateFrame:Hide();
-SlotController.updateFrame:SetScript("OnUpdate", function(f, elapsed)
-	f.t = f.t + elapsed;
-	if f.t >= 0.05 then
-		f.t = 0;
-		if SlotController:Refresh(f.sequence[f.i], f.forceRefresh) then
-			f.i = f.i + 1;
-		else
-			f:Hide();
-			if MOG_MODE and Toolbar.TransmogListFrame:IsShown() then
-				After(0.5, function()
-					Toolbar.TransmogListFrame:UpdateTransmogList();
-				end);
-			end
-		end
-	end
-end);
-
-SlotController.refreshSequence = {
-	1, 2, 3, 15, 5, 9, 16, 17, 4, 18,
-	10, 6, 7, 8, 11, 12, 13, 14, 19,
-};
-
-SlotController.tempEnchantSequence = {};
-
-for slotID in pairs(ValidForTempEnchant) do
-	table.insert(SlotController.tempEnchantSequence, slotID);
-end
-
-function SlotController:Refresh(slotID, forceRefresh)
-	if SLOT_TABLE[slotID] then
-		SLOT_TABLE[slotID]:Refresh(forceRefresh);
-		return true;
-	end
-end
-
-function SlotController:RefreshAll(forceRefresh)
-	for slotID, slotButton in pairs(SLOT_TABLE) do
-		slotButton:Refresh(forceRefresh);
-	end
-end
-
-function SlotController:StopRefresh()
-	if self.updateFrame then
-		self.updateFrame:Hide();
-	end
-end
-
-function SlotController:LazyRefresh(sequenceName)
-	local f = self.updateFrame;
-	f:Hide();
-	f.t = 0;
-	f.i = 1;
-	if sequenceName == "temp" then
-		f.sequence = self.tempEnchantSequence;
-		f.forceRefresh = true;
-	else
-		f.sequence = self.refreshSequence;
-		f.forceRefresh = false;
-	end
-	f:Show();
-end
-
-function SlotController:ClearCache()
-	for slotID, slotButton in pairs(SLOT_TABLE) do
-		slotButton.itemLink = nil;
-	end
-end
-
-function SlotController:PlayAnimOut()
-	if not InCombatLockdown() and Narci_Character:IsShown() then
-		for slotID, slotButton in pairs(SLOT_TABLE) do
-			slotButton.animOut:Play();
-		end
-		Narci_Character.animOut:Play();
-	end
-end
-
-function SlotController:IsMouseOver()
-	for slotID, slotButton in pairs(SLOT_TABLE) do
-		if slotButton:IsMouseOver() then
-			return true
-		end
-	end
-	return false
-end
 
 
 ------------------------------------------------------------------
