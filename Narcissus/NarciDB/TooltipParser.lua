@@ -34,10 +34,10 @@ local L = Narci.L;
 local NarciAPI = NarciAPI;
 local TEXT_LOCALE = GetLocale();
 local IS_LEGION_REMIX = false;
+local TOOLTIP_HAS_ITEM_LEVEL = addon.IS_RETAIL;
 
 local GetItemInfoInstant = C_Item.GetItemInfoInstant;
 local GetItemGem = C_Item.GetItemGem;
-local GetItemNumSockets = C_Item.GetItemNumSockets;
 local GetItemStats = C_Item.GetItemStats;
 local GetInventoryItemLink = GetInventoryItemLink;
 local StripHyperlinks = C_StringUtil and C_StringUtil.StripHyperlinks or StripHyperlinks;
@@ -1005,7 +1005,7 @@ local function GetCompleteItemData(tooltipData, itemLink)
             lineText = GetLineText(lines, i);
             if lineText then
                 anyMatch = nil;
-                if i == 2 then
+                if i == 2 and TOOLTIP_HAS_ITEM_LEVEL then
                     --the second line is usually item level
                     --or a special item category: difficuty, Cypher Equipment
                     if not match(lineText, "%d$") then
@@ -1498,10 +1498,6 @@ local function DoesItemHaveSockets(itemLink)
                 end
             end
         end
-
-        --if numSocket == 0 then
-        --    numSocket = C_Item.GetItemNumSockets(itemLink);
-        --end
 
         return numSocket, socketIsDiverse, lastType
     end
