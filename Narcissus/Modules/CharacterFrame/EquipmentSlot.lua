@@ -971,9 +971,15 @@ do
     end
 
     function EquipmentSlotMixin:SetSlotByName(slotName)
-        local slotID, texture = GetInventorySlotInfo(slotName);
+        local slotID, texture, checkRelic = GetInventorySlotInfo(slotName);
         self.slotName = slotName;
         self.emptyTexture = texture;
+        self.checkRelic = checkRelic;
+
+        if checkRelic and UnitHasRelicSlot("player") then
+            self.emptyTexture = "Interface\\Paperdoll\\UI-PaperDoll-Slot-Relic.blp";
+        end
+
         self:SetID(slotID);
         self.slotID = slotID;
 
