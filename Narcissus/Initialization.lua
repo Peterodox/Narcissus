@@ -13,7 +13,7 @@ do
 end
 
 
-local _, addon = ...
+local addonName, addon = ...
 local SettingFunctions = {};
 addon.SettingFunctions = SettingFunctions;
 
@@ -416,23 +416,30 @@ NarciAPI.GetAddOnVersionInfo = GetAddOnVersionInfo;
 
 
 do
-    local version, _, _, tocVersion = GetBuildInfo();
-    --local expansionID = string.match(version, "(%d+)%.");
-
-    if not tocVersion then
-        tocVersion = 120000;
+    local currentToCVersion = select(4, GetBuildInfo());
+    if not currentToCVersion then
+        print("API Changed: GetBuildInfo()")
+        currentToCVersion = 999999;
     end
+    currentToCVersion = tonumber(currentToCVersion);
 
-    tocVersion = tonumber(tocVersion);
-
-
-    local function IsTOCVersionEqualOrNewerThan(v)
-        return tocVersion >= v
+    local function IsTOCVersionEqualOrNewerThan(targetVersion)
+        return currentToCVersion >= targetVersion
     end
     addon.IsTOCVersionEqualOrNewerThan = IsTOCVersionEqualOrNewerThan;
 
+    -- TOC "X-Game" is always a string, WOW_PROJECT_* may be nil
+    local game = C_AddOns.GetAddOnMetadata(addonName, "X-Game");
 
-    addon.IS_FOREVER = tocVersion >= 16000 and tocVersion < 20000;
+    -- TODO: "Camelot" / WOW_PROJECT_CAMELOT will be renamed to "Forever"
+    addon.IS_FOREVER = game == "Camelot" or WOW_PROJECT_ID == WOW_PROJECT_CAMELOT;
+    addon.IS_RETAIL = WOW_PROJECT_ID == WOW_PROJECT_MAINLINE;
+
+    -- Modern (Standard & Forever) have Secrets, etc.
+    addon.IS_MODERN = addon.IS_RETAIL or addon.IS_FOREVER;
+    addon.IS_CLASSIC = not addon.IS_MODERN;
+
+    addon.IS_12_1_0 = IsTOCVersionEqualOrNewerThan(120100);
 end
 
 

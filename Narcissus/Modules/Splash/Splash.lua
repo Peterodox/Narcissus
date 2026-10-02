@@ -1,8 +1,6 @@
 local _, addon = ...
 local currentVersion = 10500;
 local lastMajorVersion = 0;
-local _, _, _, tocversion = GetBuildInfo();
-tocversion = tonumber(tocversion);
 
 local TEST_ALAWYS_SHOW = false;
 -----------------------------------------------------------------
@@ -727,7 +725,7 @@ end
 
 
 local EventListener = CreateFrame("Frame");
-if tocversion > 89999 then
+if addon.IS_RETAIL then
     EventListener:RegisterEvent("ADDON_LOADED");
 end
 

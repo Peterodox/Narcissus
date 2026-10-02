@@ -150,7 +150,7 @@ do  --Old: Individual itemID
         local time = time and time() or due;
         local newRaidItems;
 
-        if addon.IsTOCVersionEqualOrNewerThan(120100) and (time >= due or HasPlayerAcquiredItemFromThisRaid(raidKey) or DoesPlayerHaveAnyItems(ClassSetItemByRaid[raidKey])) then
+        if addon.IS_12_1_0 and (time >= due or HasPlayerAcquiredItemFromThisRaid(raidKey) or DoesPlayerHaveAnyItems(ClassSetItemByRaid[raidKey])) then
             FlagRaidItemAcquired(raidKey);
             newRaidItems = ClassSetItemByRaid.MidnightS2;
             CURRENT_RAID_KEY = raidKey;
