@@ -1505,20 +1505,31 @@ end
 
 NarciAPI.DoesItemHaveSockets = DoesItemHaveSockets;
 
---[[
-GameTooltip:HookScript("OnTooltipSetItem", function(self)
-    local _, itemLink = self:GetItem();
-    DoesItemHaveSockets(itemLink);
-end);
---]]
 
 local function GetAmmoDps(itemID)
     if not itemID then return end;
-    return 0
+
+    local tooltipData = GetInfoByItemID(itemID);
+    if tooltipData and tooltipData.lines then
+        -- Some ammo are bind-on-pickup, which pushes the DPS line to the 4th
+        local lineText = tooltipData.lines[3] and tooltipData.lines[3].leftText;
+        local matchedText;
+        if lineText then
+            matchedText = match(lineText, PATTERN_AMMO_DPS)
+        end
+        if not matchedText then
+            lineText = tooltipData.lines[4] and tooltipData.lines[4].leftText;
+            if lineText then
+                matchedText = match(lineText, PATTERN_AMMO_DPS)
+            end
+        end
+        if matchedText then
+            return tonumber(matchedText);
+        end
+    end
 end
 
 NarciAPI.GetAmmoDps = GetAmmoDps;
-
 
 
 local function FormatSpellData(tooltipData, fromLine)

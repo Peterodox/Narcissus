@@ -8,8 +8,6 @@ local FadeFrame = NarciFadeUI.Fade;
 ---@class AmmoUtil
 local AmmoUtil = {};
 do
-    addon.AmmoUtil = AmmoUtil;
-
     AmmoUtil.dpsCache = {};
 
     local Ammos = {
@@ -32,11 +30,34 @@ do
                     tbl[n] = itemID;
                 end
             end
+
+            if not AmmoUtil.testDone then
+                AmmoUtil.testDone = true;
+
+                local lastButton;
+                for _, itemID in ipairs(Ammos[ammoType]) do
+                    local button = CreateFrame("Button", nil, UIParent, "NarciAmmoFlyoutButtonTemplate");
+                    button:SetItemByID(itemID);
+                    if lastButton then
+                        button:SetPoint("TOP", lastButton, "BOTTOM", 0, -4);
+                    else
+                        button:SetPoint("TOP", UIParent, "CENTER", 0, 96);
+                    end
+                    lastButton = button;
+                end
+            end
         end
 
         if n > 0 then
             return tbl;
         end
+    end
+
+    function AmmoUtil.GetDpsByItemID(itemID)
+        if not AmmoUtil.dpsCache[itemID] then
+            AmmoUtil.dpsCache[itemID] = NarciAPI.GetAmmoDps(itemID);
+        end
+        return AmmoUtil.dpsCache[itemID];
     end
 
     function AmmoUtil.WrapAmmoCountInColor(count)
@@ -172,5 +193,53 @@ do
                 self:Refresh();
             end
         end
+    end
+end
+
+
+local AmmoFlyoutButtonMixin = {};
+do
+    addon.AmmoFlyoutButtonMixin = AmmoFlyoutButtonMixin;
+
+    function AmmoFlyoutButtonMixin:OnEnter()
+
+    end
+
+    function AmmoFlyoutButtonMixin:OnLeave()
+
+    end
+
+    function AmmoFlyoutButtonMixin:OnClick()
+
+    end
+
+    function AmmoFlyoutButtonMixin:OnMouseDown()
+
+    end
+
+    function AmmoFlyoutButtonMixin:OnMouseUp()
+
+    end
+
+    function AmmoFlyoutButtonMixin:SetItemByID(itemID)
+        self.itemID = itemID;
+
+        local icon = C_Item.GetItemIconByID(itemID);
+        local name = C_Item.GetItemNameByID(itemID);
+        local quality = C_Item.GetItemQualityByID(itemID);
+        local count = C_Item.GetItemCount(itemID);
+        if count > 0 then
+            count = AmmoUtil.WrapAmmoCountInColor(count);
+        else
+            count = nil;
+        end
+        local dps = AmmoUtil.GetDpsByItemID(itemID);
+
+        self.Icon:SetTexture(icon);
+        self.Name:SetText(name);
+        local r, g, b = NarciAPI.GetItemQualityColor(quality);
+        self.Name:SetTextColor(r, g, b);
+        self.ItemCount:SetText(count);
+        self.DamageText:SetText(dps);
     end
 end

@@ -11,9 +11,7 @@
 			<Layer level="OVERLAY" textureSubLevel="4">
 				<FontString inherits="NarciRuneFont" parentKey="RuneLetter" Alpha="1" hidden="true" justifyH="CENTER">
 					<Shadow>
-						<Offset>
-							<AbsDimension x="0.8" y="-0.6"/>
-						</Offset>
+						<Offset x="0.8" y="-0.6"/>
 						<Color a="1" r="0.8" g="0.8" b="0.8"/>
 					</Shadow>
 				</FontString>
@@ -27,9 +25,7 @@
 	</Button>
 
 	<Button name="NarciSlotButtonTemplate" inherits="SecureActionButtonTemplate" registerForClicks="LeftButtonUp, RightButtonDown, RightButtonUp" virtual="true">
-		<Size>
-			<AbsDimension x="70" y="72"/>
-		</Size>
+		<Size x="70" y="72"/>
 		<HitRectInsets>
 			<AbsInset left="12" right="12" top="12" bottom="12"/>
 		</HitRectInsets>
@@ -82,9 +78,7 @@
 			</Layer>
 			<Layer level="OVERLAY">
 				<MaskTexture parentKey="IconMask" file="Interface\AddOns\Narcissus\Art\Masks\HexagonMask" hWrapMode="CLAMPTOBLACKADDITIVE" vWrapMode="CLAMPTOBLACKADDITIVE">
-					<Size>
-						<AbsDimension x="64" y="64"/>
-					</Size>
+					<Size x="64" y="64"/>
 					<Anchors>
 						<Anchor point="CENTER"/>
 					</Anchors>
@@ -286,9 +280,7 @@
 			</Layer>
 			<Layer level="OVERLAY">
 				<MaskTexture parentKey="IconMask" file="Interface\AddOns\Narcissus\Art\Masks\HexagonMask" hWrapMode="CLAMPTOBLACKADDITIVE" vWrapMode="CLAMPTOBLACKADDITIVE" nounload="true">
-					<Size>
-						<AbsDimension x="32" y="32"/>
-					</Size>
+					<Size x="32" y="32"/>
 					<Anchors>
 						<Anchor point="CENTER"/>
 					</Anchors>
@@ -347,6 +339,49 @@
 			<OnShow method="OnShow"/>
 			<OnHide method="OnHide"/>
 			<OnEvent method="OnEvent"/>
+		</Scripts>
+	</Button>
+
+	<Button name="NarciAmmoFlyoutButtonTemplate" registerForClicks="LeftButtonUp, RightButtonUp" virtual="true">
+        <Mixins>
+            <Mixin key="AmmoFlyoutButtonMixin" source="local"/>
+        </Mixins>
+		<Size x="240" y="24"/>
+		<Layers>
+			<Layer level="OVERLAY">
+				<Texture parentKey="Icon">
+					<Size x="24" y="24"/>
+					<TexCoords left="0.075" right="0.925" top="0.075" bottom="0.925"/>
+					<Anchors>
+						<Anchor point="Left" relativeKey="$parent" relativePoint="LEFT" x="0"/>
+					</Anchors>
+				</Texture>
+				<FontString parentKey="Name" inherits="NarciFontItemName" justifyH="LEFT" justifyV="MIDDLE" text="Item Name">
+					<Size x="180" y="0"/>
+					<Anchors>
+						<Anchor point="LEFT" relativeKey="$parent.Icon" relativePoint="RIGHT" x="6" y="0"/>
+					</Anchors>
+				</FontString>
+				<FontString parentKey="ItemCount" inherits="NarciFontNumber10Outline" justifyH="CENTER" justifyV="BOTTOM">
+					<Size x="0" y="0"/>
+					<Anchors>
+						<Anchor point="BOTTOM" relativeKey="$parent.Icon" relativePoint="BOTTOM" x="1" y="1"/>
+					</Anchors>
+				</FontString>
+				<FontString parentKey="DamageText" inherits="NarciFontNormal10White" justifyH="RIGHT" justifyV="TOP">
+					<Size x="0" y="0"/>
+					<Anchors>
+						<Anchor point="RIGHT" relativeKey="$parent" relativePoint="RIGHT" x="-6" y="0"/>
+					</Anchors>
+				</FontString>
+			</Layer>
+		</Layers>
+		<Scripts>
+			<OnEnter method="OnEnter"/>
+			<OnLeave method="OnLeave"/>
+			<OnClick method="OnClick"/>
+			<OnMouseDown method="OnMouseDown"/>
+			<OnMouseUp method="OnMouseUp"/>
 		</Scripts>
 	</Button>
 </Ui>

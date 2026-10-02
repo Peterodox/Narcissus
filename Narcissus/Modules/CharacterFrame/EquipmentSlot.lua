@@ -7,7 +7,6 @@ local DefaultTooltip = NarciGameTooltip; -- Created in Module\GameTooltip.lua
 local ItemTooltip = NarciEquipmentTooltip;
 local SharedBlackScreen = addon.SharedBlackScreen;
 
-local AmmoUtil = addon.AmmoUtil; ---@class AmmoUtil
 local FadeFrame = NarciFadeUI.Fade;
 local GetBorderArtByItemID = NarciAPI.GetBorderArtByItemID;
 local GetGemBorderTexture = NarciAPI.GetGemBorderTexture;
