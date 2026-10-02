@@ -3,11 +3,17 @@ local _, addon = ...
 local NarciAPI = NarciAPI;
 local L = Narci.L;
 local FadeFrame = NarciFadeUI.Fade;
-
+local SharedBlackScreen = addon.SharedBlackScreen;
 
 ---@class AmmoUtil
 local AmmoUtil = {};
-do
+
+
+local FlyoutFrame;
+local CreateFlyoutFrame;
+
+
+do  -- AmmoUtil
     AmmoUtil.dpsCache = {};
 
     local Ammos = {
@@ -17,33 +23,18 @@ do
     };
 
     ---@param ammoType "arrow"|"bullet"
+    ---@param includeUnowned boolean? Used for debugging. Show full list.
     ---@return table? itemIDs
-    function AmmoUtil.GetAvailableAmmosByType(ammoType)
+    function AmmoUtil.GetAvailableAmmosByType(ammoType, includeUnowned)
         local tbl = {};
         local n = 0;
         local GetItemCount = C_Item.GetItemCount;
 
         if Ammos[ammoType] then
             for _, itemID in ipairs(Ammos[ammoType]) do
-                if GetItemCount(itemID) > 0 then
+                if GetItemCount(itemID) > 0 or includeUnowned then
                     n = n + 1;
                     tbl[n] = itemID;
-                end
-            end
-
-            if not AmmoUtil.testDone then
-                AmmoUtil.testDone = true;
-
-                local lastButton;
-                for _, itemID in ipairs(Ammos[ammoType]) do
-                    local button = CreateFrame("Button", nil, UIParent, "NarciAmmoFlyoutButtonTemplate");
-                    button:SetItemByID(itemID);
-                    if lastButton then
-                        button:SetPoint("TOP", lastButton, "BOTTOM", 0, -4);
-                    else
-                        button:SetPoint("TOP", UIParent, "CENTER", 0, 96);
-                    end
-                    lastButton = button;
                 end
             end
         end
@@ -70,6 +61,37 @@ do
             count = "|cffffD100"..count.."|r"
         end
         return count;
+    end
+
+    function AmmoUtil.TryEquipAmmo(itemID)
+        if not InCombatLockdown() then
+            NarciAPI.PickupContainerItemByItemID(itemID);
+            if CursorHasItem() then
+                PickupInventoryItem(18);
+            end
+            ClearCursor();
+        end
+    end
+
+    function AmmoUtil.ShowFlyout(ammoSlot)
+        if not FlyoutFrame then
+            CreateFlyoutFrame();
+        end
+        FlyoutFrame:InitFromSlotButton(ammoSlot);
+    end
+
+    function AmmoUtil.HideFlyout()
+        if FlyoutFrame then
+            FlyoutFrame:Hide();
+        end
+    end
+
+    function AmmoUtil.ToggleFlyout(ammoSlot)
+        if FlyoutFrame and FlyoutFrame:IsShown() then
+            FlyoutFrame:Hide();
+        else
+            AmmoUtil.ShowFlyout(ammoSlot)
+        end
     end
 end
 
@@ -111,7 +133,7 @@ do
             r, g, b = 1, 0, 0;
         end
 
-        if currentAmmoType ~= self.ammoType or true then
+        if currentAmmoType ~= self.ammoType then
             -- Auto-swap ammo if not match
             local ammos = AmmoUtil.GetAvailableAmmosByType(self.ammoType);
             if ammos then
@@ -121,13 +143,7 @@ do
                     r, g, b = 0.5, 0.5, 0.5;
                     count = "";
                     C_Timer.After(0.1, function()
-                        if not InCombatLockdown() then
-                           NarciAPI.PickupContainerItemByItemID(bestAmmoItemID);
-                            if CursorHasItem() then
-                                PickupInventoryItem(18);
-                            end
-                            ClearCursor();
-                        end
+                        AmmoUtil.TryEquipAmmo(bestAmmoItemID);
                     end);
                 end
             end
@@ -145,10 +161,16 @@ do
         NarciAPI.SetBorderTexture(self.Border, quality, 2);
 
         self.GradientBackground:SetWidth(math.max(self.Name:GetWrappedWidth(), 48) + 48);
+
+        -- Update flyout if shown
+        if FlyoutFrame and FlyoutFrame:IsShown() then
+            AmmoUtil.ShowFlyout(self);
+        end
     end
 
     function AmmoSlotMixin:OnClick()
-
+        AmmoUtil.ToggleFlyout(self);
+        Narci:HideButtonTooltip();
     end
 
     function AmmoSlotMixin:OnEnter()
@@ -197,43 +219,179 @@ do
 end
 
 
+do  -- FlyoutFrame
+    local FlyoutFrameMixin = {};
+
+    function FlyoutFrameMixin:OnShow()
+        self:RegisterEvent("GLOBAL_MOUSE_UP");
+    end
+
+    function FlyoutFrameMixin:OnHide()
+        self:Hide();
+        self:SetAlpha(0);
+        self.itemCallbacks = nil;
+        self:UnregisterEvent("ITEM_DATA_LOAD_RESULT");
+        self:UnregisterEvent("GLOBAL_MOUSE_UP");
+        SharedBlackScreen:TryHide();
+    end
+
+    function FlyoutFrameMixin:OnEvent(event, ...)
+        if event == "ITEM_DATA_LOAD_RESULT" then
+            local itemID, success = ...
+            if self.itemCallbacks then
+                if self.itemCallbacks[itemID] then
+                    self.itemCallbacks[itemID]:SetItemByID(itemID, itemID == self.equippedItemID);
+                end
+            else
+                self:UnregisterEvent(event);
+            end
+        elseif event == "GLOBAL_MOUSE_UP" then
+            if not self:IsFocused() then
+                self:Hide();
+            end
+        end
+    end
+
+    function FlyoutFrameMixin:AddItemCallbacks(itemID, button)
+        if not self.itemCallbacks then
+            self.itemCallbacks = {};
+            self:RegisterEvent("ITEM_DATA_LOAD_RESULT");
+        end
+        self.itemCallbacks[itemID] = button;
+    end
+
+    function FlyoutFrameMixin:DisplayItems(items)
+        self.buttonPool:ReleaseAll();
+        self.itemCallbacks = nil;
+
+        local n = 0;
+        local buttonHeight = 24;
+        local gap = 0;
+
+        if items and #items > 0 then
+            for _, itemID in ipairs(items) do
+                local button = self.buttonPool:Acquire();
+                n = n + 1;
+                button:ClearAllPoints();
+                button:SetPoint("TOPLEFT", self, "TOPLEFT", 0, (1 - n) * (buttonHeight + gap));
+                button:Show();
+                if not C_Item.IsItemDataCachedByID(itemID) then
+                    self:AddItemCallbacks(itemID, button);
+                    C_Item.RequestLoadItemDataByID(itemID);
+                end
+                button:SetItemByID(itemID, itemID == self.equippedItemID);
+            end
+            self.AlertText:Hide();
+        else
+            n = 1;
+            self.AlertText:Show();
+        end
+
+        self:SetHeight(n * (buttonHeight + gap) - gap);
+    end
+
+    function FlyoutFrameMixin:InitFromSlotButton(ammoSlot)
+        self.ammoSlot = ammoSlot;
+
+        local items = AmmoUtil.GetAvailableAmmosByType(ammoSlot.ammoType);
+        self.equippedItemID = ammoSlot.itemID;
+
+        self:ClearAllPoints();
+        self:SetPoint("TOPLEFT", ammoSlot, "RIGHT", 4, 12);
+        self:DisplayItems(items);
+        self:Show();
+        FadeFrame(self, 0.15, 1);
+
+        SharedBlackScreen:TryShow();
+        SharedBlackScreen:RaiseFrameLevel(ammoSlot);
+
+        self:SetFrameLevel(ammoSlot:GetFrameLevel() + 2);
+    end
+
+    function FlyoutFrameMixin:IsFocused()
+        return self:IsMouseOver() or (self.ammoSlot and self.ammoSlot:IsMouseOver());
+    end
+
+    function CreateFlyoutFrame()
+        local f = CreateFrame("Frame", nil, Narci_Character);
+        FlyoutFrame = f;
+        f:Hide();
+        f:SetAlpha(0);
+        f:SetSize(240, 24);
+        f:SetClampedToScreen(true);
+        Mixin(f, FlyoutFrameMixin);
+
+        f.buttonPool = CreateFramePool("Button", f, "NarciAmmoFlyoutButtonTemplate");
+
+        f.Background = f:CreateTexture(nil, "BACKGROUND");
+        f.Background:SetAllPoints(true);
+        f.Background:SetColorTexture(0.1, 0.1, 0.1);
+        NarciAPI.NineSliceUtil.SetUpBackdrop(f, "shadowHugeR0", 1);
+
+        f.AlertText = f:CreateFontString(nil, "OVERLAY", "NarciFontNormal10White");
+        f.AlertText:SetPoint("CENTER", f, "CENTER", 0, 0);
+        f.AlertText:Hide();
+        f.AlertText:SetText(L["No Item Alert"]);
+
+        f:SetScript("OnShow", f.OnShow);
+        f:SetScript("OnHide", f.OnHide);
+        f:SetScript("OnEvent", f.OnEvent);
+
+        SharedBlackScreen:AddOwner(f);
+    end
+end
+
+
 local AmmoFlyoutButtonMixin = {};
 do
     addon.AmmoFlyoutButtonMixin = AmmoFlyoutButtonMixin;
 
     function AmmoFlyoutButtonMixin:OnEnter()
-
+        self.Highlight:Show();
+        self:OnMouseUp();
     end
 
     function AmmoFlyoutButtonMixin:OnLeave()
-
-    end
-
-    function AmmoFlyoutButtonMixin:OnClick()
-
+        self.Highlight:Hide();
     end
 
     function AmmoFlyoutButtonMixin:OnMouseDown()
-
+        self.Highlight:SetColorTexture(0.2, 0.2, 0.2);
     end
 
     function AmmoFlyoutButtonMixin:OnMouseUp()
-
+        self.Highlight:SetColorTexture(0.25, 0.25, 0.25);
     end
 
-    function AmmoFlyoutButtonMixin:SetItemByID(itemID)
+    function AmmoFlyoutButtonMixin:OnClick()
+        local itemID = GetInventoryItemID("player", 0);
+        if itemID ~= self.itemID then
+            AmmoUtil.TryEquipAmmo(self.itemID);
+        end
+        AmmoUtil.HideFlyout();
+    end
+
+    function AmmoFlyoutButtonMixin:SetItemByID(itemID, isEquipped)
         self.itemID = itemID;
 
         local icon = C_Item.GetItemIconByID(itemID);
         local name = C_Item.GetItemNameByID(itemID);
         local quality = C_Item.GetItemQualityByID(itemID);
         local count = C_Item.GetItemCount(itemID);
+        local dps = AmmoUtil.GetDpsByItemID(itemID);
+
         if count > 0 then
             count = AmmoUtil.WrapAmmoCountInColor(count);
         else
             count = nil;
         end
-        local dps = AmmoUtil.GetDpsByItemID(itemID);
+
+        if isEquipped then
+            name = "|TInterface\\AddOns\\Narcissus\\Art\\EquipmentOption\\ToggleCheck:24:24|t"..name;
+            self.Name:SetPoint("LEFT", self, "LEFT", 21, 0);
+        else
+            self.Name:SetPoint("LEFT", self, "LEFT", 26, 0);
+        end
 
         self.Icon:SetTexture(icon);
         self.Name:SetText(name);

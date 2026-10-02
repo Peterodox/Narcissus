@@ -350,22 +350,22 @@
 		<Layers>
 			<Layer level="OVERLAY">
 				<Texture parentKey="Icon">
-					<Size x="24" y="24"/>
+					<Size x="16" y="16"/>
 					<TexCoords left="0.075" right="0.925" top="0.075" bottom="0.925"/>
 					<Anchors>
-						<Anchor point="Left" relativeKey="$parent" relativePoint="LEFT" x="0"/>
+						<Anchor point="CENTER" relativeKey="$parent" relativePoint="LEFT" x="12"/>
 					</Anchors>
 				</Texture>
 				<FontString parentKey="Name" inherits="NarciFontItemName" justifyH="LEFT" justifyV="MIDDLE" text="Item Name">
 					<Size x="180" y="0"/>
 					<Anchors>
-						<Anchor point="LEFT" relativeKey="$parent.Icon" relativePoint="RIGHT" x="6" y="0"/>
+						<Anchor point="LEFT" relativeKey="$parent" relativePoint="LEFT" x="26" y="0"/>
 					</Anchors>
 				</FontString>
 				<FontString parentKey="ItemCount" inherits="NarciFontNumber10Outline" justifyH="CENTER" justifyV="BOTTOM">
 					<Size x="0" y="0"/>
 					<Anchors>
-						<Anchor point="BOTTOM" relativeKey="$parent.Icon" relativePoint="BOTTOM" x="1" y="1"/>
+						<Anchor point="BOTTOM" relativeKey="$parent.Icon" relativePoint="BOTTOM" x="1" y="0"/>
 					</Anchors>
 				</FontString>
 				<FontString parentKey="DamageText" inherits="NarciFontNormal10White" justifyH="RIGHT" justifyV="TOP">
@@ -374,6 +374,15 @@
 						<Anchor point="RIGHT" relativeKey="$parent" relativePoint="RIGHT" x="-6" y="0"/>
 					</Anchors>
 				</FontString>
+			</Layer>
+			<Layer level="BORDER">
+				<Texture parentKey="Highlight" hidden="true">
+					<Color r="0.25" g="0.25" b="0.25"/>
+					<Gradient orientation="HORIZONTAL">
+						<MinColor a="1" r="1" g="1" b="1"/>
+						<MaxColor a="0" r="1" g="1" b="1"/>
+					</Gradient>
+				</Texture>
 			</Layer>
 		</Layers>
 		<Scripts>

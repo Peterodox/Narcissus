@@ -349,7 +349,7 @@ function NarciEquipmentOptionMixin:OnShow()
 end
 
 function NarciEquipmentOptionMixin:IsFocused()
-    return ( self:IsMouseOver(self.hitrectTop, -16, -16, 16) or FilterButton:IsMouseOver(12, -12, -12, 12) or (self.slotButton and self.slotButton:IsMouseOver(0, 0, -24, 24)) )
+    return ( self:IsMouseOver(self.hitrectTop, -16, 0, 16) or FilterButton:IsMouseOver(12, -12, -12, 12) or (self.slotButton and self.slotButton:IsMouseOver(0, 0, -24, 24)) )
 end
 
 local function CloseDelay_OnUpdate(self, elapsed)

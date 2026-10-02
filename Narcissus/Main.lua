@@ -757,6 +757,9 @@ local function ShowAllItemInfo()
 		ShowLessItemInfo(slotButton, false);
 		slotButton:SetFrameLevel(level -1);
 		slotButton.RuneSlot:SetFrameLevel(level);
+		if slotButton.AmmoSlot then
+			slotButton.AmmoSlot:SetFrameLevel(level);
+		end
 	end
 end
 
