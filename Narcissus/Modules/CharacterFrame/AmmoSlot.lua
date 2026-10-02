@@ -293,7 +293,7 @@ do  -- FlyoutFrame
     function FlyoutFrameMixin:InitFromSlotButton(ammoSlot)
         self.ammoSlot = ammoSlot;
 
-        local items = AmmoUtil.GetAvailableAmmosByType(ammoSlot.ammoType);
+        local items = AmmoUtil.GetAvailableAmmosByType(ammoSlot.ammoType, true);
         self.equippedItemID = ammoSlot.itemID;
 
         self:ClearAllPoints();
@@ -319,6 +319,7 @@ do  -- FlyoutFrame
         f:SetAlpha(0);
         f:SetSize(240, 24);
         f:SetClampedToScreen(true);
+        f:SetFrameStrata("DIALOG");
         Mixin(f, FlyoutFrameMixin);
 
         f.buttonPool = CreateFramePool("Button", f, "NarciAmmoFlyoutButtonTemplate");

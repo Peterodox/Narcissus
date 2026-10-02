@@ -1048,11 +1048,17 @@ function NarciScreenshotToolbarMixin:OnLeave()
 end
 
 local function IsFrameFocused(frame)
-    return frame and frame:IsShown() and frame:IsMouseOver()
+    return frame and frame:IsShown() and frame:IsMouseMotionFocus();
 end
 
 function NarciScreenshotToolbarMixin:IsFocused()
-    return self:IsMouseOver() or self.EmoteFrame:IsFocused() or self.CameraSettingFrame:IsFocused() or self.TransmogListFrame:IsFocused() or IsFrameFocused(self.PreferenceToggle);
+    for _, button in ipairs(ToolbarButtons) do
+        if button.IsMouseMotionFocus and button:IsMouseMotionFocus() then
+            return true;
+        end
+    end
+
+    return self:IsMouseMotionFocus() or self.Switch:IsMouseMotionFocus() or self.EmoteFrame:IsFocused() or self.CameraSettingFrame:IsFocused() or self.TransmogListFrame:IsFocused() or IsFrameFocused(self.PreferenceToggle);
 end
 
 function NarciScreenshotToolbarMixin:OnShow()
