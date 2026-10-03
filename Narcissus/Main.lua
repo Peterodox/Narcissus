@@ -49,7 +49,6 @@ local Toolbar = NarciScreenshotToolbar;
 local EquipmentFlyoutFrame;
 local ItemLevelFrame;
 local RadarChart;
-local ItemTooltip;
 
 local MiniButton = Narci_MinimapButton;
 
