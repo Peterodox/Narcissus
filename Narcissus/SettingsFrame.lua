@@ -540,7 +540,8 @@ local function ItemTooltipStyle_OnEnter(self)
     self.slotID = 16;
     NarciEquipmentTooltip:HideTooltip();
     NarciGameTooltip:Hide();
-    local link = "|Hitem:71086:6226:173127::::::60:577:::3:6660:7575:7696|r";   --77949
+    local exampleItemID = addon.IS_FOREVER and 17182 or 71086;
+    local link = string.format("|Hitem:%s:6226:173127::::::60:577:::3:6660:7575:7696|r", exampleItemID);
     if self.id == 1 then
         if Narci_Character:IsShown() then
             NarciEquipmentTooltip:SetParent(Narci_Character);
