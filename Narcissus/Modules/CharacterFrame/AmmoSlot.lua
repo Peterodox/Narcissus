@@ -224,6 +224,7 @@ do
 
     function AmmoSlotMixin:OnHide()
         self:UnregisterEvent("UNIT_INVENTORY_CHANGED");
+        AmmoUtil.HideFlyout();
     end
 
     function AmmoSlotMixin:OnEvent(event, ...)
