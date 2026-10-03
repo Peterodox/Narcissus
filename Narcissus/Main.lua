@@ -275,8 +275,7 @@ end
 
 function Narci:HideButtonTooltip()
 	DefaultTooltip:HideTooltip();
-	ItemTooltip:HideTooltip();
-
+	NarciEquipmentTooltip:HideTooltip();
 end
 
 
@@ -1641,21 +1640,20 @@ EL:SetScript("OnEvent",function(self, event, ...)
 			UpdateXmogName();
 		end)
 
-
 		UpdateXmogName();
+
 		DefaultTooltip = NarciGameTooltip;
-		if not ItemTooltip then
-			ItemTooltip = DefaultTooltip;
-		end
 		DefaultTooltip:SetParent(Narci_Character);
 		DefaultTooltip:SetFrameStrata("TOOLTIP");
 		DefaultTooltip.offsetX = 4;
 		DefaultTooltip.offsetY = -16;
 		DefaultTooltip:SetIgnoreParentAlpha(true);
-	
+
+		NarciEquipmentTooltip:SetParent(Narci_Character);
+
 		if C_AddOns.IsAddOnLoaded("DynamicCam") then
 			CVarTemp.isDynamicCamLoaded = true;
-			
+
 			--Check validity
 			if not (DynamicCam.BlockShoulderOffsetZoom and DynamicCam.AllowShoulderOffsetZoom) then return end;
 			hooksecurefunc("Narci_Open", function()
@@ -1963,10 +1961,6 @@ addon.CallbackRegistry:Register("SettingChanged.UseWoWQualityColor", function()
 end);
 
 
-function Narci:SetItemTooltipStyle(id)
-
-end
-
 function Narci:CloseCharacterUI()
 	if IS_OPENED then
 		Narci_Open();
@@ -1976,19 +1970,6 @@ end
 
 do
     local SettingFunctions = addon.SettingFunctions;
-
-    function SettingFunctions.SetItemTooltipStyle(id, db)
-        if id == nil then
-            id = db["ItemTooltipStyle"];
-        end
-        if id == 2 then
-            ItemTooltip = NarciGameTooltip;
-        else
-            ItemTooltip = NarciEquipmentTooltip;
-        end
-		NarciEquipmentTooltip:SetParent(Narci_Character);
-    end
-
 
 	function SettingFunctions.SetVignetteStrength(alpha, db)
 		if alpha == nil then

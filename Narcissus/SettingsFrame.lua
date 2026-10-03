@@ -500,10 +500,6 @@ local function AFKToggle_OnValueChanged(self, state)
 end
 
 
-local function ItemTooltipStyle_OnValueChanged(self, styleID)
-    SettingFunctions.SetItemTooltipStyle(styleID)
-end
-
 local function ItemTooltipShowItemID_OnValueChanged(self, state)
     SettingFunctions.ShowItemIDOnTooltip(state);
 end
@@ -1856,7 +1852,7 @@ local Categories = {
         widgets = {
             {type = "header", level = 0, text = L["Item Tooltip"]},
             {type = "subheader", level = 1, text= L["Style"]},
-            {type = "radio", level = 1, key = "ItemTooltipStyle", texts = {L["Tooltip Style 1"], L["Tooltip Style 2"]}, onValueChangedFunc = ItemTooltipStyle_OnValueChanged, onEnterFunc = ItemTooltipStyle_OnEnter, onLeaveFunc = ItemTooltipStyle_OnLeave},
+            {type = "radio", level = 1, key = "ItemTooltipStyle", texts = {L["Tooltip Style 1"], L["Tooltip Style 2"]}, onEnterFunc = ItemTooltipStyle_OnEnter, onLeaveFunc = ItemTooltipStyle_OnLeave},
             {type = "subheader", level = 1, text = L["Addtional Info"], extraTopPadding = 0},
             {type = "checkbox", level = 1, key = "ShowItemID", text = L["Item ID"], onValueChangedFunc = ItemTooltipShowItemID_OnValueChanged},
         },

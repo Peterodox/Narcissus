@@ -218,7 +218,7 @@ do
             return
         end
 
-        NarciGameTooltip:SetFromSlotButton(self, -2, 6);
+        NarciGameTooltip:SetFromSlotButton(self, -2, 6); -- Ammo slot always uses this instead of NarciEquipmentTooltip
     end
 
     function AmmoSlotMixin:OnLeave()

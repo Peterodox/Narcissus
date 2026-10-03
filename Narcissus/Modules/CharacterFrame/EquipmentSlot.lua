@@ -4,7 +4,6 @@ local L = Narci.L;
 local NarciAPI = NarciAPI;
 
 local DefaultTooltip = NarciGameTooltip; -- Created in Module\GameTooltip.lua
-local ItemTooltip = NarciEquipmentTooltip;
 local SharedBlackScreen = addon.SharedBlackScreen;
 
 local AmmoUtil = addon.AmmoUtil; ---@type AmmoUtil
@@ -41,6 +40,11 @@ local function SetEquipmentSlotFlag(flag, value)
     end
 end
 addon.SetEquipmentSlotFlag = SetEquipmentSlotFlag;
+
+local function GetEquipmentTooltip()
+    local style = NarcissusDB and NarcissusDB.ItemTooltipStyle;
+    return style == 2 and NarciGameTooltip or NarciEquipmentTooltip;
+end
 
 
 local RuneSlotMixin = {};
@@ -747,7 +751,7 @@ do
                     end
                 else
                     if not Def.MOG_MODE then
-                        ItemTooltip:SetFromSlotButton(self, -2, 6);
+                        GetEquipmentTooltip():SetFromSlotButton(self, -2, 6);
                     end
                 end
             end
@@ -814,9 +818,9 @@ do
         end
 
         if Def.MOG_MODE then
-            ItemTooltip:SetTransmogFromSlotButton(self, -2, 6);
+            GetEquipmentTooltip():SetTransmogFromSlotButton(self, -2, 6);
         else
-            ItemTooltip:SetFromSlotButton(self, -2, 6, isGamepad and 0.4);	--delay 0.4s
+            GetEquipmentTooltip():SetFromSlotButton(self, -2, 6, isGamepad and 0.4);	--delay 0.4s
         end
     end
 
