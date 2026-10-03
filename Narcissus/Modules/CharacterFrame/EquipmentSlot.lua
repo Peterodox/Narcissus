@@ -992,6 +992,13 @@ do
     end
 
     function EquipmentSlotMixin:RefreshAmmoSlot()
+        if Def.MOG_MODE then
+            if self.AmmoSlot then
+                self.AmmoSlot:Hide();
+            end
+            return;
+        end
+
         local ammoType;
         local ammoTypeName;
 
