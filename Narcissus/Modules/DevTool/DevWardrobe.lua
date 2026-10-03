@@ -764,7 +764,7 @@ local function Init()
     --GenerateDressableItems();
     GenerateItemIDsFromSources();
 
-    local GetItemInfoInstant = GetItemInfoInstant;
+    local GetItemInfoInstant = C_Item.GetItemInfoInstant;
 
     local function SortByType(item1, item2)
         local _, classID1, classID2, subclassID1, subclassID2;

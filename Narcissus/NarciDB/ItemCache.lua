@@ -11,7 +11,7 @@ local type = type;
 local RequestLoadItemDataByItemLocation = C_Item.RequestLoadItemData;
 local RequestLoadItemDataByID = C_Item.RequestLoadItemDataByID;
 local GetItemID = C_Item.GetItemID;
-local GetItemInfoInstant = GetItemInfoInstant;
+local GetItemInfoInstant = C_Item.GetItemInfoInstant;
 
 function ItemCacheUtil:IsItemDataCached(item)
     if type(item) == "number" then

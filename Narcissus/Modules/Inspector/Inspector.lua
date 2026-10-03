@@ -10,8 +10,8 @@ local UnitIsPlayer = UnitIsPlayer;
 local CanInspect = CanInspect;
 local GetInventoryItemTexture = GetInventoryItemTexture;
 local GetInventoryItemLink = GetInventoryItemLink;
-local GetDetailedItemLevelInfo = GetDetailedItemLevelInfo;
-local GetItemInfoInstant = GetItemInfoInstant;
+local GetDetailedItemLevelInfo = C_Item.GetDetailedItemLevelInfo;
+local GetItemInfoInstant = C_Item.GetItemInfoInstant;
 local CreateFrame = CreateFrame;
 local gsub = string.gsub;
 

@@ -209,7 +209,7 @@ function SortWeaponBySubclass()
     local type = type;
     local tinsert = table.insert;
     local visualItems = NarciItemDatabase.VisualItems;
-    local GetItemInfoInstant = GetItemInfoInstant;
+    local GetItemInfoInstant = C_Item.GetItemInfoInstant;
     local GetItemModelFileID = NarciItemDatabase.GetItemModelFileID;
     local function GetSubclassID(id)
         local _, _, _, _, _, itemClassID, itemSubClassID = GetItemInfoInstant(id);
