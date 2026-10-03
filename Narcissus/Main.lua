@@ -157,7 +157,7 @@ SlotLayout.Retail = {
 };
 
 SlotLayout.Forever = {
-	{"HeadSlot", "NeckSlot", "ShoulderSlot", "BackSlot", "ChestSlot", "WristSlot", "MainHandSlot", "SecondaryHandSlot", "RangedSlot"},
+	{"HeadSlot", "NeckSlot", "ShoulderSlot", "BackSlot", "ChestSlot", "WristSlot", "MainHandSlot", "SecondaryHandSlot", "RangedSlot"}, -- Relics are in the RangedSlot as well
 	{"HandsSlot", "WaistSlot", "LegsSlot", "FeetSlot", "Finger0Slot", "Finger1Slot", "Trinket0Slot", "Trinket1Slot", "ShirtSlot", "TabardSlot"},
 };
 

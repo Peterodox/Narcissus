@@ -64,13 +64,16 @@ do  -- AmmoUtil
     end
 
     function AmmoUtil.TryEquipAmmo(itemID)
+        local successInternal;
         if not InCombatLockdown() then
             NarciAPI.PickupContainerItemByItemID(itemID);
             if CursorHasItem() then
                 PickupInventoryItem(18);
+                successInternal = true;
             end
             ClearCursor();
         end
+        return successInternal;
     end
 
     function AmmoUtil.ShowFlyout(ammoSlot)
@@ -107,8 +110,25 @@ do
         self.slotID = slotID;
     end
 
+    ---Called by the RangedSlot. Also resets auto-equip retry times.
     function AmmoSlotMixin:SetAmmoType(ammoType)
         self.ammoType = ammoType;
+        self.retryTimes = 0;
+    end
+
+    function AmmoSlotMixin:CanRetry()
+        return self.retryTimes and self.retryTimes < 3;
+    end
+
+    function AmmoSlotMixin:TryEquipAmmo(ammoItemID)
+        if not self:CanRetry() then return; end
+
+        if AmmoUtil.TryEquipAmmo(ammoItemID) then
+            return true;
+        else
+            self.retryTimes = self.retryTimes + 1;
+            return false;
+        end
     end
 
     function AmmoSlotMixin:Refresh()
@@ -134,19 +154,32 @@ do
         end
 
         if currentAmmoType ~= self.ammoType then
-            -- Auto-swap ammo if not match
-            local ammos = AmmoUtil.GetAvailableAmmosByType(self.ammoType);
-            if ammos then
-                local bestAmmoItemID = ammos[1];
-                if bestAmmoItemID ~= itemID then
-                    itemName = L["Item Switching In Progress"];
-                    r, g, b = 0.5, 0.5, 0.5;
-                    count = "";
-                    C_Timer.After(0.1, function()
-                        AmmoUtil.TryEquipAmmo(bestAmmoItemID);
-                    end);
+            local hasCandidateItem;
+            if self:CanRetry() then
+                -- Auto-swap ammo if not match
+                local ammos = AmmoUtil.GetAvailableAmmosByType(self.ammoType);
+                if ammos then
+                    hasCandidateItem = true;
+                    local bestAmmoItemID = ammos[1];
+                    if bestAmmoItemID ~= itemID then
+
+                        C_Timer.After(0.1, function()
+                            if not self:TryEquipAmmo(bestAmmoItemID) then
+                                self:Refresh();
+                            end
+                        end);
+                    end
                 end
             end
+
+            if hasCandidateItem then
+                itemName = L["Item Switching In Progress"];
+                r, g, b = 0.5, 0.5, 0.5;
+            else
+                r, g, b = 1, 0, 0;
+            end
+
+            count = "";
         end
 
         if not b then
@@ -293,7 +326,8 @@ do  -- FlyoutFrame
     function FlyoutFrameMixin:InitFromSlotButton(ammoSlot)
         self.ammoSlot = ammoSlot;
 
-        local items = AmmoUtil.GetAvailableAmmosByType(ammoSlot.ammoType, true);
+        local includeUnowned = false; -- Set to "true" when debugging. Some items in the database may never get used.
+        local items = AmmoUtil.GetAvailableAmmosByType(ammoSlot.ammoType, includeUnowned);
         self.equippedItemID = ammoSlot.itemID;
 
         self:ClearAllPoints();
