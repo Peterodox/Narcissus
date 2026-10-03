@@ -7,6 +7,7 @@ local DefaultTooltip = NarciGameTooltip; -- Created in Module\GameTooltip.lua
 local ItemTooltip = NarciEquipmentTooltip;
 local SharedBlackScreen = addon.SharedBlackScreen;
 
+local AmmoUtil = addon.AmmoUtil; ---@type AmmoUtil
 local FadeFrame = NarciFadeUI.Fade;
 local GetBorderArtByItemID = NarciAPI.GetBorderArtByItemID;
 local GetGemBorderTexture = NarciAPI.GetGemBorderTexture;
@@ -742,6 +743,7 @@ do
                         flyout:Hide();
                     else
                         flyout:SetItemSlot(self, true);
+                        AmmoUtil.HideFlyout();
                     end
                 else
                     if not Def.MOG_MODE then
@@ -802,7 +804,8 @@ do
 
         if IsAltKeyDown() and not Def.MOG_MODE then
             flyout:SetItemSlot(self, true);
-            return
+            AmmoUtil.HideFlyout();
+            return;
         end
 
         if flyout:IsShown() then
@@ -867,7 +870,6 @@ do
         else
             if button == "LeftButton" then
                 if not Def.MOG_MODE then	--Undress an item from player model while in Xmog Mode
-                    --EquipmentFlyoutFrame:SetItemSlot(self);
                     Narci_EquipmentOption:SetFromSlotButton(self, true);
                 end
             elseif button == "RightButton" then

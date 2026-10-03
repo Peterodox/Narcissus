@@ -776,6 +776,7 @@ function NarciEquipmentFlyoutFrameMixin:OnLoad()
 	self.OnLoad = nil;
 	self:SetFixedFrameStrata(true);
 	self:SetFrameStrata("HIGH");
+	SharedBlackScreen:AddOwner(self);
 end
 
 function NarciEquipmentFlyoutFrameMixin:OnHide()

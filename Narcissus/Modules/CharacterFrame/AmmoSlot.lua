@@ -7,6 +7,7 @@ local SharedBlackScreen = addon.SharedBlackScreen;
 
 ---@class AmmoUtil
 local AmmoUtil = {};
+addon.AmmoUtil = AmmoUtil;
 
 
 local FlyoutFrame;
@@ -81,6 +82,8 @@ do  -- AmmoUtil
             CreateFlyoutFrame();
         end
         FlyoutFrame:InitFromSlotButton(ammoSlot);
+        Narci:HideButtonTooltip();
+        Narci_EquipmentFlyoutFrame:Hide();
     end
 
     function AmmoUtil.HideFlyout()
@@ -93,7 +96,7 @@ do  -- AmmoUtil
         if FlyoutFrame and FlyoutFrame:IsShown() then
             FlyoutFrame:Hide();
         else
-            AmmoUtil.ShowFlyout(ammoSlot)
+            AmmoUtil.ShowFlyout(ammoSlot);
         end
     end
 end
@@ -204,15 +207,22 @@ do
 
     function AmmoSlotMixin:OnClick()
         AmmoUtil.ToggleFlyout(self);
-        Narci:HideButtonTooltip();
     end
 
     function AmmoSlotMixin:OnEnter()
+        self:RegisterEvent("MODIFIER_STATE_CHANGED");
         FadeFrame(self.Highlight, 0.15, 1);
+
+        if IsAltKeyDown() then
+            AmmoUtil.ShowFlyout(self);
+            return
+        end
+
         NarciGameTooltip:SetFromSlotButton(self, -2, 6);
     end
 
     function AmmoSlotMixin:OnLeave()
+        self:UnregisterEvent("MODIFIER_STATE_CHANGED");
         FadeFrame(self.Highlight, 0.25, 0);
         Narci:HideButtonTooltip();
     end
@@ -224,12 +234,20 @@ do
 
     function AmmoSlotMixin:OnHide()
         self:UnregisterEvent("UNIT_INVENTORY_CHANGED");
+        self:UnregisterEvent("MODIFIER_STATE_CHANGED");
         AmmoUtil.HideFlyout();
     end
 
     function AmmoSlotMixin:OnEvent(event, ...)
         if event == "UNIT_INVENTORY_CHANGED" then
             self:RequestUpdate();
+        elseif event == "MODIFIER_STATE_CHANGED" then
+            local key, state = ...
+            if key == "LALT" then
+                if state == 1 then
+                    AmmoUtil.ToggleFlyout(self);
+                end
+            end
         end
     end
 
@@ -259,6 +277,7 @@ do  -- FlyoutFrame
 
     function FlyoutFrameMixin:OnShow()
         self:RegisterEvent("GLOBAL_MOUSE_UP");
+        self:RegisterEvent("MODIFIER_STATE_CHANGED");
     end
 
     function FlyoutFrameMixin:OnHide()
@@ -267,6 +286,7 @@ do  -- FlyoutFrame
         self.itemCallbacks = nil;
         self:UnregisterEvent("ITEM_DATA_LOAD_RESULT");
         self:UnregisterEvent("GLOBAL_MOUSE_UP");
+        self:UnregisterEvent("MODIFIER_STATE_CHANGED");
         SharedBlackScreen:TryHide();
     end
 
@@ -283,6 +303,13 @@ do  -- FlyoutFrame
         elseif event == "GLOBAL_MOUSE_UP" then
             if not self:IsFocused() then
                 self:Hide();
+            end
+        elseif event == "MODIFIER_STATE_CHANGED" then
+            local key, state = ...
+            if key == "LALT" then
+                if state == 0 then
+                    self:Hide();
+                end
             end
         end
     end
