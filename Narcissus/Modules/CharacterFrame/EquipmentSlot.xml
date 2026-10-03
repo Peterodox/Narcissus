@@ -109,7 +109,7 @@
 						</FontString>
 					</Layer>
 					<Layer level="BORDER" textureSubLevel="1">
-						<Texture setAllPoints="true" parentKey="GradientBackgroundCenterLeft">
+						<Texture parentKey="GradientBackgroundCenterLeft">
 							<Size x="16" y="14" />
 							<Color r="0" g="0" b="0" a="1"/>
 							<Anchors>
@@ -120,7 +120,7 @@
 								<MaxColor a="0.8" r="0" g="0" b="0"/>
 							</Gradient>
 						</Texture>
-						<Texture setAllPoints="true" parentKey="GradientBackgroundCenterRight">
+						<Texture parentKey="GradientBackgroundCenterRight">
 							<Size x="16" y="14" />
 							<Color r="0" g="0" b="0" a="1"/>
 							<Anchors>
@@ -177,7 +177,7 @@
         </Mixins>
 		<Layers>
 			<Layer level="BACKGROUND">
-				<Texture setAllPoints="true" parentKey="GradientBackground">
+				<Texture parentKey="GradientBackground">
 					<Size x="140" y="40"/>
 					<Color r="0" g="0" b="0" a="1"/>
 					<Anchors>
@@ -376,7 +376,7 @@
 				</FontString>
 			</Layer>
 			<Layer level="BORDER">
-				<Texture parentKey="Highlight" hidden="true">
+				<Texture parentKey="Highlight" setAllPoints="true" hidden="true">
 					<Color r="0.25" g="0.25" b="0.25"/>
 					<Gradient orientation="HORIZONTAL">
 						<MinColor a="1" r="1" g="1" b="1"/>
