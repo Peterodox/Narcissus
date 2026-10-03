@@ -1034,7 +1034,7 @@ local function GetCompleteItemData(tooltipData, itemLink)
                     end
                 end
 
-                if i >= 4 and not anyMatch then
+                if i >= 2 and not anyMatch then
                     --effects
                     if find(lineText, ON_USE) then
                         effectText, cooldownText = TrimCooldownText( strtrim(lineText, NO_COMMA_ON_USE) );
@@ -1060,7 +1060,7 @@ local function GetCompleteItemData(tooltipData, itemLink)
                                 data.itemType = rightText;
                             end
                             local n = i + 1;
-                            
+
                             leftText = GetLineText(lines, n);
                             rightText = GetLineRightText(lines, n);
                             if leftText and rightText then
