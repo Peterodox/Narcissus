@@ -111,8 +111,9 @@ do
     end
 
     ---Called by the RangedSlot. Also resets auto-equip retry times.
-    function AmmoSlotMixin:SetAmmoType(ammoType)
+    function AmmoSlotMixin:SetAmmoType(ammoType, ammoTypeName)
         self.ammoType = ammoType;
+        self.ammoTypeName = ammoTypeName;
         self.retryTimes = 0;
     end
 
@@ -317,6 +318,11 @@ do  -- FlyoutFrame
             self.AlertText:Hide();
         else
             n = 1;
+            if self.ammoTypeName then
+                self.AlertText:SetText(L["ItemType Not Found Format"]:format(self.ammoTypeName));
+            else
+                self.AlertText:SetText(L["No Item Alert"]);
+            end
             self.AlertText:Show();
         end
 
@@ -329,6 +335,7 @@ do  -- FlyoutFrame
         local includeUnowned = false; -- Set to "true" when debugging. Some items in the database may never get used.
         local items = AmmoUtil.GetAvailableAmmosByType(ammoSlot.ammoType, includeUnowned);
         self.equippedItemID = ammoSlot.itemID;
+        self.ammoTypeName = ammoSlot.ammoTypeName;
 
         self:ClearAllPoints();
         self:SetPoint("TOPLEFT", ammoSlot, "RIGHT", 4, 12);
@@ -366,7 +373,7 @@ do  -- FlyoutFrame
         f.AlertText = f:CreateFontString(nil, "OVERLAY", "NarciFontNormal10White");
         f.AlertText:SetPoint("CENTER", f, "CENTER", 0, 0);
         f.AlertText:Hide();
-        f.AlertText:SetText(L["No Item Alert"]);
+        f.AlertText:SetTextColor(0.5, 0.5, 0.5);
 
         f:SetScript("OnShow", f.OnShow);
         f:SetScript("OnHide", f.OnHide);

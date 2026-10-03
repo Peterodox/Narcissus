@@ -592,6 +592,7 @@ L["Missing Enchant Alert"] = "附魔提示";
 L["Missing Enchant"] = NARCI_COLOR_RED_MILD.."缺失附魔".."|r";
 L["Socket Occupied"] = "插槽已被占用";
 L["Item Switching In Progress"] = "切换中...";
+L["ItemType Not Found Format"] = "未找到其他%s";
 
 --Statistics--
 S["Narcissus Played"] = "Narcissus使用时长";

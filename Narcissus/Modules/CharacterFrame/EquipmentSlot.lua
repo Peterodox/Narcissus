@@ -993,15 +993,19 @@ do
 
     function EquipmentSlotMixin:RefreshAmmoSlot()
         local ammoType;
+        local ammoTypeName;
 
         if self.slotID == 18 then
             local itemID = GetInventoryItemID("player", self.slotID);
             if itemID then
-                local _, _, _, _, _, classID, subClassID = C_Item.GetItemInfoInstant(itemID);
+                local _, _, itemSubType, _, _, classID, subClassID = C_Item.GetItemInfoInstant(itemID);
                 if subClassID == 2 or subClassID == 18 then
                     ammoType = "arrow";
                 elseif subClassID == 3 then
                     ammoType = "bullet";
+                end
+                if ammoType then
+                    ammoTypeName = C_Item.GetItemSubClassInfo(6, ammoType == "arrow" and 2 or 3);
                 end
             end
         end
@@ -1011,7 +1015,7 @@ do
                 self.AmmoSlot = CreateFrame("Button", nil, self, "NarciAmmoSlotButtonTemplate");
                 self.AmmoSlot:SetPoint("CENTER", self, "CENTER", 25, -43);
             end
-            self.AmmoSlot:SetAmmoType(ammoType);
+            self.AmmoSlot:SetAmmoType(ammoType, ammoTypeName);
             if not self.AmmoSlot:IsShown() then
                 self.AmmoSlot.AnimIn:Play();
                 self.AmmoSlot:Show();
