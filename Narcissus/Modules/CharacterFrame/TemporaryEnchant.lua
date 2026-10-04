@@ -105,12 +105,15 @@ function NarciTempEnchantIndicatorMixin:SetInventoryItem(invID)
     self.invID = invID;
     self.bagID, self.slotID = nil, nil;
 
+    local enchantInfo = C_PaperDollInfo.GetTemporaryEnchantmentInfo(invID);
     local buffText, durationText = GetTemporaryItemBuff(invID);
-    local isWeapon = (invID == 16 or invID == 17);
     local iconFileID = GetInventoryItemTexture("player", invID);
     local playGlow = false;
-    if isWeapon then
-        local hasEnchant, expiration, charges, enchantID = select(4 * (invID - 16) + 1, GetWeaponEnchantInfo());      --RETURNS_PER_ITEM = 4  (BuffFrame.lua)
+    if enchantInfo then
+        local enchantID = enchantInfo.enchantID;
+        local expiration = enchantInfo.remainingTimeMs;
+        local charges = enchantInfo.chargesRemaining;
+        local hasEnchant = enchantID ~= nil;
         if hasEnchant then
             local secLeft = expiration/1000;
             self.t = math.modf(secLeft);

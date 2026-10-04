@@ -5,7 +5,6 @@ local Narci = Narci;
 local MsgAlertContainer = addon.MsgAlertContainer;
 local TransitionAPI = addon.TransitionAPI;
 local SlotButtonOverlayUtil = addon.SlotButtonOverlayUtil;
-local TimerunningUtil = addon.TimerunningUtil;
 local TalentTreeDataProvider = addon.TalentTreeDataProvider;
 local CameraUtil = addon.CameraUtil;
 local UIParentFade = addon.UIParentFade;
@@ -14,8 +13,8 @@ local SharedBlackScreen = addon.SharedBlackScreen;
 
 Narci.refreshCombatRatings = true;
 
-local SLOT_TABLE = {};
-Narci.slotTable = SLOT_TABLE;
+local SLOT_TABLE = Narci.slotTable;
+local SetEquipmentSlotFlag = addon.SetEquipmentSlotFlag;
 
 local AttributeFrames = {};
 local ShortAttributeFrames = {};
@@ -23,43 +22,24 @@ local L = Narci.L;
 local VIGNETTE_ALPHA = 0.5;
 local IS_OPENED = false;									--Addon was opened by clicking
 local MOG_MODE = false;
-local SHOW_MISSING_ENCHANT_ALERT = true;
-local IS_LEGION_REMIX = false;
 
 local NarciAPI = NarciAPI;
-local GetItemEnchantID = NarciAPI.GetItemEnchantID;
-local GetItemEnchantText = NarciAPI.GetEnchantTextByItemLink;
-local EnchantInfo = Narci.EnchantData;						--Bridge/GearBonus.lua
-local GetOverrideItemIcon = NarciAPI.GetOverrideItemIcon;
 
 local PlayLetteboxAnimation = NarciAPI_LetterboxAnimation;
 local SmartFontType = NarciAPI.SmartFontType;
-local IsItemSocketable = NarciAPI.IsItemSocketable;
-local SetBorderTexture = NarciAPI.SetBorderTexture;
-local GetBorderArtByItemID = NarciAPI.GetBorderArtByItemID;
-local GetVerticalRunicLetters = NarciAPI.GetVerticalRunicLetters;
 local FadeFrame = NarciFadeUI.Fade;
 
 local outSine = addon.EasingFunctions.outSine;
 
 local GetToolbarButtonByButtonType = addon.GetToolbarButtonByButtonType;
-local TransmogDataProvider = addon.TransmogDataProvider;
-local ConfirmBinding = addon.ConfirmBinding;
 
 --local GetCorruptedItemAffix = NarciAPI_GetCorruptedItemAffix;
-local Narci_AlertFrame_Autohide = Narci_AlertFrame_Autohide;
 local C_Item = C_Item;
-local GetItemInfo = C_Item.GetItemInfo;
-local GetItemInfoInstant = C_Item.GetItemInfoInstant;
-local C_LegendaryCrafting = C_LegendaryCrafting;
-local C_TransmogCollection = C_TransmogCollection;
 local After = C_Timer.After;
 local ItemLocation = ItemLocation;
 local IsPlayerInAlteredForm = TransitionAPI.IsPlayerInAlteredForm;
 local InCombatLockdown = InCombatLockdown;
-local GetInventoryItemTexture = GetInventoryItemTexture;
 local GetCameraZoom = GetCameraZoom;
-local GetSpellInfo = TransitionAPI.GetSpellInfo;
 
 local floor = math.floor;
 local max = math.max;
@@ -69,7 +49,6 @@ local Toolbar = NarciScreenshotToolbar;
 local EquipmentFlyoutFrame;
 local ItemLevelFrame;
 local RadarChart;
-local ItemTooltip;
 
 local MiniButton = Narci_MinimapButton;
 
@@ -79,14 +58,158 @@ EL:Hide();
 
 EL.EVENTS_DYNAMIC = {"PLAYER_TARGET_CHANGED", "COMBAT_RATING_UPDATE", "PLAYER_MOUNT_DISPLAY_CHANGED",
 	"PLAYER_STARTED_MOVING", "PLAYER_REGEN_DISABLED", "UNIT_MAXPOWER", "PLAYER_STARTED_TURNING", "PLAYER_STOPPED_TURNING",
-	"BAG_UPDATE_COOLDOWN", "UNIT_STATS", "BAG_UPDATE", "PLAYER_EQUIPMENT_CHANGED", "AZERITE_ESSENCE_ACTIVATED",
+	"BAG_UPDATE_COOLDOWN", "UNIT_STATS", "BAG_UPDATE", "PLAYER_EQUIPMENT_CHANGED", "AZERITE_ESSENCE_ACTIVATED", "WEAPON_ENCHANT_CHANGED",
 };
 
 if API.IsPlayerDruid() then
 	table.insert(EL.EVENTS_DYNAMIC, "UPDATE_SHAPESHIFT_FORM");
 end
 
-EL.EVENTS_UNIT = {"UNIT_DAMAGE", "UNIT_ATTACK_SPEED", "UNIT_MAXHEALTH", "UNIT_AURA", "UNIT_INVENTORY_CHANGED", "UNIT_PORTRAIT_UPDATE"};
+EL.EVENTS_UNIT = {"UNIT_DAMAGE", "UNIT_ATTACK_SPEED", "UNIT_MAXHEALTH", "UNIT_AURA", "UNIT_PORTRAIT_UPDATE"};
+
+
+local SlotController = CreateFrame("Frame");
+
+SlotController.slotSequence = {}; -- This will be filled automatically in InitializeSlotButtons
+SlotController.tempEnchantSequence = {16, 17};
+
+function SlotController:Refresh(slotID, forceRefresh)
+	if SLOT_TABLE[slotID] then
+		SLOT_TABLE[slotID]:Refresh(forceRefresh);
+		return true;
+	end
+end
+
+function SlotController:RefreshAll(forceRefresh)
+	for slotID, slotButton in pairs(SLOT_TABLE) do
+		slotButton:Refresh(forceRefresh);
+	end
+end
+
+function SlotController:OnUpdate(elapsed)
+	self.t = self.t + elapsed;
+	if self.t >= 0.05 then
+		self.t = 0;
+		if self.i <= self.total then
+			self.i = self.i + 1;
+			self:Refresh(self.currentSequence[self.i], self.forceRefresh);
+		else
+			self:StopRefresh();
+			if MOG_MODE and Toolbar.TransmogListFrame:IsShown() then
+				After(0.5, function()
+					Toolbar.TransmogListFrame:UpdateTransmogList();
+				end);
+			end
+		end
+	end
+end
+
+function SlotController:StopRefresh()
+	self:SetScript("OnUpdate", nil);
+end
+
+function SlotController:LazyRefresh(sequenceName)
+	self:StopRefresh();
+	if sequenceName == "temp" then
+		self.currentSequence = self.tempEnchantSequence;
+		self.forceRefresh = true;
+	else
+		self.currentSequence = self.slotSequence;
+		self.forceRefresh = false;
+	end
+	self.t = 0;
+	self.i = 0;
+	self.total = #self.currentSequence;
+	self:SetScript("OnUpdate", self.OnUpdate);
+end
+
+function SlotController:ClearCache()
+	for slotID, slotButton in pairs(SLOT_TABLE) do
+		slotButton.itemLink = nil;
+	end
+end
+
+function SlotController:PlayAnimOut()
+	if not InCombatLockdown() and Narci_Character:IsShown() then
+		for slotID, slotButton in pairs(SLOT_TABLE) do
+			slotButton.animOut:Play();
+		end
+		Narci_Character.animOut:Play();
+	end
+end
+
+function SlotController:IsMouseOver()
+	for slotID, slotButton in pairs(SLOT_TABLE) do
+		if slotButton:IsMouseOver() then
+			return true;
+		end
+	end
+	return false;
+end
+
+
+local SlotLayout = {};
+
+SlotLayout.Retail = {
+	{"HeadSlot", "NeckSlot", "ShoulderSlot", "BackSlot", "ChestSlot", "WristSlot", "MainHandSlot", "SecondaryHandSlot", "ShirtSlot"},
+	{"HandsSlot", "WaistSlot", "LegsSlot", "FeetSlot", "Finger0Slot", "Finger1Slot", "Trinket0Slot", "Trinket1Slot", "TabardSlot"},
+};
+
+SlotLayout.Forever = {
+	{"HeadSlot", "NeckSlot", "ShoulderSlot", "BackSlot", "ChestSlot", "WristSlot", "MainHandSlot", "SecondaryHandSlot", "RangedSlot"}, -- Relics are in the RangedSlot as well
+	{"HandsSlot", "WaistSlot", "LegsSlot", "FeetSlot", "Finger0Slot", "Finger1Slot", "Trinket0Slot", "Trinket1Slot", "ShirtSlot", "TabardSlot"},
+};
+
+local function InitializeSlotButtons()
+	if not SlotLayout then return; end
+
+	local buttonHeight = 72;
+	local gap = 2;
+	local container = Narci_Character;
+
+	local layout = addon.IS_FOREVER and SlotLayout.Forever or SlotLayout.Retail;
+
+	local font, _, flag;
+	local maxLines = (NarcissusDB.TruncateText and 1) or 2;
+	local fontHeight = tonumber(NarcissusDB.FontHeightItemName) or 10;
+	local textWidth = tonumber(NarcissusDB.ItemNameWidth) or 200;
+	if textWidth >= 200 then
+		textWidth = 512;
+	end
+
+	local n = 0;
+
+	for k, v in ipairs(layout) do
+		local isRight = k == 2;
+		local orientation = isRight and "right" or "left";
+		local point = isRight and "RIGHT" or "LEFT";
+		local relativeTo = isRight and Narci_VirtualLineRight or Narci_VirtualLineLeft;
+		local totalHeight = (#v - 1) * (buttonHeight + gap) - gap;
+		local fromOffsetY = 0.5 * totalHeight;
+
+		for i, slotName in ipairs(v) do
+			local slotButton = CreateFrame("Button", nil, container, "NarciEquipmentSlotButtonTemplate");
+			slotButton:SetSlotByName(slotName);
+			slotButton:SetOrientation(orientation);
+			slotButton:SetPoint(point, relativeTo, "CENTER", 0, fromOffsetY + (1 - i) * (buttonHeight + gap));
+
+			-- Apply font settings
+			if not font then
+				font, _, flag = slotButton.Name:GetFont();
+			end
+			slotButton.Name:SetFont(font, fontHeight, flag);
+			slotButton.Name:SetMaxLines(maxLines);
+			slotButton.ItemLevel:SetMaxLines(maxLines);
+			slotButton.Name:SetWidth(textWidth);
+			slotButton.ItemLevel:SetWidth(textWidth);
+
+			n = n + 1;
+			SlotController.slotSequence[n] = slotButton.slotID;
+		end
+	end
+
+	SlotLayout = nil;
+end
 
 
 --take out frames from UIParent, so they will still be visible when UI is hidden
@@ -119,6 +242,7 @@ local function TakeOutFrames(state)
 		end
 	end
 end
+Narci.TakeOutFrames = TakeOutFrames;
 
 
 local DefaultTooltip;
@@ -150,8 +274,7 @@ end
 
 function Narci:HideButtonTooltip()
 	DefaultTooltip:HideTooltip();
-	ItemTooltip:HideTooltip();
-
+	NarciEquipmentTooltip:HideTooltip();
 end
 
 
@@ -463,6 +586,7 @@ local function ExitFunc()
 	NarciSettingsFrame:CloseUI();
 
 	MOG_MODE = false;
+	SetEquipmentSlotFlag("MOG_MODE", MOG_MODE);
 
 	CameraUtil:MakeInactive();
 
@@ -513,1053 +637,8 @@ local xmogTable = {
 	{16, INVTYPE_WEAPONMAINHAND}, {17, INVTYPE_WEAPONOFFHAND},																							--Weapon
 };
 
---[[
-local function ShareHyperLink()																	--Send transmog hyperlink to chat
-	local delay = 0;																			--Keep message in order
-	print(MYMOG_GRADIENT)
-	for i=1, #xmogTable do
-		local index =  xmogTable[i][1]
-		if SLOT_TABLE[index] and SLOT_TABLE[index].hyperlink then			
-			After(delay, function()
-				SendChatMessage(xmogTable[i][2]..": "..SLOT_TABLE[index].hyperlink, "GUILD")
-			end)
-			delay = delay + 0.1;
-		end
-	end
-end
---]]
-
-local GetInventoryItemCooldown = GetInventoryItemCooldown;
-
-local function SetItemSocketingFramePosition(self)		--Let ItemSocketingFrame appear on the side of the slot
-	if ItemSocketingFrame then
-		if self.GemSlot:IsShown() then
-			ItemSocketingFrame:Show()
-		else
-			ItemSocketingFrame:Hide()
-			return;
-		end
-		ItemSocketingFrame:ClearAllPoints();
-		if self.isRight then
-			ItemSocketingFrame:SetPoint("TOPRIGHT", self, "TOPLEFT", 4, 0);
-		else
-			ItemSocketingFrame:SetPoint("TOPLEFT", self, "TOPRIGHT", -4, 0);
-		end
-		DefaultTooltip:HideTooltip();
-	end
-end
-
-local IsItemEnchantable = {
-	[11] = true,
-	[12] = true,
-	[16] = true,
-	[17] = true,
-	[5]  = true,
-
-	[8] = true,
-	[9] = true,
-	[10] = true,
-	[15] = true,
-};
-
-local function DisplayRuneSlot(equipmentSlot, slotID, itemQuality, itemLink)
-	--! RuneSlot.Background is disabled
-	if not equipmentSlot.RuneSlot then
-		return;
-	elseif (itemQuality == 0) or (not itemLink) then
-		equipmentSlot.RuneSlot:Hide();
-		return;
-	end
-
-	if IsItemEnchantable[slotID] then
-		equipmentSlot.RuneSlot:Show();
-	else
-		equipmentSlot.RuneSlot:Hide();
-		return;
-	end
-
-	local enchantID = GetItemEnchantID(itemLink);
-	if enchantID ~= 0 then
-		equipmentSlot.RuneSlot.RuneLetter:Show();
-		if EnchantInfo[enchantID] then
-			equipmentSlot.RuneSlot.RuneLetter:SetText( GetVerticalRunicLetters( EnchantInfo[enchantID][1] ) );
-			equipmentSlot.RuneSlot.spellID = EnchantInfo[enchantID][3]
-		end
-	else
-		equipmentSlot.RuneSlot.spellID = nil;
-		equipmentSlot.RuneSlot.RuneLetter:Hide();
-	end
-end
-
-function Narci_RuneButton_OnEnter(self)
-	local spellID = self.spellID;
-	if (not spellID) then
-		return;
-	end
-	DefaultTooltip:SetOwner(self, "ANCHOR_NONE");
-	if self:GetParent().isRight then
-		DefaultTooltip:SetPoint("TOPRIGHT", self, "TOPLEFT", 8, 8);
-	else
-		DefaultTooltip:SetPoint("TOPLEFT", self, "TOPRIGHT", 0, 8);
-	end
-	DefaultTooltip:SetSpellByID(spellID);
-	DefaultTooltip:Show();
-	DefaultTooltip:FadeIn();
-end
-
----------------------------------------------------
-local function GetTraitsIcon(itemLocation)
-    if not itemLocation then return; end
-    local TierInfos = C_AzeriteEmpoweredItem.GetAllTierInfo(itemLocation);
-	if not TierInfos then return; end
-	local powerIDs, icon, _;
-	local isRightSpec = true;
-	local traitIcons = {};
-	local specIndex = C_SpecializationInfo.GetSpecialization() or 1;
-	local specID = C_SpecializationInfo.GetSpecializationInfo(specIndex);
-	local MAX_TIERS = 5;
-
-    for i = 1, MAX_TIERS do
-        if (not TierInfos[i]) or (not TierInfos[i].azeritePowerIDs) then
-            return traitIcons;
-        end
-		powerIDs = TierInfos[i].azeritePowerIDs;
-        for k, powerID in pairs(powerIDs) do
-			if C_AzeriteEmpoweredItem.IsPowerSelected(itemLocation, powerID) then
-				local PowerInfo = C_AzeriteEmpoweredItem.GetPowerInfo(powerID)
-				isRightSpec = isRightSpec and C_AzeriteEmpoweredItem.IsPowerAvailableForSpec(powerID, specID);
-				_, _, icon = GetSpellInfo(PowerInfo and PowerInfo.spellID);
-                traitIcons[i] = icon;
-                break;
-            else
-                traitIcons[i] = "";
-            end
-        end
-	end
-
-    return traitIcons, isRightSpec;
-end
-
-local function GetRuneForgeLegoIcon(itemLocation)
-	local componentInfo = C_LegendaryCrafting.GetRuneforgeLegendaryComponentInfo(itemLocation);
-	if componentInfo and componentInfo.powerID then
-		local powerInfo = C_LegendaryCrafting.GetRuneforgePowerInfo(componentInfo.powerID);
-		return powerInfo and powerInfo.iconFileID
-	end
-end
-
-
-local GetSlotVisualID = NarciAPI.GetSlotVisualID;
-local GetGemBorderTexture = NarciAPI.GetGemBorderTexture;
-local GetItemQualityColor = NarciAPI.GetItemQualityColor;
-
-local QueueFrame = NarciAPI.CreateProcessor(nil, 0.5);
 
 -----------------------------------------------------------------------
-NarciItemButtonSharedMixin = {};
-
-function NarciItemButtonSharedMixin:RegisterErrorEvent()
-	self:RegisterEvent("UI_ERROR_MESSAGE");
-end
-
-function NarciItemButtonSharedMixin:UnregisterErrorEvent()
-	if self.errorFrame then
-		self.errorFrame = nil;
-		self:UnregisterEvent("UI_ERROR_MESSAGE");
-	end
-end
-
-function NarciItemButtonSharedMixin:OnErrorMessage(...)
-	self:UnregisterErrorEvent();
-	local _, msg = ...
-	Narci_AlertFrame_Autohide:AddMessage(msg, true);
-end
-
-function NarciItemButtonSharedMixin:AnchorAlertFrame()
-	if not self.errorFrame then
-		self.errorFrame = true;
-		self:RegisterErrorEvent();
-		Narci_AlertFrame_Autohide:SetAnchor(self, -12, true);
-	end
-end
-
-function NarciItemButtonSharedMixin:PlayGamePadAnimation()
-	if self.gamepad then
-		self.Icon.ScaleUp:Play();
-		self.IconMask.ScaleUp:Play();
-		self.Border.ScaleUp:Play();
-		self.Border.BorderMask.ScaleUp:Play();
-	end
-end
-
-function NarciItemButtonSharedMixin:ResetAnimation()
-	if self.gamepad then
-		self.Icon.ScaleUp:Stop();
-		self.Border.ScaleUp:Stop();
-		self.Border.BorderMask.ScaleUp:Stop();
-		self.IconMask.ScaleUp:Stop();
-		self.Icon:SetScale(1);
-		self.Border:SetScale(1);
-		self.IconMask:SetScale(1);
-		self.Border.BorderMask:SetScale(1);
-		if self.gamepadOverlay then
-			self.gamepadOverlay:Hide();
-			self.gamepadOverlay = nil;
-		end
-	end
-end
-
-function NarciItemButtonSharedMixin:SetBorderTexture(border, texKey)
-	SetBorderTexture(border, texKey, 2);
-end
-
-function NarciItemButtonSharedMixin:ShowAlphaChannel()
-	self.Icon:SetColorTexture(1, 1, 1);
-	self.Border:SetColorTexture(1, 1, 1);
-	self.Border.textureKey = -1;
-end
-
------------------------------------------------------------------------
-local ValidForTempEnchant = {
-	[16] = true,
-	[17] = true,
-};
-
-local function GetFormattedSourceText(sourceInfo)
-	local sourceType = sourceInfo.sourceType;
-	local itemQuality = sourceInfo.quality or 1;
-	local hex = NarciAPI.GetItemQualityHexColor(itemQuality);
-	local difficulty;
-	local bonusID;
-	local colorizedText, plainText, hyperlink;
-
-	--/dump Enum.TransmogSource
-
-	if sourceType == 1 then	--TRANSMOG_SOURCE_BOSS_DROP = 1
-		local drops = C_TransmogCollection.GetAppearanceSourceDrops(sourceInfo.sourceID);
-		if drops and drops[1] then
-			colorizedText = drops[1].encounter.." ".."|cFFFFD100"..drops[1].instance.."|r";
-			plainText = drops[1].encounter.." "..drops[1].instance;
-
-			if sourceInfo.itemModID == 0 then 
-				difficulty = PLAYER_DIFFICULTY1;
-				bonusID = 3561;
-				hyperlink = "|c"..hex.."|Hitem:"..sourceInfo.itemID.."::::::::120::::2:356".."1"..":1476:|h|r";
-			elseif sourceInfo.itemModID == 1 then 
-				difficulty = PLAYER_DIFFICULTY2;
-				bonusID = 3562;
-				hyperlink = "|c"..hex.."|Hitem:"..sourceInfo.itemID.."::::::::120::::2:356".."2"..":1476:|h|r";
-			elseif sourceInfo.itemModID == 3 then 
-				difficulty = PLAYER_DIFFICULTY6;
-				bonusID = 3563;
-				hyperlink = "|c"..hex.."|Hitem:"..sourceInfo.itemID.."::::::::120::::2:356".."3"..":1476:|h|r";
-			elseif sourceInfo.itemModID == 4 then
-				difficulty = PLAYER_DIFFICULTY3;
-				bonusID = 3564;
-				hyperlink = "|c"..hex.."|Hitem:"..sourceInfo.itemID.."::::::::120::::2:356".."4"..":1476:|h|r";
-			end
-
-			if difficulty then
-				colorizedText = colorizedText.." |CFFf8e694"..difficulty.."|r";
-				plainText = plainText.." "..difficulty;
-			end
-		else
-			local sourceText = _G["TRANSMOG_SOURCE_1"];	--Boss Drop
-			colorizedText = sourceText;
-			plainText = sourceText;
-		end
-	else
-		if sourceType == 2 then --quest
-			colorizedText = TRANSMOG_SOURCE_2;
-			if sourceInfo.itemModID == 3 then 
-				hyperlink= "|c"..hex.."|Hitem:"..sourceInfo.itemID.."::::::::120::::2:512".."6"..":1562:|h|r";
-				bonusID = 5126;
-			elseif sourceInfo.itemModID == 2 then 
-				hyperlink = "|c"..hex.."|Hitem:"..sourceInfo.itemID.."::::::::120::::2:512".."5"..":1562:|h|r";
-				bonusID = 5125;
-			elseif sourceInfo.itemModID == 1 then 
-				hyperlink = "|c"..hex.."|Hitem:"..sourceInfo.itemID.."::::::::120::::2:512".."4"..":1562:|h|r";
-				bonusID = 5124;
-			end
-		elseif sourceType then
-			colorizedText = TransitionAPI.GetTransmogSourceName(sourceType);
-		end
-		plainText = colorizedText;
-	end
-	if not hyperlink then
-		hyperlink = "|c"..hex.."|Hitem:"..sourceInfo.itemID..":|h|r";
-	end
-
-	return colorizedText, plainText, hyperlink;
-end
-
-NarciEquipmentSlotMixin = CreateFromMixins{NarciItemButtonSharedMixin};
-
-function NarciEquipmentSlotMixin:SetTransmogSourceID(appliedSourceID, secondarySourceID)
-	self.sourceID = appliedSourceID;
-
-	if appliedSourceID and appliedSourceID > 0 then
-		self.Icon:SetDesaturated(false);
-		self.Name:Show();
-		self.ItemLevel:Show();
-		self.GradientBackground:Show();
-	else
-		self.Icon:SetDesaturated(true);
-		self.Icon:SetTexture(self.emptyTexture);
-		self.Name:SetText(nil);
-		self.ItemLevel:SetText(nil);
-		self.GradientBackground:Hide();	
-		self:SetBorderTexture(self.Border, 0);
-		if self.slotID == 2 then
-			self:DisplayDirectionMark(false);
-		end
-		return
-	end
-
-	local itemName, itemIcon, itemQuality, subText;
-	local sourceInfo = C_TransmogCollection.GetSourceInfo(appliedSourceID);
-	itemName = sourceInfo and sourceInfo.name;
-
-	if not itemName or itemName == "" then
-		QueueFrame:Add(self, self.Refresh);
-		return
-	end
-
-	self.itemID = sourceInfo.itemID;
-	self.itemModID = sourceInfo.itemModID;
-	itemQuality = sourceInfo.quality or 1;
-	itemIcon = C_TransmogCollection.GetSourceIcon(appliedSourceID);
-
-	subText = TransmogDataProvider:GetSpecialItemSourceText(appliedSourceID, self.itemID, self.itemModID);
-
-	if subText then
-		self.sourcePlainText = NarciAPI.RemoveColorString(subText);
-		_, _, self.hyperlink = GetFormattedSourceText(sourceInfo);
-	else
-		subText, self.sourcePlainText, self.hyperlink = GetFormattedSourceText(sourceInfo);
-	end
-
-	if not subText then
-		subText = " ";
-	end
-
-	if self.hyperlink then
-		_, self.hyperlink = GetItemInfo(self.hyperlink);																		--original hyperlink cannot be printed (workaround)
-	end
-
-	local bonusID;
-	if itemQuality == 6 then
-		if self.slotID == 16 then
-			bonusID = (sourceInfo.itemModID or 0);	--Artifact use itemModID "7V0" + modID - 1
-		else
-			bonusID = 0;
-		end
-	end
-
-	self.bonusID = bonusID;
-
-
-	local bR, bG, bB = GetItemQualityColor(itemQuality);
-	local borderTexKey = itemQuality;
-	self:SetBorderTexture(self.Border, borderTexKey);
-
-	if self:IsVisible() then
-		if itemIcon then
-			self.IconOverlay:SetTexture(itemIcon);
-			self.Icon.anim:Play();
-		end
-		self.ItemLevel.anim1:SetScript("OnFinished", function(f)
-			self.ItemLevel:SetText(subText);
-			self.ItemLevel.anim2:Play();
-			f:SetScript("OnFinished", nil);
-		end)
-		self.Name.anim1:SetScript("OnFinished", function(f)
-			self.Name:SetText(itemName);
-			self.Name:SetTextColor(bR, bG, bB);
-			self.Name.anim2:Play();
-			f:SetScript("OnFinished", nil);
-			After(0, function()
-				self:UpdateGradientSize();
-			end)
-		end)
-		self.ItemLevel.anim1:Play();
-		self.Name.anim1:Play();
-	else
-		self.ItemLevel:SetText(subText);
-		self.Name:SetText(itemName);
-		self.Name:SetTextColor(bR, bG, bB);
-		if itemIcon then
-			self.Icon:SetTexture(itemIcon);
-		end
-		self:UpdateGradientSize();
-	end
-
-	if self.slotID == 3 then
-		--shoulder
-		if secondarySourceID and secondarySourceID > 0 and secondarySourceID ~= appliedSourceID then
-			self:DisplayDirectionMark(true, itemQuality);
-			SLOT_TABLE[2]:SetTransmogSourceID(secondarySourceID, secondarySourceID);
-		else
-			self:DisplayDirectionMark(false);
-		end
-	elseif self.slotID == 2 then
-		self:DisplayDirectionMark(appliedSourceID, itemQuality);
-	end
-end
-
-function NarciEquipmentSlotMixin:Refresh(forceRefresh)
-	if forceRefresh then
-		-- Our update will stop at one point if itemLink is unchanged
-		self.itemLink = nil;
-	end
-
-	local _;
-	local slotID = self.slotID;
-	local itemLocation = ItemLocation:CreateFromEquipmentSlot(slotID);
-	--print(slotName..slotID)
-	--local texture = CharacterHeadSlot.popoutButton.icon:GetTexture()
-	local itemLink;
-	local itemIcon, itemName, itemQuality, effectiveLvl, gemName, gemLink, gemID;
-	local borderTexKey;
-	local isAzeriteEmpoweredItem = false;		--3 Pieces	**likely to be changed in patch 8.2
-	local isAzeriteItem = false;				--Heart of Azeroth
-	--local isCorruptedItem = false;
-	local bR, bG, bB;		--Item Name Color
-	if C_Item.DoesItemExist(itemLocation) then
-		if MOG_MODE then
-			self:UntrackCooldown();
-			self:UntrackTempEnchant();
-			self:ClearOverlay();
-			self:HideVFX();
-			self.GemSlot:HideSlot();
-			self.itemLink = nil;
-			self.isSlotHidden = false;	--Undress an item from player model
-			self.RuneSlot:Hide();
-
-			if TransmogDataProvider.RequestUpdateCharacterUI() then
-				return true
-			end
-
-			self.GradientBackground:Show();
-			local appliedSourceID, appliedVisualID, hasSecondaryAppearance = GetSlotVisualID(slotID);
-			self.sourceID = appliedSourceID;
-
-			if appliedVisualID > 0 then
-				local sourceInfo = C_TransmogCollection.GetSourceInfo(appliedSourceID);
-				itemName = sourceInfo and sourceInfo.name;
-				if not itemName or itemName == "" then
-					QueueFrame:Add(self, self.Refresh);
-					return
-				end
-				self.itemID = sourceInfo.itemID;
-				itemQuality = sourceInfo.quality;
-				self.itemModID = sourceInfo.itemModID;
-				itemIcon = C_TransmogCollection.GetSourceIcon(appliedSourceID);
-
-				effectiveLvl = TransmogDataProvider:GetSpecialItemSourceText(appliedSourceID, self.itemID, self.itemModID);
-
-				if effectiveLvl then
-					self.sourcePlainText = NarciAPI.RemoveColorString(effectiveLvl);
-					_, _, self.hyperlink = GetFormattedSourceText(sourceInfo);
-				else
-					effectiveLvl, self.sourcePlainText, self.hyperlink = GetFormattedSourceText(sourceInfo);
-				end
-
-				if self.hyperlink then
-					_, self.hyperlink = GetItemInfo(self.hyperlink);																		--original hyperlink cannot be printed (workaround)
-				end
-
-				local bonusID;
-				if itemQuality == 6 then
-					if slotID == 16 then
-						bonusID = (sourceInfo.itemModID or 0);	--Artifact use itemModID "7V0" + modID - 1
-					else
-						bonusID = 0;
-					end
-				end
-				self.bonusID = bonusID;
-
-				if effectiveLvl == nil then
-					effectiveLvl = TransmogDataProvider:GetSpecialItemSourceText(appliedSourceID, self.itemID, self.itemModID) or " ";
-				end
-
-
-			else	--irrelevant slot
-				itemName = " ";
-				itemQuality = 0;
-				itemIcon = GetInventoryItemTexture("player", slotID);
-				self.Icon:SetDesaturated(true);
-				self.Name:Hide();
-				self.ItemLevel:Hide();
-				self.GradientBackground:Hide();
-				self.bonusID = nil;
-			end
-			self:DisplayDirectionMark(hasSecondaryAppearance, itemQuality);
-
-		else
-			self:TrackCooldown();
-			self:DisplayDirectionMark(false);
-			self.Icon:SetDesaturated(false)
-			self.Name:Show();
-			self.ItemLevel:Show();
-			self.GradientBackground:Show();
-			self.sourceID = nil;
-			self.hyperlink = nil;
-			self.sourcePlainText = nil;
-			--[[
-			local current, maximum = GetInventoryItemDurability(slotID);
-			if current and maximum then
-				self.durability = (current / maximum);
-			end
-			--]]
-
-			itemLink = C_Item.GetItemLink(itemLocation);
-
-			if ValidForTempEnchant[slotID] then
-				local hasTempEnchant = NarciTempEnchantIndicatorController:InitFromSlotButton(self);
-				if hasTempEnchant ~= self.hasTempEnchant then
-					self.hasTempEnchant = hasTempEnchant;
-				else
-					if itemLink == self.itemLink then
-						return
-					end
-				end
-			else
-				if itemLink == self.itemLink then
-					return
-				end
-			end
-
-			self.itemLink = itemLink;
-
-			local itemVFX, hideItemIcon;
-			local itemID = GetItemInfoInstant(itemLink);
-			borderTexKey, itemVFX, bR, bG, bB, hideItemIcon = GetBorderArtByItemID(itemID);
-
-			itemIcon = itemID and GetOverrideItemIcon(itemID);
-			if not itemIcon then
-				itemIcon = ((not hideItemIcon) and GetInventoryItemTexture("player", slotID)) or nil;
-			end
-			itemName = C_Item.GetItemName(itemLocation);
-			itemQuality = C_Item.GetItemQuality(itemLocation);
-			effectiveLvl = C_Item.GetCurrentItemLevel(itemLocation);
-			self.ItemLevelCenter.ItemLevel:SetText(effectiveLvl);
-
-			--Debug
-			--if effectiveLvl and effectiveLvl > 1 then
-			--	NarciDebug:CalculateAverage(effectiveLvl);
-			--end
-
-			if not hideItemIcon then
-				if slotID == 13 or slotID == 14 then
-					if itemID == 167555 then	--Pocket-Sized Computation Device
-						gemName, gemLink = IsItemSocketable(itemLink, 2);
-					else
-						gemName, gemLink = IsItemSocketable(itemLink);
-					end
-				else
-					gemName, gemLink = IsItemSocketable(itemLink);
-				end
-			end
-			
-			self.GemSlot.ItemLevel = effectiveLvl;
-			self.gemLink = gemLink;		--Later used in OnEnter func in NarciSocketing.lua
-			
-			if slotID == 2 then
-				isAzeriteItem = C_AzeriteItem.IsAzeriteItem(itemLocation);
-				self.isAzeriteItem = isAzeriteItem;
-				if isAzeriteItem then
-					itemVFX = "Heart";
-				end
-			elseif slotID == 1 or slotID == 3 or slotID == 5 then
-				isAzeriteEmpoweredItem = C_AzeriteEmpoweredItem.IsAzeriteEmpoweredItem(itemLocation);
-			else
-				--isCorruptedItem = IsCorruptedItem(itemLink);
-			end
-
-			if slotID == 15 then
-				--Backslot
-				if itemID == 169223 then 	--Ashjra'kamas, Shroud of Resolve Legendary Cloak
-					local rank, corruptionResistance = NarciAPI.GetItemRankText(itemLink, "ITEM_MOD_CORRUPTION_RESISTANCE");
-					effectiveLvl = effectiveLvl.."  "..rank.."  |cFFFFD100"..corruptionResistance.."|r";
-					borderTexKey = "BlackDragon";
-					itemVFX = "DragonFire";
-				elseif itemID == 210333 then		--Timerunning Thread
-					local rank = TimerunningUtil.GetThreadRank();
-					if rank > 0 then
-						rank = "|cff00ccff"..rank.."|r";
-						effectiveLvl = effectiveLvl.."  "..rank;
-					end
-				end
-			end
-
-			if slotID ~= 13 and slotID ~= 14 then
-				local isRuneforgeLegendary = C_LegendaryCrafting.IsRuneforgeLegendary(itemLocation);
-				if isRuneforgeLegendary then
-					itemVFX = "Runeforge";
-					borderTexKey = "Runeforge";
-					itemIcon = GetRuneForgeLegoIcon(itemLocation) or itemIcon;
-				end
-			end
-
-			if IS_LEGION_REMIX and slotID == 16 then
-				local configID = C_Traits.GetConfigIDByTreeID(1161);
-				if configID then
-					local nodeInfo = C_Traits.GetNodeInfo(configID, 108700);	--Limits Unbound
-					local rank = nodeInfo and nodeInfo.currentRank or 0;
-					if rank > 0 then
-						rank = "|cff00ccff"..rank.."|r";
-						effectiveLvl = effectiveLvl.."  "..rank;
-					end
-				end
-			end
-
-			local enchantText, isEnchanted = GetItemEnchantText(itemLink, true, self.isRight);	--enchantText (effect texts) may not be available yet
-			if enchantText then
-				if self.isRight then
-					effectiveLvl = enchantText.."  "..effectiveLvl;
-				else
-					effectiveLvl = effectiveLvl.."  "..enchantText;
-				end
-				self:ClearOverlay();
-			elseif not isEnchanted then
-				if SHOW_MISSING_ENCHANT_ALERT and SlotButtonOverlayUtil:IsSlotValidForEnchant(slotID, itemID) then
-					SlotButtonOverlayUtil:ShowEnchantAlert(self, slotID, itemID);
-					if self.isRight then
-						effectiveLvl = effectiveLvl .. "  ".. L["Missing Enchant"];
-					else
-						effectiveLvl = L["Missing Enchant"].."  "..effectiveLvl;
-					end
-				end
-			end
-
-			--Enchant Frame--
-			if itemQuality then	--and not isRuneforgeLegendary
-				DisplayRuneSlot(self, slotID, itemQuality, itemLink);
-			end
-
-			--Item Visual Effects
-			if itemVFX then
-				self:ShowVFX(itemVFX);
-			else
-				self:HideVFX();
-			end
-		end
-
-		if not itemName or itemName == "" then
-			QueueFrame:Add(self, self.Refresh);
-			return
-		end
-	else
-		self:UntrackCooldown();
-		self:UntrackTempEnchant();
-		self:ClearOverlay();
-		self:HideVFX();
-		self:DisplayDirectionMark(false);
-		self.GradientBackground:Hide();
-		self.Icon:SetDesaturated(false);
-		self.ItemLevelCenter.ItemLevel:SetText("");
-		self.itemID = nil;
-		self.bonusID = nil;
-		self.itemLink = nil;
-		self.gemLink = nil;
-		itemQuality = 0;
-		itemIcon = self.emptyTexture;
-		itemName = " " ;
-		effectiveLvl = "";
-		DisplayRuneSlot(self, slotID, 0);
-	end
-
-	self.itemQuality = itemQuality;
-
-	if itemQuality and not bR then --itemQuality sometimes return nil. This is a temporary solution
-		bR, bG, bB = GetItemQualityColor(itemQuality);
-		if not borderTexKey then
-			borderTexKey = itemQuality;
-		end
-	end
-	bR = bR or 1;
-	bG = bG or 1;
-	bB = bB or 1;
-
-	if isAzeriteEmpoweredItem then
-		borderTexKey = "Azerite";
-		if not MOG_MODE then
-			local icons, isRightSpec = GetTraitsIcon(itemLocation);
-			for i = 1, #icons do
-				effectiveLvl = effectiveLvl.." |T"..icons[i]..":12:12:0:0:64:64:4:60:4:60|t";
-			end
-		end
-	end
-
-	if isAzeriteItem then
-		local heartLevel = C_AzeriteItem.GetPowerLevel(itemLocation);
-		local xp_Current, xp_Needed =  C_AzeriteItem.GetAzeriteItemXPInfo(itemLocation);
-		local GetEssenceInfo = C_AzeriteEssence.GetEssenceInfo;
-		local GetMilestoneEssence = C_AzeriteEssence.GetMilestoneEssence;
-		if not C_AzeriteItem.IsAzeriteItemAtMaxLevel() then
-			heartLevel = heartLevel .. "  |CFFf8e694" .. floor((xp_Current/xp_Needed)*100 + 0.5) .. "%";
-		end
-		effectiveLvl = effectiveLvl.."  |cFFFFD100"..heartLevel;
-		
-		local EssenceID = GetMilestoneEssence(115);
-		if EssenceID then
-			borderTexKey = "Heart";
-			local EssenceInfo = GetEssenceInfo(EssenceID);
-			bR, bG, bB = GetItemQualityColor(EssenceInfo.rank + 1);
-			itemName = EssenceInfo.name;
-			itemIcon = EssenceInfo.icon;
-		end
-
-		for i = 116, 119 do
-			--116, 117, 119  3 minor slots
-			if i ~= 118 then
-				EssenceID = GetMilestoneEssence(i);
-				if EssenceID then
-					local icon = GetEssenceInfo(EssenceID).icon;
-					effectiveLvl = effectiveLvl.." |T"..icon..":12:12:0:0:64:64:4:60:4:60|t";
-				end
-			end
-		end
-	end
-
-	--[[
-	if isCorruptedItem then
-		borderTexKey = "NZoth";
-		if not MOG_MODE then
-			local corruption = GetItemStats(itemLink)["ITEM_MOD_CORRUPTION"];
-			if corruption then
-				local Affix = GetCorruptedItemAffix(itemLink);
-				if Affix then
-					if self.isRight then
-						effectiveLvl = Affix.."  |cff946dd1"..corruption.."|r  "..effectiveLvl;
-					else
-						effectiveLvl = effectiveLvl.."  "..Affix.."  |cff946dd1"..corruption.."|r";
-					end
-				else
-					if self.isRight then
-						effectiveLvl = "|cff946dd1"..corruption.."|r  "..effectiveLvl;
-					else
-						effectiveLvl = effectiveLvl.."  |cff946dd1"..corruption.."|r";
-					end				
-				end
-			end
-			itemQuality = "NZoth";
-		end
-	end
-	--]]
-
-	--Gem Slot--
-	if gemName ~= nil then
-		local gemBorder, gemIcon, itemSubClassID;
-
-		--regular gems
-		if gemLink then
-			gemID, _, _, _, gemIcon, _, itemSubClassID = GetItemInfoInstant(gemLink);
-			gemBorder = GetGemBorderTexture(itemSubClassID, gemID);
-		else
-			gemBorder = GetGemBorderTexture(nil);
-		end
-
-		self.GemSlot.GemBorder:SetTexture(gemBorder);
-		self.GemSlot.GemIcon:SetTexture(gemIcon);
-		self.GemSlot.GemIcon:Show();
-		self.GemSlot.sockedGemItemID = gemID;
-		if self:IsVisible() then
-			self.GemSlot:FadeIn();
-		else
-			self.GemSlot:ShowSlot();
-		end
-	else
-		if self:IsVisible() then
-			self.GemSlot:FadeOut();
-		else
-			self.GemSlot:HideSlot();
-		end
-		self.GemSlot.sockedGemItemID = nil;
-	end
-
-	--------------------------------------------------
-	if self:IsVisible() then
-		self:SetBorderTexture(self.Border, borderTexKey);
-		if itemIcon then
-			self.IconOverlay:SetTexture(itemIcon);
-			self.Icon.anim:Play();
-		end
-		self.ItemLevel.anim1:SetScript("OnFinished", function(f)
-			self.ItemLevel:SetText(effectiveLvl);
-			self.ItemLevel.anim2:Play();
-			f:SetScript("OnFinished", nil);
-		end)
-		self.Name.anim1:SetScript("OnFinished", function(f)
-			self.Name:SetText(itemName);
-			self.Name:SetTextColor(bR, bG, bB);
-			self.Name.anim2:Play();
-			f:SetScript("OnFinished", nil);
-			After(0, function()
-				self:UpdateGradientSize();
-			end)
-		end)
-		self.ItemLevel.anim1:Play();
-		self.Name.anim1:Play();
-	else
-		self.ItemLevel:SetText(effectiveLvl);
-		self.Name:SetText(itemName);
-		self.Name:SetTextColor(bR, bG, bB);
-		self:SetBorderTexture(self.Border, borderTexKey);
-		if itemIcon then
-			self.Icon:SetTexture(itemIcon);
-		end
-		self:UpdateGradientSize();
-	end
-	--self.GradientBackground:SetHeight(self.Name:GetHeight() + self.ItemLevel:GetHeight() + 18);
-	self.itemNameColor = {bR, bG, bB};
-
-	return true
-end
-
-function NarciEquipmentSlotMixin:UpdateGradientSize()
-	local text2Width = self.ItemLevel:GetWrappedWidth();
-	local extraWidth;
-	if self.TempEnchantIndicator then
-		extraWidth = 48;
-		self.TempEnchantIndicator:ClearAllPoints();
-		if self.isRight then
-			self.TempEnchantIndicator:SetPoint("TOPRIGHT", self.ItemLevel, "TOPRIGHT", -text2Width - 6, 0);
-		else
-			if self.ItemLevel:IsTruncated() then
-				text2Width = self.ItemLevel:GetWidth();
-			end
-			self.TempEnchantIndicator:SetPoint("TOPLEFT", self.ItemLevel, "TOPLEFT", text2Width + 6, 0);
-		end
-	else
-		extraWidth = 0;
-	end
-	self.GradientBackground:SetHeight(self.Name:GetHeight() + self.ItemLevel:GetHeight() + 18);
-	self.GradientBackground:SetWidth(max(self.Name:GetWrappedWidth(), text2Width + extraWidth, 48) + 48);
-end
-
-function NarciEquipmentSlotMixin:OnLoad()
-	self:SetScript("OnLoad", nil);
-	self.OnLoad = nil;
-
-	local slotName = self.slotName;
-	local slotID, textureName = GetInventorySlotInfo(slotName);
-	self.emptyTexture = textureName;
-	self:SetID(slotID);
-	self.slotID = slotID;
-	self:SetAttribute("type2", "item");
-	self:SetAttribute("item", slotID);
-	self:RegisterForDrag("LeftButton");
-	self:RegisterForClicks("LeftButtonUp", "RightButtonDown", "RightButtonUp");
-	if self:GetParent() then
-		if not self:GetParent().slotTable then
-			self:GetParent().slotTable = {}
-		end
-		table.insert(self:GetParent().slotTable, self);
-	end
-	SLOT_TABLE[slotID] = self;
-
-	local level = SharedBlackScreen:GetBaseFrameLevel() - 1;
-	self:SetFrameLevel(level);
-end
-
-function NarciEquipmentSlotMixin:OnEvent(event, ...)
-	if event == "MODIFIER_STATE_CHANGED" then
-		local key, state = ...;
-		if ( key == "LALT" and self:IsMouseOver() ) then
-			local flyout = EquipmentFlyoutFrame;
-			if state == 1 then
-				if flyout:IsShown() and flyout.slotID == self:GetID() then
-					flyout:Hide();
-				else
-					flyout:SetItemSlot(self, true);
-				end
-			else
-				if not MOG_MODE then
-					ItemTooltip:SetFromSlotButton(self, -2, 6);
-				end
-			end
-		end
-	elseif event == "UI_ERROR_MESSAGE" then
-		self:OnErrorMessage(...);
-	end
-end
-
-function NarciEquipmentSlotMixin:UntrackCooldown()
-	if self.CooldownFrame then
-		self.CooldownFrame:Clear();
-		self.CooldownFrame = nil;
-	end
-end
-
-function NarciEquipmentSlotMixin:ClearOverlay()
-	if SHOW_MISSING_ENCHANT_ALERT and self.slotOverlay then
-		SlotButtonOverlayUtil:ClearOverlay(self);
-		self.slotOverlay = nil;
-	end
-end
-
-function NarciEquipmentSlotMixin:TrackCooldown()
-	local start, duration, enable = GetInventoryItemCooldown("player", self:GetID());
-	if enable and enable ~= 0 and start > 0 and duration > 0 then
-		if not self.CooldownFrame then
-			self.CooldownFrame = NarciItemCooldownUtil.AccquireFrame(self);
-		end
-		self.CooldownFrame:SetCooldown(start, duration);
-		return true
-	else
-		self:UntrackCooldown();
-	end
-	return false
-end
-
-function NarciEquipmentSlotMixin:UntrackTempEnchant()
-	if self.TempEnchantIndicator then
-		self.TempEnchantIndicator:Hide();
-		self.TempEnchantIndicator = nil;
-	end
-end
-
-function NarciEquipmentSlotMixin:OnEnter(motion, isGamepad)
-	self:RegisterEvent("MODIFIER_STATE_CHANGED");
-
-	if isGamepad then
-		self:PlayGamePadAnimation();
-	else
-		FadeFrame(self.Highlight, 0.15, 1);
-	end
-
-	if IsAltKeyDown() and not MOG_MODE then
-		EquipmentFlyoutFrame:SetItemSlot(self, true);
-		return
-	end
-
-	if EquipmentFlyoutFrame:IsShown() then
-		Narci_Comparison_SetComparison(EquipmentFlyoutFrame.BaseItem, self);
-		return;
-	end
-
-	if MOG_MODE then
-		ItemTooltip:SetTransmogFromSlotButton(self, -2, 6);
-	else
-		ItemTooltip:SetFromSlotButton(self, -2, 6, isGamepad and 0.4);	--delay 0.4s
-	end
-end
-
-function NarciEquipmentSlotMixin:OnLeave()
-	self:UnregisterEvent("MODIFIER_STATE_CHANGED");
-	self:UnregisterErrorEvent();
-	FadeFrame(self.Highlight, 0.25, 0);
-	Narci:HideButtonTooltip();
-	self:ResetAnimation();
-end
-
-function NarciEquipmentSlotMixin:OnHide()
-	self.Highlight:Hide();
-	self.Highlight:SetAlpha(0);
-	self:ResetAnimation();
-end
-
-function NarciEquipmentSlotMixin:PreClick(button)
-
-end
-
-function NarciEquipmentSlotMixin:PostClick(button, down)
-	if CursorHasItem() and button == "LeftButton" then
-		EquipCursorItem(self:GetID());
-		return
-	end
-
-	ClearCursor();
-
-	if ( IsModifiedClick() ) then
-		if IsAltKeyDown() and button == "LeftButton" then
-			local action = EquipmentManager_UnequipItemInSlot(self:GetID())
-			if action then
-				EquipmentManager_RunAction(action)
-			end
-			return;
-		elseif IsShiftKeyDown() and button == "LeftButton" then
-			if self.hyperlink then
-				if ChatEdit_InsertLink(self.hyperlink) then
-					return
-				elseif SocialPostFrame and Social_IsShown() then
-					Social_InsertLink(self.hyperlink);
-					return
-				end
-			end
-		else
-			PaperDollItemSlotButton_OnModifiedClick(self, button);
-			TakeOutFrames(true);
-			SetItemSocketingFramePosition(self);
-		end
-	else
-		if button == "LeftButton" then
-			if not MOG_MODE then	--Undress an item from player model while in Xmog Mode
-				--EquipmentFlyoutFrame:SetItemSlot(self);
-				Narci_EquipmentOption:SetFromSlotButton(self, true);
-			end
-		elseif button == "RightButton" then
-			local useKeyDown = C_CVar.GetCVarBool("ActionButtonUseKeyDown");
-			if (useKeyDown and down) or (not useKeyDown and not down) then
-				self:AnchorAlertFrame();
-			end
-		end
-	end
-end
-
-function NarciEquipmentSlotMixin:OnDragStart()
-	local itemLocation = ItemLocation:CreateFromEquipmentSlot(self:GetID())
-	if C_Item.DoesItemExist(itemLocation) then
-		C_Item.UnlockItem(itemLocation);
-		PickupInventoryItem(self:GetID());
-	end
-end
-
-function NarciEquipmentSlotMixin:OnReceiveDrag()
-	PickupInventoryItem(self:GetID());	--In fact, attemp to equip cursor item
-end
-
-function NarciEquipmentSlotMixin:DisplayDirectionMark(visible, itemQuality)
-	if self.slotID == 2 or self.slotID == 3 then
-		if visible then
-			if not self.DirectionMark then
-				self.DirectionMark = CreateFrame("Frame", nil, self, "NarciTransmogSlotDirectionMarkTemplate");
-				self.DirectionMark:SetPoint("RIGHT", self, "LEFT", 9, 0);
-				self.DirectionMark:SetDirection(self.slotID - 1);
-			end
-			FadeFrame(self.DirectionMark, 0.25, 1);
-			if itemQuality then
-				self.DirectionMark:SetQualityColor(itemQuality);
-			end
-		else
-			if self.DirectionMark then
-				self.DirectionMark:Hide();
-				self.DirectionMark:SetAlpha(0);
-			end
-		end
-	end
-end
-
-function NarciEquipmentSlotMixin:ShowVFX(effectName)
-	if effectName then
-		if self.VFX then
-			self.VFX:SetUpByName(effectName);
-		else
-			self.VFX = NarciItemVFXContainer:AcquireAndSetModelScene(self, effectName);
-		end
-	else
-		self:HideVFX();
-	end
-end
-
-function NarciEquipmentSlotMixin:HideVFX()
-	if self.VFX then
-		self.VFX:Remove();
-	end
-end
-
 local function SetStatTooltipText(self)
 	DefaultTooltip:ClearAllPoints();
 	DefaultTooltip:SetOwner(self, "ANCHOR_NONE");
@@ -1649,191 +728,9 @@ end
 addon.DisplayItemTransmogInfoList = DisplayItemTransmogInfoList;
 
 
-local SlotController = {};
-SlotController.updateFrame = CreateFrame("Frame");
-SlotController.updateFrame:Hide();
-SlotController.updateFrame:SetScript("OnUpdate", function(f, elapsed)
-	f.t = f.t + elapsed;
-	if f.t >= 0.05 then
-		f.t = 0;
-		if SlotController:Refresh(f.sequence[f.i], f.forceRefresh) then
-			f.i = f.i + 1;
-		else
-			f:Hide();
-			if MOG_MODE and Toolbar.TransmogListFrame:IsShown() then
-				After(0.5, function()
-					Toolbar.TransmogListFrame:UpdateTransmogList();
-				end);
-			end
-		end
-	end
-end);
-
-SlotController.refreshSequence = {
-	1, 2, 3, 15, 5, 9, 16, 17, 4,
-	10, 6, 7, 8, 11, 12, 13, 14, 19,
-};
-
-SlotController.tempEnchantSequence = {};
-
-for slotID in pairs(ValidForTempEnchant) do
-	table.insert(SlotController.tempEnchantSequence, slotID);
-end
-
-function SlotController:Refresh(slotID, forceRefresh)
-	if SLOT_TABLE[slotID] then
-		SLOT_TABLE[slotID]:Refresh(forceRefresh);
-		return true;
-	end
-end
-
-function SlotController:RefreshAll(forceRefresh)
-	for slotID, slotButton in pairs(SLOT_TABLE) do
-		slotButton:Refresh(forceRefresh);
-	end
-end
-
-function SlotController:StopRefresh()
-	if self.updateFrame then
-		self.updateFrame:Hide();
-	end
-end
-
-function SlotController:LazyRefresh(sequenceName)
-	local f = self.updateFrame;
-	f:Hide();
-	f.t = 0;
-	f.i = 1;
-	if sequenceName == "temp" then
-		f.sequence = self.tempEnchantSequence;
-		f.forceRefresh = true;
-	else
-		f.sequence = self.refreshSequence;
-		f.forceRefresh = false;
-	end
-	f:Show();
-end
-
-function SlotController:ClearCache()
-	for slotID, slotButton in pairs(SLOT_TABLE) do
-		slotButton.itemLink = nil;
-	end
-end
-
-function SlotController:PlayAnimOut()
-	if not InCombatLockdown() and Narci_Character:IsShown() then
-		for slotID, slotButton in pairs(SLOT_TABLE) do
-			slotButton.animOut:Play();
-		end
-		Narci_Character.animOut:Play();
-	end
-end
-
-function SlotController:IsMouseOver()
-	for slotID, slotButton in pairs(SLOT_TABLE) do
-		if slotButton:IsMouseOver() then
-			return true
-		end
-	end
-	return false
-end
-
-
 ------------------------------------------------------------------
 -----Some of the codes are derivated from EquipmentFlyout.lua-----
 ------------------------------------------------------------------
-
-NarciEquipmentFlyoutButtonMixin = CreateFromMixins{NarciItemButtonSharedMixin};
-
-function NarciEquipmentFlyoutButtonMixin:OnClick(button, down, isGamepad)
-	if button == "LeftButton" then
-		local action = EquipmentManager_EquipItemByLocation(self.location, self.slotID)
-		if action then
-			self:AnchorAlertFrame();
-			ConfirmBinding();
-			EquipmentManager_RunAction(action);
-		end
-		self:Disable();
-		if isGamepad then
-			EquipmentFlyoutFrame.gamepadButton = self;
-		end
-	end
-end
-
-function NarciEquipmentFlyoutButtonMixin:OnLeave()
-	FadeFrame(self.Highlight, 0.25, 0);
-	Narci:HideButtonTooltip();
-	self:ResetAnimation();
-end
-
-function NarciEquipmentFlyoutButtonMixin:OnEnter(motion, isGamepad)
-	Narci_Comparison_SetComparison(self.itemLocation, self);
-	if isGamepad then
-		self:PlayGamePadAnimation();
-	else
-		FadeFrame(self.Highlight, 0.15, 1);
-	end
-end
-
-function NarciEquipmentFlyoutButtonMixin:OnEvent(event, ...)
-	if event == "UI_ERROR_MESSAGE" then
-		self:OnErrorMessage(...);
-	end
-end
-
-function NarciEquipmentFlyoutButtonMixin:SetUp(maxItemLevel)
-	self.FlyUp:Stop();
-	local itemLocation = self.itemLocation;
-	self.hyperlink = C_Item.GetItemLink(itemLocation)
-	if ( not itemLocation ) then
-		return;
-	end
-
-	local itemID = C_Item.GetItemID(itemLocation);
-	local itemQuality = C_Item.GetItemQuality(itemLocation);
-	local itemLevel = C_Item.GetCurrentItemLevel(itemLocation);
-	local itemIcon = GetOverrideItemIcon(itemID);
-	if not itemIcon then
-		itemIcon = C_Item.GetItemIcon(itemLocation);
-	end
-	local itemLink = C_Item.GetItemLink(itemLocation)
-
-	if C_AzeriteEmpoweredItem.IsAzeriteEmpoweredItem(itemLocation) then
-		itemQuality = "Azerite";	--AzeriteEmpoweredItem
-	elseif C_AzeriteItem.IsAzeriteItem(itemLocation) then
-		itemQuality = "Heart";
-	elseif C_Item.IsCorruptedItem(itemLink) then
-		itemQuality = "NZoth";
-	elseif C_LegendaryCrafting.IsRuneforgeLegendary(itemLocation) then
-		itemQuality = "Runeforge";
-		itemIcon = GetRuneForgeLegoIcon(itemLocation) or itemIcon;
-	end
-
-	itemQuality = GetBorderArtByItemID(itemID) or itemQuality;
-
-	if maxItemLevel and itemLevel < maxItemLevel and itemQuality ~= "Runeforge" then
-		itemQuality = 0;
-		self.Icon:SetDesaturated(true);
-	else
-		self.Icon:SetDesaturated(false);
-	end
-
-	self.Icon:SetTexture(itemIcon)
-	--self.Border:SetTexture(BorderTexture[itemQuality])
-	self:SetBorderTexture(self.Border, itemQuality);
-	self.ItemLevelCenter.ItemLevel:SetText(itemLevel);
-	self.ItemLevelCenter:Show();
-
-	if itemLink then
-		DisplayRuneSlot(self, self.slotID, itemQuality, itemLink);
-	end
-end
-
-function NarciEquipmentFlyoutButtonMixin:HideButton()
-	self:Hide();
-	self.location = nil;
-	self.hyperlink = nil;
-end
 
 local function ShowLessItemInfo(self, bool)
 	if bool then
@@ -1858,6 +755,9 @@ local function ShowAllItemInfo()
 		ShowLessItemInfo(slotButton, false);
 		slotButton:SetFrameLevel(level -1);
 		slotButton.RuneSlot:SetFrameLevel(level);
+		if slotButton.AmmoSlot then
+			slotButton.AmmoSlot:SetFrameLevel(level);
+		end
 	end
 end
 
@@ -1874,6 +774,7 @@ function NarciEquipmentFlyoutFrameMixin:OnLoad()
 	self.OnLoad = nil;
 	self:SetFixedFrameStrata(true);
 	self:SetFrameStrata("HIGH");
+	SharedBlackScreen:AddOwner(self);
 end
 
 function NarciEquipmentFlyoutFrameMixin:OnHide()
@@ -2247,6 +1148,9 @@ function Narci_Open()
 		if InCombatLockdown() then
 			return
 		end
+
+		InitializeSlotButtons();
+
 		IS_OPENED = true;
 		CVarTemp:BackUp();
 		Toolbar:ShowUI("Narcissus");
@@ -2291,6 +1195,9 @@ function Narci_OpenGroupPhoto()
 		if InCombatLockdown() then
 			return;
 		end
+
+		InitializeSlotButtons();
+
 		IS_OPENED = true;
 		CVarTemp:BackUp();
 		Toolbar:ShowUI("PhotoMode");
@@ -2537,6 +1444,8 @@ local function Narci_XmogButton_OnClick(self)
 	MoveViewRightStop();
 	EquipmentFlyoutFrame:Hide();
 	MOG_MODE = not MOG_MODE;
+	SetEquipmentSlotFlag("MOG_MODE", MOG_MODE);
+
 	self.isOn = MOG_MODE;
 
 	if self.isOn then
@@ -2708,60 +1617,6 @@ local function AnimationContainer_OnHide(self)
 	end
 end
 
-local PlayAnimationSequence = NarciAPI_PlayAnimationSequence;
-
-local ASC2 = CreateFrame("Frame", "AnimationSequenceContainer_Heart");
-ASC2.Delay = 5;
-ASC2.IsPlaying = false;
-ASC2:Hide();
-
-local function Generic_AnimationSequence_OnUpdate(self, elapsed)
-	if self.Pending then
-		return;
-	end
-
-	self.totalTime = self.totalTime + elapsed;
-	if (not self.OppoDirection and self.totalTime < self.Delay) and (not self.IsPlaying) then
-		return;
-	elseif not self.IsPlaying then
-		if not self.OppoDirection then		--box closing
-			FadeFrame(Narci_HeartofAzeroth_AnimFrame, 0.25, 1)
-			After(0.3, function()
-				Narci_HeartofAzeroth_AnimFrame.Background:SetAlpha(1);
-				Narci_HeartofAzeroth_AnimFrame.Quote:SetAlpha(1);
-				Narci_HeartofAzeroth_AnimFrame.SN:SetAlpha(1);
-			end)
-		end
-		self.IsPlaying = true;
-	end
-	
-	self.t = self.t + elapsed;
-
-	if self.t >= 0.01666 then
-		self.t = 0;
-		if self.OppoDirection then
-			self.Index = self.Index - 1;
-		else
-			self.Index = self.Index + 1;
-		end
-
-		if not PlayAnimationSequence(self.Index, self.SequenceInfo, self.Target) then
-			self:Hide()
-			self.IsPlaying = false;
-			if not self.OppoDirection then
-				Narci_HeartofAzeroth_AnimFrame.Background:SetAlpha(0);
-				Narci_HeartofAzeroth_AnimFrame.Quote:SetAlpha(0);
-				Narci_HeartofAzeroth_AnimFrame.SN:SetAlpha(0);
-				FadeFrame(Narci_HeartofAzeroth_AnimFrame, 0.25, 0)
-			end
-			return;
-		end
-	end
-end
-
-ASC2:SetScript("OnUpdate", Generic_AnimationSequence_OnUpdate);
-ASC2:SetScript("OnHide", AnimationContainer_OnHide);
-
 
 --Static Events
 EL:RegisterEvent("PLAYER_ENTERING_WORLD");
@@ -2784,26 +1639,20 @@ EL:SetScript("OnEvent",function(self, event, ...)
 			UpdateXmogName();
 		end)
 
-		local AnimSequenceInfo = Narci.AnimSequenceInfo;
-		InitializeAnimationContainer(ASC2, AnimSequenceInfo["Heart"], Narci_HeartofAzeroth_AnimFrame.Sequence)
-		local HeartSerialNumber = strsub(UnitGUID("player"), 8, 15);
-		Narci_HeartofAzeroth_AnimFrame.SN:SetText("No."..HeartSerialNumber);
-		Narci_HeartofAzeroth_AnimFrame.Quote:SetText(L["Heart Azerite Quote"]);
-
 		UpdateXmogName();
-		DefaultTooltip = NarciGameTooltip;	--Created in Module\GameTooltip.lua
-		if not ItemTooltip then
-			ItemTooltip = DefaultTooltip;
-		end
+
+		DefaultTooltip = NarciGameTooltip;
 		DefaultTooltip:SetParent(Narci_Character);
 		DefaultTooltip:SetFrameStrata("TOOLTIP");
 		DefaultTooltip.offsetX = 4;
 		DefaultTooltip.offsetY = -16;
 		DefaultTooltip:SetIgnoreParentAlpha(true);
-	
+
+		NarciEquipmentTooltip:SetParent(Narci_Character);
+
 		if C_AddOns.IsAddOnLoaded("DynamicCam") then
 			CVarTemp.isDynamicCamLoaded = true;
-			
+
 			--Check validity
 			if not (DynamicCam.BlockShoulderOffsetZoom and DynamicCam.AllowShoulderOffsetZoom) then return end;
 			hooksecurefunc("Narci_Open", function()
@@ -2852,9 +1701,6 @@ EL:SetScript("OnEvent",function(self, event, ...)
 			end
 		end)
 
-		if TimerunningUtil.IsTimerunningMode() then
-			Narci.deferGemManager = true;
-		end
 	elseif event == "PLAYER_EQUIPMENT_CHANGED" then
 		local slotID, isItem = ...;
 		SlotController:Refresh(slotID);
@@ -2979,7 +1825,7 @@ EL:SetScript("OnEvent",function(self, event, ...)
 		end
 		ItemLevelFrame:AsyncUpdate(0.1);
 
-	elseif event == "UNIT_INVENTORY_CHANGED" then
+	elseif event == "WEAPON_ENCHANT_CHANGED" then
 		SlotController:LazyRefresh("temp");
 
 	end
@@ -3114,10 +1960,6 @@ addon.CallbackRegistry:Register("SettingChanged.UseWoWQualityColor", function()
 end);
 
 
-function Narci:SetItemTooltipStyle(id)
-
-end
-
 function Narci:CloseCharacterUI()
 	if IS_OPENED then
 		Narci_Open();
@@ -3127,19 +1969,6 @@ end
 
 do
     local SettingFunctions = addon.SettingFunctions;
-
-    function SettingFunctions.SetItemTooltipStyle(id, db)
-        if id == nil then
-            id = db["ItemTooltipStyle"];
-        end
-        if id == 2 then
-            ItemTooltip = NarciGameTooltip;
-        else
-            ItemTooltip = NarciEquipmentTooltip;
-        end
-		NarciEquipmentTooltip:SetParent(Narci_Character);
-    end
-
 
 	function SettingFunctions.SetVignetteStrength(alpha, db)
 		if alpha == nil then
@@ -3199,7 +2028,7 @@ do
 			scale = db["GlobalScale"];
 		end
 		scale = tonumber(scale) or 1;
-	
+
 		NarciScreenshotToolbar:SetDefaultScale(scale);
 		Narci_Character:SetScale(scale);
 		Narci_Attribute:SetScale(scale);
@@ -3212,9 +2041,12 @@ do
 		end
 		height = tonumber(height) or 10;
 
-		local font, _, flag = SLOT_TABLE[1].Name:GetFont();
+		local font, _, flag;
 
 		for id, slotButton in pairs(SLOT_TABLE) do
+			if not font then
+				font, _, flag = slotButton.Name:GetFont();
+			end
 			slotButton.Name:SetFont(font, height, flag);
 			slotButton:UpdateGradientSize();
 		end
@@ -3248,7 +2080,7 @@ do
 		else
 			maxLines = 2;
 		end
-		
+
 		for id, slotButton in pairs(SLOT_TABLE) do
 			slotButton.Name:SetMaxLines(maxLines);
 			slotButton.ItemLevel:SetMaxLines(maxLines);
@@ -3285,7 +2117,7 @@ do
 			state = false;
 		end
 
-		SHOW_MISSING_ENCHANT_ALERT = state;
+		SetEquipmentSlotFlag("SHOW_MISSING_ENCHANT_ALERT", state);
 		SlotButtonOverlayUtil:SetEnabled(state);
 
 		SlotController:ClearCache();
@@ -3401,11 +2233,3 @@ end
 
 
 UIParent:UnregisterEvent("EXPERIMENTAL_CVAR_CONFIRMATION_NEEDED");  --Disable EXPERIMENTAL_CVAR_WARNING
-
-
-addon.AddLoadingCompleteCallback(function()
-    local seasonID = NarciAPI.GetTimeRunningSeason();
-    if seasonID == 2 then
-        IS_LEGION_REMIX = true;
-    end
-end);

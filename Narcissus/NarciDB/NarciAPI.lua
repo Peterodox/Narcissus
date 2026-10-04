@@ -128,13 +128,13 @@ NarciAPI.GetSlotVisualID = NarciAPI_GetSlotVisualID;
 
 local function GetItemEnchantID(itemLink)
     if itemLink then
-        local _, _, _, linkType, linkID, enchantID = strsplit(":|H", itemLink);
-        return tonumber(enchantID) or 0;
-    else
-        return 0
+        local enchantID = match(itemLink, "item:%d+:(%d+)");
+        enchantID = tonumber(enchantID);
+        if enchantID ~= 0 then
+            return enchantID;
+        end
     end
 end
-
 NarciAPI.GetItemEnchantID = GetItemEnchantID;
 
 
@@ -232,7 +232,7 @@ function NarciAPI_GetItemStats(itemLocation)
     end
 
     local enchantID = GetItemEnchantID(itemLink);
-    if enchantID ~= 0 and EnchantInfo[enchantID] then
+    if enchantID and EnchantInfo[enchantID] then
         local data = EnchantInfo[enchantID]
         statsTable.EnchantPos = data[1];
         if data[1] == "crit" then
@@ -275,7 +275,7 @@ do
         if findHighestItemLevel then
             local topLevel = -1;
             local level;
-            local GetDetailedItemLevelInfo = GetDetailedItemLevelInfo;
+            local GetDetailedItemLevelInfo = C_Item.GetDetailedItemLevelInfo;
             local id1, id2;
 
             for bagID = 0, (NUM_BAG_SLOTS or 4) do
@@ -321,6 +321,14 @@ do
         end
     end
     NarciAPI.GetItemPositionByItemID = GetItemPositionByItemID;
+
+    function NarciAPI.PickupContainerItemByItemID(itemID)
+        local bagID, slotID = GetItemBagPosition(itemID);
+        if bagID and slotID then
+            C_Container.PickupContainerItem(bagID, slotID);
+            return true;
+        end
+    end
 
     function PrivateAPI.DoesPlayerHaveAnyItems(itemList)
         if itemList then
@@ -1269,7 +1277,7 @@ end
 --------------------
 --UI 3D Animation---
 --------------------
-Narci.AnimSequenceInfo = 
+Narci.AnimSequenceInfo =
 {	["Controller"] = {
 		["TotalFrames"] = 30,
 		["cX"] = 0.205078125,
@@ -1277,14 +1285,6 @@ Narci.AnimSequenceInfo =
 		["Column"] = 4,
 		["Row"] = 8,
 	},
-
-	["Heart"] = {
-		["TotalFrames"] = 28,
-		["cX"] = 0.25,
-		["cY"] = 0.140625,
-		["Column"] = 4,
-		["Row"] = 7,
-    },
 
 	["ActorPanel"] = {
 		["TotalFrames"] = 26,
@@ -2882,7 +2882,7 @@ do
         end
     end
 
-    local function ConfirmBinding()
+    function NarciAPI.ConfirmBinding()
         if not BindHelper then
             BindHelper = CreateFrame("Frame");
             BindHelper:Hide();
@@ -2935,7 +2935,6 @@ do
         BindHelper.pending = true;
         BindHelper:Show();
     end
-    addon.ConfirmBinding = ConfirmBinding;
 end
 
 local function DoesItemExistByID(itemID)

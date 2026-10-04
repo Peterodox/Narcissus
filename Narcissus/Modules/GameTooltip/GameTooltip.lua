@@ -41,7 +41,6 @@ local PT_DURABILITY = "|TInterface\\AddOns\\Narcissus\\Art\\GameTooltip\\Exclama
 local PT_DPS_TEMPLATE = gsub(DPS_TEMPLATE, "%%s", "%%.1f");
 local ENCHANTED_TOOLTIP_LINE = ENCHANTED_TOOLTIP_LINE or "Enchanted: %s";
 
-local GenericTooltip, EquipmentTooltip;
 
 local function IsColorRelevant(r, g, b)
     return not (r == 1 and g == 0.5 and b == 1)
@@ -95,7 +94,6 @@ local GameTooltip_ClearMoney = GameTooltip_ClearMoney or VoidFunc;
 NarciGameTooltipMixin = CreateFromMixins(TooltipDataHandlerMixin);
 
 function NarciGameTooltipMixin:OnLoad()
-    GenericTooltip = self;
     NarciAPI.NineSliceUtil.SetUpBackdrop(self, "phantom", 0, 20/255, 24/255, 28/255);
     NarciAPI.NineSliceUtil.SetUpBorder(self, "shadowHugeR0", 0);
     local p = 8;
@@ -182,10 +180,11 @@ function NarciGameTooltipMixin:SetFromSlotButton(slotButton, offsetX, offsetY, d
         SharedTooltipDelay:Setup(slotButton, delay, self.SetFromSlotButton, self, slotButton, offsetX, offsetY);
     else
         self:AnchorToSlotButton(slotButton, offsetX, offsetY);
-        self:SetInventoryItem("player", slotButton.slotID, nil, true);
-        GENERIC_SETUP_FUNC(self);
-        self:Show();
-        self:FadeIn();
+        if self:SetInventoryItem("player", slotButton.slotID, nil, true) then
+            GENERIC_SETUP_FUNC(self);
+            self:Show();
+            self:FadeIn();
+        end
     end
 end
 
@@ -618,8 +617,9 @@ function NarciEquipmentTooltipMixin:SetInventoryItem(slotID)
     local link = GetInventoryItemLink("player", slotID);
     if link then
         local itemData, requestEmbededData = NarciAPI.GetCompleteItemDataFromSlot(slotID);
-        self:DisplayItemData(link, itemData, slotID, nil, nil, requestEmbededData);
-        itemData = nil;
+        if self:DisplayItemData(link, itemData, slotID, nil, nil, requestEmbededData) then
+            return true;
+        end
     else
         self:Hide();
     end
@@ -629,6 +629,8 @@ function NarciEquipmentTooltipMixin:DisplayItemData(link, itemData, slotID, visu
     --link: the itemlink,  itemData: data obatined by scanning tooltip, slotID: if the item is an inventory item (equipped)
     link = string.match(link, "(item:[%-?%d:]+)");
     local itemID, itemType, itemSubType, itemEquipLoc, icon, classID, subclassID = GetItemInfoInstant(link);
+    if not itemID then return; end
+
     ItemLoader:LoadItemData(link, itemID, forceUpdateItemData);
     local quality = link and C_Item.GetItemQualityByID(link);
     if quality then
@@ -855,6 +857,8 @@ function NarciEquipmentTooltipMixin:DisplayItemData(link, itemData, slotID, visu
     self:UpdateSize();
     self:SetItemModel();
     self:Show();
+
+    return true;
 end
 
 function NarciEquipmentTooltipMixin:SetTransmogSource(appliedSourceID)
@@ -913,7 +917,7 @@ function NarciEquipmentTooltipMixin:SetTransmogSource(appliedSourceID)
             end
         else
             if sourceInfo.sourceType then
-                sourceText = addon.TransitionAPI.GetTransmogSourceName(sourceInfo.sourceType);
+                sourceText = TransmogDataProvider.GetTransmogSourceName(sourceInfo.sourceType);
             end
         end
 
@@ -1228,9 +1232,10 @@ function NarciEquipmentTooltipMixin:SetFromSlotButton(slotButton, offsetX, offse
         SharedTooltipDelay:Setup(slotButton, delay, self.SetFromSlotButton, self, slotButton, offsetX, offsetY);
     else
         self:AnchorToSlotButton(slotButton, offsetX, offsetY);
-        self:SetInventoryItem(slotButton.slotID);
-        if not noFadeIn then
-            self:FadeIn();
+        if self:SetInventoryItem(slotButton.slotID) then
+            if not noFadeIn then
+                self:FadeIn();
+            end
         end
     end
 end
@@ -1252,7 +1257,10 @@ function NarciEquipmentTooltipMixin:SetItemLinkAndAnchor(link, anchorTo, offsetX
         self:AnchorToSlotButton(anchorTo, offsetX, offsetY);
         local itemData = NarciAPI.GetCompleteItemDataByItemLink(link);
         local visualID, sourceID = C_TransmogCollection.GetItemInfo(link);
-        self:DisplayItemData(link, itemData, nil, visualID, sourceID);
+        if not self:DisplayItemData(link, itemData, nil, visualID, sourceID) then
+            self:Hide();
+            return;
+        end
         itemData = nil;
         if not noFadeIn then
             self:FadeIn();

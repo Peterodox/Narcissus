@@ -90,9 +90,4 @@ do  --Transmog
             return slotVisualInfo.baseSourceID, slotVisualInfo.baseVisualID, slotVisualInfo.appliedSourceID, slotVisualInfo.appliedVisualID
         end
     end
-
-    function TransitionAPI.GetTransmogSourceName(sourceType)
-        --sourceType matches the TRANSMOG_SOURCE_# index (same on Standard and Forever)
-        return sourceType and _G["TRANSMOG_SOURCE_".. sourceType]
-    end
 end
