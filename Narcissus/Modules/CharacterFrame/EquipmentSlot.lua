@@ -17,6 +17,7 @@ local QueueFrame = NarciAPI.CreateProcessor(nil, 0.5);
 local SetBorderTexture = NarciAPI.SetBorderTexture;
 local SlotButtonOverlayUtil = addon.SlotButtonOverlayUtil;
 local TransmogDataProvider = addon.TransmogDataProvider;
+local GetInventorySlotInfo = addon.TransitionAPI.GetInventorySlotInfo;
 local GetOverrideItemIcon = NarciAPI.GetOverrideItemIcon;
 
 

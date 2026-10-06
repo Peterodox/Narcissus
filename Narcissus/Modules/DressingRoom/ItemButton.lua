@@ -1,7 +1,9 @@
+local _, addon = ...
 local MogAPI = C_TransmogCollection;
 local PlayerKnowsSource = MogAPI.PlayerKnowsSource;
 local GetSourceInfo = MogAPI.GetSourceInfo;
 local GetAllAppearanceSources = MogAPI.GetAllAppearanceSources;
+local GetInventorySlotInfo = addon.TransitionAPI.GetInventorySlotInfo;
 
 local DataProvider = {};
 

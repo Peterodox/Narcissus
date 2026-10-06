@@ -19,6 +19,7 @@ local GetItemInfoInstant = C_Item.GetItemInfoInstant;
 local GetSlotVisualID = NarciAPI.GetSlotVisualID;
 local FadeFrame = NarciFadeUI.Fade;
 local GetSlotIDByInvType = NarciAPI.GetSlotIDByInvType;
+local GetInventorySlotInfo = addon.TransitionAPI.GetInventorySlotInfo;
 
 ----------------------------------------------------
 local SlotFrame, GearTextsClipborad, SlotToggle;

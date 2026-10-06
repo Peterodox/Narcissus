@@ -1,4 +1,4 @@
-local _;
+local _, addon = ...
 local FORMAT_REQUIRES = ITEM_REQ_SPECIALIZATION;
 local floor = math.floor;
 local format = string.format;
@@ -6,6 +6,7 @@ local GetItemInfoInstant = C_Item.GetItemInfoInstant;
 local GetContainerNumSlots = C_Container.GetContainerNumSlots;
 local GetContainerItemID = C_Container.GetContainerItemID;
 local GetInventoryItemID = GetInventoryItemID;
+local GetInventorySlotInfo = addon.TransitionAPI.GetInventorySlotInfo;
 
 local SlotData = {
     --[slotID] = {InventorySlotName, Localized Name, invType, texture, validForTransmog, ItemEnchancementSubclassID}    --GetInventorySlotInfo("SlotName")
