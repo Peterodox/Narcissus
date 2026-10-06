@@ -976,6 +976,9 @@ end
 
 function NarciAttributeMixin:OnLoad()
 	self:UpdateColor();
+
+	local delay = (self:GetID() or 0) / 20;
+	self.animIn.A2:SetStartDelay(delay);
 end
 
 function NarciAttributeMixin:OnShow()
