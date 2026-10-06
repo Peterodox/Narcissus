@@ -396,19 +396,19 @@ function IntroMotion:SetUseCameraTransition(enabled)
 		divisor = 80;
 	end
 
-	for k, slot in pairs(AttributeFrames) do
-		local delay = (slot:GetID())/divisor;
+	for _, slot in pairs(AttributeFrames) do
+		local delay = slot:GetRow() / divisor;
 		if slot.animIn then
 			slot.animIn.A2:SetStartDelay(delay);
 		end
 	end
 
-	for k, slot in pairs(ShortAttributeFrames) do
-		local delay = (slot:GetID())/divisor;
+	for _, slot in pairs(ShortAttributeFrames) do
+		local delay = slot:GetRow() / divisor;
 		slot.animIn.A2:SetStartDelay(delay);
 	end
 
-	RadarChart.animIn.A2:SetStartDelay(9/divisor);
+	RadarChart.animIn.A2:SetStartDelay(9 / divisor);
 	self.useCameraTransition = enabled;
 end
 
@@ -515,6 +515,7 @@ function IntroMotion:ShowFrame()
 	end
 
 	self:PlayAttributeAnimation();
+
 	if MOG_MODE then
 		FadeFrame(Narci_Attribute, 0.4, 0)
 	else

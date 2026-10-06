@@ -57,6 +57,7 @@ end
 function StatFrameMixin:SetLayout(layout)
     local spacerHeight = 26; -- buttonHeight 24 + 2
     local n = 0;
+    local row = 1;
 
     local function AddChild(statButton)
         if statButton.token and not self[statButton.token] then
@@ -95,6 +96,7 @@ function StatFrameMixin:SetLayout(layout)
                 local button = CreateFrame("Button", nil, self, "Narci_DetailedAttributeTemplate");
                 button.token = token;
                 button:SetLeftColumn(isLeftCol);
+                button:SetRow(row);
                 AddChild(button);
 
                 n = n + 1;
@@ -117,6 +119,7 @@ function StatFrameMixin:SetLayout(layout)
                     button:SetPoint("TOPRIGHT", self.staticEntries[n - 2], "BOTTOMRIGHT", 0, offsetY);
                 else
                     button:SetPoint("TOPLEFT", self.staticEntries[n - 1], "TOPRIGHT", 0, 0);
+                    row = row + 1;
                 end
 
                 isLeftCol = not isLeftCol;
@@ -131,6 +134,8 @@ function StatFrameMixin:SetLayout(layout)
             else
                 local button = CreateFrame("Button", nil, self, "Narci_AttributeTemplate");
                 button.token = token;
+                button:SetRow(row);
+                row = row + 1;
                 AddChild(button);
 
                 n = n + 1;

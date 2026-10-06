@@ -34,9 +34,9 @@ function StatButtonMixin:SetValueRating(valueRating)
 end
 
 function StatButtonMixin:UpdateColor()
-	local frameID = self:GetID() or 0;
+	local row = self.row or 0;
 	local r, g, b = UIColorThemeUtil:GetActiveColor();
-	if frameID % 2 == 0 then
+	if row % 2 == 0 then
 		if self.Color then
 			self.Color:SetColorTexture(r, g, b, 0.75);
 			return;
@@ -75,15 +75,21 @@ function StatButtonMixin:SetLeftColumn(isLeftCol)
 	self.Color:SetGradient("HORIZONTAL", tbl.MinColor, tbl.MaxColor);
 end
 
+function StatButtonMixin:SetRow(row)
+	self.row = row;
+	self:UpdateColor();
+	self.animIn.A2:SetStartDelay(row / 20);
+end
+
+function StatButtonMixin:GetRow()
+	return self.row or 0;
+end
+
 function StatButtonMixin:OnLoad()
 	if self.isLeftCol ~= nil then
 		self:SetLeftColumn(self.isLeftCol);
 	end
 
-	self:UpdateColor();
-
-	local delay = (self:GetID() or 0) / 20;
-	self.animIn.A2:SetStartDelay(delay);
 end
 
 function StatButtonMixin:OnShow()

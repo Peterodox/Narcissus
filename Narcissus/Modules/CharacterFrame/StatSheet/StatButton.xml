@@ -96,7 +96,7 @@
 	<Frame name="Narci_DetailedAttributeTemplateShortLeft" virtual="true" frameLevel="9" inherits="NarciAttributeSharedTemplate">
 		<Size x="112" y="48"/>
 		<KeyValues>
-			<KeyValue key="noAnimation" value="true" type="Boolean"/>
+			<KeyValue key="noAnimation" value="true" type="boolean"/>
 		</KeyValues>
 		<Layers>
 			<Layer level="BACKGROUND">
@@ -165,7 +165,7 @@
 	<Frame name="Narci_DetailedAttributeTemplateShortRight" virtual="true" frameLevel="9" inherits="NarciAttributeSharedTemplate">
 		<Size x="112" y="48"/>
 		<KeyValues>
-			<KeyValue key="noAnimation" value="true" type="Boolean"/>
+			<KeyValue key="noAnimation" value="true" type="boolean"/>
 		</KeyValues>
 		<Layers>
 			<Layer level="BACKGROUND">
