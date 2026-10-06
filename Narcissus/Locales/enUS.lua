@@ -647,6 +647,8 @@ L["No Available Gem"] = "|cffd8d8d8No available gem|r";
 L["Missing Enchant Alert"] = "Missing Enchant Alert";
 L["Missing Enchant"] = NARCI_COLOR_RED_MILD.."No Enchant".."|r";
 L["Socket Occupied"] = "Socket Occupied";       --Indicates that there is an (important) gem in the socket and you need to remove it first
+L["Item Switching In Progress"] = "Switching...";
+L["ItemType Not Found Format"] = "%s not found";
 
 --Statistics--
 S["Narcissus Played"] = "Total time spent in Narcissus";

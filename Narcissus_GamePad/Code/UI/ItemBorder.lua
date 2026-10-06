@@ -27,12 +27,12 @@ local function CreateScaleUpAnimationOnWidget(widget)
 end
 
 local function PrepareAnimationForSlot(slotButton)
-    if not slotButton.gamepad then
+    if not slotButton.hasGamepadAnimation then
         CreateScaleUpAnimationOnWidget(slotButton.Border);
         CreateScaleUpAnimationOnWidget(slotButton.Border.BorderMask);
         CreateScaleUpAnimationOnWidget(slotButton.Icon);
         CreateScaleUpAnimationOnWidget(slotButton.IconMask);
-        slotButton.gamepad = true;
+        slotButton.hasGamepadAnimation = true;
     end
 end
 

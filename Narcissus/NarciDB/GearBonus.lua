@@ -1,4 +1,12 @@
-local L = Narci.L;
+local _, addon = ...
+
+
+---@alias enchantID number enchantID
+---@alias attribute string Attribute abbreviation
+---@alias amount number The amount of the bonus attribute
+---@alias craftingSpellID number The spellID of the Enchanting recipe
+---@alias enchantScrollItemID number The Enchanting Vellum that holds the enchant
+
 
 local GemData = {
     --[itemID] = {"attribute", amount},
@@ -63,6 +71,16 @@ local GemData = {
 
 Narci.GemData = GemData;
 
+---@class EnchantInfo dwda
+---@field [1] attribute
+---@field [2] amount
+---@field [3] craftingSpellID
+---@field [4] enchantScrollItemID?
+
+---@class NarcissusEnchantData
+---@field [enchantID] EnchantInfo
+
+---@type NarcissusEnchantData
 local EnchantData= {
     --[enchantID] = {"attribute", amount, craftingSpellID, [itemID]},  --need to be parsed from itemstring
 
@@ -127,7 +145,6 @@ local EnchantData= {
     [6208] = {"stamina", 30, 323755},       --Soul Vitality
 
 
-
     ----8 BFA----
     ----Ring----
     [5938] = {"crit", 4, 255094},          --Seal of Critical Strike
@@ -172,7 +189,7 @@ local EnchantData= {
     [5428] = {"haste", 3, 190871},          --Binding of Haste
     [5429] = {"mastery", 3, 190872},        --Binding of Mastery
     [5430] = {"versatility", 3, 190873},    --Binding of Versatility
-    
+
     ----Cloak----
     [5431] = {"STR", 2, 190874},            --Word of Strength
     [5432] = {"AGI", 2, 190875},            --Word of Agility
@@ -181,8 +198,7 @@ local EnchantData= {
     [5434] = {"STR", 3, 190877},            --Binding of Strength
     [5435] = {"AGI", 3, 190878},            --Binding of Agility
     [5436] = {"INT", 3, 190879},            --Binding of Intellect
-    
-}
+};
 
 Narci.EnchantData = EnchantData;
 
@@ -194,6 +210,7 @@ NarciAPI.GetEnchantDataByEnchantID = GetEnchantDataByEnchantID;
 
 
 local TypeAbbr = {
+    undefined = "enh", -- Undefined Enhancement
 	crit = "cri",	  --CRI
 	haste = "has",	 --HAS
 	mastery = "mst", --MST
@@ -262,286 +279,16 @@ for attribute, abbr in pairs(TypeAbbr) do
 end
 
 local function GetVerticalRunicLetters(attributeType)
-    return RunicLetters[attributeType];
+    return RunicLetters[attributeType] or RunicLetters.undefined;
 end
 
 local function GetAttributeAbbrByEnchantID(enchantID)
     if EnchantData[enchantID] then
-        return TypeAbbr[ EnchantData[enchantID][1] ]
+        return TypeAbbr[ EnchantData[enchantID][1] ];
     else
-        return "enh"
+        return TypeAbbr.undefined;
     end
 end
 
 NarciAPI.GetVerticalRunicLetters = GetVerticalRunicLetters;
 NarciAPI.GetAttributeAbbrByEnchantID = GetAttributeAbbrByEnchantID;
-
-
-
---Corruption System
---Info based on Corruption System Overview (Squishei, Wowhead)
---[[
-    CORRUPTION_COLOR
-    CR_CORRUPTION = 12;
-    CR_CORRUPTION_RESISTANCE = 13;
-    GARRISON_CURRENT_LEVEL = Tier %d
-
-    IsCorruptedItem(itemIDOrLink)
-	local corruption = GetCorruption();
-	local corruptionResistance = GetCorruptionResistance();
-	local totalCorruption = math.max(corruption - corruptionResistance, 0); 
---]]
-
---[[
-local Corruption_SpellIDs = {
-    --[SpellID] = {Given Name, Rank, Itemlink ModID, TypeID}    TypeID: 1 ~ Percentage  2 ~ Constant
-    --Passive
-    [315607] = {STAT_AVOIDANCE, 1, 6483, 1},             --Avoidant: Your Avoidance is increased by an amount equal to 5% of your Haste.
-    [315608] = {STAT_AVOIDANCE, 2, 6484, 1},             --8
-    [315609] = {STAT_AVOIDANCE, 3, 6485, 1},             --10
-
-    [315544] = {L["Haste Gained"], 1, 6474, 1},                 --Expedient:Increases the amount of Haste you gain from all sources by 6%.
-    [315545] = {L["Haste Gained"], 2, 6475, 1},                 --9
-    [315546] = {L["Haste Gained"], 3, 6476, 1},                 --12
-
-    [315529] = {L["Mastery Gained"], 1, 6471, 1},               --Masterful: Increases the amount of Mastery you gain from all sources by 6%.
-    [315530] = {L["Mastery Gained"], 2, 6472, 1},               --9
-    [315531] = {L["Mastery Gained"], 3, 6473, 1},               --12
-
-    [315554] = {L["Crit Gained"], 1, 6480, 1},       --Severe: Increases the amount of Critical Strike you gain from all sources by 6%.
-    [315557] = {L["Crit Gained"], 2, 6481, 1},       --9
-    [315558] = {L["Crit Gained"], 3, 6482, 1},       --12
-    
-    [315549] = {L["Versatility Gained"], 1, 6477, 1},           --Versatile: Increases the amount of Versatility you gain from all sources by 6%.
-    [315552] = {L["Versatility Gained"], 2, 6478, 1},           --9
-    [315553] = {L["Versatility Gained"], 3, 6479, 1},           --12
-
-    [315590] = {STAT_LIFESTEAL, 1, 6493, 1},             --Increases your Leech by 2%.
-    [315591] = {STAT_LIFESTEAL, 2, 6494, 1},             --4
-    [315592] = {STAT_LIFESTEAL, 3, 6495, 1},             --6
-
-    [315277] = {L["Critical Damage"], 1, 6437, 1},       --Strikethrough: Increases the damage and healing you deal with Critical Strikes by 2%.
-    [315281] = {L["Critical Damage"], 2, 6438, 1},       --3
-    [315282] = {L["Critical Damage"], 3, 6439, 1},       --4
-
-    [315573] = {"Cooldown Reduced", 2, 6486},      --Glimpse of Clarity: Your spells and abilities have a chance to grant you a Glimpse of Clarity, reducing the cooldown of your next 1 spell cast by 3 sec.
-    [318239] = {"Cooldown Reduced", 2, 6546},      --Glimpse of Clarity: Your spells and abilities have a chance to grant you a Glimpse of Clarity, reducing the cooldown of your next 1 spell cast by 3 sec.
-
-    --Proc
-    [318266] = {L["Proc Haste"], 1, 6555, 2},               --Racing Pulse: Your spells and abilities have a chance to increase your Haste by 546 for 4 sec.
-    [318492] = {L["Proc Haste"], 2, 6559, 2},               --728
-    [318496] = {L["Proc Haste"], 3, 6560, 2},               --1275
-    
-    [318268] = {L["Proc Crit"], 1, 6556, 2},                --Deadly Momentum: Your critical hits have a chance to increase your Critical Strike by 31 for 15 sec, stacking up to 5 times.
-    [318493] = {L["Proc Crit"], 2, 6561, 2},                --41
-    [318497] = {L["Proc Crit"], 3, 6562, 2},                --72
-
-    [318270] = {L["Proc Versatility"], 1, 6558, 2},         --Surging Vitality: Taking damage has a chance to increase your Versatility by 312 for 20 sec.
-    [318495] = {L["Proc Versatility"], 2, 6565, 2},         --416
-    [318499] = {L["Proc Versatility"], 3, 6566, 2},         --728
-
-    [318269] = {L["Proc Mastery"], 1, 6557, 2},             --Honed Mind: Your spells and abilities have a chance to increase your Mastery by 392 for 10 sec.
-    [318494] = {L["Proc Mastery"], 2, 6563, 2},             --523
-    [318498] = {L["Proc Mastery"], 3, 6564, 2},             --915
-
-
-    --Unique Effect
-    [318280] = {"Shdow AOE", 1, 6549},                      --Echoing Void: dealing 1.00% of your Health as Shadow damage to all nearby enemies every 1 sec until no stacks remain.
-    [318485] = {"Shdow AOE", 2, 6550},                      --1.5
-    [318486] = {"Shdow AOE", 3, 6551},                      --2.5
-
-    [318489] = {"Arcane AOE", 1, 6552},                     --Infinite Stars:  dealing (60% of Attack or Spell Power) Arcane damage and increasing their damage taken from your Infinite Stars by 25%, stacking up to 10 times.
-    [318487] = {"Arcane AOE", 2, 6553},                     --80
-    [318488] = {"Arcane AOE", 3, 6554},                     --100
-
-    [318303] = {"Cooldowns Accelerated", 1, 6547},          --Ineffable Truth: Your Spells and Abilities have a chance to show you the Ineffable Truth, increasing the rate your cooldowns recover by 30% for 10 sec.
-    [318484] = {"Cooldowns Accelerated", 2, 6548},          --Ineffable Truth: Your Spells and Abilities have a chance to show you the Ineffable Truth, increasing the rate your cooldowns recover by 50% for 10 sec.
-
-    [318276] = {"Frontal AOE", 1, 6537},                    --Twilight Devastation: Your attacks have a chance to trigger a beam of Twilight Devastation, dealing damage equal to 3.00% of your health to all enemies in front of you.
-    [318477] = {"Frontal AOE", 2, 6538},                    --4
-    [318478] = {"Frontal AOE", 3, 6539},                    --5
-
-    [318481] = {"Tentacle", 1, 6543},                       --Twisted Appendage: Your attacks have a chance to spawn a tentacle which Mind Flays your target for 25% Attack or Spell Power Shadow damage every second for 10 sec.
-    [318482] = {"Tentacle", 2, 6544},
-    [318483] = {"Tentacle", 3, 6545},
-
-    [318286] = {"Void Ritual", 1, 6540},                    --Void Ritual: Gain Void Ritual, a chance to increase all secondary stats by 7 every sec for 20 sec. This chance is increased if at least 2 nearby allies also have Void Ritual.
-    [318479] = {"Void Ritual", 2, 6541},
-    [318480] = {"Void Ritual", 3, 6542},
-
-    [318179] = {"Damage Over Time", 1, 6573},               --Gushing Wound: a chance to cause your target to ooze blood, dealing [(10 / 100 * max(Attack power, Spell power) * 7] damage over 7 sec.
- 
-      
-    --On Weapon
-    [318294] = {"Devour Vitality", 1, 6567},            --Devour Vitality: Your autoattacks have a 25% change to bite into the target's soul, dealing 2.00% of your health in damage and healing you for that amount.
-    [316782] = {"Hunter Ability", 1, 6568},             --Your auto-shots reduce the remaining cooldown of a random Hunter ability by 2.0 sec
-    [317290] = {"Lash of the Void", 1, 6569},           --Lash of the Void: Your attacks have a chance to lash your target with a living tentacle, dealing (30% of Attack power) Shadow damage and snaring them by 30% for 6 sec.
-    [318299] = {"Proc Intellect", 1, 6570},             --Flash of Insight: Your mind's true potential is unlocked, causing your spells to grant you flashes of insight. Gain between 1% and 8% Intellect at all times.
-    [318293] = {"Frontal AOE", 1, 6571},                --Searing Flames: Your damaging abilities build stacks of Searing Flames. When you reach 30 stacks, exhale a Searing Breath, dealing damage equal to 5.00% of your health to all targets in front of you.
-    [316651] = {"Obsidian Skin", 1, 6572},              --Obsidian Skin: increasing your Armor by 5%. While in combat, explode with Obsidian Destruction every 30 seconds, dealing Shadow damage equal to 300% of your Armor to all enemies within 20 yds.
-};
-
-local CorruptionAffix = {};
-
-local RANK_FORMAT = "T%d";  --GARRISON_CURRENT_LEVEL;
-local format = string.format;
-local match = string.match;
-local gmatch = string.gmatch;
-local GetItemInfoInstant = GetItemInfoInstant;
-local CORRUPTION_COLOR = "|cff946dd1";
-local RANK_COLOR = "|cff7e82b6";
-local CORRUPTED_COLOR = "|cffb6bde0";
-
-local function GetCorruptionModID(itemLink)
-    local tempFunc;
-    local Affix = CorruptionAffix;
-    tempFunc = gmatch(itemLink, "(65%d%d)");
-    if tempFunc then
-        for id in tempFunc do
-            if Affix[id] then
-                return id
-            end
-        end
-    end
-
-    tempFunc = gmatch(itemLink, "(64%d%d)");
-    if tempFunc then
-        for id in tempFunc do
-            if Affix[id] then
-                return id
-            end
-        end
-    end
-end
-
-local function NarciAPI_GetCorruptedItemAffix(itemLink)
-    local ID = GetCorruptionModID(itemLink);
-
-    if ID then
-        --print("AffixID: "..ID);
-        local info = CorruptionAffix[ID];
-        if info then
-            local rank = info[1];
-            local name = info[2];
-            if name then
-                local str = CORRUPTED_COLOR..name.."|r  "..RANK_COLOR..format(RANK_FORMAT, rank)
-                --print(str);
-                return str, ID
-            else
-                return nil, ID
-            end
-        else
-            return nil, ID
-        end
-    end
-    
-end
-
-local Initialize = CreateFrame("Frame")
---Initialize:RegisterEvent("PLAYER_ENTERING_WORLD");
-Initialize:SetScript("OnEvent", function(self, event, ...)
-    self:UnregisterEvent("PLAYER_ENTERING_WORLD");
-    local GetSpellInfo = GetSpellInfo;
-    local GetSpellDescription = GetSpellDescription;
-    local flatTable = {};
-    local queueTable = {};
-    local sum = 0;
-    for k, v in pairs(Corruption_SpellIDs) do
-        --Cache
-        GetSpellInfo(k);
-        GetSpellDescription(k);
-        sum = sum + 1;
-        flatTable[sum] = k;
-    end
-
-    local i = 1;
-    local info, modID, rank, spellID, name, type;
-    local description, num;
-    local match = string.match;
-    local function BuildAffix(spellList)
-        spellID = spellList[i];
-        info = Corruption_SpellIDs[spellID];
-        type = info[4];
-        if type then
-            if type == 1 then   --percentage
-                description = GetSpellDescription(spellID);
-                num = match(description, "(%d+)%%");
-                if num then
-                    name = info[1].." +"..num.."%";
-                else
-                    name = GetSpellInfo(spellID);
-                end
-            elseif type == 2 then   --number
-                description = GetSpellDescription(spellID);
-                num = match(description, "(%d+)");
-                if num then
-                    name = info[1].." +"..num;
-                else
-                    name = GetSpellInfo(spellID);
-                end
-            end
-        else
-            name = GetSpellInfo(spellID);
-        end
-        modID = info[3];
-        rank = info[2];
-        CorruptionAffix[tostring(modID)] = {rank, name};
-
-        if i < sum then
-            i = i + 1;
-            C_Timer.After(0, function()
-                BuildAffix(spellList);
-            end)
-        end
-    end
-
-    C_Timer.After(0.73, function()
-        BuildAffix(flatTable)
-
-        --Check Cache
-        C_Timer.After(1, function()
-            local IsSpellDataCached = C_Spell.IsSpellDataCached;
-            for j = 1, #flatTable do
-                spellID = flatTable[i];
-                if not IsSpellDataCached(spellID) then
-                    tinsert(queueTable, spellID);
-                end
-            end
-
-            C_Timer.After(0.25, function()
-                if #queueTable ~= 0 then
-                    BuildAffix(queueTable);
-                end
-            end)
-        end)
-        
-    end);
-end)
-
---]]
-
---[[
-    -- Dev Tool --
-    
-    /script DEFAULT_CHAT_FRAME:AddMessage("\124cffa335ee\124Hitem:174954::::::::120:102::29:5:6540:6515:6578:6579:4803:::\124h[Wristwraps of the Insatiable Maw]\124h\124r");
-    8       4   Rare
-    9       5   Epic
-    9       7   Rare  Socket
-    5       1   
-
-    6578:6579
-
-    /dump string.match("Racing Pulse: Your spells and abilities have a chance to increase your Haste by 546 for 4 sec.", "(%d+)")
-
-
-
-
-    hooksecurefunc("DressUpItemLink", function(link)
-        local str = string.match(link, "item[%-?%d:]+")
-        --local test = string.match(link, "6578:6579:(%d+):");
-        print(link)
-        print(str)
-        --print(GetCorruptionModID(link))
-        --NarciAPI_GetCorruptedItemAffix(link)
-    end)
---]]

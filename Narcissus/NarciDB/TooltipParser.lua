@@ -34,10 +34,10 @@ local L = Narci.L;
 local NarciAPI = NarciAPI;
 local TEXT_LOCALE = GetLocale();
 local IS_LEGION_REMIX = false;
+local TOOLTIP_HAS_ITEM_LEVEL = addon.IS_RETAIL;
 
 local GetItemInfoInstant = C_Item.GetItemInfoInstant;
 local GetItemGem = C_Item.GetItemGem;
-local GetItemNumSockets = C_Item.GetItemNumSockets;
 local GetItemStats = C_Item.GetItemStats;
 local GetInventoryItemLink = GetInventoryItemLink;
 local StripHyperlinks = C_StringUtil and C_StringUtil.StripHyperlinks or StripHyperlinks;
@@ -1005,7 +1005,7 @@ local function GetCompleteItemData(tooltipData, itemLink)
             lineText = GetLineText(lines, i);
             if lineText then
                 anyMatch = nil;
-                if i == 2 then
+                if i == 2 and TOOLTIP_HAS_ITEM_LEVEL then
                     --the second line is usually item level
                     --or a special item category: difficuty, Cypher Equipment
                     if not match(lineText, "%d$") then
@@ -1034,7 +1034,7 @@ local function GetCompleteItemData(tooltipData, itemLink)
                     end
                 end
 
-                if i >= 4 and not anyMatch then
+                if i >= 2 and not anyMatch then
                     --effects
                     if find(lineText, ON_USE) then
                         effectText, cooldownText = TrimCooldownText( strtrim(lineText, NO_COMMA_ON_USE) );
@@ -1060,7 +1060,7 @@ local function GetCompleteItemData(tooltipData, itemLink)
                                 data.itemType = rightText;
                             end
                             local n = i + 1;
-                            
+
                             leftText = GetLineText(lines, n);
                             rightText = GetLineRightText(lines, n);
                             if leftText and rightText then
@@ -1499,30 +1499,37 @@ local function DoesItemHaveSockets(itemLink)
             end
         end
 
-        --if numSocket == 0 then
-        --    numSocket = C_Item.GetItemNumSockets(itemLink);
-        --end
-
         return numSocket, socketIsDiverse, lastType
     end
 end
 
 NarciAPI.DoesItemHaveSockets = DoesItemHaveSockets;
 
---[[
-GameTooltip:HookScript("OnTooltipSetItem", function(self)
-    local _, itemLink = self:GetItem();
-    DoesItemHaveSockets(itemLink);
-end);
---]]
 
 local function GetAmmoDps(itemID)
     if not itemID then return end;
-    return 0
+
+    local tooltipData = GetInfoByItemID(itemID);
+    if tooltipData and tooltipData.lines then
+        -- Some ammo are bind-on-pickup, which pushes the DPS line to the 4th
+        local lineText = tooltipData.lines[3] and tooltipData.lines[3].leftText;
+        local matchedText;
+        if lineText then
+            matchedText = match(lineText, PATTERN_AMMO_DPS)
+        end
+        if not matchedText then
+            lineText = tooltipData.lines[4] and tooltipData.lines[4].leftText;
+            if lineText then
+                matchedText = match(lineText, PATTERN_AMMO_DPS)
+            end
+        end
+        if matchedText then
+            return tonumber(matchedText);
+        end
+    end
 end
 
 NarciAPI.GetAmmoDps = GetAmmoDps;
-
 
 
 local function FormatSpellData(tooltipData, fromLine)
