@@ -766,7 +766,7 @@ function UpdateFunc:Crit(object)
 
 	object.Label:SetText(NARCI_CRITICAL_STRIKE);		--COMBAT_RATING_NAME10
 	object.Value:SetText(FormatPercent(critChance));
-	object.ValueRating:SetText(extraCritRating);
+	object:SetValueRating(extraCritRating);
 
 	if ClearTooltipIfSecret(object, STAT_CRITICAL_STRIKE, critChance) then
 		return;
@@ -797,7 +797,7 @@ function UpdateFunc:Haste(object)
 	local PercentageText = FormatPercent(haste);
 	object.Label:SetText(STAT_HASTE);
 	object.Value:SetText(PercentageText);
-	object.ValueRating:SetText(GetCombatRating(rating));
+	object:SetValueRating(GetCombatRating(rating));
 
 	if ClearTooltipIfSecret(object, STAT_HASTE, haste) then
 		return;
@@ -834,24 +834,11 @@ function UpdateFunc:Mastery(object)
 	local mastery = GetMasteryEffect();
 	object.Label:SetText(STAT_MASTERY);
 
-	--[[
-	if (UnitLevel("player") < SHOW_MASTERY_LEVEL) then
-		object.numericValue = 0;
-		object.Value:SetText("N/A");
-		object.ValueRating:SetText("0");
-		object.Label:SetAlpha(NO_BONUS_ALPHA)
-		object.Value:SetAlpha(NO_BONUS_ALPHA)
-		object.ValueRating:SetAlpha(NO_BONUS_ALPHA)
-		return;
-	end
-	--]]
-
 	object.Value:SetText(FormatPercent(mastery));
-	object.ValueRating:SetText(GetCombatRating(CR_MASTERY));
+	object:SetValueRating(GetCombatRating(CR_MASTERY));
 
 	object.Label:SetAlpha(1)
 	object.Value:SetAlpha(1)
-	object.ValueRating:SetAlpha(1)
 end
 
 function UpdateFunc:Versatility(object)
@@ -863,7 +850,7 @@ function UpdateFunc:Versatility(object)
 	local versaBonusdefense = GetVersatilityBonus(CR_VERSATILITY_DAMAGE_TAKEN);
 
 	object.Label:SetText(STAT_VERSATILITY);
-	object.ValueRating:SetText(versatility);
+	object:SetValueRating(versatility);
 
 	if ClearTooltipIfSecret(object, STAT_VERSATILITY, attackBonus) then
 		object.Value:SetText(FormatPercent(attackBonus));
@@ -949,6 +936,12 @@ function NarciAttributeMixin:SetLabelAndValue(label, value, grey)
 	else
 		self.Label:SetTextColor(0.92, 0.92, 0.92);
 		self.Value:SetTextColor(0.92, 0.92, 0.92);
+	end
+end
+
+function NarciAttributeMixin:SetValueRating(valueRating)
+	if self.ValueRating then
+		self.ValueRating:SetText(valueRating);
 	end
 end
 

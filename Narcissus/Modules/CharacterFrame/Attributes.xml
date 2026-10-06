@@ -58,14 +58,6 @@
 						<Anchor point="RIGHT" relativeKey="$parent" relativePoint="RIGHT" x="-12" y="0"/>
 					</Anchors>
 				</FontString>
-
-				<FontString inherits="NarciFontStatusNumber" justifyH="RIGHT" justifyV="MIDDLE" parentKey="ValueRating" text="1208" hidden="true">
-					<Size x="0" y="0"/>
-					<Color r="0.92" g="0.92" b="0.92"/>
-					<Anchors>
-						<Anchor point="RIGHT" relativeKey="$parent.Color" relativePoint="RIGHT" x="-12" y="0"/>
-					</Anchors>
-				</FontString>
 			</Layer>
 		</Layers>
 	</Frame>
