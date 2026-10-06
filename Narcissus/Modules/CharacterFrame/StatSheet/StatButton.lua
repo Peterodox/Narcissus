@@ -7,12 +7,15 @@ local StatButtonMixin = {};
 addon.StatButtonMixin = StatButtonMixin;
 
 function StatButtonMixin:Update()
-    if UpdateFunc[self.token] then
-        UpdateFunc[self.token](nil, self);
-    end
+    self:UpdateStat();
+
 	if self.customValueSetter then
 		self.customValueSetter(self, self.Value, self.ValueRating);
 	end
+end
+
+function StatButtonMixin:UpdateStat()
+	-- override
 end
 
 function StatButtonMixin:SetLabelAndValue(label, value, grey)
@@ -85,11 +88,21 @@ function StatButtonMixin:GetRow()
 	return self.row or 0;
 end
 
+function StatButtonMixin:SetToken(token)
+	if UpdateFunc[token] then
+		self.token = token;
+		self.UpdateStat = UpdateFunc[token];
+	end
+end
+
 function StatButtonMixin:OnLoad()
 	if self.isLeftCol ~= nil then
 		self:SetLeftColumn(self.isLeftCol);
 	end
 
+	if self.token then
+		self:SetToken(self.token);
+	end
 end
 
 function StatButtonMixin:OnShow()

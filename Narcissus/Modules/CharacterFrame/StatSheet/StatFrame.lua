@@ -94,7 +94,7 @@ function StatFrameMixin:SetLayout(layout)
                 end
             else
                 local button = CreateFrame("Button", nil, self, "Narci_DetailedAttributeTemplate");
-                button.token = token;
+                button:SetToken(token);
                 button:SetLeftColumn(isLeftCol);
                 button:SetRow(row);
                 AddChild(button);
@@ -133,7 +133,7 @@ function StatFrameMixin:SetLayout(layout)
                 addSpacer = true;
             else
                 local button = CreateFrame("Button", nil, self, "Narci_AttributeTemplate");
-                button.token = token;
+                button:SetToken(token);
                 button:SetRow(row);
                 row = row + 1;
                 AddChild(button);

@@ -22,7 +22,7 @@ local C_PaperDollInfo = C_PaperDollInfo;
 local UnitStat = UnitStat;
 local GetCombatRating = GetCombatRating;
 local GetCombatRatingBonus = GetCombatRatingBonus;
-local BASE_MOVEMENT_SPEED = BASE_MOVEMENT_SPEED;
+local BASE_MOVEMENT_SPEED = BASE_MOVEMENT_SPEED or 7;
 local GetSpecialization = C_SpecializationInfo.GetSpecialization;
 local GetUnitSpeed = GetUnitSpeed;
 local canaccessvalue = canaccessvalue;
@@ -59,41 +59,41 @@ local function GetAppropriateDamage(unit)
 	end
 end
 
-local function CharacterDamageFrame_OnEnter(object)
+local function CharacterDamageFrame_OnEnter(self)
 	-- Main hand weapon
-	DefaultTooltip:SetOwner(object, "ANCHOR_NONE");
-	if ( object.unit == "pet" ) then
+	DefaultTooltip:SetOwner(self, "ANCHOR_NONE");
+	if self.unit == "pet"  then
 		DefaultTooltip:SetText(INVTYPE_WEAPONMAINHAND_PET, HIGHLIGHT_FONT_COLOR.r, HIGHLIGHT_FONT_COLOR.g, HIGHLIGHT_FONT_COLOR.b);
 	else
 		DefaultTooltip:SetText(INVTYPE_WEAPONMAINHAND, HIGHLIGHT_FONT_COLOR.r, HIGHLIGHT_FONT_COLOR.g, HIGHLIGHT_FONT_COLOR.b);
 	end
-	DefaultTooltip:AddDoubleLine(format(STAT_FORMAT, ATTACK_SPEED_SECONDS), format("%.2F", object.attackSpeed), 1.00, 0.82, 0.00, 1.00, 0.82, 0.00);
-	DefaultTooltip:AddDoubleLine(format(STAT_FORMAT, DAMAGE), object.damage, 1.00, 0.82, 0.00, 1.00, 0.82, 0.00);
+	DefaultTooltip:AddDoubleLine(format(STAT_FORMAT, ATTACK_SPEED_SECONDS), format("%.2F", self.attackSpeed), 1.00, 0.82, 0.00, 1.00, 0.82, 0.00);
+	DefaultTooltip:AddDoubleLine(format(STAT_FORMAT, DAMAGE), self.damage, 1.00, 0.82, 0.00, 1.00, 0.82, 0.00);
 	-- Check for offhand weapon
-	if ( object.offhandAttackSpeed ) then
+	if self.offhandAttackSpeed then
 		DefaultTooltip:AddLine("\n");
 		DefaultTooltip:AddLine(INVTYPE_WEAPONOFFHAND, HIGHLIGHT_FONT_COLOR.r, HIGHLIGHT_FONT_COLOR.g, HIGHLIGHT_FONT_COLOR.b);
-		DefaultTooltip:AddDoubleLine(format(STAT_FORMAT, ATTACK_SPEED_SECONDS), format("%.2F", object.offhandAttackSpeed), 1.00, 0.82, 0.00, 1.00, 0.82, 0.00);
-		DefaultTooltip:AddDoubleLine(format(STAT_FORMAT, DAMAGE), object.offhandDamage, 1.00, 0.82, 0.00, 1.00, 0.82, 0.00);
+		DefaultTooltip:AddDoubleLine(format(STAT_FORMAT, ATTACK_SPEED_SECONDS), format("%.2F", self.offhandAttackSpeed), 1.00, 0.82, 0.00, 1.00, 0.82, 0.00);
+		DefaultTooltip:AddDoubleLine(format(STAT_FORMAT, DAMAGE), self.offhandDamage, 1.00, 0.82, 0.00, 1.00, 0.82, 0.00);
 	end
 
-	DefaultTooltip:SetPoint("TOPRIGHT",object,"TOPLEFT", -4, 0);
+	DefaultTooltip:SetPoint("TOPRIGHT",self,"TOPLEFT", -4, 0);
 	DefaultTooltip:Show();
 end
 
-local function MovementSpeed_OnUpdate(object, elapsed)
-	object.t = object.t + elapsed;
-	if object.t > 0.1 then
-		object.t = 0;
+local function MovementSpeed_OnUpdate(self, elapsed)
+	self.t = self.t + elapsed;
+	if self.t > 0.1 then
+		self.t = 0;
 	else
 		return
 	end
 
-	local unit = object.unit;
+	local unit = self.unit;
 	local _, runSpeed, flightSpeed, swimSpeed = GetUnitSpeed(unit);
 
 	if not canaccessvalue(runSpeed) then
-		object.Value:SetText("N/A");
+		self.Value:SetText("N/A");
 		return
 	end
 
@@ -112,64 +112,64 @@ local function MovementSpeed_OnUpdate(object, elapsed)
 
 	-- Hack so that your speed doesn't appear to change when jumping out of the water
 	if (IsFalling(unit)) then
-		if (object.wasSwimming) then
+		if (self.wasSwimming) then
 			speed = swimSpeed;
 		end
 	else
-		object.wasSwimming = swimming;
+		self.wasSwimming = swimming;
 	end
 
 	local valueText = format("%d%%", speed + 0.5);
-	object.Value:SetText(valueText);
+	self.Value:SetText(valueText);
 
-	object.speed = speed;
-	object.runSpeed = runSpeed;
-	object.flightSpeed = flightSpeed;
-	object.swimSpeed = swimSpeed;
+	self.speed = speed;
+	self.runSpeed = runSpeed;
+	self.flightSpeed = flightSpeed;
+	self.swimSpeed = swimSpeed;
 end
 
-local function MovementSpeed_OnEnter(object)
-	if not ((object.speed) and canaccessvalue(object.speed)) then
-		DefaultTooltip:SetOwner(object, "ANCHOR_NONE");
+local function MovementSpeed_OnEnter(self)
+	if not ((self.speed) and canaccessvalue(self.speed)) then
+		DefaultTooltip:SetOwner(self, "ANCHOR_NONE");
 		DefaultTooltip:SetText(format(STAT_MOVEMENT_SPEED));
-		DefaultTooltip:SetPoint("TOPRIGHT",object,"TOPLEFT", -4, 0)
+		DefaultTooltip:SetPoint("TOPRIGHT",self,"TOPLEFT", -4, 0)
 		DefaultTooltip:Show();
 		return;
 	end
 
-	DefaultTooltip:SetOwner(object, "ANCHOR_NONE");
-	DefaultTooltip:SetText("|cffffffff".. STAT_MOVEMENT_SPEED .." "..format("%d%%", object.speed+0.5).."|r");
+	DefaultTooltip:SetOwner(self, "ANCHOR_NONE");
+	DefaultTooltip:SetText("|cffffffff".. STAT_MOVEMENT_SPEED .." "..format("%d%%", self.speed+0.5).."|r");
 
-	DefaultTooltip:AddLine(format(STAT_MOVEMENT_GROUND_TOOLTIP, object.runSpeed+0.5));
-	if (object.unit ~= "pet") then
-		DefaultTooltip:AddLine(format(STAT_MOVEMENT_FLIGHT_TOOLTIP, object.flightSpeed+0.5));
+	DefaultTooltip:AddLine(format(STAT_MOVEMENT_GROUND_TOOLTIP, self.runSpeed+0.5));
+	if (self.unit ~= "pet") then
+		DefaultTooltip:AddLine(format(STAT_MOVEMENT_FLIGHT_TOOLTIP, self.flightSpeed+0.5));
 	end
-	DefaultTooltip:AddLine(format(STAT_MOVEMENT_SWIM_TOOLTIP, object.swimSpeed+0.5));
+	DefaultTooltip:AddLine(format(STAT_MOVEMENT_SWIM_TOOLTIP, self.swimSpeed+0.5));
 	DefaultTooltip:AddLine(" ");
 	DefaultTooltip:AddLine(format(CR_SPEED_TOOLTIP, BreakUpLargeNumbers(GetCombatRating(CR_SPEED)), GetCombatRatingBonus(CR_SPEED)));
 
-	DefaultTooltip:SetPoint("TOPRIGHT",object,"TOPLEFT", -4, 0)
+	DefaultTooltip:SetPoint("TOPRIGHT",self,"TOPLEFT", -4, 0)
 	DefaultTooltip:Show();
 
-	object.UpdateTooltip = MovementSpeed_OnEnter;
+	self.UpdateTooltip = MovementSpeed_OnEnter;
 end
 
-local function MasteryFrame_OnEnter(object)
+local function MasteryFrame_OnEnter(self)
 	local mastery, bonusCoeff = GetMasteryEffect();
 	if not canaccessvalue(mastery) then
-		DefaultTooltip:SetOwner(object, "ANCHOR_NONE");
+		DefaultTooltip:SetOwner(self, "ANCHOR_NONE");
 		DefaultTooltip:SetText(STAT_MASTERY);
-		DefaultTooltip:SetPoint("TOPRIGHT",object,"TOPLEFT", -4, 0)
+		DefaultTooltip:SetPoint("TOPRIGHT",self,"TOPLEFT", -4, 0)
 		DefaultTooltip:Show();
 		return;
 	end
 
-    local RadarChart = object:GetParent();
+    local RadarChart = self:GetParent();
     if RadarChart.SetVerticeSize then
-        RadarChart.SetVerticeSize(RadarChart, object, 15);
+        RadarChart.SetVerticeSize(RadarChart, self, 15);
     end
 
-	DefaultTooltip:SetOwner(object, "ANCHOR_NONE");
+	DefaultTooltip:SetOwner(self, "ANCHOR_NONE");
 
 	local masteryBonus = GetCombatRatingBonus(CR_MASTERY) * bonusCoeff;
 
@@ -220,7 +220,7 @@ local function MasteryFrame_OnEnter(object)
 		DefaultTooltip:AddLine(" ");
 		DefaultTooltip:AddLine(STAT_MASTERY_TOOLTIP_NO_TALENT_SPEC, GRAY_FONT_COLOR.r, GRAY_FONT_COLOR.g, GRAY_FONT_COLOR.b, true);
 	end
-	DefaultTooltip:SetPoint("TOPRIGHT",object,"TOPLEFT", -4, 0)
+	DefaultTooltip:SetPoint("TOPRIGHT",self,"TOPLEFT", -4, 0)
 	DefaultTooltip:Show();
 end
 
@@ -264,10 +264,10 @@ end
 
 Narci.GetEffectiveCrit = GetEffectiveCrit;
 
-local function ClearTooltipIfSecret(object, statName, value1)
+local function ClearTooltipIfSecret(self, statName, value1)
 	if not canaccessvalue(value1) then
-		object.tooltip = statName;
-		object.tooltip2 = nil;
+		self.tooltip = statName;
+		self.tooltip2 = nil;
 		return true;
 	end
 end
@@ -279,11 +279,11 @@ end
 local UpdateFunc = {};
 addon.StatUpdateFunc = UpdateFunc;
 
-function UpdateFunc:Primary(object)
+function UpdateFunc:Primary()
 	local unit = "player";
 	local PrimaryStatsName, PrimaryStatsNum = GetPrimaryStats();
-	object.Label:SetText(PrimaryStatsName);
-	object.Value:SetText(PrimaryStatsNum);
+	self.Label:SetText(PrimaryStatsName);
+	self.Value:SetText(PrimaryStatsNum);
 	local spec = GetSpecialization();
 	if not spec then return; end
 	local role = GetSpecializationRole(spec);
@@ -291,7 +291,7 @@ function UpdateFunc:Primary(object)
 	if type(tonumber(primaryStat)) ~= "number" then return; end		--sometimes changing zones cause Lua error
 	local stat, effectiveStat, posBuff, negBuff = UnitStat(unit, primaryStat);
 
-	if ClearTooltipIfSecret(object, PrimaryStatsName, posBuff) then
+	if ClearTooltipIfSecret(self, PrimaryStatsName, posBuff) then
 		return;
 	end
 
@@ -302,7 +302,7 @@ function UpdateFunc:Primary(object)
 	local tooltipText = "|cffffffff".. statName .." ";
 
 	if ( ( posBuff == 0 ) and ( negBuff == 0 ) ) then
-		object.tooltip = tooltipText..effectiveStatDisplay.."|r";
+		self.tooltip = tooltipText..effectiveStatDisplay.."|r";
 	else
 		tooltipText = tooltipText..effectiveStatDisplay;
 		if ( posBuff > 0 or negBuff < 0 ) then
@@ -317,7 +317,7 @@ function UpdateFunc:Primary(object)
 		if ( posBuff > 0 or negBuff < 0 ) then
 			tooltipText = tooltipText.."|cffffffff"..")".."|r";
 		end
-		object.tooltip = tooltipText;
+		self.tooltip = tooltipText;
 
 		-- If there are any negative buffs then show the main number in red even if there are
 		-- positive buffs. Otherwise show in green.
@@ -326,7 +326,7 @@ function UpdateFunc:Primary(object)
 		end
 	end
 
-	object.tooltip2 = _G["DEFAULT_STAT"..primaryStat.."_TOOLTIP"];
+	self.tooltip2 = _G["DEFAULT_STAT"..primaryStat.."_TOOLTIP"];
 
 	if ( primaryStat == LE_UNIT_STAT_AGILITY ) then
 		local attackPower = GetAttackPowerForStat(primaryStat, effectiveStat);
@@ -335,57 +335,57 @@ function UpdateFunc:Primary(object)
 			tooltip = STAT_TOOLTIP_BONUS_AP_SP;
 		end
 		if (not primaryStat or primaryStat == LE_UNIT_STAT_AGILITY) then
-			object.tooltip2 = format(tooltip, BreakUpLargeNumbers(attackPower));
+			self.tooltip2 = format(tooltip, BreakUpLargeNumbers(attackPower));
 			if ( role == "TANK" ) then
 				local increasedDodgeChance = GetDodgeChanceFromAttribute();
 				if ( increasedDodgeChance > 0 ) then
-					object.tooltip2 = object.tooltip2.."|n|n"..format(CR_DODGE_BASE_STAT_TOOLTIP, increasedDodgeChance);
+					self.tooltip2 = self.tooltip2.."|n|n"..format(CR_DODGE_BASE_STAT_TOOLTIP, increasedDodgeChance);
 				end
 			end
 		else
-			object.tooltip2 = STAT_NO_BENEFIT_TOOLTIP;
+			self.tooltip2 = STAT_NO_BENEFIT_TOOLTIP;
 		end
 
 	elseif ( primaryStat == LE_UNIT_STAT_STRENGTH ) then
 		local attackPower = GetAttackPowerForStat(primaryStat,effectiveStat);
 		if (HasAPEffectsSpellPower()) then
-			object.tooltip2 = STAT_TOOLTIP_BONUS_AP_SP;
+			self.tooltip2 = STAT_TOOLTIP_BONUS_AP_SP;
 		end
 		if (not primaryStat or primaryStat == LE_UNIT_STAT_STRENGTH) then
-			object.tooltip2 = format(object.tooltip2, BreakUpLargeNumbers(attackPower));
+			self.tooltip2 = format(self.tooltip2, BreakUpLargeNumbers(attackPower));
 			if ( role == "TANK" ) then
 				local increasedParryChance = GetParryChanceFromAttribute();
 				if ( increasedParryChance > 0 ) then
-					object.tooltip2 = object.tooltip2.."|n|n"..format(CR_PARRY_BASE_STAT_TOOLTIP, increasedParryChance);
+					self.tooltip2 = self.tooltip2.."|n|n"..format(CR_PARRY_BASE_STAT_TOOLTIP, increasedParryChance);
 				end
 			end
 		else
-			object.tooltip2 = STAT_NO_BENEFIT_TOOLTIP;
+			self.tooltip2 = STAT_NO_BENEFIT_TOOLTIP;
 		end
 
 	elseif ( primaryStat == LE_UNIT_STAT_INTELLECT ) then
 		if ( TransitionAPI.UnitHasMana("player") ) then
 			if (HasAPEffectsSpellPower()) then
-				object.tooltip2 = STAT_NO_BENEFIT_TOOLTIP;
+				self.tooltip2 = STAT_NO_BENEFIT_TOOLTIP;
 			else
 				local result, druid = HasSPEffectsAttackPower();
 				if (result and druid) then
-					object.tooltip2 = format(STAT_TOOLTIP_SP_AP_DRUID, max(0, effectiveStat), max(0, effectiveStat));
+					self.tooltip2 = format(STAT_TOOLTIP_SP_AP_DRUID, max(0, effectiveStat), max(0, effectiveStat));
 				elseif (result) then
-					object.tooltip2 = format(STAT_TOOLTIP_BONUS_AP_SP, max(0, effectiveStat));
+					self.tooltip2 = format(STAT_TOOLTIP_BONUS_AP_SP, max(0, effectiveStat));
 				elseif (not primaryStat or primaryStat == LE_UNIT_STAT_INTELLECT) then
-					object.tooltip2 = format(object.tooltip2, max(0, effectiveStat));
+					self.tooltip2 = format(self.tooltip2, max(0, effectiveStat));
 				else
-					object.tooltip2 = STAT_NO_BENEFIT_TOOLTIP;
+					self.tooltip2 = STAT_NO_BENEFIT_TOOLTIP;
 				end
 			end
 		else
-			object.tooltip2 = STAT_NO_BENEFIT_TOOLTIP;
+			self.tooltip2 = STAT_NO_BENEFIT_TOOLTIP;
 		end
 	end
 end
 
-function UpdateFunc:Stamina(object)
+function UpdateFunc:Stamina()
 	local statIndex = LE_UNIT_STAT_STAMINA;
 	local stat, effectiveStat, posBuff, negBuff = UnitStat("player", statIndex);
 
@@ -394,15 +394,15 @@ function UpdateFunc:Stamina(object)
 	local statName = _G["SPELL_STAT"..statIndex.."_NAME"];
 	local tooltipText = "|cffffffff".. statName .." ";
 
-	object.Label:SetText(statName);
-	object.Value:SetText(effectiveStat);
+	self.Label:SetText(statName);
+	self.Value:SetText(effectiveStat);
 
-	if ClearTooltipIfSecret(object, statName, posBuff) then
+	if ClearTooltipIfSecret(self, statName, posBuff) then
 		return;
 	end
 
 	if ( ( posBuff == 0 ) and ( negBuff == 0 ) ) then
-		object.tooltip = tooltipText..effectiveStatDisplay.."|r";
+		self.tooltip = tooltipText..effectiveStatDisplay.."|r";
 	else
 		tooltipText = tooltipText..effectiveStatDisplay;
 		if ( posBuff > 0 or negBuff < 0 ) then
@@ -417,7 +417,7 @@ function UpdateFunc:Stamina(object)
 		if ( posBuff > 0 or negBuff < 0 ) then
 			tooltipText = tooltipText.."|cffffffff"..")".."|r";
 		end
-		object.tooltip = tooltipText;
+		self.tooltip = tooltipText;
 
 		-- If there are any negative buffs then show the main number in red even if there are
 		-- positive buffs. Otherwise show in green.
@@ -429,22 +429,22 @@ function UpdateFunc:Stamina(object)
 	local staminaBonusText = TransitionAPI.Secret_Multiply(effectiveStat, UnitHPPerStamina("player"), GetUnitMaxHealthModifier("player"));
 	if staminaBonusText then
 		local textFormat = _G["DEFAULT_STAT"..statIndex.."_TOOLTIP"];
-		object.tooltip2 = format(textFormat, BreakUpLargeNumbers(staminaBonusText));
+		self.tooltip2 = format(textFormat, BreakUpLargeNumbers(staminaBonusText));
 	else
-		object.tooltip2 = nil;
+		self.tooltip2 = nil;
 	end
 end
 
-function UpdateFunc:Damage(object)
+function UpdateFunc:Damage()
 	local unit = "player";
 
 	local speed, offhandSpeed = UnitAttackSpeed(unit);
 	local minDamage, maxDamage, minOffHandDamage, maxOffHandDamage, physicalBonusPos, physicalBonusNeg, percent = GetAppropriateDamage(unit);
 
-	if ClearTooltipIfSecret(object, DAMAGE, minDamage) then
-		object.Label:SetText(DAMAGE);
-		object.Value:SetText(format("%.0f", minDamage));
-		object:SetScript("OnEnter", nil);
+	if ClearTooltipIfSecret(self, DAMAGE, minDamage) then
+		self.Label:SetText(DAMAGE);
+		self.Value:SetText(format("%.0f", minDamage));
+		self:SetScript("OnEnter", nil);
 		return;
 	end
 
@@ -507,11 +507,11 @@ function UpdateFunc:Damage(object)
 
 	end
 
-	object.Label:SetText(DAMAGE)
-	object.Value:SetText(value)
-	object.damage = damageTooltip;
-	object.attackSpeed = speed;
-	object.unit = unit;
+	self.Label:SetText(DAMAGE)
+	self.Value:SetText(value)
+	self.damage = damageTooltip;
+	self.attackSpeed = speed;
+	self.unit = unit;
 
 	-- If there's an offhand speed then add the offhand info to the tooltip
 	if ( offhandSpeed and minOffHandDamage and maxOffHandDamage ) then
@@ -532,26 +532,23 @@ function UpdateFunc:Damage(object)
 		elseif ( percent < 1 ) then
 			offhandDamageTooltip = offhandDamageTooltip..colorNeg.." x"..floor(percent*100+0.5).."%|r";
 		end
-		object.offhandDamage = offhandDamageTooltip;
-		object.offhandAttackSpeed = offhandSpeed;
+		self.offhandDamage = offhandDamageTooltip;
+		self.offhandAttackSpeed = offhandSpeed;
 	else
-		object.offhandAttackSpeed = nil;
+		self.offhandAttackSpeed = nil;
 	end
 
-	object:SetScript("OnEnter", CharacterDamageFrame_OnEnter);
-	--object:Show();
+	self:SetScript("OnEnter", CharacterDamageFrame_OnEnter);
 end
 
-function UpdateFunc:AttackSpeed(object, unit)
-	unit = "player";
-
+function UpdateFunc:AttackSpeed()
 	local meleeHaste = GetMeleeHaste();
-	local speed, offhandSpeed = UnitAttackSpeed(unit);
+	local speed, offhandSpeed = UnitAttackSpeed("player");
 
-	object.Label:SetText(ATTACK_SPEED);
+	self.Label:SetText(ATTACK_SPEED);
 
-	if ClearTooltipIfSecret(object, ATTACK_SPEED, speed) then
-		object.Value:SetText(format("%.2f", speed));
+	if ClearTooltipIfSecret(self, ATTACK_SPEED, speed) then
+		self.Value:SetText(format("%.2f", speed));
 		return;
 	end
 
@@ -569,43 +566,43 @@ function UpdateFunc:AttackSpeed(object, unit)
 		displaySpeed =  displaySpeed;
 	end
 
-	object.Value:SetText(displaySpeed);
-	object.tooltip = "|cffffffff".. ATTACK_SPEED .." "..displaySpeed.."|r";
-	object.tooltip2 = format(STAT_ATTACK_SPEED_BASE_TOOLTIP, format(DIGITS, meleeHaste));
+	self.Value:SetText(displaySpeed);
+	self.tooltip = "|cffffffff".. ATTACK_SPEED .." "..displaySpeed.."|r";
+	self.tooltip2 = format(STAT_ATTACK_SPEED_BASE_TOOLTIP, format(DIGITS, meleeHaste));
 end
 
-function UpdateFunc:Armor(object, unit)
-	unit = "player"
+function UpdateFunc:Armor()
+	local unit = "player"
 
 	local baselineArmor, effectiveArmor, armor, bonusArmor = UnitArmor(unit);
-	object.Label:SetText(STAT_ARMOR);
-	object.Value:SetText(effectiveArmor);
+	self.Label:SetText(STAT_ARMOR);
+	self.Value:SetText(effectiveArmor);
 
-	if ClearTooltipIfSecret(object, STAT_ARMOR, effectiveArmor) then
+	if ClearTooltipIfSecret(self, STAT_ARMOR, effectiveArmor) then
 		return;
 	end
 
     local armorReduction = C_PaperDollInfo.GetArmorEffectiveness(effectiveArmor, UnitEffectiveLevel(unit));
 	local armorReductionAgainstTarget = C_PaperDollInfo.GetArmorEffectivenessAgainstTarget(effectiveArmor);
 
-	object.tooltip = "|cffffffff".. ARMOR .." "..BreakUpLargeNumbers(effectiveArmor).."|r";
-	object.tooltip2 = format(STAT_ARMOR_TOOLTIP, 100*armorReduction);
+	self.tooltip = "|cffffffff".. ARMOR .." "..BreakUpLargeNumbers(effectiveArmor).."|r";
+	self.tooltip2 = format(STAT_ARMOR_TOOLTIP, 100*armorReduction);
 	if (armorReductionAgainstTarget) then
-		object.tooltip3 = format(STAT_ARMOR_TARGET_TOOLTIP, 100*armorReductionAgainstTarget);
+		self.tooltip3 = format(STAT_ARMOR_TARGET_TOOLTIP, 100*armorReductionAgainstTarget);
 	else
-		object.tooltip3 = nil;
+		self.tooltip3 = nil;
 	end
-	--object:Show();
+	--self:Show();
 end
 
-function UpdateFunc:Reduction(object)
+function UpdateFunc:Reduction()
 	local unit = "player"
 	local baselineArmor, effectiveArmor, armor, bonusArmor = UnitArmor(unit);
 
-	object.Label:SetText(L["Damage Reduction Percentage"]);
+	self.Label:SetText(L["Damage Reduction Percentage"]);
 
-	if ClearTooltipIfSecret(object, COMBAT_TEXT_SHOW_RESISTANCES_TEXT, effectiveArmor) then
-		object.Value:SetText("N/A");
+	if ClearTooltipIfSecret(self, COMBAT_TEXT_SHOW_RESISTANCES_TEXT, effectiveArmor) then
+		self.Value:SetText("N/A");
 		return;
 	end
 
@@ -614,49 +611,49 @@ function UpdateFunc:Reduction(object)
 	local armorReductionAgainstTarget = C_PaperDollInfo.GetArmorEffectivenessAgainstTarget(effectiveArmor);
 	local armorReductionText = FormatPercent(armorReduction);
 
-	object.tooltip = "|cffffffff"..COMBAT_TEXT_SHOW_RESISTANCES_TEXT.." "..armorReductionText.."|r";
-	object.tooltip2 = format(STAT_ARMOR_TOOLTIP, armorReduction);
+	self.tooltip = "|cffffffff"..COMBAT_TEXT_SHOW_RESISTANCES_TEXT.." "..armorReductionText.."|r";
+	self.tooltip2 = format(STAT_ARMOR_TOOLTIP, armorReduction);
 	if (armorReductionAgainstTarget) then
-		object.tooltip3 = format(STAT_ARMOR_TARGET_TOOLTIP, 100*armorReductionAgainstTarget);
+		self.tooltip3 = format(STAT_ARMOR_TARGET_TOOLTIP, 100*armorReductionAgainstTarget);
 		armorReduction = 100 * armorReductionAgainstTarget
 	else
-		object.tooltip3 = nil;
+		self.tooltip3 = nil;
 	end
 
-	object.Value:SetText(armorReductionText);
-	--object:Show();
+	self.Value:SetText(armorReductionText);
+	--self:Show();
 end
 
-function UpdateFunc:Dodge(object)
+function UpdateFunc:Dodge()
 	local chance = GetDodgeChance();
 	local chanceText = format("%.2F", chance).."%"
-	object.Label:SetText(STAT_DODGE);
-	object.Value:SetText(chanceText);
+	self.Label:SetText(STAT_DODGE);
+	self.Value:SetText(chanceText);
 
-	object.tooltip = "|cffffffff".. DODGE_CHANCE .." "..format("%.2F", chance).."%".."|r";
-	object.tooltip2 = format(CR_DODGE_TOOLTIP, GetCombatRating(CR_DODGE), GetCombatRatingBonus(CR_DODGE));
-	--object:Show();
+	self.tooltip = "|cffffffff".. DODGE_CHANCE .." "..format("%.2F", chance).."%".."|r";
+	self.tooltip2 = format(CR_DODGE_TOOLTIP, GetCombatRating(CR_DODGE), GetCombatRatingBonus(CR_DODGE));
+	--self:Show();
 end
 
-function UpdateFunc:Parry(object)
+function UpdateFunc:Parry()
 	local chance = GetParryChance();
 	local chanceText = format("%.2F", chance).."%"
-	object.Label:SetText(STAT_PARRY);
-	object.Value:SetText(chanceText);		
+	self.Label:SetText(STAT_PARRY);
+	self.Value:SetText(chanceText);		
 
-	object.tooltip = "|cffffffff".. PARRY_CHANCE .." "..format("%.2F", chance).."%".."|r";
-	object.tooltip2 = format(CR_PARRY_TOOLTIP, GetCombatRating(CR_PARRY), GetCombatRatingBonus(CR_PARRY));
-	--object:Show();
+	self.tooltip = "|cffffffff".. PARRY_CHANCE .." "..format("%.2F", chance).."%".."|r";
+	self.tooltip2 = format(CR_PARRY_TOOLTIP, GetCombatRating(CR_PARRY), GetCombatRatingBonus(CR_PARRY));
+	--self:Show();
 end
 
-function UpdateFunc:Block(object)
+function UpdateFunc:Block()
 	local unit = "player";
 
 	local chance = GetBlockChance();
 	local chanceText = format("%.2F", chance).."%";
 
-	if ClearTooltipIfSecret(object, STAT_BLOCK, chance) then
-		object:SetLabelAndValue(STAT_BLOCK, chanceText);
+	if ClearTooltipIfSecret(self, STAT_BLOCK, chance) then
+		self:SetLabelAndValue(STAT_BLOCK, chanceText);
 		return;
 	end
 
@@ -665,60 +662,58 @@ function UpdateFunc:Block(object)
 
 	--local role = GetSpecializationRole(spec);
 	if chance ~= 0 and C_PaperDollInfo.OffhandHasShield() then		--role == "TANK"
-		object:SetLabelAndValue(STAT_BLOCK, chanceText);
+		self:SetLabelAndValue(STAT_BLOCK, chanceText);
 	else
-		object:SetLabelAndValue(STAT_BLOCK, "N/A", true);
+		self:SetLabelAndValue(STAT_BLOCK, "N/A", true);
 	end
 
-	object.tooltip = "|cffffffff".. BLOCK_CHANCE .." "..format("%.2F", chance).."%".."|r";
+	self.tooltip = "|cffffffff".. BLOCK_CHANCE .." "..format("%.2F", chance).."%".."|r";
 
 	local shieldBlockArmor = GetShieldBlock();
 	local blockArmorReduction = C_PaperDollInfo.GetArmorEffectiveness(shieldBlockArmor, UnitEffectiveLevel(unit));
 	local blockArmorReductionAgainstTarget = C_PaperDollInfo.GetArmorEffectivenessAgainstTarget(shieldBlockArmor);
 
-	object.tooltip2 = format(CR_BLOCK_TOOLTIP, blockArmorReduction * 100);
+	self.tooltip2 = format(CR_BLOCK_TOOLTIP, blockArmorReduction * 100);
 	if (blockArmorReductionAgainstTarget) then
-		object.tooltip3 = format(STAT_BLOCK_TARGET_TOOLTIP, blockArmorReductionAgainstTarget * 100);
+		self.tooltip3 = format(STAT_BLOCK_TARGET_TOOLTIP, blockArmorReductionAgainstTarget * 100);
 	else
-		object.tooltip3 = nil;
+		self.tooltip3 = nil;
 	end
 end
 
-function UpdateFunc:Health(object, unit)
-	if (not unit) then
-		unit = "player";
-	end
+function UpdateFunc:Health()
+	local unit = "player";
 	local health = UnitHealthMax(unit);
 	local healthText = BreakUpLargeNumbers(health);
-	object.Label:SetText(HEALTH)
-	object.Value:SetText(healthText)
-	object.tooltip = "|cffffffff".. HEALTH .." "..healthText.."|r";
+	self.Label:SetText(HEALTH)
+	self.Value:SetText(healthText)
+	self.tooltip = "|cffffffff".. HEALTH .." "..healthText.."|r";
 	if (unit == "player") then
-		object.tooltip2 = STAT_HEALTH_TOOLTIP;
+		self.tooltip2 = STAT_HEALTH_TOOLTIP;
 	elseif (unit == "pet") then
-		object.tooltip2 = STAT_HEALTH_PET_TOOLTIP;
+		self.tooltip2 = STAT_HEALTH_PET_TOOLTIP;
 	end
-	object:Show();
+	self:Show();
 end
 
-function UpdateFunc:Power(object)
+function UpdateFunc:Power()
 	local unit = "player";
 	local powerType, powerToken = UnitPowerType(unit);
 	local power = UnitPowerMax(unit);
 	local powerText = BreakUpLargeNumbers(power);
 	local powerName = _G[powerToken];
 	if (powerToken and powerName) then
-		object.Label:SetText(powerName)
-		object.Value:SetText(powerText)
-		object.tooltip = "|cffffffff".. powerName .." "..powerText.."|r";
-		object.tooltip2 = _G["STAT_"..powerToken.."_TOOLTIP"];
-		object:Show();
+		self.Label:SetText(powerName)
+		self.Value:SetText(powerText)
+		self.tooltip = "|cffffffff".. powerName .." "..powerText.."|r";
+		self.tooltip2 = _G["STAT_"..powerToken.."_TOOLTIP"];
+		self:Show();
 	else
-		object:SetLabelAndValue("Resource", "N/A", true);
+		self:SetLabelAndValue("Resource", "N/A", true);
 	end
 end
 
-function UpdateFunc:Regen(object)
+function UpdateFunc:Regen()
 	local powerType, powerToken = UnitPowerType("player");
 	local regenRate = GetPowerRegen();
 	local regenRateText = BreakUpLargeNumbers(regenRate);
@@ -726,69 +721,69 @@ function UpdateFunc:Regen(object)
 	local labelText;
 	if powerToken == "ENERGY" then
 		labelText = STAT_ENERGY_REGEN;
-		object.tooltip2 = STAT_ENERGY_REGEN_TOOLTIP;
+		self.tooltip2 = STAT_ENERGY_REGEN_TOOLTIP;
 	elseif powerToken == "RUNES" then
 		labelText = STAT_RUNE_REGEN;
-		object.tooltip2 = STAT_RUNE_REGEN_TOOLTIP;
+		self.tooltip2 = STAT_RUNE_REGEN_TOOLTIP;
 	elseif powerToken == "FOCUS" then
 		labelText = STAT_FOCUS_REGEN;
-		object.tooltip2 = STAT_FOCUS_REGEN_TOOLTIP;
+		self.tooltip2 = STAT_FOCUS_REGEN_TOOLTIP;
 	elseif powerToken == "MANA" then
 		labelText = MANA_REGEN;
 		regenRate = GetManaRegen();
 	else
 		local _, class = UnitClass("player");
 		if (class ~= "DEATHKNIGHT") then
-			object:SetLabelAndValue(MANA_REGEN_COMBAT, "N/A", true);		--MANA_REGEN_ABBR
+			self:SetLabelAndValue(MANA_REGEN_COMBAT, "N/A", true);		--MANA_REGEN_ABBR
 			return;
 		end
 		local _;
 		_, regenRate = GetRuneCooldown(1);
 		regenRateText = (format(STAT_RUNE_REGEN_FORMAT, regenRate));
-		object:SetLabelAndValue(STAT_RUNE_REGEN, regenRateText);
+		self:SetLabelAndValue(STAT_RUNE_REGEN, regenRateText);
 		return;
 	end
 
 	if labelText and canaccessvalue(regenRatePerSec) then
-		object.tooltip = "|cffffffff".. labelText .." "..regenRatePerSec.."|r";
+		self.tooltip = "|cffffffff".. labelText .." "..regenRatePerSec.."|r";
 	else
-		object.tooltip = nil;
+		self.tooltip = nil;
 	end
 
-	object:SetLabelAndValue(labelText, regenRatePerSec);
+	self:SetLabelAndValue(labelText, regenRatePerSec);
 end
 
-function UpdateFunc:Crit(object)
+function UpdateFunc:Crit()
 	if not Narci.refreshCombatRatings then return end;
 
 	local critChance, rating = GetEffectiveCrit();
 	local extraCritChance = GetCombatRatingBonus(rating);
 	local extraCritRating = GetCombatRating(rating);
 
-	object.Label:SetText(NARCI_CRITICAL_STRIKE);		--COMBAT_RATING_NAME10
-	object.Value:SetText(FormatPercent(critChance));
-	object:SetValueRating(extraCritRating);
+	self.Label:SetText(NARCI_CRITICAL_STRIKE);		--COMBAT_RATING_NAME10
+	self.Value:SetText(FormatPercent(critChance));
+	self:SetValueRating(extraCritRating);
 
-	if ClearTooltipIfSecret(object, STAT_CRITICAL_STRIKE, critChance) then
+	if ClearTooltipIfSecret(self, STAT_CRITICAL_STRIKE, critChance) then
 		return;
 	end
 
-	object.tooltip = "|cffffffff".. STAT_CRITICAL_STRIKE .." "..FormatPercent(critChance).."|r";
+	self.tooltip = "|cffffffff".. STAT_CRITICAL_STRIKE .." "..FormatPercent(critChance).."|r";
 
-	object.tooltip4 = nil;
+	self.tooltip4 = nil;
 	if (GetCritChanceProvidesParryEffect()) then
-		object.tooltip2 = format(CR_CRIT_PARRY_RATING_TOOLTIP, BreakUpLargeNumbers(extraCritRating), extraCritChance, GetCombatRatingBonusForCombatRatingValue(CR_PARRY, extraCritRating));
+		self.tooltip2 = format(CR_CRIT_PARRY_RATING_TOOLTIP, BreakUpLargeNumbers(extraCritRating), extraCritChance, GetCombatRatingBonusForCombatRatingValue(CR_PARRY, extraCritRating));
 	else
 		if extraCritChance == 0 then
-			object.tooltip2 = format(CR_CRIT_TOOLTIP, BreakUpLargeNumbers(extraCritRating), extraCritChance);
+			self.tooltip2 = format(CR_CRIT_TOOLTIP, BreakUpLargeNumbers(extraCritRating), extraCritChance);
 		else
-			object.tooltip2 = NARCI_CRIT_TOOLTIP;
-			object.tooltip4 = {format(NARCI_CRIT_TOOLTIP_FORMAT, BreakUpLargeNumbers(extraCritRating), extraCritChance), floor( (extraCritRating / extraCritChance) * 100 + 0.5) / 100 .. " [+1%]"}
+			self.tooltip2 = NARCI_CRIT_TOOLTIP;
+			self.tooltip4 = {format(NARCI_CRIT_TOOLTIP_FORMAT, BreakUpLargeNumbers(extraCritRating), extraCritChance), floor( (extraCritRating / extraCritChance) * 100 + 0.5) / 100 .. " [+1%]"}
 		end
 	end
 end
 
-function UpdateFunc:Haste(object)
+function UpdateFunc:Haste()
 	if not Narci.refreshCombatRatings then return end;
 	local unit = "player";
 	local haste = GetHaste();
@@ -796,11 +791,11 @@ function UpdateFunc:Haste(object)
 	local hasteFormatString;
 
 	local PercentageText = FormatPercent(haste);
-	object.Label:SetText(STAT_HASTE);
-	object.Value:SetText(PercentageText);
-	object:SetValueRating(GetCombatRating(rating));
+	self.Label:SetText(STAT_HASTE);
+	self.Value:SetText(PercentageText);
+	self:SetValueRating(GetCombatRating(rating));
 
-	if ClearTooltipIfSecret(object, STAT_HASTE, haste) then
+	if ClearTooltipIfSecret(self, STAT_HASTE, haste) then
 		return;
 	end
 
@@ -810,39 +805,39 @@ function UpdateFunc:Haste(object)
 		hasteFormatString = "%s";
 	end
 
-	object.tooltip = "|cffffffff" .. STAT_HASTE .. " " .. format(hasteFormatString, FormatPercent(haste)) .. "|r";
+	self.tooltip = "|cffffffff" .. STAT_HASTE .. " " .. format(hasteFormatString, FormatPercent(haste)) .. "|r";
 
 	local _, class = UnitClass(unit);
-	object.tooltip2 = _G["STAT_HASTE_"..class.."_TOOLTIP"];
-	if (not object.tooltip2) then
-		object.tooltip2 = STAT_HASTE_TOOLTIP;
+	self.tooltip2 = _G["STAT_HASTE_"..class.."_TOOLTIP"];
+	if (not self.tooltip2) then
+		self.tooltip2 = STAT_HASTE_TOOLTIP;
 	end
 
 	local Rating = GetCombatRating(rating);
 	local RatingBonus = GetCombatRatingBonus(rating);
 	if RatingBonus == 0 then
-		object.tooltip2 = object.tooltip2 .. format(STAT_HASTE_BASE_TOOLTIP, BreakUpLargeNumbers(Rating), RatingBonus);
-		object.tooltip4 = nil;
+		self.tooltip2 = self.tooltip2 .. format(STAT_HASTE_BASE_TOOLTIP, BreakUpLargeNumbers(Rating), RatingBonus);
+		self.tooltip4 = nil;
 	else
-		object.tooltip4 = {format(NARCI_HASTE_TOOLTIP_FORMAT, BreakUpLargeNumbers(Rating), RatingBonus), floor( (Rating / RatingBonus) * 100 + 0.5) / 100 .. " [+1%]"};
+		self.tooltip4 = {format(NARCI_HASTE_TOOLTIP_FORMAT, BreakUpLargeNumbers(Rating), RatingBonus), floor( (Rating / RatingBonus) * 100 + 0.5) / 100 .. " [+1%]"};
 	end
 end
 
-function UpdateFunc:Mastery(object)
+function UpdateFunc:Mastery()
 	if not Narci.refreshCombatRatings then return end;
-	object:SetScript("OnEnter", MasteryFrame_OnEnter);
+	self:SetScript("OnEnter", MasteryFrame_OnEnter);
 
 	local mastery = GetMasteryEffect();
-	object.Label:SetText(STAT_MASTERY);
+	self.Label:SetText(STAT_MASTERY);
 
-	object.Value:SetText(FormatPercent(mastery));
-	object:SetValueRating(GetCombatRating(CR_MASTERY));
+	self.Value:SetText(FormatPercent(mastery));
+	self:SetValueRating(GetCombatRating(CR_MASTERY));
 
-	object.Label:SetAlpha(1)
-	object.Value:SetAlpha(1)
+	self.Label:SetAlpha(1)
+	self.Value:SetAlpha(1)
 end
 
-function UpdateFunc:Versatility(object)
+function UpdateFunc:Versatility()
 	if not Narci.refreshCombatRatings then return end;
 	local versatility = GetCombatRating(CR_VERSATILITY_DAMAGE_DONE);
 	local attackBonus = GetCombatRatingBonus(CR_VERSATILITY_DAMAGE_DONE);
@@ -850,68 +845,68 @@ function UpdateFunc:Versatility(object)
 	local defenseBonus = GetCombatRatingBonus(CR_VERSATILITY_DAMAGE_TAKEN);
 	local versaBonusdefense = GetVersatilityBonus(CR_VERSATILITY_DAMAGE_TAKEN);
 
-	object.Label:SetText(STAT_VERSATILITY);
-	object:SetValueRating(versatility);
+	self.Label:SetText(STAT_VERSATILITY);
+	self:SetValueRating(versatility);
 
-	if ClearTooltipIfSecret(object, STAT_VERSATILITY, attackBonus) then
-		object.Value:SetText(FormatPercent(attackBonus));
+	if ClearTooltipIfSecret(self, STAT_VERSATILITY, attackBonus) then
+		self.Value:SetText(FormatPercent(attackBonus));
 		return;
 	end
 
 	local versatilityDamageBonus = attackBonus + versaBonusAttack;
 	local versatilityDamageTakenReduction = defenseBonus + versaBonusdefense;
-	object.tooltip = "|cffffffff" .. format(VERSATILITY_TOOLTIP_FORMAT, STAT_VERSATILITY, versatilityDamageBonus, versatilityDamageTakenReduction) .. "|r";
+	self.tooltip = "|cffffffff" .. format(VERSATILITY_TOOLTIP_FORMAT, STAT_VERSATILITY, versatilityDamageBonus, versatilityDamageTakenReduction) .. "|r";
 
 	if versatilityDamageBonus == 0 then
-		object.tooltip2 = format(CR_VERSATILITY_TOOLTIP, versatilityDamageBonus, versatilityDamageTakenReduction, BreakUpLargeNumbers(versatility), versatilityDamageBonus, versatilityDamageTakenReduction);
-		object.tooltip4 = nil;
+		self.tooltip2 = format(CR_VERSATILITY_TOOLTIP, versatilityDamageBonus, versatilityDamageTakenReduction, BreakUpLargeNumbers(versatility), versatilityDamageBonus, versatilityDamageTakenReduction);
+		self.tooltip4 = nil;
 	else
-		object.tooltip2 = format(NARCI_VERSATILITY_TOOLTIP_FORMAT_1, versatilityDamageBonus, versatilityDamageTakenReduction);
-		object.tooltip4 = {format(NARCI_VERSATILITY_TOOLTIP_FORMAT_2, BreakUpLargeNumbers(versatility), versatilityDamageBonus, versatilityDamageTakenReduction) , floor( (versatility / versatilityDamageBonus) * 100 + 0.5) / 100 .. " [+1%/0.5%]"};
+		self.tooltip2 = format(NARCI_VERSATILITY_TOOLTIP_FORMAT_1, versatilityDamageBonus, versatilityDamageTakenReduction);
+		self.tooltip4 = {format(NARCI_VERSATILITY_TOOLTIP_FORMAT_2, BreakUpLargeNumbers(versatility), versatilityDamageBonus, versatilityDamageTakenReduction) , floor( (versatility / versatilityDamageBonus) * 100 + 0.5) / 100 .. " [+1%/0.5%]"};
 	end
 
 	local percentageText = format(DIGITS, versatilityDamageBonus).."%";
-	object.Value:SetText(percentageText);
+	self.Value:SetText(percentageText);
 end
 
-function UpdateFunc:Leech(object)
+function UpdateFunc:Leech()
 	local lifesteal = GetLifesteal();
 
-	object.tooltip = "|cffffffff" .. STAT_LIFESTEAL .. " " .. FormatPercent(lifesteal) .. "|r";
-	object.tooltip2 = format(CR_LIFESTEAL_TOOLTIP, BreakUpLargeNumbers(GetCombatRating(CR_LIFESTEAL)), GetCombatRatingBonus(CR_LIFESTEAL));
+	self.tooltip = "|cffffffff" .. STAT_LIFESTEAL .. " " .. FormatPercent(lifesteal) .. "|r";
+	self.tooltip2 = format(CR_LIFESTEAL_TOOLTIP, BreakUpLargeNumbers(GetCombatRating(CR_LIFESTEAL)), GetCombatRatingBonus(CR_LIFESTEAL));
 
 	local PercentageText = format(DIGITS, lifesteal).."%";
-	object:SetLabelAndValue(STAT_LIFESTEAL, PercentageText, canaccessvalue(lifesteal) and lifesteal == 0);
+	self:SetLabelAndValue(STAT_LIFESTEAL, PercentageText, canaccessvalue(lifesteal) and lifesteal == 0);
 end
 
-function UpdateFunc:Avoidance(object)
+function UpdateFunc:Avoidance()
 	local avoidance = GetAvoidance();
 
-	object.tooltip = "|cffffffff" .. STAT_AVOIDANCE .. " " .. FormatPercent(avoidance) .. "|r";
-	object.tooltip2 = format(CR_AVOIDANCE_TOOLTIP, BreakUpLargeNumbers(GetCombatRating(CR_AVOIDANCE)), GetCombatRatingBonus(CR_AVOIDANCE));
+	self.tooltip = "|cffffffff" .. STAT_AVOIDANCE .. " " .. FormatPercent(avoidance) .. "|r";
+	self.tooltip2 = format(CR_AVOIDANCE_TOOLTIP, BreakUpLargeNumbers(GetCombatRating(CR_AVOIDANCE)), GetCombatRatingBonus(CR_AVOIDANCE));
 
 	local PercentageText = format(DIGITS, avoidance).."%";
-	object:SetLabelAndValue(STAT_AVOIDANCE, PercentageText, canaccessvalue(avoidance) and avoidance == 0);
+	self:SetLabelAndValue(STAT_AVOIDANCE, PercentageText, canaccessvalue(avoidance) and avoidance == 0);
 end
 
-function UpdateFunc:Speed(object)
+function UpdateFunc:Speed()
 	local speed = GetSpeed();
 
-	object.tooltip = "|cffffffff" .. STAT_SPEED .. " " .. FormatPercent(speed) .. "|r";
-	object.tooltip2 = format(CR_SPEED_TOOLTIP, BreakUpLargeNumbers(GetCombatRating(CR_SPEED)), GetCombatRatingBonus(CR_SPEED));
+	self.tooltip = "|cffffffff" .. STAT_SPEED .. " " .. FormatPercent(speed) .. "|r";
+	self.tooltip2 = format(CR_SPEED_TOOLTIP, BreakUpLargeNumbers(GetCombatRating(CR_SPEED)), GetCombatRatingBonus(CR_SPEED));
 
 	local PercentageText = format(DIGITS, speed).."%";
-	object:SetLabelAndValue(STAT_SPEED, PercentageText, canaccessvalue(speed) and speed == 0);
+	self:SetLabelAndValue(STAT_SPEED, PercentageText, canaccessvalue(speed) and speed == 0);
 end
 
-function UpdateFunc:MovementSpeed(object)
+function UpdateFunc:MovementSpeed()
 	local unit = "player";
 
-	object.wasSwimming = nil;
-	object.unit = unit;
-	object.t = 0;
-	object.Label:SetText(L["Movement Speed"]);		--STAT_MOVEMENT_SPEED
-	MovementSpeed_OnUpdate(object, 1);
-	object:SetScript("OnEnter", MovementSpeed_OnEnter);
-	object:SetScript("OnUpdate", MovementSpeed_OnUpdate);
+	self.wasSwimming = nil;
+	self.unit = unit;
+	self.t = 0;
+	self.Label:SetText(L["Movement Speed"]);		--STAT_MOVEMENT_SPEED
+	MovementSpeed_OnUpdate(self, 1);
+	self:SetScript("OnEnter", MovementSpeed_OnEnter);
+	self:SetScript("OnUpdate", MovementSpeed_OnUpdate);
 end
