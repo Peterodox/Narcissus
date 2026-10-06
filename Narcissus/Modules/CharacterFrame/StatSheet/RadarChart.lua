@@ -37,6 +37,8 @@ function NarciRadarChartMixin:OnLoad()
 	self.atan2 = math.atan2;
 	self.sqrt = math.sqrt;
 
+	self.statButtons = {self.Crit, self.Haste, self.Mastery, self.Versatility};
+
 	self.onFisrtShow = function()
 		self:UpdateStatsGetter();
 	end
@@ -378,6 +380,10 @@ function NarciRadarChartMixin:UpdateAttributeFrames()
 		self.Primary:Update();
 		self.Health:Update();
 	end
+end
+
+function NarciRadarChartMixin:GetStatButtons()
+	return {self.Crit, self.Haste, self.Mastery, self.Versatility};
 end
 
 do	--Timerunning

@@ -85,6 +85,11 @@
 					</Anchors>
 				</FontString>
 			</Layer>
+			<Layer level="BACKGROUND">
+				<Texture parentKey="Color" setAllPoints="true">
+					<Color r="0.06" g="0.627" b="0.537" a="1"/>
+				</Texture>
+			</Layer>
 		</Layers>
 	</Frame>
 
@@ -221,48 +226,5 @@
 				self:GetParent():SetVerticeSize(self, 12);
 			</OnLeave>
         </Scripts>
-	</Frame>
-
-	<Frame name="Narci_DetailedAttributeTemplateLeft" inherits="Narci_DetailedAttributeTemplate" virtual="true">
-		<Anchors>
-			<Anchor point="CENTER"/>
-		</Anchors>
-		<Layers>
-			<Layer level="BACKGROUND">
-				<Texture setAllPoints="true" parentKey="Color">
-					<Size x="160" y="24"/>
-					<Color r="0.06" g="0.627" b="0.537" a="1"/>
-					<Anchors>
-						<Anchor point="RIGHT" relativeKey="$parent" relativePoint="RIGHT" x="0" y="0"/>
-					</Anchors>
-					<Gradient orientation="HORIZONTAL">
-						<MinColor a="1" r="1" g="1" b="1"/>
-						<MaxColor a="1" r="0.6" g="0.6" b="0.6"/>
-					</Gradient>
-				</Texture>
-			</Layer>
-		</Layers>
-	</Frame>
-
-	<Frame name="Narci_DetailedAttributeTemplateRight" inherits="Narci_DetailedAttributeTemplate" virtual="true">
-		<Anchors>
-			<Anchor point="CENTER" x="160"/>
-		</Anchors>
-		<Size x="160" y="24"/>
-		<Layers>
-			<Layer level="BACKGROUND">
-				<Texture setAllPoints="true" parentKey="Color">
-					<Size x="160" y="24"/>
-					<Color r="0.06" g="0.627" b="0.537" a="1"/>
-					<Anchors>
-						<Anchor point="LEFT" relativeKey="$parent" relativePoint="LEFT" x="0" y="0"/>
-					</Anchors>
-					<Gradient orientation="HORIZONTAL">
-						<MinColor a="1" r="0.45" g="0.45" b="0.45"/>
-						<MaxColor a="1" r="0.85" g="0.85" b="0.85"/>
-					</Gradient>
-				</Texture>
-			</Layer>
-		</Layers>
 	</Frame>
 </Ui>

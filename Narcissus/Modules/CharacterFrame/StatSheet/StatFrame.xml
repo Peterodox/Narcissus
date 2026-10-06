@@ -1,0 +1,16 @@
+<Ui xsi:schemaLocation="http://www.blizzard.com/wow/ui/..\FrameXML\UI.xsd">
+	<Script file="StatFrame.lua"/>
+
+    <Frame name="Narci_StatFrameTemplate" virtual="true">
+        <KeyValues>
+            <KeyValue key="isDetailed" value="true" type="boolean"/> <!--A Detailed Stat Frame includes all stats and a radar chart-->
+        </KeyValues>
+        <Mixins>
+            <Mixin key="StatFrameMixin" source="local"/>
+        </Mixins>
+        <Size x="320" y="24"/>
+        <Scripts>
+            <OnLoad method="OnLoad"/>
+        </Scripts>
+    </Frame>
+</Ui>

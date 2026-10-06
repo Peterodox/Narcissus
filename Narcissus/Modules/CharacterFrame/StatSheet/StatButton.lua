@@ -55,7 +55,31 @@ function StatButtonMixin:UpdateColor()
 	end
 end
 
+local LeftColumnGradient = {
+	MinColor = CreateColor(1, 1, 1, 1),
+	MaxColor = CreateColor(0.6, 0.6, 0.6, 1),
+};
+
+local RightColumnGradient = {
+	MinColor = CreateColor(0.45, 0.45, 0.45, 1),
+	MaxColor = CreateColor(0.85, 0.85, 0.85, 1),
+};
+
+function StatButtonMixin:SetLeftColumn(isLeftCol)
+	local tbl;
+	if isLeftCol then
+		tbl = LeftColumnGradient;
+	else
+		tbl = RightColumnGradient;
+	end
+	self.Color:SetGradient("HORIZONTAL", tbl.MinColor, tbl.MaxColor);
+end
+
 function StatButtonMixin:OnLoad()
+	if self.isLeftCol ~= nil then
+		self:SetLeftColumn(self.isLeftCol);
+	end
+
 	self:UpdateColor();
 
 	local delay = (self:GetID() or 0) / 20;
