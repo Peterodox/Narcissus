@@ -249,7 +249,7 @@ do
             self.Icon:SetTexture(self.emptyTexture);
             self.Name:SetText(nil);
             self.ItemLevel:SetText(nil);
-            self.GradientBackground:Hide();	
+            self.GradientBackground:Hide();
             self:SetBorderTexture(self.Border, 0);
             if self.slotID == 2 then
                 self:DisplayDirectionMark(false);
@@ -388,6 +388,7 @@ do
                 self.sourceID = appliedSourceID;
 
                 if appliedVisualID > 0 then
+                    self.showItem = true;
                     local sourceInfo = C_TransmogCollection.GetSourceInfo(appliedSourceID);
                     itemName = sourceInfo and sourceInfo.name;
                     if not itemName or itemName == "" then
@@ -427,6 +428,7 @@ do
                     end
 
                 else	--irrelevant slot
+                    self.showItem = false;
                     itemName = " ";
                     itemQuality = 0;
                     itemIcon = GetInventoryItemTexture("player", slotID);
@@ -439,12 +441,12 @@ do
                 self:DisplayDirectionMark(hasSecondaryAppearance, itemQuality);
 
             else
+                self.showItem = true;
                 self:TrackCooldown();
                 self:DisplayDirectionMark(false);
                 self.Icon:SetDesaturated(false)
                 self.Name:Show();
                 self.ItemLevel:Show();
-                self.GradientBackground:Show();
                 self.sourceID = nil;
                 self.hyperlink = nil;
                 self.sourcePlainText = nil;
@@ -570,6 +572,7 @@ do
                 return
             end
         else
+            self.showItem = false;
             self:UntrackCooldown();
             self:UntrackTempEnchant();
             self:ClearOverlay();
@@ -729,6 +732,7 @@ do
         end
         self.GradientBackground:SetHeight(self.Name:GetHeight() + self.ItemLevel:GetHeight() + 18);
         self.GradientBackground:SetWidth(math.max(self.Name:GetWrappedWidth(), text2Width + extraWidth, 48) + 48);
+        self.GradientBackground:SetShown(self.showItem);
     end
 
     function EquipmentSlotMixin:OnLoad()
