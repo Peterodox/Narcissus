@@ -763,13 +763,17 @@
 			</Frame>
 			
 			<Frame name="Narci_DetailedStatFrame" setAllPoints="true" hidden="false" Alpha="0" parentKey="DetailedStatFrame">
+				<Size x="320" y="24"/>
+				<Anchors>
+					<Anchor point="TOP" relativeKey="$parent.ItemLevelFrame" relativePoint="BOTTOM" x="0" y="-98"/>
+				</Anchors>
 				<Frames>
 					<Frame inherits="Narci_DetailedAttributeTemplateLeft" parentKey="Primary" id="1" hidden="false">
 						<KeyValues>
 							<KeyValue key="token" value="Primary" type="string"/>
 						</KeyValues>
 						<Anchors>
-							<Anchor point="TOPRIGHT" relativeKey="$parent.$parent.ItemLevelFrame" relativePoint="BOTTOM" x="0" y="-98"/>
+							<Anchor point="TOPRIGHT" relativeKey="$parent" relativePoint="TOP" x="0" y="0"/>
 						</Anchors>	
 					</Frame>
 					<Frame inherits="Narci_DetailedAttributeTemplateLeft" parentKey="Stamina" id="2" hidden="false">
@@ -951,13 +955,17 @@
 			</Frame>
 
 			<Frame name="Narci_ConciseStatFrame" setAllPoints="true" hidden="true" Alpha="0">
+				<Size x="240" y="24"/>
+				<Anchors>
+					<Anchor point="TOP" relativeKey="$parent.ItemLevelFrame" relativePoint="BOTTOM" x="0" y="-98"/>
+				</Anchors>
 				<Frames>
 					<Frame inherits="Narci_AttributeTemplate" parentKey="Primary" id="1" hidden="false">
 						<KeyValues>
 							<KeyValue key="token" value="Primary" type="string"/>
 						</KeyValues>
 						<Anchors>
-							<Anchor point="TOP" relativeKey="$parent.$parent.ItemLevelFrame" relativePoint="BOTTOM"  x="0" y="-98"/>
+							<Anchor point="TOP" relativeKey="$parent" relativePoint="TOP"  x="0" y="0"/>
 						</Anchors>
 					</Frame>
 					<Frame inherits="Narci_AttributeTemplate" parentKey="Stamina" id="2" hidden="false">
