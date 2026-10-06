@@ -1,7 +1,10 @@
 <Ui xsi:schemaLocation="http://www.blizzard.com/wow/ui/..\FrameXML\UI.xsd">
-	<Script file="Attributes.lua"/>
+	<Script file="StatButton.lua"/>
 
-    <Frame name="NarciAttributeSharedTemplate" virtual="true" mixin="NarciAttributeMixin">
+    <Frame name="NarciAttributeSharedTemplate" virtual="true">
+        <Mixins>
+            <Mixin key="StatButtonMixin" source="local"/>
+        </Mixins>
 		<Animations>
 			<AnimationGroup parentKey="animIn">
 				<Alpha parentKey="A1" fromAlpha="0" toAlpha="0" duration="0.2" order="1"/>

@@ -8,7 +8,6 @@ local L = Narci.L;
 local BreakUpLargeNumbers = BreakUpLargeNumbers;
 local GetPrimaryStats = NarciAPI.GetPrimaryStats;
 local SplitTooltipByLineBreak = NarciAPI.SplitTooltipByLineBreak;
-local UIColorThemeUtil = addon.UIColorThemeUtil;
 local TransitionAPI = addon.TransitionAPI;
 
 local format = string.format;
@@ -276,7 +275,9 @@ end
 ------------------------------------------------------------------
 ----The following codes are derivated from PapaerDollFrame.lua----
 ------------------------------------------------------------------
+---@class StatUpdateFunc
 local UpdateFunc = {};
+addon.StatUpdateFunc = UpdateFunc;
 
 function UpdateFunc:Primary(object)
 	local unit = "player";
@@ -913,75 +914,4 @@ function UpdateFunc:MovementSpeed(object)
 	MovementSpeed_OnUpdate(object, 1);
 	object:SetScript("OnEnter", MovementSpeed_OnEnter);
 	object:SetScript("OnUpdate", MovementSpeed_OnUpdate);
-end
-
----------------------------------------------------------------------------
-NarciAttributeMixin = {};
-
-function NarciAttributeMixin:Update()
-    if UpdateFunc[self.token] then
-        UpdateFunc[self.token](nil, self);
-    end
-	if self.customValueSetter then
-		self.customValueSetter(self, self.Value, self.ValueRating);
-	end
-end
-
-function NarciAttributeMixin:SetLabelAndValue(label, value, grey)
-	self.Label:SetText(label);
-	self.Value:SetText(value);
-	if grey then
-		self.Label:SetTextColor(0.5, 0.5, 0.5);
-		self.Value:SetTextColor(0.5, 0.5, 0.5);
-	else
-		self.Label:SetTextColor(0.92, 0.92, 0.92);
-		self.Value:SetTextColor(0.92, 0.92, 0.92);
-	end
-end
-
-function NarciAttributeMixin:SetValueRating(valueRating)
-	if self.ValueRating then
-		self.ValueRating:SetText(valueRating);
-	end
-end
-
-function NarciAttributeMixin:UpdateColor()
-	local frameID = self:GetID() or 0;
-	local r, g, b = UIColorThemeUtil:GetActiveColor();
-	if frameID % 2 == 0 then
-		if self.Color then
-			self.Color:SetColorTexture(r, g, b, 0.75);
-			return;
-		elseif self.Color1 and self.Color2 then
-			self.Color1:SetColorTexture(r, g, b, 0.75);
-			self.Color2:SetColorTexture(r, g, b, 0.75);
-		end
-	else
-		if self.Color then
-			self.Color:SetColorTexture(0.1, 0.1, 0.1, 0.75);
-			return;
-		elseif self.Color1 and self.Color2 then
-			self.Color1:SetColorTexture(0.1, 0.1, 0.1, 0.75);
-			self.Color2:SetColorTexture(0.1, 0.1, 0.1, 0.75);
-		end
-	end
-end
-
-function NarciAttributeMixin:OnLoad()
-	self:UpdateColor();
-
-	local delay = (self:GetID() or 0) / 20;
-	self.animIn.A2:SetStartDelay(delay);
-end
-
-function NarciAttributeMixin:OnShow()
-	self:UpdateColor();
-end
-
-function NarciAttributeMixin:OnEnter()
-	Narci_ShowStatTooltip(self);
-end
-
-function NarciAttributeMixin:OnLeave()
-	Narci:HideButtonTooltip();
 end

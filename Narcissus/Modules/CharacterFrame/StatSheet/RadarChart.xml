@@ -1,5 +1,5 @@
 <Ui xsi:schemaLocation="http://www.blizzard.com/wow/ui/..\FrameXML\UI.xsd">
-	<Script file="StatsChart.lua"/>
+	<Script file="RadarChart.lua"/>
 
 	<Frame name="Narci_RadarTemplate" virtual="true">
 		<Size>
