@@ -56,7 +56,7 @@ local MiniButton = Narci_MinimapButton;
 local EL = CreateFrame("Frame");	--Event Listener
 EL:Hide();
 
-EL.EVENTS_DYNAMIC = {"PLAYER_TARGET_CHANGED", "PLAYER_MOUNT_DISPLAY_CHANGED",
+EL.EVENTS_DYNAMIC = {"PLAYER_MOUNT_DISPLAY_CHANGED",
 	"PLAYER_STARTED_MOVING", "PLAYER_REGEN_DISABLED", "PLAYER_STARTED_TURNING", "PLAYER_STOPPED_TURNING",
 	"BAG_UPDATE_COOLDOWN", "BAG_UPDATE", "PLAYER_EQUIPMENT_CHANGED", "AZERITE_ESSENCE_ACTIVATED", "WEAPON_ENCHANT_CHANGED",
 };
@@ -1761,10 +1761,6 @@ EL:SetScript("OnEvent",function(self, event, ...)
 			self.wasAlteredForm = inAlteredForm;
 			CameraUtil:OnPlayerFormChanged(0.0);
 		end
-
-	elseif event == "PLAYER_TARGET_CHANGED" then
-		RefreshStats(8);		--Armor
-		RefreshStats(9); 		--Damage Reduction
 
 	elseif event == "UPDATE_SHAPESHIFT_FORM" or event == "UNIT_PORTRAIT_UPDATE" then
 		CameraUtil:OnPlayerFormChanged(0.1);

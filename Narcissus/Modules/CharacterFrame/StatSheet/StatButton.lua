@@ -110,6 +110,10 @@ function StatButtonMixin:OnShow()
 end
 
 function StatButtonMixin:OnEnter()
+	self:ShowTooltip();
+end
+
+function StatButtonMixin:ShowTooltip()
 	Narci_ShowStatTooltip(self);
 end
 

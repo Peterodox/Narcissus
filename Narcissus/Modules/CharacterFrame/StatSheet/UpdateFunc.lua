@@ -551,9 +551,9 @@ function UpdateFunc:AttackSpeed()
 		return;
 	end
 
-	local displaySpeed = floor(100*speed + 0.5)/100;
+	local displaySpeed = floor(100 * speed + 0.5) / 100;
 	if ( offhandSpeed ) then
-		offhandSpeed = floor(100*offhandSpeed + 0.5)/100;
+		offhandSpeed = floor(100 * offhandSpeed + 0.5) / 100;
 	end
 	if ( offhandSpeed ) then
 		if displaySpeed ~= offhandSpeed then
@@ -570,8 +570,19 @@ function UpdateFunc:AttackSpeed()
 	self.tooltip2 = format(STAT_ATTACK_SPEED_BASE_TOOLTIP, format(DIGITS, meleeHaste));
 end
 
+local function ArmorOrReduction_OnEnter(self)
+	local _, effectiveArmor = UnitArmor("player");
+	local armorReductionAgainstTarget = C_PaperDollInfo.GetArmorEffectivenessAgainstTarget(effectiveArmor);
+	if canaccessvalue(armorReductionAgainstTarget) and armorReductionAgainstTarget then
+		self.tooltip3 = format(STAT_ARMOR_TARGET_TOOLTIP, 100 * armorReductionAgainstTarget);
+	else
+		self.tooltip3 = nil;
+	end
+	self:ShowTooltip();
+end
+
 function UpdateFunc:Armor()
-	local unit = "player"
+	local unit = "player";
 
 	local baselineArmor, effectiveArmor, armor, bonusArmor = UnitArmor(unit);
 	self.Label:SetText(STAT_ARMOR);
@@ -582,16 +593,11 @@ function UpdateFunc:Armor()
 	end
 
     local armorReduction = C_PaperDollInfo.GetArmorEffectiveness(effectiveArmor, UnitEffectiveLevel(unit));
-	local armorReductionAgainstTarget = C_PaperDollInfo.GetArmorEffectivenessAgainstTarget(effectiveArmor);
 
 	self.tooltip = "|cffffffff".. ARMOR .." "..BreakUpLargeNumbers(effectiveArmor).."|r";
-	self.tooltip2 = format(STAT_ARMOR_TOOLTIP, 100*armorReduction);
-	if (armorReductionAgainstTarget) then
-		self.tooltip3 = format(STAT_ARMOR_TARGET_TOOLTIP, 100*armorReductionAgainstTarget);
-	else
-		self.tooltip3 = nil;
-	end
-	--self:Show();
+	self.tooltip2 = format(STAT_ARMOR_TOOLTIP, 100 * armorReduction);
+
+	self:SetScript("OnEnter", ArmorOrReduction_OnEnter);
 end
 
 function UpdateFunc:Reduction()
@@ -607,20 +613,14 @@ function UpdateFunc:Reduction()
 
 	local armorReduction = C_PaperDollInfo.GetArmorEffectiveness(effectiveArmor, UnitEffectiveLevel(unit)) or 0;
 	armorReduction = 100 * armorReduction;
-	local armorReductionAgainstTarget = C_PaperDollInfo.GetArmorEffectivenessAgainstTarget(effectiveArmor);
+
 	local armorReductionText = FormatPercent(armorReduction);
+	self.Value:SetText(armorReductionText);
 
 	self.tooltip = "|cffffffff"..COMBAT_TEXT_SHOW_RESISTANCES_TEXT.." "..armorReductionText.."|r";
 	self.tooltip2 = format(STAT_ARMOR_TOOLTIP, armorReduction);
-	if (armorReductionAgainstTarget) then
-		self.tooltip3 = format(STAT_ARMOR_TARGET_TOOLTIP, 100*armorReductionAgainstTarget);
-		armorReduction = 100 * armorReductionAgainstTarget
-	else
-		self.tooltip3 = nil;
-	end
 
-	self.Value:SetText(armorReductionText);
-	--self:Show();
+	self:SetScript("OnEnter", ArmorOrReduction_OnEnter);
 end
 
 function UpdateFunc:Dodge()
@@ -631,7 +631,6 @@ function UpdateFunc:Dodge()
 
 	self.tooltip = "|cffffffff".. DODGE_CHANCE .." "..format("%.2F", chance).."%".."|r";
 	self.tooltip2 = format(CR_DODGE_TOOLTIP, GetCombatRating(CR_DODGE), GetCombatRatingBonus(CR_DODGE));
-	--self:Show();
 end
 
 function UpdateFunc:Parry()
@@ -642,7 +641,6 @@ function UpdateFunc:Parry()
 
 	self.tooltip = "|cffffffff".. PARRY_CHANCE .." "..format("%.2F", chance).."%".."|r";
 	self.tooltip2 = format(CR_PARRY_TOOLTIP, GetCombatRating(CR_PARRY), GetCombatRatingBonus(CR_PARRY));
-	--self:Show();
 end
 
 function UpdateFunc:Block()
@@ -692,7 +690,6 @@ function UpdateFunc:Health()
 	elseif (unit == "pet") then
 		self.tooltip2 = STAT_HEALTH_PET_TOOLTIP;
 	end
-	self:Show();
 end
 
 function UpdateFunc:Power()
@@ -706,7 +703,6 @@ function UpdateFunc:Power()
 		self.Value:SetText(powerText)
 		self.tooltip = "|cffffffff".. powerName .." "..powerText.."|r";
 		self.tooltip2 = _G["STAT_"..powerToken.."_TOOLTIP"];
-		self:Show();
 	else
 		self:SetLabelAndValue("Resource", "N/A", true);
 	end
