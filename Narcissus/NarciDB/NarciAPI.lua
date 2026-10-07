@@ -1,6 +1,8 @@
 local _, addon = ...
 local TransitionAPI = addon.TransitionAPI;
 local RoundToDigit = addon.Math.RoundToDigit;
+
+---@class NarcissusPrivateAPI
 local PrivateAPI = addon.PrivateAPI;
 
 local C_Item = C_Item;
@@ -3172,4 +3174,35 @@ do  --Diacritical Matching
             return str
         end
     end
+end
+
+do  --Frame Events
+    ---@param ... table eventsTable, not an event in string
+	function PrivateAPI.RegisterFrameForEvents(frame, ...)
+        for i = 1, select("#", ...) do
+            local events = select(i, ...);
+            for event in pairs(events) do
+                frame:RegisterEvent(event);
+            end
+        end
+	end
+
+	function PrivateAPI.UnregisterFrameForEvents(frame, ...)
+        for i = 1, select("#", ...) do
+            local events = select(i, ...);
+            for event in pairs(events) do
+                frame:UnregisterEvent(event);
+            end
+        end
+	end
+
+    ---@param ... table eventsTable, not an event in string
+	function PrivateAPI.RegisterFrameForUnitEvents(frame, ...)
+        for i = 1, select("#", ...) do
+            local events = select(i, ...);
+            for event in pairs(events) do
+                frame:RegisterUnitEvent(event, "player");
+            end
+        end
+	end
 end
