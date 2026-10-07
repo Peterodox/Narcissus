@@ -11,6 +11,9 @@
         <Size x="320" y="24"/>
         <Scripts>
             <OnLoad method="OnLoad"/>
+            <OnShow method="OnShow"/>
+            <OnHide method="OnHide"/>
+            <OnEvent method="OnEvent"/>
         </Scripts>
     </Frame>
 </Ui>

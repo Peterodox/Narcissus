@@ -1,44 +1,67 @@
 local _, addon = ...
+local PrivateAPI = addon.PrivateAPI; ---@type NarcissusPrivateAPI
 
 
 local Schematics = {};
+do
+    Schematics.Detailed = {};
+    Schematics.Concise = {};
 
-Schematics.Detailed = {};
-Schematics.Concise = {};
+    Schematics.Detailed.Retail = {
+        "Primary", "Health",
+        "Stamina", "Armor",
+        "Damage", "Reduction",
+        "AttackSpeed", "Dodge",
+        "Power", "Parry",
+        "Regen", "Block",
 
-Schematics.Detailed.Retail = {
-    "Primary", "Health",
-    "Stamina", "Armor",
-    "Damage", "Reduction",
-    "AttackSpeed", "Dodge",
-    "Power", "Parry",
-    "Regen", "Block",
+        "Chart",
 
-    "Chart",
+        "Leech", "Avoidance",
+        "MovementSpeed", "Speed",
+    };
 
-    "Leech", "Avoidance",
-    "MovementSpeed", "Speed",
+    Schematics.Concise.Retail = {
+        "Primary",
+        "Stamina",
+        "Health",
+        "Power",
+        "Regen",
+
+        "Spacer",
+
+        "Crit",
+        "Haste",
+        "Mastery",
+        "Versatility",
+
+        "Spacer",
+
+        "Leech",
+        "Avoidance",
+        "Speed",
+    };
+
+
+    Schematics.Detailed.Forever = Schematics.Detailed.Retail; -- [TEMP]
+    Schematics.Concise.Forever = Schematics.Concise.Retail;   -- [TEMP]
+end
+
+
+--- [event] = true  -- Full Update
+--- [event] = token -- Update specific stat
+local DynamicEvents = {
+    COMBAT_RATING_UPDATE = true,
 };
 
-Schematics.Concise.Retail = {
-    "Primary",
-    "Stamina",
-    "Health",
-    "Power",
-    "Regen",
+--- These events update specific stats
+local DynamicUnitEvents = {
+    UNIT_AURA = true,
+    UNIT_STATS = true,
 
-    "Spacer",
-
-    "Crit",
-    "Haste",
-    "Mastery",
-    "Versatility",
-
-    "Spacer",
-
-    "Leech",
-    "Avoidance",
-    "Speed",
+    UNIT_ATTACK_SPEED = "AttackSpeed",
+    UNIT_DAMAGE = "Damage",
+    UNIT_MAXHEALTH = "Health",
 };
 
 
@@ -46,8 +69,9 @@ local StatFrameMixin = {};
 addon.StatFrameMixin = StatFrameMixin;
 
 function StatFrameMixin:OnLoad()
-    self.staticEntries = {};  -- Most stat buttons won't get released after being created
-    self.dynamicEntries = {}; -- For Classic: stat buttons here get released/reused after changing Melee/Ranged/Spell
+    self.staticEntries = {};  -- List of StatButton. Most stat buttons won't get released after being created
+    self.dynamicEntries = {}; -- List of StatButton. For Classic: stat buttons here get released/reused after changing Melee/Ranged/Spell
+    self.statXEntry = {};     -- statToken to StatButton
 
     local layoutType = self.isDetailed and "Detailed" or "Concise";
     local layout = addon.IS_FOREVER and Schematics[layoutType].Forever or Schematics[layoutType].Retail;
@@ -60,8 +84,8 @@ function StatFrameMixin:SetLayout(layout)
     local row = 1;
 
     local function AddChild(statButton)
-        if statButton.token and not self[statButton.token] then
-            self[statButton.token] = statButton;
+        if statButton.token and not self.statXEntry[statButton.token] then
+            self.statXEntry[statButton.token] = statButton;
         end
     end
 
@@ -71,10 +95,12 @@ function StatFrameMixin:SetLayout(layout)
         local chartFrame, lastFrameIsChart;
 
         for i, token in ipairs(layout) do
-            if token == "Chart" then
+            if token == "Chart" and not chartFrame then
+                -- There is only one RadarChartFrame
                 -- Chart's parent is not the StatFrame, since we show chart for Equipment Set Manager while hiding other stats
                 local frame = CreateFrame("Frame", "Narci_RadarChartFrame", self:GetParent(), "Narci_StatsChartTemplate");
                 chartFrame = frame;
+                self.RadarChart = chartFrame;
 
                 if i == 1 then -- We'll never reach here since chart will never be the first widget
                     frame:SetPoint("TOP", self, "TOP", 0, 0);
@@ -155,6 +181,75 @@ function StatFrameMixin:SetLayout(layout)
                     button:SetPoint("TOP", self.staticEntries[n - 1], "BOTTOM", 0, offsetY);
                 end
             end
+        end
+    end
+end
+
+function StatFrameMixin:OnShow()
+    PrivateAPI.RegisterFrameForEvents(self, DynamicEvents);
+    PrivateAPI.RegisterFrameForUnitEvents(self, DynamicUnitEvents);
+end
+
+function StatFrameMixin:OnHide()
+    PrivateAPI.UnregisterFrameForEvents(self, DynamicEvents, DynamicUnitEvents);
+end
+
+function StatFrameMixin:OnEvent(event, ...)
+    local token = DynamicEvents[event] or DynamicUnitEvents[event];
+    if token then
+        if token == true then
+            self:RequestFullUpdate();
+        else
+            if not self.isStatDirty then -- not when a full update is already queued
+                self:UpdateStatByToken(token);
+            end
+        end
+    end
+end
+
+function StatFrameMixin:UpdateStatByToken(token)
+    if self.statXEntry[token] then
+        self.statXEntry[token]:Update();
+    end
+end
+
+function StatFrameMixin:FullUpdate()
+    self.isStatDirty = nil;
+    for _, button in ipairs(self.staticEntries) do
+        button:Update();
+    end
+    for _, button in ipairs(self.dynamicEntries) do
+        button:Update();
+    end
+end
+
+function StatFrameMixin:RequestFullUpdate()
+    if self.t then
+        if not self.isStatDirty then
+            self.statChangedAfterUpdate = true;
+        end
+        self.t = 0;
+    else
+        self.isStatDirty = true;
+        self.t = 0;
+        self:SetScript("OnUpdate", self.OnUpdate);
+    end
+end
+
+function StatFrameMixin:OnUpdate(elapsed)
+    -- Update next frame and pause for 0.2 s
+    self.t = self.t + elapsed;
+
+    if self.isStatDirty then
+        self:FullUpdate();
+    end
+
+    if self.t > 0.2 then
+        self.t = nil;
+        self:SetScript("OnUpdate", nil);
+        if self.statChangedAfterUpdate then
+            self.statChangedAfterUpdate = nil;
+            self:FullUpdate();
         end
     end
 end

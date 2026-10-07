@@ -1,7 +1,6 @@
 local _, addon = ...
 
 local DIGITS = "%.2f";
-local NO_BONUS_ALPHA = 0.5;
 
 local Narci = Narci;
 local L = Narci.L;

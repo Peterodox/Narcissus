@@ -56,16 +56,16 @@ local MiniButton = Narci_MinimapButton;
 local EL = CreateFrame("Frame");	--Event Listener
 EL:Hide();
 
-EL.EVENTS_DYNAMIC = {"PLAYER_TARGET_CHANGED", "COMBAT_RATING_UPDATE", "PLAYER_MOUNT_DISPLAY_CHANGED",
-	"PLAYER_STARTED_MOVING", "PLAYER_REGEN_DISABLED", "UNIT_MAXPOWER", "PLAYER_STARTED_TURNING", "PLAYER_STOPPED_TURNING",
-	"BAG_UPDATE_COOLDOWN", "UNIT_STATS", "BAG_UPDATE", "PLAYER_EQUIPMENT_CHANGED", "AZERITE_ESSENCE_ACTIVATED", "WEAPON_ENCHANT_CHANGED",
+EL.EVENTS_DYNAMIC = {"PLAYER_TARGET_CHANGED", "PLAYER_MOUNT_DISPLAY_CHANGED",
+	"PLAYER_STARTED_MOVING", "PLAYER_REGEN_DISABLED", "PLAYER_STARTED_TURNING", "PLAYER_STOPPED_TURNING",
+	"BAG_UPDATE_COOLDOWN", "BAG_UPDATE", "PLAYER_EQUIPMENT_CHANGED", "AZERITE_ESSENCE_ACTIVATED", "WEAPON_ENCHANT_CHANGED",
 };
 
 if API.IsPlayerDruid() then
 	table.insert(EL.EVENTS_DYNAMIC, "UPDATE_SHAPESHIFT_FORM");
 end
 
-EL.EVENTS_UNIT = {"UNIT_DAMAGE", "UNIT_ATTACK_SPEED", "UNIT_MAXHEALTH", "UNIT_AURA", "UNIT_PORTRAIT_UPDATE"};
+EL.EVENTS_UNIT = {"UNIT_AURA", "UNIT_PORTRAIT_UPDATE"};
 
 
 local SlotController = CreateFrame("Frame");
@@ -1069,7 +1069,7 @@ local function ShowAttributeButton(bool)
 end
 
 local function AssignFrame()
-	local statFrame = Narci_DetailedStatFrame;
+	local statFrame = Narci_DetailedStatFrame.statXEntry;
 	RadarChart = Narci_RadarChartFrame;
 	local radar = RadarChart;
 	AttributeFrames[1] = statFrame.Primary;
@@ -1093,7 +1093,7 @@ local function AssignFrame()
 	AttributeFrames[19]= statFrame.MovementSpeed;
 	AttributeFrames[20]= statFrame.Speed;
 
-	local statFrame_Short = Narci_ConciseStatFrame;
+	local statFrame_Short = Narci_ConciseStatFrame.statXEntry;
 	ShortAttributeFrames[1]  = statFrame_Short.Primary;
 	ShortAttributeFrames[2]  = statFrame_Short.Stamina;
 	ShortAttributeFrames[3]  = statFrame_Short.Health;
@@ -1635,8 +1635,6 @@ EL:SetScript("OnEvent",function(self, event, ...)
 		self:UnregisterEvent(event);
 
 		After(2, function()
-			StatsUpdator:Instant();
-			RadarChart:SetValue(0,0,0,0,1);
 			UpdateXmogName();
 		end)
 
@@ -1756,26 +1754,12 @@ EL:SetScript("OnEvent",function(self, event, ...)
 		local oldLevel, newLevel = ...;
 		UpdateCharacterInfoFrame(newLevel)
 
-	elseif ( event == "COMBAT_RATING_UPDATE" or
-			 event == "UNIT_MAXPOWER" or
-			 event == "UNIT_STATS" or
-			 event == "UNIT_DAMAGE" or event == "UNIT_ATTACK_SPEED" or event == "UNIT_MAXHEALTH" or event == "UNIT_AURA"
-			) and Narci.refreshCombatRatings then
-		-- don't refresh stats when equipment set manager is activated
-		StatsUpdator:Instant();
-		if event == "COMBAT_RATING_UPDATE" then
-			if Narci_Character:IsShown() then
-				RadarChart:UpdateChart(true);
-			end
-		end
-
-		if event == "UNIT_AURA" then
-			--11.0 Worgen Two Forms no longer trigger this
-			local inAlteredForm = IsPlayerInAlteredForm();
-			if self.wasAlteredForm ~= inAlteredForm then
-				self.wasAlteredForm = inAlteredForm;
-				CameraUtil:OnPlayerFormChanged(0.0);
-			end
+	elseif event == "UNIT_AURA" then
+		--11.0 Worgen Two Forms no longer trigger this
+		local inAlteredForm = IsPlayerInAlteredForm();
+		if self.wasAlteredForm ~= inAlteredForm then
+			self.wasAlteredForm = inAlteredForm;
+			CameraUtil:OnPlayerFormChanged(0.0);
 		end
 
 	elseif event == "PLAYER_TARGET_CHANGED" then

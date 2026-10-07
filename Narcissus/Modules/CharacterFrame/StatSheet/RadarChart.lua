@@ -39,6 +39,8 @@ function NarciRadarChartMixin:OnLoad()
 
 	self.statButtons = {self.Crit, self.Haste, self.Mastery, self.Versatility};
 
+	self:SetValue(0, 0, 0, 0);
+
 	self.onFisrtShow = function()
 		self:UpdateStatsGetter();
 	end
@@ -380,6 +382,12 @@ function NarciRadarChartMixin:UpdateAttributeFrames()
 		self.Primary:Update();
 		self.Health:Update();
 	end
+end
+
+--- [TODO] Don't refresh stats when equipment set manager is activated
+function NarciRadarChartMixin:Update()
+	self:UpdateChart(true);
+	self:UpdateAttributeFrames();
 end
 
 function NarciRadarChartMixin:GetStatButtons()
