@@ -840,7 +840,6 @@ local FavoredEntryMixin = {};
 local function EntryTab_Init()
     if EntryTab.ScrollView then return end;
 
-    local Mixin = NarciAPI.Mixin;
     local ScrollView = NarciAPI.CreateScrollView(EntryTab);
     EntryTab.ScrollView = ScrollView;
     ScrollView:SetSize(116, 128);
@@ -1894,11 +1893,11 @@ do
         ExpandableFrames.ResetButton:SetScript("OnClick", ResetButton_OnClick);
 
         EditBoxFavoriteButton = ExpandableFrames.FavoriteButton;
-        NarciAPI.Mixin(EditBoxFavoriteButton, EditBoxFavoriteButtonMixin);
+        Mixin(EditBoxFavoriteButton, EditBoxFavoriteButtonMixin);
         EditBoxFavoriteButton:OnLoad();
 
         EditorPopup = ExpandableFrames.PopUpFrame;
-        NarciAPI.Mixin(EditorPopup, EditorPopupMixin);
+        Mixin(EditorPopup, EditorPopupMixin);
         EditorPopup:OnLoad();
 
         HomeButton = ListFrame.Header.HomeButton;
