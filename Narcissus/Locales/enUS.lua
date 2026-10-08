@@ -54,6 +54,7 @@ L["Swap items"] = "Swap items";
 L["Press Copy"] = NARCI_COLOR_GREY_70.. "Press |r".. NARCI_SHORTCUTS_COPY.. NARCI_COLOR_GREY_70 .." to Copy";
 L["Copied"] = NARCI_COLOR_GREEN_MILD.. "Link Copied|r";
 L["Movement Speed"] = "MSPD";
+L["Combat Resources"] = "Resources";
 L["Damage Reduction Percentage"] = "DR%";
 L["Advanced Info"] = "Left click to toggle advanced info.";
 L["Restore On Exit"] = "\nYour previous settings will be restored after exit.";

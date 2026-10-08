@@ -8,8 +8,8 @@ local S = Narci.L.S;
 NARCI_WORDBREAK_COMMA = "，";
 
 --Date--
-L["Today"] = COMMUNITIES_CHAT_FRAME_TODAY_NOTIFICATION;
-L["Yesterday"] = COMMUNITIES_CHAT_FRAME_YESTERDAY_NOTIFICATION;
+L["Today"] = "今天";
+L["Yesterday"] = "昨天";
 L["Format Days Ago"] = "%d天前";
 L["A Month Ago"] = "1个月前";
 L["Format Months Ago"] = "%d个月前";
@@ -23,8 +23,9 @@ L["Hour Singular"] = "小时";
 L["Last Visit"] = "上次登录：";
 
 L["Swap items"] = "更换装备";
-L["Movement Speed"] = STAT_MOVEMENT_SPEED;
-L["Damage Reduction Percentage"] = COMBAT_TEXT_SHOW_RESISTANCES_TEXT;
+L["Movement Speed"] = "移动速度";
+L["Combat Resources"] = "战斗资源";
+L["Damage Reduction Percentage"] = "伤害减免";
 
 L["Advanced Info"] = "点击以显示更详细的装备、属性信息";
 L["Restore On Exit"] = "你先前的设置会在退出后自动恢复。"
@@ -390,14 +391,14 @@ L["Corruption Debuff Tooltip Description"] = "将默认的描述性的Debuff提�
 L["No Corrupted Item"] = "你没有装备任何腐蚀物品。";
 
 L["Crit Gained"] = "爆击获取";
-L["Haste Gained"] = STAT_HASTE.."获取";
-L["Mastery Gained"] = STAT_MASTERY.."获取";
-L["Versatility Gained"] = STAT_VERSATILITY.."获取";
+L["Haste Gained"] = "急速获取";
+L["Mastery Gained"] = "精通获取";
+L["Versatility Gained"] = "全能获取";
 
-L["Proc Crit"] = "触发"..CRIT_ABBR;
-L["Proc Haste"] = "触发"..STAT_HASTE;
-L["Proc Mastery"] = "触发"..STAT_MASTERY;
-L["Proc Versatility"] = "触发"..STAT_VERSATILITY;
+L["Proc Crit"] = "触发爆击";
+L["Proc Haste"] = "触发急速";
+L["Proc Mastery"] = "触发精通";
+L["Proc Versatility"] = "触发全能";
 
 L["Critical Damage"] = "爆击伤害";
 
