@@ -1,4 +1,5 @@
 <Ui xsi:schemaLocation="http://www.blizzard.com/wow/ui/..\FrameXML\UI.xsd">
+    <Include file="Controller.lua"/>
 	<Include file="UpdateFunc.lua"/>
     <Include file="StatButton.xml"/>
     <Include file="RadarChart.xml"/>

@@ -65,6 +65,7 @@ local DynamicUnitEvents = {
 };
 
 
+---@class StatSheetFrame
 local StatFrameMixin = {};
 addon.StatFrameMixin = StatFrameMixin;
 
@@ -76,6 +77,8 @@ function StatFrameMixin:OnLoad()
     local layoutType = self.isDetailed and "Detailed" or "Concise";
     local layout = addon.IS_FOREVER and Schematics[layoutType].Forever or Schematics[layoutType].Retail;
     self:SetLayout(layout);
+
+    addon.StatSheetController:AddStatFrame(self);
 end
 
 function StatFrameMixin:SetLayout(layout)
@@ -224,19 +227,20 @@ function StatFrameMixin:FullUpdate()
 end
 
 function StatFrameMixin:RequestFullUpdate()
-    if self.t then
+    if self.t and not self.isLazyRefresh then
         if not self.isStatDirty then
             self.statChangedAfterUpdate = true;
         end
         self.t = 0;
     else
         self.isStatDirty = true;
+        self.isLazyRefresh = nil;
         self.t = 0;
-        self:SetScript("OnUpdate", self.OnUpdate);
+        self:SetScript("OnUpdate", self.OnUpdate_FullUpdate);
     end
 end
 
-function StatFrameMixin:OnUpdate(elapsed)
+function StatFrameMixin:OnUpdate_FullUpdate(elapsed)
     -- Update next frame and pause for 0.2 s
     self.t = self.t + elapsed;
 
@@ -250,6 +254,55 @@ function StatFrameMixin:OnUpdate(elapsed)
         if self.statChangedAfterUpdate then
             self.statChangedAfterUpdate = nil;
             self:FullUpdate();
+        end
+    end
+end
+
+function StatFrameMixin:LazyRefresh()
+    self.totalStatic = #self.staticEntries;
+    self.totalDynamic = #self.dynamicEntries;
+    if self.totalStatic == 0 then
+        self.totalStatic = nil;
+    end
+    if self.totalDynamic == 0 then
+        self.totalDynamic = nil;
+    end
+    self.t = 0;
+    self.entryIndex = 0;
+    self.isLazyRefresh = true;
+    self:SetScript("OnUpdate", self.OnUpdate_LazyRefresh);
+end
+
+function StatFrameMixin:OnUpdate_LazyRefresh(elapsed)
+    self.t = self.t + elapsed;
+    if self.t >= 0.05 then -- lazy refresh interval: 0.05 s
+        self.t = nil;
+        self:SetScript("OnUpdate", nil);
+        self.isLazyRefresh = nil;
+        self.continueUpdating = nil;
+        self.entryIndex = self.entryIndex + 1;
+
+        if self.totalStatic and self.entryIndex <= self.totalStatic then
+            self.staticEntries[self.entryIndex]:Update();
+            self.continueUpdating = true;
+        end
+
+        if self.totalStatic and self.entryIndex > self.totalStatic then
+            self.totalStatic = nil;
+            if self.totalDynamic then
+                self.entryIndex = 0;
+                self.continueUpdating = true;
+            end
+        end
+
+        if self.totalDynamic and self.entryIndex <= self.totalDynamic then
+            self.dynamicEntries[self.entryIndex]:Update();
+            self.continueUpdating = true;
+        end
+
+        if self.continueUpdating then
+            self.t = 0;
+            self:SetScript("OnUpdate", self.OnUpdate_LazyRefresh);
         end
     end
 end

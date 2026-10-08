@@ -1,3 +1,5 @@
+local _, addon = ...
+
 local MAX_CONDUITS = NarciConstants.Soulbinds.MaxRow or 8 --12;
 
 local sin = math.sin;
@@ -76,7 +78,8 @@ function V:ShowAttributes()
         FadeFrame(Radar, 0.2, 0);
     end
     Radar:UpdateChart(true);
-    Narci.RefreshAllStats();
+
+    addon.StatSheetController:InstantRefresh();
 
     self.hideSetsCallBack();
 end

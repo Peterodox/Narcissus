@@ -10,6 +10,7 @@ local CameraUtil = addon.CameraUtil;
 local UIParentFade = addon.UIParentFade;
 local CallbackRegistry = addon.CallbackRegistry;
 local SharedBlackScreen = addon.SharedBlackScreen;
+local StatSheetController = addon.StatSheetController; ---@type StatSheetController
 
 Narci.refreshCombatRatings = true;
 
@@ -145,6 +146,12 @@ function SlotController:IsMouseOver()
 		end
 	end
 	return false;
+end
+
+function SlotController:UpdateCooldown()
+	for slotID, slotButton in pairs(SLOT_TABLE) do
+		slotButton:TrackCooldown();
+	end
 end
 
 
@@ -988,73 +995,7 @@ end
 
 
 ---------------------------------------------
-local function RefreshStats(id, frame)
-	frame = frame or "Detailed";
-	if frame == "Detailed" then
-		if AttributeFrames[id] then
-			AttributeFrames[id]:Update();
-		end
-	elseif frame == "Concise" then
-		if ShortAttributeFrames[id] then
-			ShortAttributeFrames[id]:Update();
-		end
-	end
-end
-
-local StatsUpdator = CreateFrame("Frame");
-StatsUpdator:Hide();
-StatsUpdator.t = 0;
-StatsUpdator.index = 1;
-StatsUpdator:SetScript("OnUpdate", function(self, elapsed)
-	self.t = self.t + elapsed;
-	if self.t > 0.05 then
-		self.t = 0;
-		local i = self.index;
-		if AttributeFrames[i] then
-			AttributeFrames[i]:Update();
-		end
-		if ShortAttributeFrames[i] then
-			ShortAttributeFrames[i]:Update();
-		end
-		if i >= 20 then
-			self:Hide();
-			self.index = 1;
-		else
-			self.index = i + 1;
-		end
-	end
-end);
-
-function StatsUpdator:Gradual()
-	ItemLevelFrame:AsyncUpdate(0.05);
-	self.index = 1;
-	self.t = 0;
-	self:Show();
-end
-
-function StatsUpdator:Instant()
-	if not StatsUpdator.pauseUpdate then
-		StatsUpdator.pauseUpdate = true;
-		After(0, function()
-			for i = 1, 20 do
-				RefreshStats(i);
-			end
-			for i = 1, 12 do
-				RefreshStats(i, "Concise");
-			end
-			StatsUpdator.pauseUpdate = nil;
-		end);
-	end
-end
-
-function StatsUpdator:UpdateCooldown()
-	for slotID, slotButton in pairs(SLOT_TABLE) do
-		slotButton:TrackCooldown();
-	end
-end
-
-
-local function ShowAttributeButton(bool)
+local function ShowAttributeButton()
 	if NarcissusDB.DetailedIlvlInfo then
 		Narci_DetailedStatFrame:SetShown(true);
 		Narci_ConciseStatFrame:SetShown(false);
@@ -1177,7 +1118,8 @@ function Narci_Open()
 			SlotButtonOverlayUtil:UpdateData();
 			After(0, function()
 				SlotController:LazyRefresh();
-				StatsUpdator:Gradual();
+				StatSheetController:LazyRefresh();
+				ItemLevelFrame:AsyncUpdate();
 			end);
 		end);
 
@@ -1487,7 +1429,8 @@ local function Narci_XmogButton_OnClick(self)
 			Narci_Character:SetAlpha(1);
 		end
 
-		StatsUpdator:Gradual();
+		StatSheetController:LazyRefresh();
+		ItemLevelFrame:AsyncUpdate();
 	end
 
 	if MOG_MODE then
@@ -1791,7 +1734,7 @@ EL:SetScript("OnEvent",function(self, event, ...)
 		NarciAR.Turning:Hide();
 
 	elseif event == "BAG_UPDATE_COOLDOWN" then
-		StatsUpdator:UpdateCooldown();
+		SlotController:UpdateCooldown();
 
 	elseif event == "BAG_UPDATE" then
 		local newTime = GetTime();
@@ -1931,7 +1874,6 @@ end
 Narci.GetEquipmentSlotByID = function(slotID) return SLOT_TABLE[slotID] end;
 Narci.RefreshSlot = function(slotID) SlotController:Refresh(slotID) return SLOT_TABLE[slotID] end;
 Narci.RefreshAllSlots = SlotController.RefreshAll;
-Narci.RefreshAllStats = StatsUpdator.Instant;
 
 
 addon.CallbackRegistry:Register("SettingChanged.UseWoWQualityColor", function()
