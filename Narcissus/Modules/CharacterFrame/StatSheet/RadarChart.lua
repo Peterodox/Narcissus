@@ -60,6 +60,7 @@ end
 
 function NarciRadarChartMixin:OnHide()
 	self:StopAnimating();
+	self:SetValue(0, 0, 0, 0);
 end
 
 function NarciRadarChartMixin:SetVerticeSize(attributeFrame, size)

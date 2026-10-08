@@ -325,14 +325,6 @@
             <AnimationGroup parentKey="animIn">
                 <Alpha parentKey="A1" fromAlpha="0" toAlpha="0" duration="0.2" order="1"/>
                 <Alpha parentKey="A2" startDelay="0.45" fromAlpha="0" toAlpha="1" duration="0.5" order="2"/>
-                <Scripts>
-                    <OnPlay>
-                        local parent = self:GetParent();
-                        C_Timer.After(0.7, function()
-                            parent:UpdateChart(true);
-                        end)
-                    </OnPlay>
-                </Scripts>
             </AnimationGroup>
         </Animations>
         <Scripts>

@@ -1,5 +1,4 @@
 local _, addon = ...
-local FadeFrame = NarciFadeUI.Fade;
 
 
 ---@class StatSheetController
