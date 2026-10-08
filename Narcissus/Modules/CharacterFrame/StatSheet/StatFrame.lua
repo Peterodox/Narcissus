@@ -103,6 +103,7 @@ function StatFrameMixin:SetLayout(layout)
                 -- Chart's parent is not the StatFrame, since we show chart for Equipment Set Manager while hiding other stats
                 local frame = CreateFrame("Frame", "Narci_RadarChartFrame", self:GetParent(), "Narci_StatsChartTemplate");
                 chartFrame = frame;
+                chartFrame:SetRow(row);
                 self.RadarChart = chartFrame;
 
                 if i == 1 then -- We'll never reach here since chart will never be the first widget
@@ -195,6 +196,7 @@ end
 
 function StatFrameMixin:OnHide()
     PrivateAPI.UnregisterFrameForEvents(self, DynamicEvents, DynamicUnitEvents);
+    self:StopAnimating();
 end
 
 function StatFrameMixin:OnEvent(event, ...)
@@ -303,6 +305,33 @@ function StatFrameMixin:OnUpdate_LazyRefresh(elapsed)
         if self.continueUpdating then
             self.t = 0;
             self:SetScript("OnUpdate", self.OnUpdate_LazyRefresh);
+        end
+    end
+end
+
+--- StatButton fade in by row from top to bottom
+function StatFrameMixin:SetIntroAnimationDelay(secondsPerRow)
+    local delay;
+    for _, entries in ipairs({self.staticEntries, self.dynamicEntries}) do
+        local isAfterRadarChart;
+        for _, button in ipairs(entries) do
+            delay = secondsPerRow * (button:GetRow() + (isAfterRadarChart and 1 or 0));
+            if button.isRadarChart then
+                isAfterRadarChart = true;
+            end
+            if button.animIn then
+                button.animIn.A2:SetStartDelay(delay);
+            end
+        end
+    end
+end
+
+function StatFrameMixin:PlayIntroAnimation()
+    for _, entries in ipairs({self.staticEntries, self.dynamicEntries}) do
+        for _, button in ipairs(entries) do
+            if button.animIn then
+                button.animIn:Play();
+            end
         end
     end
 end

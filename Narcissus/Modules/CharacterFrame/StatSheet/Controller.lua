@@ -14,14 +14,24 @@ function StatSheetController:AddStatFrame(statFrame)
     table.insert(self.frames, statFrame);
 end
 
-function StatSheetController:LazyRefresh()
+function StatSheetController:PropagateMethod(method, ...)
     for  _, statFrame in ipairs(self.frames) do
-        statFrame:LazyRefresh();
+        statFrame[method](statFrame, ...);
     end
 end
 
+function StatSheetController:LazyRefresh()
+    self:PropagateMethod("LazyRefresh");
+end
+
 function StatSheetController:InstantRefresh()
-    for _, statFrame in ipairs(self.frames) do
-        statFrame:RequestFullUpdate();
-    end
+    self:PropagateMethod("RequestFullUpdate");
+end
+
+function StatSheetController:SetIntroAnimationDelay(secondsPerRow)
+    self:PropagateMethod("SetIntroAnimationDelay", secondsPerRow * 10);
+end
+
+function StatSheetController:PlayIntroAnimation()
+    self:PropagateMethod("PlayIntroAnimation");
 end

@@ -17,8 +17,6 @@ Narci.refreshCombatRatings = true;
 local SLOT_TABLE = Narci.slotTable;
 local SetEquipmentSlotFlag = addon.SetEquipmentSlotFlag;
 
-local AttributeFrames = {};
-local ShortAttributeFrames = {};
 local L = Narci.L;
 local VIGNETTE_ALPHA = 0.5;
 local IS_OPENED = false;									--Addon was opened by clicking
@@ -403,19 +401,8 @@ function IntroMotion:SetUseCameraTransition(enabled)
 		divisor = 80;
 	end
 
-	for _, slot in pairs(AttributeFrames) do
-		local delay = slot:GetRow() / divisor;
-		if slot.animIn then
-			slot.animIn.A2:SetStartDelay(delay);
-		end
-	end
+	StatSheetController:SetIntroAnimationDelay(1 / divisor);
 
-	for _, slot in pairs(ShortAttributeFrames) do
-		local delay = slot:GetRow() / divisor;
-		slot.animIn.A2:SetStartDelay(delay);
-	end
-
-	RadarChart.animIn.A2:SetStartDelay(9 / divisor);
 	self.useCameraTransition = enabled;
 end
 
@@ -493,16 +480,8 @@ function IntroMotion:PlayAttributeAnimation()
 	if not RadarChart:IsShown() then
 		return		--Attributes is not the active tab
 	end
-	local f, anim;
-	for i = 1, 20 do
-		f = AttributeFrames[i];
-		anim = f.animIn;
-		if anim and not f.noAnimation then
-			anim.A2:SetToAlpha(AttributeFrames[i]:GetAlpha());
-			anim:Play();
-		end
-	end
-	RadarChart.animIn:Play();
+
+	StatSheetController:PlayIntroAnimation();
 end
 
 function IntroMotion:ShowFrame()
@@ -1010,43 +989,7 @@ local function ShowAttributeButton()
 end
 
 local function AssignFrame()
-	local statFrame = Narci_DetailedStatFrame.statXEntry;
 	RadarChart = Narci_RadarChartFrame;
-	local radar = RadarChart;
-	AttributeFrames[1] = statFrame.Primary;
-	AttributeFrames[2] = statFrame.Stamina;
-	AttributeFrames[3] = statFrame.Damage;
-	AttributeFrames[4] = statFrame.AttackSpeed;
-	AttributeFrames[5] = statFrame.Power;
-	AttributeFrames[6] = statFrame.Regen;
-	AttributeFrames[7] = statFrame.Health;
-	AttributeFrames[8] = statFrame.Armor;
-	AttributeFrames[9] = statFrame.Reduction;
-	AttributeFrames[10]= statFrame.Dodge;
-	AttributeFrames[11]= statFrame.Parry;
-	AttributeFrames[12]= statFrame.Block;
-	AttributeFrames[13]= radar.Crit;
-	AttributeFrames[14]= radar.Haste;
-	AttributeFrames[15]= radar.Mastery;
-	AttributeFrames[16]= radar.Versatility;
-	AttributeFrames[17]= statFrame.Leech;
-	AttributeFrames[18]= statFrame.Avoidance;
-	AttributeFrames[19]= statFrame.MovementSpeed;
-	AttributeFrames[20]= statFrame.Speed;
-
-	local statFrame_Short = Narci_ConciseStatFrame.statXEntry;
-	ShortAttributeFrames[1]  = statFrame_Short.Primary;
-	ShortAttributeFrames[2]  = statFrame_Short.Stamina;
-	ShortAttributeFrames[3]  = statFrame_Short.Health;
-	ShortAttributeFrames[4]  = statFrame_Short.Power;
-	ShortAttributeFrames[5]  = statFrame_Short.Regen;
-	ShortAttributeFrames[6]  = statFrame_Short.Crit;
-	ShortAttributeFrames[7]  = statFrame_Short.Haste;
-	ShortAttributeFrames[8]  = statFrame_Short.Mastery;
-	ShortAttributeFrames[9]  = statFrame_Short.Versatility;
-	ShortAttributeFrames[10] = statFrame_Short.Leech;
-	ShortAttributeFrames[11] = statFrame_Short.Avoidance;
-	ShortAttributeFrames[12] = statFrame_Short.Speed;
 end
 
 function Narci_SetPlayerName(self)

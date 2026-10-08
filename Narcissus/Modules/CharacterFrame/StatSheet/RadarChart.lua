@@ -16,6 +16,8 @@ local CR_VERSATILITY_DAMAGE_DONE = CR_VERSATILITY_DAMAGE_DONE;
 NarciRadarChartMixin = {}
 
 function NarciRadarChartMixin:OnLoad()
+	self.isRadarChart = true;
+
 	local circleTex = "Interface\\AddOns\\Narcissus\\Art\\Widgets\\RadarChart\\Radar-Vertice";
 	local filter = "TRILINEAR";
 	local tex;
@@ -392,6 +394,14 @@ end
 
 function NarciRadarChartMixin:GetStatButtons()
 	return {self.Crit, self.Haste, self.Mastery, self.Versatility};
+end
+
+function NarciRadarChartMixin:SetRow(row)
+	self.row = row;
+end
+
+function NarciRadarChartMixin:GetRow()
+	return self.row or 0;
 end
 
 do	--Timerunning
