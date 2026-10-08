@@ -46,7 +46,7 @@
 					</Gradient>
 				</Texture>
 
-				<FontString inherits="NarciFontMedium12" justifyH="LEFT" justifyV="MIDDLE" parentKey="Label" text="Label">
+				<FontString inherits="NarciFontMedium12" justifyH="LEFT" justifyV="MIDDLE" parentKey="Label">
 					<Size x="0" y="0"/>
 					<Color r="0.92" g="0.92" b="0.92"/>
 					<Anchors>
@@ -54,7 +54,7 @@
 					</Anchors>
 				</FontString>
 
-				<FontString inherits="NarciFontStatusNumber" justifyH="RIGHT" justifyV="MIDDLE" parentKey="Value" text="1208">
+				<FontString inherits="NarciFontStatusNumber" justifyH="RIGHT" justifyV="MIDDLE" parentKey="Value">
 					<Size x="0" y="0"/>
 					<Color r="0.92" g="0.92" b="0.92"/>
 					<Anchors>
@@ -69,7 +69,7 @@
 		<Size x="160" y="24"/>
 		<Layers>
 			<Layer level="OVERLAY">
-				<FontString inherits="NarciFontMedium12" justifyH="LEFT" justifyV="MIDDLE" parentKey="Label" text="Label">
+				<FontString inherits="NarciFontMedium12" justifyH="LEFT" justifyV="MIDDLE" parentKey="Label">
 					<Size x="90" y="0"/>
 					<Color r="0.92" g="0.92" b="0.92"/>
 					<Anchors>
@@ -77,7 +77,7 @@
 					</Anchors>
 				</FontString>
 
-				<FontString inherits="NarciFontStatusNumber" justifyH="RIGHT" justifyV="MIDDLE" parentKey="Value" text="1208">
+				<FontString inherits="NarciFontStatusNumber" justifyH="RIGHT" justifyV="MIDDLE" parentKey="Value">
 					<Size x="0" y="0"/>
 					<Color r="0.92" g="0.92" b="0.92"/>
 					<Anchors>
@@ -125,7 +125,7 @@
 			</Layer>
 
 			<Layer level="OVERLAY">
-				<FontString inherits="NarciFontMedium12" justifyH="CENTER" justifyV="MIDDLE" parentKey="Label" text="Label">
+				<FontString inherits="NarciFontMedium12" justifyH="CENTER" justifyV="MIDDLE" parentKey="Label">
 					<Size x="92" y="0"/>
 					<Color r="0.92" g="0.92" b="0.92"/>
 					<Anchors>
@@ -133,7 +133,7 @@
 					</Anchors>
 				</FontString>
 
-				<FontString inherits="NarciFontStatusNumber" justifyH="LEFT" justifyV="MIDDLE" parentKey="Value" text="12.08%">
+				<FontString inherits="NarciFontStatusNumber" justifyH="LEFT" justifyV="MIDDLE" parentKey="Value">
 					<Size x="0" y="0"/>
 					<Color r="0.92" g="0.92" b="0.92"/>
 					<Anchors>
@@ -141,7 +141,7 @@
 					</Anchors>
 				</FontString>
 
-				<FontString inherits="NarciFontStatusNumber" justifyH="RIGHT" justifyV="MIDDLE" parentKey="ValueRating" text="1208">
+				<FontString inherits="NarciFontStatusNumber" justifyH="RIGHT" justifyV="MIDDLE" parentKey="ValueRating">
 					<Size x="0" y="0"/>
 					<Color r="0.92" g="0.92" b="0.92"/>
 					<Anchors>
@@ -194,21 +194,21 @@
 			</Layer>
 
 			<Layer level="OVERLAY">
-				<FontString inherits="NarciFontMedium12" justifyH="CENTER" justifyV="MIDDLE" parentKey="Label" text="Label">
+				<FontString inherits="NarciFontMedium12" justifyH="CENTER" justifyV="MIDDLE" parentKey="Label">
 					<Size x="92" y="0"/>
 					<Anchors>
 						<Anchor point="CENTER" relativeKey="$parent.Black" relativePoint="CENTER" x="1" y="0"/>
 					</Anchors>
 				</FontString>
 
-				<FontString inherits="NarciFontStatusNumber" justifyH="LEFT" justifyV="MIDDLE" parentKey="Value" text="12.08%">
+				<FontString inherits="NarciFontStatusNumber" justifyH="LEFT" justifyV="MIDDLE" parentKey="Value">
 					<Size x="0" y="0"/>
 					<Anchors>
 						<Anchor point="LEFT" relativeKey="$parent.Color" relativePoint="LEFT" x="11" y="0"/>
 					</Anchors>
 				</FontString>
 
-				<FontString inherits="NarciFontStatusNumber" justifyH="RIGHT" justifyV="MIDDLE" parentKey="ValueRating" text="1208">
+				<FontString inherits="NarciFontStatusNumber" justifyH="RIGHT" justifyV="MIDDLE" parentKey="ValueRating">
 					<Size x="0" y="0"/>
 					<Anchors>
 						<Anchor point="RIGHT" relativeKey="$parent.Color" relativePoint="RIGHT" x="-10" y="0"/>
