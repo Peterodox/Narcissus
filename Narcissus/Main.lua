@@ -1540,28 +1540,6 @@ do	--Slash Command
 end
 
 
---3D Animation
-local function InitializeAnimationContainer(frame, SequenceInfo, TargetFrame)
-	frame.OppoDirection = false;
-	frame.t = 0
-	frame.totalTime = 0;
-	frame.Index = 1;
-	frame.Pending = false;
-	frame.IsPlaying = false;
-	frame.SequenceInfo = SequenceInfo;
-	frame.Target = TargetFrame
-end
-
-local function AnimationContainer_OnHide(self)
-	self.totalTime = 0;
-	self.TimeSinceLastUpdate = 0;
-	self.OppoDirection = not self.OppoDirection
-	if self.Index <= 0 then
-		self.Index = 0;
-	end
-end
-
-
 --Static Events
 EL:RegisterEvent("PLAYER_ENTERING_WORLD");
 EL:RegisterUnitEvent("UNIT_NAME_UPDATE", "player");
