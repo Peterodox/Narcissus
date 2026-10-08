@@ -963,17 +963,8 @@ end
 
 
 ---------------------------------------------
-local function ShowAttributeButton()
-	if NarcissusDB.DetailedIlvlInfo then
-		Narci_DetailedStatFrame:SetShown(true);
-		Narci_ConciseStatFrame:SetShown(false);
-		StatSheetController:SetRadarChartShown(true);
-	else
-		Narci_DetailedStatFrame:SetShown(false);
-		Narci_ConciseStatFrame:SetShown(true);
-		StatSheetController:SetRadarChartShown(false);
-	end
-
+local function ShowAttributes()
+	StatSheetController:ShowStatSheet();
 	ItemLevelFrame:SetShown(true);
 end
 
@@ -1162,7 +1153,7 @@ local function ActivateMogMode()
 			CameraUtil:SmoothShoulderByZoom();
 		end
 		FadeFrame(Narci_XmogNameFrame, 0.2, 0);
-		ShowAttributeButton();
+		ShowAttributes();
 		StatSheetController:InstantRefresh();
 		CameraUtil:SetUseMogOffset(false);
 		MsgAlertContainer:Hide();

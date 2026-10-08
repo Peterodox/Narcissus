@@ -80,6 +80,7 @@ function StatFrameMixin:OnLoad()
     self:SetLayout(layout);
 
     StatSheetController:AddStatFrame(self);
+    StatSheetController:MakeFrameFadable(self);
 end
 
 function StatFrameMixin:SetLayout(layout)
@@ -198,6 +199,7 @@ end
 function StatFrameMixin:OnHide()
     PrivateAPI.UnregisterFrameForEvents(self, DynamicEvents, DynamicUnitEvents);
     self:StopAnimating();
+    self:SnapToFadeResult();
 end
 
 function StatFrameMixin:OnEvent(event, ...)
@@ -335,4 +337,8 @@ function StatFrameMixin:PlayIntroAnimation()
             end
         end
     end
+end
+
+function StatFrameMixin:SnapToFadeResult()
+    -- Override
 end

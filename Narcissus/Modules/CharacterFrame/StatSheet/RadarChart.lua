@@ -46,6 +46,8 @@ function NarciRadarChartMixin:OnLoad()
 	self.onFisrtShow = function()
 		self:UpdateStatsGetter();
 	end
+
+	addon.StatSheetController:MakeFrameFadable(self);
 end
 
 function NarciRadarChartMixin:OnShow()
@@ -60,6 +62,7 @@ end
 
 function NarciRadarChartMixin:OnHide()
 	self:StopAnimating();
+	self:SnapToFadeResult();
 	self:SetValue(0, 0, 0, 0);
 end
 
@@ -403,6 +406,10 @@ end
 
 function NarciRadarChartMixin:GetRow()
 	return self.row or 0;
+end
+
+function NarciRadarChartMixin:SnapToFadeResult()
+	-- Override
 end
 
 do	--Timerunning
