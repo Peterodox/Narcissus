@@ -56,41 +56,25 @@ function StatSheetController:SetRadarChartShown(state)
 end
 
 function StatSheetController:ShowDetailedStats(state)
-    if Narci_Attribute and Narci_Attribute:IsVisible() then
-        for  _, statFrame in ipairs(self.frames) do
-            if statFrame.isDetailed then
-                if state then
-                    statFrame:FadeIn();
-                else
-                    statFrame:FadeOut();
-                end
+    for  _, statFrame in ipairs(self.frames) do
+        if statFrame.isDetailed then
+            if state then
+                statFrame:FadeIn();
             else
-                if state then
-                    statFrame:FadeOut();
-                else
-                    statFrame:FadeIn();
-                end
+                statFrame:FadeOut();
             end
-        end
-        self:InstantRefresh();
-    else
-        for  _, statFrame in ipairs(self.frames) do
-            if statFrame.isDetailed then
-                if state then
-                    statFrame:FadeIn();
-                else
-                    statFrame:FadeOut();
-                end
+        else
+            if state then
+                statFrame:FadeOut();
             else
-                if state then
-                    statFrame:FadeOut();
-                else
-                    statFrame:FadeIn();
-                end
+                statFrame:FadeIn();
             end
         end
     end
     self:SetRadarChartShown(state);
+    if Narci_Attribute and Narci_Attribute:IsVisible() then
+        self:InstantRefresh();
+    end
 end
 
 function StatSheetController:ShowStatSheet()
