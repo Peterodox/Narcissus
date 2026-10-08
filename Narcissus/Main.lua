@@ -988,10 +988,6 @@ local function ShowAttributeButton()
 	ItemLevelFrame:SetShown(true);
 end
 
-local function AssignFrame()
-	RadarChart = Narci_RadarChartFrame;
-end
-
 function Narci_SetPlayerName(self)
 	local playerName = UnitName("player");
 	local editBox = self.PlayerName or self.MogNameEditBox;
@@ -1049,7 +1045,6 @@ function Narci_Open()
 		IntroMotion:Enter();
 
 		After(0, function()
-			RadarChart:SetValue(0,0,0,0,1);
 			PlayLetteboxAnimation();
 			local Vignette = Narci_Vignette;
 			Vignette.VignetteLeft:SetAlpha(VIGNETTE_ALPHA);
@@ -1180,9 +1175,9 @@ local function ActivateMogMode()
 		end
 		FadeFrame(Narci_XmogNameFrame, 0.2, 0);
 		ShowAttributeButton();
+		StatSheetController:InstantRefresh();
 		CameraUtil:SetUseMogOffset(false);
 		MsgAlertContainer:Hide();
-		RadarChart:SetValue();
 	end
 end
 
@@ -1504,6 +1499,8 @@ EL:SetScript("OnEvent",function(self, event, ...)
 
 		UpdateXmogName();
 
+		RadarChart = Narci_RadarChartFrame;
+
 		DefaultTooltip = NarciGameTooltip;
 		DefaultTooltip:SetParent(Narci_Character);
 		DefaultTooltip:SetFrameStrata("TOOLTIP");
@@ -1719,16 +1716,6 @@ local function Narci_DoubleClickTrigger_OnUpdate(self, elapsed)
 	if self.t > 0.25 then
 		self:SetScript("OnUpdate", nil);
 	end
-end
-
-function NarciPaperDollDoubleClickTriggerMixin:OnLoad()
-	self.t = 0;
-
-	AssignFrame();
-	AssignFrame = nil;
-
-	self:SetScript("OnLoad", nil);
-	self.OnLoad = nil;
 end
 
 function NarciPaperDollDoubleClickTriggerMixin:OnShow()
