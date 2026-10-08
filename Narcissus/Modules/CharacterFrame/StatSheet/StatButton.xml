@@ -50,7 +50,7 @@
 					<Size x="0" y="0"/>
 					<Color r="0.92" g="0.92" b="0.92"/>
 					<Anchors>
-						<Anchor point="LEFT" relativeKey="$parent" relativePoint="LEFT" x="12" y="0"/>
+						<Anchor point="LEFT" relativeKey="$parent" relativePoint="LEFT" x="10" y="0"/>
 					</Anchors>
 				</FontString>
 
@@ -58,7 +58,7 @@
 					<Size x="0" y="0"/>
 					<Color r="0.92" g="0.92" b="0.92"/>
 					<Anchors>
-						<Anchor point="RIGHT" relativeKey="$parent" relativePoint="RIGHT" x="-12" y="0"/>
+						<Anchor point="RIGHT" relativeKey="$parent" relativePoint="RIGHT" x="-10" y="0"/>
 					</Anchors>
 				</FontString>
 			</Layer>
