@@ -102,29 +102,6 @@ function V:ShowSets()
     self.showSetsCallBack();
 end
 
---/run NarciViewUtil:ShowSoulbinds()
-function V:ShowSoulbinds()
-    if self.targetView == 3 then
-        return
-    else
-        self.targetView = 3;
-    end
-
-    Narci.refreshCombatRatings = true;
-    self:SetVerticleOffset(-24 -72 -2);
-    FadeFrame(DetailedStats, 0.20, 0);
-    FadeFrame(ConciseStats, 0.20, 0);
-    FadeFrame(EquipmentSetManager, 0.20, 0);
-    FadeFrame(ChallengeUI, 0.20, 0);
-    FadeFrame(PowersFrame, 0.15, 1);    --Soulbinds\Talents
-    if MAX_CONDUITS == 8 then
-        FadeFrame(Radar, 0.20, 1);
-    else
-        FadeFrame(Radar, 0.20, 0);
-    end
-    self.hideSetsCallBack();
-end
-
 function V:ShowChallenge()
     if self.targetView == 4 then
         return
