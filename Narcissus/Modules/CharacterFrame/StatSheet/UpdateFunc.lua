@@ -1,7 +1,5 @@
 local _, addon = ...
 
-local DIGITS = "%.2f";
-
 local Narci = Narci;
 local L = Narci.L;
 local BreakUpLargeNumbers = BreakUpLargeNumbers;
@@ -26,28 +24,15 @@ local GetSpecialization = C_SpecializationInfo.GetSpecialization;
 local GetUnitSpeed = GetUnitSpeed;
 local canaccessvalue = canaccessvalue;
 
-
 local NARCI_CRIT_TOOLTIP, NARCI_CRIT_TOOLTIP_FORMAT = SplitTooltipByLineBreak(CR_CRIT_TOOLTIP);
 local _, NARCI_HASTE_TOOLTIP_FORMAT = SplitTooltipByLineBreak(STAT_HASTE_BASE_TOOLTIP);
 local NARCI_VERSATILITY_TOOLTIP_FORMAT_1, NARCI_VERSATILITY_TOOLTIP_FORMAT_2 = SplitTooltipByLineBreak(CR_VERSATILITY_TOOLTIP);
 local N_SLASH_A = NOT_APPLICABLE;
 
+local DIGITS = "%.2f";
 
 local function FormatPercent(value)
 	return format("%.2f%%", value);
-end
-
-local function GetPrimaryStatsValue()
-	local _, strength = UnitStat("player", 1);
-	local _, agility = UnitStat("player", 2);
-	local _, intellect = UnitStat("player", 4);
-	if strength > agility and strength > intellect then
-		return strength;
-	elseif	agility > strength and agility > intellect then
-		return agility;
-	elseif	intellect > agility and	intellect >	strength then
-		return intellect;
-	end
 end
 
 local function GetEffectiveCrit()
@@ -105,6 +90,11 @@ end
 local UpdateFunc = {};
 addon.StatUpdateFunc = UpdateFunc;
 
+local function UnitHasMana()
+	local powerType = UnitPowerType("player");
+	return powerType == 0;
+end
+
 function UpdateFunc:Primary()
 	local unit = "player";
 	local primaryStatsName, primaryStatsValue = GetPrimaryStats();
@@ -115,7 +105,7 @@ function UpdateFunc:Primary()
 
 	local role = GetSpecializationRole(spec);
 	local _, _, _, _, _, primaryStat = C_SpecializationInfo.GetSpecializationInfo(spec);
-	if type(tonumber(primaryStat)) ~= "number" then return; end		--sometimes changing zones cause Lua error
+	if type(primaryStat) ~= "number" then return; end		--sometimes changing zones cause Lua error
 
 	local stat, effectiveStat, posBuff, negBuff = UnitStat(unit, primaryStat);
 
@@ -192,7 +182,7 @@ function UpdateFunc:Primary()
 		end
 
 	elseif primaryStat == LE_UNIT_STAT_INTELLECT then
-		if TransitionAPI.UnitHasMana("player") then
+		if UnitHasMana("player") then
 			if HasAPEffectsSpellPower() then
 				self.tooltip2 = STAT_NO_BENEFIT_TOOLTIP;
 			else
@@ -306,9 +296,9 @@ function UpdateFunc:Damage()
 
 	-- remove decimal points for display values
 	local displayMin = max(floor(minDamage),1);
-	local displayMinLarge = displayMin	--BreakUpLargeNumbers(displayMin);
+	local displayMinLarge = displayMin; --BreakUpLargeNumbers(displayMin)
 	local displayMax = max(ceil(maxDamage),1);
-	local displayMaxLarge = displayMax	--BreakUpLargeNumbers(displayMax);
+	local displayMaxLarge = displayMax; --BreakUpLargeNumbers(displayMax)
 
 	-- calculate base damage
 	if percent == 0 then return; end;
@@ -761,8 +751,7 @@ function UpdateFunc:Versatility()
 		self.tooltip4 = {format(NARCI_VERSATILITY_TOOLTIP_FORMAT_2, BreakUpLargeNumbers(versatility), versatilityDamageBonus, versatilityDamageTakenReduction) , floor( (versatility / versatilityDamageBonus) * 100 + 0.5) / 100 .. " [+1%/0.5%]"};
 	end
 
-	local percentageText = format(DIGITS, versatilityDamageBonus).."%";
-	self:SetLabelAndValue(STAT_VERSATILITY, percentageText);
+	self:SetLabelAndValue(STAT_VERSATILITY, FormatPercent(versatilityDamageBonus));
 end
 
 function UpdateFunc:Leech()
@@ -771,8 +760,7 @@ function UpdateFunc:Leech()
 	self.tooltip = "|cffffffff" .. STAT_LIFESTEAL .. " " .. FormatPercent(lifesteal) .. "|r";
 	self.tooltip2 = format(CR_LIFESTEAL_TOOLTIP, BreakUpLargeNumbers(GetCombatRating(CR_LIFESTEAL)), GetCombatRatingBonus(CR_LIFESTEAL));
 
-	local PercentageText = format(DIGITS, lifesteal).."%";
-	self:SetLabelAndValue(STAT_LIFESTEAL, PercentageText, canaccessvalue(lifesteal) and lifesteal == 0);
+	self:SetLabelAndValue(STAT_LIFESTEAL, FormatPercent(lifesteal), canaccessvalue(lifesteal) and lifesteal == 0);
 end
 
 function UpdateFunc:Avoidance()
@@ -781,8 +769,7 @@ function UpdateFunc:Avoidance()
 	self.tooltip = "|cffffffff" .. STAT_AVOIDANCE .. " " .. FormatPercent(avoidance) .. "|r";
 	self.tooltip2 = format(CR_AVOIDANCE_TOOLTIP, BreakUpLargeNumbers(GetCombatRating(CR_AVOIDANCE)), GetCombatRatingBonus(CR_AVOIDANCE));
 
-	local PercentageText = format(DIGITS, avoidance).."%";
-	self:SetLabelAndValue(STAT_AVOIDANCE, PercentageText, canaccessvalue(avoidance) and avoidance == 0);
+	self:SetLabelAndValue(STAT_AVOIDANCE, FormatPercent(avoidance), canaccessvalue(avoidance) and avoidance == 0);
 end
 
 function UpdateFunc:Speed()
@@ -791,8 +778,7 @@ function UpdateFunc:Speed()
 	self.tooltip = "|cffffffff" .. STAT_SPEED .. " " .. FormatPercent(speed) .. "|r";
 	self.tooltip2 = format(CR_SPEED_TOOLTIP, BreakUpLargeNumbers(GetCombatRating(CR_SPEED)), GetCombatRatingBonus(CR_SPEED));
 
-	local PercentageText = format(DIGITS, speed).."%";
-	self:SetLabelAndValue(STAT_SPEED, PercentageText, canaccessvalue(speed) and speed == 0);
+	self:SetLabelAndValue(STAT_SPEED, FormatPercent(speed), canaccessvalue(speed) and speed == 0);
 end
 
 local function MovementSpeed_OnUpdate(self, elapsed)
