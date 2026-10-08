@@ -594,8 +594,6 @@ function UpdateFunc:Regen()
 end
 
 function UpdateFunc:Crit()
-	if not Narci.refreshCombatRatings then return end;
-
 	local critChance, rating = GetEffectiveCrit();
 	local extraCritChance = GetCombatRatingBonus(rating);
 	local extraCritRating = GetCombatRating(rating);
@@ -623,7 +621,6 @@ function UpdateFunc:Crit()
 end
 
 function UpdateFunc:Haste()
-	if not Narci.refreshCombatRatings then return end;
 	local unit = "player";
 	local haste = GetHaste();
 	local rating = CR_HASTE_MELEE;
@@ -731,7 +728,6 @@ local function MasteryFrame_OnEnter(self)
 end
 
 function UpdateFunc:Mastery()
-	if not Narci.refreshCombatRatings then return end;
 	self:SetScript("OnEnter", MasteryFrame_OnEnter);
 
 	local mastery = GetMasteryEffect();
@@ -740,7 +736,6 @@ function UpdateFunc:Mastery()
 end
 
 function UpdateFunc:Versatility()
-	if not Narci.refreshCombatRatings then return end;
 	local versatility = GetCombatRating(CR_VERSATILITY_DAMAGE_DONE);
 	local attackBonus = GetCombatRatingBonus(CR_VERSATILITY_DAMAGE_DONE);
 	local versaBonusAttack = GetVersatilityBonus(CR_VERSATILITY_DAMAGE_DONE);

@@ -63,7 +63,6 @@ function V:ShowAttributes()
         self.targetView = 1;
     end
 
-    Narci.refreshCombatRatings = true;
     self:SetVerticleOffset(-26);
     FadeFrame(EquipmentSetManager, 0.2, 0);
     FadeFrame(PowersFrame, 0.20, 0);
@@ -81,7 +80,6 @@ function V:ShowSets()
         self.targetView = 2;
     end
 
-    Narci.refreshCombatRatings = false;
     self:SetVerticleOffset(-26 -72);
     FadeFrame(PowersFrame, 0.20, 0);
     FadeFrame(EquipmentSetManager, 0.15, 1);
@@ -97,7 +95,6 @@ function V:ShowChallenge()
         self.targetView = 4;
     end
 
-    Narci.refreshCombatRatings = true;
     self:SetVerticleOffset(-24 -72 -2);
     FadeFrame(EquipmentSetManager, 0.20, 0);
     FadeFrame(PowersFrame, 0.20, 0);

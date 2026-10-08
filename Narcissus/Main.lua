@@ -12,8 +12,6 @@ local CallbackRegistry = addon.CallbackRegistry;
 local SharedBlackScreen = addon.SharedBlackScreen;
 local StatSheetController = addon.StatSheetController; ---@type StatSheetController
 
-Narci.refreshCombatRatings = true;
-
 local SLOT_TABLE = Narci.slotTable;
 local SetEquipmentSlotFlag = addon.SetEquipmentSlotFlag;
 
@@ -1052,7 +1050,6 @@ function Narci_Open()
 			end);
 		end);
 
-		Narci.refreshCombatRatings = true;
 		Narci.isActive = true;
 		CallbackRegistry:Trigger("NarcissusCharacterUI.ShownState", true);
 	else
