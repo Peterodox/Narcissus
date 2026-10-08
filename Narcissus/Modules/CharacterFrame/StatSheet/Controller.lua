@@ -63,3 +63,23 @@ function StatSheetController:ShowDetailedStats(state)
     end
     self:SetRadarChartShown(state);
 end
+
+function StatSheetController:ShowStatSheet()
+    StatSheetController:ShowDetailedStats(NarcissusDB and NarcissusDB.DetailedIlvlInfo);
+end
+
+---When switching to "ShowChallenge" from NavBar, hide all sheets include RadarChartFrame
+function StatSheetController:HideStatSheet()
+    for  _, statFrame in ipairs(self.frames) do
+        statFrame:Hide();
+    end
+    self:SetRadarChartShown(false);
+end
+
+--When switching to "ShowSets" (Equipment Set Manager), show RadarChartFrame and hide other frames
+function StatSheetController:ShowRadarChartOnly()
+    for  _, statFrame in ipairs(self.frames) do
+        statFrame:Hide();
+    end
+    self:SetRadarChartShown(true);
+end

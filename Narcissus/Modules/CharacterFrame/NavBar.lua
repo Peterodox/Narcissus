@@ -1,4 +1,5 @@
 local _, addon = ...
+local StatSheetController = addon.StatSheetController; ---@type StatSheetController
 
 local MAX_CONDUITS = NarciConstants.Soulbinds.MaxRow or 8 --12;
 
@@ -16,9 +17,6 @@ local NavigationBar, ProgressTimer;
 
 local EquipmentSetManager = Narci_EquipmentSetManagerFrame;
 local PowersFrame = Narci_PowersFrame;
-local DetailedStats = Narci_DetailedStatFrame;
-local ConciseStats = Narci_ConciseStatFrame;
-local Radar = Narci_RadarChartFrame;
 local ChallengeUI = Narci_CompetitiveDisplay;
 
 local RepositionFrame = CreateFrame("Frame", nil, nil, "NarciUpdateFrameTemplate");
@@ -70,16 +68,8 @@ function V:ShowAttributes()
     FadeFrame(EquipmentSetManager, 0.2, 0);
     FadeFrame(PowersFrame, 0.20, 0);
     FadeFrame(ChallengeUI, 0.20, 0);
-    if NarcissusDB.DetailedIlvlInfo then
-        FadeFrame(DetailedStats, 0.2, 1);
-        FadeFrame(Radar, 0.2, 1);
-    else
-        FadeFrame(ConciseStats, 0.2, 1);
-        FadeFrame(Radar, 0.2, 0);
-    end
-    Radar:UpdateChart(true);
 
-    addon.StatSheetController:InstantRefresh();
+    StatSheetController:ShowStatSheet();
 
     self.hideSetsCallBack();
 end
@@ -93,12 +83,10 @@ function V:ShowSets()
 
     Narci.refreshCombatRatings = false;
     self:SetVerticleOffset(-26 -72);
-    FadeFrame(DetailedStats, 0.20, 0);
-    FadeFrame(ConciseStats, 0.20, 0);
     FadeFrame(PowersFrame, 0.20, 0);
     FadeFrame(EquipmentSetManager, 0.15, 1);
-    FadeFrame(Radar, 0.20, 1);
     FadeFrame(ChallengeUI, 0.20, 0);
+    StatSheetController:ShowRadarChartOnly();
     self.showSetsCallBack();
 end
 
@@ -111,12 +99,10 @@ function V:ShowChallenge()
 
     Narci.refreshCombatRatings = true;
     self:SetVerticleOffset(-24 -72 -2);
-    FadeFrame(DetailedStats, 0.20, 0);
-    FadeFrame(ConciseStats, 0.20, 0);
     FadeFrame(EquipmentSetManager, 0.20, 0);
     FadeFrame(PowersFrame, 0.20, 0);
-    FadeFrame(Radar, 0.20, 0);
     FadeFrame(ChallengeUI, 0.15, 1);
+    StatSheetController:HideStatSheet();
     self.hideSetsCallBack();
 end
 
