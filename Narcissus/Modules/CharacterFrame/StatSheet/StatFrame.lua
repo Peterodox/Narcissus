@@ -1,5 +1,6 @@
 local _, addon = ...
 local PrivateAPI = addon.PrivateAPI; ---@type NarcissusPrivateAPI
+local StatSheetController = addon.StatSheetController; ---@type StatSheetController
 
 
 local Schematics = {};
@@ -78,7 +79,7 @@ function StatFrameMixin:OnLoad()
     local layout = addon.IS_FOREVER and Schematics[layoutType].Forever or Schematics[layoutType].Retail;
     self:SetLayout(layout);
 
-    addon.StatSheetController:AddStatFrame(self);
+    StatSheetController:AddStatFrame(self);
 end
 
 function StatFrameMixin:SetLayout(layout)
@@ -104,7 +105,7 @@ function StatFrameMixin:SetLayout(layout)
                 local frame = CreateFrame("Frame", "Narci_RadarChartFrame", self:GetParent(), "Narci_StatsChartTemplate");
                 chartFrame = frame;
                 chartFrame:SetRow(row);
-                self.RadarChart = chartFrame;
+                StatSheetController:AssignRadarChart(frame);
 
                 if i == 1 then -- We'll never reach here since chart will never be the first widget
                     frame:SetPoint("TOP", self, "TOP", 0, 0);

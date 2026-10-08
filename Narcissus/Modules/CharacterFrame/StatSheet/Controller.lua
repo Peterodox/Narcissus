@@ -1,4 +1,6 @@
 local _, addon = ...
+local FadeFrame = NarciFadeUI.Fade;
+
 
 ---@class StatSheetController
 local StatSheetController = {};
@@ -29,9 +31,35 @@ function StatSheetController:InstantRefresh()
 end
 
 function StatSheetController:SetIntroAnimationDelay(secondsPerRow)
-    self:PropagateMethod("SetIntroAnimationDelay", secondsPerRow * 10);
+    self:PropagateMethod("SetIntroAnimationDelay", secondsPerRow);
 end
 
 function StatSheetController:PlayIntroAnimation()
     self:PropagateMethod("PlayIntroAnimation");
+end
+
+---Assign the RadarChartFrame for private access
+---RadarChart only exists on Retail
+function StatSheetController:AssignRadarChart(radarChart)
+    self.radarChart = radarChart;
+end
+
+function StatSheetController:SetRadarChartShown(state)
+    if self.radarChart then
+        self.radarChart:SetShown(state);
+    end
+end
+
+function StatSheetController:ShowDetailedStats(state)
+    if Narci_Attribute and Narci_Attribute:IsVisible() then
+        for  _, statFrame in ipairs(self.frames) do
+            statFrame:SetShown((statFrame.isDetailed and state) or (not statFrame.isDetailed and not state));
+        end
+        self:InstantRefresh();
+    else
+        for  _, statFrame in ipairs(self.frames) do
+            statFrame:SetShown((statFrame.isDetailed and state) or (not statFrame.isDetailed and not state));
+        end
+    end
+    self:SetRadarChartShown(state);
 end

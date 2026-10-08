@@ -47,7 +47,6 @@ local UIParent = _G.UIParent;
 local Toolbar = NarciScreenshotToolbar;
 local EquipmentFlyoutFrame;
 local ItemLevelFrame;
-local RadarChart;
 
 local MiniButton = Narci_MinimapButton;
 
@@ -473,14 +472,6 @@ function IntroMotion:Enter()
 end
 
 function IntroMotion:PlayAttributeAnimation()
-	if not NarcissusDB.DetailedIlvlInfo then
-		RadarChart:UpdateChart(true);
-		return
-	end
-	if not RadarChart:IsShown() then
-		return		--Attributes is not the active tab
-	end
-
 	StatSheetController:PlayIntroAnimation();
 end
 
@@ -978,11 +969,11 @@ local function ShowAttributeButton()
 	if NarcissusDB.DetailedIlvlInfo then
 		Narci_DetailedStatFrame:SetShown(true);
 		Narci_ConciseStatFrame:SetShown(false);
-		RadarChart:SetShown(true);
+		StatSheetController:SetRadarChartShown(true);
 	else
 		Narci_DetailedStatFrame:SetShown(false);
 		Narci_ConciseStatFrame:SetShown(true);
-		RadarChart:SetShown(false);
+		StatSheetController:SetRadarChartShown(false);
 	end
 
 	ItemLevelFrame:SetShown(true);
@@ -1499,8 +1490,6 @@ EL:SetScript("OnEvent",function(self, event, ...)
 
 		UpdateXmogName();
 
-		RadarChart = Narci_RadarChartFrame;
-
 		DefaultTooltip = NarciGameTooltip;
 		DefaultTooltip:SetParent(Narci_Character);
 		DefaultTooltip:SetFrameStrata("TOOLTIP");
@@ -1828,27 +1817,7 @@ do
 			state = db["DetailedIlvlInfo"];
 		end
 
-		if Narci_Attribute:IsVisible() then
-			if state then
-				FadeFrame(Narci_DetailedStatFrame, 0.5, 1);
-				FadeFrame(RadarChart, 0.5, 1);
-				FadeFrame(Narci_ConciseStatFrame, 0.5, 0);
-			else
-				FadeFrame(Narci_DetailedStatFrame, 0.5, 0);
-				FadeFrame(RadarChart, 0.5, 0);
-				FadeFrame(Narci_ConciseStatFrame, 0.5, 1);
-			end
-		else
-			if state then
-				FadeFrame(Narci_DetailedStatFrame, 0, 1);
-				FadeFrame(RadarChart, 0, 1);
-				FadeFrame(Narci_ConciseStatFrame, 0, 0);
-			else
-				FadeFrame(Narci_DetailedStatFrame, 0, 0);
-				FadeFrame(RadarChart, 0, 0);
-				FadeFrame(Narci_ConciseStatFrame, 0, 1);
-			end
-		end
+		StatSheetController:ShowDetailedStats(state);
 		Narci_ItemLevelFrame:ToggleExtraInfo(state);
 		Narci_ItemLevelFrame.showExtraInfo = state;
 		Narci_NavBar:SetMaximizedMode(state);

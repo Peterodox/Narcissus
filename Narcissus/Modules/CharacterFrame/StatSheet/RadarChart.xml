@@ -328,14 +328,10 @@
                 <Scripts>
                     <OnPlay>
                         local parent = self:GetParent();
-                        parent:SetAlpha(0);
                         C_Timer.After(0.7, function()
                             parent:UpdateChart(true);
                         end)
                     </OnPlay>
-                    <OnFinished>
-                        self:GetParent():SetAlpha(1);
-                    </OnFinished>
                 </Scripts>
             </AnimationGroup>
         </Animations>

@@ -762,7 +762,7 @@
 				</Scripts>	
 			</Frame>
 			
-			<Frame name="Narci_DetailedStatFrame" inherits="Narci_StatFrameTemplate" hidden="false" Alpha="0">
+			<Frame name="Narci_DetailedStatFrame" inherits="Narci_StatFrameTemplate" hidden="false">
 				<KeyValues>
 					<KeyValue key="isDetailed" value="true" type="boolean"/>
 				</KeyValues>
@@ -772,7 +772,7 @@
 				</Anchors>
 			</Frame>
 
-			<Frame name="Narci_ConciseStatFrame" inherits="Narci_StatFrameTemplate" hidden="true" Alpha="0">
+			<Frame name="Narci_ConciseStatFrame" inherits="Narci_StatFrameTemplate" hidden="true">
 				<KeyValues>
 					<KeyValue key="isDetailed" value="false" type="boolean"/>
 				</KeyValues>
