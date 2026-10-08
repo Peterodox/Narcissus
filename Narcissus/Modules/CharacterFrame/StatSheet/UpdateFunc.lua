@@ -268,13 +268,13 @@ local function CharacterDamageFrame_OnEnter(self)
 	else
 		DefaultTooltip:SetText(INVTYPE_WEAPONMAINHAND, HIGHLIGHT_FONT_COLOR.r, HIGHLIGHT_FONT_COLOR.g, HIGHLIGHT_FONT_COLOR.b);
 	end
-	DefaultTooltip:AddDoubleLine(format(STAT_FORMAT, ATTACK_SPEED_SECONDS), format("%.2F", self.attackSpeed), 1.00, 0.82, 0.00, 1.00, 0.82, 0.00);
+	DefaultTooltip:AddDoubleLine(format(STAT_FORMAT, ATTACK_SPEED_SECONDS), format(DIGITS, self.attackSpeed), 1.00, 0.82, 0.00, 1.00, 0.82, 0.00);
 	DefaultTooltip:AddDoubleLine(format(STAT_FORMAT, DAMAGE), self.damage, 1.00, 0.82, 0.00, 1.00, 0.82, 0.00);
 	-- Check for offhand weapon
 	if self.offhandAttackSpeed then
 		DefaultTooltip:AddLine("\n");
 		DefaultTooltip:AddLine(INVTYPE_WEAPONOFFHAND, HIGHLIGHT_FONT_COLOR.r, HIGHLIGHT_FONT_COLOR.g, HIGHLIGHT_FONT_COLOR.b);
-		DefaultTooltip:AddDoubleLine(format(STAT_FORMAT, ATTACK_SPEED_SECONDS), format("%.2F", self.offhandAttackSpeed), 1.00, 0.82, 0.00, 1.00, 0.82, 0.00);
+		DefaultTooltip:AddDoubleLine(format(STAT_FORMAT, ATTACK_SPEED_SECONDS), format(DIGITS, self.offhandAttackSpeed), 1.00, 0.82, 0.00, 1.00, 0.82, 0.00);
 		DefaultTooltip:AddDoubleLine(format(STAT_FORMAT, DAMAGE), self.offhandDamage, 1.00, 0.82, 0.00, 1.00, 0.82, 0.00);
 	end
 
@@ -391,7 +391,7 @@ function UpdateFunc:AttackSpeed()
 	local speed, offhandSpeed = UnitAttackSpeed("player");
 
 	if ClearTooltipIfSecret(self, ATTACK_SPEED, speed) then
-		self:SetLabelAndValue(ATTACK_SPEED, format("%.2f", speed));
+		self:SetLabelAndValue(ATTACK_SPEED, format(DIGITS, speed));
 		return;
 	end
 
@@ -466,17 +466,15 @@ end
 
 function UpdateFunc:Dodge()
 	local chance = GetDodgeChance();
-	local chanceText = format("%.2F", chance).."%"
-	self:SetLabelAndValue(STAT_DODGE, chanceText);
-	self.tooltip = "|cffffffff".. DODGE_CHANCE .." "..format("%.2F", chance).."%".."|r";
+	self:SetLabelAndValue(STAT_DODGE, FormatPercent(chance));
+	self.tooltip = "|cffffffff".. DODGE_CHANCE .." "..FormatPercent(chance).."|r";
 	self.tooltip2 = format(CR_DODGE_TOOLTIP, GetCombatRating(CR_DODGE), GetCombatRatingBonus(CR_DODGE));
 end
 
 function UpdateFunc:Parry()
 	local chance = GetParryChance();
-	local chanceText = format("%.2F", chance).."%"
-	self:SetLabelAndValue(STAT_PARRY, chanceText);
-	self.tooltip = "|cffffffff".. PARRY_CHANCE .." "..format("%.2F", chance).."%".."|r";
+	self:SetLabelAndValue(STAT_PARRY, FormatPercent(chance));
+	self.tooltip = "|cffffffff".. PARRY_CHANCE .." "..FormatPercent(chance).."|r";
 	self.tooltip2 = format(CR_PARRY_TOOLTIP, GetCombatRating(CR_PARRY), GetCombatRatingBonus(CR_PARRY));
 end
 
@@ -484,7 +482,7 @@ function UpdateFunc:Block()
 	local unit = "player";
 
 	local chance = GetBlockChance();
-	local chanceText = format("%.2F", chance).."%";
+	local chanceText = FormatPercent(chance);
 
 	if ClearTooltipIfSecret(self, STAT_BLOCK, chance) then
 		self:SetLabelAndValue(STAT_BLOCK, chanceText);
@@ -501,7 +499,7 @@ function UpdateFunc:Block()
 		self:SetLabelAndValue(STAT_BLOCK, N_SLASH_A, true);
 	end
 
-	self.tooltip = "|cffffffff".. BLOCK_CHANCE .." "..format("%.2F", chance).."%".."|r";
+	self.tooltip = "|cffffffff".. BLOCK_CHANCE .." "..FormatPercent(chance).."|r";
 
 	local shieldBlockArmor = GetShieldBlock();
 	local blockArmorReduction = C_PaperDollInfo.GetArmorEffectiveness(shieldBlockArmor, UnitEffectiveLevel(unit));
@@ -547,7 +545,7 @@ function UpdateFunc:Regen()
 	local powerType, powerToken = UnitPowerType("player");
 	local regenRate = GetPowerRegen();
 	local regenRateText = BreakUpLargeNumbers(regenRate);
-	local regenRatePerSec = format("%.2f", regenRate).."/s";
+	local regenRatePerSec = format(DIGITS, regenRate).."/s";
 	local labelText;
 	if powerToken == "ENERGY" then
 		labelText = STAT_ENERGY_REGEN;
@@ -668,7 +666,7 @@ local function MasteryFrame_OnEnter(self)
 
 	local title = "|cffffffff"..STAT_MASTERY.." "..FormatPercent(mastery).."|r";
 	if (masteryBonus > 0) then
-		title = title.."|cffffffff".." ("..format("%.2F%%", mastery-masteryBonus).."|r"..GREEN_FONT_COLOR_CODE.."+"..FormatPercent(masteryBonus).."|r".."|cffffffff"..")".."|r";
+		title = title.."|cffffffff".." ("..FormatPercent(mastery - masteryBonus).."|r"..GREEN_FONT_COLOR_CODE.."+"..FormatPercent(masteryBonus).."|r".."|cffffffff"..")".."|r";
 	end
 	DefaultTooltip:SetText(title);
 
