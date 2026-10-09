@@ -63,6 +63,7 @@ local DynamicUnitEvents = {
     UNIT_ATTACK_SPEED = "AttackSpeed",
     UNIT_DAMAGE = "Damage",
     UNIT_MAXHEALTH = "Health",
+    UNIT_MAXPOWER = "Power",
 };
 
 
