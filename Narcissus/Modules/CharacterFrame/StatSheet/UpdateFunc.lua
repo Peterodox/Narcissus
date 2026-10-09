@@ -3,7 +3,6 @@ local _, addon = ...
 local Narci = Narci;
 local L = Narci.L;
 local BreakUpLargeNumbers = BreakUpLargeNumbers;
-local GetPrimaryStats = NarciAPI.GetPrimaryStats;
 local SplitTooltipByLineBreak = NarciAPI.SplitTooltipByLineBreak;
 local TransitionAPI = addon.TransitionAPI;
 
@@ -250,14 +249,13 @@ local function SetupPrimaryStat(self, statIndex, playerPrimaryStatIndex)
 end
 
 function UpdateFunc:Primary()
-	local primaryStatsName, primaryStatsValue = GetPrimaryStats();
-	self:SetLabelAndValue(primaryStatsName, primaryStatsValue);
-
-	local spec = GetSpecialization();
-	if not spec then return; end
-
+	local spec = GetSpecialization() or 1;
 	local _, _, _, _, _, primaryStat = C_SpecializationInfo.GetSpecializationInfo(spec);
-	if type(primaryStat) ~= "number" then return; end
+
+	if type(primaryStat) ~= "number" then
+		self:SetLabelAndValue(L["Primary Stat"], N_SLASH_A, true);
+		return;
+	end
 
 	SetupPrimaryStat(self, primaryStat, primaryStat);
 end
@@ -880,10 +878,8 @@ local function MovementSpeed_OnEnter(self)
 end
 
 function UpdateFunc:MovementSpeed()
-	local unit = "player";
-
 	self.wasSwimming = nil;
-	self.unit = unit;
+	self.unit = "player";
 	self.t = 0;
 	self.Label:SetText(L["Movement Speed"]);		--STAT_MOVEMENT_SPEED
 	MovementSpeed_OnUpdate(self, 1);
