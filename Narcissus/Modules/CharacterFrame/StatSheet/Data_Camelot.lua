@@ -46,9 +46,7 @@ local StatSheetLayout = {
 addon.StatSheetLayout = StatSheetLayout;
 
 
----@class StatTooltipFunc
-local StatTooltipFunc = {};
-addon.StatTooltipFunc = StatTooltipFunc;
+local StatTooltipFunc = addon.StatTooltipFunc; ---@class StatTooltipFunc
 
 function StatTooltipFunc:Spirit()
     local desc;

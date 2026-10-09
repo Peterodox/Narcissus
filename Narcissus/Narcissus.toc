@@ -57,9 +57,12 @@ Modules\GameTooltip\GameTooltip.xml
 Modules\CharacterFrame\ItemCooldown.xml
 Modules\CharacterFrame\ItemAlertOverlay.xml
 Modules\CharacterFrame\EquipmentSlot.xml
-Modules\CharacterFrame\StatSheet\Data_Standard.lua [ExcludeLoadGameType camelot]
+
+# Always load "Data_Standard.lua". Expansion-dependent data will be automatically overwritten by "AllowLoadGameType"
+Modules\CharacterFrame\StatSheet\Data_Standard.lua
 Modules\CharacterFrame\StatSheet\Data_Camelot.lua [AllowLoadGameType camelot]
 Modules\CharacterFrame\StatSheet\StatSheet.xml
+
 Modules\MsgAlert\Alert.xml
 Modules\ScreenshotTool\ScreenshotTool.xml
 Modules\MinimapButton\MinimapButton.xml
