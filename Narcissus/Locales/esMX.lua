@@ -368,9 +368,6 @@ L["Other Last Name Format"] = "Otro(s) "..NARCI_COLOR_GREY_70.."%s(s)|r:\n";
 L["Too Many Matches Format"] = "\nMás de %s coincidencias.";
 
 --Solución de Problemas con Minúsculas o Abreviaturas--
-NARCI_STAT_STRENGTH = SPEC_FRAME_PRIMARY_STAT_STRENGTH;
-NARCI_STAT_AGILITY = SPEC_FRAME_PRIMARY_STAT_AGILITY;
-NARCI_STAT_INTELLECT = SPEC_FRAME_PRIMARY_STAT_INTELLECT;
 NARCI_CRITICAL_STRIKE = STAT_CRITICAL_STRIKE;
 
 

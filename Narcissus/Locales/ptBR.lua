@@ -358,9 +358,6 @@ L["Other Last Name Format"] = "Outro "..NARCI_COLOR_GREY_70.."%s(s)|r:\n";
 L["Too Many Matches Format"] = "\nMais de %s combinações.";
 
 --Resolvendo problemas de letras minúsculas ou abreviações
-NARCI_STAT_STRENGTH = SPEC_FRAME_PRIMARY_STAT_STRENGTH;
-NARCI_STAT_AGILITY = SPEC_FRAME_PRIMARY_STAT_AGILITY;
-NARCI_STAT_INTELLECT = SPEC_FRAME_PRIMARY_STAT_INTELLECT;
 NARCI_CRITICAL_STRIKE = STAT_CRITICAL_STRIKE;
 
 

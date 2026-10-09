@@ -12,7 +12,6 @@ local floor = math.floor;
 
 local ItemCacheUtil = addon.ItemCacheUtil;
 
-local FormatLargeNumbers = NarciAPI.FormatLargeNumbers --BreakUpLargeNumbers;
 local GetItemExtraEffect = NarciAPI.GetItemExtraEffect;
 local IsItemSocketable = NarciAPI.IsItemSocketable;
 
@@ -238,7 +237,7 @@ local function DisplayComparison(key, name, number, baseNumber, ratio, CustomCol
         if name ~= STAMINA_STRING then
             Textframe.PctDiff:SetText(string.format(FORMAT_DIGIT, ratio*differentialNumber).."%");
         else
-            Textframe.PctDiff:SetText(AbbreviateNumbers(ratio*differentialNumber));    --FormatLargeNumbers
+            Textframe.PctDiff:SetText(AbbreviateNumbers(ratio * differentialNumber));
         end
     else
         Textframe.PctDiff:SetText("");
@@ -652,16 +651,11 @@ end
 
 --FlyOut Tooltip
 local function UpdateSpectIDAndPrimaryStat()
-    local PrimaryStatsList = {
-        [LE_UNIT_STAT_STRENGTH] = NARCI_STAT_STRENGTH,
-        [LE_UNIT_STAT_AGILITY] = NARCI_STAT_AGILITY,
-        [LE_UNIT_STAT_INTELLECT] = NARCI_STAT_INTELLECT,
-    };
-
     local currentSpec = C_SpecializationInfo.GetSpecialization() or 1;
     local _, primaryStatID;
     CURRENT_SPEC, _, _, _, _, primaryStatID = C_SpecializationInfo.GetSpecializationInfo(currentSpec);
-    PRIMARY_STAT_NAME = PrimaryStatsList[primaryStatID] or PRIMARY_STAT_NAME;
+    primaryStatID = primaryStatID or 1;
+    PRIMARY_STAT_NAME = _G["SPELL_STAT"..primaryStatID.."_NAME"] or PRIMARY_STAT_NAME;
 end
 
 local NT = CreateFrame("Frame");
