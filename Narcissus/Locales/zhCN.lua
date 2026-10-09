@@ -25,6 +25,7 @@ L["Last Visit"] = "上次登录：";
 L["Swap items"] = "更换装备";
 L["Movement Speed"] = "移动速度";
 L["Combat Resources"] = "战斗资源";
+L["No Talents"] = "无天赋";
 L["Damage Reduction Percentage"] = "伤害减免";
 
 L["Advanced Info"] = "点击以显示更详细的装备、属性信息";

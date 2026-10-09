@@ -95,12 +95,13 @@ function NarciTalentsMixin:UpdateAllTalents()
     local button;
 
     local talentInfo = NarciAPI.GetEndOfLineTraitInfo();
-    local numTalents = #talentInfo;
+    local totalTalent = #talentInfo;
+    local numDisplayed = totalTalent;
 
-    if numTalents < 4 then
-        numTalents = 4;
-    elseif numTalents > MAX_DISPLAYED_TALENTS then
-        numTalents = MAX_DISPLAYED_TALENTS;     --cut-off
+    if numDisplayed < 4 then
+        numDisplayed = 4;
+    elseif numDisplayed > MAX_DISPLAYED_TALENTS then
+        numDisplayed = MAX_DISPLAYED_TALENTS;     --cut-off
     end
 
     for i = 1, #buttons do
@@ -112,9 +113,9 @@ function NarciTalentsMixin:UpdateAllTalents()
     local trayWidth = navBar:GetTrayWidth();
 
     local gap = -2;     --negative value
-    local buttonWidth = (trayWidth - (numTalents - 1)*gap) / numTalents;
+    local buttonWidth = (trayWidth - (numDisplayed - 1) * gap) / numDisplayed;
 
-    for i = 1, numTalents do
+    for i = 1, numDisplayed do
         button = buttons[i];
         if not button then
             button = CreateFrame("Button", nil, self, "NarciTalentFlatButtonTemplate");
@@ -124,7 +125,7 @@ function NarciTalentsMixin:UpdateAllTalents()
         if i == 1 then
             button:UseFullMask(true, 1);
             button:SetPoint("BOTTOMLEFT", self, "BOTTOMLEFT", 0, 0);
-        elseif i == numTalents then
+        elseif i == numDisplayed then
             button:UseFullMask(true, 2);
             button:SetPoint("BOTTOMLEFT", self.talentButtons[i - 1], "BOTTOMRIGHT", gap, 0);
         else
@@ -148,6 +149,12 @@ function NarciTalentsMixin:UpdateAllTalents()
         navBar:SetPortraitTexture(specIcon, true);
     end
 
+    if totalTalent > 0 then
+        self.NoTalentsAlert:Hide();
+    else
+        self.NoTalentsAlert:Show();
+    end
+
     self.needsUpdate = nil;
 end
 
@@ -159,6 +166,7 @@ function NarciTalentsMixin:OnLoad()
     self.needsUpdate = true;
     self.OnLoad = nil;
     self:SetScript("OnLoad", nil);
+    self.NoTalentsAlert:SetText(Narci.L["No Talents"]);
 end
 
 function NarciTalentsMixin:RequestUpdate(forcedUpdate)
