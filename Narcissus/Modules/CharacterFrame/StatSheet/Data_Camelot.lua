@@ -48,8 +48,28 @@ addon.StatSheetLayout = StatSheetLayout;
 
 local StatTooltipFunc = addon.StatTooltipFunc; ---@class StatTooltipFunc
 
+---@param statToken string
+local function GetClassSpecificTooltip(statToken)
+    local _, classFileName = UnitClass("player");
+    local classStatText = _G[string.upper(classFileName).."_"..string.upper(statToken).."_TOOLTIP"];
+    if not classStatText then
+		classStatText = _G["DEFAULT".."_"..string.upper(statToken).."_".."TOOLTIP"];
+	end
+    return classStatText;
+end
+
+function StatTooltipFunc:Stamina(statIndex, effectiveStat)
+    local staminaBreak = STAMINA_BREAK or 10;
+
+    local bonus = math.min(staminaBreak, effectiveStat);
+    local perStaminaBonus = (math.max(staminaBreak, effectiveStat) - staminaBreak) * UnitHPPerStamina("player");
+    bonus = bonus + perStaminaBonus;
+
+    local classStatText = GetClassSpecificTooltip("Stamina");
+    self.tooltip2 = string.format(classStatText, tostring(bonus));
+end
+
 function StatTooltipFunc:Spirit()
-    local desc;
     local spiritStandingPenalty = 0.75;
 
     local healthRegenFromSpirit = GetHealthRegenFromSpirit() * spiritStandingPenalty; -- Assume player is standing
@@ -58,19 +78,14 @@ function StatTooltipFunc:Spirit()
     local healthRegen = GetHealthRegen();
     local manaRegen = GetManaRegen();
 
+    local classStatText = GetClassSpecificTooltip("Spirit");
     local _, classFileName = UnitClass("player");
-    local classStatText = _G[string.upper(classFileName).."_SPIRIT_TOOLTIP"];
-    if classStatText then
-        desc = classStatText;
-    end
 
     if classFileName == "WARRIOR" or classFileName == "ROGUE" then
-        desc = format(desc, healthRegenFromSpirit * 5, healthRegen * 5);
+        classStatText = format(classStatText, healthRegenFromSpirit * 5, healthRegen * 5);
     else
-        desc = format(desc, healthRegenFromSpirit * 5, manaRegenFromSpirit * 5, healthRegen * 5, manaRegen * 5);
+        classStatText = format(classStatText, healthRegenFromSpirit * 5, manaRegenFromSpirit * 5, healthRegen * 5, manaRegen * 5);
     end
 
-    desc = format("%s\n\n%s", desc, SPIRIT_STANDING_WARNING);
-
-    self.tooltip2 = desc;
+    self.tooltip2 = format("%s\n\n%s", classStatText, SPIRIT_STANDING_WARNING);
 end
