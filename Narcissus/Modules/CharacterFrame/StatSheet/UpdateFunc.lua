@@ -195,7 +195,7 @@ function UpdateFunc:Stamina()
 end
 
 function UpdateFunc:Spirit()
-	SetupPrimaryStat(self, PrimaryStatIndex.Strength);
+	SetupPrimaryStat(self, PrimaryStatIndex.Spirit);
 end
 
 local function GetAppropriateDamage(unit)

@@ -46,7 +46,7 @@ addon.StatSheetLayout = StatSheetLayout;
 
 
 local function IsPlayerTank()
-	local spec = GetSpecialization();
+	local spec = C_SpecializationInfo.GetSpecialization();
 	local role = spec and GetSpecializationRole(spec);
 	return role == "TANK";
 end
@@ -65,6 +65,8 @@ addon.StatTooltipFunc = StatTooltipFunc;
 ---@param effectiveStat number
 function StatTooltipFunc:Strength(statIndex, effectiveStat)
     local desc = _G["DEFAULT_STAT"..statIndex.."_TOOLTIP"];
+    if not desc then return; end -- DEFAULT_STAT1_TOOLTIP doesn't exist on Forever
+
     local attackPower = GetAttackPowerForStat(statIndex, effectiveStat);
 
     if HasAPEffectsSpellPower() then
