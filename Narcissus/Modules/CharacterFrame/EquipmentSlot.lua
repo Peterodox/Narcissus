@@ -244,6 +244,7 @@ do
             self.Name:Show();
             self.ItemLevel:Show();
             self.GradientBackground:Show();
+            self.showItem = true;
         else
             self.Icon:SetDesaturated(true);
             self.Icon:SetTexture(self.emptyTexture);
