@@ -781,6 +781,12 @@
 					<Anchor point="TOP" relativeKey="$parent.ItemLevelFrame" relativePoint="BOTTOM" x="0" y="-98"/>
 				</Anchors>
 			</Frame>
+
+			<Frame name="Narci_CompetitiveDisplay" inherits="Narci_MythicPlusFrameTemplate" hidden="true">
+				<Anchors>
+					<Anchor point="TOP" relativeKey="$parent.ItemLevelFrame" relativePoint="BOTTOM" x="0" y="-98"/>
+				</Anchors>
+			</Frame>
 		</Frames>
 		<Animations>
 			<AnimationGroup parentKey="animOut">

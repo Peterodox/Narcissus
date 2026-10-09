@@ -62,6 +62,7 @@ Modules\MsgAlert\Alert.xml
 Modules\ScreenshotTool\ScreenshotTool.xml
 Modules\MinimapButton\MinimapButton.xml
 Modules\TalentTree\TalentTree.xml
+Modules\Competitive\UI.xml
 
 Narcissus.xml
 SettingsFrame.xml
@@ -70,8 +71,6 @@ Modules\CharacterFrame\Powers.xml
 Modules\CharacterFrame\EquipmentComparisonFlyout.xml
 Modules\CharacterFrame\TitleManager.xml
 Modules\CharacterFrame\EquipmentSetManager.xml
-
-Modules\Competitive\UI.xml
 
 Modules\CharacterFrame\NavBar.xml
 
