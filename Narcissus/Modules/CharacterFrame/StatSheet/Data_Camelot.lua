@@ -23,11 +23,11 @@ local StatSheetLayout = {
     };
 
     Concise = {
-        "Primary",
+        "Strength",
+        "Agility",
         "Stamina",
-        "Health",
-        "Power",
-        "Regen",
+        "Intellect",
+        "Spirit",
 
         "Spacer",
 
