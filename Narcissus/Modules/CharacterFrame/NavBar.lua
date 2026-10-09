@@ -104,13 +104,17 @@ function V:ShowChallenge()
 end
 
 function V:SetTab(index)
-    if index == 2  then
+    if index == 2 then
         self:ShowSets();
     elseif index == 3 then
         self:ShowChallenge();
     else
         self:ShowAttributes();
     end
+end
+
+function V:IsViewingAttributes()
+    return (not self.targetView) or self.targetView == 1;
 end
 
 ----------------------------------------------------------------------------

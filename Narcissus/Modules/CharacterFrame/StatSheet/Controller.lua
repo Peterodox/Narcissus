@@ -56,6 +56,8 @@ function StatSheetController:SetRadarChartShown(state)
 end
 
 function StatSheetController:ShowDetailedStats(state)
+    if not NarciViewUtil:IsViewingAttributes() then return; end
+
     for  _, statFrame in ipairs(self.frames) do
         if statFrame.isDetailed then
             if state then
