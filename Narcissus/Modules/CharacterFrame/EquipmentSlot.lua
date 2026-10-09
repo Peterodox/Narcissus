@@ -250,6 +250,7 @@ do
             self.Name:SetText(nil);
             self.ItemLevel:SetText(nil);
             self.GradientBackground:Hide();
+            self.showItem = false;
             self:SetBorderTexture(self.Border, 0);
             if self.slotID == 2 then
                 self:DisplayDirectionMark(false);
