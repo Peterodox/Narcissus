@@ -97,6 +97,7 @@ end
 ------------------------------------------------------------------
 ----The following codes are derivated from PapaerDollFrame.lua----
 ------------------------------------------------------------------
+
 ---@class StatUpdateFunc
 local UpdateFunc = {};
 addon.StatUpdateFunc = UpdateFunc;
