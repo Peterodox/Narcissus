@@ -75,12 +75,24 @@ end
 
 Narci.GetEffectiveCrit = GetEffectiveCrit;
 
-local function ClearTooltipIfSecret(self, statName, value1)
-	if not canaccessvalue(value1) then
-		self.tooltip = statName;
-		self.tooltip2 = nil;
-		return true;
-	end
+
+local PrimaryStatIndex = {
+	Strength = LE_UNIT_STAT_STRENGTH or 1,
+	Agility = LE_UNIT_STAT_AGILITY or 2,
+	Stamina = LE_UNIT_STAT_STAMINA or 3,
+	Intellect = LE_UNIT_STAT_INTELLECT or 4,
+	Spirit = LE_UNIT_STAT_SPIRIT or 5,
+};
+
+local function UnitHasMana()
+	local powerType = UnitPowerType("player");
+	return powerType == 0;
+end
+
+local function IsPlayerTank()
+	local spec = GetSpecialization();
+	local role = spec and GetSpecializationRole(spec);
+	return role == "TANK";
 end
 
 ------------------------------------------------------------------
@@ -90,165 +102,184 @@ end
 local UpdateFunc = {};
 addon.StatUpdateFunc = UpdateFunc;
 
-local function UnitHasMana()
-	local powerType = UnitPowerType("player");
-	return powerType == 0;
+
+---@param self any StatButton
+local function ClearTooltipIfSecret(self, statName, value1)
+	if not canaccessvalue(value1) then
+		self.tooltip = statName;
+		self.tooltip2 = nil;
+		return true;
+	end
+end
+
+---Set up a StatButton
+---@param self any StatButton
+---@param statIndex number The stat you want to display
+---@param playerPrimaryStatIndex number? Player's supposed primaryStatIndex. Always nil on non-Retail.
+local function SetupPrimaryStat(self, statIndex, playerPrimaryStatIndex)
+	local unit = "player";
+	local stat, effectiveStat, posBuff, negBuff = UnitStat(unit, statIndex);
+	local statName = _G["SPELL_STAT"..statIndex.."_NAME"];
+
+	if ClearTooltipIfSecret(self, statName, posBuff) then
+		self:SetLabelAndValue(statName, effectiveStat);
+		return;
+	end
+
+	local effectiveStatDisplay = BreakUpLargeNumbers(effectiveStat);
+	self:SetLabelAndValue(statName, effectiveStatDisplay);
+
+	local tooltipTitle = "|cffffffff".. statName .." ";
+
+	if posBuff == 0 and negBuff == 0 then
+		tooltipTitle = tooltipTitle..effectiveStatDisplay.."|r";
+	else
+		tooltipTitle = tooltipTitle..effectiveStatDisplay;
+		if posBuff > 0 or negBuff < 0 then
+			tooltipTitle = tooltipTitle.." ("..BreakUpLargeNumbers(stat - posBuff - negBuff).."|r";
+		end
+		if posBuff > 0 then
+			tooltipTitle = tooltipTitle.."|r"..GREEN_FONT_COLOR_CODE.."+"..BreakUpLargeNumbers(posBuff).."|r";
+		end
+		if negBuff < 0 then
+			tooltipTitle = tooltipTitle..RED_FONT_COLOR_CODE.." "..BreakUpLargeNumbers(negBuff).."|r";
+		end
+		if posBuff > 0 or negBuff < 0 then
+			tooltipTitle = tooltipTitle.."|cffffffff"..")".."|r";
+		end
+
+		-- If there are any negative buffs then show the main number in red even if there are
+		-- positive buffs. Otherwise show in green.
+		if negBuff < 0 and not (GetPVPGearStatRules and GetPVPGearStatRules()) then
+			effectiveStatDisplay = RED_FONT_COLOR_CODE..effectiveStatDisplay.."|r";
+		end
+	end
+
+	self.tooltip = tooltipTitle;
+
+	local desc = _G["DEFAULT_STAT"..statIndex.."_TOOLTIP"];
+	local primaryStatMatched = (not playerPrimaryStatIndex) or statIndex == playerPrimaryStatIndex;
+	local statHasNoBenefit;
+
+	if statIndex == PrimaryStatIndex.Strength then
+		local attackPower = GetAttackPowerForStat(statIndex, effectiveStat);
+		if HasAPEffectsSpellPower() then
+			desc = STAT_TOOLTIP_BONUS_AP_SP;
+		end
+		if primaryStatMatched then
+			desc = format(desc, BreakUpLargeNumbers(attackPower));
+			if IsPlayerTank() then
+				local increasedParryChance = GetParryChanceFromAttribute();
+				if increasedParryChance > 0 then
+					desc = format("%s\n\n%s", desc, format(CR_PARRY_BASE_STAT_TOOLTIP, increasedParryChance));
+				end
+			end
+		else
+			statHasNoBenefit = true;
+		end
+	elseif statIndex == PrimaryStatIndex.Agility then
+		local attackPower = GetAttackPowerForStat(statIndex, effectiveStat);
+		desc = STAT_TOOLTIP_BONUS_AP;
+		if HasAPEffectsSpellPower() then
+			desc = STAT_TOOLTIP_BONUS_AP_SP;
+		end
+		if primaryStatMatched then
+			desc = format(desc, BreakUpLargeNumbers(attackPower));
+			if IsPlayerTank() then
+				local increasedDodgeChance = GetDodgeChanceFromAttribute();
+				if increasedDodgeChance > 0 then
+					desc = format("%s\n\n%s", desc, format(CR_DODGE_BASE_STAT_TOOLTIP, increasedDodgeChance));
+				end
+			end
+		else
+			statHasNoBenefit = true;
+		end
+	elseif statIndex == PrimaryStatIndex.Intellect then
+		if UnitHasMana() then
+			if HasAPEffectsSpellPower() then
+				desc = STAT_NO_BENEFIT_TOOLTIP;
+			else
+				local result = HasSPEffectsAttackPower();
+				if result then
+					desc = format(STAT_TOOLTIP_BONUS_AP_SP, max(0, effectiveStat));
+				elseif primaryStatMatched then
+					desc = format(desc, max(0, effectiveStat));
+				else
+					statHasNoBenefit = true;
+				end
+			end
+		else
+			statHasNoBenefit = true;
+		end
+	elseif statIndex == PrimaryStatIndex.Stamina then
+		local staminaBonusText = TransitionAPI.Secret_Multiply(effectiveStat, UnitHPPerStamina("player"), GetUnitMaxHealthModifier("player"));
+		if staminaBonusText then
+			desc = format(desc, BreakUpLargeNumbers(staminaBonusText));
+		else
+			desc = nil;
+		end
+	elseif statIndex == PrimaryStatIndex.Spirit then
+		local spiritStandingPenalty = 0.75;
+
+		local healthRegenFromSpirit = GetHealthRegenFromSpirit() * spiritStandingPenalty; -- Assume player is standing
+		local manaRegenFromSpirit = GetManaRegenFromSpirit();
+
+		local healthRegen = GetHealthRegen();
+		local manaRegen = GetManaRegen();
+
+		local _, classFileName = UnitClass("player");
+		local classStatText = _G[strupper(classFileName).."_SPIRIT_TOOLTIP"];
+		if classStatText then
+			desc = classStatText;
+		end
+
+		if classFileName == "WARRIOR" or classFileName == "ROGUE" then
+			desc = format(desc, healthRegenFromSpirit * 5, healthRegen * 5);
+		else
+			desc = format(desc, healthRegenFromSpirit * 5, manaRegenFromSpirit * 5, healthRegen * 5, manaRegen * 5);
+		end
+
+		desc = format("%s\n\n%s", desc, SPIRIT_STANDING_WARNING);
+	end
+
+	if statHasNoBenefit then
+		desc = STAT_NO_BENEFIT_TOOLTIP;
+	end
+
+	self.tooltip2 = desc;
 end
 
 function UpdateFunc:Primary()
-	local unit = "player";
 	local primaryStatsName, primaryStatsValue = GetPrimaryStats();
 	self:SetLabelAndValue(primaryStatsName, primaryStatsValue);
 
 	local spec = GetSpecialization();
 	if not spec then return; end
 
-	local role = GetSpecializationRole(spec);
 	local _, _, _, _, _, primaryStat = C_SpecializationInfo.GetSpecializationInfo(spec);
-	if type(primaryStat) ~= "number" then return; end		--sometimes changing zones cause Lua error
+	if type(primaryStat) ~= "number" then return; end
 
-	local stat, effectiveStat, posBuff, negBuff = UnitStat(unit, primaryStat);
+	SetupPrimaryStat(self, primaryStat, primaryStat);
+end
 
-	if ClearTooltipIfSecret(self, primaryStatsName, posBuff) then
-		return;
-	end
+function UpdateFunc:Strength()
+	SetupPrimaryStat(self, PrimaryStatIndex.Strength);
+end
 
-	local effectiveStatDisplay = BreakUpLargeNumbers(effectiveStat);
+function UpdateFunc:Agility()
+	SetupPrimaryStat(self, PrimaryStatIndex.Agility);
+end
 
-	-- Set the tooltip text
-	local statName = _G["SPELL_STAT"..primaryStat.."_NAME"];
-	local tooltipText = "|cffffffff".. statName .." ";
-
-	if posBuff == 0 and negBuff == 0 then
-		self.tooltip = tooltipText..effectiveStatDisplay.."|r";
-	else
-		tooltipText = tooltipText..effectiveStatDisplay;
-		if posBuff > 0 or negBuff < 0 then
-			tooltipText = tooltipText.." ("..BreakUpLargeNumbers(stat - posBuff - negBuff).."|r";
-		end
-		if posBuff > 0 then
-			tooltipText = tooltipText.."|r"..GREEN_FONT_COLOR_CODE.."+"..BreakUpLargeNumbers(posBuff).."|r";
-		end
-		if negBuff < 0 then
-			tooltipText = tooltipText..RED_FONT_COLOR_CODE.." "..BreakUpLargeNumbers(negBuff).."|r";
-		end
-		if posBuff > 0 or negBuff < 0 then
-			tooltipText = tooltipText.."|cffffffff"..")".."|r";
-		end
-		self.tooltip = tooltipText;
-
-		-- If there are any negative buffs then show the main number in red even if there are
-		-- positive buffs. Otherwise show in green.
-		if negBuff < 0 and not GetPVPGearStatRules() then
-			effectiveStatDisplay = RED_FONT_COLOR_CODE..effectiveStatDisplay.."|r";
-		end
-	end
-
-	self.tooltip2 = _G["DEFAULT_STAT"..primaryStat.."_TOOLTIP"];
-
-	if primaryStat == LE_UNIT_STAT_AGILITY then
-		local attackPower = GetAttackPowerForStat(primaryStat, effectiveStat);
-		local tooltip = STAT_TOOLTIP_BONUS_AP;
-		if HasAPEffectsSpellPower() then
-			tooltip = STAT_TOOLTIP_BONUS_AP_SP;
-		end
-		if (not primaryStat or primaryStat == LE_UNIT_STAT_AGILITY) then
-			self.tooltip2 = format(tooltip, BreakUpLargeNumbers(attackPower));
-			if role == "TANK" then
-				local increasedDodgeChance = GetDodgeChanceFromAttribute();
-				if increasedDodgeChance > 0 then
-					self.tooltip2 = self.tooltip2.."|n|n"..format(CR_DODGE_BASE_STAT_TOOLTIP, increasedDodgeChance);
-				end
-			end
-		else
-			self.tooltip2 = STAT_NO_BENEFIT_TOOLTIP;
-		end
-
-	elseif primaryStat == LE_UNIT_STAT_STRENGTH then
-		local attackPower = GetAttackPowerForStat(primaryStat,effectiveStat);
-		if HasAPEffectsSpellPower() then
-			self.tooltip2 = STAT_TOOLTIP_BONUS_AP_SP;
-		end
-		if (not primaryStat or primaryStat == LE_UNIT_STAT_STRENGTH) then
-			self.tooltip2 = format(self.tooltip2, BreakUpLargeNumbers(attackPower));
-			if role == "TANK" then
-				local increasedParryChance = GetParryChanceFromAttribute();
-				if increasedParryChance > 0 then
-					self.tooltip2 = self.tooltip2.."|n|n"..format(CR_PARRY_BASE_STAT_TOOLTIP, increasedParryChance);
-				end
-			end
-		else
-			self.tooltip2 = STAT_NO_BENEFIT_TOOLTIP;
-		end
-
-	elseif primaryStat == LE_UNIT_STAT_INTELLECT then
-		if UnitHasMana("player") then
-			if HasAPEffectsSpellPower() then
-				self.tooltip2 = STAT_NO_BENEFIT_TOOLTIP;
-			else
-				local result, druid = HasSPEffectsAttackPower();
-				if result and druid then
-					self.tooltip2 = format(STAT_TOOLTIP_SP_AP_DRUID, max(0, effectiveStat), max(0, effectiveStat));
-				elseif result then
-					self.tooltip2 = format(STAT_TOOLTIP_BONUS_AP_SP, max(0, effectiveStat));
-				elseif (not primaryStat or primaryStat == LE_UNIT_STAT_INTELLECT) then
-					self.tooltip2 = format(self.tooltip2, max(0, effectiveStat));
-				else
-					self.tooltip2 = STAT_NO_BENEFIT_TOOLTIP;
-				end
-			end
-		else
-			self.tooltip2 = STAT_NO_BENEFIT_TOOLTIP;
-		end
-	end
+function UpdateFunc:Intellect()
+	SetupPrimaryStat(self, PrimaryStatIndex.Intellect);
 end
 
 function UpdateFunc:Stamina()
-	local statIndex = LE_UNIT_STAT_STAMINA;
-	local stat, effectiveStat, posBuff, negBuff = UnitStat("player", statIndex);
+	SetupPrimaryStat(self, PrimaryStatIndex.Stamina);
+end
 
-	local effectiveStatDisplay = BreakUpLargeNumbers(effectiveStat);
-	local statName = _G["SPELL_STAT"..statIndex.."_NAME"];
-	local tooltipText = "|cffffffff".. statName .." ";
-
-	self:SetLabelAndValue(statName, effectiveStat);
-
-	if ClearTooltipIfSecret(self, statName, posBuff) then
-		return;
-	end
-
-	if posBuff == 0 and negBuff == 0 then
-		self.tooltip = tooltipText..effectiveStatDisplay.."|r";
-	else
-		tooltipText = tooltipText..effectiveStatDisplay;
-		if posBuff > 0 or negBuff < 0 then
-			tooltipText = tooltipText.." ("..BreakUpLargeNumbers(stat - posBuff - negBuff).."|r";
-		end
-		if posBuff > 0 then
-			tooltipText = tooltipText.."|r"..GREEN_FONT_COLOR_CODE.."+"..BreakUpLargeNumbers(posBuff).."|r";
-		end
-		if negBuff < 0 then
-			tooltipText = tooltipText..RED_FONT_COLOR_CODE.." "..BreakUpLargeNumbers(negBuff).."|r";
-		end
-		if posBuff > 0 or negBuff < 0 then
-			tooltipText = tooltipText.."|cffffffff"..")".."|r";
-		end
-		self.tooltip = tooltipText;
-
-		-- If there are any negative buffs then show the main number in red even if there are
-		-- positive buffs. Otherwise show in green.
-		if negBuff < 0 and not GetPVPGearStatRules() then
-			effectiveStatDisplay = RED_FONT_COLOR_CODE..effectiveStatDisplay.."|r";
-		end
-	end
-
-	local staminaBonusText = TransitionAPI.Secret_Multiply(effectiveStat, UnitHPPerStamina("player"), GetUnitMaxHealthModifier("player"));
-	if staminaBonusText then
-		local textFormat = _G["DEFAULT_STAT"..statIndex.."_TOOLTIP"];
-		self.tooltip2 = format(textFormat, BreakUpLargeNumbers(staminaBonusText));
-	else
-		self.tooltip2 = nil;
-	end
+function UpdateFunc:Spirit()
+	SetupPrimaryStat(self, PrimaryStatIndex.Strength);
 end
 
 local function GetAppropriateDamage(unit)
@@ -489,11 +520,7 @@ function UpdateFunc:Block()
 		return;
 	end
 
-	local spec = GetSpecialization();
-	if not spec then return; end
-
-	--local role = GetSpecializationRole(spec);
-	if chance ~= 0 and C_PaperDollInfo.OffhandHasShield() then		--role == "TANK"
+	if chance ~= 0 and C_PaperDollInfo.OffhandHasShield() then
 		self:SetLabelAndValue(STAT_BLOCK, chanceText);
 	else
 		self:SetLabelAndValue(STAT_BLOCK, N_SLASH_A, true);
