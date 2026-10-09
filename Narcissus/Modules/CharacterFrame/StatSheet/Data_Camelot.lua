@@ -3,6 +3,8 @@ local _, addon = ...
 -- 12.1.0 client doesn't recognize [AllowLoadGameType camelot] so this file is still loaded.
 if not addon.IS_FOREVER then return; end
 
+local format = string.format;
+
 
 ---@class StatSheetLayout
 local StatSheetLayout = {
@@ -43,3 +45,34 @@ local StatSheetLayout = {
 };
 addon.StatSheetLayout = StatSheetLayout;
 
+
+---@class StatTooltipFunc
+local StatTooltipFunc = {};
+addon.StatTooltipFunc = StatTooltipFunc;
+
+function StatTooltipFunc:Spirit()
+    local desc;
+    local spiritStandingPenalty = 0.75;
+
+    local healthRegenFromSpirit = GetHealthRegenFromSpirit() * spiritStandingPenalty; -- Assume player is standing
+    local manaRegenFromSpirit = GetManaRegenFromSpirit();
+
+    local healthRegen = GetHealthRegen();
+    local manaRegen = GetManaRegen();
+
+    local _, classFileName = UnitClass("player");
+    local classStatText = _G[string.upper(classFileName).."_SPIRIT_TOOLTIP"];
+    if classStatText then
+        desc = classStatText;
+    end
+
+    if classFileName == "WARRIOR" or classFileName == "ROGUE" then
+        desc = format(desc, healthRegenFromSpirit * 5, healthRegen * 5);
+    else
+        desc = format(desc, healthRegenFromSpirit * 5, manaRegenFromSpirit * 5, healthRegen * 5, manaRegen * 5);
+    end
+
+    desc = format("%s\n\n%s", desc, SPIRIT_STANDING_WARNING);
+
+    self.tooltip2 = desc;
+end

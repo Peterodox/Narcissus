@@ -4,7 +4,7 @@ local Narci = Narci;
 local L = Narci.L;
 local BreakUpLargeNumbers = BreakUpLargeNumbers;
 local SplitTooltipByLineBreak = NarciAPI.SplitTooltipByLineBreak;
-local TransitionAPI = addon.TransitionAPI;
+local StatTooltipFunc = addon.StatTooltipFunc or {}; ---@type StatTooltipFunc
 
 local format = string.format;
 local floor = math.floor;
@@ -83,16 +83,6 @@ local PrimaryStatIndex = {
 	Spirit = LE_UNIT_STAT_SPIRIT or 5,
 };
 
-local function UnitHasMana()
-	local powerType = UnitPowerType("player");
-	return powerType == 0;
-end
-
-local function IsPlayerTank()
-	local spec = GetSpecialization();
-	local role = spec and GetSpecializationRole(spec);
-	return role == "TANK";
-end
 
 ------------------------------------------------------------------
 ----The following codes are derivated from PapaerDollFrame.lua----
@@ -112,11 +102,16 @@ local function ClearTooltipIfSecret(self, statName, value1)
 	end
 end
 
+local function SetupStatTooltip(self, token, ...)
+	if StatTooltipFunc[token] then
+		StatTooltipFunc[token](self, ...);
+	end
+end
+
 ---Set up a StatButton
 ---@param self any StatButton
 ---@param statIndex number The stat you want to display
----@param playerPrimaryStatIndex number? Player's supposed primaryStatIndex. Always nil on non-Retail.
-local function SetupPrimaryStat(self, statIndex, playerPrimaryStatIndex)
+local function SetupPrimaryStat(self, statIndex)
 	local unit = "player";
 	local stat, effectiveStat, posBuff, negBuff = UnitStat(unit, statIndex);
 	local statName = _G["SPELL_STAT"..statIndex.."_NAME"];
@@ -156,97 +151,19 @@ local function SetupPrimaryStat(self, statIndex, playerPrimaryStatIndex)
 	end
 
 	self.tooltip = tooltipTitle;
-
-	local desc = _G["DEFAULT_STAT"..statIndex.."_TOOLTIP"];
-	local primaryStatMatched = (not playerPrimaryStatIndex) or statIndex == playerPrimaryStatIndex;
-	local statHasNoBenefit;
+	self.tooltip2 = nil;
 
 	if statIndex == PrimaryStatIndex.Strength then
-		local attackPower = GetAttackPowerForStat(statIndex, effectiveStat);
-		if HasAPEffectsSpellPower() then
-			desc = STAT_TOOLTIP_BONUS_AP_SP;
-		end
-		if primaryStatMatched then
-			desc = format(desc, BreakUpLargeNumbers(attackPower));
-			if IsPlayerTank() then
-				local increasedParryChance = GetParryChanceFromAttribute();
-				if increasedParryChance > 0 then
-					desc = format("%s\n\n%s", desc, format(CR_PARRY_BASE_STAT_TOOLTIP, increasedParryChance));
-				end
-			end
-		else
-			statHasNoBenefit = true;
-		end
+		SetupStatTooltip(self, "Strength", statIndex, effectiveStat);
 	elseif statIndex == PrimaryStatIndex.Agility then
-		local attackPower = GetAttackPowerForStat(statIndex, effectiveStat);
-		desc = STAT_TOOLTIP_BONUS_AP;
-		if HasAPEffectsSpellPower() then
-			desc = STAT_TOOLTIP_BONUS_AP_SP;
-		end
-		if primaryStatMatched then
-			desc = format(desc, BreakUpLargeNumbers(attackPower));
-			if IsPlayerTank() then
-				local increasedDodgeChance = GetDodgeChanceFromAttribute();
-				if increasedDodgeChance > 0 then
-					desc = format("%s\n\n%s", desc, format(CR_DODGE_BASE_STAT_TOOLTIP, increasedDodgeChance));
-				end
-			end
-		else
-			statHasNoBenefit = true;
-		end
+		SetupStatTooltip(self, "Agility", statIndex, effectiveStat);
 	elseif statIndex == PrimaryStatIndex.Intellect then
-		if UnitHasMana() then
-			if HasAPEffectsSpellPower() then
-				desc = STAT_NO_BENEFIT_TOOLTIP;
-			else
-				local result = HasSPEffectsAttackPower();
-				if result then
-					desc = format(STAT_TOOLTIP_BONUS_AP_SP, max(0, effectiveStat));
-				elseif primaryStatMatched then
-					desc = format(desc, max(0, effectiveStat));
-				else
-					statHasNoBenefit = true;
-				end
-			end
-		else
-			statHasNoBenefit = true;
-		end
+		SetupStatTooltip(self, "Intellect", statIndex, effectiveStat);
 	elseif statIndex == PrimaryStatIndex.Stamina then
-		local staminaBonusText = TransitionAPI.Secret_Multiply(effectiveStat, UnitHPPerStamina("player"), GetUnitMaxHealthModifier("player"));
-		if staminaBonusText then
-			desc = format(desc, BreakUpLargeNumbers(staminaBonusText));
-		else
-			desc = nil;
-		end
+		SetupStatTooltip(self, "Stamina", statIndex, effectiveStat);
 	elseif statIndex == PrimaryStatIndex.Spirit then
-		local spiritStandingPenalty = 0.75;
-
-		local healthRegenFromSpirit = GetHealthRegenFromSpirit() * spiritStandingPenalty; -- Assume player is standing
-		local manaRegenFromSpirit = GetManaRegenFromSpirit();
-
-		local healthRegen = GetHealthRegen();
-		local manaRegen = GetManaRegen();
-
-		local _, classFileName = UnitClass("player");
-		local classStatText = _G[strupper(classFileName).."_SPIRIT_TOOLTIP"];
-		if classStatText then
-			desc = classStatText;
-		end
-
-		if classFileName == "WARRIOR" or classFileName == "ROGUE" then
-			desc = format(desc, healthRegenFromSpirit * 5, healthRegen * 5);
-		else
-			desc = format(desc, healthRegenFromSpirit * 5, manaRegenFromSpirit * 5, healthRegen * 5, manaRegen * 5);
-		end
-
-		desc = format("%s\n\n%s", desc, SPIRIT_STANDING_WARNING);
+		SetupStatTooltip(self, "Spirit");
 	end
-
-	if statHasNoBenefit then
-		desc = STAT_NO_BENEFIT_TOOLTIP;
-	end
-
-	self.tooltip2 = desc;
 end
 
 function UpdateFunc:Primary()
@@ -258,7 +175,7 @@ function UpdateFunc:Primary()
 		return;
 	end
 
-	SetupPrimaryStat(self, primaryStat, primaryStat);
+	SetupPrimaryStat(self, primaryStat);
 end
 
 function UpdateFunc:Strength()
