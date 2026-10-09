@@ -427,14 +427,8 @@
         </Scripts>
     </Button>
 
-    <Frame name="Narci_CompetitiveDisplay" mixin="NarciCompetitiveDisplayMixin" parent="Narci_Attribute" hidden="true">
-		<Size>
-			<AbsDimension x="320" y="336"/>
-		</Size>
-        <Anchors>
-            <Anchor point="CENTER"/>
-            <!--Anchor point="TOP" relativeTo="Narci_ConciseStatFrame.Primary" relativePoint="TOP" y="0"/-->
-        </Anchors>
+    <Frame name="Narci_MythicPlusFrameTemplate" mixin="NarciCompetitiveDisplayMixin" virtual="true">
+		<Size x="320" y="336"/>
         <Layers>
 			<Layer level="BACKGROUND">
 				<Texture>

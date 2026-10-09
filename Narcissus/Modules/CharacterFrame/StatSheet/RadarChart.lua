@@ -16,6 +16,8 @@ local CR_VERSATILITY_DAMAGE_DONE = CR_VERSATILITY_DAMAGE_DONE;
 NarciRadarChartMixin = {}
 
 function NarciRadarChartMixin:OnLoad()
+	self.isRadarChart = true;
+
 	local circleTex = "Interface\\AddOns\\Narcissus\\Art\\Widgets\\RadarChart\\Radar-Vertice";
 	local filter = "TRILINEAR";
 	local tex;
@@ -37,9 +39,15 @@ function NarciRadarChartMixin:OnLoad()
 	self.atan2 = math.atan2;
 	self.sqrt = math.sqrt;
 
+	self.statButtons = {self.Crit, self.Haste, self.Mastery, self.Versatility};
+
+	self:SetValue(0, 0, 0, 0);
+
 	self.onFisrtShow = function()
 		self:UpdateStatsGetter();
 	end
+
+	addon.StatSheetController:MakeFrameFadable(self);
 end
 
 function NarciRadarChartMixin:OnShow()
@@ -54,6 +62,8 @@ end
 
 function NarciRadarChartMixin:OnHide()
 	self:StopAnimating();
+	self:SnapToFadeResult();
+	self:SetValue(0, 0, 0, 0);
 end
 
 function NarciRadarChartMixin:SetVerticeSize(attributeFrame, size)
@@ -378,6 +388,28 @@ function NarciRadarChartMixin:UpdateAttributeFrames()
 		self.Primary:Update();
 		self.Health:Update();
 	end
+end
+
+--- [TODO] Don't refresh stats when equipment set manager is activated
+function NarciRadarChartMixin:Update()
+	self:UpdateChart(true);
+	self:UpdateAttributeFrames();
+end
+
+function NarciRadarChartMixin:GetStatButtons()
+	return {self.Crit, self.Haste, self.Mastery, self.Versatility};
+end
+
+function NarciRadarChartMixin:SetRow(row)
+	self.row = row;
+end
+
+function NarciRadarChartMixin:GetRow()
+	return self.row or 0;
+end
+
+function NarciRadarChartMixin:SnapToFadeResult()
+	-- Override
 end
 
 do	--Timerunning

@@ -177,7 +177,7 @@
         </Mixins>
 		<Layers>
 			<Layer level="BACKGROUND">
-				<Texture parentKey="GradientBackground">
+				<Texture parentKey="GradientBackground" hidden="true">
 					<Size x="140" y="40"/>
 					<Color r="0" g="0" b="0" a="1"/>
 					<Anchors>

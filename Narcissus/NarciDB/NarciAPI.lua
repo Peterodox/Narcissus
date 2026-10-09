@@ -1,6 +1,8 @@
 local _, addon = ...
 local TransitionAPI = addon.TransitionAPI;
 local RoundToDigit = addon.Math.RoundToDigit;
+
+---@class NarcissusPrivateAPI
 local PrivateAPI = addon.PrivateAPI;
 
 local C_Item = C_Item;
@@ -34,18 +36,6 @@ local NarciAPI = NarciAPI;
 
 local SecureContainer = CreateFrame("Frame", "NarciSecureFrameContainer");
 SecureContainer:Hide();
-
-
-local function Mixin(object, ...)
-    for i = 1, select("#", ...) do
-        local mixin = select(i, ...)
-        for k, v in pairs(mixin) do
-            object[k] = v;
-        end
-    end
-    return object
-end
-NarciAPI.Mixin = Mixin;
 
 
 --GetSlotVisualID
@@ -264,7 +254,7 @@ function NarciAPI_GetItemStatsFromSlot(slotID)
 end
 
 
-do
+do  -- Find Item in Bag
     local GetContainerNumSlots = C_Container.GetContainerNumSlots;
     local GetContainerItemID = C_Container.GetContainerItemID;
     local GetContainerItemLink = C_Container.GetContainerItemLink;
@@ -733,51 +723,6 @@ function NarciAPI_ApplySmoothScrollToBlizzardUI(scrollFrame, deltaRatio, speedRa
 end
 
 
-
------Create A List of Button----
---[[
-function NarciAPI_BuildButtonList(self, buttonTemplate, buttonNameTable, initialOffsetX, initialOffsetY, initialPoint, initialRelative, offsetX, offsetY, point, relativePoint)
-	local button, buttonHeight, buttons, numButtons;
-
-	local parentName = self:GetName();
-	local buttonName = parentName and (parentName .. "Button") or nil;
-
-	initialPoint = initialPoint or "TOPLEFT";
-    initialRelative = initialRelative or "TOPLEFT";
-    initialOffsetX = initialOffsetX or 0;
-    initialOffsetY = initialOffsetY or 0;
-	point = point or "TOPLEFT";
-	relativePoint = relativePoint or "BOTTOMLEFT";
-	offsetX = offsetX or 0;
-	offsetY = offsetY or 0;
-
-	if ( self.buttons ) then
-		buttons = self.buttons;
-		buttonHeight = buttons[1]:GetHeight();
-	else
-		button = CreateFrame("BUTTON", buttonName and (buttonName .. 1) or nil, self, buttonTemplate);
-		buttonHeight = button:GetHeight();
-        button:SetPoint(initialPoint, self, initialRelative, initialOffsetX, initialOffsetY);
-        button:SetID(0);
-        buttons = {}
-        button.Name:SetText(buttonNameTable[1])
-		tinsert(buttons, button);
-	end
-
-	local numButtons = #buttonNameTable;
-
-	for i = 2, numButtons do
-		button = CreateFrame("BUTTON", buttonName and (buttonName .. i) or nil, self, buttonTemplate);
-        button:SetPoint(point, buttons[i-1], relativePoint, offsetX, offsetY);
-        button:SetID(i-1);
-        button.Name:SetText(buttonNameTable[i])
-		tinsert(buttons, button);
-	end
-
-	self.buttons = buttons;
-end
---]]
-
 -----Language Adaptor-----
 local function LanguageDetector(str)
 	local len = string.len(str)
@@ -935,11 +880,6 @@ function NarciAPI_SmartEditBoxType(self, isUserInput, extraHeight)
     SmartEditBoxFont(self, extraHeight);
 end
 
---[[
-function NarciAPI_EditBox_OnLanguageChanged(self, language)
-    SmartEditBoxFont(self);
-end
---]]
 
 -----Filter Shared Functions-----
 function NarciAPI_LetterboxAnimation(command)
@@ -1836,93 +1776,6 @@ fileID, effectID:
 3656114 --69
 --]]
 
-------------------------------------------------------------------------------
-local function ReAnchorFrame(frame)
-    --maintain frame top position when changing its height
-    local oldCenterX = frame:GetCenter();
-    --local oldBottom = frame:GetBottom();
-    local oldTop = frame:GetTop();
-    local screenWidth = WorldFrame:GetWidth();
-    local screenHeight = WorldFrame:GetHeight();
-    local scale = frame:GetEffectiveScale();
-    if not scale or scale == 0 then
-        scale = 1;
-    end
-    local width = frame:GetWidth()/2;
-    frame:ClearAllPoints();
-    --frame:SetPoint("BOTTOMRIGHT", nil, "BOTTOMRIGHT", oldCenterX + width - screenWidth / scale , oldBottom);
-    frame:SetPoint("TOPRIGHT", nil, "TOPRIGHT", oldCenterX + width - screenWidth / scale , oldTop - screenHeight/scale);
-end
-
-local function ParserButton_ShowTooltip(self)
-    if self.itemLink then
-        local frame = self:GetParent();
-        local tp = frame.tooltip;
-        --GameTooltip_SetBackdropStyle(TP, GAME_TOOLTIP_BACKDROP_STYLE_CORRUPTED_ITEM);
-        tp:SetOwner(self, "ANCHOR_NONE");
-        tp:SetPoint("TOP", frame.ItemString, "BOTTOM", 0, -14);
-        tp:SetHyperlink(self.itemLink);
-        tp:SetMinimumWidth(254 / 0.8);
-        tp:Show();
-        frame:SetHeight( max (floor(tp:GetHeight() - 260), 0) + 400);
-        ReAnchorFrame(frame);
-    end
-end
-
-local function ParserButton_GetCursor(self)
-    local infoType, itemID, itemLink = GetCursorInfo();
-    self.Highlight:Hide()
-
-    if not (infoType and infoType == "item") then return end
-
-    self.itemLink = itemLink;
-
-    local itemName, _, itemQuality, itemLevel, _, _, _, _, itemEquipLoc, itemIcon = GetItemInfo(itemLink);
-    local itemString = match(itemLink, "item:([%-?%d:]+)");
-    local enchantID = GetItemEnchantID(itemLink);
-    local r, g, b = GetCustomQualityColor(itemQuality);
-
-    --Show info
-    self.ItemIcon:SetTexture(itemIcon);
-    local frame = self:GetParent();
-    frame.ItemName:SetText(itemName);
-    frame.ItemName:SetTextColor(r, g, b);
-    frame.ItemString:SetText(itemString);
-
-    frame.Pointer:Hide();
-    ParserButton_ShowTooltip(self);
-
-    ClearCursor();
-end
-
-
---[[
-function Narci_ItemParser_OnLoad(self)
-    self:SetUserPlaced(false)
-    self:ClearAllPoints();
-    self:SetPoint("CENTER", UIParent, "CENTER", 0, 0);
-    self:RegisterForDrag("LeftButton");
-    self:SetScript("OnShow", ReAnchorFrame);
-    self.ItemButton:SetScript("OnReceiveDrag", ParserButton_GetCursor);
-    self.ItemButton:SetScript("OnClick", ParserButton_GetCursor);
-    self.ItemButton:SetScript("OnEnter", ParserButton_ShowTooltip);
-
-    local locale = TEXT_LOCALE;
-    local version, build, date, tocversion = GetBuildInfo();
-
-    self.ClientInfo:SetText(locale.."  "..version.."."..build.."  "..NARCI_VERSION_INFO);
-
-    local tooltip = CreateFrame("GameTooltip", "Narci_ItemParserTooltip", self, "GameTooltipTemplate");
-    tooltip:Hide();
-    self.tooltip = tooltip;
-
-    local scale = 0.8;
-    local tooltipScale = 0.8;
-    self:SetScale(0.8);
-    tooltip:SetScale(tooltipScale);
-end
---]]
-
 
 ----------------------------
 -----Item Import/Export-----
@@ -2815,7 +2668,7 @@ end
 NarciAPI.IsPlayerAtMaxLevel = IsPlayerAtMaxLevel;
 
 
-do
+do  -- NPC Interaction Helper (DUI Compatibility)
     local IsInteractingWithNpcOfType = C_PlayerInteractionManager.IsInteractingWithNpcOfType;
     local TYPE_GOSSIP = Enum.PlayerInteractionType and Enum.PlayerInteractionType.Gossip or 3;
     local TYPE_QUEST_GIVER = Enum.PlayerInteractionType and Enum.PlayerInteractionType.QuestGiver or 4;
@@ -2865,7 +2718,7 @@ do
     addon.AddLoadingCompleteCallback(DialogEventHandler_Check);
 end
 
-do
+do  -- Bind BoE items when equipping them
     local BindHelper;
 
     local BindEvents = {
@@ -2958,7 +2811,7 @@ local function CopyTable(tbl)
 end
 addon.CopyTable = CopyTable;
 
-do
+do  -- Mute Target Lost Sound
     local SOUND_FILE_ID = 567520;
     local MuteSoundFile = MuteSoundFile;
     local UnmuteSoundFile = UnmuteSoundFile;
@@ -3321,4 +3174,35 @@ do  --Diacritical Matching
             return str
         end
     end
+end
+
+do  --Frame Events
+    ---@param ... table eventsTable, not an event in string
+	function PrivateAPI.RegisterFrameForEvents(frame, ...)
+        for i = 1, select("#", ...) do
+            local events = select(i, ...);
+            for event in pairs(events) do
+                frame:RegisterEvent(event);
+            end
+        end
+	end
+
+	function PrivateAPI.UnregisterFrameForEvents(frame, ...)
+        for i = 1, select("#", ...) do
+            local events = select(i, ...);
+            for event in pairs(events) do
+                frame:UnregisterEvent(event);
+            end
+        end
+	end
+
+    ---@param ... table eventsTable, not an event in string
+	function PrivateAPI.RegisterFrameForUnitEvents(frame, ...)
+        for i = 1, select("#", ...) do
+            local events = select(i, ...);
+            for event in pairs(events) do
+                frame:RegisterUnitEvent(event, "player");
+            end
+        end
+	end
 end

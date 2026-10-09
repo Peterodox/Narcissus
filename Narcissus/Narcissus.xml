@@ -762,295 +762,30 @@
 				</Scripts>	
 			</Frame>
 			
-			<Frame name="Narci_DetailedStatFrame" setAllPoints="true" hidden="false" Alpha="0" parentKey="DetailedStatFrame">
-				<Frames>
-					<Frame inherits="Narci_DetailedAttributeTemplateLeft" parentKey="Primary" id="1" hidden="false">
-						<KeyValues>
-							<KeyValue key="token" value="Primary" type="string"/>
-						</KeyValues>
-						<Anchors>
-							<Anchor point="TOPRIGHT" relativeKey="$parent.$parent.ItemLevelFrame" relativePoint="BOTTOM" x="0" y="-98"/>
-						</Anchors>	
-					</Frame>
-					<Frame inherits="Narci_DetailedAttributeTemplateLeft" parentKey="Stamina" id="2" hidden="false">
-						<KeyValues>
-							<KeyValue key="token" value="Stamina" type="string"/>
-						</KeyValues>
-						<Anchors>
-							<Anchor point="TOP" relativeKey="$parent.Primary" relativePoint="BOTTOM"  x="0" y="0"/>
-						</Anchors>
-					</Frame>
-					<Frame inherits="Narci_DetailedAttributeTemplateLeft" parentKey="Damage" id="3" hidden="false">
-						<KeyValues>
-							<KeyValue key="token" value="Damage" type="string"/>
-						</KeyValues>
-						<Anchors>
-							<Anchor point="TOP" relativeKey="$parent.Stamina" relativePoint="BOTTOM"  x="0" y="0"/>
-						</Anchors>
-					</Frame>
-					<Frame inherits="Narci_DetailedAttributeTemplateLeft" parentKey="AttackSpeed" id="4" hidden="false">
-						<KeyValues>
-							<KeyValue key="token" value="AttackSpeed" type="string"/>
-						</KeyValues>
-						<Anchors>
-							<Anchor point="TOP" relativeKey="$parent.Damage" relativePoint="BOTTOM"  x="0" y="0"/>
-						</Anchors>
-					</Frame>
-					<Frame inherits="Narci_DetailedAttributeTemplateLeft" parentKey="Power" id="5" hidden="false">
-						<KeyValues>
-							<KeyValue key="token" value="Power" type="string"/>
-						</KeyValues>
-						<Anchors>
-							<Anchor point="TOP" relativeKey="$parent.AttackSpeed" relativePoint="BOTTOM"  x="0" y="0"/>
-						</Anchors>
-					</Frame>
-					<Frame inherits="Narci_DetailedAttributeTemplateLeft" parentKey="Regen" id="6" hidden="false">
-						<KeyValues>
-							<KeyValue key="token" value="Regen" type="string"/>
-						</KeyValues>
-						<Anchors>
-							<Anchor point="TOP" relativeKey="$parent.Power" relativePoint="BOTTOM"  x="0" y="0"/>
-						</Anchors>
-					</Frame>
-
-					<Frame inherits="Narci_DetailedAttributeTemplateRight" parentKey="Health" id="1" hidden="false">
-						<KeyValues>
-							<KeyValue key="token" value="Health" type="string"/>
-						</KeyValues>
-						<Anchors>
-							<Anchor point="LEFT" relativeKey="$parent.Primary" relativePoint="RIGHT"  x="0" y="0"/>
-						</Anchors>		
-					</Frame>
-					<Frame inherits="Narci_DetailedAttributeTemplateRight" parentKey="Armor" id="2" hidden="false">
-						<KeyValues>
-							<KeyValue key="token" value="Armor" type="string"/>
-						</KeyValues>
-						<Anchors>
-							<Anchor point="TOP" relativeKey="$parent.Health" relativePoint="BOTTOM"  x="0" y="0"/>
-						</Anchors>
-					</Frame>
-					<Frame inherits="Narci_DetailedAttributeTemplateRight" parentKey="Reduction" id="3" hidden="false">
-						<KeyValues>
-							<KeyValue key="token" value="Reduction" type="string"/>
-						</KeyValues>
-						<Anchors>
-							<Anchor point="TOP" relativeKey="$parent.Armor" relativePoint="BOTTOM"  x="0" y="0"/>
-						</Anchors>
-					</Frame>
-					<Frame inherits="Narci_DetailedAttributeTemplateRight" parentKey="Dodge" id="4" hidden="false">
-						<KeyValues>
-							<KeyValue key="token" value="Dodge" type="string"/>
-						</KeyValues>
-						<Anchors>
-							<Anchor point="TOP" relativeKey="$parent.Reduction" relativePoint="BOTTOM"  x="0" y="0"/>
-						</Anchors>
-					</Frame>
-					<Frame inherits="Narci_DetailedAttributeTemplateRight" parentKey="Parry" id="5" hidden="false">
-						<KeyValues>
-							<KeyValue key="token" value="Parry" type="string"/>
-						</KeyValues>
-						<Anchors>
-							<Anchor point="TOP" relativeKey="$parent.Dodge" relativePoint="BOTTOM"  x="0" y="0"/>
-						</Anchors>
-					</Frame>
-					<Frame inherits="Narci_DetailedAttributeTemplateRight" parentKey="Block" id="6" hidden="false">
-						<KeyValues>
-							<KeyValue key="token" value="Block" type="string"/>
-						</KeyValues>
-						<Anchors>
-							<Anchor point="TOP" relativeKey="$parent.Parry" relativePoint="BOTTOM"  x="0" y="0"/>
-						</Anchors>
-					</Frame>
-				</Frames>
-			</Frame>
-
-			<Frame name="Narci_RadarChartFrame" parentKey="RadarChart" inherits="Narci_StatsChartTemplate" frameLevel="10">
+			<Frame name="Narci_DetailedStatFrame" inherits="Narci_StatFrameTemplate" hidden="false">
+				<KeyValues>
+					<KeyValue key="isDetailed" value="true" type="boolean"/>
+				</KeyValues>
+				<Size x="320" y="24"/>
 				<Anchors>
-					<Anchor point="TOP" relativeKey="$parent.DetailedStatFrame.Regen" relativePoint="BOTTOMRIGHT"  x="0" y="-26"/>
+					<Anchor point="TOP" relativeKey="$parent.ItemLevelFrame" relativePoint="BOTTOM" x="0" y="-98"/>
 				</Anchors>
 			</Frame>
 
-			<Frame inherits="Narci_DetailedAttributeTemplateLeft" parentKey="Leech" id="11" hidden="false" parent="Narci_DetailedStatFrame">
+			<Frame name="Narci_ConciseStatFrame" inherits="Narci_StatFrameTemplate" hidden="true">
 				<KeyValues>
-					<KeyValue key="token" value="Leech" type="string"/>
+					<KeyValue key="isDetailed" value="false" type="boolean"/>
 				</KeyValues>
+				<Size x="240" y="24"/>
 				<Anchors>
-					<Anchor point="TOPLEFT" relativeTo="Narci_RadarChartFrame" relativePoint="BOTTOMLEFT" x="-112" y="-26"/>
-				</Anchors>	
-				<Layers>
-					<Layer level="BORDER">
-						<Texture file="Interface\AddOns\Narcissus\Art\Widgets\RadarChart\Radar-Border"  hidden="true">
-							<TexCoords left="0" right="0.87890625" top="0.94921875" bottom="1"/>
-							<Size x="160" y="9"/>
-							<Anchors>
-								<Anchor point="CENTER" relativeKey="$parent" relativePoint="TOP" x="0" y="2"/>
-							</Anchors>
-						</Texture>
-					</Layer>
-				</Layers>
-			</Frame>
-
-			<Frame inherits="Narci_DetailedAttributeTemplateRight" parentKey="Avoidance" id="11" hidden="false" parent="Narci_DetailedStatFrame">
-				<KeyValues>
-					<KeyValue key="token" value="Avoidance" type="string"/>
-				</KeyValues>
-				<Anchors>
-					<Anchor point="LEFT" relativeKey="$parent.Leech" relativePoint="RIGHT"  x="0" y="0"/>
-				</Anchors>	
-				<Layers>
-					<Layer level="BORDER">
-						<Texture file="Interface\AddOns\Narcissus\Art\Widgets\RadarChart\Radar-Border"  hidden="true">
-							<TexCoords left="0.87890625" right="0" top="0.94921875" bottom="1"/>
-							<Size x="160" y="9"/>
-							<Anchors>
-								<Anchor point="CENTER" relativeKey="$parent" relativePoint="TOP" x="0" y="2"/>
-							</Anchors>
-						</Texture>
-					</Layer>
-				</Layers>		
-			</Frame>
-
-			<Frame inherits="Narci_DetailedAttributeTemplateLeft" parentKey="MovementSpeed" id="12" hidden="false" parent="Narci_DetailedStatFrame">
-				<KeyValues>
-					<KeyValue key="token" value="MovementSpeed" type="string"/>
-				</KeyValues>
-				<Anchors>
-					<Anchor point="TOP" relativeKey="$parent.Leech" relativePoint="BOTTOM"  x="0" y="0"/>
+					<Anchor point="TOP" relativeKey="$parent.ItemLevelFrame" relativePoint="BOTTOM" x="0" y="-98"/>
 				</Anchors>
-				<Layers>
-					<Layer level="BORDER">
-						<Texture file="Interface\AddOns\Narcissus\Art\Widgets\RadarChart\Radar-Border"  hidden="true">
-							<TexCoords left="0" right="0.87890625" top="1" bottom="0.94921875"/>
-							<Size x="160" y="9"/>
-							<Anchors>
-								<Anchor point="CENTER" relativeKey="$parent" relativePoint="BOTTOM" x="0" y="-2"/>
-							</Anchors>
-						</Texture>
-					</Layer>
-				</Layers>
 			</Frame>
 
-			<Frame inherits="Narci_DetailedAttributeTemplateRight" parentKey="Speed" id="12" hidden="false" parent="Narci_DetailedStatFrame">
-				<KeyValues>
-					<KeyValue key="token" value="Speed" type="string"/>
-				</KeyValues>
+			<Frame name="Narci_CompetitiveDisplay" inherits="Narci_MythicPlusFrameTemplate" hidden="true">
 				<Anchors>
-					<Anchor point="TOP" relativeKey="$parent.Avoidance" relativePoint="BOTTOM"  x="0" y="0"/>
+					<Anchor point="TOP" relativeKey="$parent.ItemLevelFrame" relativePoint="BOTTOM" x="0" y="-98"/>
 				</Anchors>
-				<Layers>
-					<Layer level="BORDER">
-						<Texture file="Interface\AddOns\Narcissus\Art\Widgets\RadarChart\Radar-Border"  hidden="true">
-							<TexCoords left="0.87890625" right="0" top="1" bottom="0.94921875"/>
-							<Size x="160" y="9"/>
-							<Anchors>
-								<Anchor point="CENTER" relativeKey="$parent" relativePoint="BOTTOM" x="0" y="-2"/>
-							</Anchors>
-						</Texture>
-					</Layer>
-				</Layers>	
-			</Frame>
-
-			<Frame name="Narci_ConciseStatFrame" setAllPoints="true" hidden="true" Alpha="0">
-				<Frames>
-					<Frame inherits="Narci_AttributeTemplate" parentKey="Primary" id="1" hidden="false">
-						<KeyValues>
-							<KeyValue key="token" value="Primary" type="string"/>
-						</KeyValues>
-						<Anchors>
-							<Anchor point="TOP" relativeKey="$parent.$parent.ItemLevelFrame" relativePoint="BOTTOM"  x="0" y="-98"/>
-						</Anchors>
-					</Frame>
-					<Frame inherits="Narci_AttributeTemplate" parentKey="Stamina" id="2" hidden="false">
-						<KeyValues>
-							<KeyValue key="token" value="Stamina" type="string"/>
-						</KeyValues>
-						<Anchors>
-							<Anchor point="TOP" relativeKey="$parent.Primary" relativePoint="BOTTOM"  x="0" y="0"/>
-						</Anchors>
-					</Frame>
-					<Frame inherits="Narci_AttributeTemplate" parentKey="Health" id="3" hidden="false">
-						<KeyValues>
-							<KeyValue key="token" value="Health" type="string"/>
-						</KeyValues>
-						<Anchors>
-							<Anchor point="TOP" relativeKey="$parent.Stamina" relativePoint="BOTTOM"  x="0" y="0"/>
-						</Anchors>
-					</Frame>
-					<Frame inherits="Narci_AttributeTemplate" parentKey="Power" id="4" hidden="false">
-						<KeyValues>
-							<KeyValue key="token" value="Power" type="string"/>
-						</KeyValues>
-						<Anchors>
-							<Anchor point="TOP" relativeKey="$parent.Health" relativePoint="BOTTOM"  x="0" y="0"/>
-						</Anchors>
-					</Frame>
-					<Frame inherits="Narci_AttributeTemplate" parentKey="Regen" id="5" hidden="false">
-						<KeyValues>
-							<KeyValue key="token" value="Regen" type="string"/>
-						</KeyValues>
-						<Anchors>
-							<Anchor point="TOP" relativeKey="$parent.Power" relativePoint="BOTTOM"  x="0" y="0"/>
-						</Anchors>
-					</Frame>
-
-					<Frame inherits="Narci_AttributeTemplate" parentKey="Crit" id="7" hidden="false">
-						<KeyValues>
-							<KeyValue key="token" value="Crit" type="string"/>
-						</KeyValues>
-						<Anchors>
-							<Anchor point="TOP" relativeKey="$parent.Regen" relativePoint="BOTTOM"  x="0" y="-26"/>
-						</Anchors>
-					</Frame>
-					<Frame inherits="Narci_AttributeTemplate" parentKey="Haste" id="8" hidden="false">
-						<KeyValues>
-							<KeyValue key="token" value="Haste" type="string"/>
-						</KeyValues>
-						<Anchors>
-							<Anchor point="TOP" relativeKey="$parent.Crit" relativePoint="BOTTOM"  x="0" y="0"/>
-						</Anchors>
-					</Frame>
-					<Frame inherits="Narci_AttributeTemplate" parentKey="Mastery" id="9" hidden="false">
-						<KeyValues>
-							<KeyValue key="token" value="Mastery" type="string"/>
-						</KeyValues>
-						<Anchors>
-							<Anchor point="TOP" relativeKey="$parent.Haste" relativePoint="BOTTOM"  x="0" y="0"/>
-						</Anchors>
-					</Frame>
-					<Frame inherits="Narci_AttributeTemplate" parentKey="Versatility" id="10" hidden="false">
-						<KeyValues>
-							<KeyValue key="token" value="Versatility" type="string"/>
-						</KeyValues>
-						<Anchors>
-							<Anchor point="TOP" relativeKey="$parent.Mastery" relativePoint="BOTTOM"  x="0" y="0"/>
-						</Anchors>
-					</Frame>
-
-					<Frame inherits="Narci_AttributeTemplate" parentKey="Leech" id="11" hidden="false">
-						<KeyValues>
-							<KeyValue key="token" value="Leech" type="string"/>
-						</KeyValues>
-						<Anchors>
-							<Anchor point="TOP" relativeKey="$parent.Versatility" relativePoint="BOTTOM"  x="0" y="-26"/>
-						</Anchors>
-					</Frame>
-					<Frame inherits="Narci_AttributeTemplate" parentKey="Avoidance" id="12" hidden="false">
-						<KeyValues>
-							<KeyValue key="token" value="Avoidance" type="string"/>
-						</KeyValues>
-						<Anchors>
-							<Anchor point="TOP" relativeKey="$parent.Leech" relativePoint="BOTTOM"  x="0" y="0"/>
-						</Anchors>
-					</Frame>
-					<Frame inherits="Narci_AttributeTemplate" parentKey="Speed" id="13" hidden="false">
-						<KeyValues>
-							<KeyValue key="token" value="Speed" type="string"/>
-						</KeyValues>
-						<Anchors>
-							<Anchor point="TOP" relativeKey="$parent.Avoidance" relativePoint="BOTTOM"  x="0" y="0"/>
-						</Anchors>
-					</Frame>
-				</Frames>
 			</Frame>
 		</Frames>
 		<Animations>
@@ -1137,7 +872,6 @@
 
 	<Frame parent="PaperDollFrame" mixin="NarciPaperDollDoubleClickTriggerMixin">
 		<Scripts>
-			<OnLoad method="OnLoad"/>
 			<OnShow method="OnShow"/>
 			<OnHide method="OnHide"/>
 		</Scripts>		

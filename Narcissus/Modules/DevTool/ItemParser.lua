@@ -210,7 +210,7 @@ function NarciDevToolItemParserItemCardMixin:SetItemLink(itemLink)
     local itemName, _, itemQuality, itemLevel, _, _, _, _, itemEquipLoc, itemIcon = GetItemInfo(itemLink);
     local itemString = string.match(itemLink, "item:([%-?%d:]+)");
     --local enchantID = GetItemEnchantID(itemLink);
-    local r, g, b = GetItemQualityColor(itemQuality);   --GetCustomQualityColor
+    local r, g, b = C_Item.GetItemQualityColor(itemQuality);   --GetCustomQualityColor
     self.Receptor.ItemIcon:SetTexture(itemIcon);
     ItemReceptor_SetColor(self.Receptor, r, g, b);
 

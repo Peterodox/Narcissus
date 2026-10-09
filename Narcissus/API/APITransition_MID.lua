@@ -52,15 +52,6 @@ do  --Secret General
 end
 
 
-do  --Unit
-    local function UnitHasMana()
-        local powerType = UnitPowerType("player");
-        return powerType == 0
-    end
-    TransitionAPI.UnitHasMana = UnitHasMana;
-end
-
-
 do  --Chat
     if C_ChatInfo and C_ChatInfo.PerformEmote then
         TransitionAPI.DoEmote = C_ChatInfo.PerformEmote;

@@ -1,9 +1,6 @@
 NarciCompetitiveDisplayMixin = {};
 
 function NarciCompetitiveDisplayMixin:OnLoad()
-    self:ClearAllPoints();
-    self:SetPoint("TOP", Narci_ConciseStatFrame.Primary, "TOP", 0, 0);
-
     self.LoadingOverlay.LoadingIndicator:SetTexture("Interface\\AddOns\\Narcissus\\Art\\Modules\\Competitive\\LoadingIndicator", nil, nil, "TRILINEAR");
 end
 

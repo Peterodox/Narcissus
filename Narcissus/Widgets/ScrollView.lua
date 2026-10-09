@@ -4,7 +4,6 @@ local _, addon = ...
 local Round = NarciAPI.Round;
 local Clamp = NarciAPI.Clamp;
 local DeltaLerp = NarciAPI.DeltaLerp;
-local Mixin = NarciAPI.Mixin;
 
 
 local tremove = table.remove;

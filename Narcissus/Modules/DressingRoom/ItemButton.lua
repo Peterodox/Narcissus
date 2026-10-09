@@ -1,7 +1,9 @@
+local _, addon = ...
 local MogAPI = C_TransmogCollection;
 local PlayerKnowsSource = MogAPI.PlayerKnowsSource;
 local GetSourceInfo = MogAPI.GetSourceInfo;
 local GetAllAppearanceSources = MogAPI.GetAllAppearanceSources;
+local GetInventorySlotInfo = addon.TransitionAPI.GetInventorySlotInfo;
 
 local DataProvider = {};
 
@@ -46,7 +48,7 @@ local function GenerateHyperlinkAndSource(slotID, sourceID, enchantID)
     local itemModID = sourceInfo.itemModID;
     local hyperlink, unformatedHyperlink;
     local sourceTextColorized, sourcePlainText = "", nil;
-    local _, _, _, hex = GetItemQualityColor(itemQuality)
+    local _, _, _, hex = C_Item.GetItemQualityColor(itemQuality);
     local bonusID = 0;
     enchantID = enchantID or "";
 
@@ -55,7 +57,7 @@ local function GenerateHyperlinkAndSource(slotID, sourceID, enchantID)
         if drops and drops[1] then
             sourceTextColorized = drops[1].encounter.." ".."|cFFFFD100"..drops[1].instance.."|r|CFFf8e694";
             sourcePlainText = drops[1].encounter.." "..drops[1].instance;
-            
+
             if itemModID == 0 then 
                 sourceTextColorized = sourceTextColorized.." "..PLAYER_DIFFICULTY1;
                 sourcePlainText = sourcePlainText.." "..PLAYER_DIFFICULTY1;

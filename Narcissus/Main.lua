@@ -10,14 +10,11 @@ local CameraUtil = addon.CameraUtil;
 local UIParentFade = addon.UIParentFade;
 local CallbackRegistry = addon.CallbackRegistry;
 local SharedBlackScreen = addon.SharedBlackScreen;
-
-Narci.refreshCombatRatings = true;
+local StatSheetController = addon.StatSheetController; ---@type StatSheetController
 
 local SLOT_TABLE = Narci.slotTable;
 local SetEquipmentSlotFlag = addon.SetEquipmentSlotFlag;
 
-local AttributeFrames = {};
-local ShortAttributeFrames = {};
 local L = Narci.L;
 local VIGNETTE_ALPHA = 0.5;
 local IS_OPENED = false;									--Addon was opened by clicking
@@ -48,7 +45,6 @@ local UIParent = _G.UIParent;
 local Toolbar = NarciScreenshotToolbar;
 local EquipmentFlyoutFrame;
 local ItemLevelFrame;
-local RadarChart;
 
 local MiniButton = Narci_MinimapButton;
 
@@ -56,16 +52,16 @@ local MiniButton = Narci_MinimapButton;
 local EL = CreateFrame("Frame");	--Event Listener
 EL:Hide();
 
-EL.EVENTS_DYNAMIC = {"PLAYER_TARGET_CHANGED", "COMBAT_RATING_UPDATE", "PLAYER_MOUNT_DISPLAY_CHANGED",
-	"PLAYER_STARTED_MOVING", "PLAYER_REGEN_DISABLED", "UNIT_MAXPOWER", "PLAYER_STARTED_TURNING", "PLAYER_STOPPED_TURNING",
-	"BAG_UPDATE_COOLDOWN", "UNIT_STATS", "BAG_UPDATE", "PLAYER_EQUIPMENT_CHANGED", "AZERITE_ESSENCE_ACTIVATED", "WEAPON_ENCHANT_CHANGED",
+EL.EVENTS_DYNAMIC = {"PLAYER_MOUNT_DISPLAY_CHANGED",
+	"PLAYER_STARTED_MOVING", "PLAYER_REGEN_DISABLED", "PLAYER_STARTED_TURNING", "PLAYER_STOPPED_TURNING",
+	"BAG_UPDATE_COOLDOWN", "BAG_UPDATE", "PLAYER_EQUIPMENT_CHANGED", "AZERITE_ESSENCE_ACTIVATED", "WEAPON_ENCHANT_CHANGED",
 };
 
 if API.IsPlayerDruid() then
 	table.insert(EL.EVENTS_DYNAMIC, "UPDATE_SHAPESHIFT_FORM");
 end
 
-EL.EVENTS_UNIT = {"UNIT_DAMAGE", "UNIT_ATTACK_SPEED", "UNIT_MAXHEALTH", "UNIT_AURA", "UNIT_PORTRAIT_UPDATE"};
+EL.EVENTS_UNIT = {"UNIT_AURA", "UNIT_PORTRAIT_UPDATE"};
 
 
 local SlotController = CreateFrame("Frame");
@@ -145,6 +141,12 @@ function SlotController:IsMouseOver()
 		end
 	end
 	return false;
+end
+
+function SlotController:UpdateCooldown()
+	for slotID, slotButton in pairs(SLOT_TABLE) do
+		slotButton:TrackCooldown();
+	end
 end
 
 
@@ -396,19 +398,8 @@ function IntroMotion:SetUseCameraTransition(enabled)
 		divisor = 80;
 	end
 
-	for k, slot in pairs(AttributeFrames) do
-		local delay = (slot:GetID())/divisor;
-		if slot.animIn then
-			slot.animIn.A2:SetStartDelay(delay);
-		end
-	end
+	StatSheetController:SetIntroAnimationDelay(1 / divisor);
 
-	for k, slot in pairs(ShortAttributeFrames) do
-		local delay = (slot:GetID())/divisor;
-		slot.animIn.A2:SetStartDelay(delay);
-	end
-
-	RadarChart.animIn.A2:SetStartDelay(9/divisor);
 	self.useCameraTransition = enabled;
 end
 
@@ -479,23 +470,7 @@ function IntroMotion:Enter()
 end
 
 function IntroMotion:PlayAttributeAnimation()
-	if not NarcissusDB.DetailedIlvlInfo then
-		RadarChart:UpdateChart(true);
-		return
-	end
-	if not RadarChart:IsShown() then
-		return		--Attributes is not the active tab
-	end
-	local f, anim;
-	for i = 1, 20 do
-		f = AttributeFrames[i];
-		anim = f.animIn;
-		if anim and not f.noAnimation then
-			anim.A2:SetToAlpha(AttributeFrames[i]:GetAlpha());
-			anim:Play();
-		end
-	end
-	RadarChart.animIn:Play();
+	StatSheetController:PlayIntroAnimation();
 end
 
 function IntroMotion:ShowFrame()
@@ -515,6 +490,7 @@ function IntroMotion:ShowFrame()
 	end
 
 	self:PlayAttributeAnimation();
+
 	if MOG_MODE then
 		FadeFrame(Narci_Attribute, 0.4, 0)
 	else
@@ -987,124 +963,9 @@ end
 
 
 ---------------------------------------------
-local function RefreshStats(id, frame)
-	frame = frame or "Detailed";
-	if frame == "Detailed" then
-		if AttributeFrames[id] then
-			AttributeFrames[id]:Update();
-		end
-	elseif frame == "Concise" then
-		if ShortAttributeFrames[id] then
-			ShortAttributeFrames[id]:Update();
-		end
-	end
-end
-
-local StatsUpdator = CreateFrame("Frame");
-StatsUpdator:Hide();
-StatsUpdator.t = 0;
-StatsUpdator.index = 1;
-StatsUpdator:SetScript("OnUpdate", function(self, elapsed)
-	self.t = self.t + elapsed;
-	if self.t > 0.05 then
-		self.t = 0;
-		local i = self.index;
-		if AttributeFrames[i] then
-			AttributeFrames[i]:Update();
-		end
-		if ShortAttributeFrames[i] then
-			ShortAttributeFrames[i]:Update();
-		end
-		if i >= 20 then
-			self:Hide();
-			self.index = 1;
-		else
-			self.index = i + 1;
-		end
-	end
-end);
-
-function StatsUpdator:Gradual()
-	ItemLevelFrame:AsyncUpdate(0.05);
-	self.index = 1;
-	self.t = 0;
-	self:Show();
-end
-
-function StatsUpdator:Instant()
-	if not StatsUpdator.pauseUpdate then
-		StatsUpdator.pauseUpdate = true;
-		After(0, function()
-			for i = 1, 20 do
-				RefreshStats(i);
-			end
-			for i = 1, 12 do
-				RefreshStats(i, "Concise");
-			end
-			StatsUpdator.pauseUpdate = nil;
-		end);
-	end
-end
-
-function StatsUpdator:UpdateCooldown()
-	for slotID, slotButton in pairs(SLOT_TABLE) do
-		slotButton:TrackCooldown();
-	end
-end
-
-
-local function ShowAttributeButton(bool)
-	if NarcissusDB.DetailedIlvlInfo then
-		Narci_DetailedStatFrame:SetShown(true);
-		Narci_ConciseStatFrame:SetShown(false);
-		RadarChart:SetShown(true);
-	else
-		Narci_DetailedStatFrame:SetShown(false);
-		Narci_ConciseStatFrame:SetShown(true);
-		RadarChart:SetShown(false);
-	end
-
+local function ShowAttributes()
+	StatSheetController:ShowStatSheet();
 	ItemLevelFrame:SetShown(true);
-end
-
-local function AssignFrame()
-	local statFrame = Narci_DetailedStatFrame;
-	RadarChart = Narci_RadarChartFrame;
-	local radar = RadarChart;
-	AttributeFrames[1] = statFrame.Primary;
-	AttributeFrames[2] = statFrame.Stamina;
-	AttributeFrames[3] = statFrame.Damage;
-	AttributeFrames[4] = statFrame.AttackSpeed;
-	AttributeFrames[5] = statFrame.Power;
-	AttributeFrames[6] = statFrame.Regen;
-	AttributeFrames[7] = statFrame.Health;
-	AttributeFrames[8] = statFrame.Armor;
-	AttributeFrames[9] = statFrame.Reduction;
-	AttributeFrames[10]= statFrame.Dodge;
-	AttributeFrames[11]= statFrame.Parry;
-	AttributeFrames[12]= statFrame.Block;
-	AttributeFrames[13]= radar.Crit;
-	AttributeFrames[14]= radar.Haste;
-	AttributeFrames[15]= radar.Mastery;
-	AttributeFrames[16]= radar.Versatility;
-	AttributeFrames[17]= statFrame.Leech;
-	AttributeFrames[18]= statFrame.Avoidance;
-	AttributeFrames[19]= statFrame.MovementSpeed;
-	AttributeFrames[20]= statFrame.Speed;
-
-	local statFrame_Short = Narci_ConciseStatFrame;
-	ShortAttributeFrames[1]  = statFrame_Short.Primary;
-	ShortAttributeFrames[2]  = statFrame_Short.Stamina;
-	ShortAttributeFrames[3]  = statFrame_Short.Health;
-	ShortAttributeFrames[4]  = statFrame_Short.Power;
-	ShortAttributeFrames[5]  = statFrame_Short.Regen;
-	ShortAttributeFrames[6]  = statFrame_Short.Crit;
-	ShortAttributeFrames[7]  = statFrame_Short.Haste;
-	ShortAttributeFrames[8]  = statFrame_Short.Mastery;
-	ShortAttributeFrames[9]  = statFrame_Short.Versatility;
-	ShortAttributeFrames[10] = statFrame_Short.Leech;
-	ShortAttributeFrames[11] = statFrame_Short.Avoidance;
-	ShortAttributeFrames[12] = statFrame_Short.Speed;
 end
 
 function Narci_SetPlayerName(self)
@@ -1164,7 +1025,6 @@ function Narci_Open()
 		IntroMotion:Enter();
 
 		After(0, function()
-			RadarChart:SetValue(0,0,0,0,1);
 			PlayLetteboxAnimation();
 			local Vignette = Narci_Vignette;
 			Vignette.VignetteLeft:SetAlpha(VIGNETTE_ALPHA);
@@ -1176,11 +1036,11 @@ function Narci_Open()
 			SlotButtonOverlayUtil:UpdateData();
 			After(0, function()
 				SlotController:LazyRefresh();
-				StatsUpdator:Gradual();
+				StatSheetController:LazyRefresh();
+				ItemLevelFrame:AsyncUpdate();
 			end);
 		end);
 
-		Narci.refreshCombatRatings = true;
 		Narci.isActive = true;
 		CallbackRegistry:Trigger("NarcissusCharacterUI.ShownState", true);
 	else
@@ -1293,10 +1153,10 @@ local function ActivateMogMode()
 			CameraUtil:SmoothShoulderByZoom();
 		end
 		FadeFrame(Narci_XmogNameFrame, 0.2, 0);
-		ShowAttributeButton();
+		ShowAttributes();
+		StatSheetController:InstantRefresh();
 		CameraUtil:SetUseMogOffset(false);
 		MsgAlertContainer:Hide();
-		RadarChart:SetValue();
 	end
 end
 
@@ -1486,7 +1346,8 @@ local function Narci_XmogButton_OnClick(self)
 			Narci_Character:SetAlpha(1);
 		end
 
-		StatsUpdator:Gradual();
+		StatSheetController:LazyRefresh();
+		ItemLevelFrame:AsyncUpdate();
 	end
 
 	if MOG_MODE then
@@ -1596,28 +1457,6 @@ do	--Slash Command
 end
 
 
---3D Animation
-local function InitializeAnimationContainer(frame, SequenceInfo, TargetFrame)
-	frame.OppoDirection = false;
-	frame.t = 0
-	frame.totalTime = 0;
-	frame.Index = 1;
-	frame.Pending = false;
-	frame.IsPlaying = false;
-	frame.SequenceInfo = SequenceInfo;
-	frame.Target = TargetFrame
-end
-
-local function AnimationContainer_OnHide(self)
-	self.totalTime = 0;
-	self.TimeSinceLastUpdate = 0;
-	self.OppoDirection = not self.OppoDirection
-	if self.Index <= 0 then
-		self.Index = 0;
-	end
-end
-
-
 --Static Events
 EL:RegisterEvent("PLAYER_ENTERING_WORLD");
 EL:RegisterUnitEvent("UNIT_NAME_UPDATE", "player");
@@ -1634,8 +1473,6 @@ EL:SetScript("OnEvent",function(self, event, ...)
 		self:UnregisterEvent(event);
 
 		After(2, function()
-			StatsUpdator:Instant();
-			RadarChart:SetValue(0,0,0,0,1);
 			UpdateXmogName();
 		end)
 
@@ -1755,31 +1592,13 @@ EL:SetScript("OnEvent",function(self, event, ...)
 		local oldLevel, newLevel = ...;
 		UpdateCharacterInfoFrame(newLevel)
 
-	elseif ( event == "COMBAT_RATING_UPDATE" or
-			 event == "UNIT_MAXPOWER" or
-			 event == "UNIT_STATS" or
-			 event == "UNIT_DAMAGE" or event == "UNIT_ATTACK_SPEED" or event == "UNIT_MAXHEALTH" or event == "UNIT_AURA"
-			) and Narci.refreshCombatRatings then
-		-- don't refresh stats when equipment set manager is activated
-		StatsUpdator:Instant();
-		if event == "COMBAT_RATING_UPDATE" then
-			if Narci_Character:IsShown() then
-				RadarChart:UpdateChart(true);
-			end
+	elseif event == "UNIT_AURA" then
+		--11.0 Worgen Two Forms no longer trigger this
+		local inAlteredForm = IsPlayerInAlteredForm();
+		if self.wasAlteredForm ~= inAlteredForm then
+			self.wasAlteredForm = inAlteredForm;
+			CameraUtil:OnPlayerFormChanged(0.0);
 		end
-
-		if event == "UNIT_AURA" then
-			--11.0 Worgen Two Forms no longer trigger this
-			local inAlteredForm = IsPlayerInAlteredForm();
-			if self.wasAlteredForm ~= inAlteredForm then
-				self.wasAlteredForm = inAlteredForm;
-				CameraUtil:OnPlayerFormChanged(0.0);
-			end
-		end
-
-	elseif event == "PLAYER_TARGET_CHANGED" then
-		RefreshStats(8);		--Armor
-		RefreshStats(9); 		--Damage Reduction
 
 	elseif event == "UPDATE_SHAPESHIFT_FORM" or event == "UNIT_PORTRAIT_UPDATE" then
 		CameraUtil:OnPlayerFormChanged(0.1);
@@ -1810,7 +1629,7 @@ EL:SetScript("OnEvent",function(self, event, ...)
 		NarciAR.Turning:Hide();
 
 	elseif event == "BAG_UPDATE_COOLDOWN" then
-		StatsUpdator:UpdateCooldown();
+		SlotController:UpdateCooldown();
 
 	elseif event == "BAG_UPDATE" then
 		local newTime = GetTime();
@@ -1874,16 +1693,6 @@ local function Narci_DoubleClickTrigger_OnUpdate(self, elapsed)
 	if self.t > 0.25 then
 		self:SetScript("OnUpdate", nil);
 	end
-end
-
-function NarciPaperDollDoubleClickTriggerMixin:OnLoad()
-	self.t = 0;
-
-	AssignFrame();
-	AssignFrame = nil;
-
-	self:SetScript("OnLoad", nil);
-	self.OnLoad = nil;
 end
 
 function NarciPaperDollDoubleClickTriggerMixin:OnShow()
@@ -1950,7 +1759,6 @@ end
 Narci.GetEquipmentSlotByID = function(slotID) return SLOT_TABLE[slotID] end;
 Narci.RefreshSlot = function(slotID) SlotController:Refresh(slotID) return SLOT_TABLE[slotID] end;
 Narci.RefreshAllSlots = SlotController.RefreshAll;
-Narci.RefreshAllStats = StatsUpdator.Instant;
 
 
 addon.CallbackRegistry:Register("SettingChanged.UseWoWQualityColor", function()
@@ -1997,27 +1805,7 @@ do
 			state = db["DetailedIlvlInfo"];
 		end
 
-		if Narci_Attribute:IsVisible() then
-			if state then
-				FadeFrame(Narci_DetailedStatFrame, 0.5, 1);
-				FadeFrame(RadarChart, 0.5, 1);
-				FadeFrame(Narci_ConciseStatFrame, 0.5, 0);
-			else
-				FadeFrame(Narci_DetailedStatFrame, 0.5, 0);
-				FadeFrame(RadarChart, 0.5, 0);
-				FadeFrame(Narci_ConciseStatFrame, 0.5, 1);
-			end
-		else
-			if state then
-				FadeFrame(Narci_DetailedStatFrame, 0, 1);
-				FadeFrame(RadarChart, 0, 1);
-				FadeFrame(Narci_ConciseStatFrame, 0, 0);
-			else
-				FadeFrame(Narci_DetailedStatFrame, 0, 0);
-				FadeFrame(RadarChart, 0, 0);
-				FadeFrame(Narci_ConciseStatFrame, 0, 1);
-			end
-		end
+		StatSheetController:ShowDetailedStats(state);
 		Narci_ItemLevelFrame:ToggleExtraInfo(state);
 		Narci_ItemLevelFrame.showExtraInfo = state;
 		Narci_NavBar:SetMaximizedMode(state);

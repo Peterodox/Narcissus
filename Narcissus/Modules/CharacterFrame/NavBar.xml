@@ -83,6 +83,17 @@
                             <Anchor point="TOPLEFT"/>
                             <Anchor point="BOTTOMRIGHT"/>
                         </Anchors>
+                        <Layers>
+                            <Layer level="OVERLAY">
+                                <FontString inherits="NarciFontMedium12" justifyH="CENTER" justifyV="MIDDLE" parentKey="NoTalentsAlert" maxLines="1" hidden="true">
+                                    <Color r="0.5" g="0.5" b="0.5"/>
+                                    <Anchors>
+                                        <Anchor point="LEFT" relativeKey="$parent" relativePoint="BOTTOMLEFT" x="12" y="12"/>
+                                        <Anchor point="RIGHT" relativeKey="$parent" relativePoint="BOTTOMRIGHT" x="-12" y="12"/>
+                                    </Anchors>
+                                </FontString>
+                            </Layer>
+                        </Layers>
                         <Scripts>
                             <OnLoad method="OnLoad"/>
                             <OnShow method="OnShow"/>
