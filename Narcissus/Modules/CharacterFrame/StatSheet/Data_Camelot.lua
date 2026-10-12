@@ -5,6 +5,7 @@ if not addon.IS_FOREVER then return; end
 
 local format = string.format;
 local StatSheetAPI = addon.StatSheetAPI; ---@type StatSheetAPI
+local FormatPercent = StatSheetAPI.FormatPercent;
 
 
 ---@class StatSheetLayout
@@ -166,7 +167,7 @@ function StatTooltipFunc.Crit(tooltip)
 
     if not (canaccessvalue(meleeCrit)) then return; end
 
-    tooltip:SetText(STAT_CRITICAL_STRIKE .." "..StatSheetAPI.FormatPercent(critChance), 1, 1, 1);
+    tooltip:SetText(STAT_CRITICAL_STRIKE .." "..FormatPercent(critChance), 1, 1, 1);
 
     tooltip:AddNormalLine(format(STAT_CRIT_MELEE, meleeCrit));
 

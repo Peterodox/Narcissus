@@ -5,6 +5,7 @@ local format = string.format;
 local Secret_Multiply = addon.TransitionAPI.Secret_Multiply;
 local StatSheetAPI = addon.StatSheetAPI; ---@type StatSheetAPI
 local PrimaryStatIndex = StatSheetAPI.PrimaryStatIndex;
+local FormatPercent = StatSheetAPI.FormatPercent;
 
 
 ---@class StatSheetLayout
@@ -206,6 +207,8 @@ function StatTooltipFunc.Crit(tooltip)
 
     local NARCI_CRIT_TOOLTIP, NARCI_CRIT_TOOLTIP_FORMAT = NarciAPI.SplitTooltipByLineBreak(CR_CRIT_TOOLTIP);
 
+    tooltip:SetText(STAT_CRITICAL_STRIKE .." "..FormatPercent(critChance), 1, 1, 1);
+
 	if GetCritChanceProvidesParryEffect() then
 		tooltip:AddNormalLine(format(CR_CRIT_PARRY_RATING_TOOLTIP, BreakUpLargeNumbers(extraCritRating), extraCritChance, GetCombatRatingBonusForCombatRatingValue(CR_PARRY, extraCritRating)));
 	else
@@ -213,8 +216,48 @@ function StatTooltipFunc.Crit(tooltip)
 			tooltip:AddNormalLine(format(CR_CRIT_TOOLTIP, BreakUpLargeNumbers(extraCritRating), extraCritChance));
 		else
             tooltip:AddNormalLine(NARCI_CRIT_TOOLTIP);
+            tooltip:AddBlankLine();
 			tooltip:AddNormalDoubleLine(format(NARCI_CRIT_TOOLTIP_FORMAT, BreakUpLargeNumbers(extraCritRating), extraCritChance), math.floor( (extraCritRating / extraCritChance) * 100 + 0.5) / 100 .. " [+1%]");
 		end
+	end
+
+    return true;
+end
+
+function StatTooltipFunc.Haste(tooltip)
+	local haste = GetHaste();
+
+    if not canaccessvalue(haste) then return; end
+
+	local hasteFormatString;
+
+	if (haste < 0 and not GetPVPGearStatRules()) then
+		hasteFormatString = RED_FONT_COLOR_CODE.."%s".."|r";
+	else
+		hasteFormatString = "%s";
+	end
+
+	local header = "|cffffffff" .. STAT_HASTE .. " " .. format(hasteFormatString, FormatPercent(haste)) .. "|r";
+    tooltip:SetText(header);
+
+	local _, class = UnitClass("player");
+	local desc = _G["STAT_HASTE_"..class.."_TOOLTIP"];
+	if not desc then
+		desc = STAT_HASTE_TOOLTIP;
+	end
+
+    tooltip:AddNormalLine(desc);
+    tooltip:AddBlankLine();
+
+    local ratingIndex = CR_HASTE_MELEE;
+	local rating = GetCombatRating(ratingIndex);
+	local ratingBonus = GetCombatRatingBonus(ratingIndex);
+    local hasteTooltipFormat = strtrim(STAT_HASTE_BASE_TOOLTIP);
+
+	if ratingBonus == 0 then
+		tooltip:AddNormalLine(format(hasteTooltipFormat, BreakUpLargeNumbers(rating), ratingBonus));
+	else
+        tooltip:AddNormalDoubleLine(format(hasteTooltipFormat, BreakUpLargeNumbers(rating), ratingBonus), math.floor( (rating / ratingBonus) * 100 + 0.5) / 100 .. " [+1%]");
 	end
 
     return true;

@@ -23,7 +23,6 @@ local GetSpecialization = C_SpecializationInfo.GetSpecialization;
 local GetUnitSpeed = GetUnitSpeed;
 local canaccessvalue = canaccessvalue;
 
-local _, NARCI_HASTE_TOOLTIP_FORMAT = SplitTooltipByLineBreak(STAT_HASTE_BASE_TOOLTIP);
 local NARCI_VERSATILITY_TOOLTIP_FORMAT_1, NARCI_VERSATILITY_TOOLTIP_FORMAT_2 = SplitTooltipByLineBreak(CR_VERSATILITY_TOOLTIP);
 local N_SLASH_A = NOT_APPLICABLE;
 
@@ -428,40 +427,11 @@ function UpdateFunc:Crit()
 end
 
 function UpdateFunc:Haste()
-	local unit = "player";
 	local haste = GetHaste();
-	local rating = CR_HASTE_MELEE;
-	local hasteFormatString;
+	local ratingIndex = CR_HASTE_MELEE;
 
 	self:SetLabelAndValue(STAT_HASTE, FormatPercent(haste));
-	self:SetValueRating(GetCombatRating(rating));
-
-	if ClearTooltipIfSecret(self, STAT_HASTE, haste) then
-		return;
-	end
-
-	if (haste < 0 and not GetPVPGearStatRules()) then
-		hasteFormatString = RED_FONT_COLOR_CODE.."%s".."|r";
-	else
-		hasteFormatString = "%s";
-	end
-
-	self.tooltip = "|cffffffff" .. STAT_HASTE .. " " .. format(hasteFormatString, FormatPercent(haste)) .. "|r";
-
-	local _, class = UnitClass(unit);
-	self.tooltip2 = _G["STAT_HASTE_"..class.."_TOOLTIP"];
-	if (not self.tooltip2) then
-		self.tooltip2 = STAT_HASTE_TOOLTIP;
-	end
-
-	local Rating = GetCombatRating(rating);
-	local RatingBonus = GetCombatRatingBonus(rating);
-	if RatingBonus == 0 then
-		self.tooltip2 = self.tooltip2 .. format(STAT_HASTE_BASE_TOOLTIP, BreakUpLargeNumbers(Rating), RatingBonus);
-		self.tooltip4 = nil;
-	else
-		self.tooltip4 = {format(NARCI_HASTE_TOOLTIP_FORMAT, BreakUpLargeNumbers(Rating), RatingBonus), floor( (Rating / RatingBonus) * 100 + 0.5) / 100 .. " [+1%]"};
-	end
+	self:SetValueRating(GetCombatRating(ratingIndex));
 end
 
 local function MasteryFrame_OnEnter(self)
