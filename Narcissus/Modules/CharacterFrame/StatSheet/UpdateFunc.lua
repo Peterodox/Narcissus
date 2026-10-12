@@ -301,15 +301,11 @@ end
 function UpdateFunc:Dodge()
 	local chance = GetDodgeChance();
 	self:SetLabelAndValue(STAT_DODGE, FormatPercent(chance));
-	self.tooltip = "|cffffffff".. DODGE_CHANCE .." "..FormatPercent(chance).."|r";
-	self.tooltip2 = format(CR_DODGE_TOOLTIP, GetCombatRating(CR_DODGE), GetCombatRatingBonus(CR_DODGE));
 end
 
 function UpdateFunc:Parry()
 	local chance = GetParryChance();
 	self:SetLabelAndValue(STAT_PARRY, FormatPercent(chance));
-	self.tooltip = "|cffffffff".. PARRY_CHANCE .." "..FormatPercent(chance).."|r";
-	self.tooltip2 = format(CR_PARRY_TOOLTIP, GetCombatRating(CR_PARRY), GetCombatRatingBonus(CR_PARRY));
 end
 
 function UpdateFunc:Block()

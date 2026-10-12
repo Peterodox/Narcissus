@@ -360,10 +360,10 @@ function StatTooltipFunc.Versatility(tooltip)
     return true;
 end
 
-local function SetupSimplyRatingTooltip(tooltip, ratingIndex, value, statName, description)
+local function SetupSimplyRatingTooltip(tooltip, ratingIndex, value, tooltipHeader, tooltipDescription)
     if not canaccessvalue(value) then return; end
-	tooltip:SetText("|cffffffff" .. statName .. " " .. FormatPercent(value) .. "|r");
-	tooltip:AddNormalLine(format(description, BreakUpLargeNumbers(GetCombatRating(ratingIndex)), GetCombatRatingBonus(ratingIndex)));
+	tooltip:SetText("|cffffffff" .. tooltipHeader .. " " .. FormatPercent(value) .. "|r");
+	tooltip:AddNormalLine(format(tooltipDescription, BreakUpLargeNumbers(GetCombatRating(ratingIndex)), GetCombatRatingBonus(ratingIndex)));
     return true;
 end
 
@@ -377,4 +377,12 @@ end
 
 function StatTooltipFunc.Speed(tooltip)
     return SetupSimplyRatingTooltip(tooltip, CR_SPEED, GetSpeed(), STAT_SPEED, CR_SPEED_TOOLTIP);
+end
+
+function StatTooltipFunc.Dodge(tooltip)
+    return SetupSimplyRatingTooltip(tooltip, CR_DODGE, GetDodgeChance(), DODGE_CHANCE, CR_DODGE_TOOLTIP);
+end
+
+function StatTooltipFunc.Parry(tooltip)
+    return SetupSimplyRatingTooltip(tooltip, CR_PARRY, GetParryChance(), PARRY_CHANCE, CR_PARRY_TOOLTIP);
 end
