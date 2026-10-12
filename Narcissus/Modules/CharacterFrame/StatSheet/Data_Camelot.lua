@@ -58,6 +58,12 @@ local function GetClassSpecificTooltip(statToken)
     return classStatText;
 end
 
+function StatTooltipFunc:Strength(statIndex, effectiveStat)
+    local BLOCK_VALUE_PER_STRENGTH = 20;
+    local classStatText = GetClassSpecificTooltip("Strength");
+    self.tooltip2 = format(classStatText, GetAttackPowerForStat(statIndex, effectiveStat), math.floor(effectiveStat / BLOCK_VALUE_PER_STRENGTH));
+end
+
 function StatTooltipFunc:Stamina(statIndex, effectiveStat)
     local staminaBreak = STAMINA_BREAK or 10;
 
@@ -66,7 +72,7 @@ function StatTooltipFunc:Stamina(statIndex, effectiveStat)
     bonus = bonus + perStaminaBonus;
 
     local classStatText = GetClassSpecificTooltip("Stamina");
-    self.tooltip2 = string.format(classStatText, tostring(bonus));
+    self.tooltip2 = format(classStatText, tostring(bonus));
 end
 
 function StatTooltipFunc:Spirit()
