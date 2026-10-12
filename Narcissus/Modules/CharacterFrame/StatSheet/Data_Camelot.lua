@@ -4,6 +4,7 @@ local _, addon = ...
 if not addon.IS_FOREVER then return; end
 
 local format = string.format;
+local StatSheetAPI = addon.StatSheetAPI; ---@type StatSheetAPI
 
 
 ---@class StatSheetLayout
@@ -69,13 +70,14 @@ local function GetClassSpecificTooltip(statToken)
     return classStatText;
 end
 
-function StatTooltipFunc:Strength(statIndex, effectiveStat)
+function StatTooltipFunc.ExtraTooltip_Strength(tooltip, statIndex, effectiveStat)
     local BLOCK_VALUE_PER_STRENGTH = 20;
     local classStatText = GetClassSpecificTooltip("Strength");
-    self.tooltip2 = format(classStatText, GetAttackPowerForStat(statIndex, effectiveStat), math.floor(effectiveStat / BLOCK_VALUE_PER_STRENGTH));
+    classStatText = format(classStatText, GetAttackPowerForStat(statIndex, effectiveStat), math.floor(effectiveStat / BLOCK_VALUE_PER_STRENGTH));
+    tooltip:AddNormalLine(classStatText);
 end
 
-function StatTooltipFunc:Agility(statIndex, effectiveStat)
+function StatTooltipFunc.ExtraTooltip_Agility(tooltip, statIndex, effectiveStat)
     local ARMOR_PER_AGILITY = 2;
     local classStatText = GetClassSpecificTooltip("Agility");
 
@@ -99,10 +101,10 @@ function StatTooltipFunc:Agility(statIndex, effectiveStat)
         classStatText = format(classStatText, increasedMeleeCritChance, increasedArmor, increasedDodgeChance);
     end
 
-    self.tooltip2 = classStatText;
+    tooltip:AddNormalLine(classStatText);
 end
 
-function StatTooltipFunc:Stamina(statIndex, effectiveStat)
+function StatTooltipFunc.ExtraTooltip_Stamina(tooltip, statIndex, effectiveStat)
     local staminaBreak = STAMINA_BREAK or 10;
 
     local bonus = math.min(staminaBreak, effectiveStat);
@@ -110,10 +112,11 @@ function StatTooltipFunc:Stamina(statIndex, effectiveStat)
     bonus = bonus + perStaminaBonus;
 
     local classStatText = GetClassSpecificTooltip("Stamina");
-    self.tooltip2 = format(classStatText, tostring(bonus));
+    classStatText = format(classStatText, tostring(bonus));
+    tooltip:AddNormalLine(classStatText);
 end
 
-function StatTooltipFunc:Intellect(statIndex, effectiveStat)
+function StatTooltipFunc.ExtraTooltip_Intellect(tooltip, statIndex, effectiveStat)
     local intellectBreak = INTELLECT_BREAK or 20;
     local manaPerIntellect = MANA_PER_INTELLECT or 15;
 
@@ -129,10 +132,10 @@ function StatTooltipFunc:Intellect(statIndex, effectiveStat)
         classStatText = format(classStatText, tostring(manaBonus), spellCrit);
     end
 
-    self.tooltip2 = classStatText;
+    tooltip:AddNormalLine(classStatText);
 end
 
-function StatTooltipFunc:Spirit()
+function StatTooltipFunc.ExtraTooltip_Spirit(tooltip)
     local spiritStandingPenalty = 0.75;
 
     local healthRegenFromSpirit = GetHealthRegenFromSpirit() * spiritStandingPenalty; -- Assume player is standing
@@ -149,10 +152,12 @@ function StatTooltipFunc:Spirit()
         classStatText = format(classStatText, healthRegenFromSpirit * 5, manaRegenFromSpirit * 5, healthRegen * 5, manaRegen * 5);
     end
 
-    self.tooltip2 = format("%s\n\n%s", classStatText, SPIRIT_STANDING_WARNING);
+    classStatText = string.format("%s\n\n%s", classStatText, SPIRIT_STANDING_WARNING);
+    tooltip:AddNormalLine(classStatText);
 end
 
-function StatTooltipFunc:Crit()
+function StatTooltipFunc.Crit(tooltip)
+    local critChance = StatSheetAPI.GetEffectiveCrit();
 	local spellCrit = GetSpellCritChance();
 	local rangedCrit = GetRangedCritChance();
 	local meleeCrit = GetCritChance();
@@ -173,5 +178,8 @@ function StatTooltipFunc:Crit()
         desc = desc .. "\n\n" .. format(critBonusTooltip); -- Clear the % in the tooltip
     end
 
-    self.tooltip2 = desc;
+    tooltip:SetText(STAT_CRITICAL_STRIKE .." "..StatSheetAPI.FormatPercent(critChance), 1, 1, 1);
+    tooltip:AddNormalLine(desc);
+
+    return true;
 end

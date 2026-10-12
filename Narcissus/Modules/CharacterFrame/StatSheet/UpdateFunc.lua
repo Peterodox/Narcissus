@@ -4,6 +4,7 @@ local Narci = Narci;
 local L = Narci.L;
 local BreakUpLargeNumbers = BreakUpLargeNumbers;
 local SplitTooltipByLineBreak = NarciAPI.SplitTooltipByLineBreak;
+local StatSheetAPI = addon.StatSheetAPI; ---@type StatSheetAPI
 local StatTooltipFunc = addon.StatTooltipFunc or {}; ---@type StatTooltipFunc
 
 local format = string.format;
@@ -28,20 +29,7 @@ local N_SLASH_A = NOT_APPLICABLE;
 
 local DIGITS = "%.2f";
 
-local function FormatPercent(value)
-	return format("%.2f%%", value);
-end
-
-
-
-
-local PrimaryStatIndex = {
-	Strength = LE_UNIT_STAT_STRENGTH or 1,
-	Agility = LE_UNIT_STAT_AGILITY or 2,
-	Stamina = LE_UNIT_STAT_STAMINA or 3,
-	Intellect = LE_UNIT_STAT_INTELLECT or 4,
-	Spirit = LE_UNIT_STAT_SPIRIT or 5,
-};
+local FormatPercent = StatSheetAPI.FormatPercent;
 
 
 ------------------------------------------------------------------
@@ -62,12 +50,6 @@ local function ClearTooltipIfSecret(self, statName, value1)
 	end
 end
 
-local function SetupStatTooltip(self, token, ...)
-	if StatTooltipFunc[token] then
-		StatTooltipFunc[token](self, ...);
-	end
-end
-
 ---Set up a StatButton
 ---@param self any StatButton
 ---@param statIndex number The stat you want to display
@@ -75,55 +57,8 @@ local function SetupPrimaryStat(self, statIndex)
 	local unit = "player";
 	local stat, effectiveStat, posBuff, negBuff = UnitStat(unit, statIndex);
 	local statName = _G["SPELL_STAT"..statIndex.."_NAME"];
-
-	if ClearTooltipIfSecret(self, statName, posBuff) then
-		self:SetLabelAndValue(statName, effectiveStat);
-		return;
-	end
-
 	local effectiveStatDisplay = BreakUpLargeNumbers(effectiveStat);
 	self:SetLabelAndValue(statName, effectiveStatDisplay);
-
-	local tooltipTitle = "|cffffffff".. statName .." ";
-
-	if posBuff == 0 and negBuff == 0 then
-		tooltipTitle = tooltipTitle..effectiveStatDisplay.."|r";
-	else
-		tooltipTitle = tooltipTitle..effectiveStatDisplay;
-		if posBuff > 0 or negBuff < 0 then
-			tooltipTitle = tooltipTitle.." ("..BreakUpLargeNumbers(stat - posBuff - negBuff).."|r";
-		end
-		if posBuff > 0 then
-			tooltipTitle = tooltipTitle.."|r"..GREEN_FONT_COLOR_CODE.."+"..BreakUpLargeNumbers(posBuff).."|r";
-		end
-		if negBuff < 0 then
-			tooltipTitle = tooltipTitle..RED_FONT_COLOR_CODE.." "..BreakUpLargeNumbers(negBuff).."|r";
-		end
-		if posBuff > 0 or negBuff < 0 then
-			tooltipTitle = tooltipTitle.."|cffffffff"..")".."|r";
-		end
-
-		-- If there are any negative buffs then show the main number in red even if there are
-		-- positive buffs. Otherwise show in green.
-		if negBuff < 0 and not (GetPVPGearStatRules and GetPVPGearStatRules()) then
-			effectiveStatDisplay = RED_FONT_COLOR_CODE..effectiveStatDisplay.."|r";
-		end
-	end
-
-	self.tooltip = tooltipTitle;
-	self.tooltip2 = nil;
-
-	if statIndex == PrimaryStatIndex.Strength then
-		SetupStatTooltip(self, "Strength", statIndex, effectiveStat);
-	elseif statIndex == PrimaryStatIndex.Agility then
-		SetupStatTooltip(self, "Agility", statIndex, effectiveStat);
-	elseif statIndex == PrimaryStatIndex.Intellect then
-		SetupStatTooltip(self, "Intellect", statIndex, effectiveStat);
-	elseif statIndex == PrimaryStatIndex.Stamina then
-		SetupStatTooltip(self, "Stamina", statIndex, effectiveStat);
-	elseif statIndex == PrimaryStatIndex.Spirit then
-		SetupStatTooltip(self, "Spirit");
-	end
 end
 
 function UpdateFunc:Primary()
@@ -139,23 +74,23 @@ function UpdateFunc:Primary()
 end
 
 function UpdateFunc:Strength()
-	SetupPrimaryStat(self, PrimaryStatIndex.Strength);
+	SetupPrimaryStat(self, StatSheetAPI.PrimaryStatIndex.Strength);
 end
 
 function UpdateFunc:Agility()
-	SetupPrimaryStat(self, PrimaryStatIndex.Agility);
+	SetupPrimaryStat(self, StatSheetAPI.PrimaryStatIndex.Agility);
 end
 
 function UpdateFunc:Intellect()
-	SetupPrimaryStat(self, PrimaryStatIndex.Intellect);
+	SetupPrimaryStat(self, StatSheetAPI.PrimaryStatIndex.Intellect);
 end
 
 function UpdateFunc:Stamina()
-	SetupPrimaryStat(self, PrimaryStatIndex.Stamina);
+	SetupPrimaryStat(self, StatSheetAPI.PrimaryStatIndex.Stamina);
 end
 
 function UpdateFunc:Spirit()
-	SetupPrimaryStat(self, PrimaryStatIndex.Spirit);
+	SetupPrimaryStat(self, StatSheetAPI.PrimaryStatIndex.Spirit);
 end
 
 local function GetAppropriateDamage(unit)
@@ -485,20 +420,11 @@ function UpdateFunc:Regen()
 end
 
 function UpdateFunc:Crit()
-	local critChance, rating = NarciAPI.GetEffectiveCrit();
-	local extraCritChance = GetCombatRatingBonus(rating);
+	local critChance, rating = StatSheetAPI.GetEffectiveCrit();
 	local extraCritRating = GetCombatRating(rating);
 
 	self:SetLabelAndValue(NARCI_CRITICAL_STRIKE, FormatPercent(critChance)); --COMBAT_RATING_NAME10
 	self:SetValueRating(extraCritRating);
-
-	if ClearTooltipIfSecret(self, STAT_CRITICAL_STRIKE, critChance) then
-		return;
-	end
-
-	self.tooltip = "|cffffffff".. STAT_CRITICAL_STRIKE .." "..FormatPercent(critChance).."|r";
-
-	SetupStatTooltip(self, "Crit", extraCritChance, extraCritRating);
 end
 
 function UpdateFunc:Haste()

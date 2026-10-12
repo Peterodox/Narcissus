@@ -4,6 +4,14 @@ local StatSheetAPI = {}; ---@class StatSheetAPI
 addon.StatSheetAPI = StatSheetAPI;
 
 
+StatSheetAPI.PrimaryStatIndex = {
+	Strength = LE_UNIT_STAT_STRENGTH or 1,
+	Agility = LE_UNIT_STAT_AGILITY or 2,
+	Stamina = LE_UNIT_STAT_STAMINA or 3,
+	Intellect = LE_UNIT_STAT_INTELLECT or 4,
+	Spirit = LE_UNIT_STAT_SPIRIT or 5,
+};
+
 ---Format a number like 67 into 67.00%
 function StatSheetAPI.FormatPercent(value)
 	return string.format("%.2f%%", value);
