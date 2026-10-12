@@ -269,3 +269,66 @@ function StatTooltipFunc.Haste(tooltip)
 
     return true;
 end
+
+function StatTooltipFunc.Mastery(tooltip)
+	local mastery, bonusCoeff = GetMasteryEffect();
+	if not canaccessvalue(mastery) then return; end
+
+	local masteryBonus = GetCombatRatingBonus(CR_MASTERY) * bonusCoeff;
+
+	local header = "|cffffffff"..STAT_MASTERY.." "..FormatPercent(mastery).."|r";
+	if masteryBonus > 0 then
+		header = header.."|cffffffff".." ("..FormatPercent(mastery - masteryBonus).."|r"..GREEN_FONT_COLOR_CODE.."+"..FormatPercent(masteryBonus).."|r".."|cffffffff"..")".."|r";
+	end
+
+	tooltip:SetText(header);
+
+	local masteryRating = GetCombatRating(CR_MASTERY);
+	local primaryTalentTree = GetSpecialization();
+
+	if primaryTalentTree then	--dragonflight
+		local masterySpell, masterySpell2;
+		local spells = C_SpecializationInfo.GetSpecializationMasterySpells(primaryTalentTree);
+
+		if spells then
+			masterySpell, masterySpell2 = spells[1], spells[2];
+		end
+
+		if tooltip.AddSpellByID then
+			if masterySpell then
+				tooltip:AddSpellByID(masterySpell);
+			end
+			if masterySpell2 then
+				tooltip:AddBlankLine();
+				tooltip:AddSpellByID(masterySpell2);
+			end
+		else
+			if masterySpell then
+				local tooltipInfo = CreateBaseTooltipInfo("GetSpellByID", masterySpell);
+				tooltipInfo.append = true;
+				tooltip:ProcessInfo(tooltipInfo);
+			end
+			if masterySpell2 then
+				tooltip:AddBlankLine();
+				local tooltipInfo = CreateBaseTooltipInfo("GetSpellByID", masterySpell2);
+				tooltipInfo.append = true;
+				tooltip:ProcessInfo(tooltipInfo);
+			end
+		end
+
+		tooltip:AddBlankLine();
+
+		local desc = format(STAT_MASTERY_TOOLTIP, BreakUpLargeNumbers(masteryRating), masteryBonus);
+		if masteryBonus ~= 0 then
+			tooltip:AddNormalDoubleLine(desc ,floor( (masteryRating / masteryBonus) * 100 + 0.5) / 100 .. " [+1%]", 1.00, 0.82, 0.00, 1.00, 0.82, 0.00);
+		else
+			tooltip:AddNormalLine(desc);
+		end
+	else
+		tooltip:AddNormalLine(format(STAT_MASTERY_TOOLTIP, BreakUpLargeNumbers(masteryRating), masteryBonus));
+		tooltip:AddBlankLine();
+		tooltip:AddLine(STAT_MASTERY_TOOLTIP_NO_TALENT_SPEC, GRAY_FONT_COLOR.r, GRAY_FONT_COLOR.g, GRAY_FONT_COLOR.b, true);
+	end
+
+	return true;
+end

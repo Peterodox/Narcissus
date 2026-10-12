@@ -430,79 +430,7 @@ function UpdateFunc:Haste()
 	self:SetValueRating(GetCombatRating(CR_HASTE_MELEE));
 end
 
-local function MasteryFrame_OnEnter(self)
-	local mastery, bonusCoeff = GetMasteryEffect();
-	if not canaccessvalue(mastery) then
-		DefaultTooltip:SetOwner(self, "ANCHOR_NONE");
-		DefaultTooltip:SetText(STAT_MASTERY);
-		DefaultTooltip:SetPoint("TOPRIGHT",self,"TOPLEFT", -4, 0)
-		DefaultTooltip:Show();
-		return;
-	end
-
-    local RadarChart = self:GetParent();
-    if RadarChart.SetVerticeSize then
-        RadarChart.SetVerticeSize(RadarChart, self, 15);
-    end
-
-	DefaultTooltip:SetOwner(self, "ANCHOR_NONE");
-
-	local masteryBonus = GetCombatRatingBonus(CR_MASTERY) * bonusCoeff;
-
-	local title = "|cffffffff"..STAT_MASTERY.." "..FormatPercent(mastery).."|r";
-	if (masteryBonus > 0) then
-		title = title.."|cffffffff".." ("..FormatPercent(mastery - masteryBonus).."|r"..GREEN_FONT_COLOR_CODE.."+"..FormatPercent(masteryBonus).."|r".."|cffffffff"..")".."|r";
-	end
-	DefaultTooltip:SetText(title);
-
-	local masteryRating = GetCombatRating(CR_MASTERY);
-	local primaryTalentTree = GetSpecialization();
-	if primaryTalentTree then	--dragonflight
-		local masterySpell, masterySpell2;
-		local spells = C_SpecializationInfo.GetSpecializationMasterySpells(primaryTalentTree);
-		if spells then
-			masterySpell, masterySpell2 = spells[1], spells[2];
-		end
-		if DefaultTooltip.AddSpellByID then
-			if masterySpell then
-				DefaultTooltip:AddSpellByID(masterySpell);
-			end
-			if masterySpell2 then
-				DefaultTooltip:AddLine(" ");
-				DefaultTooltip:AddSpellByID(masterySpell2);
-			end
-		else
-			if masterySpell then
-				local tooltipInfo = CreateBaseTooltipInfo("GetSpellByID", masterySpell);
-				tooltipInfo.append = true;
-				DefaultTooltip:ProcessInfo(tooltipInfo);
-			end
-			if masterySpell2 then
-				DefaultTooltip:AddLine(" ");
-				local tooltipInfo = CreateBaseTooltipInfo("GetSpellByID", masterySpell2);
-				tooltipInfo.append = true;
-				DefaultTooltip:ProcessInfo(tooltipInfo);
-			end
-		end
-		DefaultTooltip:AddLine(" ");
-		local tooltip = format(STAT_MASTERY_TOOLTIP, BreakUpLargeNumbers(masteryRating), masteryBonus);
-		if masteryBonus ~= 0 then
-			DefaultTooltip:AddDoubleLine(tooltip ,floor( (masteryRating / masteryBonus) * 100 + 0.5) / 100 .. " [+1%]", 1.00, 0.82, 0.00, 1.00, 0.82, 0.00);
-		else
-			DefaultTooltip:AddLine(tooltip, 1.00, 0.82, 0.00, true);
-		end
-	else
-		DefaultTooltip:AddLine(format(STAT_MASTERY_TOOLTIP, BreakUpLargeNumbers(masteryRating), masteryBonus), 1.00, 0.82, 0.00, true);
-		DefaultTooltip:AddLine(" ");
-		DefaultTooltip:AddLine(STAT_MASTERY_TOOLTIP_NO_TALENT_SPEC, GRAY_FONT_COLOR.r, GRAY_FONT_COLOR.g, GRAY_FONT_COLOR.b, true);
-	end
-	DefaultTooltip:SetPoint("TOPRIGHT", self,"TOPLEFT", -4, 0)
-	DefaultTooltip:Show();
-end
-
 function UpdateFunc:Mastery()
-	self:SetScript("OnEnter", MasteryFrame_OnEnter);
-
 	local mastery = GetMasteryEffect();
 	self:SetLabelAndValue(STAT_MASTERY, FormatPercent(mastery));
 	self:SetValueRating(GetCombatRating(CR_MASTERY));
