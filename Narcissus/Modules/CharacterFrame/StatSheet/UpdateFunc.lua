@@ -416,8 +416,8 @@ function UpdateFunc:Regen()
 end
 
 function UpdateFunc:Crit()
-	local critChance, rating = StatSheetAPI.GetEffectiveCrit();
-	local extraCritRating = GetCombatRating(rating);
+	local critChance, ratingIndex = StatSheetAPI.GetEffectiveCrit();
+	local extraCritRating = GetCombatRating(ratingIndex);
 
 	self:SetLabelAndValue(NARCI_CRITICAL_STRIKE, FormatPercent(critChance)); --COMBAT_RATING_NAME10
 	self:SetValueRating(extraCritRating);
@@ -425,10 +425,9 @@ end
 
 function UpdateFunc:Haste()
 	local haste = GetHaste();
-	local ratingIndex = CR_HASTE_MELEE;
 
 	self:SetLabelAndValue(STAT_HASTE, FormatPercent(haste));
-	self:SetValueRating(GetCombatRating(ratingIndex));
+	self:SetValueRating(GetCombatRating(CR_HASTE_MELEE));
 end
 
 local function MasteryFrame_OnEnter(self)

@@ -206,9 +206,9 @@ function StatTooltipFunc.Primary(tooltip)
 end
 
 function StatTooltipFunc.Crit(tooltip)
-	local critChance, rating = StatSheetAPI.GetEffectiveCrit();
-	local extraCritChance = GetCombatRatingBonus(rating);
-	local extraCritRating = GetCombatRating(rating);
+	local critChance, ratingIndex = StatSheetAPI.GetEffectiveCrit();
+	local extraCritChance = GetCombatRatingBonus(ratingIndex);
+	local extraCritRating = GetCombatRating(ratingIndex);
 
     if not (canaccessvalue(extraCritRating) and canaccessvalue(extraCritChance)) then return; end
 

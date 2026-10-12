@@ -19,9 +19,9 @@ end
 
 ---For Retail where there is only one meaningful crit chance
 ---@return number critChance Like 5%
----@return number critRating Global like CR_CRIT_MELEE
+---@return number ratingIndex Global like CR_CRIT_MELEE
 function StatSheetAPI.GetEffectiveCrit()
-	local rating;
+	local ratingIndex;
 	local spellCrit, rangedCrit, meleeCrit;
 	local critChance;
 
@@ -43,16 +43,16 @@ function StatSheetAPI.GetEffectiveCrit()
 
 	if (spellCrit >= rangedCrit and spellCrit >= meleeCrit) then
 		critChance = spellCrit;
-		rating = CR_CRIT_SPELL;
+		ratingIndex = CR_CRIT_SPELL;
 	elseif rangedCrit >= meleeCrit then
 		critChance = rangedCrit;
-		rating = CR_CRIT_RANGED;
+		ratingIndex = CR_CRIT_RANGED;
 	else
 		critChance = meleeCrit;
-		rating = CR_CRIT_MELEE;
+		ratingIndex = CR_CRIT_MELEE;
 	end
 
-	return critChance, rating
+	return critChance, ratingIndex
 end
 
 function StatSheetAPI.GetPrimaryStatIndex()

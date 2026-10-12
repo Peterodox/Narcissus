@@ -104,8 +104,8 @@ function NarciRadarChartMixin:SetValue(c, h, m, v)
 	if c then
 		crit = c;
 	else
-		local _, rating = GetEffectiveCrit();
-		crit = GetCombatRating(rating) or 0;
+		local _, critRatingIndex = GetEffectiveCrit();
+		crit = GetCombatRating(critRatingIndex) or 0;
 	end
 	if h then
 		haste = h;
@@ -350,20 +350,20 @@ function NarciRadarChartMixin:CalculateBestSum(e1, e2, e3, e4)
 end
 
 function NarciRadarChartMixin:UpdateChart(useAnimation)
-	local critChance, critRating = GetEffectiveCrit();
+	local critChance, critRatingIndex = GetEffectiveCrit();
 
 	if not canaccessvalue(critChance) then
 		for _, vertice in ipairs(self.vertices) do
 			vertice:Hide();
 		end
-		return
+		return;
 	end
 
 	for _, vertice in ipairs(self.vertices) do
 		vertice:Show();
 	end
 
-	local e1 = GetCombatRating(critRating) or 0;
+	local e1 = GetCombatRating(critRatingIndex) or 0;
 	local e2 = GetCombatRating(CR_HASTE_MELEE) or 0;
 	local e3 = GetCombatRating(CR_MASTERY) or 0;
 	local e4 = GetCombatRating(CR_VERSATILITY_DAMAGE_DONE) or 0;
