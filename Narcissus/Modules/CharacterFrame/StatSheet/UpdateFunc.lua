@@ -3,9 +3,7 @@ local _, addon = ...
 local Narci = Narci;
 local L = Narci.L;
 local BreakUpLargeNumbers = BreakUpLargeNumbers;
-local SplitTooltipByLineBreak = NarciAPI.SplitTooltipByLineBreak;
 local StatSheetAPI = addon.StatSheetAPI; ---@type StatSheetAPI
-local StatTooltipFunc = addon.StatTooltipFunc or {}; ---@type StatTooltipFunc
 
 local format = string.format;
 local floor = math.floor;
@@ -19,7 +17,6 @@ local UnitStat = UnitStat;
 local GetCombatRating = GetCombatRating;
 local GetCombatRatingBonus = GetCombatRatingBonus;
 local BASE_MOVEMENT_SPEED = BASE_MOVEMENT_SPEED or 7;
-local GetSpecialization = C_SpecializationInfo.GetSpecialization;
 local GetUnitSpeed = GetUnitSpeed;
 local canaccessvalue = canaccessvalue;
 
@@ -453,24 +450,18 @@ end
 
 function UpdateFunc:Leech()
 	local lifesteal = GetLifesteal();
-
-	self.tooltip = "|cffffffff" .. STAT_LIFESTEAL .. " " .. FormatPercent(lifesteal) .. "|r";
-	self.tooltip2 = format(CR_LIFESTEAL_TOOLTIP, BreakUpLargeNumbers(GetCombatRating(CR_LIFESTEAL)), GetCombatRatingBonus(CR_LIFESTEAL));
-
 	self:SetLabelAndValue(STAT_LIFESTEAL, FormatPercent(lifesteal), canaccessvalue(lifesteal) and lifesteal == 0);
 end
 
 function UpdateFunc:Avoidance()
 	local avoidance = GetAvoidance();
-
-	self.tooltip = "|cffffffff" .. STAT_AVOIDANCE .. " " .. FormatPercent(avoidance) .. "|r";
-	self.tooltip2 = format(CR_AVOIDANCE_TOOLTIP, BreakUpLargeNumbers(GetCombatRating(CR_AVOIDANCE)), GetCombatRatingBonus(CR_AVOIDANCE));
-
 	self:SetLabelAndValue(STAT_AVOIDANCE, FormatPercent(avoidance), canaccessvalue(avoidance) and avoidance == 0);
 end
 
 function UpdateFunc:Speed()
 	local speed = GetSpeed();
+	self:SetLabelAndValue(STAT_SPEED, FormatPercent(speed), canaccessvalue(speed) and speed == 0);
+end
 
 	self.tooltip = "|cffffffff" .. STAT_SPEED .. " " .. FormatPercent(speed) .. "|r";
 	self.tooltip2 = format(CR_SPEED_TOOLTIP, BreakUpLargeNumbers(GetCombatRating(CR_SPEED)), GetCombatRatingBonus(CR_SPEED));

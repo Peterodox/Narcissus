@@ -359,3 +359,22 @@ function StatTooltipFunc.Versatility(tooltip)
 
     return true;
 end
+
+local function SetupSimplyRatingTooltip(tooltip, ratingIndex, value, statName, description)
+    if not canaccessvalue(value) then return; end
+	tooltip:SetText("|cffffffff" .. statName .. " " .. FormatPercent(value) .. "|r");
+	tooltip:AddNormalLine(format(description, BreakUpLargeNumbers(GetCombatRating(ratingIndex)), GetCombatRatingBonus(ratingIndex)));
+    return true;
+end
+
+function StatTooltipFunc.Leech(tooltip)
+    return SetupSimplyRatingTooltip(tooltip, CR_LIFESTEAL, GetLifesteal(), STAT_LIFESTEAL, CR_LIFESTEAL_TOOLTIP);
+end
+
+function StatTooltipFunc.Avoidance(tooltip)
+    return SetupSimplyRatingTooltip(tooltip, CR_AVOIDANCE, GetAvoidance(), STAT_AVOIDANCE, CR_AVOIDANCE_TOOLTIP);
+end
+
+function StatTooltipFunc.Speed(tooltip)
+    return SetupSimplyRatingTooltip(tooltip, CR_SPEED, GetSpeed(), STAT_SPEED, CR_SPEED_TOOLTIP);
+end
