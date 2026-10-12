@@ -48,13 +48,20 @@ addon.StatSheetLayout = StatSheetLayout;
 
 local StatTooltipFunc = addon.StatTooltipFunc; ---@class StatTooltipFunc
 
+local CLASS_FILE_NAME;
+
 ---@param statToken string
 local function GetClassSpecificTooltip(statToken)
-    local _, classFileName = UnitClass("player");
-    local classStatText = _G[string.upper(classFileName).."_"..string.upper(statToken).."_TOOLTIP"];
+    if not CLASS_FILE_NAME then
+        _, CLASS_FILE_NAME = UnitClass("player");
+        CLASS_FILE_NAME = string.upper(CLASS_FILE_NAME);
+    end
+
+    local classStatText = _G[CLASS_FILE_NAME.."_"..string.upper(statToken).."_TOOLTIP"];
     if not classStatText then
 		classStatText = _G["DEFAULT".."_"..string.upper(statToken).."_".."TOOLTIP"];
 	end
+
     return classStatText;
 end
 
@@ -85,9 +92,8 @@ function StatTooltipFunc:Spirit()
     local manaRegen = GetManaRegen();
 
     local classStatText = GetClassSpecificTooltip("Spirit");
-    local _, classFileName = UnitClass("player");
 
-    if classFileName == "WARRIOR" or classFileName == "ROGUE" then
+    if CLASS_FILE_NAME == "WARRIOR" or CLASS_FILE_NAME == "ROGUE" then
         classStatText = format(classStatText, healthRegenFromSpirit * 5, healthRegen * 5);
     else
         classStatText = format(classStatText, healthRegenFromSpirit * 5, manaRegenFromSpirit * 5, healthRegen * 5, manaRegen * 5);
