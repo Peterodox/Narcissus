@@ -23,7 +23,6 @@ local GetSpecialization = C_SpecializationInfo.GetSpecialization;
 local GetUnitSpeed = GetUnitSpeed;
 local canaccessvalue = canaccessvalue;
 
-local NARCI_VERSATILITY_TOOLTIP_FORMAT_1, NARCI_VERSATILITY_TOOLTIP_FORMAT_2 = SplitTooltipByLineBreak(CR_VERSATILITY_TOOLTIP);
 local N_SLASH_A = NOT_APPLICABLE;
 
 local DIGITS = "%.2f";
@@ -440,29 +439,16 @@ function UpdateFunc:Versatility()
 	local versatility = GetCombatRating(CR_VERSATILITY_DAMAGE_DONE);
 	local attackBonus = GetCombatRatingBonus(CR_VERSATILITY_DAMAGE_DONE);
 	local versaBonusAttack = GetVersatilityBonus(CR_VERSATILITY_DAMAGE_DONE);
-	local defenseBonus = GetCombatRatingBonus(CR_VERSATILITY_DAMAGE_TAKEN);
-	local versaBonusdefense = GetVersatilityBonus(CR_VERSATILITY_DAMAGE_TAKEN);
 
-	self:SetValueRating(versatility);
-
-	if ClearTooltipIfSecret(self, STAT_VERSATILITY, attackBonus) then
-		self:SetLabelAndValue(STAT_VERSATILITY, FormatPercent(attackBonus));
-		return;
-	end
-
-	local versatilityDamageBonus = attackBonus + versaBonusAttack;
-	local versatilityDamageTakenReduction = defenseBonus + versaBonusdefense;
-	self.tooltip = "|cffffffff" .. format(VERSATILITY_TOOLTIP_FORMAT, STAT_VERSATILITY, versatilityDamageBonus, versatilityDamageTakenReduction) .. "|r";
-
-	if versatilityDamageBonus == 0 then
-		self.tooltip2 = format(CR_VERSATILITY_TOOLTIP, versatilityDamageBonus, versatilityDamageTakenReduction, BreakUpLargeNumbers(versatility), versatilityDamageBonus, versatilityDamageTakenReduction);
-		self.tooltip4 = nil;
+	local displayedValue;
+	if canaccessallvalues(attackBonus, versaBonusAttack) then
+		displayedValue = attackBonus + versaBonusAttack;
 	else
-		self.tooltip2 = format(NARCI_VERSATILITY_TOOLTIP_FORMAT_1, versatilityDamageBonus, versatilityDamageTakenReduction);
-		self.tooltip4 = {format(NARCI_VERSATILITY_TOOLTIP_FORMAT_2, BreakUpLargeNumbers(versatility), versatilityDamageBonus, versatilityDamageTakenReduction) , floor( (versatility / versatilityDamageBonus) * 100 + 0.5) / 100 .. " [+1%/0.5%]"};
+		displayedValue = attackBonus;
 	end
 
-	self:SetLabelAndValue(STAT_VERSATILITY, FormatPercent(versatilityDamageBonus));
+	self:SetLabelAndValue(STAT_VERSATILITY, FormatPercent(displayedValue));
+	self:SetValueRating(versatility);
 end
 
 function UpdateFunc:Leech()

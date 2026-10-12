@@ -212,7 +212,7 @@ function StatTooltipFunc.Crit(tooltip)
 
     if not (canaccessvalue(extraCritRating) and canaccessvalue(extraCritChance)) then return; end
 
-    local NARCI_CRIT_TOOLTIP, NARCI_CRIT_TOOLTIP_FORMAT = NarciAPI.SplitTooltipByLineBreak(CR_CRIT_TOOLTIP);
+    local baseDecription, ratingFormat = NarciAPI.SplitTooltipByLineBreak(CR_CRIT_TOOLTIP);
 
     tooltip:SetText(STAT_CRITICAL_STRIKE .." "..FormatPercent(critChance), 1, 1, 1);
 
@@ -222,9 +222,9 @@ function StatTooltipFunc.Crit(tooltip)
 		if extraCritChance == 0 then
 			tooltip:AddNormalLine(format(CR_CRIT_TOOLTIP, BreakUpLargeNumbers(extraCritRating), extraCritChance));
 		else
-            tooltip:AddNormalLine(NARCI_CRIT_TOOLTIP);
+            tooltip:AddNormalLine(baseDecription);
             tooltip:AddBlankLine();
-			tooltip:AddNormalDoubleLine(format(NARCI_CRIT_TOOLTIP_FORMAT, BreakUpLargeNumbers(extraCritRating), extraCritChance), math.floor( (extraCritRating / extraCritChance) * 100 + 0.5) / 100 .. " [+1%]");
+			tooltip:AddNormalDoubleLine(format(ratingFormat, BreakUpLargeNumbers(extraCritRating), extraCritChance), math.floor( (extraCritRating / extraCritChance) * 100 + 0.5) / 100 .. " [+1%]");
 		end
 	end
 
@@ -320,7 +320,7 @@ function StatTooltipFunc.Mastery(tooltip)
 
 		local desc = format(STAT_MASTERY_TOOLTIP, BreakUpLargeNumbers(masteryRating), masteryBonus);
 		if masteryBonus ~= 0 then
-			tooltip:AddNormalDoubleLine(desc ,floor( (masteryRating / masteryBonus) * 100 + 0.5) / 100 .. " [+1%]", 1.00, 0.82, 0.00, 1.00, 0.82, 0.00);
+			tooltip:AddNormalDoubleLine(desc, math.floor( (masteryRating / masteryBonus) * 100 + 0.5) / 100 .. " [+1%]", 1.00, 0.82, 0.00, 1.00, 0.82, 0.00);
 		else
 			tooltip:AddNormalLine(desc);
 		end
@@ -331,4 +331,31 @@ function StatTooltipFunc.Mastery(tooltip)
 	end
 
 	return true;
+end
+
+function StatTooltipFunc.Versatility(tooltip)
+    local versatility = GetCombatRating(CR_VERSATILITY_DAMAGE_DONE);
+    local attackBonus = GetCombatRatingBonus(CR_VERSATILITY_DAMAGE_DONE);
+	local versaBonusAttack = GetVersatilityBonus(CR_VERSATILITY_DAMAGE_DONE);
+	local defenseBonus = GetCombatRatingBonus(CR_VERSATILITY_DAMAGE_TAKEN);
+	local versaBonusdefense = GetVersatilityBonus(CR_VERSATILITY_DAMAGE_TAKEN);
+
+    if not canaccessallvalues(attackBonus, versaBonusAttack, defenseBonus, versaBonusdefense) then return; end
+
+	local versatilityDamageBonus = attackBonus + versaBonusAttack;
+	local versatilityDamageTakenReduction = defenseBonus + versaBonusdefense;
+
+	local header = "|cffffffff" .. format(VERSATILITY_TOOLTIP_FORMAT, STAT_VERSATILITY, versatilityDamageBonus, versatilityDamageTakenReduction) .. "|r";
+    tooltip:SetText(header);
+
+	if versatilityDamageBonus == 0 then
+		tooltip:AddNormalLine(format(CR_VERSATILITY_TOOLTIP, versatilityDamageBonus, versatilityDamageTakenReduction, BreakUpLargeNumbers(versatility), versatilityDamageBonus, versatilityDamageTakenReduction));
+	else
+        local ratingFormat1, ratingFormat2 = NarciAPI.SplitTooltipByLineBreak(CR_VERSATILITY_TOOLTIP);
+		tooltip:AddNormalLine(format(ratingFormat1, versatilityDamageBonus, versatilityDamageTakenReduction));
+        tooltip:AddBlankLine();
+		tooltip:AddNormalDoubleLine(format(ratingFormat2, BreakUpLargeNumbers(versatility), versatilityDamageBonus, versatilityDamageTakenReduction) , math.floor( (versatility / versatilityDamageBonus) * 100 + 0.5) / 100 .. " [+1%/0.5%]");
+	end
+
+    return true;
 end
