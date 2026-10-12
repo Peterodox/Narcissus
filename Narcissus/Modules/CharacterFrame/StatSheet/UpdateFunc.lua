@@ -22,7 +22,6 @@ local GetSpecialization = C_SpecializationInfo.GetSpecialization;
 local GetUnitSpeed = GetUnitSpeed;
 local canaccessvalue = canaccessvalue;
 
-local NARCI_CRIT_TOOLTIP, NARCI_CRIT_TOOLTIP_FORMAT = SplitTooltipByLineBreak(CR_CRIT_TOOLTIP);
 local _, NARCI_HASTE_TOOLTIP_FORMAT = SplitTooltipByLineBreak(STAT_HASTE_BASE_TOOLTIP);
 local NARCI_VERSATILITY_TOOLTIP_FORMAT_1, NARCI_VERSATILITY_TOOLTIP_FORMAT_2 = SplitTooltipByLineBreak(CR_VERSATILITY_TOOLTIP);
 local N_SLASH_A = NOT_APPLICABLE;
@@ -486,7 +485,7 @@ function UpdateFunc:Regen()
 end
 
 function UpdateFunc:Crit()
-	local critChance, rating = GetEffectiveCrit();
+	local critChance, rating = NarciAPI.GetEffectiveCrit();
 	local extraCritChance = GetCombatRatingBonus(rating);
 	local extraCritRating = GetCombatRating(rating);
 
@@ -499,17 +498,7 @@ function UpdateFunc:Crit()
 
 	self.tooltip = "|cffffffff".. STAT_CRITICAL_STRIKE .." "..FormatPercent(critChance).."|r";
 
-	self.tooltip4 = nil;
-	if GetCritChanceProvidesParryEffect() then
-		self.tooltip2 = format(CR_CRIT_PARRY_RATING_TOOLTIP, BreakUpLargeNumbers(extraCritRating), extraCritChance, GetCombatRatingBonusForCombatRatingValue(CR_PARRY, extraCritRating));
-	else
-		if extraCritChance == 0 then
-			self.tooltip2 = format(CR_CRIT_TOOLTIP, BreakUpLargeNumbers(extraCritRating), extraCritChance);
-		else
-			self.tooltip2 = NARCI_CRIT_TOOLTIP;
-			self.tooltip4 = {format(NARCI_CRIT_TOOLTIP_FORMAT, BreakUpLargeNumbers(extraCritRating), extraCritChance), floor( (extraCritRating / extraCritChance) * 100 + 0.5) / 100 .. " [+1%]"}
-		end
-	end
+	SetupStatTooltip(self, "Crit", extraCritChance, extraCritRating);
 end
 
 function UpdateFunc:Haste()

@@ -50,12 +50,16 @@ local StatTooltipFunc = addon.StatTooltipFunc; ---@class StatTooltipFunc
 
 local CLASS_FILE_NAME;
 
----@param statToken string
-local function GetClassSpecificTooltip(statToken)
+local function InitPlayerClass()
     if not CLASS_FILE_NAME then
         _, CLASS_FILE_NAME = UnitClass("player");
         CLASS_FILE_NAME = string.upper(CLASS_FILE_NAME);
     end
+end
+
+---@param statToken string
+local function GetClassSpecificTooltip(statToken)
+    InitPlayerClass();
 
     local classStatText = _G[CLASS_FILE_NAME.."_"..string.upper(statToken).."_TOOLTIP"];
     if not classStatText then
@@ -146,4 +150,28 @@ function StatTooltipFunc:Spirit()
     end
 
     self.tooltip2 = format("%s\n\n%s", classStatText, SPIRIT_STANDING_WARNING);
+end
+
+function StatTooltipFunc:Crit()
+	local spellCrit = GetSpellCritChance();
+	local rangedCrit = GetRangedCritChance();
+	local meleeCrit = GetCritChance();
+
+    InitPlayerClass();
+	local isRangedClass = CLASS_FILE_NAME == "WARRIOR" or CLASS_FILE_NAME == "HUNTER" or CLASS_FILE_NAME == "ROGUE";
+
+    local desc = format(STAT_CRIT_MELEE, meleeCrit);
+
+	if isRangedClass then
+        desc = desc .. "\n" .. format(STAT_CRIT_RANGED, rangedCrit);
+	end
+
+    desc = desc .. "\n" .. format(STAT_CRIT_SPELL, spellCrit);
+
+	local critBonusTooltip = _G["STAT_" .. CLASS_FILE_NAME .. "_CRIT_BONUS"] or STAT_CRIT_BONUS;
+    if critBonusTooltip then
+        desc = desc .. "\n\n" .. format(critBonusTooltip); -- Clear the % in the tooltip
+    end
+
+    self.tooltip2 = desc;
 end

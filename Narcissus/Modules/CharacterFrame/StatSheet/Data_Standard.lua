@@ -139,3 +139,19 @@ function StatTooltipFunc:Stamina(statIndex, effectiveStat)
 
     self.tooltip2 = desc;
 end
+
+function StatTooltipFunc:Crit(extraCritChance, extraCritRating)
+    local NARCI_CRIT_TOOLTIP, NARCI_CRIT_TOOLTIP_FORMAT = NarciAPI.SplitTooltipByLineBreak(CR_CRIT_TOOLTIP);
+    self.tooltip4 = nil;
+
+	if GetCritChanceProvidesParryEffect() then
+		self.tooltip2 = format(CR_CRIT_PARRY_RATING_TOOLTIP, BreakUpLargeNumbers(extraCritRating), extraCritChance, GetCombatRatingBonusForCombatRatingValue(CR_PARRY, extraCritRating));
+	else
+		if extraCritChance == 0 then
+			self.tooltip2 = format(CR_CRIT_TOOLTIP, BreakUpLargeNumbers(extraCritRating), extraCritChance);
+		else
+			self.tooltip2 = NARCI_CRIT_TOOLTIP;
+			self.tooltip4 = {format(NARCI_CRIT_TOOLTIP_FORMAT, BreakUpLargeNumbers(extraCritRating), extraCritChance), floor( (extraCritRating / extraCritChance) * 100 + 0.5) / 100 .. " [+1%]"};
+		end
+	end
+end
