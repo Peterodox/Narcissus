@@ -241,6 +241,10 @@ function NarciGameTooltipMixin:StopFading()
     self.alpha = nil;
 end
 
+function NarciGameTooltipMixin:AddBlankLine()
+    self:AddLine(" ");
+end
+
 function NarciGameTooltipMixin:AddNormalLine(text, wrap)
     local r, g, b = NORMAL_FONT_COLOR:GetRGB();
     if wrap == nil then

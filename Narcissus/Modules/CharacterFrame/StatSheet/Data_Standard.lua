@@ -75,7 +75,7 @@ local function SetupPrimaryStatTooltip(tooltip, statIndex)
 	local stat, effectiveStat, posBuff, negBuff = UnitStat(unit, statIndex);
 	local statName = _G["SPELL_STAT"..statIndex.."_NAME"];
 
-	if not canaccessvalue(posBuff) then return; end
+	if not canaccessallvalues(effectiveStat, posBuff, negBuff) then return; end
 
 	local effectiveStatDisplay = BreakUpLargeNumbers(effectiveStat);
 
@@ -133,15 +133,15 @@ function StatTooltipFunc.ExtraTooltip_Strength(tooltip, statIndex, effectiveStat
     end
 
     desc = format(desc, BreakUpLargeNumbers(attackPower));
+    tooltip:AddNormalLine(desc);
 
     if IsPlayerTank() then
         local increasedParryChance = GetParryChanceFromAttribute();
         if increasedParryChance > 0 then
-            desc = format("%s\n\n%s", desc, format(CR_PARRY_BASE_STAT_TOOLTIP, increasedParryChance));
+            tooltip:AddBlankLine();
+            tooltip:AddNormalLine(format(CR_PARRY_BASE_STAT_TOOLTIP, increasedParryChance));
         end
     end
-
-    tooltip:AddNormalLine(desc);
 end
 
 function StatTooltipFunc.ExtraTooltip_Agility(tooltip, statIndex, effectiveStat)
@@ -153,14 +153,15 @@ function StatTooltipFunc.ExtraTooltip_Agility(tooltip, statIndex, effectiveStat)
     end
 
     desc = format(desc, BreakUpLargeNumbers(attackPower));
+    tooltip:AddNormalLine(desc);
+
     if IsPlayerTank() then
         local increasedDodgeChance = GetDodgeChanceFromAttribute();
         if increasedDodgeChance > 0 then
-            desc = format("%s\n\n%s", desc, format(CR_DODGE_BASE_STAT_TOOLTIP, increasedDodgeChance));
+            tooltip:AddBlankLine();
+            tooltip:AddNormalLine(format(CR_DODGE_BASE_STAT_TOOLTIP, increasedDodgeChance));
         end
     end
-
-    tooltip:AddNormalLine(desc);
 end
 
 function StatTooltipFunc.ExtraTooltip_Intellect(tooltip, statIndex, effectiveStat)
@@ -201,6 +202,8 @@ function StatTooltipFunc.Crit(tooltip)
 	local extraCritChance = GetCombatRatingBonus(rating);
 	local extraCritRating = GetCombatRating(rating);
 
+    if not (canaccessvalue(extraCritRating) and canaccessvalue(extraCritChance)) then return; end
+
     local NARCI_CRIT_TOOLTIP, NARCI_CRIT_TOOLTIP_FORMAT = NarciAPI.SplitTooltipByLineBreak(CR_CRIT_TOOLTIP);
 
 	if GetCritChanceProvidesParryEffect() then
@@ -210,7 +213,7 @@ function StatTooltipFunc.Crit(tooltip)
 			tooltip:AddNormalLine(format(CR_CRIT_TOOLTIP, BreakUpLargeNumbers(extraCritRating), extraCritChance));
 		else
             tooltip:AddNormalLine(NARCI_CRIT_TOOLTIP);
-			tooltip:AddNormalDoubleLine(format(NARCI_CRIT_TOOLTIP_FORMAT, BreakUpLargeNumbers(extraCritRating), extraCritChance), floor( (extraCritRating / extraCritChance) * 100 + 0.5) / 100 .. " [+1%]");
+			tooltip:AddNormalDoubleLine(format(NARCI_CRIT_TOOLTIP_FORMAT, BreakUpLargeNumbers(extraCritRating), extraCritChance), math.floor( (extraCritRating / extraCritChance) * 100 + 0.5) / 100 .. " [+1%]");
 		end
 	end
 

@@ -74,7 +74,7 @@ function StatTooltipFunc.ExtraTooltip_Strength(tooltip, statIndex, effectiveStat
     local BLOCK_VALUE_PER_STRENGTH = 20;
     local classStatText = GetClassSpecificTooltip("Strength");
     classStatText = format(classStatText, GetAttackPowerForStat(statIndex, effectiveStat), math.floor(effectiveStat / BLOCK_VALUE_PER_STRENGTH));
-    tooltip:AddNormalLine(classStatText);
+    tooltip:AddNormalLine(classStatText, false);
 end
 
 function StatTooltipFunc.ExtraTooltip_Agility(tooltip, statIndex, effectiveStat)
@@ -101,7 +101,7 @@ function StatTooltipFunc.ExtraTooltip_Agility(tooltip, statIndex, effectiveStat)
         classStatText = format(classStatText, increasedMeleeCritChance, increasedArmor, increasedDodgeChance);
     end
 
-    tooltip:AddNormalLine(classStatText);
+    tooltip:AddNormalLine(classStatText, false);
 end
 
 function StatTooltipFunc.ExtraTooltip_Stamina(tooltip, statIndex, effectiveStat)
@@ -132,7 +132,7 @@ function StatTooltipFunc.ExtraTooltip_Intellect(tooltip, statIndex, effectiveSta
         classStatText = format(classStatText, tostring(manaBonus), spellCrit);
     end
 
-    tooltip:AddNormalLine(classStatText);
+    tooltip:AddNormalLine(classStatText, false);
 end
 
 function StatTooltipFunc.ExtraTooltip_Spirit(tooltip)
@@ -152,34 +152,38 @@ function StatTooltipFunc.ExtraTooltip_Spirit(tooltip)
         classStatText = format(classStatText, healthRegenFromSpirit * 5, manaRegenFromSpirit * 5, healthRegen * 5, manaRegen * 5);
     end
 
-    classStatText = string.format("%s\n\n%s", classStatText, SPIRIT_STANDING_WARNING);
     tooltip:AddNormalLine(classStatText);
+    tooltip:AddBlankLine();
+    tooltip:AddNormalLine(SPIRIT_STANDING_WARNING);
 end
 
 function StatTooltipFunc.Crit(tooltip)
     local critChance = StatSheetAPI.GetEffectiveCrit();
-	local spellCrit = GetSpellCritChance();
-	local rangedCrit = GetRangedCritChance();
+
 	local meleeCrit = GetCritChance();
+    local rangedCrit = GetRangedCritChance();
+    local spellCrit = GetSpellCritChance();
+
+    if not (canaccessvalue(meleeCrit)) then return; end
+
+    tooltip:SetText(STAT_CRITICAL_STRIKE .." "..StatSheetAPI.FormatPercent(critChance), 1, 1, 1);
+
+    tooltip:AddNormalLine(format(STAT_CRIT_MELEE, meleeCrit));
 
     InitPlayerClass();
 	local isRangedClass = CLASS_FILE_NAME == "WARRIOR" or CLASS_FILE_NAME == "HUNTER" or CLASS_FILE_NAME == "ROGUE";
 
-    local desc = format(STAT_CRIT_MELEE, meleeCrit);
-
 	if isRangedClass then
-        desc = desc .. "\n" .. format(STAT_CRIT_RANGED, rangedCrit);
+        tooltip:AddNormalLine(format(STAT_CRIT_RANGED, rangedCrit));
 	end
 
-    desc = desc .. "\n" .. format(STAT_CRIT_SPELL, spellCrit);
+    tooltip:AddNormalLine(format(STAT_CRIT_SPELL, spellCrit));
 
 	local critBonusTooltip = _G["STAT_" .. CLASS_FILE_NAME .. "_CRIT_BONUS"] or STAT_CRIT_BONUS;
     if critBonusTooltip then
-        desc = desc .. "\n\n" .. format(critBonusTooltip); -- Clear the % in the tooltip
+        tooltip:AddBlankLine();
+        tooltip:AddNormalLine(format(critBonusTooltip)); -- Clear the % in the tooltip
     end
-
-    tooltip:SetText(STAT_CRITICAL_STRIKE .." "..StatSheetAPI.FormatPercent(critChance), 1, 1, 1);
-    tooltip:AddNormalLine(desc);
 
     return true;
 end
