@@ -395,3 +395,11 @@ function StatTooltipFunc.Health(tooltip)
 	return true;
 end
 
+function StatTooltipFunc.Power(tooltip)
+	local powerName, displayedValue, powerToken = StatSheetAPI.GetDisplayedPower();
+	if powerName then
+		tooltip:SetText(format("%s %s", powerName, displayedValue), 1, 1, 1);
+		tooltip:AddNormalLine(_G["STAT_"..powerToken.."_TOOLTIP"]);
+		return true;
+	end
+end

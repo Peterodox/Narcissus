@@ -246,6 +246,7 @@ function NarciGameTooltipMixin:AddBlankLine()
 end
 
 function NarciGameTooltipMixin:AddNormalLine(text, wrap)
+    if not text then return; end
     local r, g, b = NORMAL_FONT_COLOR:GetRGB();
     if wrap == nil then
         wrap = true;
@@ -254,6 +255,7 @@ function NarciGameTooltipMixin:AddNormalLine(text, wrap)
 end
 
 function NarciGameTooltipMixin:AddNormalDoubleLine(leftText, rightText)
+    if not leftText then return; end
     local r, g, b = NORMAL_FONT_COLOR:GetRGB();
     self:AddDoubleLine(leftText, rightText, r, g, b, r, g, b);
 end

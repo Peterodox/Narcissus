@@ -62,3 +62,19 @@ function StatSheetAPI.GetPrimaryStatIndex()
 		return primaryStat;
 	end
 end
+
+---Return localized power and the value after BreakUpLargeNumbers: Mana, 10,000
+---@param unit string? Default to "player"
+---@return string? powerName Localized name: Mana
+---@return string? displayedValue After BreakUpLargeNumbers
+---@return string? powerToken "MANA"
+function StatSheetAPI.GetDisplayedPower(unit)
+	if not unit then unit = "player"; end
+
+	local powerType, powerToken = UnitPowerType(unit);
+	local powerName = powerToken and _G[powerToken];
+	if powerName then
+		local power = UnitPowerMax(unit);
+		return powerName, BreakUpLargeNumbers(power), powerToken;
+	end
+end

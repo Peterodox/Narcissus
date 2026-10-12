@@ -346,15 +346,9 @@ function UpdateFunc:Health()
 end
 
 function UpdateFunc:Power()
-	local unit = "player";
-	local powerType, powerToken = UnitPowerType(unit);
-	local power = UnitPowerMax(unit);
-	local powerText = BreakUpLargeNumbers(power);
-	local powerName = _G[powerToken];
-	if powerToken and powerName then
-		self:SetLabelAndValue(powerName, powerText);
-		self.tooltip = "|cffffffff".. powerName .." "..powerText.."|r";
-		self.tooltip2 = _G["STAT_"..powerToken.."_TOOLTIP"];
+	local powerName, displayedValue = StatSheetAPI.GetDisplayedPower();
+	if powerName then
+		self:SetLabelAndValue(powerName, displayedValue);
 	else
 		self:SetLabelAndValue(L["Combat Resources"], N_SLASH_A, true);
 	end
