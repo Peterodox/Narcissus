@@ -463,21 +463,39 @@ function UpdateFunc:Speed()
 	self:SetLabelAndValue(STAT_SPEED, FormatPercent(speed), canaccessvalue(speed) and speed == 0);
 end
 
-	self.tooltip = "|cffffffff" .. STAT_SPEED .. " " .. FormatPercent(speed) .. "|r";
-	self.tooltip2 = format(CR_SPEED_TOOLTIP, BreakUpLargeNumbers(GetCombatRating(CR_SPEED)), GetCombatRatingBonus(CR_SPEED));
+local function MovementSpeed_OnEnter(self)
+	local tooltip = NarciGameTooltip;
 
-	self:SetLabelAndValue(STAT_SPEED, FormatPercent(speed), canaccessvalue(speed) and speed == 0);
+	if not (canaccessvalue(self.speed) and self.speed) then
+		tooltip:SetOwner(self, "ANCHOR_NONE");
+		tooltip:SetText(format(STAT_MOVEMENT_SPEED));
+		tooltip:SetPoint("TOPRIGHT", self, "TOPLEFT", -4, 0)
+		tooltip:Show();
+		return;
+	end
+
+	tooltip:SetOwner(self, "ANCHOR_NONE");
+	tooltip:SetPoint("TOPRIGHT", self, "TOPLEFT", -4, 0)
+	tooltip:SetText("|cffffffff".. STAT_MOVEMENT_SPEED .." "..format("%d%%", self.speed+0.5).."|r");
+
+	tooltip:AddNormalLine(format(STAT_MOVEMENT_GROUND_TOOLTIP, self.runSpeed + 0.5));
+	tooltip:AddNormalLine(format(STAT_MOVEMENT_FLIGHT_TOOLTIP, self.flightSpeed + 0.5));
+	tooltip:AddNormalLine(format(STAT_MOVEMENT_SWIM_TOOLTIP, self.swimSpeed + 0.5));
+	tooltip:AddBlankLine();
+	tooltip:AddNormalLine(format(CR_SPEED_TOOLTIP, BreakUpLargeNumbers(GetCombatRating(CR_SPEED)), GetCombatRatingBonus(CR_SPEED)));
+
+	tooltip:Show();
 end
 
 local function MovementSpeed_OnUpdate(self, elapsed)
 	self.t = self.t + elapsed;
-	if self.t > 0.1 then
+	if self.t > 0.2 then
 		self.t = 0;
 	else
 		return;
 	end
 
-	local unit = self.unit;
+	local unit = "player";
 	local _, runSpeed, flightSpeed, swimSpeed = GetUnitSpeed(unit);
 
 	if not canaccessvalue(runSpeed) then
@@ -514,37 +532,14 @@ local function MovementSpeed_OnUpdate(self, elapsed)
 	self.runSpeed = runSpeed;
 	self.flightSpeed = flightSpeed;
 	self.swimSpeed = swimSpeed;
-end
 
-local function MovementSpeed_OnEnter(self)
-	if not (self.speed and canaccessvalue(self.speed)) then
-		DefaultTooltip:SetOwner(self, "ANCHOR_NONE");
-		DefaultTooltip:SetText(format(STAT_MOVEMENT_SPEED));
-		DefaultTooltip:SetPoint("TOPRIGHT",self,"TOPLEFT", -4, 0)
-		DefaultTooltip:Show();
-		return;
+	if self:IsMouseMotionFocus() then
+		MovementSpeed_OnEnter(self);
 	end
-
-	DefaultTooltip:SetOwner(self, "ANCHOR_NONE");
-	DefaultTooltip:SetText("|cffffffff".. STAT_MOVEMENT_SPEED .." "..format("%d%%", self.speed+0.5).."|r");
-
-	DefaultTooltip:AddLine(format(STAT_MOVEMENT_GROUND_TOOLTIP, self.runSpeed+0.5));
-	if self.unit ~= "pet" then
-		DefaultTooltip:AddLine(format(STAT_MOVEMENT_FLIGHT_TOOLTIP, self.flightSpeed+0.5));
-	end
-	DefaultTooltip:AddLine(format(STAT_MOVEMENT_SWIM_TOOLTIP, self.swimSpeed+0.5));
-	DefaultTooltip:AddLine(" ");
-	DefaultTooltip:AddLine(format(CR_SPEED_TOOLTIP, BreakUpLargeNumbers(GetCombatRating(CR_SPEED)), GetCombatRatingBonus(CR_SPEED)));
-
-	DefaultTooltip:SetPoint("TOPRIGHT",self,"TOPLEFT", -4, 0)
-	DefaultTooltip:Show();
-
-	self.UpdateTooltip = MovementSpeed_OnEnter;
 end
 
 function UpdateFunc:MovementSpeed()
 	self.wasSwimming = nil;
-	self.unit = "player";
 	self.t = 0;
 	self.Label:SetText(L["Movement Speed"]);		--STAT_MOVEMENT_SPEED
 	MovementSpeed_OnUpdate(self, 1);
