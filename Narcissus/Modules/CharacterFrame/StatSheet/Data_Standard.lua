@@ -386,3 +386,12 @@ end
 function StatTooltipFunc.Parry(tooltip)
     return SetupSimplyRatingTooltip(tooltip, CR_PARRY, GetParryChance(), PARRY_CHANCE, CR_PARRY_TOOLTIP);
 end
+
+function StatTooltipFunc.Health(tooltip)
+	local health = UnitHealthMax("player");
+	local healthText = BreakUpLargeNumbers(health);
+	tooltip:SetText(format("%s %s", HEALTH, healthText), 1, 1, 1);
+	tooltip:AddNormalLine(STAT_HEALTH_TOOLTIP);
+	return true;
+end
+

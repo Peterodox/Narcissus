@@ -340,16 +340,9 @@ function UpdateFunc:Block()
 end
 
 function UpdateFunc:Health()
-	local unit = "player";
-	local health = UnitHealthMax(unit);
+	local health = UnitHealthMax("player");
 	local healthText = BreakUpLargeNumbers(health);
 	self:SetLabelAndValue(HEALTH, healthText);
-	self.tooltip = "|cffffffff".. HEALTH .." "..healthText.."|r";
-	if (unit == "player") then
-		self.tooltip2 = STAT_HEALTH_TOOLTIP;
-	elseif (unit == "pet") then
-		self.tooltip2 = STAT_HEALTH_PET_TOOLTIP;
-	end
 end
 
 function UpdateFunc:Power()
