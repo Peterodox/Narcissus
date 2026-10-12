@@ -241,6 +241,19 @@ function NarciGameTooltipMixin:StopFading()
     self.alpha = nil;
 end
 
+function NarciGameTooltipMixin:AddNormalLine(text, wrap)
+    local r, g, b = NORMAL_FONT_COLOR:GetRGB();
+    if wrap == nil then
+        wrap = true;
+    end
+    self:AddLine(text, r, g, b, wrap);
+end
+
+function NarciGameTooltipMixin:AddNormalDoubleLine(leftText, rightText)
+    local r, g, b = NORMAL_FONT_COLOR:GetRGB();
+    self:AddDoubleLine(leftText, rightText, r, g, b, r, g, b);
+end
+
 ---- Equipment Tooltip (for displaying gears/mogs in character frame) ----
 
 local function OnModelLoaded(self)
