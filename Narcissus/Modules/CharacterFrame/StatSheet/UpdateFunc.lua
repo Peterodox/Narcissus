@@ -61,15 +61,12 @@ local function SetupPrimaryStat(self, statIndex)
 end
 
 function UpdateFunc:Primary()
-	local spec = GetSpecialization() or 1;
-	local _, _, _, _, _, primaryStat = C_SpecializationInfo.GetSpecializationInfo(spec);
-
-	if type(primaryStat) ~= "number" then
+	local statIndex = StatSheetAPI.GetPrimaryStatIndex();
+	if statIndex then
+		SetupPrimaryStat(self, statIndex);
+	else
 		self:SetLabelAndValue(L["Primary Stat"], N_SLASH_A, true);
-		return;
 	end
-
-	SetupPrimaryStat(self, primaryStat);
 end
 
 function UpdateFunc:Strength()

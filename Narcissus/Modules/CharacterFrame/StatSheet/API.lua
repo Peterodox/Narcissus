@@ -17,7 +17,6 @@ function StatSheetAPI.FormatPercent(value)
 	return string.format("%.2f%%", value);
 end
 
-
 ---For Retail where there is only one meaningful crit chance
 ---@return number critChance Like 5%
 ---@return number critRating Global like CR_CRIT_MELEE
@@ -54,4 +53,12 @@ function StatSheetAPI.GetEffectiveCrit()
 	end
 
 	return critChance, rating
+end
+
+function StatSheetAPI.GetPrimaryStatIndex()
+	local spec = GetSpecialization() or 1;
+	local _, _, _, _, _, primaryStat = C_SpecializationInfo.GetSpecializationInfo(spec);
+	if type(primaryStat) == "number" then
+		return primaryStat;
+	end
 end

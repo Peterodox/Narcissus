@@ -198,6 +198,13 @@ for statToken, statIndex in pairs(PrimaryStatIndex) do
     end
 end
 
+function StatTooltipFunc.Primary(tooltip)
+    local statIndex = StatSheetAPI.GetPrimaryStatIndex();
+    if statIndex then
+        return SetupPrimaryStatTooltip(tooltip, statIndex);
+    end
+end
+
 function StatTooltipFunc.Crit(tooltip)
 	local critChance, rating = StatSheetAPI.GetEffectiveCrit();
 	local extraCritChance = GetCombatRatingBonus(rating);
