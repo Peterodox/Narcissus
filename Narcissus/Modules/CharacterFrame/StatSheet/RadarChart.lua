@@ -1,7 +1,7 @@
 local _, addon = ...
 local UIColorThemeUtil = addon.UIColorThemeUtil;
 local FadeFrame = NarciFadeUI.Fade;
-local GetEffectiveCrit = Narci.GetEffectiveCrit;
+local GetEffectiveCrit = NarciAPI.GetEffectiveCrit;
 local GetCombatRating = GetCombatRating;
 local outSine = addon.EasingFunctions.outSine;
 local canaccessvalue = canaccessvalue;

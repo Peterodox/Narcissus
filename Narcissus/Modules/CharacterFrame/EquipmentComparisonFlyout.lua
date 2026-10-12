@@ -58,7 +58,7 @@ local function SetCombatRatingRatio()
     else
         masteryBase = 0;
     end
-    local critChance, critRating = Narci.GetEffectiveCrit();
+    local critChance, critRating = NarciAPI.GetEffectiveCrit();
 	local extraCritChance = GetCombatRatingBonus(critRating);
 	local critBase = critChance - extraCritChance;
 	local versatilityBase = GetVersatilityBonus(CR_VERSATILITY_DAMAGE_DONE);

@@ -10,7 +10,6 @@ local format = string.format;
 local floor = math.floor;
 local ceil = math.ceil;
 local max = math.max;
-local min = math.min;
 
 local DefaultTooltip = NarciGameTooltip;	--Created in NarciAPI.lua
 
@@ -34,45 +33,7 @@ local function FormatPercent(value)
 	return format("%.2f%%", value);
 end
 
-local function GetEffectiveCrit()
-	local rating;
-	local spellCrit, rangedCrit, meleeCrit;
-	local critChance;
 
-	-- Start at 2 to skip physical damage
-	local holySchool = 2;
-	local minCrit = GetSpellCritChance(holySchool);
-	local spellCritTable = {};
-	spellCritTable[holySchool] = minCrit;
-
-	for i = (holySchool + 1), MAX_SPELL_SCHOOLS do
-		spellCrit = GetSpellCritChance(i);
-		if not (canaccessvalue(minCrit) and canaccessvalue(spellCrit)) then
-			return minCrit, CR_CRIT_MELEE;
-		end
-		minCrit = min(minCrit, spellCrit);
-		spellCritTable[i] = spellCrit;
-	end
-
-	spellCrit = minCrit;
-	rangedCrit = GetRangedCritChance();
-	meleeCrit = GetCritChance();
-
-	if (spellCrit >= rangedCrit and spellCrit >= meleeCrit) then
-		critChance = spellCrit;
-		rating = CR_CRIT_SPELL;
-	elseif rangedCrit >= meleeCrit then
-		critChance = rangedCrit;
-		rating = CR_CRIT_RANGED;
-	else
-		critChance = meleeCrit;
-		rating = CR_CRIT_MELEE;
-	end
-
-	return critChance, rating
-end
-
-Narci.GetEffectiveCrit = GetEffectiveCrit;
 
 
 local PrimaryStatIndex = {
