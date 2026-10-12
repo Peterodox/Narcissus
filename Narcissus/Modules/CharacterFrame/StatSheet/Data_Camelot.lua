@@ -109,6 +109,25 @@ function StatTooltipFunc:Stamina(statIndex, effectiveStat)
     self.tooltip2 = format(classStatText, tostring(bonus));
 end
 
+function StatTooltipFunc:Intellect(statIndex, effectiveStat)
+    local intellectBreak = INTELLECT_BREAK or 20;
+    local manaPerIntellect = MANA_PER_INTELLECT or 15;
+
+    local classStatText = GetClassSpecificTooltip("Intellect");
+    local spellCrit = GetSpellCritChanceFromStat(statIndex, effectiveStat) * 100.0;
+
+    if CLASS_FILE_NAME == "WARRIOR" or CLASS_FILE_NAME == "ROGUE" then
+        classStatText = format(classStatText, spellCrit);
+    else
+        local manaBonus = math.min(intellectBreak, effectiveStat);
+        manaBonus = manaBonus + (math.max(intellectBreak, effectiveStat) - intellectBreak) * manaPerIntellect;
+
+        classStatText = format(classStatText, tostring(manaBonus), spellCrit);
+    end
+
+    self.tooltip2 = classStatText;
+end
+
 function StatTooltipFunc:Spirit()
     local spiritStandingPenalty = 0.75;
 
