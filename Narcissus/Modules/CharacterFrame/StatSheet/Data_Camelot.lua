@@ -71,6 +71,33 @@ function StatTooltipFunc:Strength(statIndex, effectiveStat)
     self.tooltip2 = format(classStatText, GetAttackPowerForStat(statIndex, effectiveStat), math.floor(effectiveStat / BLOCK_VALUE_PER_STRENGTH));
 end
 
+function StatTooltipFunc:Agility(statIndex, effectiveStat)
+    local ARMOR_PER_AGILITY = 2;
+    local classStatText = GetClassSpecificTooltip("Agility");
+
+    local increasedDodgeChance = GetDodgeChanceFromAttribute() * 100.0;
+    local increasedArmor = effectiveStat * ARMOR_PER_AGILITY;
+    local increasedMeleeCritChance = GetCritChanceFromStat(statIndex, effectiveStat) * 100.0;
+    local increasedRangedCritChance = increasedMeleeCritChance;
+    local increasedAttackPower = GetAttackPowerForStat(statIndex, effectiveStat);
+    local increasedRangedAttackPower = GetRangedAttackPowerForStat(statIndex, effectiveStat);
+
+    if CLASS_FILE_NAME == "ROGUE" then
+        classStatText = format(classStatText, increasedMeleeCritChance, increasedAttackPower, increasedRangedAttackPower, increasedArmor, increasedDodgeChance);
+    elseif CLASS_FILE_NAME == "HUNTER" then
+        classStatText = format(classStatText, increasedRangedCritChance, increasedAttackPower, increasedRangedAttackPower, increasedArmor, increasedDodgeChance);
+    elseif CLASS_FILE_NAME == "DRUID" then
+        local catFormAgility = effectiveStat;
+        classStatText = format(classStatText, increasedMeleeCritChance, catFormAgility, increasedArmor, increasedDodgeChance);
+    elseif CLASS_FILE_NAME == "WARRIOR" then
+        classStatText = format(classStatText, increasedRangedCritChance, increasedRangedAttackPower, increasedArmor, increasedDodgeChance);
+    else
+        classStatText = format(classStatText, increasedMeleeCritChance, increasedArmor, increasedDodgeChance);
+    end
+
+    self.tooltip2 = classStatText;
+end
+
 function StatTooltipFunc:Stamina(statIndex, effectiveStat)
     local staminaBreak = STAMINA_BREAK or 10;
 
