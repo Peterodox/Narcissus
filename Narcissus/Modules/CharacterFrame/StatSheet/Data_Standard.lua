@@ -284,7 +284,7 @@ function StatTooltipFunc.Mastery(tooltip)
 	tooltip:SetText(header);
 
 	local masteryRating = GetCombatRating(CR_MASTERY);
-	local primaryTalentTree = GetSpecialization();
+	local primaryTalentTree = C_SpecializationInfo.GetSpecialization();
 
 	if primaryTalentTree then	--dragonflight
 		local masterySpell, masterySpell2;
