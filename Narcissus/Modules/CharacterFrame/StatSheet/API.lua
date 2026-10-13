@@ -108,11 +108,18 @@ function StatSheetAPI.GetDisplayedComatRegen()
 			regenTooltip = STAT_RUNE_REGEN_TOOLTIP;
 			local _, runeDuration = GetRuneCooldown(1);
 			regenRateText = string.format(STAT_RUNE_REGEN_FORMAT, runeDuration);
+		else
+			-- Fun fact: Regen can be negative for Warrior
+			return;
 		end
 	end
 
 	if not regenRateText then
-		regenRateText = string.format("%.2f/s", BreakUpLargeNumbers(regenRate));
+		if powerToken == "MANA" then
+			regenRateText = string.format("%.0f/s", regenRate);
+		else
+			regenRateText = string.format("%.2f/s", regenRate);
+		end
 	end
 
 	return regenName, regenRateText, regenTooltip;
