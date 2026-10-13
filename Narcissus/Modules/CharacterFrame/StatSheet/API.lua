@@ -135,3 +135,90 @@ function StatSheetAPI.GetArmorReduction()
 		end
 	end
 end
+
+---Return mainhandMinDamage, mainhandMaxDamage, offhandMinDamage, offhandMaxDamage, posBuff, negBuff, percent
+local function GetAppropriateDamage(unit)
+	if IsRangedWeapon() then
+		local attackTime, minDamage, maxDamage, posBuff, negBuff, percent = UnitRangedDamage(unit);
+		return minDamage, maxDamage, 0, 0, posBuff, negBuff, percent;
+	else
+		return UnitDamage(unit);
+	end
+end
+
+---Return damage text for StatButton: 1234 - 2345
+function StatSheetAPI.GetDisplayedDamage()
+	local minDamage, maxDamage = GetAppropriateDamage("player");
+	return string.format("%.0f - %.0f", minDamage, maxDamage);
+end
+
+---Return mainhandDamage, offhandDamage. Format: 1,234 - 2,345 x108%
+---Offhand can have damage without weapon, but we don't show that on the tooltip
+---@return string?  mainhandDamage
+---@return string? offhandDamage
+function StatSheetAPI.GetDamageTooltip()
+	local mainhandMinDamage, mainhandMaxDamage, offhandMinDamage, offhandMaxDamage, posBuff, negBuff, percent = GetAppropriateDamage("player");
+	if not canaccessallvalues(mainhandMinDamage, offhandMinDamage, posBuff, percent) then return; end
+	if (not percent) or percent == 0 then return; end;
+
+	local colorPos = "|cff20ff20";
+	local colorNeg = "|cffff2020";
+	local mainhandDamage, offhandDamage;
+
+	for i = 1, (C_PaperDollInfo.OffhandHasWeapon() and 2 or 1) do -- Main/Off hand
+		local minDamage = i == 1 and mainhandMinDamage or offhandMinDamage;
+		local maxDamage = i == 1 and mainhandMaxDamage or offhandMaxDamage;
+		local baseMinDamage = (minDamage / percent) - posBuff - negBuff;
+		local baseMaxDamage = (maxDamage / percent) - posBuff - negBuff;
+		local baseDamage = (baseMinDamage + baseMaxDamage) * 0.5;
+		local fullDamage = (baseDamage + posBuff + negBuff) * percent;
+		local totalBonus = fullDamage - baseDamage;
+		local damageTooltip = BreakUpLargeNumbers(math.max(math.floor(baseMinDamage), 1)).." - "..BreakUpLargeNumbers(math.max(math.ceil(baseMaxDamage), 1));
+
+		if totalBonus < -0.1 and totalBonus < 0.1 then
+			-- Considered as Zero Bonus
+		else
+			if posBuff > 0 then
+				damageTooltip = string.format("%s %s+%.0f|r", damageTooltip, colorPos, posBuff);
+			end
+			if negBuff < 0 then
+				damageTooltip = string.format("%s %s%.0f|r", damageTooltip, colorNeg, negBuff);
+			end
+			if percent > 1 then
+				damageTooltip = string.format("%s %sx%.0f%%|r", damageTooltip, colorPos, 100 * percent);
+			elseif percent < 1 then
+				damageTooltip = string.format("%s %sx%.0f%%|r", damageTooltip, colorNeg, 100 * percent);
+			end
+		end
+
+		if i == 1 then
+			mainhandDamage = damageTooltip;
+		else
+			offhandDamage = damageTooltip;
+		end
+	end
+
+	return mainhandDamage, offhandDamage;
+end
+
+---Return mainhandSpeed, offhandSpeed. If merged == true, connect the two if the speeds are different.
+---@param merged boolean? If true, merge the Main/Off hand speeds into one string
+function StatSheetAPI.GetDisplayedAttackSpeed(merged)
+	local mainhandSpeed, offhandSpeed = UnitAttackSpeed("player");
+	if canaccessallvalues(mainhandSpeed, offhandSpeed) then
+		mainhandSpeed = floor(100 * mainhandSpeed + 0.5) / 100;
+		if offhandSpeed then
+			offhandSpeed = floor(100 * offhandSpeed + 0.5) / 100;
+		end
+		if merged then
+			if offhandSpeed and offhandSpeed ~= mainhandSpeed then
+				return string.format("%.2f / %.2f", mainhandSpeed, offhandSpeed);
+			end
+		else
+			if offhandSpeed then
+				return string.format("%.2f", mainhandSpeed), string.format("%.2f", offhandSpeed);
+			end
+		end
+	end
+	return string.format("%.2f", mainhandSpeed);
+end

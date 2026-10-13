@@ -417,7 +417,7 @@ function StatTooltipFunc.Armor(tooltip)
 	local armorReduction, armorReductionAgainstTarget, effectiveArmor = StatSheetAPI.GetArmorReduction();
 	if effectiveArmor then
 		tooltip:SetText(format("%s %s", ARMOR, BreakUpLargeNumbers(effectiveArmor)), 1, 1, 1);
-		tooltip:AddNormalLine(format(STAT_ARMOR_TOOLTIP, armorReduction))
+		tooltip:AddNormalLine(format(STAT_ARMOR_TOOLTIP, armorReduction));
 		if armorReductionAgainstTarget then
 			tooltip:AddBlankLine();
 			tooltip:AddBlueLine(format(STAT_ARMOR_TARGET_TOOLTIP, armorReductionAgainstTarget));
@@ -430,11 +430,34 @@ function StatTooltipFunc.Reduction(tooltip)
 	local armorReduction, armorReductionAgainstTarget, effectiveArmor = StatSheetAPI.GetArmorReduction();
 	if effectiveArmor then
 		tooltip:SetText(format("%s %s", COMBAT_TEXT_SHOW_RESISTANCES_TEXT, FormatPercent(armorReduction)), 1, 1, 1);
-		tooltip:AddNormalLine(format(STAT_ARMOR_TOOLTIP, armorReduction))
+		tooltip:AddNormalLine(format(STAT_ARMOR_TOOLTIP, armorReduction));
 		if armorReductionAgainstTarget then
 			tooltip:AddBlankLine();
 			tooltip:AddBlueLine(format(STAT_ARMOR_TARGET_TOOLTIP, armorReductionAgainstTarget));
 		end
 		return true;
 	end
+end
+
+function StatTooltipFunc.Damage(tooltip)
+	local mainhandDamage, offhandDamage = StatSheetAPI.GetDamageTooltip();
+	local mainhandSpeed, offhandSpeed = StatSheetAPI.GetDisplayedAttackSpeed();
+	tooltip:SetText(INVTYPE_WEAPONMAINHAND, 1, 1, 1);
+	tooltip:AddNormalDoubleLine(ATTACK_SPEED_SECONDS, mainhandSpeed);
+	tooltip:AddNormalDoubleLine(DAMAGE, mainhandDamage);
+	if canaccessallvalues(offhandDamage, offhandSpeed) and offhandSpeed then
+		tooltip:AddBlankLine();
+		tooltip:AddLine(INVTYPE_WEAPONOFFHAND, 1, 1, 1);
+		tooltip:AddNormalDoubleLine(ATTACK_SPEED_SECONDS, offhandSpeed);
+		tooltip:AddNormalDoubleLine(DAMAGE, offhandDamage);
+	end
+	return true;
+end
+
+function StatTooltipFunc.AttackSpeed(tooltip)
+	local attackSpeedText = StatSheetAPI.GetDisplayedAttackSpeed(true);
+	local meleeHaste = GetMeleeHaste();
+	tooltip:SetText(format("%s %s", ATTACK_SPEED, attackSpeedText), 1, 1, 1);
+	tooltip:AddNormalLine(format(STAT_ATTACK_SPEED_BASE_TOOLTIP, format("%.2f", meleeHaste)));
+	return true;
 end
