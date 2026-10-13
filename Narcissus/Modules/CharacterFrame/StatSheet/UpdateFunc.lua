@@ -192,17 +192,13 @@ local function MovementSpeed_OnEnter(self)
 	local tooltip = NarciGameTooltip;
 
 	if not (canaccessvalue(self.speed) and self.speed) then
-		tooltip:SetOwner(self, "ANCHOR_NONE");
-		tooltip:SetText(format(STAT_MOVEMENT_SPEED));
-		tooltip:SetPoint("TOPRIGHT", self, "TOPLEFT", -4, 0)
-		tooltip:Show();
 		return;
 	end
 
 	tooltip:SetOwner(self, "ANCHOR_NONE");
 	tooltip:SetPoint("TOPRIGHT", self, "TOPLEFT", -4, 0)
-	tooltip:SetText("|cffffffff".. STAT_MOVEMENT_SPEED .." "..format("%d%%", self.speed+0.5).."|r");
 
+	tooltip:SetText(format("%s %d%%", STAT_MOVEMENT_SPEED, self.speed + 0.5), 1, 1, 1);
 	tooltip:AddNormalLine(format(STAT_MOVEMENT_GROUND_TOOLTIP, self.runSpeed + 0.5));
 	tooltip:AddNormalLine(format(STAT_MOVEMENT_FLIGHT_TOOLTIP, self.flightSpeed + 0.5));
 	tooltip:AddNormalLine(format(STAT_MOVEMENT_SWIM_TOOLTIP, self.swimSpeed + 0.5));
