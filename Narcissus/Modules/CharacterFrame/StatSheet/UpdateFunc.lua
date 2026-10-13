@@ -168,19 +168,24 @@ function UpdateFunc:Versatility()
 	self:SetValueRating(versatility);
 end
 
+---Certain values grey out if zero
+local function IsValueZero(value)
+	return canaccessvalue(value) and value == 0;
+end
+
 function UpdateFunc:Leech()
 	local lifesteal = GetLifesteal();
-	self:SetLabelAndValue(STAT_LIFESTEAL, FormatPercent(lifesteal), canaccessvalue(lifesteal) and lifesteal == 0);
+	self:SetLabelAndValue(STAT_LIFESTEAL, FormatPercent(lifesteal), IsValueZero(lifesteal));
 end
 
 function UpdateFunc:Avoidance()
 	local avoidance = GetAvoidance();
-	self:SetLabelAndValue(STAT_AVOIDANCE, FormatPercent(avoidance), canaccessvalue(avoidance) and avoidance == 0);
+	self:SetLabelAndValue(STAT_AVOIDANCE, FormatPercent(avoidance), IsValueZero(avoidance));
 end
 
 function UpdateFunc:Speed()
 	local speed = GetSpeed();
-	self:SetLabelAndValue(STAT_SPEED, FormatPercent(speed), canaccessvalue(speed) and speed == 0);
+	self:SetLabelAndValue(STAT_SPEED, FormatPercent(speed), IsValueZero(speed));
 end
 
 local function MovementSpeed_OnEnter(self)
