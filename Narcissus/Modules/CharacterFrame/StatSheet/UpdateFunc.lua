@@ -119,33 +119,11 @@ function UpdateFunc:Parry()
 end
 
 function UpdateFunc:Block()
-	local unit = "player";
-
-	local chance = GetBlockChance();
-	local chanceText = FormatPercent(chance);
-
-	if ClearTooltipIfSecret(self, STAT_BLOCK, chance) then
-		self:SetLabelAndValue(STAT_BLOCK, chanceText);
-		return;
-	end
-
-	if chance ~= 0 and C_PaperDollInfo.OffhandHasShield() then
-		self:SetLabelAndValue(STAT_BLOCK, chanceText);
+	if C_PaperDollInfo.OffhandHasShield() then
+		local chance = GetBlockChance();
+		self:SetLabelAndValue(STAT_BLOCK, FormatPercent(chance));
 	else
 		self:SetLabelAndValue(STAT_BLOCK, N_SLASH_A, true);
-	end
-
-	self.tooltip = "|cffffffff".. BLOCK_CHANCE .." "..FormatPercent(chance).."|r";
-
-	local shieldBlockArmor = GetShieldBlock();
-	local blockArmorReduction = C_PaperDollInfo.GetArmorEffectiveness(shieldBlockArmor, UnitEffectiveLevel(unit));
-	local blockArmorReductionAgainstTarget = C_PaperDollInfo.GetArmorEffectivenessAgainstTarget(shieldBlockArmor);
-
-	self.tooltip2 = format(CR_BLOCK_TOOLTIP, blockArmorReduction * 100);
-	if (blockArmorReductionAgainstTarget) then
-		self.tooltip3 = format(STAT_BLOCK_TARGET_TOOLTIP, blockArmorReductionAgainstTarget * 100);
-	else
-		self.tooltip3 = nil;
 	end
 end
 

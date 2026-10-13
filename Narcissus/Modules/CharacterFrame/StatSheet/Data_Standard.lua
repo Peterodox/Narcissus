@@ -461,3 +461,23 @@ function StatTooltipFunc.AttackSpeed(tooltip)
 	tooltip:AddNormalLine(format(STAT_ATTACK_SPEED_BASE_TOOLTIP, format("%.2f", meleeHaste)));
 	return true;
 end
+
+function StatTooltipFunc.Block(tooltip)
+	local chance = GetBlockChance();
+	tooltip:SetText(format("%s %s", BLOCK_CHANCE, FormatPercent(chance)), 1, 1, 1);
+
+	local shieldBlockArmor = GetShieldBlock();
+	local level = UnitEffectiveLevel("player");
+
+	if canaccessallvalues(shieldBlockArmor, level) then
+		local blockArmorReduction = C_PaperDollInfo.GetArmorEffectiveness(shieldBlockArmor, level);
+		tooltip:AddNormalLine(format(CR_BLOCK_TOOLTIP, blockArmorReduction * 100));
+		local blockArmorReductionAgainstTarget = C_PaperDollInfo.GetArmorEffectivenessAgainstTarget(shieldBlockArmor);
+		if blockArmorReductionAgainstTarget then
+			tooltip:AddBlankLine();
+			tooltip:AddBlueLine(format(STAT_BLOCK_TARGET_TOOLTIP, blockArmorReductionAgainstTarget * 100));
+		end
+	end
+
+	return true;
+end
