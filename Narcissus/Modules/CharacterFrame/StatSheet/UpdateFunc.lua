@@ -5,45 +5,25 @@ local L = Narci.L;
 local BreakUpLargeNumbers = BreakUpLargeNumbers;
 local StatSheetAPI = addon.StatSheetAPI; ---@type StatSheetAPI
 
-local format = string.format;
-local floor = math.floor;
-local ceil = math.ceil;
-local max = math.max;
-
-local DefaultTooltip = NarciGameTooltip;	--Created in NarciAPI.lua
-
 local C_PaperDollInfo = C_PaperDollInfo;
+local format = string.format;
+local FormatPercent = StatSheetAPI.FormatPercent;
 local UnitStat = UnitStat;
 local GetCombatRating = GetCombatRating;
 local GetCombatRatingBonus = GetCombatRatingBonus;
-local BASE_MOVEMENT_SPEED = BASE_MOVEMENT_SPEED or 7;
 local GetUnitSpeed = GetUnitSpeed;
 local canaccessvalue = canaccessvalue;
 
 local N_SLASH_A = NOT_APPLICABLE;
 
-local DIGITS = "%.2f";
-
-local FormatPercent = StatSheetAPI.FormatPercent;
-
-
-------------------------------------------------------------------
-----The following codes are derivated from PapaerDollFrame.lua----
-------------------------------------------------------------------
+---------------------------------------------------------------
+----Stat Display code is derivated from PapaerDollFrame.lua----
+---------------------------------------------------------------
 
 ---@class StatUpdateFunc
 local UpdateFunc = {};
 addon.StatUpdateFunc = UpdateFunc;
 
-
----@param self any StatButton
-local function ClearTooltipIfSecret(self, statName, value1)
-	if not canaccessvalue(value1) then
-		self.tooltip = statName;
-		self.tooltip2 = nil;
-		return true;
-	end
-end
 
 ---Set up a StatButton
 ---@param self any StatButton
@@ -226,6 +206,8 @@ local function MovementSpeed_OnEnter(self)
 
 	tooltip:Show();
 end
+
+local BASE_MOVEMENT_SPEED = BASE_MOVEMENT_SPEED or 7;
 
 local function MovementSpeed_OnUpdate(self, elapsed)
 	self.t = self.t + elapsed;

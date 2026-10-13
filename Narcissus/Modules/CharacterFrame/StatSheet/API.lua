@@ -52,7 +52,7 @@ function StatSheetAPI.GetEffectiveCrit()
 		ratingIndex = CR_CRIT_MELEE;
 	end
 
-	return critChance, ratingIndex
+	return critChance, ratingIndex;
 end
 
 function StatSheetAPI.GetPrimaryStatIndex()
