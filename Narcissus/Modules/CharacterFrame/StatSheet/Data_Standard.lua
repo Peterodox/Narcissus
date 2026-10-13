@@ -442,10 +442,12 @@ end
 function StatTooltipFunc.Damage(tooltip)
 	local mainhandDamage, offhandDamage = StatSheetAPI.GetDamageTooltip();
 	local mainhandSpeed, offhandSpeed = StatSheetAPI.GetDisplayedAttackSpeed();
+	if not (mainhandDamage and mainhandSpeed) then return; end
+
 	tooltip:SetText(INVTYPE_WEAPONMAINHAND, 1, 1, 1);
 	tooltip:AddNormalDoubleLine(ATTACK_SPEED_SECONDS, mainhandSpeed);
 	tooltip:AddNormalDoubleLine(DAMAGE, mainhandDamage);
-	if canaccessallvalues(offhandDamage, offhandSpeed) and offhandSpeed then
+	if offhandDamage and offhandSpeed then
 		tooltip:AddBlankLine();
 		tooltip:AddLine(INVTYPE_WEAPONOFFHAND, 1, 1, 1);
 		tooltip:AddNormalDoubleLine(ATTACK_SPEED_SECONDS, offhandSpeed);
