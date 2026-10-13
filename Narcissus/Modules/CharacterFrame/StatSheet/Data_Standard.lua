@@ -403,3 +403,12 @@ function StatTooltipFunc.Power(tooltip)
 		return true;
 	end
 end
+
+function StatTooltipFunc.Regen(tooltip)
+	local regenName, regenRateText, regenTooltip = StatSheetAPI.GetDisplayedComatRegen();
+	if regenName then
+		tooltip:SetText(format("%s %s", regenName, regenRateText), 1, 1, 1)
+		tooltip:AddNormalLine(regenTooltip);
+		return true;
+	end
+end

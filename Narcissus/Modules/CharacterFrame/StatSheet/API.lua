@@ -78,3 +78,42 @@ function StatSheetAPI.GetDisplayedPower(unit)
 		return powerName, BreakUpLargeNumbers(power), powerToken;
 	end
 end
+
+---Return player regen name, rate, tooltip: Mana Regen, 1,000/s, "Mana regen every second"
+---@return string? regenName Mana Regen
+---@return string? regenRateText 1,000/s
+---@return string? regenTooltip "Mana regen every second"
+function StatSheetAPI.GetDisplayedComatRegen()
+	local powerType, powerToken = UnitPowerType("player");
+	local regenRate = GetPowerRegen();
+	local regenName, regenRateText, regenTooltip;
+
+	if powerToken == "ENERGY" then
+		regenName = STAT_ENERGY_REGEN;
+		regenTooltip = STAT_ENERGY_REGEN_TOOLTIP;
+	elseif powerToken == "RUNES" then
+		regenName = STAT_RUNE_REGEN;
+		regenTooltip = STAT_RUNE_REGEN_TOOLTIP;
+	elseif powerToken == "FOCUS" then
+		regenName = STAT_FOCUS_REGEN;
+		regenTooltip = STAT_FOCUS_REGEN_TOOLTIP;
+	elseif powerToken == "MANA" then
+		regenName = MANA_REGEN;
+		--regenTooltip = MANA_REGEN_TOOLTIP; --On Retail, Mana doesn't follow the 5-second rule
+		regenRate = GetManaRegen();
+	else
+		local _, class = UnitClass("player");
+		if class == "DEATHKNIGHT" then
+			regenName = STAT_RUNE_REGEN;
+			regenTooltip = STAT_RUNE_REGEN_TOOLTIP;
+			local _, runeDuration = GetRuneCooldown(1);
+			regenRateText = string.format(STAT_RUNE_REGEN_FORMAT, runeDuration);
+		end
+	end
+
+	if not regenRateText then
+		regenRateText = string.format("%.2f/s", BreakUpLargeNumbers(regenRate));
+	end
+
+	return regenName, regenRateText, regenTooltip;
+end

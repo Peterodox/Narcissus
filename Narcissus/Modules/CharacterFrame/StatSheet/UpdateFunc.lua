@@ -355,43 +355,12 @@ function UpdateFunc:Power()
 end
 
 function UpdateFunc:Regen()
-	local powerType, powerToken = UnitPowerType("player");
-	local regenRate = GetPowerRegen();
-	local regenRateText = BreakUpLargeNumbers(regenRate);
-	local regenRatePerSec = format(DIGITS, regenRate).."/s";
-	local labelText;
-	if powerToken == "ENERGY" then
-		labelText = STAT_ENERGY_REGEN;
-		self.tooltip2 = STAT_ENERGY_REGEN_TOOLTIP;
-	elseif powerToken == "RUNES" then
-		labelText = STAT_RUNE_REGEN;
-		self.tooltip2 = STAT_RUNE_REGEN_TOOLTIP;
-	elseif powerToken == "FOCUS" then
-		labelText = STAT_FOCUS_REGEN;
-		self.tooltip2 = STAT_FOCUS_REGEN_TOOLTIP;
-	elseif powerToken == "MANA" then
-		labelText = MANA_REGEN;
-		regenRate = GetManaRegen();
+	local regenName, regenRateText = StatSheetAPI.GetDisplayedComatRegen();
+	if regenName then
+		self:SetLabelAndValue(regenName, regenRateText);
 	else
-		local _, class = UnitClass("player");
-		if (class ~= "DEATHKNIGHT") then
-			self:SetLabelAndValue(MANA_REGEN_COMBAT, N_SLASH_A, true);		--MANA_REGEN_ABBR
-			return;
-		end
-		local _;
-		_, regenRate = GetRuneCooldown(1);
-		regenRateText = (format(STAT_RUNE_REGEN_FORMAT, regenRate));
-		self:SetLabelAndValue(STAT_RUNE_REGEN, regenRateText);
-		return;
+		self:SetLabelAndValue(MANA_REGEN_COMBAT, N_SLASH_A, true);
 	end
-
-	if labelText and canaccessvalue(regenRatePerSec) then
-		self.tooltip = "|cffffffff".. labelText .." "..regenRatePerSec.."|r";
-	else
-		self.tooltip = nil;
-	end
-
-	self:SetLabelAndValue(labelText, regenRatePerSec);
 end
 
 function UpdateFunc:Crit()
