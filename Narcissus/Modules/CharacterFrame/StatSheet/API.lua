@@ -117,3 +117,21 @@ function StatSheetAPI.GetDisplayedComatRegen()
 
 	return regenName, regenRateText, regenTooltip;
 end
+
+---Return the armorReduction, armorReductionAgainstTarget, effectiveArmor. Convert decimal to percentage. Secret check included.
+---@return number? armorReduction
+---@return number? armorReductionAgainstTarget
+---@return number? effectiveArmor
+function StatSheetAPI.GetArmorReduction()
+	local _, effectiveArmor = UnitArmor("player");
+	local level = UnitEffectiveLevel("player");
+	if canaccessallvalues(effectiveArmor, level) then
+		local armorReduction = C_PaperDollInfo.GetArmorEffectiveness(effectiveArmor, level) or 0;
+		local armorReductionAgainstTarget = C_PaperDollInfo.GetArmorEffectivenessAgainstTarget(effectiveArmor) or 0;
+		if armorReductionAgainstTarget > 0 then
+			return 100 * armorReduction, 100 * armorReductionAgainstTarget, effectiveArmor;
+		else
+			return 100 * armorReduction, nil, effectiveArmor;
+		end
+	end
+end

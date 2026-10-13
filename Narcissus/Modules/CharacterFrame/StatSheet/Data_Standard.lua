@@ -407,8 +407,34 @@ end
 function StatTooltipFunc.Regen(tooltip)
 	local regenName, regenRateText, regenTooltip = StatSheetAPI.GetDisplayedComatRegen();
 	if regenName then
-		tooltip:SetText(format("%s %s", regenName, regenRateText), 1, 1, 1)
+		tooltip:SetText(format("%s %s", regenName, regenRateText), 1, 1, 1);
 		tooltip:AddNormalLine(regenTooltip);
+		return true;
+	end
+end
+
+function StatTooltipFunc.Armor(tooltip)
+	local armorReduction, armorReductionAgainstTarget, effectiveArmor = StatSheetAPI.GetArmorReduction();
+	if effectiveArmor then
+		tooltip:SetText(format("%s %s", ARMOR, BreakUpLargeNumbers(effectiveArmor)), 1, 1, 1);
+		tooltip:AddNormalLine(format(STAT_ARMOR_TOOLTIP, armorReduction))
+		if armorReductionAgainstTarget then
+			tooltip:AddBlankLine();
+			tooltip:AddBlueLine(format(STAT_ARMOR_TARGET_TOOLTIP, armorReductionAgainstTarget));
+		end
+		return true;
+	end
+end
+
+function StatTooltipFunc.Reduction(tooltip)
+	local armorReduction, armorReductionAgainstTarget, effectiveArmor = StatSheetAPI.GetArmorReduction();
+	if effectiveArmor then
+		tooltip:SetText(format("%s %s", COMBAT_TEXT_SHOW_RESISTANCES_TEXT, FormatPercent(armorReduction)), 1, 1, 1);
+		tooltip:AddNormalLine(format(STAT_ARMOR_TOOLTIP, armorReduction))
+		if armorReductionAgainstTarget then
+			tooltip:AddBlankLine();
+			tooltip:AddBlueLine(format(STAT_ARMOR_TARGET_TOOLTIP, armorReductionAgainstTarget));
+		end
 		return true;
 	end
 end

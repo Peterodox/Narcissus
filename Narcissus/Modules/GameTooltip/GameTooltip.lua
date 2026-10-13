@@ -245,13 +245,21 @@ function NarciGameTooltipMixin:AddBlankLine()
     self:AddLine(" ");
 end
 
-function NarciGameTooltipMixin:AddNormalLine(text, wrap)
-    if not text then return; end
-    local r, g, b = NORMAL_FONT_COLOR:GetRGB();
+function NarciGameTooltipMixin:AddColoredLine(colorMixin, text, wrap)
+    if not (text and colorMixin) then return; end
+    local r, g, b = colorMixin:GetRGB();
     if wrap == nil then
         wrap = true;
     end
     self:AddLine(text, r, g, b, wrap);
+end
+
+function NarciGameTooltipMixin:AddNormalLine(text, wrap)
+    self:AddColoredLine(NORMAL_FONT_COLOR, text, wrap);
+end
+
+function NarciGameTooltipMixin:AddBlueLine(text, wrap)
+    self:AddColoredLine(BRIGHTBLUE_FONT_COLOR, text, wrap);
 end
 
 function NarciGameTooltipMixin:AddNormalDoubleLine(leftText, rightText)

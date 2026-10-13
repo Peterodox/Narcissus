@@ -248,54 +248,18 @@ function UpdateFunc:AttackSpeed()
 	self.tooltip2 = format(STAT_ATTACK_SPEED_BASE_TOOLTIP, format(DIGITS, meleeHaste));
 end
 
-local function ArmorOrReduction_OnEnter(self)
-	local _, effectiveArmor = UnitArmor("player");
-	local armorReductionAgainstTarget = C_PaperDollInfo.GetArmorEffectivenessAgainstTarget(effectiveArmor);
-	if canaccessvalue(armorReductionAgainstTarget) and armorReductionAgainstTarget then
-		self.tooltip3 = format(STAT_ARMOR_TARGET_TOOLTIP, 100 * armorReductionAgainstTarget);
-	else
-		self.tooltip3 = nil;
-	end
-	self:ShowTooltip();
-end
-
 function UpdateFunc:Armor()
-	local unit = "player";
-
-	local baselineArmor, effectiveArmor, armor, bonusArmor = UnitArmor(unit);
+	local _, effectiveArmor = UnitArmor("player");
 	self:SetLabelAndValue(STAT_ARMOR, effectiveArmor);
-
-	if ClearTooltipIfSecret(self, STAT_ARMOR, effectiveArmor) then
-		return;
-	end
-
-    local armorReduction = C_PaperDollInfo.GetArmorEffectiveness(effectiveArmor, UnitEffectiveLevel(unit));
-
-	self.tooltip = "|cffffffff".. ARMOR .." "..BreakUpLargeNumbers(effectiveArmor).."|r";
-	self.tooltip2 = format(STAT_ARMOR_TOOLTIP, 100 * armorReduction);
-
-	self:SetScript("OnEnter", ArmorOrReduction_OnEnter);
 end
 
 function UpdateFunc:Reduction()
-	local unit = "player"
-	local baselineArmor, effectiveArmor, armor, bonusArmor = UnitArmor(unit);
-
-	if ClearTooltipIfSecret(self, COMBAT_TEXT_SHOW_RESISTANCES_TEXT, effectiveArmor) then
+	local armorReduction, armorReductionAgainstTarget, effectiveArmor = StatSheetAPI.GetArmorReduction();
+	if effectiveArmor then
+		self:SetLabelAndValue(L["Damage Reduction Percentage"], FormatPercent(armorReduction));
+	else
 		self:SetLabelAndValue(L["Damage Reduction Percentage"], N_SLASH_A, true);
-		return;
 	end
-
-	local armorReduction = C_PaperDollInfo.GetArmorEffectiveness(effectiveArmor, UnitEffectiveLevel(unit)) or 0;
-	armorReduction = 100 * armorReduction;
-
-	local armorReductionText = FormatPercent(armorReduction);
-	self:SetLabelAndValue(L["Damage Reduction Percentage"], armorReductionText);
-
-	self.tooltip = "|cffffffff"..COMBAT_TEXT_SHOW_RESISTANCES_TEXT.." "..armorReductionText.."|r";
-	self.tooltip2 = format(STAT_ARMOR_TOOLTIP, armorReduction);
-
-	self:SetScript("OnEnter", ArmorOrReduction_OnEnter);
 end
 
 function UpdateFunc:Dodge()
