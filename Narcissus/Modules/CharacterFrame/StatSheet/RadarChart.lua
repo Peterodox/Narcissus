@@ -4,7 +4,7 @@ local FadeFrame = NarciFadeUI.Fade;
 local GetEffectiveCrit = addon.StatSheetAPI.GetEffectiveCrit;
 local GetCombatRating = GetCombatRating;
 local outSine = addon.EasingFunctions.outSine;
-local canaccessvalue = canaccessvalue;
+local canaccessallvalues = canaccessallvalues;
 
 local max = math.max;
 
@@ -17,6 +17,7 @@ NarciRadarChartMixin = {}
 
 function NarciRadarChartMixin:OnLoad()
 	self.isRadarChart = true;
+	self.SecretAlert:SetText(Narci.L["Stat Chart Unavailable"]);
 
 	local circleTex = "Interface\\AddOns\\Narcissus\\Art\\Widgets\\RadarChart\\Radar-Vertice";
 	local filter = "TRILINEAR";
@@ -92,9 +93,7 @@ end
 
 
 function NarciRadarChartMixin:SetValue(c, h, m, v)
-	if not canaccessvalue(c) then
-		return;
-	end
+	if self:AnySecret(c) then return; end
 
 	--c, h, m, v: Input manually or use combat ratings
 
@@ -269,9 +268,7 @@ function NarciRadarChartMixin:SetValue(c, h, m, v)
 end
 
 function NarciRadarChartMixin:AnimateValue(c, h, m, v)
-	if not canaccessvalue(c) then
-		return;
-	end
+	if self:AnySecret(c) then return; end
 
 	--Update the radar chart using animation
 
@@ -352,7 +349,7 @@ end
 function NarciRadarChartMixin:UpdateChart(useAnimation)
 	local critChance, critRatingIndex = GetEffectiveCrit();
 
-	if not canaccessvalue(critChance) then
+	if self:AnySecret(critChance) then
 		for _, vertice in ipairs(self.vertices) do
 			vertice:Hide();
 		end
@@ -390,7 +387,17 @@ function NarciRadarChartMixin:UpdateAttributeFrames()
 	end
 end
 
---- [TODO] Don't refresh stats when equipment set manager is activated
+---Check if the values contain Secret. If so, show the alert text.
+function NarciRadarChartMixin:AnySecret(...)
+	if canaccessallvalues(...) then
+		self.SecretAlert:Hide();
+		return false;
+	else
+		self.SecretAlert:Show();
+		return true;
+	end
+end
+
 function NarciRadarChartMixin:Update()
 	self:UpdateChart(true);
 	self:UpdateAttributeFrames();

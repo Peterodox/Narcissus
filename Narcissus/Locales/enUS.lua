@@ -57,6 +57,7 @@ L["Movement Speed"] = "MSPD";
 L["Combat Resources"] = "Resources";
 L["No Talents"] = "No Talents";
 L["Damage Reduction Percentage"] = "DR%";
+L["Stat Chart Unavailable"] = "Chart Unavailable";
 L["Advanced Info"] = "Left click to toggle advanced info.";
 L["Restore On Exit"] = "\nYour previous settings will be restored after exit.";
 
