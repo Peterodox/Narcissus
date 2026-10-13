@@ -135,7 +135,7 @@ function UpdateFunc:Crit()
 	local critChance, ratingIndex = StatSheetAPI.GetEffectiveCrit();
 	local extraCritRating = GetCombatRating(ratingIndex);
 
-	self:SetLabelAndValue(NARCI_CRITICAL_STRIKE, FormatPercent(critChance)); --COMBAT_RATING_NAME10
+	self:SetLabelAndValue(L["Stat Crit"], FormatPercent(critChance)); --COMBAT_RATING_NAME10
 	self:SetValueRating(extraCritRating);
 end
 

@@ -392,10 +392,6 @@ L["Loading Database"] = "Загрузка Базы Данных...\nВаш эк�
 L["Other Last Name Format"] = "Другой "..NARCI_COLOR_GREY_70.."%s(s)|r:\n";
 L["Too Many Matches Format"] = "\nБолее %s соответствует.";
 
---Solving Lower-case or Abbreviation Issue--
-NARCI_CRITICAL_STRIKE = STAT_CRITICAL_STRIKE;
-
-
 --Equipment Comparison--
 L["Azerite Powers"] = "Сила Азерита";
 L["Gem Tooltip Format1"] = "%s и %s";

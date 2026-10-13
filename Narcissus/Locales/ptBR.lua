@@ -357,10 +357,6 @@ L["Loading Database"] = "Carregando banco de dados...\nSua tela pode congelar po
 L["Other Last Name Format"] = "Outro "..NARCI_COLOR_GREY_70.."%s(s)|r:\n";
 L["Too Many Matches Format"] = "\nMais de %s combinações.";
 
---Resolvendo problemas de letras minúsculas ou abreviações
-NARCI_CRITICAL_STRIKE = STAT_CRITICAL_STRIKE;
-
-
 --Comparação de Equipamentos
 L["Azerite Powers"] = "Poderes de Azerita";
 L["Gem Tooltip Format1"] = "%s e %s";

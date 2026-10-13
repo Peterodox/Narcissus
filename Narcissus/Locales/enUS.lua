@@ -400,14 +400,11 @@ L["Loading Database"] = "Loading Database...\nYour screen could freeze for a few
 L["Other Last Name Format"] = "Other "..NARCI_COLOR_GREY_70.."%s(s)|r:\n";
 L["Too Many Matches Format"] = "\nOver %s matches.";
 
---Solving Lower-case or Abbreviation Issue--
-NARCI_CRITICAL_STRIKE = STAT_CRITICAL_STRIKE;
-
-
 --Equipment Comparison--
 L["Azerite Powers"] = "Azerite Powers";
 L["Gem Tooltip Format1"] = "%s and %s";
 L["Gem Tooltip Format2"] = "%s, %s and %s more...";
+L["Stat Crit"] = STAT_CRITICAL_STRIKE; -- Override this if "Critical Strike" is too long for certain language. (Kritische Trefferchance)
 
 --Equipment Set Manager
 L["Equipped Item Level Format"] = "Equipped %s";
