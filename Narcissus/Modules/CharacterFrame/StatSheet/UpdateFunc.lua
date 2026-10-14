@@ -223,6 +223,7 @@ local function MovementSpeed_OnUpdate(self, elapsed)
 
 	if not canaccessvalue(runSpeed) then
 		self.Value:SetText(N_SLASH_A);
+		self.speed = nil;
 		return;
 	end
 
