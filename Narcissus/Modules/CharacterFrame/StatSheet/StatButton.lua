@@ -93,6 +93,19 @@ function StatButtonMixin:SetToken(token)
 	if UpdateFunc[token] then
 		self.token = token;
 		self.UpdateStat = UpdateFunc[token];
+
+		-- Reset OnEnter script and update if we reuse the button for other stats
+		if self.tokenChanged then
+			self:SetScript("OnEnter", self.OnEnter);
+			if self:IsVisible() then
+				self:UpdateStat();
+				if self:IsMouseMotionFocus() then
+					self:OnEnter();
+				end
+			end
+		else
+			self.tokenChanged = true;
+		end
 	end
 	self.tooltipFunc = StatTooltipFunc[token];
 end
