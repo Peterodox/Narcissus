@@ -3,13 +3,6 @@ local StatSheetController = addon.StatSheetController; ---@type StatSheetControl
 
 local MAX_CONDUITS = NarciConstants.Soulbinds.MaxRow or 8 --12;
 
-local sin = math.sin;
-local pi = math.pi;
-
-local function outSine(t, b, e, d)
-	return (e - b) * sin(t / d * (pi / 2)) + b
-end
-
 local Narci = Narci;
 local FadeFrame = NarciFadeUI.Fade;
 
@@ -19,42 +12,9 @@ local EquipmentSetManager = Narci_EquipmentSetManagerFrame;
 local PowersFrame = Narci_PowersFrame;
 local ChallengeUI = Narci_CompetitiveDisplay;
 
-local RepositionFrame = CreateFrame("Frame", nil, nil, "NarciUpdateFrameTemplate");
-RepositionFrame.duration = 0.35;
-
-local function RepositionFrame_OnShow(self)
-    if not self.object then
-        self.object = Narci_RadarChartFrame;
-    end
-    local _;
-    self.point, self.relativeTo, self.relativePoint, _, self.fromY = self.object:GetPoint();
-end
-
-local function RepositionFrame_OnUpdate(self, elapsed)
-	self.t = self.t + elapsed;
-	local offset = outSine(self.t, self.fromY, self.toY, self.duration);
-
-	if self.t >= self.duration then
-		offset = self.toY;
-		self:Hide();
-    end
-
-    self.object:SetPoint(self.point, self.relativeTo, self.relativePoint, 0, offset);
-end
-
-RepositionFrame:SetScript("OnShow", RepositionFrame_OnShow);
-RepositionFrame:SetScript("OnUpdate", RepositionFrame_OnUpdate);
-
 
 --Global
 local V = NarciViewUtil;        --Declared in NarciAPI.lua
-
-function V:SetVerticleOffset(offsetY)
-    RepositionFrame:Hide();
-    RepositionFrame.t = 0;
-    RepositionFrame.toY = offsetY;
-    RepositionFrame:Show();
-end
 
 function V:ShowAttributes()
     if self.targetView == 1 then
@@ -63,12 +23,12 @@ function V:ShowAttributes()
         self.targetView = 1;
     end
 
-    self:SetVerticleOffset(-26);
     FadeFrame(EquipmentSetManager, 0.2, 0);
     FadeFrame(PowersFrame, 0.20, 0);
     FadeFrame(ChallengeUI, 0.20, 0);
 
     StatSheetController:ShowStatSheet();
+    StatSheetController:SetRadarChartOffset(0);
 
     self.hideSetsCallBack();
 end
@@ -80,11 +40,13 @@ function V:ShowSets()
         self.targetView = 2;
     end
 
-    self:SetVerticleOffset(-26 -72);
     FadeFrame(PowersFrame, 0.20, 0);
     FadeFrame(EquipmentSetManager, 0.15, 1);
     FadeFrame(ChallengeUI, 0.20, 0);
+
     StatSheetController:ShowRadarChartOnly();
+    StatSheetController:SetRadarChartOffset(-74);
+
     self.showSetsCallBack();
 end
 
@@ -95,11 +57,12 @@ function V:ShowChallenge()
         self.targetView = 4;
     end
 
-    self:SetVerticleOffset(-24 -72 -2);
     FadeFrame(EquipmentSetManager, 0.20, 0);
     FadeFrame(PowersFrame, 0.20, 0);
     FadeFrame(ChallengeUI, 0.15, 1);
+
     StatSheetController:HideStatSheet();
+
     self.hideSetsCallBack();
 end
 

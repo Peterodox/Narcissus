@@ -55,6 +55,12 @@ function StatSheetController:SetRadarChartShown(state)
     end
 end
 
+function StatSheetController:SetRadarChartOffset(offsetY)
+    if self.radarChart then
+        self.radarChart:AnimateOffset(offsetY);
+    end
+end
+
 function StatSheetController:ShowDetailedStats(state)
     if not NarciViewUtil:IsViewingAttributes() then return; end
 

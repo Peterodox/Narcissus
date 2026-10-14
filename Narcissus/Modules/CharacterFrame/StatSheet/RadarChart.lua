@@ -425,6 +425,52 @@ function NarciRadarChartMixin:SnapToFadeResult()
 	-- Override
 end
 
+---When switching to Equipment Set Manager via the Nav Bar, we move the chart down.
+---@param targetOffsetY number Relative to its default position. Usually `0` or `-26`.
+function NarciRadarChartMixin:AnimateOffset(targetOffsetY)
+	if not self.SetRelativePositionY then
+    	local point, relativeTo, relativePoint, x, y = self:GetPoint(1);
+
+		function self:SetRelativePositionY(delta)
+			self.relativeOffsetY = delta;
+			self:SetPoint(point, relativeTo, relativePoint, x, y + delta);
+		end
+
+		self.relativeOffsetY = 0;
+	end
+
+	local currentOffsetY = self.relativeOffsetY;
+	local delta = targetOffsetY - currentOffsetY;
+
+	if (not self:IsVisible()) or (delta < 1 and delta > -1) then
+		-- No animating if chart is not shown or the delta is too small
+		if self.PositionUpdator then
+			self.PositionUpdator:Hide();
+		end
+		self:SetRelativePositionY(targetOffsetY);
+	else
+		if not self.PositionUpdator then
+			self.PositionUpdator = CreateFrame("Frame", nil, self);
+		end
+		self.PositionUpdator:Hide();
+
+		local easingDuration = 0.35;
+
+		self.PositionUpdator:SetScript("OnUpdate", function(f, elapsed)
+			f.t = f.t + elapsed;
+			local offset = outSine(f.t, currentOffsetY, targetOffsetY, easingDuration);
+			if f.t >= easingDuration then
+				offset = targetOffsetY;
+				f:Hide();
+			end
+			self:SetRelativePositionY(offset);
+		end);
+
+		self.PositionUpdator.t = 0;
+		self.PositionUpdator:Show();
+	end
+end
+
 do	--Timerunning
 	local EquipmentSlots = {
 		1, 3, 5, 6, 7, 8, 9, 10, 15,
