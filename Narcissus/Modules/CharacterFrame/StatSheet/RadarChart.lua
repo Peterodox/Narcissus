@@ -272,10 +272,10 @@ function NarciRadarChartMixin:AnimateValue(c, h, m, v)
 
 	--Update the radar chart using animation
 
-	local UpdateFrame = self.UpdateFrame;
-	if not UpdateFrame then
-		UpdateFrame = CreateFrame("Frame", nil, self, "NarciUpdateFrameTemplate");
-		self.UpdateFrame = UpdateFrame;
+	local ValueUpdator = self.ValueUpdator;
+	if not ValueUpdator then
+		ValueUpdator = CreateFrame("Frame", nil, self);
+		self.ValueUpdator = ValueUpdator;
 		self.n1, self.n2, self.n3, self.n4 = 0, 0, 0, 0;
 	end
 
@@ -291,7 +291,6 @@ function NarciRadarChartMixin:AnimateValue(c, h, m, v)
 		local v2 = outSine(t, s2, e2, duration);
 		local v3 = outSine(t, s3, e3, duration);
 		local v4 = outSine(t, s4, e4, duration);
-
 		if t >= duration then
 			v1, v2, v3, v4 = e1, e2, e3, e4;
 			frame:Hide();
@@ -299,9 +298,10 @@ function NarciRadarChartMixin:AnimateValue(c, h, m, v)
 		self:SetValue(v1, v2, v3, v4);
 	end
 
-	UpdateFrame:Hide();
-	UpdateFrame:SetScript("OnUpdate", UpdateFunc);
-	UpdateFrame:Show();
+	ValueUpdator:Hide();
+	ValueUpdator:SetScript("OnUpdate", UpdateFunc);
+	ValueUpdator.t = 0;
+	ValueUpdator:Show();
 end
 
 function NarciRadarChartMixin:TogglePrimaryStats(state)
@@ -369,8 +369,8 @@ function NarciRadarChartMixin:UpdateChart(useAnimation)
 	if useAnimation then
 		self:AnimateValue(e1, e2, e3, e4);
 	else
-		if self.UpdateFrame then
-			self.UpdateFrame:Hide();
+		if self.ValueUpdator then
+			self.ValueUpdator:Hide();
 		end
 		self:SetValue(e1, e2, e3, e4);
 	end
@@ -484,8 +484,8 @@ do	--Timerunning
 		if useAnimation then
 			self:AnimateValue(e1, e2, e3, e4);
 		else
-			if self.UpdateFrame then
-				self.UpdateFrame:Hide();
+			if self.ValueUpdator then
+				self.ValueUpdator:Hide();
 			end
 			self:SetValue(e1, e2, e3, e4);
 		end
