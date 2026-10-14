@@ -394,6 +394,12 @@ function NarciRadarChartMixin:AnySecret(...)
 		return false;
 	else
 		self.SecretAlert:Show();
+		self.MaskedLine1:Hide();
+		self.MaskedLine2:Hide();
+		self.MaskedLine3:Hide();
+		self.MaskedLine4:Hide();
+		self.MaskedBackground:Hide();
+		self.MaskedBackground2:Hide();
 		return true;
 	end
 end
