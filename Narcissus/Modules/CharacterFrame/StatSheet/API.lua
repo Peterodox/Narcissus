@@ -182,7 +182,7 @@ function StatSheetAPI.GetDamageTooltip()
 		local totalBonus = fullDamage - baseDamage;
 		local damageTooltip = BreakUpLargeNumbers(math.max(math.floor(baseMinDamage), 1)).." - "..BreakUpLargeNumbers(math.max(math.ceil(baseMaxDamage), 1));
 
-		if totalBonus < -0.1 and totalBonus < 0.1 then
+		if totalBonus > -0.1 and totalBonus < 0.1 then
 			-- Considered as Zero Bonus
 		else
 			if posBuff > 0 then
