@@ -1,6 +1,6 @@
 --Supports addons that use libdatabroker-1-1: Titan Panel, Bazooka, ElvUI
 
-
+local _, addon = ...
 
 local function CreateDataObject()
     --"HidingBar" already handles our button well
@@ -37,11 +37,7 @@ local function CreateDataObject()
     local function Object_OnClick(frame, button)
         GameTooltip:Hide();
 
-        if button == "LeftButton" then
-            Narci_Open();
-        elseif button == "RightButton" then
-            Narci_MinimapButton:ShowBlizzardMenu(frame);
-        end
+        addon.TriggerAddOnButtonOnClick(button);
     end
 
     local obj = ldb:NewDataObject("Narcissus", {
@@ -99,7 +95,4 @@ local function CreateDataObject()
     return true
 end
 
-do
-    local _, addon = ...
-    addon.AddInitializationCallback(CreateDataObject);
-end
+addon.AddInitializationCallback(CreateDataObject);

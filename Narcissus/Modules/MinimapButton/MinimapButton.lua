@@ -121,6 +121,20 @@ local function IsLeftClickSetToPhotoMode()
 	return NarcissusDB and NarcissusDB.OldMinimapButtonClickBehavior == 2
 end
 
+local function TriggerAddOnButtonOnClick(button)
+	if button == "RightButton" then
+		MiniButton:ShowBlizzardMenu(UIParent);
+	else
+		if IsLeftClickSetToPhotoMode() then
+			Narci_OpenGroupPhoto();
+		else
+			Narci_Open();
+		end
+	end
+end
+addon.TriggerAddOnButtonOnClick = TriggerAddOnButtonOnClick;
+
+
 NarciMinimapButtonMixin = {};
 
 function NarciMinimapButtonMixin:CreatePanel()
@@ -962,15 +976,7 @@ end
 
 do	--AddOn Compartment
 	function Narci_AddonCompartment_OnClick(self, button)
-		if button == "LeftButton" then
-			if IsLeftClickSetToPhotoMode() then
-				Narci_OpenGroupPhoto();
-			else
-				Narci_Open();
-			end
-		elseif button == "RightButton" then
-			MiniButton:ShowBlizzardMenu(UIParent);
-		end
+		TriggerAddOnButtonOnClick(button);
 	end
 
 	function Narci_AddonCompartment_OnEnter(name, menuButton)
