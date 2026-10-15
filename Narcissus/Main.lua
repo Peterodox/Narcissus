@@ -191,6 +191,7 @@ local function InitializeSlotButtons()
 
 		for i, slotName in ipairs(v) do
 			local slotButton = CreateFrame("Button", nil, container, "NarciEquipmentSlotButtonTemplate");
+			slotButton.order = i;
 			slotButton:SetSlotByName(slotName);
 			slotButton:SetOrientation(orientation);
 			slotButton:SetPoint(point, relativeTo, "CENTER", 0, fromOffsetY + (1 - i) * (buttonHeight + gap));

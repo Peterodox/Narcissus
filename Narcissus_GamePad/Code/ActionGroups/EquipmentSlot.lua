@@ -10,34 +10,19 @@ ag:SetButtonDescription("B", "Cancel");
 ag:SetButtonDescription("X", "Use");
 
 function ag:Init()
-    local slotFrame = Narci_Character;
-    self.buttons = {};
-    self.buttons[1] = {     --Left column
-        slotFrame.HeadSlot,
-        slotFrame.NeckSlot,
-        slotFrame.ShoulderSlot,
-        slotFrame.BackSlot,
-        slotFrame.ChestSlot,
-        slotFrame.WristSlot,
-        slotFrame.MainHandSlot,
-        slotFrame.SecondaryHandSlot,
-        slotFrame.ShirtSlot,
-    };
-    self.buttons[2] = {     --Right column
-        slotFrame.HandsSlot,
-        slotFrame.WaistSlot,
-        slotFrame.LegsSlot,
-        slotFrame.FeetSlot,
-        slotFrame.Finger0Slot;
-        slotFrame.Finger1Slot;
-        slotFrame.Trinket0Slot;
-        slotFrame.Trinket1Slot;
-        slotFrame.TabardSlot;
-    };
+    self.buttons = NarciAPI.GetSlotButtonsForController();
     self.row = 0;
     self.col = 1;
-    self.maxRow = 9;
-    self.maxCol = 2;
+    self.maxRow = #self.buttons[1];
+    self.maxCol = #self.buttons;
+end
+
+function ag:GetMaxRow()
+    if self.buttons and self.col and self.buttons[self.col] then
+        return #self.buttons[self.col];
+    else
+        return 1;
+    end
 end
 
 function ag:Enter(currentObj)
@@ -89,11 +74,11 @@ function ag:Navigate(x, y)
     if y > 0 then
         self.row = self.row - 1;
         if self.row < 1 then
-            self.row = self.maxRow;
+            self.row = self:GetMaxRow();
         end
     elseif y < 0 then
         self.row = self.row + 1;
-        if self.row > self.maxRow then
+        if self.row > self:GetMaxRow() then
             self.row = 1;
         end
     end
@@ -118,7 +103,7 @@ function ag:OnActiveCallback(mode)
             self.row = 1;
         elseif mode == 3 then
             self.col = 1;
-            self.row = self.maxRow;
+            self.row = self:GetMaxRow();
         elseif mode == 4 then
             if self.row == 0 then
                 self.row = 1;

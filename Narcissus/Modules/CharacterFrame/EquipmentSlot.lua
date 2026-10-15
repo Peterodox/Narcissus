@@ -1140,3 +1140,23 @@ do
         self.hyperlink = nil;
     end
 end
+
+
+---For game pad. Return the left and right column of the Equipment Slots
+function NarciAPI.GetSlotButtonsForController()
+    local leftSlots = {};
+    local rightSlots = {};
+
+    for _, slotButton in pairs(SLOT_TABLE) do
+        table.insert(slotButton.isRight and rightSlots or leftSlots, slotButton);
+    end
+
+    local function SortFunc(a, b)
+        return a.order < b.order;
+    end
+
+    table.sort(leftSlots, SortFunc);
+    table.sort(rightSlots, SortFunc);
+
+    return {leftSlots, rightSlots};
+end
