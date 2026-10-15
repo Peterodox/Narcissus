@@ -264,7 +264,7 @@
                     <Color r="0.5" g="0.5" b="0.5"/>
                     <Anchors>
                         <Anchor point="LEFT" relativeKey="$parent" relativePoint="LEFT" x="12" y="1"/>
-                        <Anchor point="RIGHT" relativeKey="$parent" relativePoint="BOTTRIGHTOMRIGHT" x="-12" y="1"/>
+                        <Anchor point="RIGHT" relativeKey="$parent" relativePoint="RIGHT" x="-12" y="1"/>
                     </Anchors>
                 </FontString>
             </Layer>
