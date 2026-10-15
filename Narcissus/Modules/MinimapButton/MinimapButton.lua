@@ -656,7 +656,7 @@ function NarciMinimapButtonMixin:ShowTooltip(owner, fromBlizzardMenuButton)
 	end
 	--]]
 
-	if fromBlizzardMenuButton and IsLeftClickSetToPhotoMode() then
+	if IsLeftClickSetToPhotoMode() then
 		tooltip:AddLine(GetMouseButtonMarkup("LeftClick")..L["Photo Mode"], 1, 1, 1, false);
 	else
 		tooltip:AddLine(GetMouseButtonMarkup("LeftClick")..L["Character UI"], 1, 1, 1, false);
