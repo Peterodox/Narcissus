@@ -12,7 +12,6 @@ local floor = math.floor;
 
 local ItemCacheUtil = addon.ItemCacheUtil;
 
-local FormatLargeNumbers = NarciAPI.FormatLargeNumbers --BreakUpLargeNumbers;
 local GetItemExtraEffect = NarciAPI.GetItemExtraEffect;
 local IsItemSocketable = NarciAPI.IsItemSocketable;
 
@@ -59,7 +58,7 @@ local function SetCombatRatingRatio()
     else
         masteryBase = 0;
     end
-    local critChance, critRating = Narci.GetEffectiveCrit();
+    local critChance, critRating = addon.StatSheetAPI.GetEffectiveCrit();
 	local extraCritChance = GetCombatRatingBonus(critRating);
 	local critBase = critChance - extraCritChance;
 	local versatilityBase = GetVersatilityBonus(CR_VERSATILITY_DAMAGE_DONE);
@@ -128,19 +127,21 @@ end
 
 
 local function Narci_Comparison_AdjustGap()
+    if hasGapAdjusted then return; end
+
     local frame = Narci_Comparison;
     local defaultV1 = 60;
     local defaultV2 = 110;  --116
     local maxStringWidth = 60; --Default Gap is 80 = 60 + 20
-    
+
     local statString = frame.StatsList;
-    for i=1, #statString do
+    for i= 1, #statString do
         local tempWidth = statString[i].Label:GetWidth();
         if maxStringWidth < tempWidth then
             maxStringWidth = tempWidth;
         end
     end
-    
+
     local ajustedV1 = maxStringWidth + 30;
     local ajustedV2 = floor(defaultV2 -(ajustedV1 - defaultV1));
     local extraWidth = 0;
@@ -151,7 +152,7 @@ local function Narci_Comparison_AdjustGap()
         ajustedV2 = minimumGap;
         frame:SetWidth(frame:GetWidth() + extraWidth)
     end
-    
+
     frame.GuideLineV1:SetPoint("LEFT", ajustedV1, 0)
     frame.GuideLineV2:SetPoint("LEFT", frame.GuideLineV1, ajustedV2, 0)
     hasGapAdjusted = true;
@@ -238,7 +239,7 @@ local function DisplayComparison(key, name, number, baseNumber, ratio, CustomCol
         if name ~= STAMINA_STRING then
             Textframe.PctDiff:SetText(string.format(FORMAT_DIGIT, ratio*differentialNumber).."%");
         else
-            Textframe.PctDiff:SetText(AbbreviateNumbers(ratio*differentialNumber));    --FormatLargeNumbers
+            Textframe.PctDiff:SetText(AbbreviateNumbers(ratio * differentialNumber));
         end
     else
         Textframe.PctDiff:SetText("");
@@ -246,8 +247,8 @@ local function DisplayComparison(key, name, number, baseNumber, ratio, CustomCol
 end
 
 local function EmptyComparison()
-    DisplayComparison("ilvl",STAT_AVERAGE_ITEM_LEVEL);
-    DisplayComparison("prim", SPEC_FRAME_PRIMARY_STAT);
+    DisplayComparison("ilvl", STAT_AVERAGE_ITEM_LEVEL);
+    DisplayComparison("prim", L["Primary Stat"]);
     DisplayComparison("stamina", STAMINA_STRING);
     DisplayComparison("crit", STAT_CRITICAL_STRIKE);
     DisplayComparison("haste", STAT_HASTE);
@@ -268,7 +269,7 @@ end
 local HEART_LEVEL = 0;
 local CURRENT_SPEC = 1;
 local MAX_TIER = 5;
-local PRIMARY_STAT_NAME = "Primary";
+local PRIMARY_STAT_NAME = L["Primary Stat"];
 local GetAllTierInfo = C_AzeriteEmpoweredItem.GetAllTierInfo;
 local GetPowerInfo = C_AzeriteEmpoweredItem.GetPowerInfo;
 local IsPowerSelected = C_AzeriteEmpoweredItem.IsPowerSelected;
@@ -463,6 +464,7 @@ function Narci_Comparison_SetComparison(itemLocation, itemButton)
         frame.SubTooltip:Hide();
         frame.PawnText:Hide();
         EmptyComparison();
+        Narci_Comparison_AdjustGap();
         return;
     end
 
@@ -546,9 +548,7 @@ function Narci_Comparison_SetComparison(itemLocation, itemButton)
         frame.BonusButton2:Hide();
     end
 
-    if not hasGapAdjusted then
-        Narci_Comparison_AdjustGap()
-    end
+    Narci_Comparison_AdjustGap();
 
     frame:SetFrameStrata("TOOLTIP");
 
@@ -652,16 +652,11 @@ end
 
 --FlyOut Tooltip
 local function UpdateSpectIDAndPrimaryStat()
-    local PrimaryStatsList = {
-        [LE_UNIT_STAT_STRENGTH] = NARCI_STAT_STRENGTH,
-        [LE_UNIT_STAT_AGILITY] = NARCI_STAT_AGILITY,
-        [LE_UNIT_STAT_INTELLECT] = NARCI_STAT_INTELLECT,
-    };
-
     local currentSpec = C_SpecializationInfo.GetSpecialization() or 1;
     local _, primaryStatID;
     CURRENT_SPEC, _, _, _, _, primaryStatID = C_SpecializationInfo.GetSpecializationInfo(currentSpec);
-    PRIMARY_STAT_NAME = PrimaryStatsList[primaryStatID] or PRIMARY_STAT_NAME;
+    primaryStatID = primaryStatID or 1;
+    PRIMARY_STAT_NAME = _G["SPELL_STAT"..primaryStatID.."_NAME"] or PRIMARY_STAT_NAME;
 end
 
 local NT = CreateFrame("Frame");

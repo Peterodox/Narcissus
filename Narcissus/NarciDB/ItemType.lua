@@ -29,7 +29,7 @@ local SlotData = {
     [15]= {"BackSlot", BACKSLOT, "INVTYPE_CLOAK", 0, true, 3},
     [16]= {"MainHandSlot", MAINHANDSLOT, "INVTYPE_WEAPONMAINHAND", 0, true, 128},
     [17]= {"SecondaryHandSlot", SECONDARYHANDSLOT, "INVTYPE_WEAPONOFFHAND", 0, true, 128},
-    [18]= {"AmmoSlot", RANGEDSLOT, "INVSLOT_RANGED", 0},
+    [18]= {"RangedSlot", RANGEDSLOT, "INVSLOT_RANGED", 0},
     [19]= {"TabardSlot", TABARDSLOT, "INVTYPE_TABARD", 0, true},
 };
 
@@ -58,6 +58,17 @@ local HoldableItem = {
 for slotID, info in pairs(SlotData) do
     _, info[4] = GetInventorySlotInfo(info[1]);  --texture
     InvTypeXSlotID[ info[3] ] = slotID;
+end
+
+if addon.IS_FOREVER then
+    addon.AddInitializationCallback(function()
+        if UnitHasRelicSlot and UnitHasRelicSlot("player") then
+            -- Change Ranged to Relic
+            local info = SlotData[18];
+            info[2] = RELICSLOT;
+            info[4] = "Interface\\Paperdoll\\UI-PaperDoll-Slot-Relic.blp";
+        end
+    end);
 end
 
 local function GetSlotIDByInvType(invType)

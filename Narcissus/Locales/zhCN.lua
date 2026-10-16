@@ -27,7 +27,7 @@ L["Movement Speed"] = "移动速度";
 L["Combat Resources"] = "战斗资源";
 L["No Talents"] = "无天赋";
 L["Damage Reduction Percentage"] = "伤害减免";
-
+L["Stat Chart Unavailable"] = "图表不可用";
 L["Advanced Info"] = "点击以显示更详细的装备、属性信息";
 L["Restore On Exit"] = "你先前的设置会在退出后自动恢复。"
 L["Photo Mode"] = "照片模式";

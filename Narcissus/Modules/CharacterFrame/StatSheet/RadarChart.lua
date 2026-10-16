@@ -1,10 +1,10 @@
 local _, addon = ...
 local UIColorThemeUtil = addon.UIColorThemeUtil;
 local FadeFrame = NarciFadeUI.Fade;
-local GetEffectiveCrit = Narci.GetEffectiveCrit;
+local GetEffectiveCrit = addon.StatSheetAPI.GetEffectiveCrit;
 local GetCombatRating = GetCombatRating;
 local outSine = addon.EasingFunctions.outSine;
-local canaccessvalue = canaccessvalue;
+local canaccessallvalues = canaccessallvalues;
 
 local max = math.max;
 
@@ -17,6 +17,7 @@ NarciRadarChartMixin = {}
 
 function NarciRadarChartMixin:OnLoad()
 	self.isRadarChart = true;
+	self.SecretAlert:SetText(Narci.L["Stat Chart Unavailable"]);
 
 	local circleTex = "Interface\\AddOns\\Narcissus\\Art\\Widgets\\RadarChart\\Radar-Vertice";
 	local filter = "TRILINEAR";
@@ -92,9 +93,7 @@ end
 
 
 function NarciRadarChartMixin:SetValue(c, h, m, v)
-	if not canaccessvalue(c) then
-		return;
-	end
+	if self:AnySecret(c) then return; end
 
 	--c, h, m, v: Input manually or use combat ratings
 
@@ -104,8 +103,8 @@ function NarciRadarChartMixin:SetValue(c, h, m, v)
 	if c then
 		crit = c;
 	else
-		local _, rating = GetEffectiveCrit();
-		crit = GetCombatRating(rating) or 0;
+		local _, critRatingIndex = GetEffectiveCrit();
+		crit = GetCombatRating(critRatingIndex) or 0;
 	end
 	if h then
 		haste = h;
@@ -269,9 +268,7 @@ function NarciRadarChartMixin:SetValue(c, h, m, v)
 end
 
 function NarciRadarChartMixin:AnimateValue(c, h, m, v)
-	if not canaccessvalue(c) then
-		return;
-	end
+	if self:AnySecret(c) then return; end
 
 	--Update the radar chart using animation
 
@@ -350,20 +347,20 @@ function NarciRadarChartMixin:CalculateBestSum(e1, e2, e3, e4)
 end
 
 function NarciRadarChartMixin:UpdateChart(useAnimation)
-	local critChance, critRating = GetEffectiveCrit();
+	local critChance, critRatingIndex = GetEffectiveCrit();
 
-	if not canaccessvalue(critChance) then
+	if self:AnySecret(critChance) then
 		for _, vertice in ipairs(self.vertices) do
 			vertice:Hide();
 		end
-		return
+		return;
 	end
 
 	for _, vertice in ipairs(self.vertices) do
 		vertice:Show();
 	end
 
-	local e1 = GetCombatRating(critRating) or 0;
+	local e1 = GetCombatRating(critRatingIndex) or 0;
 	local e2 = GetCombatRating(CR_HASTE_MELEE) or 0;
 	local e3 = GetCombatRating(CR_MASTERY) or 0;
 	local e4 = GetCombatRating(CR_VERSATILITY_DAMAGE_DONE) or 0;
@@ -390,7 +387,23 @@ function NarciRadarChartMixin:UpdateAttributeFrames()
 	end
 end
 
---- [TODO] Don't refresh stats when equipment set manager is activated
+---Check if the values contain Secret. If so, show the alert text.
+function NarciRadarChartMixin:AnySecret(...)
+	if canaccessallvalues(...) then
+		self.SecretAlert:Hide();
+		return false;
+	else
+		self.SecretAlert:Show();
+		self.MaskedLine1:Hide();
+		self.MaskedLine2:Hide();
+		self.MaskedLine3:Hide();
+		self.MaskedLine4:Hide();
+		self.MaskedBackground:Hide();
+		self.MaskedBackground2:Hide();
+		return true;
+	end
+end
+
 function NarciRadarChartMixin:Update()
 	self:UpdateChart(true);
 	self:UpdateAttributeFrames();
