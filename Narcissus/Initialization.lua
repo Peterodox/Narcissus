@@ -1,6 +1,6 @@
-local NARCI_VERSION_INFO = "1.8.6 c";
+local NARCI_VERSION_INFO = "1.8.6 d";
 
-local VERSION_DATE = 1789400000;
+local VERSION_DATE = 1792000000;
 local CURRENT_VERSION = 10806;
 local PREVIOUS_VERSION = CURRENT_VERSION;
 local TIME_SINCE_LAST_UPDATE = 0;
@@ -428,8 +428,8 @@ do
     end
     addon.IsTOCVersionEqualOrNewerThan = IsTOCVersionEqualOrNewerThan;
 
-    -- TOC "X-Game" is always a string, WOW_PROJECT_* may be nil
-    local game = C_AddOns.GetAddOnMetadata(addonName, "X-Game");
+    -- TOC "X-GameType" is always a string, WOW_PROJECT_* may be nil
+    local game = C_AddOns.GetAddOnMetadata(addonName, "X-GameType");
 
     -- TODO: "Camelot" / WOW_PROJECT_CAMELOT will be renamed to "Forever"
     addon.IS_FOREVER = game == "Camelot" or WOW_PROJECT_ID == WOW_PROJECT_CAMELOT;
