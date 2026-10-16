@@ -428,8 +428,8 @@ do
     end
     addon.IsTOCVersionEqualOrNewerThan = IsTOCVersionEqualOrNewerThan;
 
-    -- TOC "X-Game" is always a string, WOW_PROJECT_* may be nil
-    local game = C_AddOns.GetAddOnMetadata(addonName, "X-Game");
+    -- TOC "X-GameType" is always a string, WOW_PROJECT_* may be nil
+    local game = C_AddOns.GetAddOnMetadata(addonName, "X-GameType");
 
     -- TODO: "Camelot" / WOW_PROJECT_CAMELOT will be renamed to "Forever"
     addon.IS_FOREVER = game == "Camelot" or WOW_PROJECT_ID == WOW_PROJECT_CAMELOT;

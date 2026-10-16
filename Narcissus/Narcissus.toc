@@ -1,6 +1,6 @@
-## Interface: 120100, 120105, 16001
-## X-Game: [Game]
-## X-Family: [Family]
+## Interface: 120107, 120105, 16001
+## X-GameType: Camelot [AllowLoadGameType camelot]
+## X-GameType: Standard [AllowLoadGameType standard]
 ## Version: 1.8.6
 
 ## Title: Narcissus
