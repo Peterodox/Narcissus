@@ -1,12 +1,10 @@
 local _, addon = ...
 local StatSheetController = addon.StatSheetController; ---@type StatSheetController
 
-local MAX_CONDUITS = NarciConstants.Soulbinds.MaxRow or 8 --12;
-
 local Narci = Narci;
 local FadeFrame = NarciFadeUI.Fade;
 
-local NavigationBar, ProgressTimer;
+local NavigationBar;
 
 local EquipmentSetManager = Narci_EquipmentSetManagerFrame;
 local PowersFrame = Narci_PowersFrame;
@@ -192,64 +190,17 @@ function NarciNavBarTabButtonMixin:SetUp(labelText, tabIndex)
     self.tabIndex = tabIndex;
 end
 
-local soulbindIDs = {
-    13, --Kleia",
-    18,  --Mikanikos
-    7, --Pelagos
-
-    3,   --Draven
-    8,   --Nadjia
-    9,   --Theotar
-
-    1,    --Niya
-    2,  --Dreamweaver
-    6,     --Korayn
-
-    5, --Emeni
-    4,   --Marileth
-    10,   --Heirmir
-};
-
-local soulbindPortraits = {};
-
-for key, id in pairs(soulbindIDs) do
-    soulbindPortraits[id] = true;
+function NarciNavBarTabButtonMixin:SetSelected(state)
+    self:SetSelect(state);
 end
 
-soulbindIDs = nil;
-
-
-----------------------------------------------
-local function HideLastTab()
-    local frame = NavigationBar;
-    local i = frame.cycledTabIndex;
-    if not i then
-        i = 0;
-    end
-    i = i + 1;
-    if i > 1 then
-        i = 0;
-    end
-    frame.cycledTabIndex = i;
-
-    if i == 0 then  --Talents
-        FadeFrame(frame.PrimaryFrame.ConduitContainer, 0.5, 0);
-    elseif i == 1 then  --ConduitTooltip
-        FadeFrame(frame.PrimaryFrame.TalentContainer, 0.5, 0);
-    end
+function NarciNavBarTabButtonMixin:SetText(text)
+    self:SetUp(text);
+    self:SetScript("OnClick", function()
+        self:SelectTab();
+    end);
 end
 
-local function ShowNextTab()
-    local frame = NavigationBar;
-    local i = frame.cycledTabIndex;
-    if i == 0 then  --Talents
-        FadeFrame(frame.PrimaryFrame.TalentContainer, 0.5, 1);
-        frame:SetPortraitTexture(frame.specIcon, true, true);
-    elseif i == 1 then  --ConduitTooltip
-        FadeFrame(frame.PrimaryFrame.ConduitContainer, 0.5, 1);
-        frame:SetPortraitTexture("Interface\\AddOns\\Narcissus\\Art\\NavBar\\Soulbinds\\".. frame.soulbindID);
-    end
-end
 
 NarciNavBarMixin = {};
 
@@ -275,55 +226,12 @@ function NarciNavBarMixin:OnLoad()
         navButton:SetPoint("TOPLEFT", container, "TOPLEFT", GAP, 0);
         if i == 1 then
             navButton:SetSelect(true);
-            --ProgressTimer = CreateFrame("Frame", nil, navButton, "NarciProgressTimerTemplate");
-            --ProgressTimer:SetParent(self.PrimaryFrame);
-            --ProgressTimer:SetAlign(navButton, 0);
-            --ProgressTimer:SetOnFinishedFunc(HideLastTab, ShowNextTab);
-            --ProgressTimer:SetTimer(8, true);
         end
         navButton:SetUp(tabInfo[i][1], i);
         navButton.tabFrame = self;
     end
 
-    --Create conduit butons;
-
-    --[[
-    local frame = NavigationBar.PrimaryFrame.ConduitContainer;
-    if not frame.conduitButtons then
-        frame.conduitButtons = {};
-    end
-    local buttons = frame.conduitButtons;
-    local button;
-
-    for i = 1, MAX_CONDUITS do
-        button = buttons[i];
-        if not button then
-            button = CreateFrame("Button", nil, frame, "NarciConduitFlatButtonTemplate");
-            buttons[i] = button;
-            local gap = -2;
-            local butonWidth = (320 - 48 - (MAX_CONDUITS - 1)*gap) / MAX_CONDUITS;
-            
-            if i == 1 then
-                button:UseFullMask(true, 1);
-                button:SetPoint("BOTTOMLEFT", frame, "BOTTOMLEFT", 0, 0);
-            elseif i == MAX_CONDUITS then
-                button:UseFullMask(false);
-                button:SetPoint("BOTTOMLEFT", buttons[i - 1], "BOTTOMRIGHT", gap, 0);
-            else
-                button:UseFullMask(false);
-                button:SetPoint("BOTTOMLEFT", buttons[i - 1], "BOTTOMRIGHT", gap, 0);
-            end
-            
-            button:SetButtonSize(butonWidth, 24);
-        end
-    end
-    --]]
-
     NavButtonController:UpdateButtonPosition();
-
-    ------------------------------
-    self:SetScript("OnLoad", nil);
-    self.OnLoad = nil;
 end
 
 function NarciNavBarMixin:IsCurrentTabSoulbind()
@@ -335,7 +243,6 @@ function NarciNavBarMixin:SetThemeColor(colorTable)
         colorTable = {0.8, 0.8, 0.8};
     end
     NavButtonController:SetHighlightColor(unpack(colorTable));
-    --ProgressTimer:SetColor(unpack(colorTable));
 end
 
 function NarciNavBarMixin:SetPortraitTexture(tex, useOffset, darken)
@@ -418,11 +325,6 @@ function NarciNavBarMixin:SetSkipCovenant(state)
         return
     end
     self.skipCovenant = state;
-    if state then
-        --ProgressTimer:Stop();
-    else
-        --ProgressTimer:Start();
-    end
     NavButtonController:SetButtonVisibility("covenant", not state);
 end
 
@@ -474,137 +376,16 @@ function NarciNavBarMixin:ToggleBar(state)
     end
 end
 
-local function UpdateFlatConduit(row, nodeData, unlockLevel)
-    local frame = NavigationBar.PrimaryFrame.ConduitContainer;
-    if not frame.conduitButtons then
-        frame.conduitButtons = {};
-    end
-    local i = row + 1;
-    local button = frame.conduitButtons[i];
-    if button then
-        if unlockLevel then
-            button:SetUnlockLevel(unlockLevel);
-        else
-            button:SetConduit(nodeData);
-        end
-    end
-end
-
-local function UpdateSoulbinds()
-    if true then return end;
-
-    local data;
-    local soulbindID = C_Soulbinds.GetActiveSoulbindID() or 0;
-    NavigationBar.soulbindID = soulbindID;
-
-    if soulbindID == 0 then
-        return
-    end
-
-    if soulbindID then
-        data = C_Soulbinds.GetSoulbindData(soulbindID);
-        if soulbindPortraits[soulbindID] then
-            if NavigationBar:IsCurrentTabSoulbind() then
-                NavigationBar:SetPortraitTexture("Interface\\AddOns\\Narcissus\\Art\\NavBar\\Soulbinds\\"..soulbindID);    --TRILINEAR
-            end
-        end
-    else
-        return
-    end
-
-    if not data or not data.tree then return end;
-
-    local nodes = data.tree.nodes;
-    if not nodes then return end;
-
-    local IS_ROW_PROCESSED = {};
-    local numNodes;
-    if nodes then
-        numNodes = #nodes;
-        local nodeData;
-        for i = 1, numNodes do
-            nodeData = nodes[i];
-            local row = nodeData.row;
-            if nodeData.state == 3 then
-                IS_ROW_PROCESSED[row] = true;
-                UpdateFlatConduit(row, nodeData);
-            else
-                if nodeData.state == 0 then   --Unavailable
-                    if not IS_ROW_PROCESSED[row] then
-                        IS_ROW_PROCESSED[row] = true;
-                        local unlockLevel = nodeData.failureRenownRequirement;
-                        if unlockLevel then
-                            UpdateFlatConduit(row, nodeData, unlockLevel);
-                        else
-                            UpdateFlatConduit(row);
-                        end
-                    end
-                else
-                    if not IS_ROW_PROCESSED[row] then
-                        IS_ROW_PROCESSED[row] = true;
-                        UpdateFlatConduit(row);
-                    end
-                end
-
-            end
-        end
-    else
-        numNodes = 1;
-    end
-end
-
-function NarciNavBarMixin:ProcessUpdate()
-    if self.pendingSoulbinds then
-        UpdateSoulbinds();
-        self.pendingSoulbinds = nil;
-    end
-end
-
 function NarciNavBarMixin:OnHide()
-    --reset tab to "Primary"
+    -- Reset tab to "Primary"
     self:SelectTab(1);
-end
-
-function NarciNavBarMixin:RequestUpdate(type)
-    if type == "soulbinds" or type == "all" then
-        if self:IsVisible() and self.tabIndex == 1 then
-            UpdateSoulbinds();
-        else
-            self.pendingSoulbinds = true;
-        end
-    end
-
-    if type == "talents" or type == "all" then
-        self.PrimaryFrame.TalentContainer:UpdateAllTalents(true);
-    end
-end
-
-local function UpdateButtonGroupWidth(buttons, numButtons, barWidth, maximizedMode)
-    if not buttons then return end;
-
-    local gap = -2;
-    local butonWidth = (barWidth - (numButtons - 1)*gap) / numButtons;
-    local b;
-    for i = 1, numButtons do
-        b = buttons[i];
-        if b then
-            if i == 1 then
-                b:UseFullMask(true, 1);
-            elseif i == numButtons and not(maximizedMode) then
-                b:UseFullMask(true, 2);
-            else
-                b:UseFullMask(false);
-            end
-            b:SetButtonSize(butonWidth, 24);
-        end
-    end
 end
 
 function NarciNavBarMixin:GetTrayWidth()
     if self.maximizedMode then
         return (320 - 48);
     else
-        return 240
+        return 240;
     end
 end
 
@@ -625,22 +406,7 @@ function NarciNavBarMixin:SetMaximizedMode(state)
     self:SetWidth(barWidth);
     self.OverlayFrame.PortraitShadow:SetShown(state);
     self.OverlayFrame.Portrait:SetShown(state);
-
-    local trayWidth = self:GetTrayWidth();
-    self.OverlayFrame.Divider:SetWidth(trayWidth);
-
     self.PrimaryFrame.TalentContainer:RequestUpdate();
-
-    --UpdateButtonGroupWidth(self.PrimaryFrame.ConduitContainer.conduitButtons, MAX_CONDUITS, effectiveWidth, state);
-    --UpdateButtonGroupWidth(self.PrimaryFrame.TalentContainer.talentButtons, 7, effectiveWidth, state);
-end
-
-function NarciNavBarMixin:PauseTimer(state)
-    if state then
-        --ProgressTimer:Pause();
-    else
-        --ProgressTimer:Resume();
-    end
 end
 
 --For GamePad

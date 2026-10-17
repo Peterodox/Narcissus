@@ -43,6 +43,25 @@
         </Scripts>
     </Button>
 
+    <Frame name="NarciNavBarTabFrameTemplate" useParentLevel="true" hidden="true" virtual="true">
+        <Size y="24"/>
+        <Anchors>
+            <Anchor point="BOTTOMLEFT"/>
+            <Anchor point="BOTTOMRIGHT"/>
+        </Anchors>
+        <Layers>
+            <Layer level="OVERLAY">
+                <FontString inherits="NarciFontMedium12" justifyH="LEFT" justifyV="MIDDLE" parentKey="DataText" maxLines="1">
+                    <Size x="272" y="0"/>
+                    <Color r="0.92" g="0.92" b="0.92"/>
+                    <Anchors>
+                        <Anchor point="LEFT" relativeKey="$parent" relativePoint="LEFT" x="10" y="0"/>
+                    </Anchors>
+                </FontString>
+            </Layer>
+        </Layers>
+    </Frame>
+
     <Frame name="Narci_NavBar" parent="Narci_Attribute" mixin="NarciNavBarMixin">
         <Size x="320" y="48"/>
         <Anchors>
@@ -103,61 +122,9 @@
                 </Frames>
             </Frame>
 
-            <Frame parentKey="SetsFrame" useParentLevel="true" hidden="true">
-                <Size y="24"/>
-                <Anchors>
-                    <Anchor point="BOTTOMLEFT"/>
-                    <Anchor point="BOTTOMRIGHT"/>
-                </Anchors>
-                <Layers>
-                    <Layer level="OVERLAY">
-                        <FontString inherits="NarciFontMedium12" justifyH="LEFT" justifyV="MIDDLE" parentKey="DataText" maxLines="1">
-                            <Size x="272" y="0"/>
-                            <Color r="0.92" g="0.92" b="0.92"/>
-                            <Anchors>
-                                <Anchor point="LEFT" relativeKey="$parent" relativePoint="LEFT" x="10" y="0"/>
-                            </Anchors>
-                        </FontString>
-                    </Layer>
-                </Layers>
-            </Frame>
-
-            <Frame parentKey="SoulbindsFrame" useParentLevel="true" hidden="true">
-                <Size y="24"/>
-                <Anchors>
-                    <Anchor point="BOTTOMLEFT"/>
-                    <Anchor point="BOTTOMRIGHT"/>
-                </Anchors>
-                <Layers>
-                    <Layer level="OVERLAY">
-                        <FontString inherits="NarciFontMedium12" justifyH="LEFT" justifyV="MIDDLE" parentKey="DataText" maxLines="1">
-                            <Size x="272" y="0"/>
-                            <Color r="0.92" g="0.92" b="0.92"/>
-                            <Anchors>
-                                <Anchor point="LEFT" relativeKey="$parent" relativePoint="LEFT" x="10" y="0"/>
-                            </Anchors>
-                        </FontString>
-                    </Layer>
-                </Layers>
-            </Frame>
-
-            <Frame parentKey="ChallengeFrame" useParentLevel="true" hidden="true">
-                <Size y="24"/>
-                <Anchors>
-                    <Anchor point="BOTTOMLEFT"/>
-                    <Anchor point="BOTTOMRIGHT"/>
-                </Anchors>
-                <Layers>
-                    <Layer level="OVERLAY">
-                        <FontString inherits="NarciFontMedium12" justifyH="LEFT" justifyV="MIDDLE" parentKey="DataText" maxLines="1">
-                            <Size x="272" y="0"/>
-                            <Color r="0.8" g="0.8" b="0.8"/>
-                            <Anchors>
-                                <Anchor point="LEFT" relativeKey="$parent" relativePoint="LEFT" x="10" y="0"/>
-                            </Anchors>
-                        </FontString>
-                    </Layer>
-                </Layers>
+            <Frame parentKey="SetsFrame" inherits="NarciNavBarTabFrameTemplate"/>
+            <Frame parentKey="SoulbindsFrame" inherits="NarciNavBarTabFrameTemplate"/>
+            <Frame parentKey="ChallengeFrame" inherits="NarciNavBarTabFrameTemplate">
                 <Frames>
                     <Frame parentKey="OwnedInfo" mixin="NarciOwnedKeystoneFrameMixin">
                         <Size x="48" y="48"/>
@@ -165,14 +132,6 @@
                             <Anchor point="BOTTOMRIGHT" x="0"/>
                         </Anchors>
                         <Layers>
-                            <!--Layer level="OVERLAY" textureSubLevel="2">
-                                <Texture parentKey="KeystoneOverlay" file="Interface\AddOns\Narcissus\Art\Modules\Competitive\MythicPlus\MyKeystoneOverlay">
-                                    <Size x="48" y="48"/>
-                                        <Anchors>
-                                            <Anchor point="CENTER"/>
-                                        </Anchors>
-                                </Texture>
-                            </Layer-->
                             <Layer level="OVERLAY" textureSubLevel="3">
                                 <FontString inherits="NarciFontNumber12Outline" justifyH="CENTER" justifyV="MIDDLE" parentKey="Level" maxLines="1">
                                     <Size x="64" y="24"/>
@@ -192,20 +151,8 @@
                 </Frames>
             </Frame>
 
-            <Frame parentKey="OverlayFrame">
-                <Anchors>
-                    <Anchor point="TOPLEFT"/>
-                    <Anchor point="BOTTOMRIGHT"/>
-                </Anchors>
+            <Frame parentKey="OverlayFrame" setAllPoints="true">
                 <Layers>
-                    <Layer level="OVERLAY" textureSubLevel="-1">
-                        <Texture file="Interface\AddOns\Narcissus\Art\NavBar\Shadow-Horizontal" parentKey="Divider">
-                            <Size x="240" y="12"/>
-                            <Anchors>
-                                <Anchor point="TOPLEFT" relativePoint="LEFT" y="0.5"/>
-                            </Anchors>
-                        </Texture>
-                    </Layer>
                     <Layer level="OVERLAY">
                         <Texture file="Interface\AddOns\Narcissus\Art\NavBar\Shadow-Vertical" parentKey="PortraitShadow">
                             <Size x="24" y="48"/>
