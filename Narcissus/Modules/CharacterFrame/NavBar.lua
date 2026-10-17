@@ -154,6 +154,12 @@ end
 
 function NarciNavBarMixin:OnShow()
     self:SetScript("OnShow", nil);
+
+    local playerLevel = UnitLevel("player");
+    if canaccessvalue(playerLevel) and playerLevel ~= GetMaxLevelForPlayerExpansion() then
+        self:DisableTab("MythicPlus");
+    end
+
     self:Init();
 end
 

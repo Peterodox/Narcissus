@@ -517,7 +517,6 @@ NarciMythicPlusDisplayMixin = {};
 function NarciMythicPlusDisplayMixin:OnLoad()
     MainFrame = self;
     self.t = 0;
-    self:RegisterEvent("PLAYER_ENTERING_WORLD");
     self:RegisterEvent("CHALLENGE_MODE_COMPLETED");
     self.requireUpdate = true;
     self.requireNewHistory = true;
@@ -545,11 +544,6 @@ function NarciMythicPlusDisplayMixin:OnEvent(event)
         end
     elseif event == "CHALLENGE_MODE_MEMBER_INFO_UPDATED" then
         self.memberInfoReady = true;
-    elseif event == "PLAYER_ENTERING_WORLD" then
-        self:UnregisterEvent(event);
-        if UnitLevel("player") ~= GetMaxLevelForPlayerExpansion() and HIDE_MYTHIC_TAB_ON_LOW_LEVELS then
-            Narci_NavBar:HideMythicPlusButton();
-        end
     end
 end
 
