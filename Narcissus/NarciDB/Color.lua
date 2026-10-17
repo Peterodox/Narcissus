@@ -329,8 +329,6 @@ do  --Map Color Theme
                 self.mapID = mapID;
                 self.requireUpdate = true;
                 self.themeColor = self:SetColorIndex(mapID);
-                --RadarChart:UpdateColor();
-                --Narci_NavBar:SetThemeColor(self.themeColor);
             end
         else
             self.requireUpdate = false;
