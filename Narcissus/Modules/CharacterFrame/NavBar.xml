@@ -123,7 +123,7 @@
             </Frame>
 
             <Frame parentKey="SetsFrame" inherits="NarciNavBarTabFrameTemplate"/>
-            <Frame parentKey="SoulbindsFrame" inherits="NarciNavBarTabFrameTemplate"/>
+
             <Frame parentKey="ChallengeFrame" inherits="NarciNavBarTabFrameTemplate">
                 <Frames>
                     <Frame parentKey="OwnedInfo" mixin="NarciOwnedKeystoneFrameMixin">
@@ -188,7 +188,7 @@
         </Frames>
         <Scripts>
             <OnLoad method="OnLoad"/>
-            <OnShow method="ProcessUpdate"/>
+            <OnShow method="OnShow"/>
             <OnHide method="OnHide"/>
         </Scripts>
     </Frame>

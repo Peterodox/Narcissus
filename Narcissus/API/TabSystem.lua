@@ -239,6 +239,10 @@ function TabSystemMixin:SelectTabByKey(tabKey)
 
     data.tabFrame:Show();
 
+    if self.OnTabSelected then
+        self:OnTabSelected(tabKey);
+    end
+
     return true;
 end
 
@@ -255,6 +259,10 @@ end
 
 function TabSystemMixin:SetDefaultTabKey(defaultTabKey)
     self.defaultTabKey = defaultTabKey;
+end
+
+function TabSystemMixin:GetSelectedTabKey()
+    return self.selectedTabKey;
 end
 
 ---Call this to initialize the tabButtons and frames

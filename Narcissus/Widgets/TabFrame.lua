@@ -69,10 +69,13 @@ function TabButtonMixin:SelectTab()
 end
 
 
-function addon.CreateTabSystem(enableBackground, enableDivider)
+function addon.CreateTabSystem(frame, enableBackground, enableDivider)
     local tabButtonHeight = 24;
 
-    local frame = CreateFrame("Frame", "NarciDebugTab", UIParent);
+    if not frame then
+        frame = CreateFrame("Frame", nil, UIParent);
+    end
+
     addon.SeupTabSystem(frame);
 
     frame:SetTabButtonContainer(frame);
