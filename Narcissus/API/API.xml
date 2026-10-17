@@ -15,4 +15,5 @@
     <Script file="UIParentFade.lua"/>
     <Script file="Camera.lua"/>
     <Script file="PlayerInfo.lua"/>
+    <Script file="TabSystem.lua"/>
 </Ui>
