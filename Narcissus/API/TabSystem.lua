@@ -8,6 +8,8 @@ local _, addon = ...
 ---@field tabData table
 ---@field tabKeyXTabData table
 ---@field selectedTabKey number?
+---@field isTabButtonTooWide boolean?
+---@field lastTabButton button?
 local TabSystemMixin = {};
 
 ---The container (frame) will be the tab button's parent and relativeTo 
@@ -15,14 +17,14 @@ function TabSystemMixin:SetTabButtonContainer(frame)
     self.tabButtonSetup.container = frame;
 end
 
----@param tabButtonTemplate string tabButton needs to have these method(s): `SetSelected`
+---@param tabButtonTemplate string tabButton needs to have these method(s): `SetSelected`, `SetText`, `SetButtonWidth`
 function TabSystemMixin:SetTabButtonTemplate(tabButtonTemplate)
     self.tabButtonSetup.template = tabButtonTemplate;
 end
 
 ---@param align "horizontal" | "vertical"
 function TabSystemMixin:SetTabButtonAlignment(align)
-    self.tabButtonSetup.align = align;
+    self.tabButtonSetup.isHorizontal = align == "horizontal";
     self.isTabDirty = true;
 end
 
@@ -56,12 +58,31 @@ function TabSystemMixin:LayoutTabButtons()
 
     local setup = self.tabButtonSetup;
     local numActive = 0;
-    local isHorizontal = setup.align == "horizontal";
+    local isHorizontal = setup.isHorizontal;
     local spacing = setup.spacing or 0;
+    local tabButtonWidth;
+
+    self.isTabButtonTooWide = nil;
+    self.lastTabButton = nil;
 
     for _, button in ipairs(self.tabButtons) do
         if button:IsShown() then
             numActive = numActive + 1;
+        end
+    end
+
+    -- Limit the max text width for each button in case the text is too long to fit all labels
+    if numActive > 1 then
+        if isHorizontal then
+            local containerWidth = setup.container:GetWidth() - 2 * setup.x;
+            if self.totalButtonWidth > containerWidth then
+                -- There are better methods to show more text without truncating but
+                -- for simplicity, we use the average width.
+                tabButtonWidth = math.floor(containerWidth / numActive);
+                self.isTabButtonTooWide = true;
+            end
+        else
+            tabButtonWidth = self.totalButtonWidth; -- for vertical tab, this is the max button width
         end
     end
 
@@ -89,7 +110,19 @@ function TabSystemMixin:LayoutTabButtons()
                 button:SetPoint("TOP", self.tabButtons[i - 1], "BOTTOM", 0, -spacing);
             end
         end
+
+        if tabButtonWidth then
+            button:SetButtonWidth(tabButtonWidth);
+        end
+
+        if i == numActive then
+            self.lastTabButton = button;
+        end
     end
+end
+
+function TabSystemMixin:IsTabButtonTooWide()
+    return self.isTabButtonTooWide;
 end
 
 function TabSystemMixin:SetTabFrameContainer(frame)
@@ -242,6 +275,9 @@ function TabSystemMixin:Init()
 
     local n = 0;
     local firstValidTabKey;
+    local totalButtonWidth = 0;
+    local isHorizontal = self.tabButtonSetup.isHorizontal;
+    local tabButtonSpacing = self.tabButtonSetup.spacing or 0;
 
     for _, data in ipairs(self.tabData) do
         if data.enabled then
@@ -254,9 +290,21 @@ function TabSystemMixin:Init()
                 self.tabButtons[n] = button;
             end
 
-            button:Show();
-            button:SetText(data.tabName);
+            local buttonWidth = button:SetText(data.tabName) or 0;
+
+            if isHorizontal then
+                totalButtonWidth = totalButtonWidth + buttonWidth;
+                if n > 1 then
+                    totalButtonWidth = totalButtonWidth + tabButtonSpacing;
+                end
+            else
+                if buttonWidth > totalButtonWidth then
+                    totalButtonWidth = buttonWidth;
+                end
+            end
+
             button.tabKey = data.tabKey;
+            button:Show();
             button.SelectTab = function()
                 self:SelectTabByKey(data.tabKey);
             end
@@ -267,6 +315,7 @@ function TabSystemMixin:Init()
         end
     end
 
+    self.totalButtonWidth = totalButtonWidth;
     self:LayoutTabButtons();
 
     if not self:SelectTabByKey(firstValidTabKey or self.defaultTabKey) then
@@ -286,6 +335,10 @@ function TabSystemMixin:GetEnabledTabData()
     end
 
     return tbl;
+end
+
+function TabSystemMixin:GetLastTabButton()
+    return self.lastTabButton;
 end
 
 
