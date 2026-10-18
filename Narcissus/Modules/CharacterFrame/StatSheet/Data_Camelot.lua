@@ -223,3 +223,10 @@ function StatTooltipFunc.Defense(tooltip)
         return true;
     end
 end
+
+function StatTooltipFunc.Dodge(tooltip)
+    local dodgeChance = GetDodgeChance();
+    tooltip:SetText(format("%s %.2f%%", DODGE_CHANCE, dodgeChance), 1, 1, 1);
+    tooltip:AddNormalLine(format(CR_DODGE_BASE_STAT_TOOLTIP, dodgeChance));
+    return true;
+end
