@@ -55,7 +55,7 @@ StatSheetAPI.StatTabInfo = {
     {
         key = "Defense",
         name = STAT_CATEGORY_DEFENSE,
-        layout = {"Damage", "AttackSpeed", "Regen", "Crit"},
+        layout = {"Defense", "Dodge", "Block", "Parry", "Armor"},
     },
 };
 
@@ -199,4 +199,27 @@ function StatTooltipFunc.Crit(tooltip)
     end
 
     return true;
+end
+
+function StatTooltipFunc.Defense(tooltip)
+    local effectiveDefenseSkill, baseDefenseSkill, defenseModifier, maxDefense = StatSheetAPI.GetEffectiveDefenseSkill();
+    if effectiveDefenseSkill then
+        local posBuff = 0;
+        local negBuff = 0;
+        if defenseModifier > 0 then
+            posBuff = defenseModifier;
+        elseif defenseModifier < 0 then
+            negBuff = defenseModifier;
+        end
+
+        local header = StatSheetAPI.FormatStatBonus(DEFENSE, baseDefenseSkill, posBuff, negBuff);
+        tooltip:SetText(header, 1, 1, 1);
+
+        local STAT_PER_DEFENSE = 0.04;
+        local effectiveDefense = math.max(effectiveDefenseSkill - maxDefense, 0);
+
+        tooltip:AddNormalLine(format(DEFAULT_STATDEFENSE_TOOLTIP, effectiveDefense * STAT_PER_DEFENSE, effectiveDefense * STAT_PER_DEFENSE));
+
+        return true;
+    end
 end

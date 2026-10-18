@@ -270,3 +270,16 @@ function UpdateFunc:MovementSpeed()
 	self:SetScript("OnEnter", MovementSpeed_OnEnter);
 	self:SetScript("OnUpdate", MovementSpeed_OnUpdate);
 end
+
+
+---- The following are for Forever ----
+
+function UpdateFunc:Defense()
+	local effectiveDefenseSkill, baseDefenseSkill, defenseModifier, maxDefense = StatSheetAPI.GetEffectiveDefenseSkill();
+	if effectiveDefenseSkill then
+		self:SetLabelAndValue(DEFENSE, string.format("%s / %s", effectiveDefenseSkill, maxDefense));
+	else
+		self:SetLabelAndValue(DEFENSE, N_SLASH_A, true);
+	end
+end
+

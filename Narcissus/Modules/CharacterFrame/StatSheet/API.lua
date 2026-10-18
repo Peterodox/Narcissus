@@ -250,3 +250,18 @@ function StatSheetAPI.GetDisplayedAttackSpeed(merged)
 	end
 	return string.format("%.2f", mainhandSpeed);
 end
+
+---@return number? effectiveDefenseSkill
+---@return number? baseDefenseSkill
+---@return number? defenseModifier
+---@return number? maxDefense
+function StatSheetAPI.GetEffectiveDefenseSkill()
+	local baseDefenseSkill, defenseModifier = UnitDefenseSkill("player");
+	local playerLevel = UnitLevel("player");
+	if canaccessallvalues(baseDefenseSkill, defenseModifier, playerLevel) then
+		local SKILL_RANKS_PER_SKILL_LEVEL = 5;
+		local effectiveDefenseSkill = math.max(0, baseDefenseSkill + defenseModifier);
+		local maxDefense = playerLevel * SKILL_RANKS_PER_SKILL_LEVEL;
+		return effectiveDefenseSkill, baseDefenseSkill, defenseModifier, maxDefense
+	end
+end
