@@ -16,7 +16,7 @@
                 </Texture>
             </Layer>
             <Layer level="ARTWORK">
-                <Texture parentKey="Highlight" Alpha="1" hidden="true" file="Interface\AddOns\Narcissus\Art\NavBar\ButtonHighlight">
+                <Texture parentKey="Highlight" Alpha="0.5" hidden="true" file="Interface\AddOns\Narcissus\Art\NavBar\ButtonHighlight">
                     <Size y="16"/>
                     <Anchors>
                         <Anchor point="BOTTOMLEFT" x="-4"/>
