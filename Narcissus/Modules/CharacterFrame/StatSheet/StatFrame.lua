@@ -119,6 +119,16 @@ function StatFrameMixin:SetLayout(layout)
         for i, token in ipairs(layout) do
             if token == "Spacer" then
                 addSpacer = true;
+            elseif token == "StatTab" then
+                local frame = addon.StatSheetAPI.CreateStatTab(self);
+                n = n + 1;
+                row = row + 1;
+                self.staticEntries[n] = frame;
+
+                frame:SetPoint("TOP", self.staticEntries[n - 1], "BOTTOM", 0, -spacerHeight);
+                frame:SetRow(row);
+                frame:Init();
+
             else
                 local button = CreateFrame("Button", nil, self, "Narci_AttributeTemplate");
                 button:SetToken(token);
