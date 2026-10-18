@@ -252,7 +252,7 @@ local function ResetAllBackgroundColor()
 end
 
 local KeyStats = {"prim", "stamina", "crit", "haste", "mastery", "versatility", "ilvl", "gems"};
-local StatsName = {["crit"] = NARCI_CRITICAL_STRIKE, ["haste"] = STAT_HASTE, ["mastery"] = STAT_MASTERY, ["versatility"] = STAT_VERSATILITY,};
+local StatsName = {crit = L["Stat Crit"], haste = STAT_HASTE, mastery = STAT_MASTERY, versatility = STAT_VERSATILITY};
 
 local function InventoryTypeToInventorySlotID(Types)
     if not Types then return {}; end;

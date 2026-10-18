@@ -1,5 +1,6 @@
 local _, addon = ...
 local UpdateFunc = addon.StatUpdateFunc; ---@type StatUpdateFunc
+local StatTooltipFunc = addon.StatTooltipFunc or {}; ---@type StatTooltipFunc
 local UIColorThemeUtil = addon.UIColorThemeUtil;
 
 
@@ -92,7 +93,21 @@ function StatButtonMixin:SetToken(token)
 	if UpdateFunc[token] then
 		self.token = token;
 		self.UpdateStat = UpdateFunc[token];
+
+		-- Reset OnEnter script and update if we reuse the button for other stats
+		if self.tokenChanged then
+			self:SetScript("OnEnter", self.OnEnter);
+			if self:IsVisible() then
+				self:UpdateStat();
+				if self:IsMouseMotionFocus() then
+					self:OnEnter();
+				end
+			end
+		else
+			self.tokenChanged = true;
+		end
 	end
+	self.tooltipFunc = StatTooltipFunc[token];
 end
 
 function StatButtonMixin:OnLoad()
@@ -114,7 +129,17 @@ function StatButtonMixin:OnEnter()
 end
 
 function StatButtonMixin:ShowTooltip()
-	Narci_ShowStatTooltip(self);
+	if self.tooltipFunc then
+		local tooltip = NarciGameTooltip;
+		tooltip:ClearAllPoints();
+		tooltip:SetOwner(self, "ANCHOR_NONE");
+		tooltip:SetPoint("TOPRIGHT",self,"TOPLEFT", -4, 0)
+		if self.tooltipFunc(tooltip) then
+			tooltip:Show();
+		else
+			tooltip:Hide();
+		end
+	end
 end
 
 function StatButtonMixin:OnLeave()

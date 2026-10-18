@@ -57,6 +57,7 @@ L["Movement Speed"] = "MSPD";
 L["Combat Resources"] = "Resources";
 L["No Talents"] = "No Talents";
 L["Damage Reduction Percentage"] = "DR%";
+L["Stat Chart Unavailable"] = "Chart Unavailable";
 L["Advanced Info"] = "Left click to toggle advanced info.";
 L["Restore On Exit"] = "\nYour previous settings will be restored after exit.";
 
@@ -399,17 +400,11 @@ L["Loading Database"] = "Loading Database...\nYour screen could freeze for a few
 L["Other Last Name Format"] = "Other "..NARCI_COLOR_GREY_70.."%s(s)|r:\n";
 L["Too Many Matches Format"] = "\nOver %s matches.";
 
---Solving Lower-case or Abbreviation Issue--
-NARCI_STAT_STRENGTH = SPEC_FRAME_PRIMARY_STAT_STRENGTH;
-NARCI_STAT_AGILITY = SPEC_FRAME_PRIMARY_STAT_AGILITY;
-NARCI_STAT_INTELLECT = SPEC_FRAME_PRIMARY_STAT_INTELLECT;
-NARCI_CRITICAL_STRIKE = STAT_CRITICAL_STRIKE;
-
-
 --Equipment Comparison--
 L["Azerite Powers"] = "Azerite Powers";
 L["Gem Tooltip Format1"] = "%s and %s";
 L["Gem Tooltip Format2"] = "%s, %s and %s more...";
+L["Stat Crit"] = STAT_CRITICAL_STRIKE; -- Override this if "Critical Strike" is too long for certain language. (Kritische Trefferchance)
 
 --Equipment Set Manager
 L["Equipped Item Level Format"] = "Equipped %s";

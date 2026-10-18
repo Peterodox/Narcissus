@@ -128,25 +128,6 @@ end
 NarciAPI.GetItemEnchantID = GetItemEnchantID;
 
 
-local PrimaryStatsList = {
-	[LE_UNIT_STAT_STRENGTH] = NARCI_STAT_STRENGTH,
-	[LE_UNIT_STAT_AGILITY] = NARCI_STAT_AGILITY,
-	[LE_UNIT_STAT_INTELLECT] = NARCI_STAT_INTELLECT,
-};
-
-
-local function NarciAPI_GetPrimaryStats()
-    --Return name and value
-	local currentSpec = C_SpecializationInfo.GetSpecialization() or 1;
-    local _, _, _, _, _, primaryStat = C_SpecializationInfo.GetSpecializationInfo(currentSpec);
-    primaryStat = primaryStat or 1;
-    local value = UnitStat("player", primaryStat);
-	local name = PrimaryStatsList[primaryStat];
-	return name, value;
-end
-
-NarciAPI.GetPrimaryStats = NarciAPI_GetPrimaryStats;
-
 local GemInfo = Narci.GemData;
 local EnchantInfo = Narci.EnchantData;
 local DoesItemExist = C_Item.DoesItemExist;

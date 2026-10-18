@@ -1,0 +1,231 @@
+local _, addon = ...
+
+local StatSheetAPI = {}; ---@class StatSheetAPI
+addon.StatSheetAPI = StatSheetAPI;
+
+
+StatSheetAPI.PrimaryStatIndex = {
+	Strength = LE_UNIT_STAT_STRENGTH or 1,
+	Agility = LE_UNIT_STAT_AGILITY or 2,
+	Stamina = LE_UNIT_STAT_STAMINA or 3,
+	Intellect = LE_UNIT_STAT_INTELLECT or 4,
+	Spirit = LE_UNIT_STAT_SPIRIT or 5,
+};
+
+---Format a number like 67 into 67.00%
+function StatSheetAPI.FormatPercent(value)
+	return string.format("%.2f%%", value);
+end
+
+---For Retail where there is only one meaningful crit chance
+---@return number critChance Like 5%
+---@return number ratingIndex Global like CR_CRIT_MELEE
+function StatSheetAPI.GetEffectiveCrit()
+	local ratingIndex;
+	local spellCrit, rangedCrit, meleeCrit;
+	local critChance;
+
+	-- Start at 2 to skip physical damage
+	local holySchool = 2;
+	local minCrit = GetSpellCritChance(holySchool);
+
+	for i = (holySchool + 1), MAX_SPELL_SCHOOLS do
+		spellCrit = GetSpellCritChance(i);
+		if not (canaccessvalue(minCrit) and canaccessvalue(spellCrit)) then
+			return minCrit, CR_CRIT_MELEE;
+		end
+		minCrit = math.min(minCrit, spellCrit);
+	end
+
+	spellCrit = minCrit;
+	rangedCrit = GetRangedCritChance();
+	meleeCrit = GetCritChance();
+
+	if (spellCrit >= rangedCrit and spellCrit >= meleeCrit) then
+		critChance = spellCrit;
+		ratingIndex = CR_CRIT_SPELL;
+	elseif rangedCrit >= meleeCrit then
+		critChance = rangedCrit;
+		ratingIndex = CR_CRIT_RANGED;
+	else
+		critChance = meleeCrit;
+		ratingIndex = CR_CRIT_MELEE;
+	end
+
+	return critChance, ratingIndex;
+end
+
+function StatSheetAPI.GetPrimaryStatIndex()
+	local spec = GetSpecialization() or 1;
+	local _, _, _, _, _, primaryStat = C_SpecializationInfo.GetSpecializationInfo(spec);
+	if type(primaryStat) == "number" then
+		return primaryStat;
+	end
+end
+
+---Return localized power and the value after BreakUpLargeNumbers: Mana, 10,000
+---@param unit string? Default to "player"
+---@return string? powerName Localized name: Mana
+---@return string? displayedValue After BreakUpLargeNumbers
+---@return string? powerToken "MANA"
+function StatSheetAPI.GetDisplayedPower(unit)
+	if not unit then unit = "player"; end
+
+	local powerType, powerToken = UnitPowerType(unit);
+	local powerName = powerToken and _G[powerToken];
+	if powerName then
+		local power = UnitPowerMax(unit);
+		return powerName, BreakUpLargeNumbers(power), powerToken;
+	end
+end
+
+---Return player regen name, rate, tooltip: Mana Regen, 1,000/s, "Mana regen every second"
+---@return string? regenName Mana Regen
+---@return string? regenRateText 1,000/s
+---@return string? regenTooltip "Mana regen every second"
+function StatSheetAPI.GetDisplayedComatRegen()
+	local powerType, powerToken = UnitPowerType("player");
+	local regenRate = GetPowerRegen();
+	local regenName, regenRateText, regenTooltip;
+
+	if powerToken == "ENERGY" then
+		regenName = STAT_ENERGY_REGEN;
+		regenTooltip = STAT_ENERGY_REGEN_TOOLTIP;
+	elseif powerToken == "RUNES" then
+		regenName = STAT_RUNE_REGEN;
+		regenTooltip = STAT_RUNE_REGEN_TOOLTIP;
+	elseif powerToken == "FOCUS" then
+		regenName = STAT_FOCUS_REGEN;
+		regenTooltip = STAT_FOCUS_REGEN_TOOLTIP;
+	elseif powerToken == "MANA" then
+		regenName = MANA_REGEN;
+		--regenTooltip = MANA_REGEN_TOOLTIP; --On Retail, Mana doesn't follow the 5-second rule
+		regenRate = GetManaRegen();
+	else
+		local _, class = UnitClass("player");
+		if class == "DEATHKNIGHT" then
+			regenName = STAT_RUNE_REGEN;
+			regenTooltip = STAT_RUNE_REGEN_TOOLTIP;
+			local _, runeDuration = GetRuneCooldown(1);
+			regenRateText = string.format(STAT_RUNE_REGEN_FORMAT, runeDuration);
+		else
+			-- Fun fact: Regen can be negative for Warrior
+			return;
+		end
+	end
+
+	if not regenRateText then
+		if powerToken == "MANA" then
+			regenRateText = string.format("%.0f/s", regenRate);
+		else
+			regenRateText = string.format("%.2f/s", regenRate);
+		end
+	end
+
+	return regenName, regenRateText, regenTooltip;
+end
+
+---Return the armorReduction, armorReductionAgainstTarget, effectiveArmor. Convert decimal to percentage. Secret check included.
+---@return number? armorReduction
+---@return number? armorReductionAgainstTarget
+---@return number? effectiveArmor
+function StatSheetAPI.GetArmorReduction()
+	local _, effectiveArmor = UnitArmor("player");
+	local level = UnitEffectiveLevel("player");
+	if canaccessallvalues(effectiveArmor, level) then
+		local armorReduction = C_PaperDollInfo.GetArmorEffectiveness(effectiveArmor, level) or 0;
+		local armorReductionAgainstTarget = C_PaperDollInfo.GetArmorEffectivenessAgainstTarget(effectiveArmor) or 0;
+		if armorReductionAgainstTarget > 0 then
+			return 100 * armorReduction, 100 * armorReductionAgainstTarget, effectiveArmor;
+		else
+			return 100 * armorReduction, nil, effectiveArmor;
+		end
+	end
+end
+
+---Return mainhandMinDamage, mainhandMaxDamage, offhandMinDamage, offhandMaxDamage, posBuff, negBuff, percent
+local function GetAppropriateDamage(unit)
+	if IsRangedWeapon() then
+		local attackTime, minDamage, maxDamage, posBuff, negBuff, percent = UnitRangedDamage(unit);
+		return minDamage, maxDamage, 0, 0, posBuff, negBuff, percent;
+	else
+		return UnitDamage(unit);
+	end
+end
+
+---Return damage text for StatButton: 1234 - 2345
+function StatSheetAPI.GetDisplayedDamage()
+	local minDamage, maxDamage = GetAppropriateDamage("player");
+	return string.format("%.0f - %.0f", minDamage, maxDamage);
+end
+
+---Return mainhandDamage, offhandDamage. Format: 1,234 - 2,345 x108%
+---Offhand can have damage without weapon, but we don't show that on the tooltip
+---@return string?  mainhandDamage
+---@return string? offhandDamage
+function StatSheetAPI.GetDamageTooltip()
+	local mainhandMinDamage, mainhandMaxDamage, offhandMinDamage, offhandMaxDamage, posBuff, negBuff, percent = GetAppropriateDamage("player");
+	if not canaccessallvalues(mainhandMinDamage, offhandMinDamage, posBuff, percent) then return; end
+	if (not percent) or percent == 0 then return; end;
+
+	local colorPos = "|cff20ff20";
+	local colorNeg = "|cffff2020";
+	local mainhandDamage, offhandDamage;
+
+	for i = 1, (C_PaperDollInfo.OffhandHasWeapon() and 2 or 1) do -- Main/Off hand
+		local minDamage = i == 1 and mainhandMinDamage or offhandMinDamage;
+		local maxDamage = i == 1 and mainhandMaxDamage or offhandMaxDamage;
+		local baseMinDamage = (minDamage / percent) - posBuff - negBuff;
+		local baseMaxDamage = (maxDamage / percent) - posBuff - negBuff;
+		local baseDamage = (baseMinDamage + baseMaxDamage) * 0.5;
+		local fullDamage = (baseDamage + posBuff + negBuff) * percent;
+		local totalBonus = fullDamage - baseDamage;
+		local damageTooltip = BreakUpLargeNumbers(math.max(math.floor(baseMinDamage), 1)).." - "..BreakUpLargeNumbers(math.max(math.ceil(baseMaxDamage), 1));
+
+		if totalBonus > -0.1 and totalBonus < 0.1 then
+			-- Considered as Zero Bonus
+		else
+			if posBuff > 0 then
+				damageTooltip = string.format("%s %s+%.0f|r", damageTooltip, colorPos, posBuff);
+			end
+			if negBuff < 0 then
+				damageTooltip = string.format("%s %s%.0f|r", damageTooltip, colorNeg, negBuff);
+			end
+			if percent > 1 then
+				damageTooltip = string.format("%s %sx%.0f%%|r", damageTooltip, colorPos, 100 * percent);
+			elseif percent < 1 then
+				damageTooltip = string.format("%s %sx%.0f%%|r", damageTooltip, colorNeg, 100 * percent);
+			end
+		end
+
+		if i == 1 then
+			mainhandDamage = damageTooltip;
+		else
+			offhandDamage = damageTooltip;
+		end
+	end
+
+	return mainhandDamage, offhandDamage;
+end
+
+---Return mainhandSpeed, offhandSpeed. If merged == true, connect the two if the speeds are different.
+---@param merged boolean? If true, merge the Main/Off hand speeds into one string
+function StatSheetAPI.GetDisplayedAttackSpeed(merged)
+	local mainhandSpeed, offhandSpeed = UnitAttackSpeed("player");
+	if canaccessallvalues(mainhandSpeed, offhandSpeed) then
+		mainhandSpeed = floor(100 * mainhandSpeed + 0.5) / 100;
+		if offhandSpeed then
+			offhandSpeed = floor(100 * offhandSpeed + 0.5) / 100;
+		end
+		if merged then
+			if offhandSpeed and offhandSpeed ~= mainhandSpeed then
+				return string.format("%.2f / %.2f", mainhandSpeed, offhandSpeed);
+			end
+		else
+			if offhandSpeed then
+				return string.format("%.2f", mainhandSpeed), string.format("%.2f", offhandSpeed);
+			end
+		end
+	end
+	return string.format("%.2f", mainhandSpeed);
+end

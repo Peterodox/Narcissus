@@ -1,52 +1,7 @@
 local _, addon = ...
 local PrivateAPI = addon.PrivateAPI; ---@type NarcissusPrivateAPI
 local StatSheetController = addon.StatSheetController; ---@type StatSheetController
-
-
-local Schematics = {};
-do
-    Schematics.Detailed = {};
-    Schematics.Concise = {};
-
-    Schematics.Detailed.Retail = {
-        "Primary", "Health",
-        "Stamina", "Armor",
-        "Damage", "Reduction",
-        "AttackSpeed", "Dodge",
-        "Power", "Parry",
-        "Regen", "Block",
-
-        "Chart",
-
-        "Leech", "Avoidance",
-        "MovementSpeed", "Speed",
-    };
-
-    Schematics.Concise.Retail = {
-        "Primary",
-        "Stamina",
-        "Health",
-        "Power",
-        "Regen",
-
-        "Spacer",
-
-        "Crit",
-        "Haste",
-        "Mastery",
-        "Versatility",
-
-        "Spacer",
-
-        "Leech",
-        "Avoidance",
-        "Speed",
-    };
-
-
-    Schematics.Detailed.Forever = Schematics.Detailed.Retail; -- [TEMP]
-    Schematics.Concise.Forever = Schematics.Concise.Retail;   -- [TEMP]
-end
+local StatSheetLayout = addon.StatSheetLayout; ---@type StatSheetLayout
 
 
 --- [event] = true  -- Full Update
@@ -77,7 +32,7 @@ function StatFrameMixin:OnLoad()
     self.statXEntry = {};     -- statToken to StatButton
 
     local layoutType = self.isDetailed and "Detailed" or "Concise";
-    local layout = addon.IS_FOREVER and Schematics[layoutType].Forever or Schematics[layoutType].Retail;
+    local layout = StatSheetLayout[layoutType];
     self:SetLayout(layout);
 
     StatSheetController:AddStatFrame(self);
