@@ -230,3 +230,11 @@ function StatTooltipFunc.Dodge(tooltip)
     tooltip:AddNormalLine(format(CR_DODGE_BASE_STAT_TOOLTIP, dodgeChance));
     return true;
 end
+
+function StatTooltipFunc.Block(tooltip)
+	local chance = GetBlockChance();
+	tooltip:SetText(format("%s %s", BLOCK_CHANCE, FormatPercent(chance)), 1, 1, 1);
+	local shieldBlockArmor = GetShieldBlock();
+	tooltip:AddNormalLine(format(STAT_BLOCK_VALUE_FLAT_TOOLTIP, chance, shieldBlockArmor));
+	return true;
+end
