@@ -180,6 +180,11 @@ function NarciNavBarMixin:SetMaximizedMode(state)
     if state == nil then
         state = NarcissusDB.DetailedIlvlInfo or true;
     end
+
+    if addon.IS_FOREVER then
+        state = false;
+    end
+
     self.maximizedMode = state;
 
     local barWidth;

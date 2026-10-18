@@ -64,6 +64,10 @@ end
 function StatSheetController:ShowDetailedStats(state)
     if not NarciViewUtil:IsViewingAttributes() then return; end
 
+    if addon.IS_FOREVER then
+        state = false;
+    end
+
     for  _, statFrame in ipairs(self.frames) do
         if statFrame.isDetailed then
             if state then

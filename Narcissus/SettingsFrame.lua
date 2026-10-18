@@ -38,7 +38,6 @@ local RENDER_RANGE = DEFAULT_FRAME_HEIGHT;
 local NUM_CATE = 0;
 
 local GAMEPAD_ENABLED = false;      --Determine if we need to enable game pad surrpot
-local SCROLL_LOCKED = false;        --Lock scroll if user is assigning a hotkey
 
 
 local math = math;
@@ -1828,7 +1827,7 @@ local Categories = {
             {type = "slider", level = 1, key = "GlobalScale", text = UI_SCALE, onValueChangedFunc = CharacterUIScale_OnValueChanged, minValue = 0.7, maxValue = 1, valueStep = 0.1, },
             {type = "slider", level = 1, key = "BaseLineOffset", text = L["Baseline Offset"], validityCheckFunc = IsUsingUltraWideMonitor, onValueChangedFunc = UltraWideOffset_OnValueChanged, minValue = 0, maxValue = ULTRAWIDE_MAX_OFFSET, valueStep = ULTRAWIDE_STEP, },
             {type = "checkbox", level = 1, key = "MissingEnchantAlert", text = L["Missing Enchant Alert"], onValueChangedFunc = ShowMisingEnchantAlert_OnValueChanged, validityCheckFunc = ShowMisingEnchantAlert_IsValid},
-            {type = "checkbox", level = 1, key = "DetailedIlvlInfo", text = L["Show Detailed Stats"], onValueChangedFunc = ShowDetailedStats_OnValueChanged},
+            {type = "checkbox", level = 1, key = "DetailedIlvlInfo", text = L["Show Detailed Stats"], onValueChangedFunc = ShowDetailedStats_OnValueChanged, excludeForever = true},
             {type = "checkbox", level = 1, key = "AFKScreen", text = L["AFK Screen Description"], onValueChangedFunc = AFKToggle_OnValueChanged, },
                 {type = "checkbox", level = 3, key = "AKFScreenDelay", text = L["AFK Screen Delay"], onValueChangedFunc = nil, isChild = true},
             {type = "subheader", level = 1, text = L["Item Names"], extraTopPadding = 1},
@@ -2393,7 +2392,6 @@ end
 function NarciSettingsFrameMixin:OnHide()
     self.FlyIn:Stop();
     SliderUpdator:Stop();
-    SCROLL_LOCKED = false;
     self:Hide();
     self.Background:Hide();
 end
@@ -3020,7 +3018,6 @@ function NarciSettingsKeybindingButton:StartListening()
     self:SetScript("OnEvent", KeybingdingButton_OnEvent);
     self:RegisterEvent("GLOBAL_MOUSE_DOWN");
 
-    SCROLL_LOCKED = true;
     MainFrame.ScrollFrame:LockScroll(true);
     MainFrame.ScrollFrame:ScrollToWidget(self, 24);
 
@@ -3055,7 +3052,6 @@ function NarciSettingsKeybindingButton:StopListening()
     self.ButtonText:SetShadowOffset(1, -1);
     self:UpdateState();
 
-    SCROLL_LOCKED = false;
     MainFrame.ScrollFrame:LockScroll(false);
 
     AlertMessageFrame:Hide();

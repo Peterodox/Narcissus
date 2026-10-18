@@ -1759,7 +1759,9 @@ do
 		if state == nil then
 			state = db["DetailedIlvlInfo"];
 		end
-
+		if addon.IS_FOREVER then
+			state = false;
+		end
 		StatSheetController:ShowDetailedStats(state);
 		Narci_ItemLevelFrame:ToggleExtraInfo(state);
 		Narci_ItemLevelFrame.showExtraInfo = state;
