@@ -4,27 +4,21 @@ local _, addon = ...
 if not addon.IS_FOREVER then return; end
 
 local format = string.format;
-local StatSheetAPI = addon.StatSheetAPI; ---@type StatSheetAPI
+local StatSheetAPI = addon.StatSheetAPI; ---@class StatSheetAPI
 local FormatPercent = StatSheetAPI.FormatPercent;
 
 
 ---@class StatSheetLayout
 local StatSheetLayout = {
-    Detailed = {
-        "Primary", "Health",
-        "Stamina", "Armor",
-        "Damage", "Reduction",
-        "AttackSpeed", "Dodge",
-        "Power", "Parry",
-        "Regen", "Block",
-
-        "Chart",
-
-        "Leech", "Avoidance",
-        "MovementSpeed", "Speed",
-    };
+    Detailed = {}, -- No Detailed view for Forever
 
     Concise = {
+        "Health",
+        "Power",
+        "MovementSpeed",
+
+        "Spacer",
+
         "Strength",
         "Agility",
         "Stamina",
@@ -33,19 +27,37 @@ local StatSheetLayout = {
 
         "Spacer",
 
-        "Crit",
-        "Haste",
-        "Mastery",
-        "Versatility",
-
-        "Spacer",
-
-        "Leech",
-        "Avoidance",
-        "Speed",
-    };
+        "StatTab",
+    },
 };
 addon.StatSheetLayout = StatSheetLayout;
+
+
+StatSheetAPI.StatTabInfo = {
+    {
+        key = "Melee",
+        name = PLAYERSTAT_MELEE_COMBAT,
+        layout = {"Damage", "AttackSpeed", "Regen", "Crit"},
+    },
+
+    {
+        key = "Ranged",
+        name = PLAYERSTAT_RANGED_COMBAT,
+        layout = {"Damage", "AttackSpeed", "Regen", "Crit"},
+    },
+
+    {
+        key = "Spell",
+        name = PLAYERSTAT_SPELL_COMBAT,
+        layout = {"Damage", "AttackSpeed", "Regen", "Crit"},
+    },
+
+    {
+        key = "Defense",
+        name = STAT_CATEGORY_DEFENSE,
+        layout = {"Damage", "AttackSpeed", "Regen", "Crit"},
+    },
+};
 
 
 local StatTooltipFunc = addon.StatTooltipFunc; ---@class StatTooltipFunc

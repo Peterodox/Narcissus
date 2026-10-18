@@ -22,7 +22,7 @@ local StatSheetLayout = {
 
         "Leech", "Avoidance",
         "MovementSpeed", "Speed",
-    };
+    },
 
     Concise = {
         "Primary",
@@ -43,7 +43,7 @@ local StatSheetLayout = {
         "Leech",
         "Avoidance",
         "Speed",
-    };
+    },
 };
 addon.StatSheetLayout = StatSheetLayout;
 
