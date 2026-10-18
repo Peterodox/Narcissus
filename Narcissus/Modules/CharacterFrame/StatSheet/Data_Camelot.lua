@@ -238,3 +238,10 @@ function StatTooltipFunc.Block(tooltip)
 	tooltip:AddNormalLine(format(STAT_BLOCK_VALUE_FLAT_TOOLTIP, chance, shieldBlockArmor));
 	return true;
 end
+
+function StatTooltipFunc.Parry(tooltip)
+	local chance = GetParryChance();
+	tooltip:SetText(format("%s %s", PARRY_CHANCE, FormatPercent(chance)), 1, 1, 1);
+	tooltip:AddNormalLine(format(CR_DODGE_BASE_STAT_TOOLTIP, chance));
+	return true;
+end
