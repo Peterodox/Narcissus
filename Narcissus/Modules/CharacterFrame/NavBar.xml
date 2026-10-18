@@ -1,48 +1,6 @@
 <Ui xsi:schemaLocation="http://www.blizzard.com/wow/ui/..\FrameXML\UI.xsd">
     <Script file="NavBar.lua"/>
 
-    <Button name="NarciNavBarTabButtonTemplate" mixin="NarciNavBarTabButtonMixin" virtual="true">
-        <Size x="60" y="24"/>
-        <HitRectInsets>
-            <AbsInset left="0" right="0" top="-8" bottom="-4"/>
-        </HitRectInsets>
-        <Layers>
-            <Layer level="BORDER">
-                <Texture file="Interface\AddOns\Narcissus\Art\NavBar\ButtonCorner">
-                    <Size x="48" y="24"/>
-                    <Anchors>
-                        <Anchor point="TOPRIGHT" x="2"/>
-                    </Anchors>
-                </Texture>
-            </Layer>
-            <Layer level="ARTWORK">
-                <Texture file="Interface\AddOns\Narcissus\Art\NavBar\ButtonHighlight" Alpha="1" parentKey="Highlight" hidden="true">
-                    <Size y="16"/>
-                    <Anchors>
-                        <Anchor point="BOTTOMLEFT" x="-4"/>
-                        <Anchor point="BOTTOMRIGHT" x="4"/>
-                    </Anchors>
-                </Texture>
-            </Layer>
-            <Layer level="OVERLAY">
-				<FontString inherits="NarciFontMedium12" justifyH="CENTER" justifyV="MIDDLE" parentKey="Label" maxLines="1">
-					<Size x="0" y="16"/>
-					<Color r="0.5" g="0.5" b="0.5"/>
-					<Anchors>
-						<Anchor point="CENTER" relativeKey="$parent" relativePoint="CENTER" x="0" y="0"/>
-					</Anchors>
-				</FontString>
-            </Layer>
-        </Layers>
-        <Scripts>
-            <OnEnter method="OnEnter"/>
-            <OnLeave method="OnLeave"/>
-            <OnClick method="OnClick"/>
-            <OnMouseDown method="OnMouseDown"/>
-            <OnMouseUp method="OnMouseUp"/>
-        </Scripts>
-    </Button>
-
     <Frame name="NarciNavBarTabFrameTemplate" useParentLevel="true" hidden="true" virtual="true">
         <Size y="24"/>
         <Anchors>
