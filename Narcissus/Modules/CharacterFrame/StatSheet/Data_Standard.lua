@@ -396,6 +396,12 @@ function StatTooltipFunc.Armor(tooltip)
 			tooltip:AddBlankLine();
 			tooltip:AddBlueLine(format(STAT_ARMOR_TARGET_TOOLTIP, armorReductionAgainstTarget));
 		end
+
+		if ARMOR_MAX_EFFECTIVENESS_TOOLTIP then
+			tooltip:AddBlankLine();
+			tooltip:AddBlueLine(format(ARMOR_MAX_EFFECTIVENESS_TOOLTIP));
+		end
+
 		return true;
 	end
 end
