@@ -78,35 +78,9 @@ local function SetupPrimaryStatTooltip(tooltip, statIndex)
 
 	if not canaccessallvalues(effectiveStat, posBuff, negBuff) then return; end
 
-	local effectiveStatDisplay = BreakUpLargeNumbers(effectiveStat);
+	local header = StatSheetAPI.FormatStatBonus(statName, stat - posBuff - negBuff, posBuff, negBuff);
 
-	local header = "|cffffffff".. statName .." ";
-
-	if posBuff == 0 and negBuff == 0 then
-		header = header..effectiveStatDisplay.."|r";
-	else
-		header = header..effectiveStatDisplay;
-		if posBuff > 0 or negBuff < 0 then
-			header = header.." ("..BreakUpLargeNumbers(stat - posBuff - negBuff).."|r";
-		end
-		if posBuff > 0 then
-			header = header.."|r"..GREEN_FONT_COLOR_CODE.."+"..BreakUpLargeNumbers(posBuff).."|r";
-		end
-		if negBuff < 0 then
-			header = header..RED_FONT_COLOR_CODE.." "..BreakUpLargeNumbers(negBuff).."|r";
-		end
-		if posBuff > 0 or negBuff < 0 then
-			header = header.."|cffffffff"..")".."|r";
-		end
-
-		-- If there are any negative buffs then show the main number in red even if there are
-		-- positive buffs. Otherwise show in green.
-		if negBuff < 0 and not (GetPVPGearStatRules and GetPVPGearStatRules()) then
-			effectiveStatDisplay = RED_FONT_COLOR_CODE..effectiveStatDisplay.."|r";
-		end
-	end
-
-    tooltip:SetText(header);
+    tooltip:SetText(header, 1, 1, 1);
 
 	if statIndex == PrimaryStatIndex.Strength then
 		SetupPrimaryStatExtraTooltip("Strength", tooltip, statIndex, effectiveStat);

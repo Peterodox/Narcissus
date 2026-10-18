@@ -17,6 +17,27 @@ function StatSheetAPI.FormatPercent(value)
 	return string.format("%.2f%%", value);
 end
 
+function StatSheetAPI.FormatStatBonus(name, base, posBuff, negBuff)
+	posBuff = posBuff or 0;
+	negBuff = negBuff or 0;
+
+	local effectiveText = BreakUpLargeNumbers(math.max(0, base + posBuff + negBuff));
+	local text = string.format("%s %s", name, effectiveText);
+
+	if posBuff > 0 or negBuff < 0 then
+		text = text .. string.format(" (%s", base);
+		if posBuff > 0 then
+			text =  text .. string.format("|cnGREEN_FONT_COLOR:+%s|r", posBuff);
+		end
+		if negBuff < 0 then
+			text =  text .. string.format("|cnRED_FONT_COLOR:%s|r", negBuff);
+		end
+		text = text..")";
+	end
+
+	return text;
+end
+
 ---For Retail where there is only one meaningful crit chance
 ---@return number critChance Like 5%
 ---@return number ratingIndex Global like CR_CRIT_MELEE
