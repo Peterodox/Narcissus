@@ -75,7 +75,9 @@ function TabSystemMixin:LayoutTabButtons()
     if numActive > 1 then
         if isHorizontal then
             local containerWidth = setup.container:GetWidth() - 2 * setup.x;
-            if self.totalButtonWidth > containerWidth then
+            if self.evenTabButtonWidth then
+                tabButtonWidth = containerWidth / numActive;
+            elseif self.totalButtonWidth > containerWidth then
                 -- There are better methods to show more text without truncating but
                 -- for simplicity, we use the average width.
                 tabButtonWidth = math.floor(containerWidth / numActive);
@@ -347,6 +349,10 @@ end
 
 function TabSystemMixin:GetLastTabButton()
     return self.lastTabButton;
+end
+
+function TabSystemMixin:UseEvenWidthForTabButtons(state)
+    self.evenTabButtonWidth = state;
 end
 
 
