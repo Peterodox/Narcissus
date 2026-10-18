@@ -24,7 +24,7 @@ end
 
 function TabButtonMixin:SetButtonWidth(width)
     self:SetWidth(width);
-    self.Label:SetWidth(width + 0.1 - 2 * Def.LabelPadding);
+    self.Label:SetWidth(width + 1 - 2 * Def.LabelPadding);
 end
 
 function TabButtonMixin:UpdateVisual()
