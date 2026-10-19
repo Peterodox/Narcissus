@@ -46,24 +46,15 @@ end
 ---@return number ratingIndex Global like CR_CRIT_MELEE
 function StatSheetAPI.GetEffectiveCrit()
 	local ratingIndex;
-	local spellCrit, rangedCrit, meleeCrit;
 	local critChance;
 
-	-- Start at 2 to skip physical damage
-	local holySchool = 2;
-	local minCrit = GetSpellCritChance(holySchool);
+	local meleeCrit = GetCritChance();
+	local rangedCrit = GetRangedCritChance();
+	local spellCrit = GetSpellCritChance();
 
-	for i = (holySchool + 1), MAX_SPELL_SCHOOLS do
-		spellCrit = GetSpellCritChance(i);
-		if not (canaccessvalue(minCrit) and canaccessvalue(spellCrit)) then
-			return minCrit, CR_CRIT_MELEE;
-		end
-		minCrit = math.min(minCrit, spellCrit);
+	if not canaccessvalue(meleeCrit) then
+		return meleeCrit, CR_CRIT_MELEE;
 	end
-
-	spellCrit = minCrit;
-	rangedCrit = GetRangedCritChance();
-	meleeCrit = GetCritChance();
 
 	if (spellCrit >= rangedCrit and spellCrit >= meleeCrit) then
 		critChance = spellCrit;
