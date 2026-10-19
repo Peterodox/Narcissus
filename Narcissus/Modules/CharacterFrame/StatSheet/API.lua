@@ -20,12 +20,16 @@ function StatSheetAPI.FormatPercent(value)
 	return format("%.2f%%", value);
 end
 
+function StatSheetAPI.FormatSimpleStat(name, value)
+	return format("%s %s", name, value);
+end
+
 function StatSheetAPI.FormatStatBonus(name, base, posBuff, negBuff)
 	posBuff = posBuff or 0;
 	negBuff = negBuff or 0;
 
 	local effectiveText = BreakUpLargeNumbers(math.max(0, base + posBuff + negBuff));
-	local text = format("%s %s", name, effectiveText);
+	local text = StatSheetAPI.FormatSimpleStat(name, effectiveText)
 
 	if posBuff > 0 or negBuff < 0 then
 		text = text .. format(" (%s", base);

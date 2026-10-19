@@ -6,6 +6,7 @@ if not addon.IS_FOREVER then return; end
 local format = string.format;
 local StatSheetAPI = addon.StatSheetAPI; ---@class StatSheetAPI
 local FormatPercent = StatSheetAPI.FormatPercent;
+local FormatSimpleStat = StatSheetAPI.FormatSimpleStat;
 
 
 ---@class StatSheetLayout
@@ -234,7 +235,7 @@ end
 
 function StatTooltipFunc.Block(tooltip)
 	local chance = GetBlockChance();
-	tooltip:SetText(format("%s %s", BLOCK_CHANCE, FormatPercent(chance)), 1, 1, 1);
+	tooltip:SetText(FormatSimpleStat(BLOCK_CHANCE, FormatPercent(chance)), 1, 1, 1);
 	local shieldBlockArmor = GetShieldBlock();
 	tooltip:AddNormalLine(format(STAT_BLOCK_VALUE_FLAT_TOOLTIP, chance, shieldBlockArmor));
 	return true;
@@ -242,7 +243,7 @@ end
 
 function StatTooltipFunc.Parry(tooltip)
 	local chance = GetParryChance();
-	tooltip:SetText(format("%s %s", PARRY_CHANCE, FormatPercent(chance)), 1, 1, 1);
+	tooltip:SetText(FormatSimpleStat(PARRY_CHANCE, FormatPercent(chance)), 1, 1, 1);
 	tooltip:AddNormalLine(format(CR_DODGE_BASE_STAT_TOOLTIP, chance));
 	return true;
 end
@@ -258,7 +259,7 @@ end
 function StatTooltipFunc.MeleeAttackSpeed(tooltip)
 	local attackSpeedText = StatSheetAPI.GetDisplayedAttackSpeed(true);
 	local meleeHaste = GetMeleeHaste();
-	tooltip:SetText(format("%s %s", ATTACK_SPEED, attackSpeedText), 1, 1, 1);
+	tooltip:SetText(FormatSimpleStat(ATTACK_SPEED, attackSpeedText), 1, 1, 1);
 	tooltip:AddNormalLine(format(CR_HASTE_MELEE_TOOLTIP, format("%.2f", meleeHaste)));
 	return true;
 end
@@ -267,7 +268,7 @@ function StatTooltipFunc.RangedAttackSpeed(tooltip)
     StatTooltipFunc.AttackSpeed(tooltip);
 	local attackSpeedText = StatSheetAPI.GetDisplayedRangedAttackSpeed();
     if attackSpeedText then
-        tooltip:SetText(format("%s %s", ATTACK_SPEED, attackSpeedText), 1, 1, 1);
+        tooltip:SetText(FormatSimpleStat(ATTACK_SPEED, attackSpeedText), 1, 1, 1);
         InitPlayerClass();
         if IS_RANGED_CLASS then
             local baseRangedHaste, ammoHaste = GetRangedHaste();
@@ -322,7 +323,7 @@ function StatTooltipFunc.Expertise(tooltip, useRangedWeapon)
         tooltipFormat = CR_EXPERTISE_TOOLTIP;
     end
 
-    tooltip:SetText(STAT_EXPERTISE, 1, 1, 1);
+    tooltip:SetText(FormatSimpleStat(STAT_EXPERTISE, expertiseDisplay), 1, 1, 1);
 
     local wrap = false;
     tooltip:AddNormalLine(format(tooltipFormat, expertiseDisplay, wrap));
@@ -340,7 +341,7 @@ end
 
 function StatTooltipFunc.ArmorPenetration(tooltip)
 	local armorPenetration = GetArmorPenetration();
-    tooltip:SetText(STAT_ARMOR_PENETRATION, 1, 1, 1);
+    tooltip:SetText(FormatSimpleStat(STAT_ARMOR_PENETRATION, armorPenetration), 1, 1, 1);
     tooltip:AddNormalLine(format(ARMOR_PENETRATION_TOOLTIP, armorPenetration));
     return true;
 end
@@ -352,14 +353,14 @@ function StatTooltipFunc.SpellPenetration(tooltip)
 	local resistanceAverage = spellPenetration * 0.75 / (UnitLevel("player") * 5);
 	local negativeResistanceAverage = resistanceAverage / 2.0;
 
-	tooltip:SetText(STAT_SPELL_PENETRATION, 1, 1, 1);
+	tooltip:SetText(FormatSimpleStat(STAT_SPELL_PENETRATION, spellPenetration), 1, 1, 1);
     tooltip:AddNormalLine(format(SPELL_PENETRATION_TOOLTIP, spellPenetration, resistanceAverage, negativeResistanceAverage));
 
     return true;
 end
 
 local function SetupHitChance(tooltip, attackType)
-	local hitChance1, hitChance2 = StatSheetAPI.GetDisplayedHitChance(attackType);  
+	local hitChance1, hitChance2 = StatSheetAPI.GetDisplayedHitChance(attackType);
 	if not hitChance1 then return; end
 
     local valueText;
@@ -370,7 +371,7 @@ local function SetupHitChance(tooltip, attackType)
         valueText = FormatPercent(hitChance1);
     end
 
-    tooltip:SetText(format("%s %s", STAT_HIT_CHANCE, valueText), 1, 1, 1);
+    tooltip:SetText(FormatSimpleStat(STAT_HIT_CHANCE, valueText), 1, 1, 1);
 
     if attackType == 2 then
         tooltip:AddNormalLine(format(CR_HIT_RANGED_TOOLTIP, hitChance1));
@@ -418,7 +419,7 @@ local function SetupCritChance(tooltip, attackType)
     end
 
     local critChance = StatSheetAPI.GetCritByAttackType(attackType);
-    tooltip:SetText(format("%s %s", STAT_CRITICAL_STRIKE, FormatPercent(critChance)), 1, 1, 1);
+    tooltip:SetText(FormatSimpleStat(STAT_CRITICAL_STRIKE, FormatPercent(critChance)), 1, 1, 1);
     tooltip:AddNormalLine(format(tooltipFormat, critChance), false);
 
     InitPlayerClass();
@@ -454,7 +455,7 @@ end
 
 function StatTooltipFunc.SpellBonusHealing(tooltip)
 	local bonusHealing = GetSpellBonusHealing();
-    tooltip:SetText(BONUS_HEALING, 1, 1, 1);
+    tooltip:SetText(FormatSimpleStat(BONUS_HEALING, bonusHealing), 1, 1, 1);
     tooltip:AddNormalLine(format(BONUS_HEALING_TOOLTIP, bonusHealing));
 	return true;
 end

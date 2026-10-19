@@ -6,6 +6,7 @@ local Secret_Multiply = addon.TransitionAPI.Secret_Multiply;
 local StatSheetAPI = addon.StatSheetAPI; ---@type StatSheetAPI
 local PrimaryStatIndex = StatSheetAPI.PrimaryStatIndex;
 local FormatPercent = StatSheetAPI.FormatPercent;
+local FormatSimpleStat = StatSheetAPI.FormatSimpleStat;
 
 
 ---@class StatSheetLayout
@@ -364,7 +365,7 @@ end
 function StatTooltipFunc.Health(tooltip)
 	local health = UnitHealthMax("player");
 	local healthText = BreakUpLargeNumbers(health);
-	tooltip:SetText(format("%s %s", HEALTH, healthText), 1, 1, 1);
+	tooltip:SetText(FormatSimpleStat(HEALTH, healthText), 1, 1, 1);
 	tooltip:AddNormalLine(STAT_HEALTH_TOOLTIP);
 	return true;
 end
@@ -372,7 +373,7 @@ end
 function StatTooltipFunc.Power(tooltip)
 	local powerName, displayedValue, powerToken = StatSheetAPI.GetDisplayedPower();
 	if powerName then
-		tooltip:SetText(format("%s %s", powerName, displayedValue), 1, 1, 1);
+		tooltip:SetText(FormatSimpleStat(powerName, displayedValue), 1, 1, 1);
 		tooltip:AddNormalLine(_G["STAT_"..powerToken.."_TOOLTIP"]);
 		return true;
 	end
@@ -381,7 +382,7 @@ end
 function StatTooltipFunc.Regen(tooltip)
 	local regenName, regenRateText, regenTooltip = StatSheetAPI.GetDisplayedComatRegen();
 	if regenName then
-		tooltip:SetText(format("%s %s", regenName, regenRateText), 1, 1, 1);
+		tooltip:SetText(FormatSimpleStat(regenName, regenRateText), 1, 1, 1);
 		tooltip:AddNormalLine(regenTooltip);
 		return true;
 	end
@@ -390,7 +391,7 @@ end
 function StatTooltipFunc.Armor(tooltip)
 	local armorReduction, armorReductionAgainstTarget, effectiveArmor = StatSheetAPI.GetArmorReduction();
 	if effectiveArmor then
-		tooltip:SetText(format("%s %s", ARMOR, BreakUpLargeNumbers(effectiveArmor)), 1, 1, 1);
+		tooltip:SetText(FormatSimpleStat(ARMOR, BreakUpLargeNumbers(effectiveArmor)), 1, 1, 1);
 		tooltip:AddNormalLine(format(STAT_ARMOR_TOOLTIP, armorReduction));
 		if armorReductionAgainstTarget then
 			tooltip:AddBlankLine();
@@ -409,7 +410,7 @@ end
 function StatTooltipFunc.Reduction(tooltip)
 	local armorReduction, armorReductionAgainstTarget, effectiveArmor = StatSheetAPI.GetArmorReduction();
 	if effectiveArmor then
-		tooltip:SetText(format("%s %s", COMBAT_TEXT_SHOW_RESISTANCES_TEXT, FormatPercent(armorReduction)), 1, 1, 1);
+		tooltip:SetText(FormatSimpleStat(COMBAT_TEXT_SHOW_RESISTANCES_TEXT, FormatPercent(armorReduction)), 1, 1, 1);
 		tooltip:AddNormalLine(format(STAT_ARMOR_TOOLTIP, armorReduction));
 		if armorReductionAgainstTarget then
 			tooltip:AddBlankLine();
@@ -454,14 +455,14 @@ end
 function StatTooltipFunc.AttackSpeed(tooltip)
 	local attackSpeedText = StatSheetAPI.GetDisplayedAttackSpeed(true);
 	local meleeHaste = GetMeleeHaste();
-	tooltip:SetText(format("%s %s", ATTACK_SPEED, attackSpeedText), 1, 1, 1);
+	tooltip:SetText(FormatSimpleStat(ATTACK_SPEED, attackSpeedText), 1, 1, 1);
 	tooltip:AddNormalLine(format(STAT_ATTACK_SPEED_BASE_TOOLTIP, format("%.2f", meleeHaste)));
 	return true;
 end
 
 function StatTooltipFunc.Block(tooltip)
 	local chance = GetBlockChance();
-	tooltip:SetText(format("%s %s", BLOCK_CHANCE, FormatPercent(chance)), 1, 1, 1);
+	tooltip:SetText(FormatSimpleStat(BLOCK_CHANCE, FormatPercent(chance)), 1, 1, 1);
 
 	local shieldBlockArmor = GetShieldBlock();
 	local level = UnitEffectiveLevel("player");
