@@ -384,3 +384,20 @@ end
 function UpdateFunc:SpellHitChance()
 	SetupHitChance(self, nil);
 end
+
+local function SetupCritChance(self, attackType)
+	local critChance = StatSheetAPI.GetCritByAttackType(attackType);
+	self:SetLabelAndValue(L["Stat Crit"], FormatPercent(critChance));
+end
+
+function UpdateFunc:MeleeCrit()
+	SetupCritChance(self, 1);
+end
+
+function UpdateFunc:RangedCrit()
+	SetupCritChance(self, 2);
+end
+
+function UpdateFunc:SpellCrit()
+	SetupCritChance(self, 3);
+end

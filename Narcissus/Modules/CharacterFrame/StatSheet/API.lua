@@ -70,6 +70,31 @@ function StatSheetAPI.GetEffectiveCrit()
 	return critChance, ratingIndex;
 end
 
+---For Forever, Crit Chance is different Melee, Ranged, Spell
+---@param attackType? 1 | 2 | 3 Melee | Ranged | Spell
+---@return number critChance Like 5%
+---@return number ratingIndex Global like CR_CRIT_MELEE
+function StatSheetAPI.GetCritByAttackType(attackType)
+	if attackType == nil then
+		return StatSheetAPI.GetEffectiveCrit();
+	end
+
+	local critChance, ratingIndex;
+
+	if attackType == 2 then
+		critChance = GetRangedCritChance();
+		ratingIndex = CR_CRIT_RANGED;
+	elseif attackType == 3 then
+		critChance = GetSpellCritChance();
+		ratingIndex = CR_CRIT_SPELL;
+	else
+		critChance = GetCritChance();
+		ratingIndex = CR_CRIT_MELEE;
+	end
+
+	return critChance, ratingIndex;
+end
+
 function StatSheetAPI.GetPrimaryStatIndex()
 	local spec = GetSpecialization() or 1;
 	local _, _, _, _, _, primaryStat = C_SpecializationInfo.GetSpecializationInfo(spec);

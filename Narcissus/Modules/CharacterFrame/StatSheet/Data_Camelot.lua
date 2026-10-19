@@ -37,19 +37,19 @@ StatSheetAPI.StatTabInfo = {
     {
         key = "Melee",
         name = PLAYERSTAT_MELEE_COMBAT,
-        layout = {"MeleeDamage", "MeleeAttackSpeed", "MeleeAttackPower", "MeleeHitChance", "Crit", "MeleeExpertise", "ArmorPenetration"},
+        layout = {"MeleeDamage", "MeleeAttackSpeed", "MeleeAttackPower", "MeleeHitChance", "MeleeCrit", "MeleeExpertise", "ArmorPenetration"},
     },
 
     {
         key = "Ranged",
         name = PLAYERSTAT_RANGED_COMBAT,
-        layout = {"RangedDamage", "RangedAttackSpeed", "RangedAttackPower", "RangedHitChance", "Crit", "RangedExpertise", "ArmorPenetration"},
+        layout = {"RangedDamage", "RangedAttackSpeed", "RangedAttackPower", "RangedHitChance", "RangedCrit", "RangedExpertise", "ArmorPenetration"},
     },
 
     {
         key = "Spell",
         name = PLAYERSTAT_SPELL_COMBAT,
-        layout = {"Damage", "AttackSpeed", "Regen", "Crit"},
+        layout = {"SpellPower", "SpellHealing", "SpellPenetration", "SpellHitChance", "SpellCrit", "Haste", "Regen"},
     },
 
     {
@@ -391,4 +391,41 @@ end
 
 function StatTooltipFunc.SpellHitChance(tooltip)
     return SetupHitChance(tooltip, 3);
+end
+
+local function SetupCritChance(tooltip, attackType)
+    local tooltipFormat;
+
+    if attackType == 2 then
+        tooltipFormat = STAT_CRIT_RANGED;
+    elseif attackType == 3 then
+        tooltipFormat = STAT_CRIT_SPELL;
+    else
+        tooltipFormat = STAT_CRIT_MELEE;
+    end
+
+    local critChance = StatSheetAPI.GetCritByAttackType(attackType);
+    tooltip:SetText(format("%s %s", STAT_CRITICAL_STRIKE, FormatPercent(critChance)), 1, 1, 1);
+    tooltip:AddNormalLine(format(tooltipFormat, critChance), false);
+
+    InitPlayerClass();
+	local critBonusTooltip = _G["STAT_" .. CLASS_FILE_NAME .. "_CRIT_BONUS"] or STAT_CRIT_BONUS;
+    if critBonusTooltip then
+        tooltip:AddBlankLine();
+        tooltip:AddNormalLine(format(critBonusTooltip));
+    end
+
+	return true;
+end
+
+function StatTooltipFunc.MeleeCrit(tooltip)
+	return SetupCritChance(tooltip, 1);
+end
+
+function StatTooltipFunc.RangedCrit(tooltip)
+	return SetupCritChance(tooltip, 2);
+end
+
+function StatTooltipFunc.SpellCrit(tooltip)
+	return SetupCritChance(tooltip, 3);
 end
