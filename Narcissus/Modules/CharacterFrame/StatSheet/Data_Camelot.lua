@@ -14,7 +14,7 @@ local StatSheetLayout = {
 
     Concise = {
         "Health",
-        "Power",
+        --"Power",
         --"MovementSpeed",
 
         --"Spacer",
@@ -49,7 +49,7 @@ StatSheetAPI.StatTabInfo = {
     {
         key = "Spell",
         name = PLAYERSTAT_SPELL_COMBAT,
-        layout = {"SpellPower", "SpellHealing", "SpellPenetration", "SpellHitChance", "SpellCrit", "Haste", "Regen"},
+        layout = {"SpellBonusDamage", "SpellBonusHealing", "SpellPenetration", "SpellHitChance", "SpellCrit", "Haste", "Regen"},
     },
 
     {
@@ -428,4 +428,20 @@ end
 
 function StatTooltipFunc.SpellCrit(tooltip)
 	return SetupCritChance(tooltip, 3);
+end
+
+function StatTooltipFunc.SpellBonusDamage(tooltip)
+    tooltip:SetText(BONUS_DAMAGE, 1, 1, 1);
+    for i = 2, MAX_SPELL_SCHOOLS do
+        local bonusDamage = GetSpellBonusDamage(i);
+        tooltip:AddNormalDoubleLine("|TInterface\\PaperDollInfoFrame\\SpellSchoolIcon"..i..":16|t " .. _G["DAMAGE_SCHOOL"..i], bonusDamage);
+    end
+	return true;
+end
+
+function StatTooltipFunc.SpellBonusHealing(tooltip)
+	local bonusHealing = GetSpellBonusHealing();
+    tooltip:SetText(BONUS_HEALING, 1, 1, 1);
+    tooltip:AddNormalLine(format(BONUS_HEALING_TOOLTIP, bonusHealing));
+	return true;
 end

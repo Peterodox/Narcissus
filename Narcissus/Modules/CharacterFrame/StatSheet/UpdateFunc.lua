@@ -401,3 +401,13 @@ end
 function UpdateFunc:SpellCrit()
 	SetupCritChance(self, 3);
 end
+
+function UpdateFunc:SpellBonusDamage()
+	local bonusDamage = StatSheetAPI.GetSpellBonusDamage();
+	self:SetLabelAndValue(BONUS_DAMAGE, format("%.0f", bonusDamage), ShouldMakeValueGrey(bonusDamage));
+end
+
+function UpdateFunc:SpellBonusHealing()
+	local bonusHealing = GetSpellBonusHealing();
+	self:SetLabelAndValue(BONUS_HEALING, format("%.0f", bonusHealing), ShouldMakeValueGrey(bonusHealing));
+end

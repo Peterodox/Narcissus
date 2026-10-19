@@ -360,3 +360,14 @@ function StatSheetAPI.GetDisplayedHitChance(attackType)
 
 	return mainhandHitChance, offhandHitChance;
 end
+
+function StatSheetAPI.GetSpellBonusDamage()
+	local holySchool = 2;
+	local bonusDamage = GetSpellBonusDamage(holySchool);
+	if canaccessvalue(bonusDamage) then
+		for i = (holySchool + 1), MAX_SPELL_SCHOOLS do
+			bonusDamage = math.min(bonusDamage, GetSpellBonusDamage(i));
+		end
+	end
+	return bonusDamage;
+end
