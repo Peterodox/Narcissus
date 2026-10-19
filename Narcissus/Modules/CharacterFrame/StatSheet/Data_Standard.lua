@@ -426,6 +426,7 @@ function StatTooltipFunc.Damage(tooltip, useRangedWeapon, showDPS)
 
 	tooltip:SetText(useRangedWeapon and INVTYPE_RANGED or INVTYPE_WEAPONMAINHAND, 1, 1, 1);
 	tooltip:AddNormalDoubleLine(ATTACK_SPEED_SECONDS, mainhandSpeed);
+	tooltip:AddNormalDoubleLine(DAMAGE, mainhandDamage);
 
 	local mainhandDPS, offhandDPS, rangedDPS;
 	if showDPS then
