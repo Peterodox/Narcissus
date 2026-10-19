@@ -54,8 +54,6 @@ end
 
 function StatSheetAPI.CreateStatTab(parent)
     local frame = CreateFrame("Frame", nil, parent);
-    local maxRow = 7;
-    frame:SetSize(240, 24 * maxRow);
 
     local enableBackground = false;
     local enableDivider = true;
@@ -73,14 +71,20 @@ function StatSheetAPI.CreateStatTab(parent)
     frame.animIn = frame:CreateAnimationGroup(nil, "NarciAttributeFadeInAnimationTemplate");
     frame:EnableScrollToSwitchTab(true);
 
+    local maxRow = 1;
     local tabInfo = StatSheetAPI.StatTabInfo;
 
     if tabInfo then
         for _, v in ipairs(tabInfo) do
             frame:AddTab(v.key, v.name);
             frame.tabKeyXStatLayout[v.key] = v.layout;
+            if #v.layout > maxRow then
+                maxRow = #v.layout;
+            end
         end
     end
+
+    frame:SetSize(240, 24 * (1 + maxRow));
 
     return frame;
 end
