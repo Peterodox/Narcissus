@@ -172,24 +172,19 @@ function UpdateFunc:Versatility()
 	self:SetValueRating(versatility);
 end
 
----Certain values grey out if zero
-local function IsValueZero(value)
-	return canaccessvalue(value) and value == 0;
-end
-
 function UpdateFunc:Leech()
 	local lifesteal = GetLifesteal();
-	self:SetLabelAndValue(STAT_LIFESTEAL, FormatPercent(lifesteal), IsValueZero(lifesteal));
+	self:SetLabelAndValue(STAT_LIFESTEAL, FormatPercent(lifesteal), ShouldMakeValueGrey(lifesteal));
 end
 
 function UpdateFunc:Avoidance()
 	local avoidance = GetAvoidance();
-	self:SetLabelAndValue(STAT_AVOIDANCE, FormatPercent(avoidance), IsValueZero(avoidance));
+	self:SetLabelAndValue(STAT_AVOIDANCE, FormatPercent(avoidance), ShouldMakeValueGrey(avoidance));
 end
 
 function UpdateFunc:Speed()
 	local speed = GetSpeed();
-	self:SetLabelAndValue(STAT_SPEED, FormatPercent(speed), IsValueZero(speed));
+	self:SetLabelAndValue(STAT_SPEED, FormatPercent(speed), ShouldMakeValueGrey(speed));
 end
 
 local function MovementSpeed_OnEnter(self)
@@ -354,6 +349,11 @@ end
 function UpdateFunc:ArmorPenetration()
 	local armorPenetration = GetArmorPenetration();
 	self:SetLabelAndValue(STAT_ARMOR_PENETRATION, format("%d", armorPenetration), ShouldMakeValueGrey(armorPenetration));
+end
+
+function UpdateFunc:SpellPenetration()
+	local spellPenetration = GetSpellPenetration();
+	self:SetLabelAndValue(STAT_SPELL_PENETRATION, format("%d", spellPenetration), ShouldMakeValueGrey(spellPenetration));
 end
 
 local function SetupHitChance(self, attackType)

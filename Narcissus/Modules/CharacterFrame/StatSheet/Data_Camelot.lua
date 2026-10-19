@@ -340,8 +340,21 @@ end
 
 function StatTooltipFunc.ArmorPenetration(tooltip)
 	local armorPenetration = GetArmorPenetration();
-    tooltip:SetText(StatSheetAPI.FormatStatBonus(STAT_ARMOR_PENETRATION, armorPenetration, 0, 0), 1, 1, 1);
+    tooltip:SetText(STAT_ARMOR_PENETRATION, 1, 1, 1);
     tooltip:AddNormalLine(format(ARMOR_PENETRATION_TOOLTIP, armorPenetration));
+    return true;
+end
+
+function StatTooltipFunc.SpellPenetration(tooltip)
+	local spellPenetration = GetSpellPenetration();
+    if not canaccessvalue(spellPenetration) then return; end
+
+	local resistanceAverage = spellPenetration * 0.75 / (UnitLevel("player") * 5);
+	local negativeResistanceAverage = resistanceAverage / 2.0;
+
+	tooltip:SetText(STAT_SPELL_PENETRATION, 1, 1, 1);
+    tooltip:AddNormalLine(format(SPELL_PENETRATION_TOOLTIP, spellPenetration, resistanceAverage, negativeResistanceAverage));
+
     return true;
 end
 
