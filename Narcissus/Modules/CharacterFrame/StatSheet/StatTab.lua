@@ -54,7 +54,8 @@ end
 
 function StatSheetAPI.CreateStatTab(parent)
     local frame = CreateFrame("Frame", nil, parent);
-    frame:SetSize(240, 24 * 6);
+    local maxRow = 7;
+    frame:SetSize(240, 24 * maxRow);
 
     local enableBackground = false;
     local enableDivider = true;
