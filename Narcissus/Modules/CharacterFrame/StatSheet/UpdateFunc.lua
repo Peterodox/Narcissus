@@ -25,6 +25,10 @@ local UpdateFunc = {};
 addon.StatUpdateFunc = UpdateFunc;
 
 
+local function ShouldMakeValueGrey(value)
+	return canaccessvalue(value) and ( not(value) or (value <= 0));
+end
+
 ---Set up a StatButton
 ---@param self any StatButton
 ---@param statIndex number The stat you want to display
@@ -320,3 +324,30 @@ end
 function UpdateFunc:RangedAttackPower()
 	SetupAttackPower(self, UnitRangedAttackPower);
 end
+
+function UpdateFunc:MeleeExpertise()
+	local expertise, offhandExpertise, rangedExpertise = GetExpertise();
+	local grey = ShouldMakeValueGrey(expertise);
+	local valueText;
+
+	if canaccessallvalues(expertise and offhandExpertise) then
+		local _, offhandSpeed = UnitAttackSpeed("player");
+		if offhandSpeed and offhandExpertise > 0 then
+			valueText = format("%.2f%% / %.2f%%", expertise, offhandExpertise);
+		else
+			valueText = format("%.2f%%", expertise);
+		end
+	else
+		valueText = format("%.2f%%", expertise);
+	end
+
+	self:SetLabelAndValue(STAT_EXPERTISE, valueText, grey);
+end
+
+function UpdateFunc:RangedExpertise()
+	local _, _, rangedExpertise = GetExpertise();
+	local grey = ShouldMakeValueGrey(rangedExpertise);
+	local valueText = format("%.2f%%", rangedExpertise);
+	self:SetLabelAndValue(STAT_EXPERTISE, valueText, grey);
+end
+

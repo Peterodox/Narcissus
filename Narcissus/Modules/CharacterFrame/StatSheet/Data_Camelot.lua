@@ -15,9 +15,9 @@ local StatSheetLayout = {
     Concise = {
         "Health",
         "Power",
-        "MovementSpeed",
+        --"MovementSpeed",
 
-        "Spacer",
+        --"Spacer",
 
         "Strength",
         "Agility",
@@ -37,13 +37,13 @@ StatSheetAPI.StatTabInfo = {
     {
         key = "Melee",
         name = PLAYERSTAT_MELEE_COMBAT,
-        layout = {"MeleeDamage", "MeleeAttackSpeed", "MeleeAttackPower", "Crit"},
+        layout = {"MeleeDamage", "MeleeAttackSpeed", "MeleeAttackPower", "Crit", "MeleeExpertise", "ArmorPenetration"},
     },
 
     {
         key = "Ranged",
         name = PLAYERSTAT_RANGED_COMBAT,
-        layout = {"RangedDamage", "RangedAttackSpeed", "RangedAttackPower", "Crit"},
+        layout = {"RangedDamage", "RangedAttackSpeed", "RangedAttackPower", "Crit", "RangedExpertise", "ArmorPenetration"},
     },
 
     {
@@ -302,4 +302,38 @@ end
 
 function StatTooltipFunc.RangedAttackPower(tooltip)
     return SetupAttackPower(tooltip, UnitRangedAttackPower, RANGED_ATTACK_POWER, RANGED_ATTACK_POWER_TOOLTIP);
+end
+
+function StatTooltipFunc.Expertise(tooltip, useRangedWeapon)
+    local expertise, offhandExpertise, rangedExpertise = GetExpertise();
+    local expertiseDisplay;
+    local tooltipFormat;
+
+    if useRangedWeapon then
+        expertiseDisplay = format("%.2f%%", rangedExpertise);
+        tooltipFormat = CR_RANGED_EXPERTISE_TOOLTIP;
+    else
+        local isDualWielding = IsDualWielding();
+        if canaccessvalue(isDualWielding) and isDualWielding then
+            expertiseDisplay = format("%.2f%% - %.2f%%", expertise, offhandExpertise);
+        else
+            expertiseDisplay = format("%.2f%%", expertise);
+        end
+        tooltipFormat = CR_EXPERTISE_TOOLTIP;
+    end
+
+    tooltip:SetText(STAT_EXPERTISE, 1, 1, 1);
+
+    local wrap = false;
+    tooltip:AddNormalLine(format(tooltipFormat, expertiseDisplay, wrap));
+
+    return true;
+end
+
+function StatTooltipFunc.MeleeExpertise(tooltip)
+    return StatTooltipFunc.Expertise(tooltip, false);
+end
+
+function StatTooltipFunc.RangedExpertise(tooltip)
+    return StatTooltipFunc.Expertise(tooltip, true);
 end
