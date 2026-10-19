@@ -333,12 +333,12 @@ function UpdateFunc:MeleeExpertise()
 	if canaccessallvalues(expertise and offhandExpertise) then
 		local _, offhandSpeed = UnitAttackSpeed("player");
 		if offhandSpeed and offhandExpertise > 0 then
-			valueText = format("%.2f%% / %.2f%%", expertise, offhandExpertise);
+			valueText = format("%s / %s", FormatPercent(expertise),  FormatPercent(offhandExpertise));
 		else
-			valueText = format("%.2f%%", expertise);
+			valueText = FormatPercent(expertise);
 		end
 	else
-		valueText = format("%.2f%%", expertise);
+		valueText = FormatPercent(expertise);
 	end
 
 	self:SetLabelAndValue(STAT_EXPERTISE, valueText, grey);
@@ -354,4 +354,33 @@ end
 function UpdateFunc:ArmorPenetration()
 	local armorPenetration = GetArmorPenetration();
 	self:SetLabelAndValue(STAT_ARMOR_PENETRATION, format("%d", armorPenetration), ShouldMakeValueGrey(armorPenetration));
+end
+
+local function SetupHitChance(self, attackType)
+	local hitChance1, hitChance2 = StatSheetAPI.GetDisplayedHitChance(attackType);
+	if hitChance1 then
+		if hitChance2 then
+			self:SetLabelAndValue(STAT_HIT_CHANCE, format("%s / %s",  FormatPercent(hitChance1),  FormatPercent(hitChance2)), ShouldMakeValueGrey(hitChance1));
+		else
+			self:SetLabelAndValue(STAT_HIT_CHANCE,  FormatPercent(hitChance1), ShouldMakeValueGrey(hitChance1));
+		end
+	else
+		self:SetLabelAndValue(STAT_HIT_CHANCE, N_SLASH_A, true);
+	end
+end
+
+function UpdateFunc:HitChance()
+	SetupHitChance(self, nil);
+end
+
+function UpdateFunc:MeleeHitChance()
+	SetupHitChance(self, nil);
+end
+
+function UpdateFunc:RangedHitChance()
+	SetupHitChance(self, nil);
+end
+
+function UpdateFunc:SpellHitChance()
+	SetupHitChance(self, nil);
 end

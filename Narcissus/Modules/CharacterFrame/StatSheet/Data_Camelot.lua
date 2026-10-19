@@ -37,13 +37,13 @@ StatSheetAPI.StatTabInfo = {
     {
         key = "Melee",
         name = PLAYERSTAT_MELEE_COMBAT,
-        layout = {"MeleeDamage", "MeleeAttackSpeed", "MeleeAttackPower", "Crit", "MeleeExpertise", "ArmorPenetration"},
+        layout = {"MeleeDamage", "MeleeAttackSpeed", "MeleeAttackPower", "MeleeHitChance", "Crit", "MeleeExpertise", "ArmorPenetration"},
     },
 
     {
         key = "Ranged",
         name = PLAYERSTAT_RANGED_COMBAT,
-        layout = {"RangedDamage", "RangedAttackSpeed", "RangedAttackPower", "Crit", "RangedExpertise", "ArmorPenetration"},
+        layout = {"RangedDamage", "RangedAttackSpeed", "RangedAttackPower", "RangedHitChance", "Crit", "RangedExpertise", "ArmorPenetration"},
     },
 
     {
@@ -315,7 +315,7 @@ function StatTooltipFunc.Expertise(tooltip, useRangedWeapon)
     else
         local isDualWielding = IsDualWielding();
         if canaccessvalue(isDualWielding) and isDualWielding then
-            expertiseDisplay = format("%.2f%% - %.2f%%", expertise, offhandExpertise);
+            expertiseDisplay = format("%.2f%% / %.2f%%", expertise, offhandExpertise);
         else
             expertiseDisplay = format("%.2f%%", expertise);
         end
@@ -343,4 +343,52 @@ function StatTooltipFunc.ArmorPenetration(tooltip)
     tooltip:SetText(StatSheetAPI.FormatStatBonus(STAT_ARMOR_PENETRATION, armorPenetration, 0, 0), 1, 1, 1);
     tooltip:AddNormalLine(format(ARMOR_PENETRATION_TOOLTIP, armorPenetration));
     return true;
+end
+
+local function SetupHitChance(tooltip, attackType)
+	local hitChance1, hitChance2 = StatSheetAPI.GetDisplayedHitChance(attackType);  
+	if not hitChance1 then return; end
+
+    local valueText;
+
+    if hitChance2 then
+        valueText = format("%s / %s",  FormatPercent(hitChance1),  FormatPercent(hitChance2));
+    else
+        valueText = FormatPercent(hitChance1);
+    end
+
+    tooltip:SetText(format("%s %s", STAT_HIT_CHANCE, valueText), 1, 1, 1);
+
+    if attackType == 2 then
+        tooltip:AddNormalLine(format(CR_HIT_RANGED_TOOLTIP, hitChance1));
+    elseif attackType == 3 then
+        tooltip:AddNormalLine(format(CR_HIT_SPELL_TOOLTIP, hitChance1));
+    else
+        tooltip:AddNormalLine(format(CR_HIT_MELEE_TOOLTIP, hitChance1));
+        if hitChance2 then
+            tooltip:AddNormalLine(format(CR_HIT_OFFHAND_TOOLTIP, hitChance2));
+        end
+    end
+
+    local playerLevel = UnitLevel("player");
+    if canaccessvalue(playerLevel) then
+        InitPlayerClass();
+        local hitCapTooltip = _G["CR_" .. CLASS_FILE_NAME .. "_HIT_CAP_TOOLTIP"] or CR_DEFAULT_HIT_CAP_TOOLTIP;
+        local wrap = false;
+        tooltip:AddNormalLine(format(hitCapTooltip, playerLevel), wrap);
+    end
+
+    return true;
+end
+
+function StatTooltipFunc.MeleeHitChance(tooltip)
+    return SetupHitChance(tooltip, 1);
+end
+
+function StatTooltipFunc.RangedHitChance(tooltip)
+    return SetupHitChance(tooltip, 2);
+end
+
+function StatTooltipFunc.SpellHitChance(tooltip)
+    return SetupHitChance(tooltip, 3);
 end

@@ -312,3 +312,35 @@ function StatSheetAPI.GetDisplayedDPS()
 		FormatDPS(offhandMinDamage, offhandMaxDamage, offhandSpeed),
 		FormatDPS(rangedMinDamage, rangedMaxDamage, rangedSpeed);
 end
+
+---@param attackType? 1 | 2 | 3 Melee | Ranged | Spell
+---@return number? mainhandHitChance
+---@return number? offhandHitChance
+function StatSheetAPI.GetDisplayedHitChance(attackType)
+	if not canaccessvalue( GetCombatRatingBonus(CR_HIT_MELEE) ) then return; end
+
+	local mainhandHitChance, offhandHitChance;
+
+	if attackType == nil then
+		-- WoW uses the max hit chance
+		local meleeHit = GetCombatRatingBonus(CR_HIT_MELEE) + GetHitModifier();
+		local offhandHit = GetCombatRatingBonus(CR_HIT_MELEE) + GetOffhandHitModifier();
+		local rangedHit = GetCombatRatingBonus(CR_HIT_RANGED) + GetRangedHitModifier();
+		local spellHit = GetCombatRatingBonus(CR_HIT_SPELL) + GetSpellHitModifier();
+		mainhandHitChance = max(meleeHit, rangedHit, spellHit, offhandHit);
+	else
+		if attackType == 2 then
+			mainhandHitChance = GetCombatRatingBonus(CR_HIT_RANGED) + GetRangedHitModifier();
+		elseif attackType == 3 then
+			mainhandHitChance = GetCombatRatingBonus(CR_HIT_SPELL) + GetSpellHitModifier();
+		else
+			mainhandHitChance = GetCombatRatingBonus(CR_HIT_MELEE) + GetHitModifier();
+			local offhandHit = GetCombatRatingBonus(CR_HIT_MELEE) + GetOffhandHitModifier();
+			if offhandHit and mainhandHitChance ~= offhandHit and IsDualWielding() then
+				offhandHitChance = offhandHit;
+			end
+		end
+	end
+
+	return mainhandHitChance, offhandHitChance;
+end
