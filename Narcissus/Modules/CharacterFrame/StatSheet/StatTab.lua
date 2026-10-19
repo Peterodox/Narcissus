@@ -26,7 +26,14 @@ function StatTabMixin:OnTabSelected(tabKey)
 
     if layout then
         local buttonHeight = 24;
-        local baseRow = self:GetRow() - 1;
+        local baseRow = self:GetRow();
+
+        -- Make sure the first stat button's row is an even number
+        -- so that it's background is brighter
+        if baseRow % 2 == 0 then
+            baseRow = baseRow + 1;
+        end
+
         for i, token in ipairs(layout) do
             local button = self.statButtonPool:Acquire();
             button:SetPoint("TOP", self, "TOP", 0, -i * buttonHeight);
@@ -34,6 +41,7 @@ function StatTabMixin:OnTabSelected(tabKey)
             button:SetRow(baseRow + i);
             button:Show();
         end
+
         self:Update();
     end
 
