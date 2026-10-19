@@ -247,9 +247,9 @@ function StatTooltipFunc.Parry(tooltip)
 end
 
 function StatTooltipFunc.MeleeDamage(tooltip)
-    return StatTooltipFunc.Damage(tooltip, false);
+    return StatTooltipFunc.Damage(tooltip, false, true);
 end
 
 function StatTooltipFunc.RangedDamage(tooltip)
-    return StatTooltipFunc.Damage(tooltip, true);
+    return StatTooltipFunc.Damage(tooltip, true, true);
 end

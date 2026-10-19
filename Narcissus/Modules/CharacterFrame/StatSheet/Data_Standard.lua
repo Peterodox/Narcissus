@@ -419,20 +419,34 @@ function StatTooltipFunc.Reduction(tooltip)
 	end
 end
 
-function StatTooltipFunc.Damage(tooltip, useRangedWeapon)
+function StatTooltipFunc.Damage(tooltip, useRangedWeapon, showDPS)
 	local mainhandDamage, offhandDamage = StatSheetAPI.GetDamageTooltip(useRangedWeapon);
 	local mainhandSpeed, offhandSpeed = StatSheetAPI.GetDisplayedAttackSpeed(useRangedWeapon);
 	if not (mainhandDamage and mainhandSpeed) then return; end
 
 	tooltip:SetText(useRangedWeapon and INVTYPE_RANGED or INVTYPE_WEAPONMAINHAND, 1, 1, 1);
 	tooltip:AddNormalDoubleLine(ATTACK_SPEED_SECONDS, mainhandSpeed);
-	tooltip:AddNormalDoubleLine(DAMAGE, mainhandDamage);
+
+	local mainhandDPS, offhandDPS, rangedDPS;
+	if showDPS then
+		mainhandDPS, offhandDPS, rangedDPS = StatSheetAPI.GetDisplayedDPS();
+		if useRangedWeapon and rangedDPS then
+			tooltip:AddNormalDoubleLine(DPS, rangedDPS);
+		elseif mainhandDPS then
+			tooltip:AddNormalDoubleLine(DPS, mainhandDPS);
+		end
+	end
+
 	if offhandDamage and offhandSpeed then
 		tooltip:AddBlankLine();
 		tooltip:AddLine(INVTYPE_WEAPONOFFHAND, 1, 1, 1);
 		tooltip:AddNormalDoubleLine(ATTACK_SPEED_SECONDS, offhandSpeed);
 		tooltip:AddNormalDoubleLine(DAMAGE, offhandDamage);
+		if showDPS and offhandDPS then
+			tooltip:AddNormalDoubleLine(DPS, offhandDPS);
+		end
 	end
+
 	return true;
 end
 

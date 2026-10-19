@@ -1,5 +1,8 @@
 local _, addon = ...
 
+local format = string.format;
+
+
 local StatSheetAPI = {}; ---@class StatSheetAPI
 addon.StatSheetAPI = StatSheetAPI;
 
@@ -14,7 +17,7 @@ StatSheetAPI.PrimaryStatIndex = {
 
 ---Format a number like 67 into 67.00%
 function StatSheetAPI.FormatPercent(value)
-	return string.format("%.2f%%", value);
+	return format("%.2f%%", value);
 end
 
 function StatSheetAPI.FormatStatBonus(name, base, posBuff, negBuff)
@@ -22,15 +25,15 @@ function StatSheetAPI.FormatStatBonus(name, base, posBuff, negBuff)
 	negBuff = negBuff or 0;
 
 	local effectiveText = BreakUpLargeNumbers(math.max(0, base + posBuff + negBuff));
-	local text = string.format("%s %s", name, effectiveText);
+	local text = format("%s %s", name, effectiveText);
 
 	if posBuff > 0 or negBuff < 0 then
-		text = text .. string.format(" (%s", base);
+		text = text .. format(" (%s", base);
 		if posBuff > 0 then
-			text =  text .. string.format("|cnGREEN_FONT_COLOR:+%s|r", posBuff);
+			text =  text .. format("|cnGREEN_FONT_COLOR:+%s|r", posBuff);
 		end
 		if negBuff < 0 then
-			text =  text .. string.format("|cnRED_FONT_COLOR:%s|r", negBuff);
+			text =  text .. format("|cnRED_FONT_COLOR:%s|r", negBuff);
 		end
 		text = text..")";
 	end
@@ -128,7 +131,7 @@ function StatSheetAPI.GetDisplayedComatRegen()
 			regenName = STAT_RUNE_REGEN;
 			regenTooltip = STAT_RUNE_REGEN_TOOLTIP;
 			local _, runeDuration = GetRuneCooldown(1);
-			regenRateText = string.format(STAT_RUNE_REGEN_FORMAT, runeDuration);
+			regenRateText = format(STAT_RUNE_REGEN_FORMAT, runeDuration);
 		else
 			-- Fun fact: Regen can be negative for Warrior
 			return;
@@ -137,9 +140,9 @@ function StatSheetAPI.GetDisplayedComatRegen()
 
 	if not regenRateText then
 		if powerToken == "MANA" then
-			regenRateText = string.format("%.0f/s", regenRate);
+			regenRateText = format("%.0f/s", regenRate);
 		else
-			regenRateText = string.format("%.2f/s", regenRate);
+			regenRateText = format("%.2f/s", regenRate);
 		end
 	end
 
@@ -187,7 +190,7 @@ function StatSheetAPI.GetDisplayedDamage(useRangedWeapon)
 		minDamage = math.max(math.floor(minDamage), 1);
 		maxDamage = math.max(math.ceil(maxDamage), 1);
 	end
-	return string.format("%.0f - %.0f", minDamage, maxDamage);
+	return format("%.0f - %.0f", minDamage, maxDamage);
 end
 
 ---Return mainhandDamage, offhandDamage. Format: 1,234 - 2,345 x108%
@@ -218,15 +221,15 @@ function StatSheetAPI.GetDamageTooltip(useRangedWeapon)
 			-- Considered as Zero Bonus
 		else
 			if posBuff > 0 then
-				damageTooltip = string.format("%s %s+%.0f|r", damageTooltip, colorPos, posBuff);
+				damageTooltip = format("%s %s+%.0f|r", damageTooltip, colorPos, posBuff);
 			end
 			if negBuff < 0 then
-				damageTooltip = string.format("%s %s%.0f|r", damageTooltip, colorNeg, negBuff);
+				damageTooltip = format("%s %s%.0f|r", damageTooltip, colorNeg, negBuff);
 			end
 			if percent > 1 then
-				damageTooltip = string.format("%s %sx%.0f%%|r", damageTooltip, colorPos, 100 * percent);
+				damageTooltip = format("%s %sx%.0f%%|r", damageTooltip, colorPos, 100 * percent);
 			elseif percent < 1 then
-				damageTooltip = string.format("%s %sx%.0f%%|r", damageTooltip, colorNeg, 100 * percent);
+				damageTooltip = format("%s %sx%.0f%%|r", damageTooltip, colorNeg, 100 * percent);
 			end
 		end
 
@@ -245,21 +248,21 @@ end
 function StatSheetAPI.GetDisplayedAttackSpeed(merged)
 	local mainhandSpeed, offhandSpeed = UnitAttackSpeed("player");
 	if canaccessallvalues(mainhandSpeed, offhandSpeed) then
-		mainhandSpeed = floor(100 * mainhandSpeed + 0.5) / 100;
+		mainhandSpeed = math.floor(100 * mainhandSpeed + 0.5) / 100;
 		if offhandSpeed then
-			offhandSpeed = floor(100 * offhandSpeed + 0.5) / 100;
+			offhandSpeed = math.floor(100 * offhandSpeed + 0.5) / 100;
 		end
 		if merged then
 			if offhandSpeed and offhandSpeed ~= mainhandSpeed then
-				return string.format("%.2f / %.2f", mainhandSpeed, offhandSpeed);
+				return format("%.2f / %.2f", mainhandSpeed, offhandSpeed);
 			end
 		else
 			if offhandSpeed then
-				return string.format("%.2f", mainhandSpeed), string.format("%.2f", offhandSpeed);
+				return format("%.2f", mainhandSpeed), format("%.2f", offhandSpeed);
 			end
 		end
 	end
-	return string.format("%.2f", mainhandSpeed);
+	return format("%.2f", mainhandSpeed);
 end
 
 ---@return number? effectiveDefenseSkill
@@ -275,4 +278,26 @@ function StatSheetAPI.GetEffectiveDefenseSkill()
 		local maxDefense = playerLevel * SKILL_RANKS_PER_SKILL_LEVEL;
 		return effectiveDefenseSkill, baseDefenseSkill, defenseModifier, maxDefense
 	end
+end
+
+local function FormatDPS(minDamage, maxDamage, speed)
+	if not canaccessallvalues(minDamage, maxDamage, speed) then return; end
+
+	minDamage = minDamage or 0;
+	maxDamage = maxDamage or 0;
+	speed = speed or 1;
+
+	return format("%.1f", (minDamage + maxDamage) / (2 * speed));
+end
+
+---@return string? mainhandDPS
+---@return string? offhandDPS
+---@return string? rangedDPS
+function StatSheetAPI.GetDisplayedDPS()
+	local mainhandMinDamage, mainhandMaxDamage, offhandMinDamage, offhandMaxDamage = GetAppropriateDamage(false);
+	local rangedMinDamage, rangedMaxDamage = GetAppropriateDamage(true);
+	local mainhandSpeed, offhandSpeed, rangedSpeed = UnitAttackSpeed("player");
+	return FormatDPS(mainhandMinDamage, mainhandMaxDamage, mainhandSpeed),
+		FormatDPS(offhandMinDamage, offhandMaxDamage, offhandSpeed),
+		FormatDPS(rangedMinDamage, rangedMaxDamage, rangedSpeed);
 end
