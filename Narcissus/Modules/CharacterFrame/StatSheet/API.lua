@@ -265,6 +265,17 @@ function StatSheetAPI.GetDisplayedAttackSpeed(merged)
 	return format("%.2f", mainhandSpeed);
 end
 
+---@return string? formattedText
+function StatSheetAPI.GetDisplayedRangedAttackSpeed()
+	local _, _, rangedSpeed = UnitAttackSpeed("player");
+	if rangedSpeed then
+		if canaccessallvalues(rangedSpeed) then
+			rangedSpeed = math.floor(100 * rangedSpeed + 0.5) / 100;
+		end
+		return format("%.2f", rangedSpeed);
+	end
+end
+
 ---@return number? effectiveDefenseSkill
 ---@return number? baseDefenseSkill
 ---@return number? defenseModifier

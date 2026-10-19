@@ -290,3 +290,14 @@ end
 function UpdateFunc:RangedDamage()
 	self:SetLabelAndValue(DAMAGE, StatSheetAPI.GetDisplayedDamage(true));
 end
+
+UpdateFunc.MeleeAttackSpeed = UpdateFunc.AttackSpeed;
+
+function UpdateFunc:RangedAttackSpeed()
+	local formattedText = StatSheetAPI.GetDisplayedRangedAttackSpeed();
+	if formattedText then
+		self:SetLabelAndValue(ATTACK_SPEED, formattedText);
+	else
+		self:SetLabelAndValue(ATTACK_SPEED, N_SLASH_A, true);
+	end
+end

@@ -37,13 +37,13 @@ StatSheetAPI.StatTabInfo = {
     {
         key = "Melee",
         name = PLAYERSTAT_MELEE_COMBAT,
-        layout = {"MeleeDamage", "AttackSpeed", "Regen", "Crit"},
+        layout = {"MeleeDamage", "MeleeAttackSpeed", "Regen", "Crit"},
     },
 
     {
         key = "Ranged",
         name = PLAYERSTAT_RANGED_COMBAT,
-        layout = {"RangedDamage", "AttackSpeed", "Regen", "Crit"},
+        layout = {"RangedDamage", "RangedAttackSpeed", "Regen", "Crit"},
     },
 
     {
@@ -63,11 +63,13 @@ StatSheetAPI.StatTabInfo = {
 local StatTooltipFunc = addon.StatTooltipFunc; ---@class StatTooltipFunc
 
 local CLASS_FILE_NAME;
+local IS_RANGED_CLASS;
 
 local function InitPlayerClass()
     if not CLASS_FILE_NAME then
         _, CLASS_FILE_NAME = UnitClass("player");
         CLASS_FILE_NAME = string.upper(CLASS_FILE_NAME);
+        IS_RANGED_CLASS = CLASS_FILE_NAME == "WARRIOR" or CLASS_FILE_NAME == "HUNTER" or CLASS_FILE_NAME == "ROGUE";
     end
 end
 
@@ -184,9 +186,8 @@ function StatTooltipFunc.Crit(tooltip)
     tooltip:AddNormalLine(format(STAT_CRIT_MELEE, meleeCrit));
 
     InitPlayerClass();
-	local isRangedClass = CLASS_FILE_NAME == "WARRIOR" or CLASS_FILE_NAME == "HUNTER" or CLASS_FILE_NAME == "ROGUE";
 
-	if isRangedClass then
+	if IS_RANGED_CLASS then
         tooltip:AddNormalLine(format(STAT_CRIT_RANGED, rangedCrit));
 	end
 
@@ -252,4 +253,27 @@ end
 
 function StatTooltipFunc.RangedDamage(tooltip)
     return StatTooltipFunc.Damage(tooltip, true, true);
+end
+
+function StatTooltipFunc.MeleeAttackSpeed(tooltip)
+	local attackSpeedText = StatSheetAPI.GetDisplayedAttackSpeed(true);
+	local meleeHaste = GetMeleeHaste();
+	tooltip:SetText(format("%s %s", ATTACK_SPEED, attackSpeedText), 1, 1, 1);
+	tooltip:AddNormalLine(format(CR_HASTE_MELEE_TOOLTIP, format("%.2f", meleeHaste)));
+	return true;
+end
+
+function StatTooltipFunc.RangedAttackSpeed(tooltip)
+    StatTooltipFunc.AttackSpeed(tooltip);
+	local attackSpeedText = StatSheetAPI.GetDisplayedRangedAttackSpeed();
+    if attackSpeedText then
+        tooltip:SetText(format("%s %s", ATTACK_SPEED, attackSpeedText), 1, 1, 1);
+        InitPlayerClass();
+        if IS_RANGED_CLASS then
+            local baseRangedHaste, ammoHaste = GetRangedHaste();
+            local rangedHaste = baseRangedHaste + ammoHaste;
+            tooltip:AddNormalLine(format(CR_HASTE_RANGED_TOOLTIP, rangedHaste));
+        end
+        return true;
+    end
 end
