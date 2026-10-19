@@ -165,27 +165,38 @@ function StatSheetAPI.GetArmorReduction()
 end
 
 ---Return mainhandMinDamage, mainhandMaxDamage, offhandMinDamage, offhandMaxDamage, posBuff, negBuff, percent
-local function GetAppropriateDamage(unit)
-	if IsRangedWeapon() then
-		local attackTime, minDamage, maxDamage, posBuff, negBuff, percent = UnitRangedDamage(unit);
+---@param useRangedWeapon boolean? Only use true/false on games where Ranged slot exist
+local function GetAppropriateDamage(useRangedWeapon)
+	if useRangedWeapon == nil then
+		useRangedWeapon = IsRangedWeapon();
+	end
+
+	if useRangedWeapon then
+		local attackTime, minDamage, maxDamage, posBuff, negBuff, percent = UnitRangedDamage("player");
 		return minDamage, maxDamage, 0, 0, posBuff, negBuff, percent;
 	else
-		return UnitDamage(unit);
+		return UnitDamage("player");
 	end
 end
 
 ---Return damage text for StatButton: 1234 - 2345
-function StatSheetAPI.GetDisplayedDamage()
-	local minDamage, maxDamage = GetAppropriateDamage("player");
+---@param useRangedWeapon boolean? Specify ranged or melee weapons
+function StatSheetAPI.GetDisplayedDamage(useRangedWeapon)
+	local minDamage, maxDamage = GetAppropriateDamage(useRangedWeapon);
+	if canaccessallvalues(minDamage, maxDamage) then
+		minDamage = math.max(math.floor(minDamage), 1);
+		maxDamage = math.max(math.ceil(maxDamage), 1);
+	end
 	return string.format("%.0f - %.0f", minDamage, maxDamage);
 end
 
 ---Return mainhandDamage, offhandDamage. Format: 1,234 - 2,345 x108%
 ---Offhand can have damage without weapon, but we don't show that on the tooltip
+---@param useRangedWeapon boolean? Specify ranged or melee weapons
 ---@return string?  mainhandDamage
 ---@return string? offhandDamage
-function StatSheetAPI.GetDamageTooltip()
-	local mainhandMinDamage, mainhandMaxDamage, offhandMinDamage, offhandMaxDamage, posBuff, negBuff, percent = GetAppropriateDamage("player");
+function StatSheetAPI.GetDamageTooltip(useRangedWeapon)
+	local mainhandMinDamage, mainhandMaxDamage, offhandMinDamage, offhandMaxDamage, posBuff, negBuff, percent = GetAppropriateDamage(useRangedWeapon);
 	if not canaccessallvalues(mainhandMinDamage, offhandMinDamage, posBuff, percent) then return; end
 	if (not percent) or percent == 0 then return; end;
 
