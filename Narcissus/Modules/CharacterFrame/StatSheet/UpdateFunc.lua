@@ -351,3 +351,7 @@ function UpdateFunc:RangedExpertise()
 	self:SetLabelAndValue(STAT_EXPERTISE, valueText, grey);
 end
 
+function UpdateFunc:ArmorPenetration()
+	local armorPenetration = GetArmorPenetration();
+	self:SetLabelAndValue(STAT_ARMOR_PENETRATION, format("%d", armorPenetration), ShouldMakeValueGrey(armorPenetration));
+end

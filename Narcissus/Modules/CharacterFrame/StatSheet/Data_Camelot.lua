@@ -337,3 +337,10 @@ end
 function StatTooltipFunc.RangedExpertise(tooltip)
     return StatTooltipFunc.Expertise(tooltip, true);
 end
+
+function StatTooltipFunc.ArmorPenetration(tooltip)
+	local armorPenetration = GetArmorPenetration();
+    tooltip:SetText(StatSheetAPI.FormatStatBonus(STAT_ARMOR_PENETRATION, armorPenetration, 0, 0), 1, 1, 1);
+    tooltip:AddNormalLine(format(ARMOR_PENETRATION_TOOLTIP, armorPenetration));
+    return true;
+end
