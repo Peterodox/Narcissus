@@ -388,21 +388,25 @@ function StatTooltipFunc.Regen(tooltip)
 	end
 end
 
+local function SetupArmorReduction(tooltip, armorReduction, armorReductionAgainstTarget)
+	tooltip:AddNormalLine(format(STAT_ARMOR_TOOLTIP, armorReduction));
+
+	if armorReductionAgainstTarget then
+		tooltip:AddBlankLine();
+		tooltip:AddBlueLine(format(STAT_ARMOR_TARGET_TOOLTIP, armorReductionAgainstTarget));
+	end
+
+	if ARMOR_MAX_EFFECTIVENESS_TOOLTIP then
+		tooltip:AddBlankLine();
+		tooltip:AddBlueLine(format(ARMOR_MAX_EFFECTIVENESS_TOOLTIP));
+	end
+end
+
 function StatTooltipFunc.Armor(tooltip)
 	local armorReduction, armorReductionAgainstTarget, effectiveArmor = StatSheetAPI.GetArmorReduction();
 	if effectiveArmor then
 		tooltip:SetText(FormatSimpleStat(ARMOR, BreakUpLargeNumbers(effectiveArmor)), 1, 1, 1);
-		tooltip:AddNormalLine(format(STAT_ARMOR_TOOLTIP, armorReduction));
-		if armorReductionAgainstTarget then
-			tooltip:AddBlankLine();
-			tooltip:AddBlueLine(format(STAT_ARMOR_TARGET_TOOLTIP, armorReductionAgainstTarget));
-		end
-
-		if ARMOR_MAX_EFFECTIVENESS_TOOLTIP then
-			tooltip:AddBlankLine();
-			tooltip:AddBlueLine(format(ARMOR_MAX_EFFECTIVENESS_TOOLTIP));
-		end
-
+		SetupArmorReduction(tooltip, armorReduction, armorReductionAgainstTarget);
 		return true;
 	end
 end
@@ -411,11 +415,7 @@ function StatTooltipFunc.Reduction(tooltip)
 	local armorReduction, armorReductionAgainstTarget, effectiveArmor = StatSheetAPI.GetArmorReduction();
 	if effectiveArmor then
 		tooltip:SetText(FormatSimpleStat(COMBAT_TEXT_SHOW_RESISTANCES_TEXT, FormatPercent(armorReduction)), 1, 1, 1);
-		tooltip:AddNormalLine(format(STAT_ARMOR_TOOLTIP, armorReduction));
-		if armorReductionAgainstTarget then
-			tooltip:AddBlankLine();
-			tooltip:AddBlueLine(format(STAT_ARMOR_TARGET_TOOLTIP, armorReductionAgainstTarget));
-		end
+		SetupArmorReduction(tooltip, armorReduction, armorReductionAgainstTarget);
 		return true;
 	end
 end

@@ -56,7 +56,7 @@ StatSheetAPI.StatTabInfo = {
     {
         key = "Defense",
         name = STAT_CATEGORY_DEFENSE,
-        layout = {"Defense", "Dodge", "Block", "Parry", "Armor"},
+        layout = {"Armor", "Reduction", "Defense", "Dodge", "Block", "Parry", "Resistance"},
     },
 };
 
