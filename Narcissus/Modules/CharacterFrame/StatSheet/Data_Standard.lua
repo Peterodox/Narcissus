@@ -419,12 +419,12 @@ function StatTooltipFunc.Reduction(tooltip)
 	end
 end
 
-function StatTooltipFunc.Damage(tooltip)
-	local mainhandDamage, offhandDamage = StatSheetAPI.GetDamageTooltip();
-	local mainhandSpeed, offhandSpeed = StatSheetAPI.GetDisplayedAttackSpeed();
+function StatTooltipFunc.Damage(tooltip, useRangedWeapon)
+	local mainhandDamage, offhandDamage = StatSheetAPI.GetDamageTooltip(useRangedWeapon);
+	local mainhandSpeed, offhandSpeed = StatSheetAPI.GetDisplayedAttackSpeed(useRangedWeapon);
 	if not (mainhandDamage and mainhandSpeed) then return; end
 
-	tooltip:SetText(INVTYPE_WEAPONMAINHAND, 1, 1, 1);
+	tooltip:SetText(useRangedWeapon and INVTYPE_RANGED or INVTYPE_WEAPONMAINHAND, 1, 1, 1);
 	tooltip:AddNormalDoubleLine(ATTACK_SPEED_SECONDS, mainhandSpeed);
 	tooltip:AddNormalDoubleLine(DAMAGE, mainhandDamage);
 	if offhandDamage and offhandSpeed then

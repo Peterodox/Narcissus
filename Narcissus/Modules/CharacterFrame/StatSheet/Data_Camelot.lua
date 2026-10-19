@@ -37,13 +37,13 @@ StatSheetAPI.StatTabInfo = {
     {
         key = "Melee",
         name = PLAYERSTAT_MELEE_COMBAT,
-        layout = {"Damage", "AttackSpeed", "Regen", "Crit"},
+        layout = {"MeleeDamage", "AttackSpeed", "Regen", "Crit"},
     },
 
     {
         key = "Ranged",
         name = PLAYERSTAT_RANGED_COMBAT,
-        layout = {"Damage", "AttackSpeed", "Regen", "Crit"},
+        layout = {"RangedDamage", "AttackSpeed", "Regen", "Crit"},
     },
 
     {
@@ -244,4 +244,12 @@ function StatTooltipFunc.Parry(tooltip)
 	tooltip:SetText(format("%s %s", PARRY_CHANCE, FormatPercent(chance)), 1, 1, 1);
 	tooltip:AddNormalLine(format(CR_DODGE_BASE_STAT_TOOLTIP, chance));
 	return true;
+end
+
+function StatTooltipFunc.MeleeDamage(tooltip)
+    return StatTooltipFunc.Damage(tooltip, false);
+end
+
+function StatTooltipFunc.RangedDamage(tooltip)
+    return StatTooltipFunc.Damage(tooltip, true);
 end

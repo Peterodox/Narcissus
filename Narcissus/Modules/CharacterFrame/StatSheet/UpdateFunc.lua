@@ -283,3 +283,10 @@ function UpdateFunc:Defense()
 	end
 end
 
+function UpdateFunc:MeleeDamage()
+	self:SetLabelAndValue(DAMAGE, StatSheetAPI.GetDisplayedDamage(false));
+end
+
+function UpdateFunc:RangedDamage()
+	self:SetLabelAndValue(DAMAGE, StatSheetAPI.GetDisplayedDamage(true));
+end
