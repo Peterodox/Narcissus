@@ -62,6 +62,7 @@ function StatSheetAPI.CreateStatTab(parent)
     frame.tabKeyXStatLayout = {};
     frame.statButtonPool = CreateFramePool("Button", frame, "Narci_AttributeTemplate");
     frame.animIn = frame:CreateAnimationGroup(nil, "NarciAttributeFadeInAnimationTemplate");
+    frame:EnableScrollToSwitchTab(true);
 
     local tabInfo = StatSheetAPI.StatTabInfo;
 

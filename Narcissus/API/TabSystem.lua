@@ -252,11 +252,42 @@ function TabSystemMixin:SelectTabByIndex(tabIndex)
     local tabKey;
     for _, data in ipairs(self.tabData) do
         if data.tabIndex == tabIndex then
-            tabKey = data.tabKey;
+            if data.enabled then
+                tabKey = data.tabKey;
+            end
             break;
         end
     end
     self:SelectTabByKey(tabKey);
+end
+
+---For mouse wheel: delta > 0 previous tab, delta < 0 next tab.
+---Do not jump to the tab 1 if keeping scrolling down on the last tab.
+function TabSystemMixin:SelectTabByDelta(delta)
+    if not self.activeTabKeys then return; end
+
+    local newTabKey;
+    local selectedTabKey = self:GetSelectedTabKey();
+    if selectedTabKey then
+        for i, key in ipairs(self.activeTabKeys) do
+            if key == selectedTabKey then
+                newTabKey = self.activeTabKeys[i + ((delta > 0 and -1) or 1)];
+            end
+        end
+    else
+        newTabKey = self.activeTabKeys[1];
+    end
+
+    self:SelectTabByKey(newTabKey);
+end
+
+function TabSystemMixin:EnableScrollToSwitchTab(state)
+    self.scrollToSwitchTab = state;
+    if state then
+        self:SetScript("OnMouseWheel", self.SelectTabByDelta);
+    else
+        self:SetScript("OnMouseWheel", nil);
+    end
 end
 
 function TabSystemMixin:SetDefaultTabKey(defaultTabKey)
@@ -265,6 +296,28 @@ end
 
 function TabSystemMixin:GetSelectedTabKey()
     return self.selectedTabKey;
+end
+
+function TabSystemMixin:GetEnabledTabData()
+    local n = 0;
+    local tbl = {};
+
+    for _, data in ipairs(self.tabData) do
+        if data.enabled then
+            n = n + 1;
+            tbl[n] = data;
+        end
+    end
+
+    return tbl;
+end
+
+function TabSystemMixin:GetLastTabButton()
+    return self.lastTabButton;
+end
+
+function TabSystemMixin:UseEvenWidthForTabButtons(state)
+    self.evenTabButtonWidth = state;
 end
 
 ---Call this to initialize the tabButtons and frames
@@ -289,10 +342,13 @@ function TabSystemMixin:Init()
     local isHorizontal = self.tabButtonSetup.isHorizontal;
     local tabButtonSpacing = self.tabButtonSetup.spacing or 0;
 
+    self.activeTabKeys = {};
+
     for _, data in ipairs(self.tabData) do
         if data.enabled then
             n = n + 1;
             data.tabIndex = n;
+            self.activeTabKeys[n] = data.tabKey;
 
             local button = self.tabButtons[n];
             if not button then
@@ -331,28 +387,6 @@ function TabSystemMixin:Init()
     if not self:SelectTabByKey(firstValidTabKey or self.defaultTabKey) then
         self:SelectTabByIndex(1);
     end
-end
-
-function TabSystemMixin:GetEnabledTabData()
-    local n = 0;
-    local tbl = {};
-
-    for _, data in ipairs(self.tabData) do
-        if data.enabled then
-            n = n + 1;
-            tbl[n] = data;
-        end
-    end
-
-    return tbl;
-end
-
-function TabSystemMixin:GetLastTabButton()
-    return self.lastTabButton;
-end
-
-function TabSystemMixin:UseEvenWidthForTabButtons(state)
-    self.evenTabButtonWidth = state;
 end
 
 
