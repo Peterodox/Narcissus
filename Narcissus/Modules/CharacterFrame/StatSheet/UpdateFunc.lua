@@ -301,3 +301,22 @@ function UpdateFunc:RangedAttackSpeed()
 		self:SetLabelAndValue(ATTACK_SPEED, N_SLASH_A, true);
 	end
 end
+
+local function SetupAttackPower(self, getterFunc)
+	local base, posBuff, negBuff = getterFunc("player");
+	local valueText;
+	if issecretvalue(base) then
+		valueText = format("%s +%.0f |cffff2020%s.0f|r", base, posBuff, negBuff);
+	else
+		valueText = format("%.0f", base + posBuff + negBuff);
+	end
+	self:SetLabelAndValue(STAT_ATTACK_POWER, valueText);
+end
+
+function UpdateFunc:MeleeAttackPower()
+	SetupAttackPower(self, UnitAttackPower);
+end
+
+function UpdateFunc:RangedAttackPower()
+	SetupAttackPower(self, UnitRangedAttackPower);
+end

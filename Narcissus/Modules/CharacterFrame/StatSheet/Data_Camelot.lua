@@ -37,13 +37,13 @@ StatSheetAPI.StatTabInfo = {
     {
         key = "Melee",
         name = PLAYERSTAT_MELEE_COMBAT,
-        layout = {"MeleeDamage", "MeleeAttackSpeed", "Regen", "Crit"},
+        layout = {"MeleeDamage", "MeleeAttackSpeed", "MeleeAttackPower", "Crit"},
     },
 
     {
         key = "Ranged",
         name = PLAYERSTAT_RANGED_COMBAT,
-        layout = {"RangedDamage", "RangedAttackSpeed", "Regen", "Crit"},
+        layout = {"RangedDamage", "RangedAttackSpeed", "RangedAttackPower", "Crit"},
     },
 
     {
@@ -276,4 +276,30 @@ function StatTooltipFunc.RangedAttackSpeed(tooltip)
         end
         return true;
     end
+end
+
+local function SetupAttackPower(tooltip, getterFunc, tooltipHeader, tooltipFormat)
+    local base, posBuff, negBuff = getterFunc("player");
+    if not canaccessallvalues(base, posBuff, negBuff) then return; end
+
+    tooltip:SetText(StatSheetAPI.FormatStatBonus(tooltipHeader, base, posBuff, negBuff), 1, 1, 1);
+
+    if tooltipFormat then
+        local effectiveAP = math.max(0, base + posBuff + negBuff);
+        local dpsPerAP = 1/14; -- ATTACK_POWER_MAGIC_NUMBER
+        local dpsBonus = BreakUpLargeNumbers(effectiveAP * dpsPerAP);
+        tooltip:AddNormalLine(format(tooltipFormat, dpsBonus));
+    end
+
+    return true;
+end
+
+function StatTooltipFunc.MeleeAttackPower(tooltip)
+    InitPlayerClass();
+    local tooltipFormat = _G[CLASS_FILE_NAME.."_MELEE_ATTACK_POWER_TOOLTIP"] or MELEE_ATTACK_POWER_TOOLTIP;
+    return SetupAttackPower(tooltip, UnitAttackPower, STAT_ATTACK_POWER, tooltipFormat);
+end
+
+function StatTooltipFunc.RangedAttackPower(tooltip)
+    return SetupAttackPower(tooltip, UnitRangedAttackPower, RANGED_ATTACK_POWER, RANGED_ATTACK_POWER_TOOLTIP);
 end
