@@ -260,7 +260,7 @@ function StatTooltipFunc.MeleeAttackSpeed(tooltip)
 	local attackSpeedText = StatSheetAPI.GetDisplayedAttackSpeed(true);
 	local meleeHaste = GetMeleeHaste();
 	tooltip:SetText(FormatSimpleStat(ATTACK_SPEED, attackSpeedText), 1, 1, 1);
-	tooltip:AddNormalLine(format(CR_HASTE_MELEE_TOOLTIP, format("%.2f", meleeHaste)));
+	tooltip:AddNormalLine(format(CR_HASTE_MELEE_TOOLTIP, meleeHaste));
 	return true;
 end
 
@@ -272,8 +272,10 @@ function StatTooltipFunc.RangedAttackSpeed(tooltip)
         InitPlayerClass();
         if IS_RANGED_CLASS then
             local baseRangedHaste, ammoHaste = GetRangedHaste();
-            local rangedHaste = baseRangedHaste + ammoHaste;
-            tooltip:AddNormalLine(format(CR_HASTE_RANGED_TOOLTIP, rangedHaste));
+            if canaccessallvalues(baseRangedHaste, ammoHaste) then
+                local rangedHaste = baseRangedHaste + ammoHaste;
+                tooltip:AddNormalLine(format(CR_HASTE_RANGED_TOOLTIP, rangedHaste));
+            end
         end
         return true;
     end

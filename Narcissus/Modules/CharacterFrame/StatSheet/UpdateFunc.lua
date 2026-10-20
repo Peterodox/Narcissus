@@ -305,7 +305,7 @@ local function SetupAttackPower(self, getterFunc)
 	local base, posBuff, negBuff = getterFunc("player");
 	local valueText;
 	if issecretvalue(base) then
-		valueText = format("%s +%.0f |cffff2020%s.0f|r", base, posBuff, negBuff);
+		valueText = format("%s +%.0f |cff808080-%.0f|r", base, posBuff, negBuff);
 	else
 		valueText = format("%.0f", base + posBuff + negBuff);
 	end
