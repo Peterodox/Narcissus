@@ -31,12 +31,15 @@ function StatFrameMixin:OnLoad()
     self.entries = {};  -- List of StatButton. Most stat buttons won't get released after being created
     self.statXEntry = {};     -- statToken to StatButton
 
+    StatSheetController:AddStatFrame(self);
+    StatSheetController:MakeFrameFadable(self);
+end
+
+function StatFrameMixin:Init()
+    self.Init = nil;
     local layoutType = self.isDetailed and "Detailed" or "Concise";
     local layout = StatSheetLayout[layoutType];
     self:SetLayout(layout);
-
-    StatSheetController:AddStatFrame(self);
-    StatSheetController:MakeFrameFadable(self);
 end
 
 function StatFrameMixin:SetLayout(layout)
@@ -155,9 +158,16 @@ function StatFrameMixin:SetLayout(layout)
             end
         end
     end
+
+    if self.animationDelay then
+        self:SetIntroAnimationDelay(self.animationDelay);
+    end
 end
 
 function StatFrameMixin:OnShow()
+    if self.Init then
+        self:Init();
+    end
     PrivateAPI.RegisterFrameForEvents(self, DynamicEvents);
     PrivateAPI.RegisterFrameForUnitEvents(self, DynamicUnitEvents);
 end
@@ -264,6 +274,7 @@ end
 
 --- StatButton fade in by row from top to bottom
 function StatFrameMixin:SetIntroAnimationDelay(secondsPerRow)
+    self.animationDelay = secondsPerRow;
     local delay;
     local isAfterRadarChart;
     for _, button in ipairs(self.entries) do

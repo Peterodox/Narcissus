@@ -490,13 +490,13 @@ function IntroMotion:ShowFrame()
 		Narci_SnowEffect(true);
 	end
 
-	self:PlayAttributeAnimation();
-
 	if MOG_MODE then
 		FadeFrame(Narci_Attribute, 0.4, 0)
 	else
 		FadeFrame(Narci_Attribute, 0.4, 1, 0);
 	end
+
+	self:PlayAttributeAnimation();
 end
 
 
