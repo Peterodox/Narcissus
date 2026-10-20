@@ -8,6 +8,7 @@ local StatSheetLayout = addon.StatSheetLayout; ---@type StatSheetLayout
 --- [event] = token -- Update specific stat
 local DynamicEvents = {
     COMBAT_RATING_UPDATE = true,
+    PLAYER_EQUIPMENT_CHANGED = true,
 };
 
 --- These events update specific stats
