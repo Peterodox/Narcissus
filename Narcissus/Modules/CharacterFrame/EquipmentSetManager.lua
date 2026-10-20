@@ -1222,7 +1222,7 @@ function NarciEquipmentSetButtonMixin:OnEnter()
     FadeInTalentIcons(self, true);
 
     --Stats Preview
-    if self.setID then
+    if self.setID and Narci_RadarChartFrame then
         local c, h, m, v = self.statsTable.crit, self.statsTable.haste, self.statsTable.mastery, self.statsTable.versatility;
         Narci_RadarChartFrame:AnimateValue(c, h, m, v);
         SetEnhancements(c, h, m, v);
@@ -1388,6 +1388,9 @@ EL:SetScript("OnEvent", function(self, event, ...)
             NarcissusDB_PC = NarcissusDB_PC or {};
             EquipmentSetDB = NarcissusDB_PC.EquipmentSetDB;
             EquipmentSetManagerFrame = Narci_EquipmentSetManagerFrame;
+            if addon.IS_FOREVER then
+                EquipmentSetManagerFrame:SetHeight(6.75 * SETBUTTON_HEIGHT);
+            end
             InitializeScripts();
         end);
     end
