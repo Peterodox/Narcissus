@@ -411,3 +411,9 @@ function UpdateFunc:SpellBonusHealing()
 	local bonusHealing = GetSpellBonusHealing();
 	self:SetLabelAndValue(BONUS_HEALING, format("%.0f", bonusHealing), ShouldMakeValueGrey(bonusHealing));
 end
+
+function UpdateFunc:Resistance()
+	self:SetLabelAndValue("", "");
+	StatSheetAPI.CreateResistanceDisplay(self);
+	StatSheetAPI.RefreshResistanceDisplay();
+end

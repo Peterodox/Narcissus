@@ -3,5 +3,6 @@
 	<Include file="UpdateFunc.lua"/>
     <Include file="StatButton.xml"/>
     <Include file="RadarChart.xml"/>
+    <Include file="ResistanceDisplay.lua"/>
     <Include file="StatFrame.xml"/>
 </Ui>

@@ -28,6 +28,8 @@ end
 
 function StatTabMixin:OnTabSelected(tabKey)
     self.statButtonPool:ReleaseAll();
+    StatSheetAPI.ReleaseResistanceDisplay();
+
     local layout = self.tabKeyXStatLayout[tabKey];
 
     if layout then
