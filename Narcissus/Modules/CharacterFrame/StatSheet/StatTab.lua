@@ -213,6 +213,10 @@ function StatSheetAPI.CreateStatTab(parent)
     frame:SetScript("OnShow", frame.OnShow);
     frame:SetScript("OnHide", frame.OnHide);
 
+    if frame:IsVisible() then
+        frame:OnShow();
+    end
+
     frame:SetDefaultTabKey(frame:GetDefaultTabKey());
 
     return frame;
