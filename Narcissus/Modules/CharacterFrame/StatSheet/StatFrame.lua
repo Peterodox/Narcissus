@@ -284,6 +284,8 @@ function StatFrameMixin:SetIntroAnimationDelay(secondsPerRow)
         end
         if button.animIn then
             button.animIn.A2:SetStartDelay(delay);
+        elseif button.SetIntroAnimationDelay then
+            button:SetIntroAnimationDelay(delay, secondsPerRow);
         end
     end
 end
@@ -292,6 +294,8 @@ function StatFrameMixin:PlayIntroAnimation()
     for _, button in ipairs(self.entries) do
         if button.animIn then
             button.animIn:Play();
+        elseif button.PlayIntroAnimation then
+            button:PlayIntroAnimation();
         end
     end
 end

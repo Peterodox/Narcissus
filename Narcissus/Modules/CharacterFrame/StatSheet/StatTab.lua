@@ -48,6 +48,7 @@ function StatTabMixin:OnTabSelected(tabKey)
             button:SetToken(token);
             button:SetRow(baseRow + i);
             button:Show();
+            button.index = i;
         end
 
         self:FullUpdate();
@@ -155,24 +156,43 @@ function StatTabMixin:GetDefaultTabKey()
     return tabKey;
 end
 
+function StatTabMixin:SetIntroAnimationDelay(fromDelay, secondsPerRow)
+    self.HeaderFrame.animIn.A2:SetStartDelay(fromDelay);
+    for statButton in self.statButtonPool:EnumerateActive() do
+        statButton.animIn.A2:SetStartDelay(fromDelay + statButton.index * secondsPerRow);
+    end
+end
+
+function StatTabMixin:PlayIntroAnimation()
+    self.HeaderFrame.animIn:Play();
+    for statButton in self.statButtonPool:EnumerateActive() do
+        statButton.animIn:Play();
+    end
+end
+
 
 function StatSheetAPI.CreateStatTab(parent)
     local frame = CreateFrame("Frame", nil, parent);
 
     local enableBackground = false;
-    local enableDivider = true;
+    local enableDivider = false;
     addon.CreateTabSystem(frame, enableBackground, enableDivider);
 
-    frame.Background = frame:CreateTexture(nil, "BACKGROUND");
-    frame.Background:SetColorTexture(0.08, 0.08, 0.08, 0.9);
-    frame.Background:SetPoint("TOPLEFT", frame, "TOPLEFT", 0, 0);
-    frame.Background:SetPoint("BOTTOMRIGHT", frame, "TOPRIGHT", 0, -24);
+    local HeaderFrame = CreateFrame("Frame", nil, frame);
+    frame.HeaderFrame = HeaderFrame;
+    HeaderFrame:SetPoint("TOPLEFT", frame, "TOPLEFT", 0, 0);
+    HeaderFrame:SetPoint("BOTTOMRIGHT", frame, "TOPRIGHT", 0, -24);
+    HeaderFrame.animIn = HeaderFrame:CreateAnimationGroup(nil, "NarciAttributeFadeInAnimationTemplate");
+    frame:SetTabButtonContainer(HeaderFrame);
+
+    local Background = HeaderFrame:CreateTexture(nil, "BACKGROUND");
+    Background:SetColorTexture(0.08, 0.08, 0.08, 0.9);
+    Background:SetAllPoints(HeaderFrame);
 
     Mixin(frame, StatTabMixin);
 
     frame.tabKeyXStatLayout = {};
     frame.statButtonPool = CreateFramePool("Button", frame, "Narci_AttributeTemplate");
-    frame.animIn = frame:CreateAnimationGroup(nil, "NarciAttributeFadeInAnimationTemplate");
     frame:EnableScrollToSwitchTab(true);
 
     local maxRow = 1;
