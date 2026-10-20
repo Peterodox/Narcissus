@@ -49,6 +49,7 @@ function StatTabMixin:OnTabSelected(tabKey)
         end
 
         self:FullUpdate();
+        self:SaveDefaultTabKey(tabKey);
     end
 
     local lastTabButton = self:GetLastTabButton();
@@ -115,6 +116,43 @@ function StatTabMixin:OnHide()
     PrivateAPI.UnregisterFrameForEvents(self, DynamicEvents, DynamicUnitEvents);
 end
 
+function StatTabMixin:SaveDefaultTabKey(tabKey)
+    if NarcissusDB_PC then
+        NarcissusDB_PC.StatTabDefaultTab = tabKey;
+    end
+end
+
+function StatTabMixin:GetDefaultTabKey()
+    local tabKey = NarcissusDB_PC and NarcissusDB_PC.StatTabDefaultTab;
+    local tabInfo = StatSheetAPI.StatTabInfo;
+
+    if tabKey and tabInfo then
+        local valid = false;
+        for _, v in ipairs(tabInfo) do
+            if tabKey == v.key then
+                valid = true;
+                break;
+            end
+        end
+        if not valid then
+            tabKey = nil;
+        end
+    end
+
+    if not tabKey then
+        local _, class = UnitClass("player");
+		if class == "MAGE" or class == "PRIEST" or class == "WARLOCK" or class == "DRUID" then
+			tabKey = "Spell";
+		elseif class == "HUNTER" then
+			tabKey = "Ranged";
+		else
+			tabKey = "Melee";
+		end
+    end
+
+    return tabKey;
+end
+
 
 function StatSheetAPI.CreateStatTab(parent)
     local frame = CreateFrame("Frame", nil, parent);
@@ -152,6 +190,8 @@ function StatSheetAPI.CreateStatTab(parent)
     frame:SetScript("OnEvent", frame.OnEvent);
     frame:SetScript("OnShow", frame.OnShow);
     frame:SetScript("OnHide", frame.OnHide);
+
+    frame:SetDefaultTabKey(frame:GetDefaultTabKey());
 
     return frame;
 end
