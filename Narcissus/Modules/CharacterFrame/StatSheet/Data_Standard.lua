@@ -379,11 +379,20 @@ function StatTooltipFunc.Power(tooltip)
 	end
 end
 
-function StatTooltipFunc.Regen(tooltip)
+function StatTooltipFunc.Regen(tooltip, showMaxPower)
 	local regenName, regenRateText, regenTooltip = StatSheetAPI.GetDisplayedComatRegen();
 	if regenName then
 		tooltip:SetText(FormatSimpleStat(regenName, regenRateText), 1, 1, 1);
 		tooltip:AddNormalLine(regenTooltip);
+
+		if showMaxPower then
+			local powerName, displayedValue = StatSheetAPI.GetDisplayedPower();
+			if powerName then
+				tooltip:AddBlankLine();
+				tooltip:AddNormalDoubleLine(powerName, displayedValue);
+			end
+		end
+
 		return true;
 	end
 end

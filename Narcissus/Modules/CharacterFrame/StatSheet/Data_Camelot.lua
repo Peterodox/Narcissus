@@ -50,7 +50,7 @@ StatSheetAPI.StatTabInfo = {
     {
         key = "Spell",
         name = PLAYERSTAT_SPELL_COMBAT,
-        layout = {"SpellBonusDamage", "SpellBonusHealing", "SpellPenetration", "SpellHitChance", "SpellCrit", "SpellHaste", "Regen"},
+        layout = {"SpellBonusDamage", "SpellBonusHealing", "SpellPenetration", "SpellHitChance", "SpellCrit", "SpellHaste", "RegenPower"},
     },
 
     {
@@ -467,4 +467,8 @@ function StatTooltipFunc.SpellHaste(tooltip)
     tooltip:SetText(FormatSimpleStat(SPELL_HASTE, FormatPercent(spellHaste)), 1, 1, 1);
     tooltip:AddNormalLine(format(CR_HASTE_SPELL_TOOLTIP, spellHaste));
     return true;
+end
+
+function StatTooltipFunc.RegenPower(tooltip)
+    return StatTooltipFunc.Regen(tooltip, true);
 end

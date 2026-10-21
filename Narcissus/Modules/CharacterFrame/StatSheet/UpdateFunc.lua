@@ -417,6 +417,9 @@ function UpdateFunc:SpellHaste()
 	self:SetLabelAndValue(SPELL_HASTE, FormatPercent(spellHaste), ShouldMakeValueGrey(spellHaste));
 end
 
+---This one show regen as main but also show power in tooltip
+UpdateFunc.RegenPower = UpdateFunc.Regen;
+
 function UpdateFunc:Resistance()
 	self:SetLabelAndValue("", "");
 	StatSheetAPI.CreateResistanceDisplay(self);
