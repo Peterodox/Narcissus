@@ -412,6 +412,11 @@ function UpdateFunc:SpellBonusHealing()
 	self:SetLabelAndValue(BONUS_HEALING, format("%.0f", bonusHealing), ShouldMakeValueGrey(bonusHealing));
 end
 
+function UpdateFunc:SpellHaste()
+	local spellHaste = UnitSpellHaste("player");
+	self:SetLabelAndValue(SPELL_HASTE, FormatPercent(spellHaste), ShouldMakeValueGrey(spellHaste));
+end
+
 function UpdateFunc:Resistance()
 	self:SetLabelAndValue("", "");
 	StatSheetAPI.CreateResistanceDisplay(self);
