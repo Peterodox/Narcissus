@@ -212,6 +212,10 @@ local function InitializeSlotButtons()
 	end
 
 	SlotLayout = nil;
+
+	if addon.IS_FOREVER then
+		Narci_Attribute:SetPoint("TOPLEFT", Narci_VirtualLineRight, "CENTER", 0, 312);
+	end
 end
 
 

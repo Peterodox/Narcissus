@@ -1389,7 +1389,7 @@ EL:SetScript("OnEvent", function(self, event, ...)
             EquipmentSetDB = NarcissusDB_PC.EquipmentSetDB;
             EquipmentSetManagerFrame = Narci_EquipmentSetManagerFrame;
             if addon.IS_FOREVER then
-                EquipmentSetManagerFrame:SetHeight(6.75 * SETBUTTON_HEIGHT);
+                EquipmentSetManagerFrame:SetHeight(7.5 * SETBUTTON_HEIGHT);
             end
             InitializeScripts();
         end);
