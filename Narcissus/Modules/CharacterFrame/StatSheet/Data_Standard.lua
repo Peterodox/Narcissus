@@ -431,7 +431,14 @@ end
 
 function StatTooltipFunc.Damage(tooltip, useRangedWeapon, showDPS)
 	local mainhandDamage, offhandDamage = StatSheetAPI.GetDamageTooltip(useRangedWeapon);
-	local mainhandSpeed, offhandSpeed = StatSheetAPI.GetDisplayedAttackSpeed(useRangedWeapon);
+	local mainhandSpeed, offhandSpeed;
+
+	if useRangedWeapon then
+		mainhandSpeed = StatSheetAPI.GetDisplayedRangedAttackSpeed();
+	else
+		mainhandSpeed, offhandSpeed = StatSheetAPI.GetDisplayedAttackSpeed();
+	end
+
 	if not (mainhandDamage and mainhandSpeed) then return; end
 
 	tooltip:SetText(useRangedWeapon and INVTYPE_RANGED or INVTYPE_WEAPONMAINHAND, 1, 1, 1);
