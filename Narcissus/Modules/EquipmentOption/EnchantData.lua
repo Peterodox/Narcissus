@@ -339,6 +339,9 @@ local enchantData = {
         {1236081, 244001, 8011, 2065559},    --T2 Worldsoul Tenacity
         {1236081, 244000, 8010, 2065559},    --T1 Worldsoul Tenacity
 
+        {1291694, 273072, 8689, 4549153},    --T2 Rite of the Hash'ey
+        {1291694, 273071, 8688, 4549153},    --T1 Rite of the Hash'ey
+
         {1262300, 257748, 8613},    --T2 Smuggler's Lynxeye
         {1262297, 257747, 8612},    --T1 Smuggler's Lynxeye
 
