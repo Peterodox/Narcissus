@@ -38,7 +38,7 @@ local NarciAPI = NarciAPI;
 local RemoveColorString = NarciAPI.RemoveColorString;
 local GetCachedItemTooltipTextByLine = NarciAPI.GetCachedItemTooltipTextByLine;
 local GetItemTempEnchantRequirement = NarciAPI.GetItemTempEnchantRequirement;
-local GetSocketTypes = GetSocketTypes;
+local GetSocketTypes = C_ItemSocketInfo.GetSocketTypes;
 local C_Item = C_Item;
 
 local GetContainerItemLink = C_Container.GetContainerItemLink;    --Dragonflight
@@ -570,7 +570,7 @@ function NarciEquipmentOptionMixin:SetGemListForBlizzardUI(id1, id2)
 
 
     if self.isDominationItem then
-        local gemLink = GetExistingSocketLink(1);
+        local gemLink = C_ItemSocketInfo.GetExistingSocketLink(1);
         if gemLink then
             local existingGemID, _, _, _, icon = C_Item.GetItemInfoInstant(gemLink);
             NarciItemPushOverlay:WatchIcon(icon);

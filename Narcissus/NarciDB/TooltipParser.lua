@@ -44,7 +44,7 @@ local StripHyperlinks = C_StringUtil and C_StringUtil.StripHyperlinks or StripHy
 local GetSpellInfo = addon.TransitionAPI.GetSpellInfo;
 
 local function IsArtifactRelic(item)
-    --an alternative to IsArtifactRelicItem()
+    --an alternative to C_ItemSocketInfo.IsArtifactRelicItem()
     local _, _, _, _, _, classID, subclassID = GetItemInfoInstant(item);
     return classID == 3 and subclassID == 11
 end

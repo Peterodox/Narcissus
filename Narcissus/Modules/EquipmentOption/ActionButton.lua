@@ -241,7 +241,7 @@ end
 
 local function CloseSocketingFrame()
     if ItemSocketingFrame and ItemSocketingFrame:IsShown() then
-        CloseSocketInfo();
+        C_ItemSocketInfo.CloseSocketInfo();
     end
 end
 
