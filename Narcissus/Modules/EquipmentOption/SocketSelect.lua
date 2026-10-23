@@ -4,7 +4,7 @@ local CloseSocketingFrame = addon.CloseSocketingFrame;
 local GemDataProvider = addon.GemDataProvider;
 
 local FadeFrame = NarciFadeUI.Fade;
-local GetSocketTypes = GetSocketTypes;
+local GetSocketTypes = C_ItemSocketInfo.GetSocketTypes;
 local SocketInventoryItem = SocketInventoryItem;
 
 local MainFrame;

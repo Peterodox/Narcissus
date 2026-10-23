@@ -227,7 +227,7 @@ function API.IsSocketingItem()
 end
 
 
-local GetSocketTypes = GetSocketTypes;
+local GetSocketTypes = C_ItemSocketInfo.GetSocketTypes;
 local HasExtraActionBar = HasExtraActionBar;
 local GetActionInfo = GetActionInfo;
 

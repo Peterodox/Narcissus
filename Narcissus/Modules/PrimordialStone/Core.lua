@@ -45,7 +45,7 @@ local function OnEnabledCallback()
             else
                 if SHOW_UI then
                     SHOW_UI = false;
-                    CloseSocketInfo();
+                    C_ItemSocketInfo.CloseSocketInfo();
                 end
             end
         end);
