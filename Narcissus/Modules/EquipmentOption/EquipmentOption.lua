@@ -432,16 +432,18 @@ function NarciEquipmentOptionMixin:SetFromSlotButton(slotButton, returnHome)
     self.hitrectTop = 16;
 
     local runeOverlay = NarciRuneAnimationOverlay;
+    runeOverlay:ClearAllPoints();
     if slotButton.isRight then
         self:SetPoint("TOPLEFT", slotButton, "TOPLEFT", 2 - 240, -12);
-        runeOverlay:SetPoint("CENTER", slotButton.RuneSlot, "CENTER", 2, 0);
+        runeOverlay:SetPoint("CENTER", slotButton.RuneSlot.RuneLetter, "CENTER", 0, 0);
         runeOverlay:SetDirection(1);
     else
         self:SetPoint("TOPLEFT", slotButton, "TOPRIGHT", -2, -12);
-        runeOverlay:SetPoint("CENTER", slotButton.RuneSlot, "CENTER", -2, 0);
+        runeOverlay:SetPoint("CENTER", slotButton.RuneSlot.RuneLetter, "CENTER", 0, 0);
         runeOverlay:SetDirection(-1);
     end
     runeOverlay:SetParent(Narci_Character);
+    runeOverlay:SetFrameStrata("DIALOG");
 
     self:SetParent(slotButton);
     self:SetFrameStrata("DIALOG");

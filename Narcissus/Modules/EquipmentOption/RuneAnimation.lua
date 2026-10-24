@@ -131,6 +131,7 @@ end
 
 --Debug
 function NarciRuneAnimationMixin:OnMouseDown()
+    self.hasRune = true;
     self:PlayAnimation();
 end
 
