@@ -1,5 +1,4 @@
-## Interface: 120100, 120105, 16001
-## Plain Title: Narcissus Database Item
+## Interface: 120105, 16001
 ## Version: 9.2.0
 ## LoadOnDemand: 1
 ## RequiredDeps: Narcissus

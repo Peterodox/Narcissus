@@ -1,7 +1,7 @@
-## Interface: 120107, 120105, 16001
+## Interface: 120105, 16001
 ## X-GameType: Camelot [AllowLoadGameType camelot]
 ## X-GameType: Standard [AllowLoadGameType standard]
-## Version: 1.8.6
+## Version: 1.8.7
 
 ## Title: Narcissus
 
@@ -9,7 +9,7 @@
 ## Notes-zhCN: 为展示和分享而生的沉浸式角色界面|n|cff959595命令: /narci|r
 ## Notes-zhTW: 為展示和分享而生的沈浸式角色界面|n|cff959595命令: /narci|r
 
-## Author: Peterodox
+## Author: Raenore, Peterodox
 ## SavedVariables: NarcissusDB, NarciAchievementOptions, NarciStatisticsDB, NarciTurntableOptions, NarciCharacterProfiles, NarciPhotoModeDB, NarciDevToolOutput, NarciTransmogUIDB
 ## SavedVariablesPerCharacter: NarcissusDB_PC, NarciStatisticsDB_PC
 
