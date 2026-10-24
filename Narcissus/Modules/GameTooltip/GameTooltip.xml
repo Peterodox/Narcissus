@@ -54,6 +54,7 @@
             <OnLoad method="OnLoad"/>
             <OnShow method="OnShow"/>
             <OnHide method="OnHide"/>
+            <OnEvent method="OnEvent"/>
             <OnSizeChanged method="OnSizeChanged"/>
             <OnTooltipCleared method="OnTooltipCleared"/>
         </Scripts>

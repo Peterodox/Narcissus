@@ -106,12 +106,13 @@ function NarciGameTooltipMixin:OnLoad()
 end
 
 function NarciGameTooltipMixin:OnShow()
-
+    self:RegisterEvent("TOOLTIP_DATA_UPDATE");
 end
 
 function NarciGameTooltipMixin:OnHide()
     SharedTooltipDelay:Kill();
     self:SetScript("OnUpdate", nil);
+    self:UnregisterEvent("TOOLTIP_DATA_UPDATE");
 end
 
 function NarciGameTooltipMixin:OnTooltipCleared()
@@ -121,6 +122,27 @@ end
 
 function NarciGameTooltipMixin:OnSizeChanged(w, h)
 
+end
+
+function NarciGameTooltipMixin:OnEvent(event, ...)
+    if event == "TOOLTIP_DATA_UPDATE" then
+        local dataInstanceID = ...;
+        if dataInstanceID and self:HasDataInstanceID(dataInstanceID) then
+            self:RefreshDataNextUpdate();
+        end
+    end
+end
+
+function NarciGameTooltipMixin:RefreshDataNextUpdate()
+    if not self.isRefreshingData then
+        self.isRefreshingData = true;
+        C_Timer.After(0.1, function()
+            self.isRefreshingData = nil;
+            if self:IsVisible() then
+                self:RebuildFromTooltipInfo();
+            end
+        end);
+    end
 end
 
 function NarciGameTooltipMixin:UpdateTextColor()
