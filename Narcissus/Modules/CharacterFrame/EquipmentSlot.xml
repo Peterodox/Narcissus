@@ -24,7 +24,7 @@
 		</Scripts>
 	</Button>
 
-	<Button name="NarciSlotButtonTemplate" inherits="SecureActionButtonTemplate" registerForClicks="LeftButtonUp, RightButtonDown, RightButtonUp" virtual="true">
+	<Button name="NarciSlotButtonTemplate" inherits="SecureActionButtonTemplate" virtual="true">
 		<Size x="70" y="72"/>
 		<HitRectInsets>
 			<AbsInset left="12" right="12" top="12" bottom="12"/>
@@ -137,7 +137,7 @@
 		</Frames>
 	</Button>
 
-	<Button name="NarciEquipmentFlyoutButtonTemplate" inherits="NarciSlotButtonTemplate" frameStrata="DIALOG" virtual="true">
+	<Button name="NarciEquipmentFlyoutButtonTemplate" inherits="NarciSlotButtonTemplate" registerForClicks="LeftButtonUp, RightButtonUp" frameStrata="DIALOG" virtual="true">
         <Mixins>
             <Mixin key="EquipmentFlyoutButtonMixin" source="local"/>
         </Mixins>
@@ -168,7 +168,7 @@
 		</Animations>
 	</Button>
 
-    <Button name="NarciEquipmentSlotButtonTemplate" inherits="NarciSlotButtonTemplate" virtual="true">
+    <Button name="NarciEquipmentSlotButtonTemplate" inherits="NarciSlotButtonTemplate" registerForClicks="LeftButtonUp" virtual="true">
 		<KeyValues>
 			<KeyValue key="orientation" value="left" type="string"/>
 		</KeyValues>
