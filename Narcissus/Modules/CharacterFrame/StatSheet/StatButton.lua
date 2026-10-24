@@ -133,7 +133,7 @@ function StatButtonMixin:ShowTooltip()
 		local tooltip = NarciGameTooltip;
 		tooltip:ClearAllPoints();
 		tooltip:SetOwner(self, "ANCHOR_NONE");
-		tooltip:SetPoint("TOPRIGHT",self,"TOPLEFT", -4, 0)
+		tooltip:SetPoint("TOPRIGHT", self, "TOPLEFT", -4, 0)
 		if self.tooltipFunc(tooltip) then
 			tooltip:Show();
 		else

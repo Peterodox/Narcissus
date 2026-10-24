@@ -517,7 +517,6 @@ NarciMythicPlusDisplayMixin = {};
 function NarciMythicPlusDisplayMixin:OnLoad()
     MainFrame = self;
     self.t = 0;
-    self:RegisterEvent("PLAYER_ENTERING_WORLD");
     self:RegisterEvent("CHALLENGE_MODE_COMPLETED");
     self.requireUpdate = true;
     self.requireNewHistory = true;
@@ -545,11 +544,6 @@ function NarciMythicPlusDisplayMixin:OnEvent(event)
         end
     elseif event == "CHALLENGE_MODE_MEMBER_INFO_UPDATED" then
         self.memberInfoReady = true;
-    elseif event == "PLAYER_ENTERING_WORLD" then
-        self:UnregisterEvent(event);
-        if UnitLevel("player") ~= GetMaxLevelForPlayerExpansion() and HIDE_MYTHIC_TAB_ON_LOW_LEVELS then
-            Narci_NavBar:HideMythicPlusButton();
-        end
     end
 end
 
@@ -570,9 +564,9 @@ function NarciMythicPlusDisplayMixin:OnHide()
 end
 
 function NarciMythicPlusDisplayMixin:Init()
-    DataProvider:Init();
+    self.Init = nil;
 
-    local OFFSET_Y= -24;
+    DataProvider:Init();
 
     if not self.maps then
         --Check if the current season maps match the data since last update
@@ -622,7 +616,7 @@ function NarciMythicPlusDisplayMixin:Init()
         if not card then
             card = CreateFrame("Button", nil, container, "NarciMythicPlusCompactRatingCardTemplate");
             self.Cards[i] = card;
-            card:SetPoint("TOPLEFT", container, "TOPLEFT", col * 160, -row * cardHeight + OFFSET_Y);
+            card:SetPoint("TOPLEFT", container, "TOPLEFT", col * 160, -row * cardHeight);
             card:SetHeight(cardHeight);
             col = col + 1;
             if col >= 2 then
@@ -650,48 +644,36 @@ function NarciMythicPlusDisplayMixin:Init()
     end
     self.MapDetail.Pointer:SetTexture("Interface\\AddOns\\Narcissus\\Art\\Modules\\Competitive\\MythicPlus\\TimerlinePointer", nil, nil, "TRILINEAR");
 
+
     --Create Primary Tab Buttons
-    local tabNames = {
-        MYTHIC_PLUS_SEASON_BEST, L["Runs"],
+
+    local enableBackground = false;
+    local enableDivider = true;
+    addon.CreateTabSystem(self, enableBackground, enableDivider);
+
+    local tabInfo = {
+        {"Overview", MYTHIC_PLUS_SEASON_BEST, self.CardContainer},
+        {"History",  L["Runs"], self.HistoryFrame},
     };
-    self.TabButtons = {};
-    for i = 1, #tabNames do
-        local button = CreateFrame("Button", nil, self, "NarciNavBarTabButtonTemplate");
-        self.TabButtons[i] = button;
-        if i == 1 then
-            button:SetPoint("TOPLEFT", self, "TOPLEFT", 0, 0);
-            button:SetSelect(true);
-        else
-        button:SetPoint("LEFT", self.TabButtons[i - 1], "RIGHT", 0, 0);
-        end
-        button.maxWidth = 100;
-        button.Highlight:SetVertexColor(0.5, 0.5, 0.5);
-        button:SetUp(tabNames[i], i);
-        button.tabFrame = self;
+
+    for _, v in ipairs(tabInfo) do
+        self:AddTab(v[1], v[2], v[3]);
     end
+
+    self:Init();
 
     local grey80 =  "|TInterface\\AddOns\\Narcissus\\Art\\Modules\\Competitive\\MythicPlus\\BarBlock32:10:10:-4:0:32:32:0:32:0:32:204:204:204|t";
     local grey50 =  "|TInterface\\AddOns\\Narcissus\\Art\\Modules\\Competitive\\MythicPlus\\BarBlock32:10:10:-4:0:32:32:0:32:0:32:128:128:128|t";
     self.HistoryFrame.GraphDescription:SetText(grey80..L["Complete In Time"].."    "..grey50..L["Complete Over Time"]);
-
-    self.Init = nil;
 end
 
-function NarciMythicPlusDisplayMixin:SelectTab(tabIndex)
-    if tabIndex ~= self.tabIndex then
-        self.tabIndex = tabIndex;
+function NarciMythicPlusDisplayMixin:OnTabSelected(tabKey)
+    if tabKey == "History" then
+        self:ToggleHistory(true);
     else
-        return
-    end
-    for i, button in pairs(self.TabButtons) do
-        button:SetSelect(tabIndex == i);
-    end
-    if tabIndex == 1 then
         self.CardContainer:Show();
         self.MapDetail:Hide();
         self.HistoryFrame:Hide();
-    else
-        self:ToggleHistory(true);
     end
 end
 
@@ -723,10 +705,6 @@ function NarciMythicPlusDisplayMixin:PostUpdate()
         card:SetUpByMapID(self.maps[i]);
     end
     self.requireUpdate = false;
-
-    --local seasonID = (C_MythicPlus.GetCurrentSeason() or 6) - 4;
-    --self.SeasonText:SetText(string.format(SL_SEASON_NUMBER, seasonID));
-    --self.CardContainer.GraphDescription:SetText(string.format("%s    %s    %s", PVP_RATING_HEADER or "Rating", AFFIX_TYRANNICAL, AFFIX_FORTIFIED));  --MYTHIC_PLUS_SEASON_BEST
 
     local overallScore = C_ChallengeMode.GetOverallDungeonScore();
 	local color = C_ChallengeMode.GetDungeonScoreRarityColor(overallScore);

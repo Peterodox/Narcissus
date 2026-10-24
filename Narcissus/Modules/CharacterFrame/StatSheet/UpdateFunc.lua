@@ -25,6 +25,10 @@ local UpdateFunc = {};
 addon.StatUpdateFunc = UpdateFunc;
 
 
+local function ShouldMakeValueGrey(value)
+	return canaccessvalue(value) and ( not(value) or (value <= 0));
+end
+
 ---Set up a StatButton
 ---@param self any StatButton
 ---@param statIndex number The stat you want to display
@@ -168,24 +172,19 @@ function UpdateFunc:Versatility()
 	self:SetValueRating(versatility);
 end
 
----Certain values grey out if zero
-local function IsValueZero(value)
-	return canaccessvalue(value) and value == 0;
-end
-
 function UpdateFunc:Leech()
 	local lifesteal = GetLifesteal();
-	self:SetLabelAndValue(STAT_LIFESTEAL, FormatPercent(lifesteal), IsValueZero(lifesteal));
+	self:SetLabelAndValue(STAT_LIFESTEAL, FormatPercent(lifesteal), ShouldMakeValueGrey(lifesteal));
 end
 
 function UpdateFunc:Avoidance()
 	local avoidance = GetAvoidance();
-	self:SetLabelAndValue(STAT_AVOIDANCE, FormatPercent(avoidance), IsValueZero(avoidance));
+	self:SetLabelAndValue(STAT_AVOIDANCE, FormatPercent(avoidance), ShouldMakeValueGrey(avoidance));
 end
 
 function UpdateFunc:Speed()
 	local speed = GetSpeed();
-	self:SetLabelAndValue(STAT_SPEED, FormatPercent(speed), IsValueZero(speed));
+	self:SetLabelAndValue(STAT_SPEED, FormatPercent(speed), ShouldMakeValueGrey(speed));
 end
 
 local function MovementSpeed_OnEnter(self)
@@ -269,4 +268,160 @@ function UpdateFunc:MovementSpeed()
 	MovementSpeed_OnUpdate(self, 1);
 	self:SetScript("OnEnter", MovementSpeed_OnEnter);
 	self:SetScript("OnUpdate", MovementSpeed_OnUpdate);
+end
+
+
+---- The following are for Forever ----
+
+function UpdateFunc:Defense()
+	local effectiveDefenseSkill, baseDefenseSkill, defenseModifier, maxDefense = StatSheetAPI.GetEffectiveDefenseSkill();
+	if effectiveDefenseSkill then
+		self:SetLabelAndValue(DEFENSE, string.format("%s / %s", effectiveDefenseSkill, maxDefense));
+	else
+		self:SetLabelAndValue(DEFENSE, N_SLASH_A, true);
+	end
+end
+
+function UpdateFunc:MeleeDamage()
+	self:SetLabelAndValue(DAMAGE, StatSheetAPI.GetDisplayedDamage(false));
+end
+
+function UpdateFunc:RangedDamage()
+	self:SetLabelAndValue(DAMAGE, StatSheetAPI.GetDisplayedDamage(true));
+end
+
+UpdateFunc.MeleeAttackSpeed = UpdateFunc.AttackSpeed;
+
+function UpdateFunc:RangedAttackSpeed()
+	local formattedText = StatSheetAPI.GetDisplayedRangedAttackSpeed();
+	if formattedText then
+		self:SetLabelAndValue(ATTACK_SPEED, formattedText);
+	else
+		self:SetLabelAndValue(ATTACK_SPEED, N_SLASH_A, true);
+	end
+end
+
+local function SetupAttackPower(self, getterFunc)
+	local base, posBuff, negBuff = getterFunc("player");
+	local valueText;
+	if issecretvalue(base) then
+		valueText = format("%s +%.0f |cff808080-%.0f|r", base, posBuff, negBuff);
+	else
+		valueText = format("%.0f", base + posBuff + negBuff);
+	end
+	self:SetLabelAndValue(STAT_ATTACK_POWER, valueText);
+end
+
+function UpdateFunc:MeleeAttackPower()
+	SetupAttackPower(self, UnitAttackPower);
+end
+
+function UpdateFunc:RangedAttackPower()
+	SetupAttackPower(self, UnitRangedAttackPower);
+end
+
+function UpdateFunc:MeleeExpertise()
+	local expertise, offhandExpertise, rangedExpertise = GetExpertise();
+	local grey = ShouldMakeValueGrey(expertise);
+	local valueText;
+
+	if canaccessallvalues(expertise and offhandExpertise) then
+		local _, offhandSpeed = UnitAttackSpeed("player");
+		if offhandSpeed and offhandExpertise > 0 then
+			valueText = format("%s / %s", FormatPercent(expertise),  FormatPercent(offhandExpertise));
+		else
+			valueText = FormatPercent(expertise);
+		end
+	else
+		valueText = FormatPercent(expertise);
+	end
+
+	self:SetLabelAndValue(STAT_EXPERTISE, valueText, grey);
+end
+
+function UpdateFunc:RangedExpertise()
+	local _, _, rangedExpertise = GetExpertise();
+	local grey = ShouldMakeValueGrey(rangedExpertise);
+	local valueText = format("%.2f%%", rangedExpertise);
+	self:SetLabelAndValue(STAT_EXPERTISE, valueText, grey);
+end
+
+function UpdateFunc:ArmorPenetration()
+	local armorPenetration = GetArmorPenetration();
+	self:SetLabelAndValue(STAT_ARMOR_PENETRATION, format("%d", armorPenetration), ShouldMakeValueGrey(armorPenetration));
+end
+
+function UpdateFunc:SpellPenetration()
+	local spellPenetration = GetSpellPenetration();
+	self:SetLabelAndValue(STAT_SPELL_PENETRATION, format("%d", spellPenetration), ShouldMakeValueGrey(spellPenetration));
+end
+
+local function SetupHitChance(self, attackType)
+	local hitChance1, hitChance2 = StatSheetAPI.GetDisplayedHitChance(attackType);
+	if hitChance1 then
+		if hitChance2 then
+			self:SetLabelAndValue(STAT_HIT_CHANCE, format("%s / %s",  FormatPercent(hitChance1),  FormatPercent(hitChance2)), ShouldMakeValueGrey(hitChance1));
+		else
+			self:SetLabelAndValue(STAT_HIT_CHANCE,  FormatPercent(hitChance1), ShouldMakeValueGrey(hitChance1));
+		end
+	else
+		self:SetLabelAndValue(STAT_HIT_CHANCE, N_SLASH_A, true);
+	end
+end
+
+function UpdateFunc:HitChance()
+	SetupHitChance(self, nil);
+end
+
+function UpdateFunc:MeleeHitChance()
+	SetupHitChance(self, nil);
+end
+
+function UpdateFunc:RangedHitChance()
+	SetupHitChance(self, nil);
+end
+
+function UpdateFunc:SpellHitChance()
+	SetupHitChance(self, nil);
+end
+
+local function SetupCritChance(self, attackType)
+	local critChance = StatSheetAPI.GetCritByAttackType(attackType);
+	self:SetLabelAndValue(L["Stat Crit"], FormatPercent(critChance));
+end
+
+function UpdateFunc:MeleeCrit()
+	SetupCritChance(self, 1);
+end
+
+function UpdateFunc:RangedCrit()
+	SetupCritChance(self, 2);
+end
+
+function UpdateFunc:SpellCrit()
+	SetupCritChance(self, 3);
+end
+
+function UpdateFunc:SpellBonusDamage()
+	local bonusDamage = StatSheetAPI.GetSpellBonusDamage();
+	self:SetLabelAndValue(BONUS_DAMAGE, format("%.0f", bonusDamage), ShouldMakeValueGrey(bonusDamage));
+end
+
+function UpdateFunc:SpellBonusHealing()
+	local bonusHealing = GetSpellBonusHealing();
+	self:SetLabelAndValue(BONUS_HEALING, format("%.0f", bonusHealing), ShouldMakeValueGrey(bonusHealing));
+end
+
+function UpdateFunc:SpellHaste()
+	local spellHaste = UnitSpellHaste("player");
+	self:SetLabelAndValue(SPELL_HASTE, FormatPercent(spellHaste), ShouldMakeValueGrey(spellHaste));
+end
+
+---This one show regen as main but also show power in tooltip
+UpdateFunc.RegenPower = UpdateFunc.Regen;
+
+function UpdateFunc:Resistance()
+	self:SetLabelAndValue("", "");
+	StatSheetAPI.CreateResistanceDisplay(self);
+	StatSheetAPI.RefreshResistanceDisplay();
 end

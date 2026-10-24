@@ -1,0 +1,45 @@
+<Ui xsi:schemaLocation="http://www.blizzard.com/wow/ui/..\FrameXML\UI.xsd">
+    <Script file="TabFrame.lua"/>
+
+    <Button name="NarciCharacterUITabButtonTemplate" virtual="true">
+        <Mixins>
+            <Mixin key="CharacterUITabButtonMixin" source="local"/>
+        </Mixins>
+        <Size x="60" y="24"/>
+        <Layers>
+            <Layer level="BORDER">
+                <Texture parentKey="RightDivider" file="Interface\AddOns\Narcissus\Art\NavBar\ButtonCorner">
+                    <Size x="48" y="24"/>
+                    <Anchors>
+                        <Anchor point="TOPRIGHT" x="2"/>
+                    </Anchors>
+                </Texture>
+            </Layer>
+            <Layer level="ARTWORK">
+                <Texture parentKey="Highlight" Alpha="0.5" hidden="true" file="Interface\AddOns\Narcissus\Art\NavBar\ButtonHighlight">
+                    <Size y="16"/>
+                    <Anchors>
+                        <Anchor point="BOTTOMLEFT" x="-4"/>
+                        <Anchor point="BOTTOMRIGHT" x="4"/>
+                    </Anchors>
+                </Texture>
+            </Layer>
+            <Layer level="OVERLAY">
+				<FontString inherits="NarciFontMedium12" justifyH="CENTER" justifyV="MIDDLE" parentKey="Label" maxLines="1">
+					<Size x="0" y="0"/>
+					<Color r="0.5" g="0.5" b="0.5"/>
+					<Anchors>
+						<Anchor point="CENTER" relativeKey="$parent" relativePoint="CENTER" x="0" y="0"/>
+					</Anchors>
+				</FontString>
+            </Layer>
+        </Layers>
+        <Scripts>
+            <OnEnter method="OnEnter"/>
+            <OnLeave method="OnLeave"/>
+            <OnClick method="OnClick"/>
+            <OnMouseDown method="OnMouseDown"/>
+            <OnMouseUp method="OnMouseUp"/>
+        </Scripts>
+    </Button>
+</Ui>

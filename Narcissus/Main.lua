@@ -212,6 +212,10 @@ local function InitializeSlotButtons()
 	end
 
 	SlotLayout = nil;
+
+	if addon.IS_FOREVER then
+		Narci_Attribute:SetPoint("TOPLEFT", Narci_VirtualLineRight, "CENTER", 0, 312);
+	end
 end
 
 
@@ -490,13 +494,13 @@ function IntroMotion:ShowFrame()
 		Narci_SnowEffect(true);
 	end
 
-	self:PlayAttributeAnimation();
-
 	if MOG_MODE then
 		FadeFrame(Narci_Attribute, 0.4, 0)
 	else
 		FadeFrame(Narci_Attribute, 0.4, 1, 0);
 	end
+
+	self:PlayAttributeAnimation();
 end
 
 
@@ -1759,7 +1763,9 @@ do
 		if state == nil then
 			state = db["DetailedIlvlInfo"];
 		end
-
+		if addon.IS_FOREVER then
+			state = false;
+		end
 		StatSheetController:ShowDetailedStats(state);
 		Narci_ItemLevelFrame:ToggleExtraInfo(state);
 		Narci_ItemLevelFrame.showExtraInfo = state;

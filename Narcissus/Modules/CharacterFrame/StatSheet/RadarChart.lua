@@ -272,10 +272,10 @@ function NarciRadarChartMixin:AnimateValue(c, h, m, v)
 
 	--Update the radar chart using animation
 
-	local UpdateFrame = self.UpdateFrame;
-	if not UpdateFrame then
-		UpdateFrame = CreateFrame("Frame", nil, self, "NarciUpdateFrameTemplate");
-		self.UpdateFrame = UpdateFrame;
+	local ValueUpdater = self.ValueUpdater;
+	if not ValueUpdater then
+		ValueUpdater = CreateFrame("Frame", nil, self);
+		self.ValueUpdater = ValueUpdater;
 		self.n1, self.n2, self.n3, self.n4 = 0, 0, 0, 0;
 	end
 
@@ -291,7 +291,6 @@ function NarciRadarChartMixin:AnimateValue(c, h, m, v)
 		local v2 = outSine(t, s2, e2, duration);
 		local v3 = outSine(t, s3, e3, duration);
 		local v4 = outSine(t, s4, e4, duration);
-
 		if t >= duration then
 			v1, v2, v3, v4 = e1, e2, e3, e4;
 			frame:Hide();
@@ -299,9 +298,10 @@ function NarciRadarChartMixin:AnimateValue(c, h, m, v)
 		self:SetValue(v1, v2, v3, v4);
 	end
 
-	UpdateFrame:Hide();
-	UpdateFrame:SetScript("OnUpdate", UpdateFunc);
-	UpdateFrame:Show();
+	ValueUpdater:Hide();
+	ValueUpdater:SetScript("OnUpdate", UpdateFunc);
+	ValueUpdater.t = 0;
+	ValueUpdater:Show();
 end
 
 function NarciRadarChartMixin:TogglePrimaryStats(state)
@@ -369,8 +369,8 @@ function NarciRadarChartMixin:UpdateChart(useAnimation)
 	if useAnimation then
 		self:AnimateValue(e1, e2, e3, e4);
 	else
-		if self.UpdateFrame then
-			self.UpdateFrame:Hide();
+		if self.ValueUpdater then
+			self.ValueUpdater:Hide();
 		end
 		self:SetValue(e1, e2, e3, e4);
 	end
@@ -423,6 +423,52 @@ end
 
 function NarciRadarChartMixin:SnapToFadeResult()
 	-- Override
+end
+
+---When switching to Equipment Set Manager via the Nav Bar, we move the chart down.
+---@param targetOffsetY number Relative to its default position. Usually `0` or `-26`.
+function NarciRadarChartMixin:AnimateOffset(targetOffsetY)
+	if not self.SetRelativePositionY then
+    	local point, relativeTo, relativePoint, x, y = self:GetPoint(1);
+
+		function self:SetRelativePositionY(delta)
+			self.relativeOffsetY = delta;
+			self:SetPoint(point, relativeTo, relativePoint, x, y + delta);
+		end
+
+		self.relativeOffsetY = 0;
+	end
+
+	local currentOffsetY = self.relativeOffsetY;
+	local delta = targetOffsetY - currentOffsetY;
+
+	if (not self:IsVisible()) or (delta < 1 and delta > -1) then
+		-- No animating if chart is not shown or the delta is too small
+		if self.PositionUpdater then
+			self.PositionUpdater:Hide();
+		end
+		self:SetRelativePositionY(targetOffsetY);
+	else
+		if not self.PositionUpdater then
+			self.PositionUpdater = CreateFrame("Frame", nil, self);
+		end
+		self.PositionUpdater:Hide();
+
+		local easingDuration = 0.35;
+
+		self.PositionUpdater:SetScript("OnUpdate", function(f, elapsed)
+			f.t = f.t + elapsed;
+			local offset = outSine(f.t, currentOffsetY, targetOffsetY, easingDuration);
+			if f.t >= easingDuration then
+				offset = targetOffsetY;
+				f:Hide();
+			end
+			self:SetRelativePositionY(offset);
+		end);
+
+		self.PositionUpdater.t = 0;
+		self.PositionUpdater:Show();
+	end
 end
 
 do	--Timerunning
@@ -484,8 +530,8 @@ do	--Timerunning
 		if useAnimation then
 			self:AnimateValue(e1, e2, e3, e4);
 		else
-			if self.UpdateFrame then
-				self.UpdateFrame:Hide();
+			if self.ValueUpdater then
+				self.ValueUpdater:Hide();
 			end
 			self:SetValue(e1, e2, e3, e4);
 		end

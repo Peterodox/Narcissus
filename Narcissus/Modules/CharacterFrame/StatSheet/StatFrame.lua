@@ -8,6 +8,7 @@ local StatSheetLayout = addon.StatSheetLayout; ---@type StatSheetLayout
 --- [event] = token -- Update specific stat
 local DynamicEvents = {
     COMBAT_RATING_UPDATE = true,
+    PLAYER_EQUIPMENT_CHANGED = true,
 };
 
 --- These events update specific stats
@@ -27,16 +28,18 @@ local StatFrameMixin = {};
 addon.StatFrameMixin = StatFrameMixin;
 
 function StatFrameMixin:OnLoad()
-    self.staticEntries = {};  -- List of StatButton. Most stat buttons won't get released after being created
-    self.dynamicEntries = {}; -- List of StatButton. For Classic: stat buttons here get released/reused after changing Melee/Ranged/Spell
+    self.entries = {};  -- List of StatButton. Most stat buttons won't get released after being created
     self.statXEntry = {};     -- statToken to StatButton
-
-    local layoutType = self.isDetailed and "Detailed" or "Concise";
-    local layout = StatSheetLayout[layoutType];
-    self:SetLayout(layout);
 
     StatSheetController:AddStatFrame(self);
     StatSheetController:MakeFrameFadable(self);
+end
+
+function StatFrameMixin:Init()
+    self.Init = nil;
+    local layoutType = self.isDetailed and "Detailed" or "Concise";
+    local layout = StatSheetLayout[layoutType];
+    self:SetLayout(layout);
 end
 
 function StatFrameMixin:SetLayout(layout)
@@ -67,11 +70,11 @@ function StatFrameMixin:SetLayout(layout)
                 if i == 1 then -- We'll never reach here since chart will never be the first widget
                     frame:SetPoint("TOP", self, "TOP", 0, 0);
                 else
-                    frame:SetPoint("TOP", self.staticEntries[n - 1], "BOTTOMRIGHT", 0, -spacerHeight);
+                    frame:SetPoint("TOP", self.entries[n - 1], "BOTTOMRIGHT", 0, -spacerHeight);
                 end
 
                 n = n + 1;
-                self.staticEntries[n] = frame;
+                self.entries[n] = frame;
 
                 isLeftCol = true;
                 addSpacer = true;
@@ -88,7 +91,7 @@ function StatFrameMixin:SetLayout(layout)
                 AddChild(button);
 
                 n = n + 1;
-                self.staticEntries[n] = button;
+                self.entries[n] = button;
 
                 local offsetY;
                 if addSpacer then
@@ -104,9 +107,9 @@ function StatFrameMixin:SetLayout(layout)
                     lastFrameIsChart = nil;
                     button:SetPoint("TOPRIGHT", chartFrame, "BOTTOM", 0, -spacerHeight);
                 elseif isLeftCol then
-                    button:SetPoint("TOPRIGHT", self.staticEntries[n - 2], "BOTTOMRIGHT", 0, offsetY);
+                    button:SetPoint("TOPRIGHT", self.entries[n - 2], "BOTTOMRIGHT", 0, offsetY);
                 else
-                    button:SetPoint("TOPLEFT", self.staticEntries[n - 1], "TOPRIGHT", 0, 0);
+                    button:SetPoint("TOPLEFT", self.entries[n - 1], "TOPRIGHT", 0, 0);
                     row = row + 1;
                 end
 
@@ -119,6 +122,16 @@ function StatFrameMixin:SetLayout(layout)
         for i, token in ipairs(layout) do
             if token == "Spacer" then
                 addSpacer = true;
+            elseif token == "StatTab" then
+                local frame = addon.StatSheetAPI.CreateStatTab(self);
+                n = n + 1;
+                row = row + 1;
+                self.entries[n] = frame;
+
+                frame:SetPoint("TOP", self.entries[n - 1], "BOTTOM", 0, -spacerHeight);
+                frame:SetRow(row);
+                frame:Init();
+
             else
                 local button = CreateFrame("Button", nil, self, "Narci_AttributeTemplate");
                 button:SetToken(token);
@@ -127,7 +140,7 @@ function StatFrameMixin:SetLayout(layout)
                 AddChild(button);
 
                 n = n + 1;
-                self.staticEntries[n] = button;
+                self.entries[n] = button;
 
                 local offsetY;
                 if addSpacer then
@@ -140,14 +153,21 @@ function StatFrameMixin:SetLayout(layout)
                 if i == 1 then
                     button:SetPoint("TOP", self, "TOP", 0, 0);
                 else
-                    button:SetPoint("TOP", self.staticEntries[n - 1], "BOTTOM", 0, offsetY);
+                    button:SetPoint("TOP", self.entries[n - 1], "BOTTOM", 0, offsetY);
                 end
             end
         end
     end
+
+    if self.animationDelay then
+        self:SetIntroAnimationDelay(self.animationDelay);
+    end
 end
 
 function StatFrameMixin:OnShow()
+    if self.Init then
+        self:Init();
+    end
     PrivateAPI.RegisterFrameForEvents(self, DynamicEvents);
     PrivateAPI.RegisterFrameForUnitEvents(self, DynamicUnitEvents);
 end
@@ -179,10 +199,7 @@ end
 
 function StatFrameMixin:FullUpdate()
     self.isStatDirty = nil;
-    for _, button in ipairs(self.staticEntries) do
-        button:Update();
-    end
-    for _, button in ipairs(self.dynamicEntries) do
+    for _, button in ipairs(self.entries) do
         button:Update();
     end
 end
@@ -220,13 +237,9 @@ function StatFrameMixin:OnUpdate_FullUpdate(elapsed)
 end
 
 function StatFrameMixin:LazyRefresh()
-    self.totalStatic = #self.staticEntries;
-    self.totalDynamic = #self.dynamicEntries;
-    if self.totalStatic == 0 then
-        self.totalStatic = nil;
-    end
-    if self.totalDynamic == 0 then
-        self.totalDynamic = nil;
+    self.totalEntries = #self.entries;
+    if self.totalEntries == 0 then
+        self.totalEntries = nil;
     end
     self.t = 0;
     self.entryIndex = 0;
@@ -243,22 +256,13 @@ function StatFrameMixin:OnUpdate_LazyRefresh(elapsed)
         self.continueUpdating = nil;
         self.entryIndex = self.entryIndex + 1;
 
-        if self.totalStatic and self.entryIndex <= self.totalStatic then
-            self.staticEntries[self.entryIndex]:Update();
+        if self.totalEntries and self.entryIndex <= self.totalEntries then
+            self.entries[self.entryIndex]:Update();
             self.continueUpdating = true;
         end
 
-        if self.totalStatic and self.entryIndex > self.totalStatic then
-            self.totalStatic = nil;
-            if self.totalDynamic then
-                self.entryIndex = 0;
-                self.continueUpdating = true;
-            end
-        end
-
-        if self.totalDynamic and self.entryIndex <= self.totalDynamic then
-            self.dynamicEntries[self.entryIndex]:Update();
-            self.continueUpdating = true;
+        if self.totalEntries and self.entryIndex > self.totalEntries then
+            self.totalEntries = nil;
         end
 
         if self.continueUpdating then
@@ -270,27 +274,28 @@ end
 
 --- StatButton fade in by row from top to bottom
 function StatFrameMixin:SetIntroAnimationDelay(secondsPerRow)
+    self.animationDelay = secondsPerRow;
     local delay;
-    for _, entries in ipairs({self.staticEntries, self.dynamicEntries}) do
-        local isAfterRadarChart;
-        for _, button in ipairs(entries) do
-            delay = secondsPerRow * (button:GetRow() + (isAfterRadarChart and 1 or 0));
-            if button.isRadarChart then
-                isAfterRadarChart = true;
-            end
-            if button.animIn then
-                button.animIn.A2:SetStartDelay(delay);
-            end
+    local isAfterRadarChart;
+    for _, button in ipairs(self.entries) do
+        delay = secondsPerRow * (button:GetRow() + (isAfterRadarChart and 1 or 0));
+        if button.isRadarChart then
+            isAfterRadarChart = true;
+        end
+        if button.animIn then
+            button.animIn.A2:SetStartDelay(delay);
+        elseif button.SetIntroAnimationDelay then
+            button:SetIntroAnimationDelay(delay, secondsPerRow);
         end
     end
 end
 
 function StatFrameMixin:PlayIntroAnimation()
-    for _, entries in ipairs({self.staticEntries, self.dynamicEntries}) do
-        for _, button in ipairs(entries) do
-            if button.animIn then
-                button.animIn:Play();
-            end
+    for _, button in ipairs(self.entries) do
+        if button.animIn then
+            button.animIn:Play();
+        elseif button.PlayIntroAnimation then
+            button:PlayIntroAnimation();
         end
     end
 end

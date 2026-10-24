@@ -1,5 +1,8 @@
 local _, addon = ...
 
+local format = string.format;
+
+
 local StatSheetAPI = {}; ---@class StatSheetAPI
 addon.StatSheetAPI = StatSheetAPI;
 
@@ -14,7 +17,32 @@ StatSheetAPI.PrimaryStatIndex = {
 
 ---Format a number like 67 into 67.00%
 function StatSheetAPI.FormatPercent(value)
-	return string.format("%.2f%%", value);
+	return format("%.2f%%", value);
+end
+
+function StatSheetAPI.FormatSimpleStat(name, value)
+	return format("%s %s", name, value);
+end
+
+function StatSheetAPI.FormatStatBonus(name, base, posBuff, negBuff)
+	posBuff = posBuff or 0;
+	negBuff = negBuff or 0;
+
+	local effectiveText = BreakUpLargeNumbers(math.max(0, base + posBuff + negBuff));
+	local text = StatSheetAPI.FormatSimpleStat(name, effectiveText)
+
+	if posBuff > 0 or negBuff < 0 then
+		text = text .. format(" (%s", base);
+		if posBuff > 0 then
+			text =  text .. format("|cnGREEN_FONT_COLOR:+%s|r", posBuff);
+		end
+		if negBuff < 0 then
+			text =  text .. format("|cnRED_FONT_COLOR:%s|r", negBuff);
+		end
+		text = text..")";
+	end
+
+	return text;
 end
 
 ---For Retail where there is only one meaningful crit chance
@@ -22,24 +50,15 @@ end
 ---@return number ratingIndex Global like CR_CRIT_MELEE
 function StatSheetAPI.GetEffectiveCrit()
 	local ratingIndex;
-	local spellCrit, rangedCrit, meleeCrit;
 	local critChance;
 
-	-- Start at 2 to skip physical damage
-	local holySchool = 2;
-	local minCrit = GetSpellCritChance(holySchool);
+	local meleeCrit = GetCritChance();
+	local rangedCrit = GetRangedCritChance();
+	local spellCrit = GetSpellCritChance();
 
-	for i = (holySchool + 1), MAX_SPELL_SCHOOLS do
-		spellCrit = GetSpellCritChance(i);
-		if not (canaccessvalue(minCrit) and canaccessvalue(spellCrit)) then
-			return minCrit, CR_CRIT_MELEE;
-		end
-		minCrit = math.min(minCrit, spellCrit);
+	if not canaccessvalue(meleeCrit) then
+		return meleeCrit, CR_CRIT_MELEE;
 	end
-
-	spellCrit = minCrit;
-	rangedCrit = GetRangedCritChance();
-	meleeCrit = GetCritChance();
 
 	if (spellCrit >= rangedCrit and spellCrit >= meleeCrit) then
 		critChance = spellCrit;
@@ -49,6 +68,31 @@ function StatSheetAPI.GetEffectiveCrit()
 		ratingIndex = CR_CRIT_RANGED;
 	else
 		critChance = meleeCrit;
+		ratingIndex = CR_CRIT_MELEE;
+	end
+
+	return critChance, ratingIndex;
+end
+
+---For Forever, Crit Chance is different Melee, Ranged, Spell
+---@param attackType? 1 | 2 | 3 Melee | Ranged | Spell
+---@return number critChance Like 5%
+---@return number ratingIndex Global like CR_CRIT_MELEE
+function StatSheetAPI.GetCritByAttackType(attackType)
+	if attackType == nil then
+		return StatSheetAPI.GetEffectiveCrit();
+	end
+
+	local critChance, ratingIndex;
+
+	if attackType == 2 then
+		critChance = GetRangedCritChance();
+		ratingIndex = CR_CRIT_RANGED;
+	elseif attackType == 3 then
+		critChance = GetSpellCritChance();
+		ratingIndex = CR_CRIT_SPELL;
+	else
+		critChance = GetCritChance();
 		ratingIndex = CR_CRIT_MELEE;
 	end
 
@@ -107,7 +151,7 @@ function StatSheetAPI.GetDisplayedComatRegen()
 			regenName = STAT_RUNE_REGEN;
 			regenTooltip = STAT_RUNE_REGEN_TOOLTIP;
 			local _, runeDuration = GetRuneCooldown(1);
-			regenRateText = string.format(STAT_RUNE_REGEN_FORMAT, runeDuration);
+			regenRateText = format(STAT_RUNE_REGEN_FORMAT, runeDuration);
 		else
 			-- Fun fact: Regen can be negative for Warrior
 			return;
@@ -116,9 +160,9 @@ function StatSheetAPI.GetDisplayedComatRegen()
 
 	if not regenRateText then
 		if powerToken == "MANA" then
-			regenRateText = string.format("%.0f/s", regenRate);
+			regenRateText = format("%.0f/s", regenRate);
 		else
-			regenRateText = string.format("%.2f/s", regenRate);
+			regenRateText = format("%.2f/s", regenRate);
 		end
 	end
 
@@ -144,27 +188,38 @@ function StatSheetAPI.GetArmorReduction()
 end
 
 ---Return mainhandMinDamage, mainhandMaxDamage, offhandMinDamage, offhandMaxDamage, posBuff, negBuff, percent
-local function GetAppropriateDamage(unit)
-	if IsRangedWeapon() then
-		local attackTime, minDamage, maxDamage, posBuff, negBuff, percent = UnitRangedDamage(unit);
+---@param useRangedWeapon boolean? Only use true/false on games where Ranged slot exist
+local function GetAppropriateDamage(useRangedWeapon)
+	if useRangedWeapon == nil then
+		useRangedWeapon = IsRangedWeapon();
+	end
+
+	if useRangedWeapon then
+		local attackTime, minDamage, maxDamage, posBuff, negBuff, percent = UnitRangedDamage("player");
 		return minDamage, maxDamage, 0, 0, posBuff, negBuff, percent;
 	else
-		return UnitDamage(unit);
+		return UnitDamage("player");
 	end
 end
 
 ---Return damage text for StatButton: 1234 - 2345
-function StatSheetAPI.GetDisplayedDamage()
-	local minDamage, maxDamage = GetAppropriateDamage("player");
-	return string.format("%.0f - %.0f", minDamage, maxDamage);
+---@param useRangedWeapon boolean? Specify ranged or melee weapons
+function StatSheetAPI.GetDisplayedDamage(useRangedWeapon)
+	local minDamage, maxDamage = GetAppropriateDamage(useRangedWeapon);
+	if canaccessallvalues(minDamage, maxDamage) then
+		minDamage = math.max(math.floor(minDamage), 1);
+		maxDamage = math.max(math.ceil(maxDamage), 1);
+	end
+	return format("%.0f - %.0f", minDamage, maxDamage);
 end
 
 ---Return mainhandDamage, offhandDamage. Format: 1,234 - 2,345 x108%
 ---Offhand can have damage without weapon, but we don't show that on the tooltip
+---@param useRangedWeapon boolean? Specify ranged or melee weapons
 ---@return string?  mainhandDamage
 ---@return string? offhandDamage
-function StatSheetAPI.GetDamageTooltip()
-	local mainhandMinDamage, mainhandMaxDamage, offhandMinDamage, offhandMaxDamage, posBuff, negBuff, percent = GetAppropriateDamage("player");
+function StatSheetAPI.GetDamageTooltip(useRangedWeapon)
+	local mainhandMinDamage, mainhandMaxDamage, offhandMinDamage, offhandMaxDamage, posBuff, negBuff, percent = GetAppropriateDamage(useRangedWeapon);
 	if not canaccessallvalues(mainhandMinDamage, offhandMinDamage, posBuff, percent) then return; end
 	if (not percent) or percent == 0 then return; end;
 
@@ -186,15 +241,15 @@ function StatSheetAPI.GetDamageTooltip()
 			-- Considered as Zero Bonus
 		else
 			if posBuff > 0 then
-				damageTooltip = string.format("%s %s+%.0f|r", damageTooltip, colorPos, posBuff);
+				damageTooltip = format("%s %s+%.0f|r", damageTooltip, colorPos, posBuff);
 			end
 			if negBuff < 0 then
-				damageTooltip = string.format("%s %s%.0f|r", damageTooltip, colorNeg, negBuff);
+				damageTooltip = format("%s %s%.0f|r", damageTooltip, colorNeg, negBuff);
 			end
 			if percent > 1 then
-				damageTooltip = string.format("%s %sx%.0f%%|r", damageTooltip, colorPos, 100 * percent);
+				damageTooltip = format("%s %sx%.0f%%|r", damageTooltip, colorPos, 100 * percent);
 			elseif percent < 1 then
-				damageTooltip = string.format("%s %sx%.0f%%|r", damageTooltip, colorNeg, 100 * percent);
+				damageTooltip = format("%s %sx%.0f%%|r", damageTooltip, colorNeg, 100 * percent);
 			end
 		end
 
@@ -213,19 +268,110 @@ end
 function StatSheetAPI.GetDisplayedAttackSpeed(merged)
 	local mainhandSpeed, offhandSpeed = UnitAttackSpeed("player");
 	if canaccessallvalues(mainhandSpeed, offhandSpeed) then
-		mainhandSpeed = floor(100 * mainhandSpeed + 0.5) / 100;
+		mainhandSpeed = math.floor(100 * mainhandSpeed + 0.5) / 100;
 		if offhandSpeed then
-			offhandSpeed = floor(100 * offhandSpeed + 0.5) / 100;
+			offhandSpeed = math.floor(100 * offhandSpeed + 0.5) / 100;
 		end
 		if merged then
 			if offhandSpeed and offhandSpeed ~= mainhandSpeed then
-				return string.format("%.2f / %.2f", mainhandSpeed, offhandSpeed);
+				return format("%.2f / %.2f", mainhandSpeed, offhandSpeed);
 			end
 		else
 			if offhandSpeed then
-				return string.format("%.2f", mainhandSpeed), string.format("%.2f", offhandSpeed);
+				return format("%.2f", mainhandSpeed), format("%.2f", offhandSpeed);
 			end
 		end
 	end
-	return string.format("%.2f", mainhandSpeed);
+	return format("%.2f", mainhandSpeed);
+end
+
+---@return string? formattedText
+function StatSheetAPI.GetDisplayedRangedAttackSpeed()
+	local _, _, rangedSpeed = UnitAttackSpeed("player");
+	if rangedSpeed then
+		if canaccessallvalues(rangedSpeed) then
+			rangedSpeed = math.floor(100 * rangedSpeed + 0.5) / 100;
+		end
+		return format("%.2f", rangedSpeed);
+	end
+end
+
+---@return number? effectiveDefenseSkill
+---@return number? baseDefenseSkill
+---@return number? defenseModifier
+---@return number? maxDefense
+function StatSheetAPI.GetEffectiveDefenseSkill()
+	local baseDefenseSkill, defenseModifier = UnitDefenseSkill("player");
+	local playerLevel = UnitLevel("player");
+	if canaccessallvalues(baseDefenseSkill, defenseModifier, playerLevel) then
+		local SKILL_RANKS_PER_SKILL_LEVEL = 5;
+		local effectiveDefenseSkill = math.max(0, baseDefenseSkill + defenseModifier);
+		local maxDefense = playerLevel * SKILL_RANKS_PER_SKILL_LEVEL;
+		return effectiveDefenseSkill, baseDefenseSkill, defenseModifier, maxDefense
+	end
+end
+
+local function FormatDPS(minDamage, maxDamage, speed)
+	if not canaccessallvalues(minDamage, maxDamage, speed) then return; end
+
+	minDamage = minDamage or 0;
+	maxDamage = maxDamage or 0;
+	speed = speed or 1;
+
+	return format("%.1f", (minDamage + maxDamage) / (2 * speed));
+end
+
+---@return string? mainhandDPS
+---@return string? offhandDPS
+---@return string? rangedDPS
+function StatSheetAPI.GetDisplayedDPS()
+	local mainhandMinDamage, mainhandMaxDamage, offhandMinDamage, offhandMaxDamage = GetAppropriateDamage(false);
+	local rangedMinDamage, rangedMaxDamage = GetAppropriateDamage(true);
+	local mainhandSpeed, offhandSpeed, rangedSpeed = UnitAttackSpeed("player");
+	return FormatDPS(mainhandMinDamage, mainhandMaxDamage, mainhandSpeed),
+		FormatDPS(offhandMinDamage, offhandMaxDamage, offhandSpeed),
+		FormatDPS(rangedMinDamage, rangedMaxDamage, rangedSpeed);
+end
+
+---@param attackType? 1 | 2 | 3 Melee | Ranged | Spell
+---@return number? mainhandHitChance
+---@return number? offhandHitChance
+function StatSheetAPI.GetDisplayedHitChance(attackType)
+	if not canaccessvalue( GetCombatRatingBonus(CR_HIT_MELEE) ) then return; end
+
+	local mainhandHitChance, offhandHitChance;
+
+	if attackType == nil then
+		-- WoW uses the max hit chance
+		local meleeHit = GetCombatRatingBonus(CR_HIT_MELEE) + GetHitModifier();
+		local offhandHit = GetCombatRatingBonus(CR_HIT_MELEE) + GetOffhandHitModifier();
+		local rangedHit = GetCombatRatingBonus(CR_HIT_RANGED) + GetRangedHitModifier();
+		local spellHit = GetCombatRatingBonus(CR_HIT_SPELL) + GetSpellHitModifier();
+		mainhandHitChance = max(meleeHit, rangedHit, spellHit, offhandHit);
+	else
+		if attackType == 2 then
+			mainhandHitChance = GetCombatRatingBonus(CR_HIT_RANGED) + GetRangedHitModifier();
+		elseif attackType == 3 then
+			mainhandHitChance = GetCombatRatingBonus(CR_HIT_SPELL) + GetSpellHitModifier();
+		else
+			mainhandHitChance = GetCombatRatingBonus(CR_HIT_MELEE) + GetHitModifier();
+			local offhandHit = GetCombatRatingBonus(CR_HIT_MELEE) + GetOffhandHitModifier();
+			if offhandHit and mainhandHitChance ~= offhandHit and IsDualWielding() then
+				offhandHitChance = offhandHit;
+			end
+		end
+	end
+
+	return mainhandHitChance, offhandHitChance;
+end
+
+function StatSheetAPI.GetSpellBonusDamage()
+	local holySchool = 2;
+	local bonusDamage = GetSpellBonusDamage(holySchool);
+	if canaccessvalue(bonusDamage) then
+		for i = (holySchool + 1), MAX_SPELL_SCHOOLS do
+			bonusDamage = math.min(bonusDamage, GetSpellBonusDamage(i));
+		end
+	end
+	return bonusDamage;
 end

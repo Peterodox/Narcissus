@@ -4,27 +4,22 @@ local _, addon = ...
 if not addon.IS_FOREVER then return; end
 
 local format = string.format;
-local StatSheetAPI = addon.StatSheetAPI; ---@type StatSheetAPI
+local StatSheetAPI = addon.StatSheetAPI; ---@class StatSheetAPI
 local FormatPercent = StatSheetAPI.FormatPercent;
+local FormatSimpleStat = StatSheetAPI.FormatSimpleStat;
 
 
 ---@class StatSheetLayout
 local StatSheetLayout = {
-    Detailed = {
-        "Primary", "Health",
-        "Stamina", "Armor",
-        "Damage", "Reduction",
-        "AttackSpeed", "Dodge",
-        "Power", "Parry",
-        "Regen", "Block",
-
-        "Chart",
-
-        "Leech", "Avoidance",
-        "MovementSpeed", "Speed",
-    };
+    Detailed = {}, -- No Detailed view for Forever
 
     Concise = {
+        "Health",
+        --"Power",
+        --"MovementSpeed",
+
+        --"Spacer",
+
         "Strength",
         "Agility",
         "Stamina",
@@ -33,29 +28,49 @@ local StatSheetLayout = {
 
         "Spacer",
 
-        "Crit",
-        "Haste",
-        "Mastery",
-        "Versatility",
-
-        "Spacer",
-
-        "Leech",
-        "Avoidance",
-        "Speed",
-    };
+        "StatTab",
+    },
 };
 addon.StatSheetLayout = StatSheetLayout;
+
+
+StatSheetAPI.StatTabInfo = {
+    {
+        key = "Melee",
+        name = PLAYERSTAT_MELEE_COMBAT,
+        layout = {"MeleeDamage", "MeleeAttackSpeed", "MeleeAttackPower", "MeleeHitChance", "MeleeCrit", "MeleeExpertise", "ArmorPenetration"},
+    },
+
+    {
+        key = "Ranged",
+        name = PLAYERSTAT_RANGED_COMBAT,
+        layout = {"RangedDamage", "RangedAttackSpeed", "RangedAttackPower", "RangedHitChance", "RangedCrit", "RangedExpertise", "ArmorPenetration"},
+    },
+
+    {
+        key = "Spell",
+        name = PLAYERSTAT_SPELL_COMBAT,
+        layout = {"SpellBonusDamage", "SpellBonusHealing", "SpellPenetration", "SpellHitChance", "SpellCrit", "SpellHaste", "RegenPower"},
+    },
+
+    {
+        key = "Defense",
+        name = STAT_CATEGORY_DEFENSE,
+        layout = {"Armor", "Reduction", "Defense", "Dodge", "Block", "Parry", "Resistance"},
+    },
+};
 
 
 local StatTooltipFunc = addon.StatTooltipFunc; ---@class StatTooltipFunc
 
 local CLASS_FILE_NAME;
+local IS_RANGED_CLASS;
 
 local function InitPlayerClass()
     if not CLASS_FILE_NAME then
         _, CLASS_FILE_NAME = UnitClass("player");
         CLASS_FILE_NAME = string.upper(CLASS_FILE_NAME);
+        IS_RANGED_CLASS = CLASS_FILE_NAME == "WARRIOR" or CLASS_FILE_NAME == "HUNTER" or CLASS_FILE_NAME == "ROGUE";
     end
 end
 
@@ -172,9 +187,8 @@ function StatTooltipFunc.Crit(tooltip)
     tooltip:AddNormalLine(format(STAT_CRIT_MELEE, meleeCrit));
 
     InitPlayerClass();
-	local isRangedClass = CLASS_FILE_NAME == "WARRIOR" or CLASS_FILE_NAME == "HUNTER" or CLASS_FILE_NAME == "ROGUE";
 
-	if isRangedClass then
+	if IS_RANGED_CLASS then
         tooltip:AddNormalLine(format(STAT_CRIT_RANGED, rangedCrit));
 	end
 
@@ -187,4 +201,274 @@ function StatTooltipFunc.Crit(tooltip)
     end
 
     return true;
+end
+
+function StatTooltipFunc.Defense(tooltip)
+    local effectiveDefenseSkill, baseDefenseSkill, defenseModifier, maxDefense = StatSheetAPI.GetEffectiveDefenseSkill();
+    if effectiveDefenseSkill then
+        local posBuff = 0;
+        local negBuff = 0;
+        if defenseModifier > 0 then
+            posBuff = defenseModifier;
+        elseif defenseModifier < 0 then
+            negBuff = defenseModifier;
+        end
+
+        local header = StatSheetAPI.FormatStatBonus(DEFENSE, baseDefenseSkill, posBuff, negBuff);
+        tooltip:SetText(header, 1, 1, 1);
+
+        local STAT_PER_DEFENSE = 0.04;
+        local effectiveDefense = math.max(effectiveDefenseSkill - maxDefense, 0);
+
+        tooltip:AddNormalLine(format(DEFAULT_STATDEFENSE_TOOLTIP, effectiveDefense * STAT_PER_DEFENSE, effectiveDefense * STAT_PER_DEFENSE));
+
+        return true;
+    end
+end
+
+function StatTooltipFunc.Dodge(tooltip)
+    local dodgeChance = GetDodgeChance();
+    tooltip:SetText(format("%s %.2f%%", DODGE_CHANCE, dodgeChance), 1, 1, 1);
+    tooltip:AddNormalLine(format(CR_DODGE_BASE_STAT_TOOLTIP, dodgeChance));
+    return true;
+end
+
+function StatTooltipFunc.Block(tooltip)
+	local chance = GetBlockChance();
+	tooltip:SetText(FormatSimpleStat(BLOCK_CHANCE, FormatPercent(chance)), 1, 1, 1);
+	local shieldBlockArmor = GetShieldBlock();
+	tooltip:AddNormalLine(format(STAT_BLOCK_VALUE_FLAT_TOOLTIP, chance, shieldBlockArmor));
+	return true;
+end
+
+function StatTooltipFunc.Parry(tooltip)
+	local chance = GetParryChance();
+	tooltip:SetText(FormatSimpleStat(PARRY_CHANCE, FormatPercent(chance)), 1, 1, 1);
+	tooltip:AddNormalLine(format(CR_DODGE_BASE_STAT_TOOLTIP, chance));
+	return true;
+end
+
+function StatTooltipFunc.MeleeDamage(tooltip)
+    return StatTooltipFunc.Damage(tooltip, false, true);
+end
+
+function StatTooltipFunc.RangedDamage(tooltip)
+    return StatTooltipFunc.Damage(tooltip, true, true);
+end
+
+function StatTooltipFunc.MeleeAttackSpeed(tooltip)
+	local attackSpeedText = StatSheetAPI.GetDisplayedAttackSpeed(true);
+	local meleeHaste = GetMeleeHaste();
+	tooltip:SetText(FormatSimpleStat(ATTACK_SPEED, attackSpeedText), 1, 1, 1);
+	tooltip:AddNormalLine(format(CR_HASTE_MELEE_TOOLTIP, meleeHaste));
+	return true;
+end
+
+function StatTooltipFunc.RangedAttackSpeed(tooltip)
+    StatTooltipFunc.AttackSpeed(tooltip);
+	local attackSpeedText = StatSheetAPI.GetDisplayedRangedAttackSpeed();
+    if attackSpeedText then
+        tooltip:SetText(FormatSimpleStat(ATTACK_SPEED, attackSpeedText), 1, 1, 1);
+        InitPlayerClass();
+        if IS_RANGED_CLASS then
+            local baseRangedHaste, ammoHaste = GetRangedHaste();
+            if canaccessallvalues(baseRangedHaste, ammoHaste) then
+                local rangedHaste = baseRangedHaste + ammoHaste;
+                tooltip:AddNormalLine(format(CR_HASTE_RANGED_TOOLTIP, rangedHaste));
+            end
+        end
+        return true;
+    end
+end
+
+local function SetupAttackPower(tooltip, getterFunc, tooltipHeader, tooltipFormat)
+    local base, posBuff, negBuff = getterFunc("player");
+    if not canaccessallvalues(base, posBuff, negBuff) then return; end
+
+    tooltip:SetText(StatSheetAPI.FormatStatBonus(tooltipHeader, base, posBuff, negBuff), 1, 1, 1);
+
+    if tooltipFormat then
+        local effectiveAP = math.max(0, base + posBuff + negBuff);
+        local dpsPerAP = 1/14; -- ATTACK_POWER_MAGIC_NUMBER
+        local dpsBonus = BreakUpLargeNumbers(effectiveAP * dpsPerAP);
+        tooltip:AddNormalLine(format(tooltipFormat, dpsBonus));
+    end
+
+    return true;
+end
+
+function StatTooltipFunc.MeleeAttackPower(tooltip)
+    InitPlayerClass();
+    local tooltipFormat = _G[CLASS_FILE_NAME.."_MELEE_ATTACK_POWER_TOOLTIP"] or MELEE_ATTACK_POWER_TOOLTIP;
+    return SetupAttackPower(tooltip, UnitAttackPower, STAT_ATTACK_POWER, tooltipFormat);
+end
+
+function StatTooltipFunc.RangedAttackPower(tooltip)
+    return SetupAttackPower(tooltip, UnitRangedAttackPower, RANGED_ATTACK_POWER, RANGED_ATTACK_POWER_TOOLTIP);
+end
+
+function StatTooltipFunc.Expertise(tooltip, useRangedWeapon)
+    local expertise, offhandExpertise, rangedExpertise = GetExpertise();
+    local expertiseDisplay;
+    local tooltipFormat;
+
+    if useRangedWeapon then
+        expertiseDisplay = format("%.2f%%", rangedExpertise);
+        tooltipFormat = CR_RANGED_EXPERTISE_TOOLTIP;
+    else
+        local isDualWielding = IsDualWielding();
+        if canaccessvalue(isDualWielding) and isDualWielding then
+            expertiseDisplay = format("%.2f%% / %.2f%%", expertise, offhandExpertise);
+        else
+            expertiseDisplay = format("%.2f%%", expertise);
+        end
+        tooltipFormat = CR_EXPERTISE_TOOLTIP;
+    end
+
+    tooltip:SetText(FormatSimpleStat(STAT_EXPERTISE, expertiseDisplay), 1, 1, 1);
+
+    local wrap = false;
+    tooltip:AddNormalLine(format(tooltipFormat, expertiseDisplay, wrap));
+
+    return true;
+end
+
+function StatTooltipFunc.MeleeExpertise(tooltip)
+    return StatTooltipFunc.Expertise(tooltip, false);
+end
+
+function StatTooltipFunc.RangedExpertise(tooltip)
+    return StatTooltipFunc.Expertise(tooltip, true);
+end
+
+function StatTooltipFunc.ArmorPenetration(tooltip)
+	local armorPenetration = GetArmorPenetration();
+    tooltip:SetText(FormatSimpleStat(STAT_ARMOR_PENETRATION, armorPenetration), 1, 1, 1);
+    tooltip:AddNormalLine(format(ARMOR_PENETRATION_TOOLTIP, armorPenetration));
+    return true;
+end
+
+function StatTooltipFunc.SpellPenetration(tooltip)
+	local spellPenetration = GetSpellPenetration();
+    if not canaccessvalue(spellPenetration) then return; end
+
+	local resistanceAverage = spellPenetration * 0.75 / (UnitLevel("player") * 5);
+	local negativeResistanceAverage = resistanceAverage / 2.0;
+
+	tooltip:SetText(FormatSimpleStat(STAT_SPELL_PENETRATION, spellPenetration), 1, 1, 1);
+    tooltip:AddNormalLine(format(SPELL_PENETRATION_TOOLTIP, spellPenetration, resistanceAverage, negativeResistanceAverage));
+
+    return true;
+end
+
+local function SetupHitChance(tooltip, attackType)
+	local hitChance1, hitChance2 = StatSheetAPI.GetDisplayedHitChance(attackType);
+	if not hitChance1 then return; end
+
+    local valueText;
+
+    if hitChance2 then
+        valueText = format("%s / %s",  FormatPercent(hitChance1),  FormatPercent(hitChance2));
+    else
+        valueText = FormatPercent(hitChance1);
+    end
+
+    tooltip:SetText(FormatSimpleStat(STAT_HIT_CHANCE, valueText), 1, 1, 1);
+
+    if attackType == 2 then
+        tooltip:AddNormalLine(format(CR_HIT_RANGED_TOOLTIP, hitChance1));
+    elseif attackType == 3 then
+        tooltip:AddNormalLine(format(CR_HIT_SPELL_TOOLTIP, hitChance1));
+    else
+        tooltip:AddNormalLine(format(CR_HIT_MELEE_TOOLTIP, hitChance1));
+        if hitChance2 then
+            tooltip:AddNormalLine(format(CR_HIT_OFFHAND_TOOLTIP, hitChance2));
+        end
+    end
+
+    local playerLevel = UnitLevel("player");
+    if canaccessvalue(playerLevel) then
+        InitPlayerClass();
+        local hitCapTooltip = _G["CR_" .. CLASS_FILE_NAME .. "_HIT_CAP_TOOLTIP"] or CR_DEFAULT_HIT_CAP_TOOLTIP;
+        local wrap = false;
+        tooltip:AddNormalLine(format(hitCapTooltip, playerLevel), wrap);
+    end
+
+    return true;
+end
+
+function StatTooltipFunc.MeleeHitChance(tooltip)
+    return SetupHitChance(tooltip, 1);
+end
+
+function StatTooltipFunc.RangedHitChance(tooltip)
+    return SetupHitChance(tooltip, 2);
+end
+
+function StatTooltipFunc.SpellHitChance(tooltip)
+    return SetupHitChance(tooltip, 3);
+end
+
+local function SetupCritChance(tooltip, attackType)
+    local tooltipFormat;
+
+    if attackType == 2 then
+        tooltipFormat = STAT_CRIT_RANGED;
+    elseif attackType == 3 then
+        tooltipFormat = STAT_CRIT_SPELL;
+    else
+        tooltipFormat = STAT_CRIT_MELEE;
+    end
+
+    local critChance = StatSheetAPI.GetCritByAttackType(attackType);
+    tooltip:SetText(FormatSimpleStat(STAT_CRITICAL_STRIKE, FormatPercent(critChance)), 1, 1, 1);
+    tooltip:AddNormalLine(format(tooltipFormat, critChance), false);
+
+    InitPlayerClass();
+	local critBonusTooltip = _G["STAT_" .. CLASS_FILE_NAME .. "_CRIT_BONUS"] or STAT_CRIT_BONUS;
+    if critBonusTooltip then
+        tooltip:AddBlankLine();
+        tooltip:AddNormalLine(format(critBonusTooltip));
+    end
+
+	return true;
+end
+
+function StatTooltipFunc.MeleeCrit(tooltip)
+	return SetupCritChance(tooltip, 1);
+end
+
+function StatTooltipFunc.RangedCrit(tooltip)
+	return SetupCritChance(tooltip, 2);
+end
+
+function StatTooltipFunc.SpellCrit(tooltip)
+	return SetupCritChance(tooltip, 3);
+end
+
+function StatTooltipFunc.SpellBonusDamage(tooltip)
+    tooltip:SetText(BONUS_DAMAGE, 1, 1, 1);
+    for i = 2, MAX_SPELL_SCHOOLS do
+        local bonusDamage = GetSpellBonusDamage(i);
+        tooltip:AddNormalDoubleLine("|TInterface\\PaperDollInfoFrame\\SpellSchoolIcon"..i..":16|t " .. _G["DAMAGE_SCHOOL"..i], bonusDamage);
+    end
+	return true;
+end
+
+function StatTooltipFunc.SpellBonusHealing(tooltip)
+	local bonusHealing = GetSpellBonusHealing();
+    tooltip:SetText(FormatSimpleStat(BONUS_HEALING, bonusHealing), 1, 1, 1);
+    tooltip:AddNormalLine(format(BONUS_HEALING_TOOLTIP, bonusHealing));
+	return true;
+end
+
+function StatTooltipFunc.SpellHaste(tooltip)
+    local spellHaste = UnitSpellHaste("player");
+    tooltip:SetText(FormatSimpleStat(SPELL_HASTE, FormatPercent(spellHaste)), 1, 1, 1);
+    tooltip:AddNormalLine(format(CR_HASTE_SPELL_TOOLTIP, spellHaste));
+    return true;
+end
+
+function StatTooltipFunc.RegenPower(tooltip)
+    return StatTooltipFunc.Regen(tooltip, true);
 end

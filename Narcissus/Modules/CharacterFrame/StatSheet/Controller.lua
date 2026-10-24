@@ -55,8 +55,18 @@ function StatSheetController:SetRadarChartShown(state)
     end
 end
 
+function StatSheetController:SetRadarChartOffset(offsetY)
+    if self.radarChart then
+        self.radarChart:AnimateOffset(offsetY);
+    end
+end
+
 function StatSheetController:ShowDetailedStats(state)
     if not NarciViewUtil:IsViewingAttributes() then return; end
+
+    if addon.IS_FOREVER then
+        state = false;
+    end
 
     for  _, statFrame in ipairs(self.frames) do
         if statFrame.isDetailed then

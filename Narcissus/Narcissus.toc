@@ -41,6 +41,7 @@ Modules\CharacterFrame\ClassSet.xml
 Widgets\NarciUITemplates.xml
 Widgets\WidgetTooltip.xml
 Widgets\UIFrameTooltip.lua
+Widgets\TabFrame.xml
 Constants\Constants.xml
 
 Bridge\Bridge.xml

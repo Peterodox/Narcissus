@@ -73,14 +73,11 @@ function NarciTalentFlatButtonMixin:OnEnter()
     end
 
     self:SetHighlight(true);
-
-    Narci_NavBar:PauseTimer(true);
 end
 
 function NarciTalentFlatButtonMixin:OnLeave()
     self:SetHighlight(false);
     NarciGameTooltip:Hide();
-    Narci_NavBar:PauseTimer(false);
 end
 
 ------------------------------------------------------------------------
