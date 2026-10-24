@@ -3,7 +3,6 @@ local _, addon = ...
 
 local SetOverrideBindingClick = SetOverrideBindingClick;
 local ClearOverrideBindings = ClearOverrideBindings;
-local IsKeyDown = IsKeyDown;
 
 local GamePadButtonPool = addon.GamePadButtonPool;
 local ACTION_GOUPS = addon.actionGroups;
@@ -81,7 +80,9 @@ function Proxy:SetCancelCast()
 end
 
 function Proxy:Remove()
-    ClearOverrideBindings(self)
+    if not InCombatLockdown() then
+        ClearOverrideBindings(self);
+    end
 end
 
 
@@ -139,7 +140,7 @@ function KeyListener:PropagateInput(state)
     if not InCombatLockdown() then
         self:SetPropagateKeyboardInput(state);
     else
-        self:ExitGamePadMode();
+        Loader:ExitGamePadMode();
         Narci:CloseCharacterUI();
     end
 end
@@ -259,7 +260,9 @@ end
 
 function KeyListener:Deactivate()
     self:Hide();
-    self:PropagateInput(true);
+    if not InCombatLockdown() then
+        self:SetPropagateKeyboardInput(true);
+    end
     Proxy:Remove();
 end
 
