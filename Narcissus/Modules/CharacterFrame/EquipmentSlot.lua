@@ -55,11 +55,14 @@ do  -- An area on the hex border to display enchants
     ---@param orientation WidgetOrientation
     function RuneSlotMixin:SetOrientation(orientation)
         self.isRight = orientation == "right";
+        self:ClearAllPoints();
         self.RuneLetter:ClearAllPoints();
         if self.isRight then
             self.RuneLetter:SetPoint("CENTER", self, "CENTER", 0, 0);
+            self:SetPoint("RIGHT", self:GetParent(), "RIGHT", -4, 0);
         else
             self.RuneLetter:SetPoint("CENTER", self, "CENTER", 3, 0);
+            self:SetPoint("LEFT", self:GetParent(), "LEFT", 4, 0);
         end
     end
 
