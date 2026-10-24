@@ -573,6 +573,8 @@ do
                 QueueFrame:Add(self, self.Refresh);
                 return
             end
+
+            self:EnableClickToUse(true);
         else
             self.showItem = false;
             self:UntrackCooldown();
@@ -580,6 +582,7 @@ do
             self:ClearOverlay();
             self:HideVFX();
             self:DisplayDirectionMark(false);
+            self:EnableClickToUse(false);
             self.GradientBackground:Hide();
             self.Icon:SetDesaturated(false);
             self.ItemLevelCenter.ItemLevel:SetText("");
@@ -922,6 +925,15 @@ do
                     self.DirectionMark:SetAlpha(0);
                 end
             end
+        end
+    end
+
+    function EquipmentSlotMixin:EnableClickToUse(state)
+        -- /use errors if the slot is empty
+        if state then
+            self:RegisterForClicks("LeftButtonUp", "RightButtonDown", "RightButtonUp");
+        else
+            self:RegisterForClicks("LeftButtonUp");
         end
     end
 
