@@ -339,6 +339,17 @@ function NarciScreenshotToolbarSliderMixin:ResetToDefaultValue()
     end
 end
 
+function NarciScreenshotToolbarSliderMixin:IsFocused()
+    if self:IsMouseMotionFocus() then return true; end
+    if self.nodes then
+        for _, node in ipairs(self.nodes) do
+            if node:IsMouseMotionFocus() then
+                return true;
+            end
+        end
+    end
+end
+
 
 NarciCameraSettingFrameMixin = {};
 

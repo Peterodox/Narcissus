@@ -1058,6 +1058,10 @@ function NarciScreenshotToolbarMixin:IsFocused()
         end
     end
 
+    if self.TopQualityFrame.MSAASlider:IsFocused() or self.TopQualityFrame.RayTracingToggle:IsMouseMotionFocus() then
+        return true;
+    end
+
     return self:IsMouseMotionFocus() or self.Switch:IsMouseMotionFocus() or self.EmoteFrame:IsFocused() or self.CameraSettingFrame:IsFocused() or self.TransmogListFrame:IsFocused() or IsFrameFocused(self.PreferenceToggle);
 end
 
