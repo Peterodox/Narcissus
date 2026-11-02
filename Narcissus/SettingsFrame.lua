@@ -1046,10 +1046,11 @@ function MinimapButtonSkin.CreateOptions(parentLabel, parent, anchorTo, fromOffs
         {"Minimap\\LOGO-Thick", "AzeriteUI"},
         {"Minimap\\LOGO-Hollow", "SexyMap"},
         {"Minimap\\LOGO-Dragonflight", "Dragonflight"},
+        {"Minimap\\LOGO-Bronze", "Bronze"},
     };
 
     local buttonWidth = 64;
-    local buttonHeight = 64;
+    local buttonHeight = 48;
     local buttonPerRow = 4;
     local gap = 0;
 
@@ -1065,16 +1066,14 @@ function MinimapButtonSkin.CreateOptions(parentLabel, parent, anchorTo, fromOffs
     self.container = CreateFrame("Frame", nil, parent);
 
     local col, row = 1, 1;
-    local b;
 
     for i = 1, #data do
-        self.buttons[i] = CreateFrame("Button", nil, self.container, "NarciMinimapSkinOptionTemplate");
-        b = self.buttons[i];
+        local b = CreateFrame("Button", nil, self.container, "NarciMinimapSkinOptionTemplate");
+        self.buttons[i] = b;
         if col > buttonPerRow then
             col = 1;
             row = row + 1;
         end
-        b:SetPoint("TOPLEFT", anchorTo, "TOPLEFT", PADDING_H + (i - 1) * (buttonWidth + gap), fromOffsetY - (row - 1)*(buttonHeight + gap));
         b:SetScript("OnEnter", self.OnEnter);
         b:SetScript("OnLeave", self.OnLeave);
         b:SetScript("OnClick", self.OnClick);
@@ -1091,7 +1090,8 @@ function MinimapButtonSkin.CreateOptions(parentLabel, parent, anchorTo, fromOffs
 
     tinsert(OptionButtons, MinimapButtonSkin);
 
-    local newHeight = row * (buttonHeight + gap) - gap;
+    local bottomPadding = 48;
+    local newHeight = row * (buttonHeight + gap) - gap + bottomPadding;
     local newObj = self.container;
 
     newObj.UpdateState = function()
@@ -1125,7 +1125,8 @@ function MinimapButtonSkin:UpdateAlignment()
             row = row + 1;
         end
         b:ClearAllPoints();
-        b:SetPoint("TOPLEFT", self.anchorTo, "TOPLEFT", fromOffsetX + (i - 1) * (self.buttonWidth + gap), self.fromOffsetY - row*(self.buttonHeight + gap));
+        b:SetPoint("TOPLEFT", self.anchorTo, "TOPLEFT", fromOffsetX + (col - 1) * (self.buttonWidth + gap), self.fromOffsetY - row*(self.buttonHeight + gap));
+        col = col + 1;
     end
 end
 

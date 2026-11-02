@@ -595,20 +595,24 @@ function NarciMinimapButtonMixin:SetBackground(index)
 			customStyleID = 2;
 		elseif IsAddOnLoaded("SexyMap") then
 			customStyleID = 3;
+		elseif addon.IS_FOREVER then
+			customStyleID = 5;
 		else
 			customStyleID = 4;
 		end
 		--NarcissusDB.MinimapIconStyle = customStyleID;
 	end
 
-	if customStyleID == 2 then
+	if customStyleID == 1 and C_Covenants and C_Covenants.GetActiveCovenantID then
+		useCovenantColor = true;
+	elseif customStyleID == 2 then
 		tex = prefix.."Thick";		--AzeriteUI
 	elseif customStyleID == 3 then
 		tex = prefix.."Hollow";		--SexyMap
-	elseif customStyleID == 4 then
-		tex = prefix.."Dragonflight";
+	elseif customStyleID == 5 then
+		tex = prefix.."Bronze";
 	else
-		useCovenantColor = true;
+		tex = prefix.."Dragonflight";
 	end
 
 	if useCovenantColor then
@@ -634,6 +638,17 @@ function NarciMinimapButtonMixin:SetBackground(index)
 		self.Background:SetTexCoord(0, 0.5, 0, 0.5);
 		self.Color:SetTexCoord(0.5, 1, 0, 0.5);
 	end
+
+	-- Tint the menu panel for Bronze/Forever
+	local r, g, b;
+	if customStyleID == 5 then
+		r, g, b = 219/255, 181/255, 135/255;
+	else
+		r, g, b = 1, 1, 1;
+	end
+	self.Panel.Top:SetVertexColor(r, g, b);
+	self.Panel.Middle:SetVertexColor(r, g, b);
+	self.Panel.Bottom:SetVertexColor(r, g, b);
 end
 
 function NarciMinimapButtonMixin:SetIconScale(scale)
