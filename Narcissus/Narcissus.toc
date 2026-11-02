@@ -1,7 +1,5 @@
 ## Interface: 120105, 16001
-## X-GameType: Camelot [AllowLoadGameType camelot]
-## X-GameType: Standard [AllowLoadGameType standard]
-## Version: 1.8.7
+## Version: 1.8.7 b
 
 ## Title: Narcissus
 
@@ -17,6 +15,13 @@
 ## AddonCompartmentFunc: Narci_AddonCompartment_OnClick
 ## AddonCompartmentFuncOnEnter: Narci_AddonCompartment_OnEnter
 ## AddonCompartmentFuncOnLeave: Narci_AddonCompartment_OnLeave
+
+## X-GameType: Camelot [AllowLoadGameType camelot]
+## X-GameType: Standard [AllowLoadGameType standard]
+## X-GameType: Mists [AllowLoadGameType mists]
+## X-GameType: TBC [AllowLoadGameType tbc]
+## X-GameType: Vanilla [AllowLoadGameType vanilla]
+
 
 Font\FontSettings.xml
 
