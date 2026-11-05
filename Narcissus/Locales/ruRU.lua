@@ -1,4 +1,4 @@
---Coutesy of ZamestoTV. Thank you!    --Translator: ZamestoTV as of 1.8.6
+--Coutesy of ZamestoTV. Thank you!    --Translator: ZamestoTV as of 1.8.7 b
 
 if not (GetLocale() == "ruRU") then
     return;
@@ -49,7 +49,10 @@ L["Swap items"] = "Менять предметы";
 L["Press Copy"] = NARCI_COLOR_GREY_70.. "Нажмите |r".. NARCI_SHORTCUTS_COPY.. NARCI_COLOR_GREY_70 .." чтобы скопировать";
 L["Copied"] = NARCI_COLOR_GREEN_MILD.. "Ссылка Скопирована";
 L["Movement Speed"] = "СД";
+L["Combat Resources"] = "Ресурсы";
+L["No Talents"] = "Нет талантов";
 L["Damage Reduction Percentage"] = "СУ%";
+L["Stat Chart Unavailable"] = "Диаграмма недоступна";
 L["Advanced Info"] = "Щелкните ЛКМ для переключения расширенной информации.";
 L["Restore On Exit"] = "\nВаши предыдущие настройки будут восстановлены после выхода.";
 
@@ -396,6 +399,7 @@ L["Too Many Matches Format"] = "\nБолее %s соответствует.";
 L["Azerite Powers"] = "Сила Азерита";
 L["Gem Tooltip Format1"] = "%s и %s";
 L["Gem Tooltip Format2"] = "%s, %s и %s больше...";
+L["Stat Crit"] = STAT_CRITICAL_STRIKE; -- Override this if "Critical Strike" is too long for certain language. (Kritische Trefferchance)
 
 --Equipment Set Manager
 L["Equipped Item Level Format"] = "Экипировано %s";
@@ -634,7 +638,9 @@ L["Item Socketing Tooltip"] = "Нажмите и удерживайте, что�
 L["No Available Gem"] = "|cffd8d8d8Нет доступных камней|r";
 L["Missing Enchant Alert"] = "Предупреждение об отсутствии чар";
 L["Missing Enchant"] = NARCI_COLOR_RED_MILD.."Без чар".."|r";													 
-L["Socket Occupied"] = "Гнездо занято";       --Indicates that there is an (important) gem in the socket and you need to remove it first																																		  
+L["Socket Occupied"] = "Гнездо занято";       --Indicates that there is an (important) gem in the socket and you need to remove it first		
+L["Item Switching In Progress"] = "Смена...";
+L["ItemType Not Found Format"] = "%s не найдено";
 
 --Statistics--
 S["Narcissus Played"] = "Общее время, проведенное в Narcissus";
