@@ -2265,9 +2265,11 @@ local ENABLE_INSPECT = false;
 local ENABLE_PAPERDOLL = false;
 local ENABLE_EQUIPMENT_MANAGER = false;
 local HookUtil = {};
+HookUtil.enabled = not addon.IS_FOREVER;
 
 function HookUtil:HookInpsectFrame()
-    if self.inspectFrameHooked then return end;
+    if not self.enabled then return; end
+    if self.inspectFrameHooked then return; end
 
     local InspectFrame = _G["InspectFrame"];
 
@@ -2298,7 +2300,7 @@ function HookUtil:HookInpsectFrame()
                         MainFrame:AnchorToInspectFrame();
                     end
                 end);
-    
+
                 InspectFrame:HookScript("OnHide", function()
                     MainFrame:Hide();
                 end);
@@ -2307,10 +2309,9 @@ function HookUtil:HookInpsectFrame()
     end
 end
 
-
-
 function HookUtil:HookPaperDoll()
-    if self.paperdollHooked then return end;
+    if not self.enabled then return; end
+    if self.paperdollHooked then return; end
     self.paperdollHooked = true;
 
     local PaperDoll = _G["PaperDollFrame"];
@@ -2333,7 +2334,8 @@ function HookUtil:HookPaperDoll()
 end
 
 function HookUtil:HookEquipmentManager()
-    if self.equipmentManageHooked then return end;
+    if not self.enabled then return; end
+    if self.equipmentManageHooked then return; end
     self.equipmentManageHooked = true;
     local f = PaperDollFrame and PaperDollFrame.EquipmentManagerPane;
     if not f then return end;
@@ -2435,18 +2437,3 @@ do
         MainFrame:SetFramePosition(anchor);
     end
 end
-
---[[
-local gsub = string.gsub;
-function TestEmojiEditBox_OnTextChanged(self, isUserInput)
-    if isUserInput then
-        local text = self:GetText();
-        text = gsub(text, " 1", "|cffa05548 1|r");
-        text = gsub(text, " 2", "|cffa6c7dd 2|r");
-        text = gsub(text, " 3", "|cffffd655 3|r");
-        text = gsub(text, " 4", "|cff33ffcc 4|r");
-        text = gsub(text, " 5", "|cffff931e 5|r");
-        self:SetText(text);
-    end
-end
---]]

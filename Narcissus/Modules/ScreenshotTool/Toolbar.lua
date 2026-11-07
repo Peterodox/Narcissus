@@ -803,6 +803,10 @@ function NarciScreenshotToolbarMixin:OnLoad()
     self.CameraSettingFrame.ZoomSlider:SetScript("OnUpdate", ZoomSlider_OnUpdate);
     self.CameraSettingFrame.ZoomSlider.alwaysUpdate = true;
 
+    if addon.IS_FOREVER then
+        self.CameraSettingFrame.ZoomSlider:SetMinMaxValues(0, 15);
+    end
+
     self.CameraSettingFrame.PitchSlider.onValueChangedFunc = PitchSlider_OnValueChanged;
     self.CameraSettingFrame.PitchSlider.onShowCallback = PitchSlider_GetValue;
 
