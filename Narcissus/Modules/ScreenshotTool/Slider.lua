@@ -360,3 +360,12 @@ end
 function NarciCameraSettingFrameMixin:IsFocused()
     return self:IsShown() and (self:IsMouseOver() or ANY_DRAGGING)
 end
+
+function NarciCameraSettingFrameMixin:OnShow()
+    addon.CameraUtil:DisableMotionSickness();
+end
+
+function NarciCameraSettingFrameMixin:OnHide()
+    if Narci.isActive then return; end
+    addon.CameraUtil:RestoreMotionSickness();
+end
