@@ -98,6 +98,9 @@ local GetOptionByAppearance;
 local SetSecondarySlotStateByAppearance;
 
 if IS_FOREVER then
+    local rangedSlotUnvSlotID = 18;
+    IgnoredInvSlots[rangedSlotUnvSlotID] = nil;
+    table.insert(TransmogInvSlots, rangedSlotUnvSlotID);
 
     function GetOptionByAppearance(appearanceID, slot)
         local info = appearanceID and GetAppearanceSourceInfo(appearanceID);
@@ -162,13 +165,25 @@ local function ApplyTransmog(invSlotID, slot, transmogID, illusionID)
         end
 
         if not option then
+            option = GetOptionByAppearance(transmogID, slot);
+        end
+
+        if not option then
             option = slot and GetEquippedSlotOptionFromTransmogSlot(slot);
+        end
+
+        if IS_FOREVER and invSlotID == 16 and option == Enum.TransmogOutfitSlotOption.RangedWeapon then
+            --Redirect Gun/Crossbow in the main hand to ranged slot
+            invSlotID = 18;
+            slot = Enum.TransmogOutfitSlot.WeaponRanged;
         end
 
         if slot and option then
             --A widget rebuild can reset this slot's viewed option to generic, so re-assert ours here.
             SetViewedOptionForSlot(slot, option);
         end
+    else
+        option = GetOptionByAppearance(transmogID, slot);
     end
 
     if not option then
