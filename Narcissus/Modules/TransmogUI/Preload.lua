@@ -8,18 +8,20 @@ local CallbackRegistry = addon.CallbackRegistry;
 local TransmogDataProvider = addon.TransmogDataProvider;
 local GetSourceInfo = C_TransmogCollection.GetSourceInfo;
 local GetAppearanceInfoBySource = C_TransmogCollection.GetAppearanceInfoBySource;
-local GetTransmogOutfitSlotFromInventorySlot = C_TransmogOutfitInfo and C_TransmogOutfitInfo.GetTransmogOutfitSlotFromInventorySlot;
-local GetEquippedSlotOptionFromTransmogSlot = C_TransmogOutfitInfo and C_TransmogOutfitInfo.GetEquippedSlotOptionFromTransmogSlot;
-local GetOptionsForSlot = C_TransmogOutfitInfo and (C_TransmogOutfitInfo.GetOptionsForSlot or C_TransmogOutfitInfo.GetWeaponOptionsForSlot);
-local SetViewedOptionForSlot = C_TransmogOutfitInfo and (C_TransmogOutfitInfo.SetViewedOptionForSlot or C_TransmogOutfitInfo.SetViewedWeaponOptionForSlot);
-local GetViewedOutfitSlotInfo = C_TransmogOutfitInfo and C_TransmogOutfitInfo.GetViewedOutfitSlotInfo;
+local GetAppearanceSourceInfo = C_TransmogCollection.GetAppearanceSourceInfo;
+local GetTransmogOutfitSlotFromInventorySlot = C_TransmogOutfitInfo.GetTransmogOutfitSlotFromInventorySlot;
+local GetEquippedSlotOptionFromTransmogSlot = C_TransmogOutfitInfo.GetEquippedSlotOptionFromTransmogSlot;
+local GetOptionsForSlot = C_TransmogOutfitInfo.GetOptionsForSlot or C_TransmogOutfitInfo.GetWeaponOptionsForSlot;
+local SetViewedOptionForSlot = C_TransmogOutfitInfo.SetViewedOptionForSlot or C_TransmogOutfitInfo.SetViewedWeaponOptionForSlot;
+local GetViewedOutfitSlotInfo = C_TransmogOutfitInfo.GetViewedOutfitSlotInfo;
 local GetPairedArtifactAppearance = C_TransmogCollection.GetPairedArtifactAppearance;
-local SetSecondarySlotState = C_TransmogOutfitInfo and C_TransmogOutfitInfo.SetSecondarySlotState;
+local SetSecondarySlotState = C_TransmogOutfitInfo.SetSecondarySlotState;
 local MainHandTransmogIsPairedWeapon = Constants.Transmog.MainHandTransmogIsPairedWeapon;
 local IsAppearanceHiddenVisual = C_TransmogCollection.IsAppearanceHiddenVisual;
-local SetPendingTransmog =  C_TransmogOutfitInfo and C_TransmogOutfitInfo.SetPendingTransmog;
+local SetPendingTransmog =  C_TransmogOutfitInfo.SetPendingTransmog;
 local ipairs = ipairs;
 local Enum = Enum;
+local IS_FOREVER = addon.IS_FOREVER;
 
 
 local SharedModuleMixin = {};
@@ -92,6 +94,53 @@ local TransmogInvSlots = {
 };
 
 
+local GetOptionByAppearance;
+local SetSecondarySlotStateByAppearance;
+
+if IS_FOREVER then
+    local rangedSlotUnvSlotID = 18;
+    IgnoredInvSlots[rangedSlotUnvSlotID] = nil;
+    table.insert(TransmogInvSlots, rangedSlotUnvSlotID);
+
+    function GetOptionByAppearance(appearanceID, slot)
+        local info = appearanceID and GetAppearanceSourceInfo(appearanceID);
+        if info and info.itemSubclass then
+            --print(info.itemLink)
+            --print(appearanceID, info.category)
+            if info.category == 18 then
+                return Enum.TransmogOutfitSlotOption.Shield;
+            elseif info.category == 19 then
+                return Enum.TransmogOutfitSlotOption.OffHand;
+            elseif info.category == 25 or info.category == 26 or info.category == 27 then
+                return Enum.TransmogOutfitSlotOption.RangedWeapon;
+            elseif info.itemSubclass == 1 then
+                return Enum.TransmogOutfitSlotOption.ArmorCloth;
+            elseif info.itemSubclass == 2 then
+                return Enum.TransmogOutfitSlotOption.ArmorLeather;
+            elseif info.itemSubclass == 3 then
+                return Enum.TransmogOutfitSlotOption.ArmorMail;
+            elseif info.itemSubclass == 4 then
+                return Enum.TransmogOutfitSlotOption.ArmorPlate;
+            end
+        end
+        if slot then
+            return GetEquippedSlotOptionFromTransmogSlot(slot);
+        end
+    end
+
+    function SetSecondarySlotStateByAppearance(slot, state, appearanceID, secondaryAppearanceID)
+        -- On Forever, SetSecondarySlotState requires `option` (armor/weapon type)
+        -- We find the armor type from appearanceIDs. `itemSubclass` 1-4 is the same for armor option (5 is cosmetic)
+        local option = GetOptionByAppearance(appearanceID) or GetOptionByAppearance(secondaryAppearanceID) or 1;
+        SetSecondarySlotState(slot, option, state);
+    end
+else
+    function GetOptionByAppearance()
+    end
+
+    SetSecondarySlotStateByAppearance = SetSecondarySlotState;
+end
+
 local function ApplyTransmog(invSlotID, slot, transmogID, illusionID)
     local transmogType, option, displayType;
 
@@ -116,13 +165,25 @@ local function ApplyTransmog(invSlotID, slot, transmogID, illusionID)
         end
 
         if not option then
+            option = GetOptionByAppearance(transmogID, slot);
+        end
+
+        if not option then
             option = slot and GetEquippedSlotOptionFromTransmogSlot(slot);
+        end
+
+        if IS_FOREVER and invSlotID == 16 and option == Enum.TransmogOutfitSlotOption.RangedWeapon then
+            --Redirect Gun/Crossbow in the main hand to ranged slot
+            invSlotID = 18;
+            slot = Enum.TransmogOutfitSlot.WeaponRanged;
         end
 
         if slot and option then
             --A widget rebuild can reset this slot's viewed option to generic, so re-assert ours here.
             SetViewedOptionForSlot(slot, option);
         end
+    else
+        option = GetOptionByAppearance(transmogID, slot);
     end
 
     if not option then
@@ -194,7 +255,7 @@ function TransmogUIManager:SetPendingFromTransmogInfoList(transmogInfoList)
                     --Must run before the appearances below are applied. Toggling it afterward
                     --wipes the left shoulder's pending value.
                     local needsSplitShoulders = secondaryAppearanceID ~= 0 and secondaryAppearanceID ~= transmogID;
-                    SetSecondarySlotState(Enum.TransmogOutfitSlot.ShoulderRight, needsSplitShoulders);
+                    SetSecondarySlotStateByAppearance(Enum.TransmogOutfitSlot.ShoulderRight, needsSplitShoulders, transmogID, secondaryAppearanceID);
 
                     ApplyTransmog(invSlotID, Enum.TransmogOutfitSlot.ShoulderRight, transmogID);
                     if secondaryAppearanceID == 0 then
