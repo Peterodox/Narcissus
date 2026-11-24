@@ -246,7 +246,7 @@ local function ReAssignRaceID(raceID, custom)
 		raceID = 24;
 	elseif raceID == 28 then	--Hightmountain
 		raceID = 6;
-	elseif raceID == 29 then
+	elseif raceID == 29 or raceID == 95 or raceID == 96 then -- Void Elf / Skyborne
 		raceID = 10;
 	elseif raceID == 37 then				--Mechagnome
 		raceID = 7;

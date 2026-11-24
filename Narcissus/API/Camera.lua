@@ -467,6 +467,8 @@ do  --Camera Parameters
             RACE = 3;
         elseif RACE == 91 then                      --Haranir Horde
             RACE = 86;
+        elseif RACE == 95 or RACE == 96 then        --Skyborne
+            RACE = 29;
         end
 
         local _, _, playerClassID = UnitClass("player");
